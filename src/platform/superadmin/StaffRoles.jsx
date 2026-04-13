@@ -1,8 +1,8 @@
 import { useState, useEffect } from 'react'
 import { supabase } from '../../lib/supabase'
-import { usePlatform } from '../../../context/PlatformContext'
-import { PERMISSIONS, ROLE_TEMPLATES } from '../../../lib/permissions'
-import AdminLayout from '../../../layouts/AdminLayout'
+import { usePlatform } from '../../context/PlatformContext'
+import { PERMISSIONS, ROLE_TEMPLATES } from '../../lib/permissions'
+import AdminLayout from '../../layouts/AdminLayout'
 import styles from './StaffRoles.module.css'
 
 export default function StaffRoles() {
@@ -252,3 +252,4 @@ export default function StaffRoles() {
     </AdminLayout>
   )
 }
+
