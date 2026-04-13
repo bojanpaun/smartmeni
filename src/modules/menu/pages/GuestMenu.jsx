@@ -1,7 +1,7 @@
 import { useState, useEffect } from 'react'
 import { useParams } from 'react-router-dom'
 import { supabase } from '../../../lib/supabase'
-import styles from './Menu.module.css'
+import styles from './GuestMenu.module.css'
 
 const DEMO_DATA = {
   restaurant: {
@@ -315,3 +315,5 @@ export default function Menu() {
     </div>
   )
 }
+
+
