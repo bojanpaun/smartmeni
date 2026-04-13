@@ -1,7 +1,7 @@
 import { useState, useEffect } from 'react'
 import { useParams } from 'react-router-dom'
-import { supabase } from "../../../lib/supabase";
-import styles from './GuestMenu.module.css'
+import { supabase } from '../lib/supabase'
+import styles from './Menu.module.css'
 
 const DEMO_DATA = {
   restaurant: {

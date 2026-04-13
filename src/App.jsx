@@ -1,10 +1,15 @@
 import { Routes, Route, Navigate } from 'react-router-dom'
 import { PlatformProvider, usePlatform } from './context/PlatformContext'
+import { CartProvider } from './context/CartContext'
+
 import Landing from './platform/Landing'
 import Login from './platform/auth/Login'
 import Register from './platform/auth/Register'
+
 import GuestMenu from './modules/menu/pages/GuestMenu'
 import AdminMenu from './modules/menu/pages/AdminMenu'
+import WaiterDashboard from './modules/menu/pages/WaiterDashboard'
+import KitchenDashboard from './modules/menu/pages/KitchenDashboard'
 import StaffRoles from './platform/superadmin/StaffRoles'
 
 function ProtectedRoute({ children }) {
@@ -23,7 +28,10 @@ function AppRoutes() {
       <Route path="/admin" element={<ProtectedRoute><AdminMenu /></ProtectedRoute>} />
       <Route path="/admin/menu" element={<ProtectedRoute><AdminMenu /></ProtectedRoute>} />
       <Route path="/admin/staff" element={<ProtectedRoute><StaffRoles /></ProtectedRoute>} />
-      <Route path="/:slug" element={<GuestMenu />} />
+      <Route path="/admin/waiter" element={<ProtectedRoute><WaiterDashboard /></ProtectedRoute>} />
+      <Route path="/admin/orders" element={<ProtectedRoute><WaiterDashboard /></ProtectedRoute>} />
+      <Route path="/admin/kitchen" element={<ProtectedRoute><KitchenDashboard /></ProtectedRoute>} />
+      <Route path="/:slug" element={<CartProvider><GuestMenu /></CartProvider>} />
     </Routes>
   )
 }

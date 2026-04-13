@@ -1,0 +1,96 @@
+.topbar {
+  background: #fff; border-bottom: 1px solid #e0e8e4;
+  padding: 12px 20px;
+  display: flex; align-items: center; justify-content: space-between;
+}
+.topbarTitle { font-size: 15px; font-weight: 500; font-family: 'DM Sans', sans-serif; }
+.liveBadge {
+  display: flex; align-items: center; gap: 6px;
+  font-size: 12px; color: #0d7a52;
+  background: #e0f5ec; padding: 4px 12px; border-radius: 20px;
+  font-family: 'DM Sans', sans-serif;
+}
+.liveDot {
+  width: 7px; height: 7px; border-radius: 50%; background: #1d9e75;
+  animation: pulse 2s infinite;
+}
+@keyframes pulse { 0%,100%{opacity:1} 50%{opacity:0.4} }
+
+.content { padding: 16px 20px; font-family: 'DM Sans', sans-serif; }
+.loading { padding: 3rem; text-align: center; color: #8a9e96; font-family: 'DM Sans', sans-serif; }
+
+.tabs { display: flex; gap: 4px; margin-bottom: 16px; border-bottom: 1px solid #e0e8e4; }
+.tab {
+  display: flex; align-items: center; gap: 6px;
+  padding: 8px 16px; font-size: 14px; cursor: pointer;
+  background: none; border: none; color: #8a9e96;
+  font-family: 'DM Sans', sans-serif;
+  border-bottom: 2px solid transparent; margin-bottom: -1px;
+}
+.tabActive { color: #0d7a52; border-bottom-color: #0d7a52; font-weight: 500; }
+.badge {
+  background: #E24B4A; color: #fff;
+  font-size: 11px; padding: 1px 6px; border-radius: 10px;
+  font-weight: 600;
+}
+
+.orderGrid {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(260px, 1fr));
+  gap: 12px;
+}
+
+.orderCard {
+  background: #fff; border: 1px solid #e0e8e4;
+  border-radius: 14px; padding: 14px;
+}
+.orderCardHeader {
+  display: flex; justify-content: space-between; align-items: center; margin-bottom: 10px;
+}
+.tableNum { font-size: 16px; font-weight: 700; color: #0e1a14; }
+.statusPill { font-size: 11px; padding: 3px 10px; border-radius: 20px; font-weight: 500; }
+
+.orderItems { margin-bottom: 10px; }
+.orderItem {
+  display: flex; align-items: baseline; gap: 6px;
+  padding: 4px 0; border-bottom: 1px solid #f0f5f2; font-size: 13px;
+}
+.orderItem:last-child { border: none; }
+.itemQty { font-weight: 700; color: #0d7a52; min-width: 20px; }
+.itemName { flex: 1; color: #0e1a14; }
+.itemNote { font-size: 11px; color: #8a9e96; font-style: italic; }
+
+.orderFooter {
+  display: flex; justify-content: space-between; align-items: center;
+  margin-bottom: 10px; font-size: 13px;
+}
+.orderTotal { font-weight: 700; color: #0d7a52; font-size: 15px; }
+.orderTime { color: #8a9e96; }
+
+.actionBtn {
+  width: 100%; padding: 10px; color: #fff; border: none;
+  border-radius: 10px; font-size: 13px; font-weight: 500; cursor: pointer;
+  font-family: 'DM Sans', sans-serif;
+}
+
+.reqList { display: flex; flex-direction: column; gap: 10px; }
+.reqCard {
+  background: #fff; border: 1px solid #e0e8e4;
+  border-radius: 14px; padding: 14px;
+}
+.reqNew { border-color: #1d9e75; background: #f0fdf8; }
+.reqHeader {
+  display: flex; justify-content: space-between; align-items: center; margin-bottom: 6px;
+}
+.reqTable { font-size: 15px; font-weight: 700; color: #0e1a14; }
+.reqTime { font-size: 12px; color: #8a9e96; }
+.reqType { font-size: 14px; color: #3a4a42; margin-bottom: 10px; }
+.resolveBtn {
+  padding: 8px 16px; background: #e0f5ec; color: #0d7a52;
+  border: none; border-radius: 8px; font-size: 13px; cursor: pointer;
+  font-family: 'DM Sans', sans-serif; font-weight: 500;
+}
+.resolveBtn:hover { background: #1d9e75; color: #fff; }
+
+.empty { text-align: center; padding: 3rem; color: #8a9e96; }
+.emptyIcon { font-size: 40px; margin-bottom: 10px; }
