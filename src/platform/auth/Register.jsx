@@ -1,6 +1,6 @@
 import { useState } from 'react'
 import { useNavigate, Link } from 'react-router-dom'
-import { supabase } from '../../../lib/supabase'
+import { supabase } from '../../lib/supabase'
 import styles from './Auth.module.css'
 
 export default function Register() {
@@ -201,3 +201,4 @@ export default function Register() {
     </div>
   )
 }
+
