@@ -1,5 +1,6 @@
-import { useState } from 'react'
+import { useState, useEffect } from 'react'
 import { useParams } from 'react-router-dom'
+import { supabase } from '../lib/supabase'
 import styles from './Menu.module.css'
 
 const DEMO_DATA = {
@@ -65,13 +66,65 @@ export default function Menu() {
   const [lang, setLang] = useState('sr')
   const [waiterSent, setWaiterSent] = useState(false)
   const [showWaiter, setShowWaiter] = useState(false)
+  const [realData, setRealData] = useState(null)
+  const [loadingData, setLoadingData] = useState(true)
 
-  const data = DEMO_DATA
-  const r = data.restaurant
-  const items = data.items[activeCat] || []
+  useEffect(() => {
+    if (!slug || slug === 'demo') { setLoadingData(false); return }
+    const load = async () => {
+      const { data: rest } = await supabase
+        .from('restaurants').select('*').eq('slug', slug).single()
+      if (!rest) { setLoadingData(false); return }
+      const { data: cats } = await supabase
+        .from('categories').select('*').eq('restaurant_id', rest.id).order('sort_order')
+      const { data: its } = await supabase
+        .from('menu_items').select('*')
+        .eq('restaurant_id', rest.id).eq('is_visible', true).order('sort_order')
+      setRealData({ restaurant: rest, categories: cats || [], items: its || [] })
+      if (cats?.length) setActiveCat(cats[0].id)
+      setLoadingData(false)
+    }
+    load()
+  }, [slug])
+
+  const isDemo = !slug || slug === 'demo' || !realData
+  const data = isDemo ? DEMO_DATA : null
+  const r = isDemo ? data.restaurant : realData?.restaurant
+  const currentCategories = isDemo ? data.categories : realData?.categories || []
+  const allItems = isDemo
+    ? Object.values(data.items).flat()
+    : realData?.items || []
+  const items = isDemo
+    ? (data.items[activeCat] || [])
+    : allItems.filter(i => i.category_id === activeCat)
   const isEn = lang === 'en'
+  const specialItem = allItems.find(i => isDemo ? i.special : i.is_special)
 
-  const specialItem = Object.values(data.items).flat().find(i => i.special)
+  const sendWaiterRequest = async (type) => {
+    if (!isDemo && realData?.restaurant) {
+      await supabase.from('waiter_requests').insert({
+        restaurant_id: realData.restaurant.id,
+        table_number: 'Sto',
+        request_type: type,
+      })
+    }
+    setWaiterSent(true)
+    setShowWaiter(false)
+  }
+
+  if (loadingData) return (
+    <div style={{ minHeight:'100vh', display:'flex', alignItems:'center', justifyContent:'center', fontFamily:'DM Sans,sans-serif', color:'#8a9e96' }}>
+      Učitavanje menija...
+    </div>
+  )
+
+  if (!r) return (
+    <div style={{ minHeight:'100vh', display:'flex', flexDirection:'column', alignItems:'center', justifyContent:'center', fontFamily:'DM Sans,sans-serif', gap:12 }}>
+      <div style={{ fontSize:48 }}>🍽️</div>
+      <div style={{ fontSize:18, fontWeight:600, color:'#0e1a14' }}>Meni nije pronađen</div>
+      <div style={{ color:'#8a9e96' }}>Provjerite URL ili kontaktirajte restoran.</div>
+    </div>
+  )
 
   return (
     <div className={styles.page}>
@@ -126,14 +179,14 @@ export default function Menu() {
 
       {/* CATEGORIES */}
       <div className={styles.cats}>
-        {data.categories.map(cat => (
+        {currentCategories.map(cat => (
           <button
             key={cat.id}
             className={`${styles.cat} ${activeCat === cat.id ? styles.catActive : ''}`}
             onClick={() => setActiveCat(cat.id)}
             style={activeCat === cat.id ? { background: r.color, borderColor: r.color } : {}}
           >
-            {cat.icon} {isEn ? cat.label : cat.label}
+            {cat.icon} {isEn ? (cat.name_en || cat.label || cat.name) : (cat.label || cat.name)}
           </button>
         ))}
       </div>
@@ -149,15 +202,17 @@ export default function Menu() {
       <div className={styles.items}>
         {items.map(item => (
           <div key={item.id} className={styles.item} onClick={() => setSelectedItem(item)}>
-            <div className={styles.itemEmoji} style={{ background: item.bg }}>
-              {item.emoji}
+            <div className={styles.itemEmoji} style={{ background: item.bg || '#e0f5ec' }}>
+              {item.image_url
+                ? <img src={item.image_url} alt={item.name} style={{width:'100%',height:'100%',objectFit:'cover',borderRadius:10}} />
+                : item.emoji}
             </div>
             <div className={styles.itemBody}>
-              <div className={styles.itemName}>{isEn ? item.nameEn : item.name}</div>
-              <div className={styles.itemDesc}>{isEn ? item.descEn : item.desc}</div>
-              {item.tags.length > 0 && (
+              <div className={styles.itemName}>{isEn ? (item.name_en || item.nameEn || item.name) : item.name}</div>
+              <div className={styles.itemDesc}>{isEn ? (item.description_en || item.descEn || item.description) : (item.description || item.desc)}</div>
+              {(item.tags || []).length > 0 && (
                 <div className={styles.itemTags}>
-                  {item.tags.map(t => (
+                  {(item.tags || []).map(t => (
                     <span
                       key={t}
                       className={styles.itemTag}
@@ -169,7 +224,7 @@ export default function Menu() {
                 </div>
               )}
               <div className={styles.itemFooter}>
-                <span className={styles.itemPrice}>€{item.price}</span>
+                <span className={styles.itemPrice}>€{parseFloat(item.price).toFixed(2)}</span>
                 <button className={styles.itemAdd} style={{ background: r.color }}>+</button>
               </div>
             </div>
@@ -195,13 +250,16 @@ export default function Menu() {
         <div className={styles.overlay} onClick={() => setSelectedItem(null)}>
           <div className={styles.sheet} onClick={e => e.stopPropagation()}>
             <button className={styles.sheetClose} onClick={() => setSelectedItem(null)}>✕</button>
-            <div className={styles.sheetEmoji}>{selectedItem.emoji}</div>
-            <div className={styles.sheetName}>{isEn ? selectedItem.nameEn : selectedItem.name}</div>
-            <div className={styles.sheetDesc}>{isEn ? selectedItem.descEn : selectedItem.desc}</div>
+            {selectedItem.image_url
+              ? <img src={selectedItem.image_url} alt={selectedItem.name} style={{width:'100%',height:160,objectFit:'cover',borderRadius:12,marginBottom:12}} />
+              : <div className={styles.sheetEmoji}>{selectedItem.emoji}</div>
+            }
+            <div className={styles.sheetName}>{isEn ? (selectedItem.name_en || selectedItem.nameEn || selectedItem.name) : selectedItem.name}</div>
+            <div className={styles.sheetDesc}>{isEn ? (selectedItem.description_en || selectedItem.descEn || selectedItem.description) : (selectedItem.description || selectedItem.desc)}</div>
             <div className={styles.sheetDetails}>
               <div className={styles.sheetRow}>
                 <span className={styles.sheetRowLabel}>{isEn ? 'Calories' : 'Kalorije'}</span>
-                <span>{selectedItem.cal} kcal</span>
+                <span>{selectedItem.calories || selectedItem.cal || '—'} kcal</span>
               </div>
               <div className={styles.sheetRow}>
                 <span className={styles.sheetRowLabel}>{isEn ? 'Allergens' : 'Alergeni'}</span>
@@ -209,10 +267,10 @@ export default function Menu() {
               </div>
               <div className={styles.sheetRow}>
                 <span className={styles.sheetRowLabel}>{isEn ? 'Prep time' : 'Priprema'}</span>
-                <span>{selectedItem.time}</span>
+                <span>{selectedItem.prep_time || selectedItem.time || '—'}</span>
               </div>
             </div>
-            <div className={styles.sheetPrice}>€{selectedItem.price}</div>
+            <div className={styles.sheetPrice}>€{parseFloat(selectedItem.price).toFixed(2)}</div>
             <button className={styles.sheetAdd} style={{ background: r.color }}>
               {isEn ? 'Add to order' : 'Dodaj u narudžbu'}
             </button>
@@ -237,7 +295,7 @@ export default function Menu() {
               <button
                 key={i}
                 className={styles.waiterOpt}
-                onClick={() => { setWaiterSent(true); setShowWaiter(false); }}
+                onClick={() => sendWaiterRequest(opt.sr)}
               >
                 <span className={styles.waiterOptIcon}>{opt.icon}</span>
                 <span>{isEn ? opt.en : opt.sr}</span>
