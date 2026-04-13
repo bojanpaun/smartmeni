@@ -22,7 +22,20 @@ export default function WaiterDashboard() {
   useEffect(() => {
     if (!restaurant) return
     loadData()
-    setupRealtime()
+
+    const channel = supabase
+      .channel(`waiter-${restaurant.id}`)
+      .on('postgres_changes', {
+        event: '*', schema: 'public', table: 'orders',
+        filter: `restaurant_id=eq.${restaurant.id}`,
+      }, () => loadData())
+      .on('postgres_changes', {
+        event: '*', schema: 'public', table: 'waiter_requests',
+        filter: `restaurant_id=eq.${restaurant.id}`,
+      }, () => loadData())
+      .subscribe()
+
+    return () => supabase.removeChannel(channel)
   }, [restaurant])
 
   const loadData = async () => {
@@ -41,22 +54,6 @@ export default function WaiterDashboard() {
     setOrders(o || [])
     setWaiterReqs(w || [])
     setLoading(false)
-  }
-
-  const setupRealtime = () => {
-    const channel = supabase
-      .channel(`waiter-${restaurant.id}`)
-      .on('postgres_changes', {
-        event: '*', schema: 'public', table: 'orders',
-        filter: `restaurant_id=eq.${restaurant.id}`,
-      }, () => loadData())
-      .on('postgres_changes', {
-        event: '*', schema: 'public', table: 'waiter_requests',
-        filter: `restaurant_id=eq.${restaurant.id}`,
-      }, () => loadData())
-      .subscribe()
-
-    return () => supabase.removeChannel(channel)
   }
 
   const updateOrderStatus = async (orderId, status) => {

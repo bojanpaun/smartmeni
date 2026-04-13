@@ -13,11 +13,17 @@ export default function KitchenDashboard() {
   useEffect(() => {
     if (!restaurant) return
     loadOrders()
-    const cleanup = setupRealtime()
-    return cleanup
-  }, [restaurant, filter])
 
-  const loadOrders = async () => {
+    const channel = supabase
+      .channel(`kitchen-${restaurant.id}`)
+      .on('postgres_changes', {
+        event: '*', schema: 'public', table: 'orders',
+        filter: `restaurant_id=eq.${restaurant.id}`,
+      }, () => loadOrders())
+      .subscribe()
+
+    return () => supabase.removeChannel(channel)
+  }, [restaurant, filter])
     let query = supabase
       .from('orders')
       .select('*, order_items(*)')
