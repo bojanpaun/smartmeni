@@ -24,6 +24,8 @@ export default function KitchenDashboard() {
 
     return () => supabase.removeChannel(channel)
   }, [restaurant, filter])
+
+  const loadOrders = async () => {
     let query = supabase
       .from('orders')
       .select('*, order_items(*)')
@@ -41,17 +43,6 @@ export default function KitchenDashboard() {
     const { data } = await query
     setOrders(data || [])
     setLoading(false)
-  }
-
-  const setupRealtime = () => {
-    const channel = supabase
-      .channel(`kitchen-${restaurant.id}`)
-      .on('postgres_changes', {
-        event: '*', schema: 'public', table: 'orders',
-        filter: `restaurant_id=eq.${restaurant.id}`,
-      }, () => loadOrders())
-      .subscribe()
-    return () => supabase.removeChannel(channel)
   }
 
   const startPreparing = async (orderId) => {
