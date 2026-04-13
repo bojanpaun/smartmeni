@@ -1,0 +1,242 @@
+.page {
+  min-height: 100vh;
+  background: #f5f9f7;
+  font-family: 'DM Sans', sans-serif;
+  max-width: 480px;
+  margin: 0 auto;
+  position: relative;
+}
+
+.header {
+  padding: 16px 16px 20px;
+  color: white;
+}
+.headerTop {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 14px;
+}
+.tableTag {
+  font-size: 12px;
+  background: rgba(255,255,255,0.2);
+  padding: 4px 12px;
+  border-radius: 20px;
+}
+.langToggle {
+  font-size: 12px;
+  background: rgba(255,255,255,0.15);
+  border: 1px solid rgba(255,255,255,0.3);
+  color: white;
+  padding: 4px 12px;
+  border-radius: 20px;
+  cursor: pointer;
+  font-family: 'DM Sans', sans-serif;
+}
+
+.restInfo { display: flex; align-items: center; gap: 12px; }
+.restLogo {
+  width: 44px; height: 44px; border-radius: 12px;
+  background: rgba(255,255,255,0.2);
+  color: white; font-size: 20px; font-weight: 700;
+  display: flex; align-items: center; justify-content: center;
+  flex-shrink: 0;
+}
+.restName { font-size: 18px; font-weight: 700; margin-bottom: 4px; }
+.restMeta {
+  display: flex; gap: 10px; flex-wrap: wrap;
+  font-size: 11px; color: rgba(255,255,255,0.75);
+}
+
+.searchBar {
+  margin: -12px 14px 0;
+  background: white;
+  border-radius: 12px;
+  border: 1px solid #e0e8e4;
+  padding: 11px 14px;
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  font-size: 13px;
+  color: #8a9e96;
+  position: relative;
+  z-index: 2;
+}
+.searchIcon { font-size: 14px; }
+
+.special {
+  margin: 14px 14px 0;
+  border-radius: 14px;
+  padding: 14px 16px;
+  color: white;
+  cursor: pointer;
+  transition: opacity 0.15s;
+}
+.special:hover { opacity: 0.92; }
+.specialLabel { font-size: 11px; color: rgba(255,255,255,0.75); text-transform: uppercase; letter-spacing: 0.8px; margin-bottom: 4px; }
+.specialName { font-size: 16px; font-weight: 700; margin-bottom: 3px; }
+.specialDesc { font-size: 12px; color: rgba(255,255,255,0.8); margin-bottom: 8px; }
+.specialPrice { font-size: 20px; font-weight: 800; display: flex; align-items: baseline; gap: 8px; }
+.specialOld { font-size: 14px; text-decoration: line-through; opacity: 0.6; }
+
+.cats {
+  display: flex;
+  gap: 7px;
+  overflow-x: auto;
+  padding: 14px 14px 0;
+  scrollbar-width: none;
+}
+.cats::-webkit-scrollbar { display: none; }
+.cat {
+  flex-shrink: 0;
+  padding: 7px 14px;
+  border-radius: 20px;
+  font-size: 13px;
+  cursor: pointer;
+  border: 1px solid #d8e8e2;
+  background: white;
+  color: #6a8880;
+  font-family: 'DM Sans', sans-serif;
+  transition: all 0.15s;
+  white-space: nowrap;
+}
+.catActive { color: white !important; border-color: transparent !important; }
+
+.allergenNote {
+  margin: 12px 14px 0;
+  padding: 8px 12px;
+  background: #fef9ed;
+  border-radius: 8px;
+  font-size: 12px;
+  color: #8a6a1a;
+  border: 1px solid #f5e0a0;
+}
+
+.items {
+  padding: 12px 14px;
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+}
+
+.item {
+  display: flex;
+  gap: 12px;
+  background: white;
+  border-radius: 14px;
+  border: 1px solid #e0e8e4;
+  padding: 12px;
+  cursor: pointer;
+  transition: border-color 0.15s;
+}
+.item:hover { border-color: #5dcaa5; }
+
+.itemEmoji {
+  width: 64px; height: 64px;
+  border-radius: 10px;
+  display: flex; align-items: center; justify-content: center;
+  font-size: 28px;
+  flex-shrink: 0;
+}
+.itemBody { flex: 1; min-width: 0; }
+.itemName { font-size: 14px; font-weight: 600; color: #0e1a14; margin-bottom: 3px; }
+.itemDesc { font-size: 12px; color: #8a9e96; margin-bottom: 6px; line-height: 1.4; }
+.itemTags { display: flex; gap: 5px; flex-wrap: wrap; margin-bottom: 6px; }
+.itemTag {
+  font-size: 10px; padding: 2px 8px;
+  border-radius: 20px; font-weight: 500;
+}
+.itemFooter { display: flex; align-items: center; justify-content: space-between; }
+.itemPrice { font-size: 16px; font-weight: 700; color: #0d7a52; }
+.itemAdd {
+  width: 30px; height: 30px; border-radius: 50%;
+  color: white; border: none; cursor: pointer;
+  font-size: 20px; display: flex; align-items: center; justify-content: center;
+  line-height: 1;
+}
+
+.waiterSection { padding: 4px 14px 16px; }
+.waiterBtn {
+  width: 100%; padding: 13px;
+  border-radius: 12px;
+  border: 1px solid #d0e4dc;
+  background: white;
+  color: #3a4a42;
+  font-size: 14px;
+  font-weight: 500;
+  cursor: pointer;
+  font-family: 'DM Sans', sans-serif;
+}
+.waiterBtn:hover { background: #e0f5ec; border-color: #5dcaa5; color: #0d7a52; }
+.waiterSent {
+  padding: 13px; text-align: center;
+  background: #e0f5ec; border-radius: 12px;
+  font-size: 14px; font-weight: 500; color: #0d7a52;
+}
+
+/* OVERLAY */
+.overlay {
+  position: fixed;
+  inset: 0;
+  background: rgba(0,0,0,0.5);
+  display: flex;
+  align-items: flex-end;
+  z-index: 50;
+}
+.sheet {
+  background: white;
+  border-radius: 20px 20px 0 0;
+  padding: 1.5rem;
+  width: 100%;
+  max-width: 480px;
+  margin: 0 auto;
+  position: relative;
+  max-height: 85vh;
+  overflow-y: auto;
+}
+.sheetClose {
+  position: absolute; top: 14px; right: 14px;
+  background: #f5f9f7; border: none; cursor: pointer;
+  width: 28px; height: 28px; border-radius: 50%;
+  font-size: 14px; color: #6a8880;
+  display: flex; align-items: center; justify-content: center;
+}
+.sheetEmoji { font-size: 48px; text-align: center; display: block; margin-bottom: 12px; }
+.sheetName { font-size: 20px; font-weight: 700; margin-bottom: 6px; color: #0e1a14; }
+.sheetDesc { font-size: 14px; color: #6a8880; line-height: 1.6; margin-bottom: 1rem; }
+.sheetDetails { margin-bottom: 1rem; }
+.sheetRow {
+  display: flex; justify-content: space-between;
+  font-size: 13px; padding: 8px 0;
+  border-bottom: 1px solid #eef2f0;
+}
+.sheetRow:last-child { border: none; }
+.sheetRowLabel { color: #8a9e96; }
+.sheetPrice { font-size: 26px; font-weight: 800; color: #0d7a52; margin-bottom: 12px; }
+.sheetAdd {
+  width: 100%; padding: 14px;
+  color: white; border: none; border-radius: 12px;
+  font-size: 15px; font-weight: 600; cursor: pointer;
+  font-family: 'DM Sans', sans-serif;
+}
+
+.waiterTitle { font-size: 17px; font-weight: 700; margin-bottom: 14px; color: #0e1a14; }
+.waiterOpt {
+  display: flex; align-items: center; gap: 12px;
+  width: 100%; padding: 13px 14px;
+  background: #f5f9f7; border: 1px solid #e0e8e4;
+  border-radius: 12px; margin-bottom: 8px;
+  font-size: 14px; font-weight: 500; cursor: pointer;
+  font-family: 'DM Sans', sans-serif; color: #0e1a14;
+  text-align: left;
+}
+.waiterOpt:hover { border-color: #5dcaa5; background: #e0f5ec; }
+.waiterOptIcon { font-size: 20px; }
+
+.footer {
+  padding: 1rem;
+  text-align: center;
+  border-top: 1px solid #e0e8e4;
+}
+.footerBrand { font-size: 12px; color: #8a9e96; }
+.footerBrand strong { color: #1a9e6e; }
