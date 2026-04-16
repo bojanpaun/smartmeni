@@ -2,7 +2,6 @@ import { useState, useEffect } from 'react'
 import { supabase } from '../../lib/supabase'
 import { usePlatform } from '../../context/PlatformContext'
 import { PERMISSIONS, ROLE_TEMPLATES } from '../../lib/permissions'
-import AdminLayout from '../../layouts/AdminLayout'
 import styles from './StaffRoles.module.css'
 
 export default function StaffRoles() {
@@ -85,10 +84,10 @@ export default function StaffRoles() {
     alert(`Pozivnica poslana na ${email}`)
   }
 
-  if (loading) return <AdminLayout><div className={styles.loading}>Učitavanje...</div></AdminLayout>
+  if (loading) return <div className={styles.loading}>Učitavanje...</div>
 
   return (
-    <AdminLayout>
+    <div>
       <div className={styles.topbar}>
         <div className={styles.topbarTitle}>Osoblje i role</div>
         <div className={styles.topbarActions}>
@@ -249,7 +248,7 @@ export default function StaffRoles() {
           </div>
         </div>
       )}
-    </AdminLayout>
+    </div>
   )
 }
 

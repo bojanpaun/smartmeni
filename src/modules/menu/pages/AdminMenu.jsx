@@ -1,12 +1,14 @@
 import { useState, useEffect } from 'react'
 import { useNavigate } from 'react-router-dom'
 import { supabase } from '../../../lib/supabase'
+import { usePlatform } from '../../../context/PlatformContext'
 import styles from './AdminMenu.module.css'
 
-export default function Admin() {
+export default function AdminMenu() {
   const navigate = useNavigate()
-  const [user, setUser] = useState(null)
-  const [restaurant, setRestaurant] = useState(null)
+  const { user, restaurant: ctxRestaurant } = usePlatform()
+
+  const [restaurant, setRestaurant] = useState(ctxRestaurant)
   const [categories, setCategories] = useState([])
   const [items, setItems] = useState([])
   const [loading, setLoading] = useState(true)
@@ -25,27 +27,18 @@ export default function Admin() {
   const [saveMsg, setSaveMsg] = useState('')
 
   useEffect(() => {
-    supabase.auth.getSession().then(({ data }) => {
-      if (!data.session) { navigate('/login'); return }
-      setUser(data.session.user)
-      loadData(data.session.user.id)
-    })
-  }, [])
+    if (user && (ctxRestaurant || restaurant)) {
+      const rest = ctxRestaurant || restaurant
+      setRestaurant(rest)
+      loadData(rest.id)
+    }
+  }, [user, ctxRestaurant])
 
-  const loadData = async (userId) => {
-    const { data: rest } = await supabase
-      .from('restaurants')
-      .select('*')
-      .eq('user_id', userId)
-      .single()
-
-    if (!rest) { navigate('/registracija'); return }
-    setRestaurant(rest)
-
+  const loadData = async (restaurantId) => {
     const { data: cats } = await supabase
       .from('categories')
       .select('*')
-      .eq('restaurant_id', rest.id)
+      .eq('restaurant_id', restaurantId)
       .order('sort_order')
     setCategories(cats || [])
     if (cats?.length) setActiveCategory(cats[0].id)
@@ -53,15 +46,10 @@ export default function Admin() {
     const { data: its } = await supabase
       .from('menu_items')
       .select('*')
-      .eq('restaurant_id', rest.id)
+      .eq('restaurant_id', restaurantId)
       .order('sort_order')
     setItems(its || [])
     setLoading(false)
-  }
-
-  const handleLogout = async () => {
-    await supabase.auth.signOut()
-    navigate('/')
   }
 
   const toggleItemVisible = async (item) => {
@@ -149,277 +137,220 @@ export default function Admin() {
     : items
 
   if (loading) return (
-    <div style={{ minHeight: '100vh', display: 'flex', alignItems: 'center', justifyContent: 'center', fontFamily: 'DM Sans, sans-serif' }}>
+    <div style={{ padding: 40, color: '#8a9e96', fontFamily: 'DM Sans, sans-serif' }}>
       Učitavanje...
     </div>
   )
 
   return (
-    <div className={styles.admin}>
-      <aside className={styles.sidebar}>
-        <div className={styles.sbLogo}>smart<span>meni</span></div>
-        {restaurant && (
-          <div className={styles.sbRest}>
-            <div className={styles.sbRestIcon}>{restaurant.name[0]}</div>
-            <div>
-              <div className={styles.sbRestName}>{restaurant.name}</div>
-              <div className={styles.sbRestPlan}>Starter plan</div>
+    <div className={styles.moduleWrap}>
+
+      {/* Poruka o čuvanju */}
+      {saveMsg && (
+        <div className={styles.saveToast}>✓ {saveMsg}</div>
+      )}
+
+      <div className={styles.content}>
+
+        {/* DASHBOARD */}
+        {activePage === 'dashboard' && (
+          <div>
+            <div className={styles.metrics}>
+              <div className={styles.metric}>
+                <div className={styles.metricLabel}>Jela u meniju</div>
+                <div className={styles.metricVal}>{items.filter(i => i.is_visible).length}</div>
+                <div className={styles.metricSub}>od {items.length} ukupno</div>
+              </div>
+              <div className={styles.metric}>
+                <div className={styles.metricLabel}>Kategorije</div>
+                <div className={styles.metricVal}>{categories.length}</div>
+              </div>
+              <div className={styles.metric}>
+                <div className={styles.metricLabel}>Vaš URL</div>
+                <div className={styles.metricVal} style={{ fontSize: 14 }}>
+                  smartmeni.me/{restaurant?.slug}
+                </div>
+              </div>
+            </div>
+            <div className={styles.card}>
+              <div className={styles.cardTitle}>Brzi start</div>
+              {categories.length === 0 && (
+                <div className={styles.startStep}>
+                  <span className={styles.startNum}>1</span>
+                  <div>
+                    <div className={styles.startTitle}>Dodajte kategoriju menija</div>
+                    <div className={styles.startDesc}>npr. Predjela, Riba, Meso, Piće...</div>
+                  </div>
+                  <button className={styles.startBtn} onClick={() => { setActivePage('menu'); addCategory() }}>
+                    Dodaj →
+                  </button>
+                </div>
+              )}
+              {categories.length > 0 && items.length === 0 && (
+                <div className={styles.startStep}>
+                  <span className={styles.startNum}>2</span>
+                  <div>
+                    <div className={styles.startTitle}>Dodajte prvo jelo</div>
+                    <div className={styles.startDesc}>Naziv, opis, cijena i slika</div>
+                  </div>
+                  <button className={styles.startBtn} onClick={() => { setActivePage('menu'); openItemForm() }}>
+                    Dodaj →
+                  </button>
+                </div>
+              )}
+              {items.length > 0 && (
+                <div className={styles.startStep}>
+                  <span className={styles.startNum} style={{ background: '#e0f5ec', color: '#0d7a52' }}>✓</span>
+                  <div>
+                    <div className={styles.startTitle}>Meni je aktivan!</div>
+                    <div className={styles.startDesc}>Gosti mogu skenirati QR kod</div>
+                  </div>
+                  <a href={`/${restaurant.slug}`} target="_blank" rel="noreferrer" className={styles.startBtn}>
+                    Otvori →
+                  </a>
+                </div>
+              )}
             </div>
           </div>
         )}
-        <nav className={styles.sbNav}>
-          <div className={styles.sbSection}>Glavni</div>
-          {[
-            { id: 'dashboard', icon: '📊', label: 'Dashboard' },
-            { id: 'menu', icon: '🍽️', label: 'Meni' },
-            { id: 'qr', icon: '📱', label: 'QR kod' },
-            { id: 'settings', icon: '⚙️', label: 'Postavke' },
-          ].map(item => (
-            <button
-              key={item.id}
-              className={`${styles.sbItem} ${activePage === item.id ? styles.sbItemActive : ''}`}
-              onClick={() => setActivePage(item.id)}
-            >
-              <span className={styles.sbIcon}>{item.icon}</span>
-              {item.label}
-            </button>
-          ))}
-        </nav>
-        <div className={styles.sbBottom}>
-          {restaurant && (
-            <a
-              href={`/${restaurant.slug}`}
-              target="_blank"
-              rel="noreferrer"
-              className={styles.viewMenuBtn}
-            >
-              👁 Pogledaj meni
-            </a>
-          )}
-          <button className={styles.logoutBtn} onClick={handleLogout}>
-            Odjava
-          </button>
-        </div>
-      </aside>
 
-      <main className={styles.main}>
-        <div className={styles.topbar}>
-          <div className={styles.topbarTitle}>
-            {activePage === 'dashboard' && 'Dashboard'}
-            {activePage === 'menu' && 'Upravljanje menijem'}
-            {activePage === 'qr' && 'QR kod'}
-            {activePage === 'settings' && 'Postavke'}
-          </div>
-          <div className={styles.topbarRight}>
-            {saveMsg && <span className={styles.saveMsg}>✓ {saveMsg}</span>}
-            <div className={styles.livePill}>
-              <div className={styles.liveDot}></div> Meni uživo
-            </div>
-          </div>
-        </div>
-
-        <div className={styles.content}>
-
-          {/* DASHBOARD */}
-          {activePage === 'dashboard' && (
-            <div>
-              <div className={styles.metrics}>
-                <div className={styles.metric}>
-                  <div className={styles.metricLabel}>Jela u meniju</div>
-                  <div className={styles.metricVal}>{items.filter(i => i.is_visible).length}</div>
-                  <div className={styles.metricSub}>od {items.length} ukupno</div>
-                </div>
-                <div className={styles.metric}>
-                  <div className={styles.metricLabel}>Kategorije</div>
-                  <div className={styles.metricVal}>{categories.length}</div>
-                </div>
-                <div className={styles.metric}>
-                  <div className={styles.metricLabel}>Vaš URL</div>
-                  <div className={styles.metricVal} style={{ fontSize: 14 }}>
-                    smartmeni.me/{restaurant?.slug}
-                  </div>
-                </div>
-              </div>
-              <div className={styles.card}>
-                <div className={styles.cardTitle}>Brzi start</div>
-                {categories.length === 0 && (
-                  <div className={styles.startStep}>
-                    <span className={styles.startNum}>1</span>
-                    <div>
-                      <div className={styles.startTitle}>Dodajte kategoriju menija</div>
-                      <div className={styles.startDesc}>npr. Predjela, Riba, Meso, Piće...</div>
-                    </div>
-                    <button className={styles.startBtn} onClick={() => { setActivePage('menu'); addCategory() }}>
-                      Dodaj →
-                    </button>
-                  </div>
-                )}
-                {categories.length > 0 && items.length === 0 && (
-                  <div className={styles.startStep}>
-                    <span className={styles.startNum}>2</span>
-                    <div>
-                      <div className={styles.startTitle}>Dodajte prvo jelo</div>
-                      <div className={styles.startDesc}>Naziv, opis, cijena i slika</div>
-                    </div>
-                    <button className={styles.startBtn} onClick={() => { setActivePage('menu'); openItemForm() }}>
-                      Dodaj →
-                    </button>
-                  </div>
-                )}
-                {items.length > 0 && (
-                  <div className={styles.startStep}>
-                    <span className={styles.startNum} style={{ background: '#e0f5ec', color: '#0d7a52' }}>✓</span>
-                    <div>
-                      <div className={styles.startTitle}>Meni je aktivan!</div>
-                      <div className={styles.startDesc}>Gosti mogu skenirati QR kod</div>
-                    </div>
-                    <a href={`/${restaurant.slug}`} target="_blank" rel="noreferrer" className={styles.startBtn}>
-                      Otvori →
-                    </a>
-                  </div>
-                )}
-              </div>
-            </div>
-          )}
-
-          {/* MENU */}
-          {activePage === 'menu' && (
-            <div>
-              <div className={styles.menuTop}>
-                <div className={styles.catTabs}>
-                  {categories.map(cat => (
-                    <button
-                      key={cat.id}
-                      className={`${styles.catTab} ${activeCategory === cat.id ? styles.catTabActive : ''}`}
-                      onClick={() => setActiveCategory(cat.id)}
-                    >
-                      {cat.icon} {cat.name}
-                    </button>
-                  ))}
-                  <button className={styles.catTabAdd} onClick={addCategory}>+ Kategorija</button>
-                </div>
-                <button className={styles.addItemBtn} onClick={() => openItemForm()}>
-                  + Dodaj jelo
-                </button>
-              </div>
-
-              <div className={styles.card}>
-                {filteredItems.length === 0 ? (
-                  <div className={styles.emptyState}>
-                    <div className={styles.emptyIcon}>🍽️</div>
-                    <div className={styles.emptyTitle}>Nema stavki u ovoj kategoriji</div>
-                    <button className={styles.emptyBtn} onClick={() => openItemForm()}>
-                      + Dodaj prvo jelo
-                    </button>
-                  </div>
-                ) : (
-                  <table className={styles.table}>
-                    <thead>
-                      <tr>
-                        <th></th>
-                        <th>Naziv</th>
-                        <th>Cijena</th>
-                        <th>Status</th>
-                        <th>Vidljivo</th>
-                        <th>Akcije</th>
-                      </tr>
-                    </thead>
-                    <tbody>
-                      {filteredItems.map(item => (
-                        <tr key={item.id}>
-                          <td>
-                            <div className={styles.itemThumb}>
-                              {item.image_url
-                                ? <img src={item.image_url} alt={item.name} />
-                                : <span>{item.emoji}</span>
-                              }
-                            </div>
-                          </td>
-                          <td>
-                            <div className={styles.itemName}>{item.name}</div>
-                            <div className={styles.itemDesc}>{item.description?.slice(0, 40)}...</div>
-                          </td>
-                          <td className={styles.itemPrice}>€{parseFloat(item.price).toFixed(2)}</td>
-                          <td>
-                            {item.is_special
-                              ? <span className={`${styles.pill} ${styles.pillSpecial}`}>Dnevna ponuda</span>
-                              : <span className={`${styles.pill} ${styles.pillActive}`}>Aktivno</span>
-                            }
-                          </td>
-                          <td>
-                            <button
-                              className={`${styles.toggle} ${item.is_visible ? styles.toggleOn : styles.toggleOff}`}
-                              onClick={() => toggleItemVisible(item)}
-                            />
-                          </td>
-                          <td>
-                            <button className={styles.actionBtn} onClick={() => openItemForm(item)}>Uredi</button>
-                            <button className={styles.actionBtn} onClick={() => deleteItem(item.id)}>Briši</button>
-                          </td>
-                        </tr>
-                      ))}
-                    </tbody>
-                  </table>
-                )}
-              </div>
-            </div>
-          )}
-
-          {/* QR */}
-          {activePage === 'qr' && (
-            <div className={styles.card}>
-              <div className={styles.cardTitle}>Vaš QR kod i link</div>
-              <div className={styles.qrSection}>
-                <div className={styles.qrBox}>
-                  <div className={styles.qrPlaceholder}>
-                    <svg width="80" height="80" viewBox="0 0 80 80" fill="none">
-                      <rect x="2" y="2" width="26" height="26" rx="4" stroke="currentColor" strokeWidth="3" fill="none"/>
-                      <rect x="10" y="10" width="10" height="10" rx="1" fill="currentColor"/>
-                      <rect x="52" y="2" width="26" height="26" rx="4" stroke="currentColor" strokeWidth="3" fill="none"/>
-                      <rect x="60" y="10" width="10" height="10" rx="1" fill="currentColor"/>
-                      <rect x="2" y="52" width="26" height="26" rx="4" stroke="currentColor" strokeWidth="3" fill="none"/>
-                      <rect x="10" y="60" width="10" height="10" rx="1" fill="currentColor"/>
-                      <rect x="36" y="2" width="8" height="8" rx="1" fill="currentColor"/>
-                      <rect x="36" y="36" width="8" height="8" rx="1" fill="currentColor"/>
-                      <rect x="48" y="36" width="8" height="8" rx="1" fill="currentColor"/>
-                      <rect x="60" y="36" width="8" height="8" rx="1" fill="currentColor"/>
-                      <rect x="36" y="48" width="8" height="8" rx="1" fill="currentColor"/>
-                      <rect x="48" y="62" width="8" height="8" rx="1" fill="currentColor"/>
-                    </svg>
-                  </div>
-                  <div className={styles.qrLabel}>{restaurant?.name}</div>
-                </div>
-                <div className={styles.qrInfo}>
-                  <div className={styles.qrUrlLabel}>Link za goste</div>
-                  <div className={styles.qrUrl}>
-                    <span>smartmeni.me/{restaurant?.slug}</span>
-                    <button onClick={() => navigator.clipboard.writeText(`https://smartmeni.me/${restaurant?.slug}`)}>
-                      Kopiraj
-                    </button>
-                  </div>
-                  <p className={styles.qrNote}>
-                    Odštampajte QR kod i zalijepite na svaki sto. Gosti skeniraju i meni se odmah otvara na telefonu.
-                  </p>
-                  <a
-                    href={`/${restaurant?.slug}`}
-                    target="_blank"
-                    rel="noreferrer"
-                    className={styles.viewBtn}
+        {/* MENU */}
+        {activePage === 'menu' && (
+          <div>
+            <div className={styles.menuTop}>
+              <div className={styles.catTabs}>
+                {categories.map(cat => (
+                  <button
+                    key={cat.id}
+                    className={`${styles.catTab} ${activeCategory === cat.id ? styles.catTabActive : ''}`}
+                    onClick={() => setActiveCategory(cat.id)}
                   >
-                    Otvori meni →
-                  </a>
+                    {cat.icon} {cat.name}
+                  </button>
+                ))}
+                <button className={styles.catTabAdd} onClick={addCategory}>+ Kategorija</button>
+              </div>
+              <button className={styles.addItemBtn} onClick={() => openItemForm()}>
+                + Dodaj jelo
+              </button>
+            </div>
+
+            <div className={styles.card}>
+              {filteredItems.length === 0 ? (
+                <div className={styles.emptyState}>
+                  <div className={styles.emptyIcon}>🍽️</div>
+                  <div className={styles.emptyTitle}>Nema stavki u ovoj kategoriji</div>
+                  <button className={styles.emptyBtn} onClick={() => openItemForm()}>
+                    + Dodaj prvo jelo
+                  </button>
                 </div>
+              ) : (
+                <table className={styles.table}>
+                  <thead>
+                    <tr>
+                      <th></th>
+                      <th>Naziv</th>
+                      <th>Cijena</th>
+                      <th>Status</th>
+                      <th>Vidljivo</th>
+                      <th>Akcije</th>
+                    </tr>
+                  </thead>
+                  <tbody>
+                    {filteredItems.map(item => (
+                      <tr key={item.id}>
+                        <td>
+                          <div className={styles.itemThumb}>
+                            {item.image_url
+                              ? <img src={item.image_url} alt={item.name} />
+                              : <span>{item.emoji}</span>
+                            }
+                          </div>
+                        </td>
+                        <td>
+                          <div className={styles.itemName}>{item.name}</div>
+                          <div className={styles.itemDesc}>{item.description?.slice(0, 40)}...</div>
+                        </td>
+                        <td className={styles.itemPrice}>€{parseFloat(item.price).toFixed(2)}</td>
+                        <td>
+                          {item.is_special
+                            ? <span className={`${styles.pill} ${styles.pillSpecial}`}>Dnevna ponuda</span>
+                            : <span className={`${styles.pill} ${styles.pillActive}`}>Aktivno</span>
+                          }
+                        </td>
+                        <td>
+                          <button
+                            className={`${styles.toggle} ${item.is_visible ? styles.toggleOn : styles.toggleOff}`}
+                            onClick={() => toggleItemVisible(item)}
+                          />
+                        </td>
+                        <td>
+                          <button className={styles.actionBtn} onClick={() => openItemForm(item)}>Uredi</button>
+                          <button className={styles.actionBtn} onClick={() => deleteItem(item.id)}>Briši</button>
+                        </td>
+                      </tr>
+                    ))}
+                  </tbody>
+                </table>
+              )}
+            </div>
+          </div>
+        )}
+
+        {/* QR */}
+        {activePage === 'qr' && (
+          <div className={styles.card}>
+            <div className={styles.cardTitle}>Vaš QR kod i link</div>
+            <div className={styles.qrSection}>
+              <div className={styles.qrBox}>
+                <div className={styles.qrPlaceholder}>
+                  <svg width="80" height="80" viewBox="0 0 80 80" fill="none">
+                    <rect x="2" y="2" width="26" height="26" rx="4" stroke="currentColor" strokeWidth="3" fill="none"/>
+                    <rect x="10" y="10" width="10" height="10" rx="1" fill="currentColor"/>
+                    <rect x="52" y="2" width="26" height="26" rx="4" stroke="currentColor" strokeWidth="3" fill="none"/>
+                    <rect x="60" y="10" width="10" height="10" rx="1" fill="currentColor"/>
+                    <rect x="2" y="52" width="26" height="26" rx="4" stroke="currentColor" strokeWidth="3" fill="none"/>
+                    <rect x="10" y="60" width="10" height="10" rx="1" fill="currentColor"/>
+                    <rect x="36" y="2" width="8" height="8" rx="1" fill="currentColor"/>
+                    <rect x="36" y="36" width="8" height="8" rx="1" fill="currentColor"/>
+                    <rect x="48" y="36" width="8" height="8" rx="1" fill="currentColor"/>
+                    <rect x="60" y="36" width="8" height="8" rx="1" fill="currentColor"/>
+                    <rect x="36" y="48" width="8" height="8" rx="1" fill="currentColor"/>
+                    <rect x="48" y="62" width="8" height="8" rx="1" fill="currentColor"/>
+                  </svg>
+                </div>
+                <div className={styles.qrLabel}>{restaurant?.name}</div>
+              </div>
+              <div className={styles.qrInfo}>
+                <div className={styles.qrUrlLabel}>Link za goste</div>
+                <div className={styles.qrUrl}>
+                  <span>smartmeni.me/{restaurant?.slug}</span>
+                  <button onClick={() => navigator.clipboard.writeText(`https://smartmeni.me/${restaurant?.slug}`)}>
+                    Kopiraj
+                  </button>
+                </div>
+                <p className={styles.qrNote}>
+                  Odštampajte QR kod i zalijepite na svaki sto. Gosti skeniraju i meni se odmah otvara na telefonu.
+                </p>
+                <a
+                  href={`/${restaurant?.slug}`}
+                  target="_blank"
+                  rel="noreferrer"
+                  className={styles.viewBtn}
+                >
+                  Otvori meni →
+                </a>
               </div>
             </div>
-          )}
+          </div>
+        )}
 
-          {/* SETTINGS */}
-          {activePage === 'settings' && restaurant && (
-            <SettingsPage restaurant={restaurant} setRestaurant={setRestaurant} />
-          )}
+        {/* SETTINGS */}
+        {activePage === 'settings' && restaurant && (
+          <SettingsPage restaurant={restaurant} setRestaurant={setRestaurant} />
+        )}
 
-        </div>
-      </main>
+      </div>
 
       {/* ITEM FORM MODAL */}
       {showItemForm && (

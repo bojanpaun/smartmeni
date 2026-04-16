@@ -1,47 +1,117 @@
 import { useState } from 'react'
 import { Link, useLocation, useNavigate } from 'react-router-dom'
 import { usePlatform } from '../context/PlatformContext'
-import { PermissionGate } from '../hooks/usePermission'
 import styles from './AdminLayout.module.css'
 
-const NAV_ITEMS = [
-  { path: '/admin', label: 'Dashboard', icon: '📊', exact: true },
+export const MODULES = [
   {
-    label: 'Digitalni meni', icon: '🍽️', section: true,
-    items: [
-      { path: '/admin/menu', label: 'Meni', perm: 'view_menu' },
-      { path: '/admin/orders', label: 'Narudžbe', perm: 'view_orders' },
-      { path: '/admin/waiter', label: 'Zahtjevi', perm: 'view_waiter_req' },
-    ]
+    key: 'menu',
+    label: 'Digitalni meni',
+    icon: '🍽️',
+    desc: 'Stavke, kategorije, narudžbe i zahtjevi konobara',
+    path: '/admin/menu',
+    active: true,
+    perm: 'view_menu',
+    links: [
+      { label: 'Dashboard',  icon: '📊', path: '/admin/menu',          exact: true },
+      { label: 'Meni',       icon: '🍽️', path: '/admin/menu/items',    perm: 'edit_menu' },
+      { label: 'Narudžbe',   icon: '🧾', path: '/admin/orders',        perm: 'view_orders' },
+      { label: 'Zahtjevi',   icon: '🔔', path: '/admin/waiter',        perm: 'view_waiter_req' },
+      { label: 'QR kod',     icon: '📱', path: '/admin/menu/qr' },
+    ],
   },
   {
-    label: 'Stolovi', icon: '🪑', section: true,
-    items: [
-      { path: '/admin/tables', label: 'Mapa stolova', perm: 'view_tables' },
-      { path: '/admin/reservations', label: 'Rezervacije', perm: 'view_reservations' },
-    ]
+    key: 'tables',
+    label: 'Stolovi',
+    icon: '🪑',
+    desc: 'Mapa stolova, status i rezervacije',
+    path: '/admin/tables',
+    active: false,
+    perm: 'view_tables',
+    links: [
+      { label: 'Mapa stolova',  icon: '🗺️', path: '/admin/tables',       exact: true },
+      { label: 'Rezervacije',   icon: '📅', path: '/admin/reservations', perm: 'view_reservations' },
+    ],
   },
   {
-    label: 'Zalihe', icon: '📦', section: true,
-    items: [
-      { path: '/admin/inventory', label: 'Inventar', perm: 'view_inventory' },
-    ]
+    key: 'inventory',
+    label: 'Zalihe',
+    icon: '📦',
+    desc: 'Inventar, dobavljači i izvještaji potrošnje',
+    path: '/admin/inventory',
+    active: false,
+    perm: 'view_inventory',
+    links: [
+      { label: 'Inventar', icon: '📦', path: '/admin/inventory', exact: true },
+    ],
   },
   {
-    label: 'Upravljanje', icon: '⚙️', section: true,
-    items: [
-      { path: '/admin/staff', label: 'Osoblje i role', perm: 'view_staff' },
-      { path: '/admin/analytics', label: 'Analitika', perm: 'view_analytics' },
-      { path: '/admin/settings', label: 'Postavke' },
-    ]
+    key: 'staff',
+    label: 'Osoblje',
+    icon: '👥',
+    desc: 'Zaposleni, role i permisije',
+    path: '/admin/staff',
+    active: true,
+    perm: 'view_staff',
+    links: [
+      { label: 'Zaposleni',       icon: '👤', path: '/admin/staff',       exact: true },
+      { label: 'Role i permisije',icon: '🔑', path: '/admin/staff/roles', perm: 'manage_roles' },
+    ],
+  },
+  {
+    key: 'analytics',
+    label: 'Analitika',
+    icon: '📊',
+    desc: 'Promet, najprodavanija jela, izvještaji',
+    path: '/admin/analytics',
+    active: false,
+    perm: 'view_analytics',
+    links: [
+      { label: 'Pregled',     icon: '📊', path: '/admin/analytics',         exact: true },
+      { label: 'Izvještaji',  icon: '📈', path: '/admin/analytics/reports', perm: 'view_reports' },
+    ],
+  },
+  {
+    key: 'settings',
+    label: 'Postavke',
+    icon: '⚙️',
+    desc: 'Predlošci, logo i podešavanja restorana',
+    path: '/admin/settings',
+    active: true,
+    perm: null,
+    links: [
+      { label: 'Predlošci',      icon: '🎨', path: '/admin/settings/templates', exact: true },
+      { label: 'Logo',           icon: '🖼️', path: '/admin/settings/logo' },
+      { label: 'Opšte postavke', icon: '⚙️', path: '/admin/settings/general' },
+    ],
   },
 ]
 
+const BOTTOM_NAV = [
+  { path: '/admin',        label: 'Početna',  icon: '⊞', exact: true },
+  { path: '/admin/menu',   label: 'Meni',     icon: '🍽️', perm: 'view_menu' },
+  { path: '/admin/orders', label: 'Narudžbe', icon: '🧾', perm: 'view_orders' },
+  { path: '/admin/staff',  label: 'Osoblje',  icon: '👥', perm: 'view_staff' },
+  { path: '/admin/settings',label: 'Postavke',icon: '⚙️' },
+]
+
 export default function AdminLayout({ children }) {
-  const { restaurant, user, logout, isOwner, isSuperAdmin } = usePlatform()
+  const { restaurant, logout, isOwner, isSuperAdmin, hasPermission } = usePlatform()
   const location = useLocation()
   const navigate = useNavigate()
   const [collapsed, setCollapsed] = useState(false)
+
+  const isHub = location.pathname === '/admin'
+
+  const activeModule = MODULES.find(m =>
+    location.pathname === m.path || location.pathname.startsWith(m.path + '/')
+  ) || (
+    ['/admin/orders', '/admin/waiter', '/admin/kitchen'].some(p => location.pathname.startsWith(p))
+      ? MODULES.find(m => m.key === 'menu')
+      : ['/admin/settings'].some(p => location.pathname.startsWith(p))
+      ? MODULES.find(m => m.key === 'settings')
+      : null
+  )
 
   const handleLogout = async () => {
     await logout()
@@ -53,85 +123,159 @@ export default function AdminLayout({ children }) {
     return location.pathname.startsWith(path)
   }
 
-  return (
-    <div className={styles.layout}>
-      <aside className={`${styles.sidebar} ${collapsed ? styles.collapsed : ''}`}>
-        <div className={styles.sbTop}>
-          <div className={styles.sbLogo}>
-            {!collapsed && <><span>smart</span><span className={styles.green}>meni</span></>}
-            {collapsed && <span className={styles.green}>S</span>}
+  const canAccess = (perm) => {
+    if (!perm) return true
+    return isOwner() || isSuperAdmin() || hasPermission(perm)
+  }
+
+  const restName = restaurant?.name || 'Admin'
+  const restRole = isSuperAdmin() ? 'Super admin' : isOwner() ? 'Vlasnik' : 'Osoblje'
+
+  // ── Kontrolna tabla — bez sidebara ──
+  if (isHub) {
+    return (
+      <div className={styles.hubLayout}>
+        <header className={styles.hubHeader}>
+          {/* Naziv restorana umjesto brenda */}
+          <div className={styles.hubRestName}>{restName}</div>
+          <div className={styles.hubHeaderRight}>
+            {restaurant && (
+              <a href={`/${restaurant.slug}`} target="_blank" rel="noreferrer" className={styles.hubLiveBtn}>
+                👁 Meni uživo
+              </a>
+            )}
+            <div className={styles.hubRestIcon}>
+              {restaurant?.logo_url
+                ? <img src={restaurant.logo_url} alt={restName} className={styles.hubRestLogo} />
+                : restName[0]
+              }
+            </div>
+            <span className={styles.hubRole}>{restRole}</span>
+            <button className={styles.hubLogoutBtn} onClick={handleLogout}>Odjava</button>
           </div>
-          <button className={styles.collapseBtn} onClick={() => setCollapsed(!collapsed)}>
-            {collapsed ? '→' : '←'}
+        </header>
+
+        <main className={styles.hubMain}>
+          {children}
+        </main>
+
+        {/* Diskretan brend link na dnu */}
+        <footer className={styles.hubFooter}>
+          <a href="/" className={styles.hubBrand}>
+            smart<span className={styles.green}>meni</span>.me
+          </a>
+        </footer>
+      </div>
+    )
+  }
+
+  // ── Modul stranica — sa sidebarom ──
+  return (
+    <div className={`${styles.layout} ${collapsed ? styles.layoutCollapsed : ''}`}>
+
+      <aside className={`${styles.sidebar} ${collapsed ? styles.sidebarCollapsed : ''}`}>
+
+        {/* Top — naziv restorana + collapse dugme */}
+        <div className={styles.sbTop}>
+          {!collapsed && (
+            <Link to="/admin" className={styles.sbRestTitle}>
+              {restName}
+            </Link>
+          )}
+          <button
+            className={styles.collapseBtn}
+            onClick={() => setCollapsed(c => !c)}
+            title={collapsed ? 'Otvori sidebar' : 'Zatvori sidebar'}
+          >
+            {collapsed ? '›' : '‹'}
           </button>
         </div>
 
-        {restaurant && !collapsed && (
-          <div className={styles.sbRest}>
-            <div className={styles.sbRestIcon}>{restaurant.name[0]}</div>
-            <div className={styles.sbRestInfo}>
-              <div className={styles.sbRestName}>{restaurant.name}</div>
-              <div className={styles.sbRestRole}>
-                {isSuperAdmin() ? 'Super admin' : isOwner() ? 'Vlasnik' : 'Osoblje'}
-              </div>
+        {/* Role korisnika — samo kad je otvoren */}
+        {!collapsed && (
+          <div className={styles.sbRole}>
+            <div className={styles.sbRoleIcon}>
+              {restaurant?.logo_url
+                ? <img src={restaurant.logo_url} alt={restName} className={styles.sbRoleLogoImg} />
+                : restName[0]
+              }
+            </div>
+            <div>
+              <div className={styles.sbRoleName}>{restName}</div>
+              <div className={styles.sbRoleLabel}>{restRole}</div>
             </div>
           </div>
         )}
 
+        {/* Navigacija */}
         <nav className={styles.nav}>
-          {NAV_ITEMS.map((item, i) => {
-            if (item.section) {
-              return (
-                <div key={i} className={styles.navSection}>
-                  {!collapsed && (
-                    <div className={styles.navSectionLabel}>
-                      {item.icon} {item.label}
-                    </div>
-                  )}
-                  {item.items.map((sub, j) => {
-                    const navItem = (
-                      <Link
-                        key={j}
-                        to={sub.path}
-                        className={`${styles.navItem} ${isActive(sub.path) ? styles.navItemActive : ''}`}
-                        title={collapsed ? sub.label : ''}
-                      >
-                        {collapsed ? '·' : sub.label}
-                      </Link>
-                    )
-                    if (sub.perm) {
-                      return (
-                        <PermissionGate key={j} perm={sub.perm}>
-                          {navItem}
-                        </PermissionGate>
-                      )
-                    }
-                    return navItem
-                  })}
-                </div>
-              )
-            }
+
+          {/* ← Kontrolna tabla */}
+          <Link
+            to="/admin"
+            className={styles.navBackItem}
+            title="Kontrolna tabla"
+          >
+            <span className={styles.navIcon}>←</span>
+            {!collapsed && <span>Kontrolna tabla</span>}
+          </Link>
+
+          <div className={styles.navDivider} />
+
+          {/* Naziv aktivnog modula */}
+          {!collapsed && activeModule && (
+            <div className={styles.navModuleTitle}>
+              {activeModule.icon} {activeModule.label}
+            </div>
+          )}
+
+          {/* Linkovi modula */}
+          {activeModule?.links.map((link, i) => {
+            if (!canAccess(link.perm)) return null
             return (
               <Link
                 key={i}
-                to={item.path}
-                className={`${styles.navItem} ${styles.navItemMain} ${isActive(item.path, item.exact) ? styles.navItemActive : ''}`}
+                to={link.path}
+                className={`${styles.navItem} ${isActive(link.path, link.exact) ? styles.navItemActive : ''}`}
+                title={link.label}
               >
-                {item.icon} {!collapsed && item.label}
+                <span className={styles.navIcon}>{link.icon}</span>
+                {!collapsed && <span>{link.label}</span>}
               </Link>
             )
           })}
 
-          {isSuperAdmin() && (
-            <div className={styles.navSection}>
-              {!collapsed && <div className={styles.navSectionLabel}>🔧 Platforma</div>}
-              <Link to="/superadmin" className={`${styles.navItem} ${isActive('/superadmin') ? styles.navItemActive : ''}`}>
-                {collapsed ? '🔧' : 'Super admin panel'}
+          {/* Uputstvo */}
+          {activeModule && (
+            <>
+              <div className={styles.navDivider} />
+              <Link
+                to={`${activeModule.path}/help`}
+                className={`${styles.navItem} ${isActive(`${activeModule.path}/help`) ? styles.navItemActive : ''}`}
+                title="Uputstvo"
+              >
+                <span className={styles.navIcon}>❓</span>
+                {!collapsed && <span>Uputstvo</span>}
               </Link>
-            </div>
+            </>
+          )}
+
+          {isSuperAdmin() && (
+            <>
+              <div className={styles.navDivider} />
+              <Link
+                to="/superadmin"
+                className={`${styles.navItem} ${isActive('/superadmin') ? styles.navItemActive : ''}`}
+                title="Super admin"
+              >
+                <span className={styles.navIcon}>🔧</span>
+                {!collapsed && <span>Super admin</span>}
+              </Link>
+            </>
           )}
         </nav>
 
+        {/* Dno — meni uživo, odjava, brend */}
         <div className={styles.sbBottom}>
           {restaurant && !collapsed && (
             <a
@@ -143,15 +287,62 @@ export default function AdminLayout({ children }) {
               👁 Meni uživo
             </a>
           )}
-          <button className={styles.logoutBtn} onClick={handleLogout}>
+          <button
+            className={styles.logoutBtn}
+            onClick={handleLogout}
+            title="Odjava"
+          >
             {collapsed ? '↩' : 'Odjava'}
           </button>
+
+          {/* Diskretan brend na dnu */}
+          {!collapsed && (
+            <a href="/" className={styles.sbBrand}>
+              smartmeni.me
+            </a>
+          )}
         </div>
       </aside>
 
-      <main className={styles.main}>
-        {children}
-      </main>
+      {/* Main */}
+      <div className={styles.mainWrap}>
+        <header className={styles.topbar}>
+          <div className={styles.breadcrumb}>
+            <Link to="/admin" className={styles.breadcrumbLink}>Kontrolna tabla</Link>
+            <span className={styles.breadcrumbSep}>/</span>
+            <span className={styles.breadcrumbCurrent}>
+              {activeModule ? activeModule.label : 'Admin'}
+            </span>
+          </div>
+        </header>
+
+        <main className={styles.main}>
+          {children}
+        </main>
+        <footer className={styles.pageFooter}>
+          <a href="/" className={styles.pageBrand}>
+            smart<span className={styles.green}>meni</span>.me
+          </a>
+        </footer>
+      </div>
+
+      {/* Mobile bottom nav */}
+      <nav className={styles.bottomNav}>
+        {BOTTOM_NAV.map((item, i) => {
+          if (!canAccess(item.perm)) return null
+          return (
+            <Link
+              key={i}
+              to={item.path}
+              className={`${styles.bottomNavItem} ${isActive(item.path, item.exact) ? styles.bottomNavItemActive : ''}`}
+            >
+              <span className={styles.bottomNavIcon}>{item.icon}</span>
+              <span className={styles.bottomNavLabel}>{item.label}</span>
+            </Link>
+          )
+        })}
+      </nav>
+
     </div>
   )
 }

@@ -1,7 +1,6 @@
 import { useState, useEffect } from 'react'
 import { useParams } from 'react-router-dom'
 import { supabase } from '../../../lib/supabase'
-import { getTemplate } from '../../../lib/templates'
 import styles from './GuestMenu.module.css'
 
 const DEMO_DATA = {
@@ -91,7 +90,6 @@ export default function Menu() {
   const isDemo = !slug || slug === 'demo' || !realData
   const data = isDemo ? DEMO_DATA : null
   const r = isDemo ? data.restaurant : realData?.restaurant
-  const tpl = getTemplate(r?.template)
   const currentCategories = isDemo ? data.categories : realData?.categories || []
   const allItems = isDemo
     ? Object.values(data.items).flat()
@@ -130,20 +128,10 @@ export default function Menu() {
 
   return (
     <div className={styles.pageWrapper}>
-    <div
-      className={styles.page}
-      style={{
-        background: tpl.pageBg,
-        '--tpl-brand': tpl.brand,
-        '--tpl-brand-light': tpl.catBg,
-        '--tpl-border': tpl.catBorder,
-        '--tpl-price': tpl.priceColor,
-        '--tpl-cat-color': tpl.catColor,
-      }}
-    >
+    <div className={styles.page}>
 
       {/* HEADER */}
-      <div className={styles.header} style={{ background: tpl.brand }}>
+      <div className={styles.header} style={{ background: r.color }}>
         <div className={styles.headerTop}>
           <div className={styles.tableTag}>{r.table}</div>
           <button className={styles.langToggle} onClick={() => setLang(isEn ? 'sr' : 'en')}>
@@ -151,12 +139,7 @@ export default function Menu() {
           </button>
         </div>
         <div className={styles.restInfo}>
-          <div className={styles.restLogo}>
-            {r.logo_url
-              ? <img src={r.logo_url} alt={r.name} className={styles.restLogoImg} />
-              : r.name[0]
-            }
-          </div>
+          <div className={styles.restLogo}>{r.name[0]}</div>
           <div>
             <div className={styles.restName}>{r.name}</div>
             <div className={styles.restMeta}>
@@ -178,7 +161,7 @@ export default function Menu() {
 
       {/* SPECIAL OFFER */}
       {specialItem && (
-        <div className={styles.special} style={{ background: tpl.brand }} onClick={() => setSelectedItem(specialItem)}>
+        <div className={styles.special} style={{ background: r.color }} onClick={() => setSelectedItem(specialItem)}>
           <div className={styles.specialLabel}>
             {isEn ? '⚡ Daily special' : '⚡ Dnevna ponuda'}
           </div>
@@ -201,9 +184,8 @@ export default function Menu() {
           <button
             key={cat.id}
             className={`${styles.cat} ${activeCat === cat.id ? styles.catActive : ''}`}
-                style={activeCat === cat.id ? { background: tpl.catBg, color: tpl.catColor, borderColor: tpl.catBorder } : {}}
             onClick={() => setActiveCat(cat.id)}
-            style={activeCat === cat.id ? { background: tpl.catBg, color: tpl.catColor, borderColor: tpl.catBorder } : {}}
+            style={activeCat === cat.id ? { background: r.color, borderColor: r.color } : {}}
           >
             {cat.icon} {isEn ? (cat.name_en || cat.label || cat.name) : (cat.label || cat.name)}
           </button>
@@ -243,8 +225,8 @@ export default function Menu() {
                 </div>
               )}
               <div className={styles.itemFooter}>
-                <span className={styles.itemPrice} style={{ color: tpl.priceColor }}>€{parseFloat(item.price).toFixed(2)}</span>
-                <button className={styles.itemAdd} style={{ background: tpl.brand }}>+</button>
+                <span className={styles.itemPrice}>€{parseFloat(item.price).toFixed(2)}</span>
+                <button className={styles.itemAdd} style={{ background: r.color }}>+</button>
               </div>
             </div>
           </div>
@@ -258,7 +240,7 @@ export default function Menu() {
             🔔 {isEn ? 'Call waiter' : 'Pozovi konobara'}
           </button>
         ) : (
-          <div className={styles.waiterSent} style={{ background: tpl.catBg, color: tpl.catColor }}>
+          <div className={styles.waiterSent}>
             ✓ {isEn ? 'Request sent! Waiter is on the way.' : 'Zahtjev poslan! Konobar dolazi.'}
           </div>
         )}
@@ -289,8 +271,8 @@ export default function Menu() {
                 <span>{selectedItem.prep_time || selectedItem.time || '—'}</span>
               </div>
             </div>
-            <div className={styles.sheetPrice} style={{ color: tpl.priceColor }}>€{parseFloat(selectedItem.price).toFixed(2)}</div>
-            <button className={styles.sheetAdd} style={{ background: tpl.brand }}>
+            <div className={styles.sheetPrice}>€{parseFloat(selectedItem.price).toFixed(2)}</div>
+            <button className={styles.sheetAdd} style={{ background: r.color }}>
               {isEn ? 'Add to order' : 'Dodaj u narudžbu'}
             </button>
           </div>
