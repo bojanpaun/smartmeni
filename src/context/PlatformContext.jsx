@@ -1,3 +1,5 @@
+// ▶ Zamijeniti: src/context/PlatformContext.jsx
+
 import { createContext, useContext, useEffect, useState } from 'react'
 import { supabase } from '../lib/supabase'
 
@@ -46,7 +48,17 @@ export function PlatformProvider({ children }) {
 
     if (profile?.is_superadmin) {
       setStaffProfile({ ...profile, role: 'superadmin' })
-      setPermissions(['*']) // superadmin has all permissions
+      setPermissions(['*'])
+
+      // Super admin može imati i vlastiti restoran — učitaj ga ako postoji
+      const { data: adminRest } = await supabase
+        .from('restaurants')
+        .select('*')
+        .eq('user_id', user.id)
+        .single()
+
+      if (adminRest) setRestaurant(adminRest)
+
       setLoading(false)
       return
     }
@@ -60,7 +72,7 @@ export function PlatformProvider({ children }) {
 
     if (rest) {
       setRestaurant(rest)
-      setPermissions(['*']) // owner has all permissions for their restaurant
+      setPermissions(['*'])
       setLoading(false)
       return
     }
@@ -75,7 +87,6 @@ export function PlatformProvider({ children }) {
 
     if (staff) {
       setStaffProfile(staff)
-      // Load restaurant for this staff member
       const { data: staffRest } = await supabase
         .from('restaurants')
         .select('*')
@@ -83,7 +94,6 @@ export function PlatformProvider({ children }) {
         .single()
       setRestaurant(staffRest)
 
-      // Collect all permissions from all roles
       const allPerms = []
       if (staff.role?.permissions) {
         allPerms.push(...staff.role.permissions)
