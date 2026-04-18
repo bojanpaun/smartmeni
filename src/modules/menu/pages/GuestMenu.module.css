@@ -1,4 +1,5 @@
-/* ── Responsive wrapper — siva pozadina samo na desktopu ── */
+/* ▶ Zamijeniti: src/modules/menu/pages/GuestMenu.module.css */
+
 .pageWrapper {
   min-height: 100vh;
   background: #f5f9f7;
@@ -29,10 +30,7 @@
   }
 }
 
-.header {
-  padding: 16px 16px 20px;
-  color: white;
-}
+.header { padding: 16px 16px 20px; color: white; }
 .headerTop {
   display: flex;
   justify-content: space-between;
@@ -64,10 +62,7 @@
   display: flex; align-items: center; justify-content: center;
   flex-shrink: 0; overflow: hidden;
 }
-.restLogoImg {
-  width: 100%; height: 100%; object-fit: cover;
-  border-radius: 12px;
-}
+.restLogoImg { width: 100%; height: 100%; object-fit: cover; border-radius: 12px; }
 .restName { font-size: 18px; font-weight: 700; margin-bottom: 4px; }
 .restMeta {
   display: flex; gap: 10px; flex-wrap: wrap;
@@ -197,26 +192,32 @@
   font-size: 14px; font-weight: 500; color: var(--tpl-cat-color, #0d7a52);
 }
 
-/* OVERLAY */
+/* ── OVERLAY — centriran modal sa blur efektom ── */
 .overlay {
   position: fixed;
   inset: 0;
-  background: rgba(0,0,0,0.5);
+  background: rgba(0,0,0,0.55);
+  backdrop-filter: blur(8px);
+  -webkit-backdrop-filter: blur(8px);
   display: flex;
-  align-items: flex-end;
+  align-items: center;
+  justify-content: center;
   z-index: 50;
+  padding: 16px;
 }
+
 .sheet {
   background: white;
-  border-radius: 20px 20px 0 0;
+  border-radius: 20px;
   padding: 1.5rem;
   width: 100%;
-  max-width: 480px;
-  margin: 0 auto;
+  max-width: 420px;
   position: relative;
-  max-height: 85vh;
+  max-height: 88vh;
   overflow-y: auto;
+  box-shadow: 0 20px 60px rgba(0,0,0,0.3);
 }
+
 .sheetClose {
   position: absolute; top: 14px; right: 14px;
   background: #f5f9f7; border: none; cursor: pointer;
