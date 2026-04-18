@@ -1,7 +1,10 @@
+// ▶ Zamijeniti: src/modules/menu/pages/AdminMenu.jsx
+
 import { useState, useEffect } from 'react'
 import { useNavigate } from 'react-router-dom'
 import { supabase } from '../../../lib/supabase'
 import { usePlatform } from '../../../context/PlatformContext'
+import { isPro } from '../../../lib/planUtils'
 import styles from './AdminMenu.module.css'
 
 export default function AdminMenu() {
@@ -136,6 +139,11 @@ export default function AdminMenu() {
     ? items.filter(i => i.category_id === activeCategory)
     : items
 
+  // ── Plan limit logika ──────────────────────────────────────────
+  const canAddItem = isPro(restaurant) || items.length < 30
+  const starterLimitReached = !isPro(restaurant) && items.length >= 30
+  // ──────────────────────────────────────────────────────────────
+
   if (loading) return (
     <div style={{ padding: 40, color: '#8a9e96', fontFamily: 'DM Sans, sans-serif' }}>
       Učitavanje...
@@ -145,7 +153,6 @@ export default function AdminMenu() {
   return (
     <div className={styles.moduleWrap}>
 
-      {/* Poruka o čuvanju */}
       {saveMsg && (
         <div className={styles.saveToast}>✓ {saveMsg}</div>
       )}
@@ -172,6 +179,17 @@ export default function AdminMenu() {
                 </div>
               </div>
             </div>
+
+            {/* Starter limit banner */}
+            {starterLimitReached && (
+              <div className={styles.limitBanner}>
+                <span>🔒 Dostignut limit od <strong>30 stavki</strong> za Starter plan.</span>
+                <button onClick={() => navigate('/admin/billing')}>
+                  Pređi na Pro →
+                </button>
+              </div>
+            )}
+
             <div className={styles.card}>
               <div className={styles.cardTitle}>Brzi start</div>
               {categories.length === 0 && (
@@ -230,9 +248,19 @@ export default function AdminMenu() {
                 ))}
                 <button className={styles.catTabAdd} onClick={addCategory}>+ Kategorija</button>
               </div>
-              <button className={styles.addItemBtn} onClick={() => openItemForm()}>
-                + Dodaj jelo
-              </button>
+
+              {starterLimitReached ? (
+                <button
+                  className={styles.addItemBtnDisabled}
+                  onClick={() => navigate('/admin/billing')}
+                >
+                  🔒 Limit dostignut — Pređi na Pro
+                </button>
+              ) : (
+                <button className={styles.addItemBtn} onClick={() => openItemForm()}>
+                  + Dodaj jelo
+                </button>
+              )}
             </div>
 
             <div className={styles.card}>
@@ -240,8 +268,11 @@ export default function AdminMenu() {
                 <div className={styles.emptyState}>
                   <div className={styles.emptyIcon}>🍽️</div>
                   <div className={styles.emptyTitle}>Nema stavki u ovoj kategoriji</div>
-                  <button className={styles.emptyBtn} onClick={() => openItemForm()}>
-                    + Dodaj prvo jelo
+                  <button
+                    className={canAddItem ? styles.emptyBtn : styles.emptyBtnDisabled}
+                    onClick={() => canAddItem ? openItemForm() : navigate('/admin/billing')}
+                  >
+                    {canAddItem ? '+ Dodaj prvo jelo' : '🔒 Pređi na Pro za više stavki'}
                   </button>
                 </div>
               ) : (
@@ -345,7 +376,6 @@ export default function AdminMenu() {
           </div>
         )}
 
-        {/* SETTINGS */}
         {activePage === 'settings' && restaurant && (
           <SettingsPage restaurant={restaurant} setRestaurant={setRestaurant} />
         )}

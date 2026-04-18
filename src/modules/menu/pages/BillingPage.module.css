@@ -1,0 +1,252 @@
+/* ▶ Zamijeniti: src/modules/menu/pages/BillingPage.module.css */
+
+.page {
+  padding: 28px 24px;
+  max-width: 800px;
+  font-family: 'DM Sans', sans-serif;
+}
+
+.header { margin-bottom: 24px; }
+
+.title {
+  font-family: 'Syne', sans-serif;
+  font-size: 20px;
+  font-weight: 700;
+  color: #1a3028;
+  margin: 0 0 6px;
+}
+
+.subtitle { font-size: 14px; color: #7a9e8e; margin: 0; }
+
+/* ── Alertovi ── */
+.alertTrial, .alertExpired, .alertDanger {
+  padding: 12px 16px;
+  border-radius: 10px;
+  font-size: 13px;
+  margin-bottom: 20px;
+  line-height: 1.5;
+}
+
+.alertTrial  { background: #e0f5ec; color: #0d5c3a; border: 1px solid #a0d8bc; }
+.alertExpired { background: #faeeda; color: #7a4a00; border: 1px solid #f5c842; }
+.alertDanger  { background: #fce8e8; color: #8b0000; border: 1px solid #f5a0a0; }
+
+/* ── Planovi ── */
+.plans {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 16px;
+  margin-bottom: 32px;
+}
+
+.planCard {
+  background: #fff;
+  border: 1.5px solid #e0ede7;
+  border-radius: 16px;
+  padding: 24px;
+  position: relative;
+  display: flex;
+  flex-direction: column;
+}
+
+.planPro { border-color: #0d7a52; }
+.planCurrent { border-width: 2px; }
+
+.planPopular {
+  position: absolute;
+  top: -12px;
+  left: 50%;
+  transform: translateX(-50%);
+  background: #0d7a52;
+  color: #fff;
+  font-size: 11px;
+  font-weight: 600;
+  padding: 3px 14px;
+  border-radius: 20px;
+  white-space: nowrap;
+}
+
+.planHeader {
+  text-align: center;
+  margin-bottom: 20px;
+  padding-bottom: 16px;
+  border-bottom: 1px solid #e0ede7;
+}
+
+.planName {
+  font-family: 'Syne', sans-serif;
+  font-size: 18px;
+  font-weight: 700;
+  color: #1a3028;
+  margin-bottom: 6px;
+}
+
+.planPrice {
+  font-size: 32px;
+  font-weight: 700;
+  color: #0d7a52;
+}
+
+.planPeriod {
+  font-size: 12px;
+  color: #7a9e8e;
+  margin-top: 2px;
+}
+
+.featureList {
+  list-style: none;
+  padding: 0;
+  margin: 0 0 20px;
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+}
+
+.featureItem {
+  font-size: 13px;
+  color: #1a3028;
+  display: flex;
+  align-items: flex-start;
+  gap: 8px;
+  line-height: 1.4;
+}
+
+.featureMissing { color: #b0c4ba; }
+.featureCheck { color: #0d7a52; font-weight: 700; flex-shrink: 0; }
+.featureCross  { color: #c8d8d0; flex-shrink: 0; }
+
+.currentBadge {
+  text-align: center;
+  padding: 8px;
+  background: #f0f4f1;
+  color: #7a9e8e;
+  border-radius: 8px;
+  font-size: 12px;
+  font-weight: 500;
+}
+
+.upgradeBtn {
+  width: 100%;
+  padding: 12px;
+  background: #0d7a52;
+  color: #fff;
+  border: none;
+  border-radius: 10px;
+  font-size: 14px;
+  font-weight: 600;
+  cursor: pointer;
+  font-family: 'DM Sans', sans-serif;
+  transition: background 0.15s;
+}
+.upgradeBtn:hover:not(:disabled) { background: #0a6445; }
+.upgradeBtn:disabled { background: #9ad4be; cursor: default; }
+
+.proActions { display: flex; flex-direction: column; gap: 8px; }
+
+.cancelBtn {
+  background: transparent;
+  border: none;
+  color: #9e3030;
+  font-size: 12px;
+  cursor: pointer;
+  font-family: 'DM Sans', sans-serif;
+  text-align: center;
+  padding: 4px;
+  transition: color 0.12s;
+}
+.cancelBtn:hover { color: #c62828; }
+
+.error {
+  margin-top: 10px;
+  padding: 8px 12px;
+  background: #fce8e8;
+  color: #c62828;
+  border-radius: 8px;
+  font-size: 12px;
+}
+
+/* ── Complimentary prikaz ── */
+.complimentaryCard {
+  background: #f0faf6;
+  border: 1.5px solid #9fd4bc;
+  border-radius: 16px;
+  padding: 40px 32px;
+  text-align: center;
+  max-width: 480px;
+}
+
+.complimentaryIcon { font-size: 52px; margin-bottom: 14px; }
+
+.complimentaryTitle {
+  font-size: 22px;
+  font-weight: 600;
+  color: #0a4f35;
+  margin-bottom: 10px;
+  font-family: 'DM Sans', sans-serif;
+}
+
+.complimentaryDesc {
+  font-size: 14px;
+  color: #3d7a60;
+  line-height: 1.6;
+  margin-bottom: 22px;
+}
+
+.complimentaryNote {
+  margin-top: 10px;
+  font-size: 13px;
+  color: #5a9e80;
+  font-style: italic;
+}
+
+.complimentaryFeatures {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 8px;
+  justify-content: center;
+}
+
+.complimentaryFeatures span {
+  background: #d4f0e3;
+  color: #0a4f35;
+  font-size: 13px;
+  padding: 5px 14px;
+  border-radius: 20px;
+  font-family: 'DM Sans', sans-serif;
+}
+
+/* ── FAQ ── */
+.faq {
+  border-top: 1px solid #e0ede7;
+  padding-top: 24px;
+}
+
+.faqTitle {
+  font-size: 14px;
+  font-weight: 600;
+  color: #1a3028;
+  margin-bottom: 16px;
+}
+
+.faqItem { margin-bottom: 14px; }
+
+.faqQ {
+  font-size: 13px;
+  font-weight: 500;
+  color: #1a3028;
+  margin-bottom: 4px;
+}
+
+.faqA {
+  font-size: 13px;
+  color: #7a9e8e;
+  line-height: 1.5;
+}
+
+/* ── Responsive ── */
+@media (max-width: 600px) {
+  .plans { grid-template-columns: 1fr; }
+  .page { padding: 16px; }
+  .complimentaryCard { padding: 28px 20px; }
+}

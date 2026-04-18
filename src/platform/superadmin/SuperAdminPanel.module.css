@@ -1,0 +1,217 @@
+/* ▶ Novi fajl: src/platform/superadmin/SuperAdminPanel.module.css */
+
+.wrap {
+  padding: 24px;
+  font-family: 'DM Sans', sans-serif;
+  max-width: 1100px;
+}
+
+.accessDenied {
+  display: flex; flex-direction: column; align-items: center;
+  justify-content: center; height: 60vh;
+  gap: 12px; font-size: 16px; color: #8a9e96;
+}
+.accessDenied div:first-child { font-size: 40px; }
+
+.loading { padding: 3rem; text-align: center; color: #8a9e96; }
+
+/* ── Header ── */
+.header {
+  display: flex; align-items: flex-start;
+  justify-content: space-between; margin-bottom: 24px;
+}
+.headerTitle { font-size: 20px; font-weight: 600; color: #1a2e26; }
+.headerSub { font-size: 13px; color: #8a9e96; margin-top: 2px; }
+.btnRefresh {
+  padding: 8px 14px; background: #f5f9f7;
+  border: 1px solid #d0e4dc; border-radius: 8px;
+  font-size: 13px; cursor: pointer;
+  font-family: 'DM Sans', sans-serif; color: #3a4a42;
+}
+.btnRefresh:hover { background: #e6f0eb; }
+
+/* ── Statistike ── */
+.stats {
+  display: grid; grid-template-columns: repeat(4, 1fr);
+  gap: 12px; margin-bottom: 20px;
+}
+.stat {
+  background: #fff; border: 1px solid #e0e8e4;
+  border-radius: 12px; padding: 14px 16px;
+}
+.statComplimentary { border-color: #9fd4bc; background: #f0faf6; }
+.statSuspended     { border-color: #f5c4a0; background: #fdf5f0; }
+.statVal { font-size: 26px; font-weight: 600; color: #1a2e26; line-height: 1; }
+.statComplimentary .statVal { color: #0a4f35; }
+.statSuspended .statVal     { color: #a04010; }
+.statLabel { font-size: 12px; color: #8a9e96; margin-top: 4px; }
+
+/* ── Toolbar ── */
+.toolbar {
+  display: flex; gap: 12px; align-items: center;
+  margin-bottom: 16px; flex-wrap: wrap;
+}
+.searchInput {
+  padding: 9px 14px; border: 1px solid #d0e4dc;
+  border-radius: 10px; font-size: 13px;
+  font-family: 'DM Sans', sans-serif;
+  outline: none; flex: 1; min-width: 200px;
+}
+.searchInput:focus { border-color: #1d9e75; }
+.filterBtns { display: flex; gap: 6px; flex-wrap: wrap; }
+.filterBtn {
+  padding: 7px 14px; border-radius: 20px;
+  border: 1px solid #d0e4dc; background: #fff;
+  font-size: 12px; cursor: pointer;
+  font-family: 'DM Sans', sans-serif; color: #3a4a42;
+  transition: all 0.15s;
+}
+.filterBtn:hover { background: #f5f9f7; }
+.filterBtnActive { background: #0d7a52; color: #fff; border-color: #0d7a52; }
+
+/* ── Tabela ── */
+.tableWrap {
+  background: #fff; border: 1px solid #e0e8e4;
+  border-radius: 14px; overflow: hidden;
+}
+.table { width: 100%; border-collapse: collapse; font-size: 13px; }
+.table th {
+  text-align: left; padding: 10px 14px;
+  font-size: 11px; font-weight: 500; color: #8a9e96;
+  border-bottom: 1px solid #e0e8e4;
+  text-transform: uppercase; letter-spacing: 0.5px;
+  background: #fafcfa;
+}
+.table td {
+  padding: 12px 14px; border-bottom: 1px solid #f0f5f2;
+  vertical-align: middle;
+}
+.table tr:last-child td { border: none; }
+.table tr:hover td { background: #fafcfa; }
+.rowEditing td { background: #f0faf6 !important; }
+
+.restName  { font-weight: 500; color: #1a2e26; }
+.restSlug  { font-size: 11px; color: #8a9e96; margin-top: 2px; }
+.dateCell  { font-size: 12px; color: #8a9e96; white-space: nowrap; }
+.emptyRow  { text-align: center; color: #8a9e96; padding: 2rem; }
+
+/* ── Badges ── */
+.badge {
+  font-size: 11px; padding: 3px 10px; border-radius: 20px;
+  font-weight: 500; white-space: nowrap;
+}
+.badgeComplimentary { background: #d4f0e3; color: #0a4f35; }
+.badgePro           { background: #dceffe; color: #0c447c; }
+.badgeStarter       { background: #f5f5f5; color: #6a7a72; }
+
+.statusPill { font-size: 11px; padding: 3px 10px; border-radius: 20px; }
+.statusActive    { background: #e0f5ec; color: #0d7a52; }
+.statusTrial     { background: #fff8e0; color: #7a5c00; }
+.statusExpired   { background: #fde8d8; color: #a04010; }
+.statusSuspended { background: #fde0e0; color: #a03030; }
+.statusStarter   { background: #f5f5f5; color: #6a7a72; }
+
+/* ── Action dugmad ── */
+.actionBtns { display: flex; gap: 6px; }
+.btnEdit {
+  padding: 5px 12px; border-radius: 7px;
+  border: 1px solid #d0e4dc; background: transparent;
+  font-size: 12px; cursor: pointer; color: #0d7a52;
+  font-family: 'DM Sans', sans-serif;
+}
+.btnEdit:hover { background: #e6f5ee; }
+.btnSuspend {
+  padding: 5px 12px; border-radius: 7px;
+  border: 1px solid #f5c4a0; background: transparent;
+  font-size: 12px; cursor: pointer; color: #a04010;
+  font-family: 'DM Sans', sans-serif;
+}
+.btnSuspend:hover { background: #fde8d8; }
+.btnUnsuspend { border-color: #d0e4dc; color: #0d7a52; }
+.btnUnsuspend:hover { background: #e6f5ee; }
+
+/* ── Edit panel ── */
+.editPanel {
+  background: #f8fcfa; border: 1.5px solid #9fd4bc;
+  border-radius: 14px; padding: 20px 24px; margin-top: 12px;
+}
+.editPanelHeader {
+  display: flex; justify-content: space-between;
+  align-items: center; margin-bottom: 20px;
+}
+.editPanelTitle { font-size: 14px; color: #3a4a42; }
+.editPanelTitle strong { color: #0a4f35; }
+.editPanelClose {
+  background: #e6f5ee; border: none; cursor: pointer;
+  width: 28px; height: 28px; border-radius: 50%;
+  font-size: 14px; color: #0d7a52;
+}
+
+.editGrid {
+  display: grid; grid-template-columns: 1fr 1fr;
+  gap: 24px; margin-bottom: 20px;
+}
+
+.editSection {
+  background: #fff; border: 1px solid #e0e8e4;
+  border-radius: 12px; padding: 16px;
+}
+.editSectionTitle {
+  font-size: 13px; font-weight: 600; color: #1a2e26; margin-bottom: 14px;
+}
+
+/* Toggle switch */
+.toggleLabel {
+  display: flex; align-items: center; gap: 10px;
+  cursor: pointer; margin-bottom: 14px;
+  font-size: 13px; color: #3a4a42;
+}
+.toggle {
+  width: 40px; height: 22px; border-radius: 11px;
+  flex-shrink: 0; cursor: pointer; position: relative; transition: background 0.2s;
+}
+.toggle::after {
+  content: ''; position: absolute; top: 3px;
+  width: 16px; height: 16px; background: #fff;
+  border-radius: 50%; transition: left 0.2s;
+}
+.toggleOff { background: #d0e4dc; }
+.toggleOff::after { left: 3px; }
+.toggleOn  { background: #0d7a52; }
+.toggleOn::after  { left: 21px; }
+
+/* Field */
+.field { display: flex; flex-direction: column; gap: 5px; margin-bottom: 12px; }
+.field label { font-size: 12px; font-weight: 500; color: #3a4a42; }
+.field input, .field select {
+  padding: 9px 12px; border: 1px solid #d0e4dc;
+  border-radius: 9px; font-size: 13px;
+  font-family: 'DM Sans', sans-serif; outline: none; background: #fff;
+}
+.field input:focus, .field select:focus { border-color: #1d9e75; }
+.fieldHint { font-size: 11px; color: #8a9e96; }
+
+/* Edit actions */
+.editActions { display: flex; align-items: center; gap: 10px; }
+.btnCancel {
+  padding: 9px 20px; background: transparent;
+  border: 1px solid #d0e4dc; border-radius: 9px;
+  font-size: 13px; cursor: pointer;
+  font-family: 'DM Sans', sans-serif; color: #3a4a42;
+}
+.btnCancel:hover { background: #f5f9f7; }
+.btnSave {
+  padding: 9px 20px; background: #0d7a52; color: #fff;
+  border: none; border-radius: 9px; font-size: 13px; cursor: pointer;
+  font-family: 'DM Sans', sans-serif; font-weight: 500;
+}
+.btnSave:hover  { background: #0a6343; }
+.btnSave:disabled { background: #9ad4be; cursor: not-allowed; }
+.msgOk    { font-size: 13px; color: #0d7a52; }
+.msgError { font-size: 13px; color: #c0392b; }
+
+/* ── Responsive ── */
+@media (max-width: 700px) {
+  .editGrid { grid-template-columns: 1fr; }
+  .stats    { grid-template-columns: repeat(2, 1fr); }
+}

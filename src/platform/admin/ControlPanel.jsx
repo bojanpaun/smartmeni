@@ -1,11 +1,16 @@
+import { useState } from 'react'
 import { useNavigate } from 'react-router-dom'
 import { usePlatform } from '../../context/PlatformContext'
 import { MODULES } from '../../layouts/AdminLayout'
+import OnboardingWizard from './OnboardingWizard'
 import styles from './ControlPanel.module.css'
 
 export default function ControlPanel() {
   const { restaurant, hasPermission, isOwner, isSuperAdmin } = usePlatform()
   const navigate = useNavigate()
+  const [showOnboarding, setShowOnboarding] = useState(
+    restaurant && !restaurant.onboarding_completed
+  )
 
   const canAccess = (mod) => {
     if (!mod.perm) return true
@@ -19,6 +24,12 @@ export default function ControlPanel() {
 
   return (
     <div className={styles.page}>
+      {showOnboarding && (
+        <OnboardingWizard
+          onComplete={() => setShowOnboarding(false)}
+          onSkip={() => setShowOnboarding(false)}
+        />
+      )}
 
       {/* Pozdrav */}
       <div className={styles.header}>

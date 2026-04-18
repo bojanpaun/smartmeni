@@ -2,6 +2,7 @@ import { useState } from 'react'
 import { Link, useLocation, useNavigate } from 'react-router-dom'
 import { usePlatform } from '../context/PlatformContext'
 import styles from './AdminLayout.module.css'
+import TrialBanner from '../platform/admin/TrialBanner'
 
 export const MODULES = [
   {
@@ -83,6 +84,7 @@ export const MODULES = [
       { label: 'Predlošci',      icon: '🎨', path: '/admin/settings/templates', exact: true },
       { label: 'Logo',           icon: '🖼️', path: '/admin/settings/logo' },
       { label: 'Opšte postavke', icon: '⚙️', path: '/admin/settings/general' },
+      { label: 'Pretplata',      icon: '💳', path: '/admin/billing' },
     ],
   },
 ]
@@ -316,6 +318,7 @@ export default function AdminLayout({ children }) {
           </div>
         </header>
 
+        <TrialBanner />
         <main className={styles.main}>
           {children}
         </main>

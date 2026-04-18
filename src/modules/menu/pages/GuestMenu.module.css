@@ -263,3 +263,14 @@
 }
 .footerBrand { font-size: 12px; color: #8a9e96; }
 .footerBrand strong { color: #1a9e6e; }
+
+.orderingOff {
+  width: 100%;
+  padding: 12px;
+  background: #f5f0eb;
+  color: #7a6a5a;
+  border-radius: 10px;
+  font-size: 13px;
+  text-align: center;
+  border: 1px solid #e8ddd0;
+}

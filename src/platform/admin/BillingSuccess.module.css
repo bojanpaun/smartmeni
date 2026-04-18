@@ -1,0 +1,76 @@
+.page {
+  min-height: 60vh;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 24px;
+  font-family: 'DM Sans', sans-serif;
+}
+
+.card {
+  background: #fff;
+  border: 1px solid #e0ede7;
+  border-radius: 20px;
+  padding: 40px 32px;
+  text-align: center;
+  max-width: 420px;
+  width: 100%;
+}
+
+.successIcon, .errorIcon { font-size: 52px; margin-bottom: 16px; }
+
+.spinner {
+  font-size: 36px;
+  margin-bottom: 16px;
+  animation: spin 1s linear infinite;
+}
+
+@keyframes spin {
+  from { transform: rotate(0deg); }
+  to { transform: rotate(360deg); }
+}
+
+.title {
+  font-family: 'Syne', sans-serif;
+  font-size: 22px;
+  font-weight: 700;
+  color: #1a3028;
+  margin-bottom: 10px;
+}
+
+.desc {
+  font-size: 14px;
+  color: #7a9e8e;
+  line-height: 1.6;
+  margin-bottom: 20px;
+}
+
+.features {
+  background: #f5f9f7;
+  border-radius: 10px;
+  padding: 14px 18px;
+  margin-bottom: 24px;
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+}
+
+.feature {
+  font-size: 13px;
+  color: #0d7a52;
+  text-align: left;
+}
+
+.btn {
+  padding: 12px 28px;
+  background: #0d7a52;
+  color: #fff;
+  border: none;
+  border-radius: 10px;
+  font-size: 14px;
+  font-weight: 500;
+  cursor: pointer;
+  font-family: 'DM Sans', sans-serif;
+  transition: background 0.15s;
+}
+.btn:hover { background: #0a6445; }

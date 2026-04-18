@@ -92,6 +92,7 @@ export default function Menu() {
   const data = isDemo ? DEMO_DATA : null
   const r = isDemo ? data.restaurant : realData?.restaurant
   const tpl = getTemplate(r?.template)
+  const digitalOrdering = isDemo ? true : (r?.digital_ordering ?? true)
   const currentCategories = isDemo ? data.categories : realData?.categories || []
   const allItems = isDemo
     ? Object.values(data.items).flat()
@@ -201,9 +202,8 @@ export default function Menu() {
           <button
             key={cat.id}
             className={`${styles.cat} ${activeCat === cat.id ? styles.catActive : ''}`}
-                style={activeCat === cat.id ? { background: tpl.catBg, color: tpl.catColor, borderColor: tpl.catBorder } : {}}
-            onClick={() => setActiveCat(cat.id)}
             style={activeCat === cat.id ? { background: tpl.catBg, color: tpl.catColor, borderColor: tpl.catBorder } : {}}
+            onClick={() => setActiveCat(cat.id)}
           >
             {cat.icon} {isEn ? (cat.name_en || cat.label || cat.name) : (cat.label || cat.name)}
           </button>
@@ -244,7 +244,9 @@ export default function Menu() {
               )}
               <div className={styles.itemFooter}>
                 <span className={styles.itemPrice} style={{ color: tpl.priceColor }}>€{parseFloat(item.price).toFixed(2)}</span>
-                <button className={styles.itemAdd} style={{ background: tpl.brand }}>+</button>
+                {digitalOrdering && (
+                  <button className={styles.itemAdd} style={{ background: tpl.brand }}>+</button>
+                )}
               </div>
             </div>
           </div>
@@ -290,9 +292,16 @@ export default function Menu() {
               </div>
             </div>
             <div className={styles.sheetPrice} style={{ color: tpl.priceColor }}>€{parseFloat(selectedItem.price).toFixed(2)}</div>
-            <button className={styles.sheetAdd} style={{ background: tpl.brand }}>
-              {isEn ? 'Add to order' : 'Dodaj u narudžbu'}
-            </button>
+            {digitalOrdering && (
+              <button className={styles.sheetAdd} style={{ background: tpl.brand }}>
+                {isEn ? 'Add to order' : 'Dodaj u narudžbu'}
+              </button>
+            )}
+            {!digitalOrdering && (
+              <div className={styles.orderingOff}>
+                {isEn ? 'Online ordering is currently unavailable' : 'Naručivanje putem aplikacije nije dostupno'}
+              </div>
+            )}
           </div>
         </div>
       )}
