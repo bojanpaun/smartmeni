@@ -1,0 +1,285 @@
+/* ▶ Zamijeniti: src/modules/tables/pages/ReservationsPage.module.css */
+
+.wrap { padding: 20px; font-family: 'DM Sans', sans-serif; max-width: 900px; }
+.loading { padding: 3rem; text-align: center; color: #8a9e96; }
+
+/* ── Header ── */
+.header {
+  display: flex; align-items: flex-start; justify-content: space-between;
+  margin-bottom: 16px; gap: 12px; flex-wrap: wrap;
+}
+.headerTitle { font-size: 20px; font-weight: 600; color: #1a2e26; }
+.pendingBadge {
+  display: inline-block; margin-top: 4px;
+  background: #fde0e0; color: #c0392b;
+  font-size: 12px; padding: 3px 10px; border-radius: 20px; font-weight: 500;
+}
+.headerActions { display: flex; gap: 8px; align-items: center; flex-wrap: wrap; }
+
+.viewToggle { display: flex; border: 1px solid #d0e4dc; border-radius: 9px; overflow: hidden; }
+.viewBtn {
+  padding: 8px 14px; background: #fff; border: none;
+  font-size: 13px; cursor: pointer; font-family: 'DM Sans', sans-serif;
+  color: #5a7a6a; transition: all 0.15s;
+}
+.viewBtn:hover { background: #f0f5f2; }
+.viewBtnActive { background: #0d7a52 !important; color: #fff !important; }
+
+.btnAdd {
+  padding: 9px 18px; background: #0d7a52; color: #fff;
+  border: none; border-radius: 9px; font-size: 13px;
+  font-weight: 500; cursor: pointer; font-family: 'DM Sans', sans-serif;
+}
+.btnAdd:hover { background: #0a6343; }
+
+/* ── Toggle ── */
+.toggleCard {
+  display: flex; align-items: center; gap: 16px;
+  background: #fff; border: 1px solid #e0e8e4;
+  border-radius: 14px; padding: 16px 20px; margin-bottom: 20px;
+}
+.toggleInfo { flex: 1; }
+.toggleTitle { font-size: 14px; font-weight: 600; color: #1a2e26; margin-bottom: 4px; }
+.toggleDesc { font-size: 12px; color: #8a9e96; line-height: 1.5; }
+.toggleLink { font-size: 12px; color: #0d7a52; margin-top: 6px; }
+.toggle {
+  width: 44px; height: 24px; border-radius: 12px; flex-shrink: 0;
+  cursor: pointer; border: none; position: relative; transition: background 0.2s;
+}
+.toggle:disabled { opacity: 0.6; cursor: not-allowed; }
+.toggleThumb {
+  position: absolute; top: 3px; width: 18px; height: 18px;
+  background: #fff; border-radius: 50%; transition: left 0.2s;
+}
+.toggleOff { background: #d0e4dc; }
+.toggleOff .toggleThumb { left: 3px; }
+.toggleOn { background: #0d7a52; }
+.toggleOn .toggleThumb { left: 23px; }
+
+/* ── Kalendar ── */
+.calendarWrap {
+  background: #fff; border: 1px solid #e0e8e4;
+  border-radius: 14px; padding: 16px; margin-bottom: 20px;
+}
+
+.calendar { font-family: 'DM Sans', sans-serif; }
+
+.calNav {
+  display: flex; align-items: center; justify-content: space-between;
+  margin-bottom: 12px;
+}
+.calNavBtn {
+  width: 32px; height: 32px; border-radius: 50%;
+  border: 1px solid #d0e4dc; background: #fff;
+  font-size: 18px; cursor: pointer; color: #3a4a42;
+  display: flex; align-items: center; justify-content: center;
+}
+.calNavBtn:hover { background: #f0f5f2; }
+.calMonth { font-size: 15px; font-weight: 600; color: #1a2e26; text-transform: capitalize; }
+
+.calGrid {
+  display: grid; grid-template-columns: repeat(7, 1fr);
+  gap: 3px;
+}
+.calDayName {
+  text-align: center; font-size: 11px; color: #8a9e96;
+  font-weight: 500; padding: 4px 0;
+  text-transform: uppercase; letter-spacing: 0.3px;
+}
+.calCellEmpty { min-height: 52px; }
+.calCell {
+  min-height: 52px; border-radius: 8px; padding: 4px;
+  cursor: pointer; transition: background 0.15s;
+  display: flex; flex-direction: column; align-items: center;
+  border: 1.5px solid transparent;
+}
+.calCell:hover { background: #f0f5f2; }
+.calCellHasRes { background: #f8faf9; }
+.calCellToday { border-color: #0d7a52; }
+.calCellSelected { background: #e0f5ec !important; border-color: #0d7a52; }
+
+.calDayNum {
+  font-size: 13px; font-weight: 500; color: #1a2e26;
+  width: 24px; height: 24px; display: flex;
+  align-items: center; justify-content: center; border-radius: 50%;
+}
+.calCellToday .calDayNum { background: #0d7a52; color: #fff; }
+
+.calDots { display: flex; gap: 3px; margin-top: 3px; flex-wrap: wrap; justify-content: center; }
+.calDot {
+  width: 6px; height: 6px; border-radius: 50%; flex-shrink: 0;
+}
+.calDotConfirmed { background: #0d7a52; }
+.calDotPending   { background: #f5b87a; }
+.calDotMore { font-size: 9px; color: #8a9e96; }
+
+.calLegend {
+  display: flex; gap: 14px; margin-top: 12px;
+  padding-top: 12px; border-top: 1px solid #f0f5f2;
+  font-size: 12px; color: #5a7a6a; align-items: center; flex-wrap: wrap;
+}
+.calLegend span { display: flex; align-items: center; gap: 5px; }
+.calHint { margin-left: auto; color: #8a9e96; font-size: 11px; }
+
+/* ── Filteri ── */
+.filters {
+  display: flex; gap: 8px; margin-bottom: 16px;
+  flex-wrap: wrap; align-items: center;
+}
+.filterDate {
+  padding: 8px 12px; border: 1px solid #d0e4dc; border-radius: 9px;
+  font-size: 13px; font-family: 'DM Sans', sans-serif; outline: none;
+}
+.filterDate:focus { border-color: #0d7a52; }
+.filterClear {
+  padding: 8px 12px; border: 1px solid #d0e4dc; background: #fff;
+  border-radius: 9px; font-size: 12px; cursor: pointer;
+  font-family: 'DM Sans', sans-serif; color: #5a7a6a;
+}
+.filterClear:hover { background: #f0f5f2; }
+.filterStatus { display: flex; gap: 5px; flex-wrap: wrap; }
+.filterBtn {
+  padding: 7px 12px; border-radius: 20px; border: 1px solid #d0e4dc;
+  background: #fff; font-size: 12px; cursor: pointer;
+  font-family: 'DM Sans', sans-serif; color: #3a4a42;
+}
+.filterBtn:hover { background: #f0f5f2; }
+.filterBtnActive { background: #0d7a52; color: #fff; border-color: #0d7a52; }
+
+/* ── Lista ── */
+.list { display: flex; flex-direction: column; gap: 10px; }
+.empty {
+  text-align: center; padding: 3rem 1rem; color: #8a9e96;
+  display: flex; flex-direction: column; gap: 12px; align-items: center;
+}
+.emptyIcon { font-size: 40px; }
+
+.resCard {
+  background: #fff; border: 1px solid #e0e8e4; border-radius: 14px;
+  padding: 14px 16px; display: flex; align-items: flex-start;
+  gap: 12px; flex-wrap: wrap;
+}
+.resCardPending { border-color: #f5b87a; background: #fff8f2; }
+.resMain { flex: 1; min-width: 0; }
+.resTop { display: flex; align-items: center; gap: 8px; margin-bottom: 6px; flex-wrap: wrap; }
+.resGuest { font-size: 15px; font-weight: 600; color: #1a2e26; }
+
+.statusPill { font-size: 11px; padding: 2px 9px; border-radius: 20px; font-weight: 500; }
+.statusPending   { background: #fff8e0; color: #7a5c00; }
+.statusConfirmed { background: #e0f5ec; color: #0d7a52; }
+.statusCancelled { background: #fde0e0; color: #c0392b; }
+.statusCompleted { background: #f0f0f0; color: #6a7a72; }
+
+.sourcePill {
+  font-size: 10px; padding: 2px 8px; border-radius: 20px;
+  background: #e8f0fe; color: #1a4db5; font-weight: 500;
+}
+.resMeta { display: flex; gap: 12px; flex-wrap: wrap; font-size: 12px; color: #5a7a6a; margin-bottom: 4px; }
+.resNote { font-size: 12px; color: #8a9e96; font-style: italic; margin-top: 4px; }
+.resActions { display: flex; gap: 6px; align-items: center; flex-shrink: 0; flex-wrap: wrap; }
+
+.btnConfirm { padding: 6px 12px; background: #e0f5ec; border: 1px solid #9fd4bc; border-radius: 7px; font-size: 12px; cursor: pointer; color: #0d7a52; font-family: 'DM Sans', sans-serif; font-weight: 500; }
+.btnConfirm:hover { background: #c8edd8; }
+.btnCancel { padding: 6px 12px; background: #fde0e0; border: 1px solid #f5b0b0; border-radius: 7px; font-size: 12px; cursor: pointer; color: #c0392b; font-family: 'DM Sans', sans-serif; font-weight: 500; }
+.btnCancel:hover { background: #fcc8c8; }
+.btnComplete { padding: 6px 12px; background: #f0f0f0; border: 1px solid #d0d0d0; border-radius: 7px; font-size: 12px; cursor: pointer; color: #5a7a6a; font-family: 'DM Sans', sans-serif; }
+.btnComplete:hover { background: #e0e0e0; }
+.btnEdit { padding: 6px 12px; background: transparent; border: 1px solid #d0e4dc; border-radius: 7px; font-size: 12px; cursor: pointer; color: #3a4a42; font-family: 'DM Sans', sans-serif; }
+.btnEdit:hover { background: #f0f5f2; }
+.btnDelete { padding: 6px 12px; background: transparent; border: 1px solid #f5b0b0; border-radius: 7px; font-size: 12px; cursor: pointer; color: #c0392b; font-family: 'DM Sans', sans-serif; }
+.btnDelete:hover { background: #fde0e0; }
+
+/* ── Modal ── */
+.overlay {
+  position: fixed; inset: 0; background: rgba(0,0,0,0.5);
+  display: flex; align-items: center; justify-content: center;
+  z-index: 100; padding: 16px;
+}
+.modal {
+  background: #fff; border-radius: 16px; width: 100%; max-width: 600px;
+  max-height: 90vh; overflow-y: auto; padding: 24px;
+}
+.modalHeader { display: flex; justify-content: space-between; align-items: center; margin-bottom: 20px; }
+.modalTitle { font-size: 16px; font-weight: 600; color: #1a2e26; }
+.modalClose {
+  background: #f0f5f2; border: none; cursor: pointer;
+  width: 28px; height: 28px; border-radius: 50%; font-size: 14px; color: #5a7a6a;
+  display: flex; align-items: center; justify-content: center;
+}
+.form { display: flex; flex-direction: column; gap: 14px; }
+.grid { display: grid; grid-template-columns: 1fr 1fr; gap: 12px; }
+.field { display: flex; flex-direction: column; gap: 5px; }
+.field label { font-size: 12px; font-weight: 500; color: #5a7a6a; }
+.field input, .field select, .field textarea {
+  padding: 9px 12px; border: 1px solid #d0e4dc; border-radius: 9px;
+  font-size: 13px; font-family: 'DM Sans', sans-serif; outline: none; resize: vertical;
+}
+.field input:focus, .field select:focus, .field textarea:focus { border-color: #0d7a52; }
+.fullWidth { grid-column: 1 / -1; }
+.formActions { display: flex; gap: 10px; justify-content: flex-end; padding-top: 4px; }
+.btnCancelForm {
+  padding: 10px 20px; background: transparent; border: 1px solid #d0e4dc;
+  border-radius: 9px; font-size: 13px; cursor: pointer;
+  font-family: 'DM Sans', sans-serif; color: #3a4a42;
+}
+.btnCancelForm:hover { background: #f0f5f2; }
+.btnSave {
+  padding: 10px 20px; background: #0d7a52; color: #fff; border: none;
+  border-radius: 9px; font-size: 13px; font-weight: 500; cursor: pointer;
+  font-family: 'DM Sans', sans-serif;
+}
+.btnSave:hover { background: #0a6343; }
+.btnSave:disabled { background: #9ad4be; cursor: not-allowed; }
+
+/* ── Vizuelni picker stolova ── */
+.pickerWrap { border: 1px solid #d0e4dc; border-radius: 12px; overflow: hidden; background: #f8faf9; }
+.pickerLegend {
+  display: flex; gap: 14px; padding: 8px 12px;
+  border-bottom: 1px solid #e0e8e4; background: #fff; font-size: 11px;
+}
+.legendFree, .legendReserved, .legendSelected {
+  display: flex; align-items: center; gap: 5px; color: #5a7a6a;
+}
+.legendFree::before { content: ''; width: 12px; height: 12px; border-radius: 3px; background: #fff; border: 1.5px solid #b0c9be; flex-shrink: 0; }
+.legendReserved::before { content: ''; width: 12px; height: 12px; border-radius: 3px; background: #dceffe; border: 1.5px solid #378add; flex-shrink: 0; }
+.legendSelected::before { content: ''; width: 12px; height: 12px; border-radius: 3px; background: #0d7a52; border: 1.5px solid #0d7a52; flex-shrink: 0; }
+.pickerCanvas { position: relative; width: 100%; min-height: 160px; overflow: auto; }
+.pickerGrid {
+  position: absolute; inset: 0;
+  background-image: linear-gradient(to right, #e0e8e4 1px, transparent 1px), linear-gradient(to bottom, #e0e8e4 1px, transparent 1px);
+  background-size: 20px 20px; pointer-events: none;
+}
+.pickerTable {
+  position: absolute; display: flex; flex-direction: column;
+  align-items: center; justify-content: center;
+  background: #fff; border: 2px solid #b0c9be;
+  cursor: pointer; transition: all 0.15s; font-family: 'DM Sans', sans-serif; padding: 2px;
+}
+.pickerTable:hover { border-color: #0d7a52; background: #f0faf5; }
+.pickerTableReserved { background: #dceffe; border-color: #378add; }
+.pickerTableReserved:hover { background: #c0e0f8; }
+.pickerTableSelected { background: #0d7a52 !important; border-color: #0d7a52 !important; }
+.pickerTableSelected .pickerTableLabel { color: #fff !important; }
+.pickerTableLabel { font-size: 10px; font-weight: 600; color: #1a2e26; text-align: center; line-height: 1.2; pointer-events: none; }
+.pickerReservedDot {
+  position: absolute; top: -6px; right: -6px; width: 16px; height: 16px;
+  border-radius: 50%; background: #378add; color: #fff;
+  font-size: 9px; font-weight: 700; display: flex; align-items: center; justify-content: center;
+  pointer-events: none;
+}
+.pickerSelected {
+  display: flex; align-items: center; gap: 8px; padding: 8px 12px;
+  background: #e0f5ec; border-top: 1px solid #9fd4bc; font-size: 12px; color: #0d7a52;
+}
+.pickerClear { background: none; border: none; cursor: pointer; font-size: 11px; color: #c0392b; padding: 0 4px; font-family: 'DM Sans', sans-serif; }
+.pickerClear:hover { text-decoration: underline; }
+.pickerEmpty { padding: 16px; text-align: center; font-size: 13px; color: #8a9e96; }
+
+/* ── Responsive ── */
+@media (max-width: 600px) {
+  .grid { grid-template-columns: 1fr; }
+  .wrap { padding: 14px; }
+  .resCard { flex-direction: column; }
+  .modal { padding: 16px; }
+  .calGrid { gap: 2px; }
+}

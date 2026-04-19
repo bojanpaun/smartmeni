@@ -1,3 +1,5 @@
+// ▶ Zamijeniti: src/layouts/AdminLayout.jsx
+
 import { useState } from 'react'
 import { Link, useLocation, useNavigate } from 'react-router-dom'
 import { usePlatform } from '../context/PlatformContext'
@@ -14,10 +16,10 @@ export const MODULES = [
     active: true,
     perm: 'view_menu',
     links: [
-      { label: 'Dashboard',  icon: '📊', path: '/admin/menu',          exact: true },
-      { label: 'Meni',       icon: '🍽️', path: '/admin/menu/items',    perm: 'edit_menu' },
-      { label: 'Narudžbe',   icon: '🧾', path: '/admin/orders',        perm: 'view_orders' },
-      { label: 'Zahtjevi',   icon: '🔔', path: '/admin/waiter',        perm: 'view_waiter_req' },
+      { label: 'Pregled',    icon: '📊', path: '/admin/menu',      exact: true },
+      { label: 'Meni',       icon: '🍽️', path: '/admin/menu/items', perm: 'edit_menu' },
+      { label: 'Narudžbe',   icon: '🧾', path: '/admin/orders',    perm: 'view_orders' },
+      { label: 'Zahtjevi',   icon: '🔔', path: '/admin/waiter',    perm: 'view_waiter_req' },
       { label: 'QR kod',     icon: '📱', path: '/admin/menu/qr' },
     ],
   },
@@ -25,13 +27,14 @@ export const MODULES = [
     key: 'tables',
     label: 'Stolovi',
     icon: '🪑',
-    desc: 'Mapa stolova, status i rezervacije',
+    desc: 'Mapa stolova, status u realnom vremenu i rezervacije',
     path: '/admin/tables',
-    active: false,
+    active: true,
     perm: 'view_tables',
     links: [
-      { label: 'Mapa stolova',  icon: '🗺️', path: '/admin/tables',       exact: true },
-      { label: 'Rezervacije',   icon: '📅', path: '/admin/reservations', perm: 'view_reservations' },
+      { label: 'Mapa stolova',    icon: '🗺️', path: '/admin/tables',        exact: true },
+      { label: 'Prikaz konobara', icon: '👁',  path: '/admin/tables/view' },
+      { label: 'Rezervacije',     icon: '📅', path: '/admin/reservations' },
     ],
   },
   {
@@ -55,8 +58,8 @@ export const MODULES = [
     active: true,
     perm: 'view_staff',
     links: [
-      { label: 'Zaposleni',       icon: '👤', path: '/admin/staff',       exact: true },
-      { label: 'Role i permisije',icon: '🔑', path: '/admin/staff/roles', perm: 'manage_roles' },
+      { label: 'Zaposleni',        icon: '👤', path: '/admin/staff',       exact: true },
+      { label: 'Role i permisije', icon: '🔑', path: '/admin/staff/roles', perm: 'manage_roles' },
     ],
   },
   {
@@ -68,8 +71,8 @@ export const MODULES = [
     active: false,
     perm: 'view_analytics',
     links: [
-      { label: 'Pregled',     icon: '📊', path: '/admin/analytics',         exact: true },
-      { label: 'Izvještaji',  icon: '📈', path: '/admin/analytics/reports', perm: 'view_reports' },
+      { label: 'Pregled',    icon: '📊', path: '/admin/analytics',         exact: true },
+      { label: 'Izvještaji', icon: '📈', path: '/admin/analytics/reports', perm: 'view_reports' },
     ],
   },
   {
@@ -90,11 +93,11 @@ export const MODULES = [
 ]
 
 const BOTTOM_NAV = [
-  { path: '/admin',        label: 'Početna',  icon: '⊞', exact: true },
-  { path: '/admin/menu',   label: 'Meni',     icon: '🍽️', perm: 'view_menu' },
-  { path: '/admin/orders', label: 'Narudžbe', icon: '🧾', perm: 'view_orders' },
-  { path: '/admin/staff',  label: 'Osoblje',  icon: '👥', perm: 'view_staff' },
-  { path: '/admin/settings',label: 'Postavke',icon: '⚙️' },
+  { path: '/admin',          label: 'Početna',  icon: '⊞', exact: true },
+  { path: '/admin/menu',     label: 'Meni',     icon: '🍽️', perm: 'view_menu' },
+  { path: '/admin/orders',   label: 'Narudžbe', icon: '🧾', perm: 'view_orders' },
+  { path: '/admin/tables',   label: 'Stolovi',  icon: '🪑', perm: 'view_tables' },
+  { path: '/admin/settings', label: 'Postavke', icon: '⚙️' },
 ]
 
 export default function AdminLayout({ children }) {
@@ -110,8 +113,10 @@ export default function AdminLayout({ children }) {
   ) || (
     ['/admin/orders', '/admin/waiter', '/admin/kitchen'].some(p => location.pathname.startsWith(p))
       ? MODULES.find(m => m.key === 'menu')
-      : ['/admin/settings'].some(p => location.pathname.startsWith(p))
+      : ['/admin/settings', '/admin/billing'].some(p => location.pathname.startsWith(p))
       ? MODULES.find(m => m.key === 'settings')
+      : ['/admin/reservations'].some(p => location.pathname.startsWith(p))
+      ? MODULES.find(m => m.key === 'tables')
       : null
   )
 
@@ -138,7 +143,6 @@ export default function AdminLayout({ children }) {
     return (
       <div className={styles.hubLayout}>
         <header className={styles.hubHeader}>
-          {/* Naziv restorana umjesto brenda */}
           <div className={styles.hubRestName}>{restName}</div>
           <div className={styles.hubHeaderRight}>
             {restaurant && (
@@ -161,7 +165,6 @@ export default function AdminLayout({ children }) {
           {children}
         </main>
 
-        {/* Diskretan brend link na dnu */}
         <footer className={styles.hubFooter}>
           <a href="/" className={styles.hubBrand}>
             smart<span className={styles.green}>meni</span>.me
@@ -177,7 +180,6 @@ export default function AdminLayout({ children }) {
 
       <aside className={`${styles.sidebar} ${collapsed ? styles.sidebarCollapsed : ''}`}>
 
-        {/* Top — naziv restorana + collapse dugme */}
         <div className={styles.sbTop}>
           {!collapsed && (
             <Link to="/admin" className={styles.sbRestTitle}>
@@ -193,7 +195,6 @@ export default function AdminLayout({ children }) {
           </button>
         </div>
 
-        {/* Role korisnika — samo kad je otvoren */}
         {!collapsed && (
           <div className={styles.sbRole}>
             <div className={styles.sbRoleIcon}>
@@ -209,29 +210,21 @@ export default function AdminLayout({ children }) {
           </div>
         )}
 
-        {/* Navigacija */}
         <nav className={styles.nav}>
 
-          {/* ← Kontrolna tabla */}
-          <Link
-            to="/admin"
-            className={styles.navBackItem}
-            title="Kontrolna tabla"
-          >
+          <Link to="/admin" className={styles.navBackItem} title="Kontrolna tabla">
             <span className={styles.navIcon}>←</span>
             {!collapsed && <span>Kontrolna tabla</span>}
           </Link>
 
           <div className={styles.navDivider} />
 
-          {/* Naziv aktivnog modula */}
           {!collapsed && activeModule && (
             <div className={styles.navModuleTitle}>
               {activeModule.icon} {activeModule.label}
             </div>
           )}
 
-          {/* Linkovi modula */}
           {activeModule?.links.map((link, i) => {
             if (!canAccess(link.perm)) return null
             return (
@@ -247,7 +240,6 @@ export default function AdminLayout({ children }) {
             )
           })}
 
-          {/* Uputstvo */}
           {activeModule && (
             <>
               <div className={styles.navDivider} />
@@ -277,7 +269,6 @@ export default function AdminLayout({ children }) {
           )}
         </nav>
 
-        {/* Dno — meni uživo, odjava, brend */}
         <div className={styles.sbBottom}>
           {restaurant && !collapsed && (
             <a
@@ -297,7 +288,6 @@ export default function AdminLayout({ children }) {
             {collapsed ? '↩' : 'Odjava'}
           </button>
 
-          {/* Diskretan brend na dnu */}
           {!collapsed && (
             <a href="/" className={styles.sbBrand}>
               smartmeni.me
@@ -306,7 +296,6 @@ export default function AdminLayout({ children }) {
         </div>
       </aside>
 
-      {/* Main */}
       <div className={styles.mainWrap}>
         <header className={styles.topbar}>
           <div className={styles.breadcrumb}>
@@ -329,7 +318,6 @@ export default function AdminLayout({ children }) {
         </footer>
       </div>
 
-      {/* Mobile bottom nav */}
       <nav className={styles.bottomNav}>
         {BOTTOM_NAV.map((item, i) => {
           if (!canAccess(item.perm)) return null

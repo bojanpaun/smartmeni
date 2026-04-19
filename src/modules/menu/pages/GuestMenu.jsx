@@ -1,5 +1,7 @@
+// ▶ Zamijeniti: src/modules/menu/pages/GuestMenu.jsx
+
 import { useState, useEffect } from 'react'
-import { useParams } from 'react-router-dom'
+import { useParams, useSearchParams } from 'react-router-dom'
 import { supabase } from '../../../lib/supabase'
 import { getTemplate } from '../../../lib/templates'
 import styles from './GuestMenu.module.css'
@@ -62,6 +64,11 @@ const TAG_CONFIG = {
 
 export default function Menu() {
   const { slug } = useParams()
+  // ── IZMJENA 1: čita ?table= iz URL-a ──────────────────────
+  const [searchParams] = useSearchParams()
+  const tableNumber = searchParams.get('table')
+  // ──────────────────────────────────────────────────────────
+
   const [activeCat, setActiveCat] = useState('predjela')
   const [selectedItem, setSelectedItem] = useState(null)
   const [lang, setLang] = useState('sr')
@@ -103,17 +110,19 @@ export default function Menu() {
   const isEn = lang === 'en'
   const specialItem = allItems.find(i => isDemo ? i.special : i.is_special)
 
+  // ── IZMJENA 2: tableNumber se proslijeđuje u waiter_requests ──
   const sendWaiterRequest = async (type) => {
     if (!isDemo && realData?.restaurant) {
       await supabase.from('waiter_requests').insert({
         restaurant_id: realData.restaurant.id,
-        table_number: 'Sto',
+        table_number: tableNumber || 'Nepoznat',
         request_type: type,
       })
     }
     setWaiterSent(true)
     setShowWaiter(false)
   }
+  // ──────────────────────────────────────────────────────────────
 
   if (loadingData) return (
     <div style={{ minHeight:'100vh', display:'flex', alignItems:'center', justifyContent:'center', fontFamily:'DM Sans,sans-serif', color:'#8a9e96' }}>
@@ -128,6 +137,12 @@ export default function Menu() {
       <div style={{ color:'#8a9e96' }}>Provjerite URL ili kontaktirajte restoran.</div>
     </div>
   )
+
+  // ── IZMJENA 3: tableTag prikazuje broj stola iz URL-a ──────
+  const tableLabel = tableNumber
+    ? `Sto ${tableNumber}`
+    : (r.table || '')
+  // ──────────────────────────────────────────────────────────
 
   return (
     <div className={styles.pageWrapper}>
@@ -146,7 +161,8 @@ export default function Menu() {
       {/* HEADER */}
       <div className={styles.header} style={{ background: tpl.brand }}>
         <div className={styles.headerTop}>
-          <div className={styles.tableTag}>{r.table}</div>
+          {/* IZMJENA 4: prikazuje broj stola iz QR koda */}
+          {tableLabel && <div className={styles.tableTag}>{tableLabel}</div>}
           <button className={styles.langToggle} onClick={() => setLang(isEn ? 'sr' : 'en')}>
             {isEn ? 'SR' : 'EN'}
           </button>
@@ -344,5 +360,3 @@ export default function Menu() {
     </div>
   )
 }
-
-

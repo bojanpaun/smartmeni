@@ -1,0 +1,421 @@
+/* ▶ Novi fajl: src/modules/tables/pages/TableMapEditor.module.css */
+
+.wrap {
+  display: flex;
+  flex-direction: column;
+  height: 100%;
+  font-family: 'DM Sans', sans-serif;
+}
+
+.loading {
+  padding: 3rem;
+  text-align: center;
+  color: #8a9e96;
+}
+
+/* ── Toolbar ── */
+.toolbar {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 10px 16px;
+  background: #fff;
+  border-bottom: 1px solid #e0e8e4;
+  gap: 10px;
+  flex-wrap: wrap;
+}
+
+.toolbarLeft { display: flex; gap: 6px; }
+.toolbarRight { display: flex; align-items: center; gap: 10px; }
+
+.toolBtn {
+  padding: 7px 14px;
+  border-radius: 8px;
+  border: 1px solid #d0e4dc;
+  background: #fff;
+  font-size: 13px;
+  cursor: pointer;
+  font-family: 'DM Sans', sans-serif;
+  color: #3a4a42;
+  transition: all 0.15s;
+}
+.toolBtn:hover { background: #f0f5f2; }
+.toolBtnActive { background: #0d7a52; color: #fff; border-color: #0d7a52; }
+
+.saveMsg { font-size: 13px; color: #0d7a52; font-weight: 500; }
+
+.btnSave {
+  padding: 8px 18px;
+  background: #0d7a52;
+  color: #fff;
+  border: none;
+  border-radius: 8px;
+  font-size: 13px;
+  cursor: pointer;
+  font-family: 'DM Sans', sans-serif;
+  font-weight: 500;
+}
+.btnSave:hover { background: #0a6343; }
+.btnSave:disabled { background: #9ad4be; cursor: not-allowed; }
+
+.btnView {
+  padding: 8px 16px;
+  background: transparent;
+  border: 1px solid #d0e4dc;
+  border-radius: 8px;
+  font-size: 13px;
+  cursor: pointer;
+  font-family: 'DM Sans', sans-serif;
+  color: #0d7a52;
+}
+.btnView:hover { background: #f0f5f2; }
+
+/* ── Editor layout ── */
+.editorLayout {
+  display: flex;
+  flex: 1;
+  overflow: hidden;
+}
+
+/* ── Canvas ── */
+.canvas {
+  flex: 1;
+  position: relative;
+  overflow: auto;
+  background: #f8faf9;
+  min-height: 500px;
+  cursor: default;
+}
+
+.canvasAdd { cursor: crosshair; }
+
+.canvasGrid {
+  position: absolute;
+  inset: 0;
+  background-image:
+    linear-gradient(to right, #e0e8e4 1px, transparent 1px),
+    linear-gradient(to bottom, #e0e8e4 1px, transparent 1px);
+  background-size: 40px 40px;
+  pointer-events: none;
+}
+
+.canvasHint {
+  position: absolute;
+  top: 12px;
+  left: 50%;
+  transform: translateX(-50%);
+  background: rgba(13, 122, 82, 0.9);
+  color: #fff;
+  font-size: 13px;
+  padding: 7px 16px;
+  border-radius: 20px;
+  pointer-events: none;
+  z-index: 10;
+}
+
+/* ── Sto element ── */
+.tableEl {
+  position: absolute;
+  background: #fff;
+  border: 2px solid #b0c9be;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  cursor: grab;
+  user-select: none;
+  transition: border-color 0.15s, box-shadow 0.15s;
+  box-shadow: 0 2px 8px rgba(0,0,0,0.08);
+}
+.tableEl:hover { border-color: #0d7a52; }
+.tableEl:active { cursor: grabbing; }
+
+.tableElSelected {
+  border-color: #0d7a52 !important;
+  box-shadow: 0 0 0 3px rgba(13,122,82,0.2);
+}
+
+/* Status boje */
+.status-free { background: #fff; border-color: #b0c9be; }
+.status-occupied { background: #fff8f0; border-color: #f5b87a; }
+.status-calling { background: #fff0f0; border-color: #f57a7a; }
+
+.tableLabel {
+  font-size: 12px;
+  font-weight: 600;
+  color: #1a2e26;
+  text-align: center;
+  line-height: 1.3;
+}
+
+.tableSeats {
+  font-size: 10px;
+  color: #8a9e96;
+  margin-top: 2px;
+}
+
+/* Resize handle */
+.resizeHandle {
+  position: absolute;
+  bottom: -4px;
+  right: -4px;
+  width: 12px;
+  height: 12px;
+  background: #0d7a52;
+  border-radius: 2px;
+  cursor: se-resize;
+  border: 2px solid #fff;
+}
+
+/* ── Panel desno ── */
+.panel {
+  width: 240px;
+  flex-shrink: 0;
+  background: #fff;
+  border-left: 1px solid #e0e8e4;
+  display: flex;
+  flex-direction: column;
+  overflow-y: auto;
+}
+
+.panelTitle {
+  font-size: 15px;
+  font-weight: 600;
+  color: #1a2e26;
+  padding: 16px 16px 8px;
+  border-bottom: 1px solid #f0f5f2;
+}
+
+.field {
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+  padding: 10px 16px 0;
+}
+.field label {
+  font-size: 11px;
+  font-weight: 500;
+  color: #8a9e96;
+  text-transform: uppercase;
+  letter-spacing: 0.5px;
+}
+.field input {
+  padding: 8px 10px;
+  border: 1px solid #d0e4dc;
+  border-radius: 8px;
+  font-size: 13px;
+  font-family: 'DM Sans', sans-serif;
+  outline: none;
+}
+.field input:focus { border-color: #0d7a52; }
+
+.fieldRow {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 0;
+}
+
+.shapeToggle {
+  display: flex;
+  gap: 6px;
+}
+.shapeToggle button {
+  flex: 1;
+  padding: 7px;
+  border: 1px solid #d0e4dc;
+  border-radius: 8px;
+  background: #fff;
+  font-size: 12px;
+  cursor: pointer;
+  font-family: 'DM Sans', sans-serif;
+  color: #3a4a42;
+  transition: all 0.15s;
+}
+.shapeToggle button:hover { background: #f0f5f2; }
+.shapeActive { background: #e0f5ec !important; border-color: #0d7a52 !important; color: #0d7a52 !important; font-weight: 500 !important; }
+
+.panelActions {
+  display: flex;
+  gap: 8px;
+  padding: 14px 16px;
+  border-bottom: 1px solid #f0f5f2;
+}
+
+.btnQR {
+  flex: 1;
+  padding: 8px;
+  background: #f0f5f2;
+  border: 1px solid #d0e4dc;
+  border-radius: 8px;
+  font-size: 12px;
+  cursor: pointer;
+  font-family: 'DM Sans', sans-serif;
+  color: #0d7a52;
+  font-weight: 500;
+}
+.btnQR:hover { background: #e0f5ec; }
+
+.btnDelete {
+  flex: 1;
+  padding: 8px;
+  background: #fff0f0;
+  border: 1px solid #f5c0c0;
+  border-radius: 8px;
+  font-size: 12px;
+  cursor: pointer;
+  font-family: 'DM Sans', sans-serif;
+  color: #c0392b;
+  font-weight: 500;
+}
+.btnDelete:hover { background: #fde0e0; }
+
+/* Panel prazan */
+.panelEmpty {
+  padding: 24px 16px;
+  text-align: center;
+  color: #8a9e96;
+  font-size: 13px;
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+  align-items: center;
+  border-bottom: 1px solid #f0f5f2;
+}
+.panelEmptyIcon { font-size: 32px; }
+
+.panelLegend {
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+  margin-top: 8px;
+  text-align: left;
+  width: 100%;
+}
+.legendItem {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  font-size: 12px;
+  color: #5a7a6a;
+}
+.legendDot {
+  width: 10px;
+  height: 10px;
+  border-radius: 50%;
+  flex-shrink: 0;
+}
+.dotFree { background: #b0c9be; }
+.dotOccupied { background: #f5b87a; }
+.dotCalling { background: #f57a7a; }
+
+/* Lista stolova */
+.tableList {
+  flex: 1;
+  padding: 12px 0;
+  overflow-y: auto;
+}
+.tableListTitle {
+  font-size: 11px;
+  font-weight: 500;
+  color: #8a9e96;
+  text-transform: uppercase;
+  letter-spacing: 0.5px;
+  padding: 0 16px 8px;
+}
+.tableListItem {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  padding: 8px 16px;
+  cursor: pointer;
+  font-size: 13px;
+  color: #1a2e26;
+  transition: background 0.1s;
+}
+.tableListItem:hover { background: #f0f5f2; }
+.tableListItemActive { background: #e0f5ec; }
+.tableListSeats {
+  margin-left: auto;
+  font-size: 11px;
+  color: #8a9e96;
+}
+
+/* ── QR modal ── */
+.qrOverlay {
+  position: fixed;
+  inset: 0;
+  background: rgba(0,0,0,0.5);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  z-index: 100;
+  padding: 16px;
+}
+
+.qrModal {
+  background: #fff;
+  border-radius: 16px;
+  padding: 24px;
+  max-width: 320px;
+  width: 100%;
+  position: relative;
+  text-align: center;
+}
+
+.qrClose {
+  position: absolute;
+  top: 12px;
+  right: 12px;
+  background: #f0f5f2;
+  border: none;
+  cursor: pointer;
+  width: 28px;
+  height: 28px;
+  border-radius: 50%;
+  font-size: 14px;
+  color: #5a7a6a;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.qrTitle {
+  font-size: 16px;
+  font-weight: 600;
+  color: #1a2e26;
+  margin-bottom: 8px;
+}
+
+.qrUrl {
+  font-size: 11px;
+  color: #8a9e96;
+  margin-bottom: 16px;
+  word-break: break-all;
+}
+
+.qrBox {
+  background: #f8faf9;
+  border-radius: 12px;
+  padding: 16px;
+  display: inline-block;
+  margin-bottom: 16px;
+}
+
+.qrDownload {
+  display: block;
+  padding: 10px 20px;
+  background: #0d7a52;
+  color: #fff;
+  border-radius: 8px;
+  font-size: 13px;
+  font-weight: 500;
+  text-decoration: none;
+  font-family: 'DM Sans', sans-serif;
+}
+.qrDownload:hover { background: #0a6343; }
+
+/* ── Responsive ── */
+@media (max-width: 700px) {
+  .editorLayout { flex-direction: column; }
+  .panel { width: 100%; height: 280px; border-left: none; border-top: 1px solid #e0e8e4; }
+}

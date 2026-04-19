@@ -14,6 +14,10 @@ import WaiterDashboard from './modules/menu/pages/WaiterDashboard'
 import KitchenDashboard from './modules/menu/pages/KitchenDashboard'
 import StaffRoles from './platform/superadmin/StaffRoles'
 import SuperAdminPanel from './platform/superadmin/SuperAdminPanel'
+import TableMapEditor from './modules/tables/pages/TableMapEditor'
+import WaiterMapView from './modules/tables/pages/WaiterMapView'
+import ReservationsPage from './modules/tables/pages/ReservationsPage'
+import OnlineReservationForm from './modules/tables/pages/OnlineReservationForm'
 
 import AdminLayout from './layouts/AdminLayout'
 import ControlPanel from './platform/admin/ControlPanel'
@@ -21,7 +25,6 @@ import ModuleHelp from './platform/admin/ModuleHelp'
 import TemplateSettings from './modules/menu/pages/TemplateSettings'
 import LogoUpload from './modules/menu/pages/LogoUpload'
 import GeneralSettings from './modules/menu/pages/GeneralSettings'
-import OnboardingWizard from './platform/admin/OnboardingWizard'
 import BillingPage from './modules/menu/pages/BillingPage'
 import BillingSuccess from './platform/admin/BillingSuccess'
 
@@ -74,16 +77,22 @@ function AppRoutes() {
       <Route path="/admin/staff" element={<AdminRoute><StaffRoles /></AdminRoute>} />
       <Route path="/admin/staff/help" element={<AdminRoute><ModuleHelp moduleKey="staff" /></AdminRoute>} />
 
+      {/* Stolovi modul */}
+      <Route path="/admin/tables" element={<AdminRoute><TableMapEditor /></AdminRoute>} />
+      <Route path="/admin/tables/view" element={<AdminRoute><WaiterMapView /></AdminRoute>} />
+      <Route path="/admin/tables/help" element={<AdminRoute><ModuleHelp moduleKey="tables" /></AdminRoute>} />
+      <Route path="/admin/reservations" element={<AdminRoute><ReservationsPage /></AdminRoute>} />
+
       {/* Super admin panel */}
       <Route path="/superadmin" element={<AdminRoute><SuperAdminPanel /></AdminRoute>} />
 
       {/* Pomoćne rute */}
-      <Route path="/admin/tables/help" element={<AdminRoute><ModuleHelp moduleKey="tables" /></AdminRoute>} />
       <Route path="/admin/inventory/help" element={<AdminRoute><ModuleHelp moduleKey="inventory" /></AdminRoute>} />
       <Route path="/admin/analytics/help" element={<AdminRoute><ModuleHelp moduleKey="analytics" /></AdminRoute>} />
       <Route path="/admin/settings/help" element={<AdminRoute><ModuleHelp moduleKey="settings" /></AdminRoute>} />
 
-      {/* Guest meni */}
+      {/* Javne rute restorana — redosljed je bitan! */}
+      <Route path="/:slug/rezervacija" element={<OnlineReservationForm />} />
       <Route path="/:slug" element={<CartProvider><GuestMenu /></CartProvider>} />
     </Routes>
   )
