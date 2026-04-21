@@ -1,0 +1,166 @@
+/* ▶ Zamijeniti: src/modules/analytics/pages/AnalyticsPage.module.css */
+
+.wrap { padding: 20px; font-family: 'DM Sans', sans-serif; max-width: 1100px; }
+.loading { padding: 3rem; text-align: center; color: #8a9e96; font-size: 14px; }
+
+/* ── Header ── */
+.header { display: flex; align-items: center; justify-content: space-between; margin-bottom: 16px; gap: 12px; flex-wrap: wrap; }
+.headerTitle { font-size: 20px; font-weight: 600; color: #1a2e26; }
+.periodTabs { display: flex; gap: 4px; background: #f0f5f2; border-radius: 10px; padding: 4px; flex-wrap: wrap; }
+.periodTab { padding: 7px 14px; border-radius: 7px; border: none; background: transparent; font-size: 13px; cursor: pointer; font-family: 'DM Sans', sans-serif; color: #5a7a6a; transition: all 0.15s; }
+.periodTab:hover { color: #1a2e26; }
+.periodTabActive { background: #fff; color: #0d7a52; font-weight: 600; box-shadow: 0 1px 4px rgba(0,0,0,0.08); }
+
+/* ── Custom picker ── */
+.customPicker { display: flex; gap: 12px; align-items: flex-end; background: #fff; border: 1px solid #e0e8e4; border-radius: 12px; padding: 14px 16px; margin-bottom: 16px; flex-wrap: wrap; }
+.customPickerField { display: flex; flex-direction: column; gap: 4px; }
+.customPickerField label { font-size: 11px; font-weight: 500; color: #8a9e96; text-transform: uppercase; letter-spacing: 0.5px; }
+.customPickerField input { padding: 8px 12px; border: 1px solid #d0e4dc; border-radius: 8px; font-size: 13px; font-family: 'DM Sans', sans-serif; outline: none; }
+.customPickerField input:focus { border-color: #0d7a52; }
+
+/* ── Sekcijski tabovi ── */
+.sectionTabs { display: flex; gap: 0; border-bottom: 1px solid #e0e8e4; margin-bottom: 20px; flex-wrap: wrap; }
+.sectionTab { padding: 10px 18px; border: none; background: transparent; font-size: 13px; cursor: pointer; font-family: 'DM Sans', sans-serif; color: #5a7a6a; border-bottom: 2px solid transparent; margin-bottom: -1px; transition: all 0.15s; }
+.sectionTab:hover { color: #1a2e26; background: #f8faf9; }
+.sectionTabActive { color: #0d7a52; font-weight: 600; border-bottom-color: #0d7a52; }
+
+/* ── Operativna profitabilnost ── */
+.profitCard { background: #fff; border: 1px solid #e0e8e4; border-radius: 14px; padding: 20px; margin-bottom: 16px; }
+.profitTitle { font-size: 14px; font-weight: 600; color: #1a2e26; margin-bottom: 16px; }
+.profitRow { display: flex; align-items: center; gap: 8px; flex-wrap: wrap; }
+.profitItem { flex: 1; min-width: 120px; background: #f8faf9; border-radius: 12px; padding: 14px; }
+.profitLabel { font-size: 11px; color: #8a9e96; text-transform: uppercase; letter-spacing: 0.5px; margin-bottom: 6px; }
+.profitValue { font-size: 22px; font-weight: 700; color: #1a2e26; }
+.profitPct { font-size: 11px; color: #8a9e96; margin-top: 2px; }
+.profitMinus, .profitEquals { font-size: 22px; font-weight: 300; color: #8a9e96; flex-shrink: 0; }
+.profitResult { background: #f0f5f2; border: 1px solid #d0e4dc; }
+.profitPos { color: #0d7a52 !important; }
+.profitNeg { color: #c0392b !important; }
+.profitNote { margin-top: 12px; font-size: 12px; color: #8a9e96; display: flex; align-items: center; gap: 6px; }
+.linkBtn { background: none; border: none; cursor: pointer; font-size: 12px; color: #0d7a52; text-decoration: underline; padding: 0; font-family: 'DM Sans', sans-serif; }
+
+/* ── KPI kartice ── */
+.kpiGrid { display: grid; grid-template-columns: repeat(4, 1fr); gap: 12px; margin-bottom: 16px; }
+.kpiCard { background: #fff; border: 1px solid #e0e8e4; border-radius: 14px; padding: 16px 18px; }
+.kpiLabel { font-size: 11px; color: #8a9e96; text-transform: uppercase; letter-spacing: 0.5px; margin-bottom: 6px; }
+.kpiValue { font-size: 24px; font-weight: 700; color: #1a2e26; margin-bottom: 4px; }
+.kpiSub { font-size: 11px; color: #8a9e96; line-height: 1.4; }
+.trendUp   { font-size: 12px; font-weight: 500; color: #0d7a52; }
+.trendDown { font-size: 12px; font-weight: 500; color: #c0392b; }
+.trendFlat { font-size: 12px; font-weight: 500; color: #8a9e96; }
+
+/* ── Sekcije ── */
+.section { background: #fff; border: 1px solid #e0e8e4; border-radius: 14px; padding: 18px 20px; margin-bottom: 16px; }
+.sectionTitle { font-size: 14px; font-weight: 600; color: #1a2e26; margin-bottom: 6px; }
+.sectionDesc { font-size: 12px; color: #8a9e96; margin-bottom: 14px; line-height: 1.5; }
+.twoCol { display: grid; grid-template-columns: 1fr 1fr; gap: 16px; margin-bottom: 16px; }
+.empty { font-size: 13px; color: #8a9e96; padding: 8px 0; line-height: 1.6; }
+
+/* ── Bar chart ── */
+.barChart { display: flex; align-items: flex-end; gap: 3px; height: 120px; padding-bottom: 20px; }
+.barItem { display: flex; flex-direction: column; align-items: center; flex: 1; height: 100%; }
+.barWrap { flex: 1; width: 100%; display: flex; align-items: flex-end; justify-content: center; }
+.bar { width: 75%; border-radius: 4px 4px 0 0; transition: height 0.3s ease; min-height: 4px; cursor: default; }
+.bar:hover { opacity: 0.75; }
+.barLabel { font-size: 9px; color: #8a9e96; margin-top: 4px; text-align: center; white-space: nowrap; }
+.chartEmpty { font-size: 13px; color: #8a9e96; padding: 16px 0; }
+
+/* ── Horizontalni bar ── */
+.hBarList { display: flex; flex-direction: column; gap: 12px; }
+.hBarItem {}
+.hBarMeta { display: flex; justify-content: space-between; align-items: center; margin-bottom: 5px; }
+.hBarLabelWrap { display: flex; align-items: center; gap: 6px; }
+.hBarLabel { font-size: 13px; font-weight: 500; color: #1a2e26; }
+.hBarBadge { font-size: 10px; background: #dceffe; color: #185fa5; padding: 1px 7px; border-radius: 20px; font-weight: 500; }
+.hBarSub { font-size: 11px; color: #8a9e96; }
+.hBarTrack { height: 7px; background: #f0f5f2; border-radius: 4px; overflow: hidden; }
+.hBarFill { height: 100%; border-radius: 4px; transition: width 0.4s ease; }
+
+/* ── Menu Engineering matrica ── */
+.warningBox { background: #fff8e0; border: 1px solid #f5d070; border-radius: 10px; padding: 12px 16px; font-size: 13px; color: #7a5c00; margin-bottom: 4px; }
+.infoBox { background: #e8f0fe; border: 1px solid #b5d4f4; border-radius: 10px; padding: 10px 16px; font-size: 12px; color: #185fa5; margin-bottom: 14px; }
+
+.matrixGrid { display: flex; flex-direction: column; gap: 4px; }
+.matrixAxisY { font-size: 11px; color: #8a9e96; text-align: center; margin-bottom: 4px; }
+.matrixAxisX { font-size: 11px; color: #8a9e96; text-align: center; margin-bottom: 4px; }
+.matrixAxisXBottom { font-size: 11px; color: #8a9e96; text-align: center; margin-top: 4px; }
+.matrixCells { display: grid; grid-template-columns: 1fr 1fr; gap: 10px; }
+.matrixCell { border: 1.5px solid; border-radius: 12px; padding: 14px; }
+.matrixCellTitle { font-size: 13px; font-weight: 700; margin-bottom: 4px; }
+.matrixCellDesc { font-size: 11px; margin-bottom: 10px; line-height: 1.5; opacity: 0.8; }
+.matrixEmpty { font-size: 12px; opacity: 0.6; font-style: italic; }
+.matrixItem { display: flex; justify-content: space-between; align-items: center; padding: 5px 0; border-top: 1px solid rgba(0,0,0,0.06); }
+.matrixItemName { font-size: 12px; font-weight: 500; }
+.matrixItemStats { font-size: 11px; opacity: 0.8; }
+
+/* ── Top jela ── */
+.itemsTable { display: flex; flex-direction: column; }
+.itemsHeader { display: grid; grid-template-columns: 28px 1fr 80px 90px 120px; padding: 6px 8px; font-size: 11px; font-weight: 500; color: #8a9e96; text-transform: uppercase; letter-spacing: 0.5px; border-bottom: 1px solid #f0f5f2; margin-bottom: 4px; }
+.itemRow { display: grid; grid-template-columns: 28px 1fr 80px 90px 120px; align-items: center; padding: 9px 8px; border-bottom: 1px solid #f8faf9; gap: 8px; }
+.itemRow:last-child { border-bottom: none; }
+.itemRow:hover { background: #fafcfb; border-radius: 8px; }
+.itemRank { font-size: 12px; font-weight: 700; color: #8a9e96; }
+.rank1 { color: #f5b400; }
+.rank2 { color: #9aa5ae; }
+.rank3 { color: #b87333; }
+.itemName { font-size: 13px; font-weight: 500; color: #1a2e26; }
+.itemQty { font-size: 13px; color: #5a7a6a; }
+.itemRevenue { font-size: 13px; font-weight: 600; color: #0d7a52; }
+.itemBar { height: 6px; background: #f0f5f2; border-radius: 3px; overflow: hidden; }
+.itemBarFill { height: 100%; background: #0d7a52; border-radius: 3px; transition: width 0.4s ease; opacity: 0.6; }
+
+/* ── Zarobljeni kapital ── */
+.frozenList { display: flex; flex-direction: column; }
+.frozenItem { display: grid; grid-template-columns: 1fr 120px 100px; align-items: center; padding: 8px 0; border-bottom: 1px solid #f0f5f2; font-size: 13px; }
+.frozenItem:last-child { border-bottom: none; }
+.frozenName { color: #1a2e26; font-weight: 500; }
+.frozenQty { color: #5a7a6a; }
+.frozenValue { color: #c0392b; font-weight: 600; text-align: right; }
+.frozenTotal { display: grid; grid-template-columns: 1fr 120px 100px; align-items: center; padding: 10px 0 0; border-top: 2px solid #e0e8e4; margin-top: 4px; font-size: 13px; font-weight: 600; color: #1a2e26; }
+.frozenTotalVal { color: #c0392b; text-align: right; }
+
+/* ── Brzina potrošnje ── */
+.turnoverTable { display: flex; flex-direction: column; }
+.turnoverHeader { display: grid; grid-template-columns: 1fr 110px 110px 120px; padding: 6px 8px; font-size: 11px; font-weight: 500; color: #8a9e96; text-transform: uppercase; letter-spacing: 0.5px; border-bottom: 1px solid #e0e8e4; margin-bottom: 4px; }
+.turnoverRow { display: grid; grid-template-columns: 1fr 110px 110px 120px; align-items: center; padding: 8px; border-bottom: 1px solid #f8faf9; font-size: 13px; color: #1a2e26; }
+.turnoverRow:last-child { border-bottom: none; }
+.turnoverRowLow { background: #fff8f0; border-radius: 8px; }
+.lowDays { color: #c0600a; font-weight: 600; }
+
+/* ── Osoblje ── */
+.staffTable { display: flex; flex-direction: column; margin-bottom: 16px; }
+.staffHeader { display: grid; grid-template-columns: 1fr 120px 100px 100px; padding: 6px 8px; font-size: 11px; font-weight: 500; color: #8a9e96; text-transform: uppercase; letter-spacing: 0.5px; border-bottom: 1px solid #e0e8e4; margin-bottom: 4px; }
+.staffRow { display: grid; grid-template-columns: 1fr 120px 100px 100px; align-items: center; padding: 9px 8px; border-bottom: 1px solid #f8faf9; font-size: 13px; color: #1a2e26; }
+.staffRow:last-child { border-bottom: none; }
+.staffWageType { font-size: 12px; color: #5a7a6a; }
+.staffForPeriod { font-weight: 600; color: #0d7a52; }
+.staffTotal { display: grid; grid-template-columns: 1fr 120px 100px 100px; align-items: center; padding: 10px 8px 0; border-top: 2px solid #e0e8e4; font-size: 13px; font-weight: 600; color: #1a2e26; margin-top: 4px; }
+.staffTotal span:last-child { color: #c0392b; font-size: 15px; }
+
+.manualLaborWrap { background: #f8faf9; border: 1px solid #d0e4dc; border-radius: 12px; padding: 14px 16px; margin-top: 12px; }
+.manualLaborTitle { font-size: 13px; font-weight: 600; color: #1a2e26; margin-bottom: 10px; }
+.manualLaborRow { display: flex; gap: 8px; align-items: center; margin-bottom: 8px; }
+.manualLaborInput { flex: 1; max-width: 220px; padding: 9px 12px; border: 1px solid #d0e4dc; border-radius: 9px; font-size: 13px; font-family: 'DM Sans', sans-serif; outline: none; }
+.manualLaborInput:focus { border-color: #0d7a52; }
+.manualLaborBtn { padding: 9px 16px; background: #0d7a52; color: #fff; border: none; border-radius: 9px; font-size: 13px; font-weight: 500; cursor: pointer; font-family: 'DM Sans', sans-serif; }
+.manualLaborBtn:hover { background: #0a6343; }
+.manualLaborNote { font-size: 11px; color: #8a9e96; line-height: 1.5; }
+
+.laborMetrics { margin-top: 12px; display: grid; grid-template-columns: 200px; }
+
+/* ── Responsive ── */
+@media (max-width: 900px) {
+  .kpiGrid { grid-template-columns: 1fr 1fr; }
+  .twoCol { grid-template-columns: 1fr; }
+  .profitRow { gap: 6px; }
+  .matrixCells { grid-template-columns: 1fr; }
+}
+@media (max-width: 600px) {
+  .kpiGrid { grid-template-columns: 1fr; }
+  .itemsHeader, .itemRow { grid-template-columns: 24px 1fr 70px 80px; }
+  .itemBar { display: none; }
+  .wrap { padding: 14px; }
+  .sectionTab { padding: 8px 12px; font-size: 12px; }
+  .turnoverHeader, .turnoverRow { grid-template-columns: 1fr 90px 90px; }
+  .staffHeader, .staffRow, .staffTotal { grid-template-columns: 1fr 90px 90px; }
+}

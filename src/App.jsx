@@ -18,6 +18,14 @@ import TableMapEditor from './modules/tables/pages/TableMapEditor'
 import WaiterMapView from './modules/tables/pages/WaiterMapView'
 import ReservationsPage from './modules/tables/pages/ReservationsPage'
 import OnlineReservationForm from './modules/tables/pages/OnlineReservationForm'
+import InventoryPage from './modules/inventory/pages/InventoryPage'
+import MovementsLog from './modules/inventory/pages/MovementsLog'
+import IngredientsEditor from './modules/inventory/pages/IngredientsEditor'
+import AnalyticsPage from './modules/analytics/pages/AnalyticsPage'
+import SchedulePage from './modules/hr/pages/SchedulePage'
+import AttendancePage from './modules/hr/pages/AttendancePage'
+import PayrollPage from './modules/hr/pages/PayrollPage'
+import HRReportsPage from './modules/hr/pages/HRReportsPage'
 
 import AdminLayout from './layouts/AdminLayout'
 import ControlPanel from './platform/admin/ControlPanel'
@@ -27,6 +35,7 @@ import LogoUpload from './modules/menu/pages/LogoUpload'
 import GeneralSettings from './modules/menu/pages/GeneralSettings'
 import BillingPage from './modules/menu/pages/BillingPage'
 import BillingSuccess from './platform/admin/BillingSuccess'
+import MyAccount from './platform/admin/MyAccount'
 
 function ProtectedRoute({ children }) {
   const { user, loading } = usePlatform()
@@ -62,6 +71,8 @@ function AppRoutes() {
 
       {/* Digitalni meni modul */}
       <Route path="/admin/menu" element={<AdminRoute><AdminMenu /></AdminRoute>} />
+      <Route path="/admin/menu/items" element={<Navigate to="/admin/menu" replace />} />
+      <Route path="/admin/menu/qr" element={<Navigate to="/admin/menu" replace />} />
       <Route path="/admin/menu/help" element={<AdminRoute><ModuleHelp moduleKey="menu" /></AdminRoute>} />
       <Route path="/admin/settings" element={<AdminRoute><TemplateSettings /></AdminRoute>} />
       <Route path="/admin/settings/templates" element={<AdminRoute><TemplateSettings /></AdminRoute>} />
@@ -75,6 +86,7 @@ function AppRoutes() {
 
       {/* Osoblje modul */}
       <Route path="/admin/staff" element={<AdminRoute><StaffRoles /></AdminRoute>} />
+      <Route path="/admin/staff/roles" element={<AdminRoute><StaffRoles /></AdminRoute>} />
       <Route path="/admin/staff/help" element={<AdminRoute><ModuleHelp moduleKey="staff" /></AdminRoute>} />
 
       {/* Stolovi modul */}
@@ -83,11 +95,26 @@ function AppRoutes() {
       <Route path="/admin/tables/help" element={<AdminRoute><ModuleHelp moduleKey="tables" /></AdminRoute>} />
       <Route path="/admin/reservations" element={<AdminRoute><ReservationsPage /></AdminRoute>} />
 
+      {/* Moj nalog */}
+      <Route path="/admin/account" element={<AdminRoute><MyAccount /></AdminRoute>} />
+
       {/* Super admin panel */}
       <Route path="/superadmin" element={<AdminRoute><SuperAdminPanel /></AdminRoute>} />
 
-      {/* Pomoćne rute */}
+      {/* Inventar modul */}
+      <Route path="/admin/inventory" element={<AdminRoute><InventoryPage /></AdminRoute>} />
+      <Route path="/admin/inventory/movements" element={<AdminRoute><MovementsLog /></AdminRoute>} />
+      <Route path="/admin/inventory/recipes" element={<AdminRoute><IngredientsEditor /></AdminRoute>} />
       <Route path="/admin/inventory/help" element={<AdminRoute><ModuleHelp moduleKey="inventory" /></AdminRoute>} />
+      {/* HR modul */}
+      <Route path="/admin/hr" element={<Navigate to="/admin/hr/schedule" replace />} />
+      <Route path="/admin/hr/schedule" element={<AdminRoute><SchedulePage /></AdminRoute>} />
+      <Route path="/admin/hr/attendance" element={<AdminRoute><AttendancePage /></AdminRoute>} />
+      <Route path="/admin/hr/payroll" element={<AdminRoute><PayrollPage /></AdminRoute>} />
+      <Route path="/admin/hr/reports" element={<AdminRoute><HRReportsPage /></AdminRoute>} />
+
+      {/* Analitika modul */}}
+      <Route path="/admin/analytics" element={<AdminRoute><AnalyticsPage /></AdminRoute>} />
       <Route path="/admin/analytics/help" element={<AdminRoute><ModuleHelp moduleKey="analytics" /></AdminRoute>} />
       <Route path="/admin/settings/help" element={<AdminRoute><ModuleHelp moduleKey="settings" /></AdminRoute>} />
 

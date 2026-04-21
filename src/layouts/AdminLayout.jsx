@@ -16,11 +16,9 @@ export const MODULES = [
     active: true,
     perm: 'view_menu',
     links: [
-      { label: 'Pregled',    icon: '📊', path: '/admin/menu',      exact: true },
-      { label: 'Meni',       icon: '🍽️', path: '/admin/menu/items', perm: 'edit_menu' },
-      { label: 'Narudžbe',   icon: '🧾', path: '/admin/orders',    perm: 'view_orders' },
-      { label: 'Zahtjevi',   icon: '🔔', path: '/admin/waiter',    perm: 'view_waiter_req' },
-      { label: 'QR kod',     icon: '📱', path: '/admin/menu/qr' },
+      { label: 'Meni i stavke', icon: '🍽️', path: '/admin/menu',   exact: true },
+      { label: 'Narudžbe',      icon: '🧾', path: '/admin/orders',  perm: 'view_orders' },
+      { label: 'Zahtjevi',      icon: '🔔', path: '/admin/waiter',  perm: 'view_waiter_req' },
     ],
   },
   {
@@ -41,12 +39,14 @@ export const MODULES = [
     key: 'inventory',
     label: 'Zalihe',
     icon: '📦',
-    desc: 'Inventar, dobavljači i izvještaji potrošnje',
+    desc: 'Inventar, pokreti zaliha i recepture',
     path: '/admin/inventory',
-    active: false,
+    active: true,
     perm: 'view_inventory',
     links: [
-      { label: 'Inventar', icon: '📦', path: '/admin/inventory', exact: true },
+      { label: 'Inventar',  icon: '📦', path: '/admin/inventory',           exact: true },
+      { label: 'Pokreti',   icon: '📋', path: '/admin/inventory/movements' },
+      { label: 'Recepture', icon: '🧪', path: '/admin/inventory/recipes' },
     ],
   },
   {
@@ -59,20 +59,34 @@ export const MODULES = [
     perm: 'view_staff',
     links: [
       { label: 'Zaposleni',        icon: '👤', path: '/admin/staff',       exact: true },
-      { label: 'Role i permisije', icon: '🔑', path: '/admin/staff/roles', perm: 'manage_roles' },
+      { label: 'Role i permisije', icon: '🔑', path: '/admin/staff/roles',  perm: 'manage_roles' },
+    ],
+  },
+  {
+    key: 'hr',
+    label: 'HR',
+    icon: '👥',
+    desc: 'Rasporedi, dolasci, zarade i izvještaji osoblja',
+    path: '/admin/hr',
+    active: true,
+    perm: 'view_hr',
+    links: [
+      { label: 'Raspored',   icon: '📅', path: '/admin/hr/schedule' },
+      { label: 'Dolasci',    icon: '🕐', path: '/admin/hr/attendance' },
+      { label: 'Zarade',     icon: '💰', path: '/admin/hr/payroll' },
+      { label: 'Izvještaji', icon: '📊', path: '/admin/hr/reports' },
     ],
   },
   {
     key: 'analytics',
     label: 'Analitika',
     icon: '📊',
-    desc: 'Promet, najprodavanija jela, izvještaji',
+    desc: 'Prihod, najprodavanija jela i najprometniji sati',
     path: '/admin/analytics',
-    active: false,
+    active: true,
     perm: 'view_analytics',
     links: [
-      { label: 'Pregled',    icon: '📊', path: '/admin/analytics',         exact: true },
-      { label: 'Izvještaji', icon: '📈', path: '/admin/analytics/reports', perm: 'view_reports' },
+      { label: 'Pregled', icon: '📊', path: '/admin/analytics', exact: true },
     ],
   },
   {
@@ -117,6 +131,8 @@ export default function AdminLayout({ children }) {
       ? MODULES.find(m => m.key === 'settings')
       : ['/admin/reservations'].some(p => location.pathname.startsWith(p))
       ? MODULES.find(m => m.key === 'tables')
+      : ['/admin/staff/roles'].some(p => location.pathname.startsWith(p))
+      ? MODULES.find(m => m.key === 'staff')
       : null
   )
 
@@ -280,6 +296,15 @@ export default function AdminLayout({ children }) {
               👁 Meni uživo
             </a>
           )}
+          <Link
+            to="/admin/account"
+            className={`${styles.navItem} ${isActive('/admin/account') ? styles.navItemActive : ''}`}
+            title="Moj nalog"
+          >
+            <span className={styles.navIcon}>👤</span>
+            {!collapsed && <span>Moj nalog</span>}
+          </Link>
+
           <button
             className={styles.logoutBtn}
             onClick={handleLogout}

@@ -1,0 +1,92 @@
+/* ▶ Novi fajl: src/platform/admin/MyAccount.module.css */
+
+.wrap { padding: 20px; font-family: 'DM Sans', sans-serif; max-width: 800px; }
+.loading { padding: 3rem; text-align: center; color: #8a9e96; }
+
+/* ── Header ── */
+.header { margin-bottom: 20px; }
+.headerTitle { font-size: 20px; font-weight: 600; color: #1a2e26; }
+.headerEmail { font-size: 13px; color: #8a9e96; margin-top: 2px; }
+
+/* ── Poruke ── */
+.msg { padding: 12px 16px; border-radius: 10px; font-size: 13px; margin-bottom: 16px; }
+.msgSuccess { background: #e0f5ec; color: #0a6343; border: 1px solid #9fd4bc; }
+.msgError   { background: #fde0e0; color: #c0392b; border: 1px solid #f5b0b0; }
+
+/* ── Layout ── */
+.layout { display: grid; grid-template-columns: 180px 1fr; gap: 20px; align-items: start; }
+
+/* ── Avatar ── */
+.avatarSection {
+  display: flex; flex-direction: column; align-items: center;
+  gap: 10px; padding: 20px; background: #fff;
+  border: 1px solid #e0e8e4; border-radius: 16px;
+}
+.avatarWrap { position: relative; width: 100px; height: 100px; }
+.avatarImg { width: 100px; height: 100px; border-radius: 50%; object-fit: cover; border: 3px solid #e0e8e4; }
+.avatarPlaceholder {
+  width: 100px; height: 100px; border-radius: 50%;
+  background: #0d7a52; color: #fff; font-size: 32px; font-weight: 700;
+  display: flex; align-items: center; justify-content: center;
+  border: 3px solid #e0e8e4;
+}
+.avatarOverlay {
+  position: absolute; inset: 0; border-radius: 50%;
+  background: rgba(0,0,0,0.4); display: flex;
+  align-items: center; justify-content: center; font-size: 24px;
+}
+.avatarInput { display: none; }
+.avatarBtn {
+  padding: 7px 14px; background: #f0f5f2; border: 1px solid #d0e4dc;
+  border-radius: 9px; font-size: 12px; cursor: pointer;
+  font-family: 'DM Sans', sans-serif; color: #3a4a42; white-space: nowrap;
+}
+.avatarBtn:hover { background: #e0f0e8; }
+.avatarBtn:disabled { opacity: 0.6; cursor: not-allowed; }
+.avatarHint { font-size: 10px; color: #8a9e96; text-align: center; }
+
+/* ── Forme ── */
+.forms { display: flex; flex-direction: column; gap: 16px; }
+
+.card { background: #fff; border: 1px solid #e0e8e4; border-radius: 16px; padding: 20px; }
+.cardTitle { font-size: 14px; font-weight: 600; color: #1a2e26; margin-bottom: 16px; }
+
+.form { display: flex; flex-direction: column; gap: 14px; }
+
+.field { display: flex; flex-direction: column; gap: 5px; }
+.field label { font-size: 12px; font-weight: 500; color: #5a7a6a; }
+.field input {
+  padding: 10px 12px; border: 1px solid #d0e4dc;
+  border-radius: 9px; font-size: 13px;
+  font-family: 'DM Sans', sans-serif; outline: none;
+}
+.field input:focus { border-color: #0d7a52; }
+
+.fieldRow { display: grid; grid-template-columns: 1fr 1fr; gap: 12px; }
+.fieldError { font-size: 12px; color: #c0392b; margin-top: -8px; }
+
+.inputWithIcon { position: relative; }
+.inputWithIcon input { padding-left: 34px; width: 100%; box-sizing: border-box; }
+.inputIcon {
+  position: absolute; left: 10px; top: 50%;
+  transform: translateY(-50%); font-size: 14px; pointer-events: none;
+}
+
+.formActions { display: flex; justify-content: flex-end; }
+.btnSave {
+  padding: 10px 22px; background: #0d7a52; color: #fff;
+  border: none; border-radius: 9px; font-size: 13px;
+  font-weight: 500; cursor: pointer; font-family: 'DM Sans', sans-serif;
+}
+.btnSave:hover { background: #0a6343; }
+.btnSave:disabled { background: #9ad4be; cursor: not-allowed; }
+
+/* ── Responsive ── */
+@media (max-width: 600px) {
+  .layout { grid-template-columns: 1fr; }
+  .avatarSection { flex-direction: row; align-items: flex-start; padding: 16px; }
+  .avatarWrap { width: 70px; height: 70px; flex-shrink: 0; }
+  .avatarImg, .avatarPlaceholder { width: 70px; height: 70px; font-size: 24px; }
+  .fieldRow { grid-template-columns: 1fr; }
+  .wrap { padding: 14px; }
+}
