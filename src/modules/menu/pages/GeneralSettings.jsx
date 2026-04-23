@@ -37,8 +37,9 @@ export default function GeneralSettings() {
         phone: restaurant.phone || '',
         hours: restaurant.hours || '',
         description: restaurant.description || '',
-        digital_ordering: restaurant.digital_ordering ?? true,
-        online_reservations: restaurant.online_reservations ?? false,
+        digital_ordering: restaurant.digital_ordering === false ? false : (restaurant.digital_ordering ?? true),
+        online_reservations: restaurant.online_reservations === true ? true : (restaurant.online_reservations ?? false),
+        waiter_requests_enabled: restaurant.waiter_requests_enabled === false ? false : (restaurant.waiter_requests_enabled ?? true),
       })
     }
   }, [restaurant])
@@ -55,10 +56,20 @@ export default function GeneralSettings() {
   }
 
   const toggleField = async (field, val) => {
-    const updated = { ...form, [field]: val }
-    setForm(updated)
-    await supabase.from('restaurants').update({ [field]: val }).eq('id', restaurant.id)
-    setRestaurant({ ...restaurant, [field]: val })
+    // Optimistički update — odmah prikaži novu vrijednost
+    setForm(f => ({ ...f, [field]: val }))
+    const { error } = await supabase
+      .from('restaurants')
+      .update({ [field]: val })
+      .eq('id', restaurant.id)
+    if (error) {
+      // Vrati na staru vrijednost ako update nije uspio
+      console.error('Toggle error:', error)
+      setForm(f => ({ ...f, [field]: !val }))
+      alert('Greška pri čuvanju. Provjerite da li su SQL migracije pokrenute.')
+      return
+    }
+    setRestaurant(r => ({ ...r, [field]: val }))
   }
 
   if (!form) return <div className={styles.loading}>Učitavanje...</div>
@@ -87,6 +98,15 @@ export default function GeneralSettings() {
         desc={v => v
           ? 'Uključeno — gosti mogu rezervisati sto putem linka menija'
           : 'Isključeno — forma za rezervacije nije dostupna gostima'}
+      />
+
+      <Toggle
+        value={form.waiter_requests_enabled}
+        onChange={val => toggleField('waiter_requests_enabled', val)}
+        label="Pozivanje konobara"
+        desc={v => v
+          ? 'Uključeno — gosti mogu pozivati konobara putem menija'
+          : 'Isključeno — dugme za pozivanje konobara nije vidljivo gostima'}
       />
 
       {/* Forma */}

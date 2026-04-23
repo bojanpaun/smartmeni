@@ -4,6 +4,7 @@ import { usePlatform } from '../../../context/PlatformContext'
 import styles from './WaiterDashboard.module.css'
 
 const STATUS_CONFIG = {
+  pending:   { label: 'Nova',        color: '#0d7a52', bg: '#E1F5EE' },
   received:  { label: 'Primljeno',   color: '#1D9E75', bg: '#E1F5EE' },
   preparing: { label: 'U pripremi',  color: '#BA7517', bg: '#FAEEDA' },
   ready:     { label: 'Gotovo',      color: '#534AB7', bg: '#EEEDFE' },
@@ -68,6 +69,7 @@ export default function WaiterDashboard() {
   }
 
   const NEXT_STATUS = {
+    pending: 'received',
     received: 'preparing',
     preparing: 'ready',
     ready: 'served',
@@ -75,13 +77,14 @@ export default function WaiterDashboard() {
   }
 
   const NEXT_LABEL = {
-    received: 'Prihvati narudžbu',
+    pending: 'Prihvati narudžbu',
+    received: 'Počni pripremu',
     preparing: 'Označi kao gotovo',
     ready: 'Serviraj gostu',
     served: 'Zatvori narudžbu',
   }
 
-  const newOrdersCount = orders.filter(o => o.status === 'received').length
+  const newOrdersCount = orders.filter(o => o.status === 'pending' || o.status === 'received').length
   const newReqsCount = waiterReqs.filter(r => r.status === 'new').length
 
   if (loading) return <div className={styles.loading}>Učitavanje...</div>

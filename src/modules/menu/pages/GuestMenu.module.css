@@ -182,15 +182,16 @@
 .waiterBtn {
   width: 100%; padding: 13px;
   border-radius: 12px;
-  border: 1px solid var(--tpl-border, #d0e4dc);
-  background: white;
+  border: 1px solid #d0e4dc;
+  background: #edf5f2;
   color: #3a4a42;
   font-size: 14px;
   font-weight: 500;
   cursor: pointer;
   font-family: 'DM Sans', sans-serif;
+  transition: background 0.15s;
 }
-.waiterBtn:hover { background: var(--tpl-brand-light, #e0f5ec); border-color: var(--tpl-border, #5dcaa5); color: var(--tpl-cat-color, #0d7a52); }
+.waiterBtn:hover { background: #daeee7; }
 .waiterSent {
   padding: 13px; text-align: center;
   background: var(--tpl-brand-light, #e0f5ec); border-radius: 12px;
@@ -201,20 +202,23 @@
 .overlay {
   position: fixed;
   inset: 0;
-  background: rgba(0,0,0,0.5);
+  background: rgba(0,0,0,0.55);
+  backdrop-filter: blur(6px);
+  -webkit-backdrop-filter: blur(6px);
   display: flex;
-  align-items: flex-end;
+  align-items: center;
+  justify-content: center;
   z-index: 50;
+  padding: 16px;
 }
 .sheet {
   background: white;
-  border-radius: 20px 20px 0 0;
+  border-radius: 20px;
   padding: 1.5rem;
   width: 100%;
   max-width: 480px;
-  margin: 0 auto;
   position: relative;
-  max-height: 85vh;
+  max-height: 90vh;
   overflow-y: auto;
 }
 .sheetClose {
@@ -278,14 +282,26 @@
 /* ── Header right ── */
 .headerRight { display: flex; align-items: center; gap: 8px; }
 
-/* ── Cart dugme u headeru ── */
-.cartBtn {
-  padding: 6px 12px; border: none; border-radius: 20px;
-  color: #fff; font-size: 13px; font-weight: 600;
-  cursor: pointer; font-family: 'DM Sans', sans-serif;
-  white-space: nowrap; opacity: 0.95;
+/* ── Sticky cart bar ── */
+.cartBar {
+  display: flex; align-items: center; justify-content: space-between;
+  padding: 11px 14px; border-radius: 12px; margin: 0 0 8px;
+  cursor: pointer;
+  background: #fff;
+  border: 1px solid #d0e4dc;
+  border-left: 4px solid #0d7a52;
+  transition: background 0.15s;
 }
-.cartBtn:hover { opacity: 1; }
+.cartBar:hover { background: #f0faf5; }
+.cartBarLeft { display: flex; align-items: center; gap: 9px; }
+.cartBarCount {
+  width: 20px; height: 20px; border-radius: 50%;
+  background: #0d7a52; color: #fff;
+  display: flex; align-items: center; justify-content: center;
+  font-size: 11px; font-weight: 700; flex-shrink: 0;
+}
+.cartBarLabel { font-size: 14px; font-weight: 500; color: #0e1a14; }
+.cartBarTotal { font-size: 14px; font-weight: 700; color: #0d7a52; }
 
 /* ── Cart overlay ── */
 .cartTitle { font-size: 18px; font-weight: 700; color: #1a2e26; margin-bottom: 16px; }
@@ -312,12 +328,13 @@
 
 /* ── Rezervacija dugme ── */
 .reservationBtn {
-  display: block; text-align: center; padding: 14px;
-  background: #f0f5f2; border: 1px solid #d0e4dc;
-  border-radius: 14px; font-size: 15px; font-weight: 500;
-  color: #1a2e26; text-decoration: none; margin-top: 10px;
+  display: block; text-align: center; padding: 13px;
+  background: #edf5f2; border: 1px solid #d0e4dc;
+  border-radius: 12px; font-size: 14px; font-weight: 500;
+  color: #3a4a42; text-decoration: none; margin-top: 8px;
+  transition: background 0.15s;
 }
-.reservationBtn:hover { background: #e0f0e8; }
+.reservationBtn:hover { background: #daeee7; }
 
 /* ── Narudžba poslana ── */
 .orderSentMsg {

@@ -73,6 +73,7 @@ export default function Menu() {
   const [showCart, setShowCart] = useState(false)
   const [orderSent, setOrderSent] = useState(false)
   const [orderSending, setOrderSending] = useState(false)
+  const [showConfirm, setShowConfirm] = useState(false)
 
   useEffect(() => {
     if (!slug || slug === 'demo') { setLoadingData(false); return }
@@ -98,6 +99,7 @@ export default function Menu() {
   const tpl = getTemplate(r?.template)
   const digitalOrdering = isDemo ? true : (r?.digital_ordering ?? true)
   const onlineReservations = isDemo ? true : (r?.online_reservations ?? false)
+  const waiterEnabled = isDemo ? true : (r?.waiter_requests_enabled === false ? false : (r?.waiter_requests_enabled ?? true))
   const tableNumber = isDemo ? 'Sto 4' : (new URLSearchParams(window.location.search).get('table') || '')
   const currentCategories = isDemo ? data.categories : realData?.categories || []
   const allItems = isDemo
@@ -148,7 +150,7 @@ export default function Menu() {
       const { data: order } = await supabase.from('orders').insert({
         restaurant_id: realData.restaurant.id,
         table_number: tableNumber || 'Online',
-        status: 'pending',
+        status: 'received',
         total: cartTotal,
       }).select().single()
 
@@ -206,11 +208,6 @@ export default function Menu() {
         <div className={styles.headerTop}>
           <div className={styles.tableTag}>{tableNumber ? `Sto ${tableNumber}` : (r.table || '')}</div>
           <div className={styles.headerRight}>
-            {digitalOrdering && cartCount > 0 && (
-              <button className={styles.cartBtn} onClick={() => setShowCart(true)} style={{ background: tpl.brand }}>
-                🛒 {cartCount} · €{cartTotal.toFixed(2)}
-              </button>
-            )}
             <button className={styles.langToggle} onClick={() => setLang(isEn ? 'sr' : 'en')}>
               {isEn ? 'SR' : 'EN'}
             </button>
@@ -326,7 +323,17 @@ export default function Menu() {
 
       {/* WAITER BUTTON */}
       <div className={styles.waiterSection}>
-        {!waiterSent ? (
+        {digitalOrdering && cartCount > 0 && (
+          <div className={styles.cartBar} onClick={() => setShowCart(true)}>
+            <div className={styles.cartBarLeft}>
+              <span style={{ fontSize: 16 }}>🛒</span>
+              <span className={styles.cartBarLabel}>{isEn ? 'View order' : 'Pogledaj narudžbu'}</span>
+              <span className={styles.cartBarCount}>{cartCount}</span>
+            </div>
+            <span className={styles.cartBarTotal}>€{cartTotal.toFixed(2)}</span>
+          </div>
+        )}
+        {waiterEnabled && (!waiterSent ? (
           <button className={styles.waiterBtn} onClick={() => setShowWaiter(true)}>
             🔔 {isEn ? 'Call waiter' : 'Pozovi konobara'}
           </button>
@@ -334,7 +341,7 @@ export default function Menu() {
           <div className={styles.waiterSent} style={{ background: tpl.catBg, color: tpl.catColor }}>
             ✓ {isEn ? 'Request sent! Waiter is on the way.' : 'Zahtjev poslan! Konobar dolazi.'}
           </div>
-        )}
+        ))}
         {onlineReservations && (
           <a
             href={`/${isDemo ? 'demo' : slug}/rezervacija`}
@@ -425,12 +432,10 @@ export default function Menu() {
                 <button
                   className={styles.sheetAdd}
                   style={{ background: tpl.brand }}
-                  onClick={sendOrder}
+                  onClick={() => setShowConfirm(true)}
                   disabled={orderSending}
                 >
-                  {orderSending
-                    ? (isEn ? 'Sending...' : 'Slanje...')
-                    : (isEn ? 'Send order' : 'Pošalji narudžbu')}
+                  {isEn ? 'Send order' : 'Pošalji narudžbu'}
                 </button>
                 {tableNumber && (
                   <div className={styles.cartTableNote}>
@@ -466,6 +471,49 @@ export default function Menu() {
                 <span>{isEn ? opt.en : opt.sr}</span>
               </button>
             ))}
+          </div>
+        </div>
+      )}
+
+      {/* CONFIRM ORDER OVERLAY */}
+      {showConfirm && (
+        <div className={styles.overlay} onClick={() => setShowConfirm(false)}>
+          <div className={styles.sheet} onClick={e => e.stopPropagation()} style={{ textAlign: 'center' }}>
+            <div style={{ fontSize: 48, marginBottom: 12 }}>🛒</div>
+            <div className={styles.sheetName}>
+              {isEn ? 'Confirm order?' : 'Potvrdi narudžbu?'}
+            </div>
+            <div className={styles.sheetDesc}>
+              {isEn
+                ? `${cartCount} item(s) · €${cartTotal.toFixed(2)} total. Once sent, the order goes directly to the kitchen.`
+                : `${cartCount} ${cartCount === 1 ? 'stavka' : 'stavke'} · ukupno €${cartTotal.toFixed(2)}. Nakon slanja, narudžba ide direktno u kuhinju.`
+              }
+            </div>
+            <div className={styles.cartItems} style={{ textAlign: 'left', marginBottom: 16 }}>
+              {cart.map(item => (
+                <div key={item.id} className={styles.cartItem}>
+                  <div className={styles.cartItemName}>{item.name}</div>
+                  <div className={styles.cartQty}>×{item.qty}</div>
+                  <div className={styles.cartItemPrice}>€{(parseFloat(item.price) * item.qty).toFixed(2)}</div>
+                </div>
+              ))}
+            </div>
+            <button
+              className={styles.sheetAdd}
+              style={{ background: tpl.brand, marginBottom: 10 }}
+              onClick={async () => { setShowConfirm(false); await sendOrder() }}
+              disabled={orderSending}
+            >
+              {orderSending
+                ? (isEn ? 'Sending...' : 'Slanje...')
+                : (isEn ? '✓ Yes, send order' : '✓ Da, pošalji narudžbu')}
+            </button>
+            <button
+              className={styles.waiterBtn}
+              onClick={() => setShowConfirm(false)}
+            >
+              {isEn ? 'Back to order' : 'Nazad na narudžbu'}
+            </button>
           </div>
         </div>
       )}
