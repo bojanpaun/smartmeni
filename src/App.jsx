@@ -24,6 +24,7 @@ import IngredientsEditor from './modules/inventory/pages/IngredientsEditor'
 import AnalyticsPage from './modules/analytics/pages/AnalyticsPage'
 import SchedulePage from './modules/hr/pages/SchedulePage'
 import StaffPage from './modules/hr/pages/StaffPage'
+import StaffProfilePage from './modules/hr/pages/StaffProfilePage'
 import AttendancePage from './modules/hr/pages/AttendancePage'
 import PayrollPage from './modules/hr/pages/PayrollPage'
 import HRReportsPage from './modules/hr/pages/HRReportsPage'
@@ -111,6 +112,7 @@ function AppRoutes() {
       {/* HR modul */}
       <Route path="/admin/hr" element={<Navigate to="/admin/hr/staff" replace />} />
       <Route path="/admin/hr/staff" element={<AdminRoute><StaffPage /></AdminRoute>} />
+      <Route path="/admin/hr/staff/:staffId" element={<AdminRoute><StaffProfilePage /></AdminRoute>} />
       <Route path="/admin/hr/schedule" element={<AdminRoute><SchedulePage /></AdminRoute>} />
       <Route path="/admin/hr/attendance" element={<AdminRoute><AttendancePage /></AdminRoute>} />
       <Route path="/admin/hr/payroll" element={<AdminRoute><PayrollPage /></AdminRoute>} />
