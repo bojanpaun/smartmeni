@@ -503,6 +503,97 @@ function SettingsPage({ restaurant, setRestaurant }) {
           {msg && <span style={{color:'#0d7a52',fontSize:13}}>✓ {msg}</span>}
         </div>
       </form>
+
+      {/* Poruke za poziv konobara */}
+      <WaiterMessagesEditor restaurant={restaurant} setRestaurant={setRestaurant} />
+    </div>
+  )
+}
+
+function WaiterMessagesEditor({ restaurant, setRestaurant }) {
+  const DEFAULT_MESSAGES = [
+    { sr: 'Pozovi konobara', en: 'Call waiter', icon: '🔔' },
+    { sr: 'Donesi račun', en: 'Bring the bill', icon: '🧾' },
+    { sr: 'Donesi vodu', en: 'Bring water', icon: '🥤' },
+    { sr: 'Skloni prazne tanjire', en: 'Clear the table', icon: '🍽️' },
+  ]
+
+  const [messages, setMessages] = useState(
+    restaurant.waiter_messages || DEFAULT_MESSAGES
+  )
+  const [saving, setSaving] = useState(false)
+  const [msg, setMsg] = useState('')
+
+  const ICONS = ['🔔','🧾','🥤','🍽️','☕','🍷','🧂','❓','👋','🛎️']
+
+  const update = (i, field, val) => {
+    setMessages(prev => prev.map((m, idx) => idx === i ? { ...m, [field]: val } : m))
+  }
+
+  const add = () => {
+    setMessages(prev => [...prev, { sr: '', en: '', icon: '🔔' }])
+  }
+
+  const remove = (i) => {
+    setMessages(prev => prev.filter((_, idx) => idx !== i))
+  }
+
+  const save = async () => {
+    setSaving(true)
+    await supabase.from('restaurants').update({ waiter_messages: messages }).eq('id', restaurant.id)
+    setRestaurant(r => ({ ...r, waiter_messages: messages }))
+    setSaving(false)
+    setMsg('Sačuvano!')
+    setTimeout(() => setMsg(''), 2000)
+  }
+
+  return (
+    <div className={styles.card} style={{ marginTop: 16 }}>
+      <div className={styles.cardTitle}>Poruke za poziv konobara</div>
+      <div style={{ fontSize: 12, color: '#8a9e96', marginBottom: 14 }}>
+        Gosti biraju jednu od ovih poruka kada pozivaju konobara.
+      </div>
+      <div style={{ display: 'flex', flexDirection: 'column', gap: 8 }}>
+        {messages.map((m, i) => (
+          <div key={i} style={{ display: 'flex', gap: 8, alignItems: 'center' }}>
+            <select
+              value={m.icon}
+              onChange={e => update(i, 'icon', e.target.value)}
+              style={{ width: 54, padding: '7px 4px', border: '1px solid #d0e4dc', borderRadius: 8, fontSize: 18, textAlign: 'center' }}
+            >
+              {ICONS.map(ic => <option key={ic} value={ic}>{ic}</option>)}
+            </select>
+            <input
+              value={m.sr}
+              onChange={e => update(i, 'sr', e.target.value)}
+              placeholder="Tekst (SR)"
+              style={{ flex: 1, padding: '8px 10px', border: '1px solid #d0e4dc', borderRadius: 8, fontSize: 13, fontFamily: 'DM Sans, sans-serif', outline: 'none' }}
+            />
+            <input
+              value={m.en}
+              onChange={e => update(i, 'en', e.target.value)}
+              placeholder="Text (EN)"
+              style={{ flex: 1, padding: '8px 10px', border: '1px solid #d0e4dc', borderRadius: 8, fontSize: 13, fontFamily: 'DM Sans, sans-serif', outline: 'none' }}
+            />
+            <button
+              onClick={() => remove(i)}
+              style={{ padding: '7px 10px', background: 'transparent', border: '1px solid #f5b0b0', borderRadius: 8, color: '#c0392b', cursor: 'pointer', fontSize: 13 }}
+            >✕</button>
+          </div>
+        ))}
+      </div>
+      <div style={{ display: 'flex', gap: 10, marginTop: 12, alignItems: 'center' }}>
+        <button
+          onClick={add}
+          style={{ padding: '8px 14px', background: '#f0f5f2', border: '1px solid #d0e4dc', borderRadius: 8, fontSize: 13, cursor: 'pointer', fontFamily: 'DM Sans, sans-serif' }}
+        >
+          + Dodaj poruku
+        </button>
+        <button onClick={save} className={styles.btnSave} disabled={saving}>
+          {saving ? 'Čuvanje...' : 'Sačuvaj poruke'}
+        </button>
+        {msg && <span style={{ color: '#0d7a52', fontSize: 13 }}>✓ {msg}</span>}
+      </div>
     </div>
   )
 }

@@ -1,4 +1,5 @@
 import { useState, useEffect } from 'react'
+import { useLocation } from 'react-router-dom'
 import { supabase } from '../../../lib/supabase'
 import { usePlatform } from '../../../context/PlatformContext'
 import styles from './WaiterDashboard.module.css'
@@ -14,9 +15,16 @@ const STATUS_CONFIG = {
 
 export default function WaiterDashboard() {
   const { restaurant } = usePlatform()
+  const location = useLocation()
   const [orders, setOrders] = useState([])
   const [waiterReqs, setWaiterReqs] = useState([])
-  const [activeTab, setActiveTab] = useState('orders')
+  const [activeTab, setActiveTab] = useState(
+    location.pathname.includes('/waiter') ? 'waiter' : 'orders'
+  )
+
+  useEffect(() => {
+    setActiveTab(location.pathname.includes('/waiter') ? 'waiter' : 'orders')
+  }, [location.pathname])
   const [loading, setLoading] = useState(true)
 
   useEffect(() => {
@@ -48,7 +56,7 @@ export default function WaiterDashboard() {
       supabase.from('waiter_requests')
         .select('*')
         .eq('restaurant_id', restaurant.id)
-        .not('status', 'eq', 'done')
+        .eq('is_resolved', false)
         .order('created_at', { ascending: false }),
     ])
     setOrders(o || [])
@@ -64,7 +72,7 @@ export default function WaiterDashboard() {
   }
 
   const resolveWaiterReq = async (id) => {
-    await supabase.from('waiter_requests').update({ status: 'done' }).eq('id', id)
+    await supabase.from('waiter_requests').update({ is_resolved: true }).eq('id', id)
     setWaiterReqs(prev => prev.filter(r => r.id !== id))
   }
 
@@ -85,7 +93,7 @@ export default function WaiterDashboard() {
   }
 
   const newOrdersCount = orders.filter(o => o.status === 'pending' || o.status === 'received').length
-  const newReqsCount = waiterReqs.filter(r => r.status === 'new').length
+  const newReqsCount = waiterReqs.filter(r => !r.is_resolved).length
 
   if (loading) return <div className={styles.loading}>Učitavanje...</div>
 
@@ -180,7 +188,7 @@ export default function WaiterDashboard() {
                 <div>Nema aktivnih poziva</div>
               </div>
             ) : waiterReqs.map(req => (
-              <div key={req.id} className={`${styles.reqCard} ${req.status === 'new' ? styles.reqNew : ''}`}>
+              <div key={req.id} className={`${styles.reqCard} ${!req.is_resolved ? styles.reqNew : ''}`}>
                 <div className={styles.reqHeader}>
                   <div className={styles.reqTable}>Sto {req.table_number}</div>
                   <div className={styles.reqTime}>

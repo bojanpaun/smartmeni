@@ -87,11 +87,12 @@ export default function TableMapEditor() {
     setSelected(tableId)
 
     const onMove = (e) => {
-      if (!dragging.current) return
-      const dx = e.clientX - dragging.current.startX
-      const dy = e.clientY - dragging.current.startY
+      const d = dragging.current
+      if (!d) return
+      const dx = e.clientX - d.startX
+      const dy = e.clientY - d.startY
       setTables(prev => prev.map(t => t.id === tableId
-        ? { ...t, x: snapToGrid(Math.max(0, dragging.current.origX + dx)), y: snapToGrid(Math.max(0, dragging.current.origY + dy)) }
+        ? { ...t, x: snapToGrid(Math.max(0, d.origX + dx)), y: snapToGrid(Math.max(0, d.origY + dy)) }
         : t
       ))
     }
@@ -320,23 +321,21 @@ export default function TableMapEditor() {
                 </div>
               </div>
 
-              <div className={styles.fieldRow}>
-                <div className={styles.field}>
-                  <label>Širina</label>
-                  <input
-                    type="number"
-                    value={selectedTable.width}
-                    onChange={e => updateTableProp(selectedTable.id, 'width', parseInt(e.target.value))}
-                  />
-                </div>
-                <div className={styles.field}>
-                  <label>Visina</label>
-                  <input
-                    type="number"
-                    value={selectedTable.height}
-                    onChange={e => updateTableProp(selectedTable.id, 'height', parseInt(e.target.value))}
-                  />
-                </div>
+              <div className={styles.field}>
+                <label>Širina</label>
+                <input
+                  type="number"
+                  value={selectedTable.width}
+                  onChange={e => updateTableProp(selectedTable.id, 'width', parseInt(e.target.value))}
+                />
+              </div>
+              <div className={styles.field}>
+                <label>Visina</label>
+                <input
+                  type="number"
+                  value={selectedTable.height}
+                  onChange={e => updateTableProp(selectedTable.id, 'height', parseInt(e.target.value))}
+                />
               </div>
 
               <div className={styles.panelActions}>

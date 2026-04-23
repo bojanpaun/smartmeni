@@ -456,19 +456,19 @@ export default function Menu() {
             <div className={styles.waiterTitle}>
               {isEn ? 'What do you need?' : 'Šta vam je potrebno?'}
             </div>
-            {[
+            {(r?.waiter_messages || [
               { icon: '🔔', sr: 'Pozovi konobara', en: 'Call waiter' },
               { icon: '🧾', sr: 'Donesi račun', en: 'Bring the bill' },
               { icon: '🥤', sr: 'Donesi vodu', en: 'Bring water' },
               { icon: '🍽️', sr: 'Skloni prazne tanjire', en: 'Clear the table' },
-            ].map((opt, i) => (
+            ]).map((opt, i) => (
               <button
                 key={i}
                 className={styles.waiterOpt}
                 onClick={() => sendWaiterRequest(opt.sr)}
               >
                 <span className={styles.waiterOptIcon}>{opt.icon}</span>
-                <span>{isEn ? opt.en : opt.sr}</span>
+                <span>{isEn ? (opt.en || opt.sr) : opt.sr}</span>
               </button>
             ))}
           </div>
