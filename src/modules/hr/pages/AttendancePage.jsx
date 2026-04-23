@@ -1,11 +1,11 @@
-// ▶ Novi fajl: src/modules/hr/pages/AttendancePage.jsx
+// ▶ Zamijeniti: src/modules/hr/pages/AttendancePage.jsx
 
 import { useState, useEffect } from 'react'
 import { supabase } from '../../../lib/supabase'
 import { usePlatform } from '../../../context/PlatformContext'
 import styles from './AttendancePage.module.css'
 
-const today = () => new Date().toISOString().slice(0, 10)
+const toDay = () => new Date().toISOString().slice(0, 10)
 
 function fmtTime(ts) {
   if (!ts) return '—'
@@ -15,7 +15,11 @@ function fmtTime(ts) {
 function calcHours(clockIn, clockOut) {
   if (!clockIn || !clockOut) return null
   const diff = (new Date(clockOut) - new Date(clockIn)) / 3600000
-  return diff > 0 ? diff : null
+  return diff > 0 ? parseFloat(diff.toFixed(2)) : null
+}
+
+function totalHoursForDay(entries) {
+  return entries.reduce((s, e) => s + (parseFloat(e.hours_worked) || 0), 0)
 }
 
 export default function AttendancePage() {
@@ -23,15 +27,15 @@ export default function AttendancePage() {
   const isAdmin = isOwner() || isSuperAdmin()
 
   const [staff, setStaff] = useState([])
-  const [attendance, setAttendance] = useState([])
+  const [entriesByStaff, setEntriesByStaff] = useState({})
   const [myStaffRecord, setMyStaffRecord] = useState(null)
-  const [myToday, setMyToday] = useState(null)
+  const [myEntries, setMyEntries] = useState([])
   const [loading, setLoading] = useState(true)
-  const [filterDate, setFilterDate] = useState(today())
-  const [editRecord, setEditRecord] = useState(null)
+  const [filterDate, setFilterDate] = useState(toDay())
+  const [clockSaving, setClockSaving] = useState(false)
+  const [editEntry, setEditEntry] = useState(null)
   const [editForm, setEditForm] = useState({ clock_in: '', clock_out: '', note: '' })
   const [saving, setSaving] = useState(false)
-  const [clockSaving, setClockSaving] = useState(false)
 
   useEffect(() => {
     if (restaurant && user) loadData()
@@ -39,131 +43,134 @@ export default function AttendancePage() {
 
   const loadData = async () => {
     setLoading(true)
-    const [{ data: s }, { data: att }, { data: myStaff }] = await Promise.all([
+    const [{ data: s }, { data: myStaff }] = await Promise.all([
       supabase.from('staff').select('id, email, user_profiles(full_name)')
         .eq('restaurant_id', restaurant.id).eq('is_active', true).order('email'),
-      supabase.from('attendance').select('*, staff(email, user_profiles(full_name))')
-        .eq('restaurant_id', restaurant.id).eq('date', filterDate).order('clock_in'),
-      supabase.from('staff').select('id').eq('restaurant_id', restaurant.id).eq('user_id', user.id).single(),
+      supabase.from('staff').select('id')
+        .eq('restaurant_id', restaurant.id).eq('user_id', user.id).single(),
     ])
     setStaff(s || [])
-    setAttendance(att || [])
+
+    const { data: entries } = await supabase.from('attendance_entries')
+      .select('*').eq('restaurant_id', restaurant.id)
+      .eq('date', filterDate).order('clock_in')
+
+    const grouped = {}
+    ;(entries || []).forEach(e => {
+      if (!grouped[e.staff_id]) grouped[e.staff_id] = []
+      grouped[e.staff_id].push(e)
+    })
+    setEntriesByStaff(grouped)
 
     if (myStaff) {
       setMyStaffRecord(myStaff)
-      const { data: todayAtt } = await supabase.from('attendance')
-        .select('*').eq('staff_id', myStaff.id).eq('date', today()).single()
-      setMyToday(todayAtt || null)
+      if (filterDate === toDay()) {
+        setMyEntries(grouped[myStaff.id] || [])
+      } else {
+        const { data: todayEntries } = await supabase.from('attendance_entries')
+          .select('*').eq('staff_id', myStaff.id).eq('date', toDay()).order('clock_in')
+        setMyEntries(todayEntries || [])
+      }
     }
     setLoading(false)
   }
 
-  // ── Clock in ──────────────────────────────────────────────
   const clockIn = async () => {
     if (!myStaffRecord) return
     setClockSaving(true)
-    const now = new Date().toISOString()
-
-    // Nađi raspored za danas
-    const { data: schedule } = await supabase.from('work_schedules')
-      .select('start_time, end_time').eq('staff_id', myStaffRecord.id).eq('date', today()).single()
-
-    const payload = {
+    const { data } = await supabase.from('attendance_entries').insert({
       restaurant_id: restaurant.id,
       staff_id: myStaffRecord.id,
-      date: today(),
-      clock_in: now,
-      planned_start: schedule?.start_time || null,
-      planned_end: schedule?.end_time || null,
-      status: 'present',
+      date: toDay(),
+      clock_in: new Date().toISOString(),
+    }).select().single()
+    setMyEntries(prev => [...prev, data])
+    if (filterDate === toDay()) {
+      setEntriesByStaff(prev => ({
+        ...prev,
+        [myStaffRecord.id]: [...(prev[myStaffRecord.id] || []), data],
+      }))
     }
-
-    const { data } = await supabase.from('attendance').upsert(payload, { onConflict: 'staff_id,date' }).select().single()
-    setMyToday(data)
-    if (filterDate === today()) setAttendance(prev => {
-      const filtered = prev.filter(a => a.staff_id !== myStaffRecord.id)
-      return [...filtered, { ...data, staff: { email: user.email } }]
-    })
     setClockSaving(false)
   }
 
-  // ── Clock out ─────────────────────────────────────────────
-  const clockOut = async () => {
-    if (!myToday) return
+  const clockOut = async (entryId) => {
     setClockSaving(true)
+    const entry = myEntries.find(e => e.id === entryId)
+    if (!entry) { setClockSaving(false); return }
     const now = new Date().toISOString()
-    const hours = calcHours(myToday.clock_in, now)
-
-    const { data } = await supabase.from('attendance').update({
-      clock_out: now,
-      hours_worked: hours,
-      status: 'present',
-    }).eq('id', myToday.id).select().single()
-
-    setMyToday(data)
-    setAttendance(prev => prev.map(a => a.id === data.id ? { ...a, ...data } : a))
+    const hours = calcHours(entry.clock_in, now)
+    const { data } = await supabase.from('attendance_entries')
+      .update({ clock_out: now, hours_worked: hours }).eq('id', entryId).select().single()
+    setMyEntries(prev => prev.map(e => e.id === entryId ? data : e))
+    if (filterDate === toDay()) {
+      setEntriesByStaff(prev => ({
+        ...prev,
+        [myStaffRecord.id]: (prev[myStaffRecord.id] || []).map(e => e.id === entryId ? data : e),
+      }))
+    }
     setClockSaving(false)
   }
 
-  // ── Admin korekcija ───────────────────────────────────────
-  const openEdit = (record) => {
-    setEditRecord(record)
+  const openEdit = (entry) => {
+    setEditEntry(entry)
     const toLocalTime = (ts) => {
       if (!ts) return ''
       const d = new Date(ts)
       return `${String(d.getHours()).padStart(2,'0')}:${String(d.getMinutes()).padStart(2,'0')}`
     }
-    setEditForm({
-      clock_in: toLocalTime(record.clock_in),
-      clock_out: toLocalTime(record.clock_out),
-      note: record.note || '',
-    })
+    setEditForm({ clock_in: toLocalTime(entry.clock_in), clock_out: toLocalTime(entry.clock_out), note: entry.note || '' })
   }
 
   const saveEdit = async (e) => {
     e.preventDefault()
     setSaving(true)
     const base = filterDate + 'T'
-    const clockIn = editForm.clock_in ? new Date(base + editForm.clock_in).toISOString() : null
-    const clockOut = editForm.clock_out ? new Date(base + editForm.clock_out).toISOString() : null
-    const hours = calcHours(clockIn, clockOut)
-
-    await supabase.from('attendance').update({
-      clock_in: clockIn,
-      clock_out: clockOut,
-      hours_worked: hours,
-      note: editForm.note || null,
-    }).eq('id', editRecord.id)
-
-    setAttendance(prev => prev.map(a => a.id === editRecord.id
-      ? { ...a, clock_in: clockIn, clock_out: clockOut, hours_worked: hours, note: editForm.note }
-      : a
-    ))
+    const ci = editForm.clock_in ? new Date(base + editForm.clock_in).toISOString() : null
+    const co = editForm.clock_out ? new Date(base + editForm.clock_out).toISOString() : null
+    const hours = calcHours(ci, co)
+    await supabase.from('attendance_entries').update({
+      clock_in: ci, clock_out: co, hours_worked: hours, note: editForm.note || null,
+    }).eq('id', editEntry.id)
+    setEntriesByStaff(prev => {
+      const updated = {}
+      Object.keys(prev).forEach(sid => {
+        updated[sid] = prev[sid].map(e => e.id === editEntry.id
+          ? { ...e, clock_in: ci, clock_out: co, hours_worked: hours, note: editForm.note } : e)
+      })
+      return updated
+    })
     setSaving(false)
-    setEditRecord(null)
+    setEditEntry(null)
   }
 
-  const addManual = async (staffId) => {
-    const { data } = await supabase.from('attendance').upsert({
+  const deleteEntry = async (entryId, staffId) => {
+    if (!confirm('Obrisati ovaj unos?')) return
+    await supabase.from('attendance_entries').delete().eq('id', entryId)
+    setEntriesByStaff(prev => ({
+      ...prev,
+      [staffId]: (prev[staffId] || []).filter(e => e.id !== entryId),
+    }))
+    if (myStaffRecord?.id === staffId) setMyEntries(prev => prev.filter(e => e.id !== entryId))
+  }
+
+  const addManualEntry = async (staffId) => {
+    const { data } = await supabase.from('attendance_entries').insert({
       restaurant_id: restaurant.id,
       staff_id: staffId,
       date: filterDate,
-      status: 'present',
-    }, { onConflict: 'staff_id,date' }).select('*, staff(email, user_profiles(full_name))').single()
-    setAttendance(prev => {
-      const filtered = prev.filter(a => a.staff_id !== staffId)
-      return [...filtered, data]
-    })
+      clock_in: new Date(filterDate + 'T08:00:00').toISOString(),
+    }).select().single()
+    setEntriesByStaff(prev => ({
+      ...prev,
+      [staffId]: [...(prev[staffId] || []), data],
+    }))
     openEdit(data)
   }
 
   const staffName = (s) => s?.user_profiles?.full_name || s?.email?.split('@')[0] || '—'
-  const isLate = (record) => {
-    if (!record.planned_start || !record.clock_in) return false
-    const planned = new Date(filterDate + 'T' + record.planned_start)
-    const actual = new Date(record.clock_in)
-    return actual - planned > 10 * 60 * 1000 // >10 min kasni
-  }
+  const activeEntry = myEntries.find(e => e.clock_in && !e.clock_out)
+  const todayHours = totalHoursForDay(myEntries)
 
   if (loading) return <div className={styles.loading}>Učitavanje evidencije...</div>
 
@@ -173,33 +180,50 @@ export default function AttendancePage() {
       {/* Clock in/out za zaposlenika */}
       {myStaffRecord && (
         <div className={styles.clockCard}>
-          <div className={styles.clockTitle}>Moja smjena danas</div>
-          <div className={styles.clockInfo}>
-            {myToday?.clock_in && (
-              <span>Prijava: <strong>{fmtTime(myToday.clock_in)}</strong></span>
-            )}
-            {myToday?.clock_out && (
-              <span>Odjava: <strong>{fmtTime(myToday.clock_out)}</strong></span>
-            )}
-            {myToday?.hours_worked && (
-              <span>Sati: <strong>{parseFloat(myToday.hours_worked).toFixed(1)}h</strong></span>
-            )}
+          <div className={styles.clockTop}>
+            <div>
+              <div className={styles.clockTitle}>Moje smjene danas</div>
+              {todayHours > 0 && (
+                <div className={styles.clockTotalHours}>
+                  Ukupno: <strong>{todayHours.toFixed(1)}h</strong>
+                </div>
+              )}
+            </div>
+            <div className={styles.clockBtns}>
+              {!activeEntry ? (
+                <button className={styles.btnClockIn} onClick={clockIn} disabled={clockSaving}>
+                  {clockSaving ? '...' : '▶ Prijavi se'}
+                </button>
+              ) : (
+                <button className={styles.btnClockOut} onClick={() => clockOut(activeEntry.id)} disabled={clockSaving}>
+                  {clockSaving ? '...' : '⏹ Odjavi se'}
+                </button>
+              )}
+              {/* Nova smjena ako je prethodna završena */}
+              {myEntries.length > 0 && !activeEntry && (
+                <button className={styles.btnNewShift} onClick={clockIn} disabled={clockSaving}>
+                  + Nova smjena
+                </button>
+              )}
+            </div>
           </div>
-          <div className={styles.clockActions}>
-            {!myToday?.clock_in && (
-              <button className={styles.btnClockIn} onClick={clockIn} disabled={clockSaving}>
-                {clockSaving ? '...' : '▶ Prijavi dolazak'}
-              </button>
-            )}
-            {myToday?.clock_in && !myToday?.clock_out && (
-              <button className={styles.btnClockOut} onClick={clockOut} disabled={clockSaving}>
-                {clockSaving ? '...' : '⏹ Odjavi odlazak'}
-              </button>
-            )}
-            {myToday?.clock_out && (
-              <div className={styles.clockDone}>✓ Smjena završena</div>
-            )}
-          </div>
+          {myEntries.length > 0 && (
+            <div className={styles.myShifts}>
+              {myEntries.map((entry, i) => (
+                <div key={entry.id} className={`${styles.myShift} ${!entry.clock_out ? styles.myShiftActive : ''}`}>
+                  <span className={styles.myShiftNum}>Smjena {i + 1}</span>
+                  <span className={styles.myShiftTime}>
+                    {fmtTime(entry.clock_in)} → {entry.clock_out
+                      ? fmtTime(entry.clock_out)
+                      : <span className={styles.myShiftLive}>u toku</span>}
+                  </span>
+                  {entry.hours_worked && (
+                    <span className={styles.myShiftHours}>{parseFloat(entry.hours_worked).toFixed(1)}h</span>
+                  )}
+                </div>
+              ))}
+            </div>
+          )}
         </div>
       )}
 
@@ -208,67 +232,72 @@ export default function AttendancePage() {
         <>
           <div className={styles.header}>
             <div className={styles.headerTitle}>Evidencija dolazaka</div>
-            <input
-              type="date"
-              className={styles.dateFilter}
-              value={filterDate}
-              onChange={e => setFilterDate(e.target.value)}
-            />
+            <input type="date" className={styles.dateFilter} value={filterDate}
+              onChange={e => setFilterDate(e.target.value)} />
           </div>
 
-          {/* Statistika za dan */}
           <div className={styles.statsRow}>
             <div className={styles.statCard}>
               <div className={styles.statLabel}>Prisutni</div>
-              <div className={styles.statVal}>{attendance.filter(a => a.clock_in).length}</div>
+              <div className={styles.statVal}>{staff.filter(s => (entriesByStaff[s.id] || []).length > 0).length}</div>
             </div>
             <div className={styles.statCard}>
               <div className={styles.statLabel}>Odsutni</div>
-              <div className={styles.statVal}>{staff.length - attendance.filter(a => a.clock_in).length}</div>
+              <div className={styles.statVal}>{staff.filter(s => (entriesByStaff[s.id] || []).length === 0).length}</div>
             </div>
             <div className={styles.statCard}>
-              <div className={styles.statLabel}>Kasni</div>
-              <div className={styles.statVal}>{attendance.filter(isLate).length}</div>
+              <div className={styles.statLabel}>Aktivne smjene</div>
+              <div className={styles.statVal}>{Object.values(entriesByStaff).flat().filter(e => !e.clock_out).length}</div>
             </div>
             <div className={styles.statCard}>
               <div className={styles.statLabel}>Ukupno sati</div>
               <div className={styles.statVal}>
-                {attendance.reduce((s, a) => s + (parseFloat(a.hours_worked) || 0), 0).toFixed(1)}h
+                {Object.values(entriesByStaff).flat()
+                  .reduce((s, e) => s + (parseFloat(e.hours_worked) || 0), 0).toFixed(1)}h
               </div>
             </div>
           </div>
 
-          {/* Lista */}
           <div className={styles.list}>
             {staff.map(member => {
-              const rec = attendance.find(a => a.staff_id === member.id)
+              const entries = entriesByStaff[member.id] || []
+              const totalH = totalHoursForDay(entries)
+              const hasActive = entries.some(e => !e.clock_out)
+
               return (
-                <div key={member.id} className={`${styles.attRow} ${rec?.clock_in ? styles.attRowPresent : styles.attRowAbsent}`}>
-                  <div className={styles.attName}>{staffName(member)}</div>
-                  <div className={styles.attStatus}>
-                    {rec?.clock_in ? (
-                      <span className={`${styles.pill} ${isLate(rec) ? styles.pillLate : styles.pillPresent}`}>
-                        {isLate(rec) ? 'Kasni' : 'Prisutan'}
-                      </span>
-                    ) : (
-                      <span className={`${styles.pill} ${styles.pillAbsent}`}>Odsutan</span>
-                    )}
+                <div key={member.id} className={styles.staffSection}>
+                  <div className={styles.staffSectionHeader}>
+                    <div className={styles.staffSectionName}>
+                      <div className={styles.staffAvatar}>{staffName(member)[0].toUpperCase()}</div>
+                      {staffName(member)}
+                      {hasActive && <span className={styles.activeBadge}>● Aktivan</span>}
+                    </div>
+                    <div className={styles.staffSectionMeta}>
+                      {totalH > 0 && <span className={styles.staffTotalH}>{totalH.toFixed(1)}h</span>}
+                      {entries.length === 0 && <span className={styles.absentBadge}>Odsutan</span>}
+                      <button className={styles.btnAddEntry} onClick={() => addManualEntry(member.id)}>+ Unos</button>
+                    </div>
                   </div>
-                  <div className={styles.attTimes}>
-                    {rec?.clock_in && <span>▶ {fmtTime(rec.clock_in)}</span>}
-                    {rec?.planned_start && <span className={styles.planned}>(plan: {rec.planned_start.slice(0,5)})</span>}
-                    {rec?.clock_out && <span>⏹ {fmtTime(rec.clock_out)}</span>}
-                  </div>
-                  <div className={styles.attHours}>
-                    {rec?.hours_worked ? `${parseFloat(rec.hours_worked).toFixed(1)}h` : '—'}
-                  </div>
-                  <div className={styles.attActions}>
-                    {rec ? (
-                      <button className={styles.btnEdit} onClick={() => openEdit(rec)}>Korekcija</button>
-                    ) : (
-                      <button className={styles.btnAdd2} onClick={() => addManual(member.id)}>+ Dodaj</button>
-                    )}
-                  </div>
+                  {entries.length > 0 && (
+                    <div className={styles.entriesList}>
+                      {entries.map((entry, i) => (
+                        <div key={entry.id} className={`${styles.entryRow} ${!entry.clock_out ? styles.entryRowActive : ''}`}>
+                          <span className={styles.entryNum}>#{i + 1}</span>
+                          <span className={styles.entryTimes}>
+                            {fmtTime(entry.clock_in)}
+                            <span className={styles.entryArrow}>→</span>
+                            {entry.clock_out ? fmtTime(entry.clock_out) : <span className={styles.liveDot}>u toku</span>}
+                          </span>
+                          {entry.hours_worked && <span className={styles.entryHours}>{parseFloat(entry.hours_worked).toFixed(1)}h</span>}
+                          {entry.note && <span className={styles.entryNote}>{entry.note}</span>}
+                          <div className={styles.entryActions}>
+                            <button className={styles.btnEdit} onClick={() => openEdit(entry)}>Uredi</button>
+                            <button className={styles.btnDel} onClick={() => deleteEntry(entry.id, member.id)}>✕</button>
+                          </div>
+                        </div>
+                      ))}
+                    </div>
+                  )}
                 </div>
               )
             })}
@@ -277,31 +306,39 @@ export default function AttendancePage() {
       )}
 
       {/* Edit modal */}
-      {editRecord && (
-        <div className={styles.overlay} onClick={() => setEditRecord(null)}>
+      {editEntry && (
+        <div className={styles.overlay} onClick={() => setEditEntry(null)}>
           <div className={styles.modal} onClick={e => e.stopPropagation()}>
             <div className={styles.modalHeader}>
-              <div className={styles.modalTitle}>Korekcija dolaska</div>
-              <button className={styles.modalClose} onClick={() => setEditRecord(null)}>✕</button>
+              <div className={styles.modalTitle}>Uredi unos</div>
+              <button className={styles.modalClose} onClick={() => setEditEntry(null)}>✕</button>
             </div>
             <form onSubmit={saveEdit} className={styles.form}>
               <div className={styles.fieldRow}>
                 <div className={styles.field}>
-                  <label>Prijava</label>
-                  <input type="time" value={editForm.clock_in} onChange={e => setEditForm(f => ({ ...f, clock_in: e.target.value }))} />
+                  <label>Prijava *</label>
+                  <input type="time" value={editForm.clock_in}
+                    onChange={e => setEditForm(f => ({ ...f, clock_in: e.target.value }))} required />
                 </div>
                 <div className={styles.field}>
                   <label>Odjava</label>
-                  <input type="time" value={editForm.clock_out} onChange={e => setEditForm(f => ({ ...f, clock_out: e.target.value }))} />
+                  <input type="time" value={editForm.clock_out}
+                    onChange={e => setEditForm(f => ({ ...f, clock_out: e.target.value }))} />
                 </div>
               </div>
+              {editForm.clock_in && editForm.clock_out && (
+                <div className={styles.calcHours}>
+                  ≈ {calcHours(filterDate + 'T' + editForm.clock_in, filterDate + 'T' + editForm.clock_out)?.toFixed(1) || '—'}h
+                </div>
+              )}
               <div className={styles.field}>
                 <label>Napomena</label>
-                <input value={editForm.note} onChange={e => setEditForm(f => ({ ...f, note: e.target.value }))} placeholder="Razlog korekcije..." />
+                <input value={editForm.note} onChange={e => setEditForm(f => ({ ...f, note: e.target.value }))}
+                  placeholder="Razlog korekcije..." />
               </div>
               <div className={styles.modalActions}>
-                <button type="button" className={styles.btnSecondary} onClick={() => setEditRecord(null)}>Odustani</button>
-                <button type="submit" className={styles.btnAdd} disabled={saving}>{saving ? 'Čuvanje...' : 'Sačuvaj'}</button>
+                <button type="button" className={styles.btnSecondary} onClick={() => setEditEntry(null)}>Odustani</button>
+                <button type="submit" className={styles.btnSave} disabled={saving}>{saving ? 'Čuvanje...' : 'Sačuvaj'}</button>
               </div>
             </form>
           </div>

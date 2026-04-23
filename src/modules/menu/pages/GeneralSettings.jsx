@@ -1,7 +1,27 @@
+// ▶ Zamijeniti: src/modules/menu/pages/GeneralSettings.jsx
+
 import { useState, useEffect } from 'react'
 import { supabase } from '../../../lib/supabase'
 import { usePlatform } from '../../../context/PlatformContext'
 import styles from './GeneralSettings.module.css'
+
+function Toggle({ value, onChange, label, desc }) {
+  return (
+    <div className={styles.orderingCard}>
+      <div className={styles.orderingInfo}>
+        <div className={styles.orderingTitle}>{label}</div>
+        <div className={styles.orderingDesc}>{desc(value)}</div>
+      </div>
+      <button
+        type="button"
+        className={`${styles.toggle} ${value ? styles.toggleOn : styles.toggleOff}`}
+        onClick={() => onChange(!value)}
+      >
+        <span className={styles.toggleThumb} />
+      </button>
+    </div>
+  )
+}
 
 export default function GeneralSettings() {
   const { restaurant, setRestaurant } = usePlatform()
@@ -16,7 +36,9 @@ export default function GeneralSettings() {
         location: restaurant.location || '',
         phone: restaurant.phone || '',
         hours: restaurant.hours || '',
+        description: restaurant.description || '',
         digital_ordering: restaurant.digital_ordering ?? true,
+        online_reservations: restaurant.online_reservations ?? false,
       })
     }
   }, [restaurant])
@@ -32,15 +54,11 @@ export default function GeneralSettings() {
     setTimeout(() => setSaved(false), 2500)
   }
 
-  const toggleOrdering = async (val) => {
-    const updated = { ...form, digital_ordering: val }
+  const toggleField = async (field, val) => {
+    const updated = { ...form, [field]: val }
     setForm(updated)
-    // Čuva odmah, bez potrebe za klik na Save
-    await supabase
-      .from('restaurants')
-      .update({ digital_ordering: val })
-      .eq('id', restaurant.id)
-    setRestaurant({ ...restaurant, digital_ordering: val })
+    await supabase.from('restaurants').update({ [field]: val }).eq('id', restaurant.id)
+    setRestaurant({ ...restaurant, [field]: val })
   }
 
   if (!form) return <div className={styles.loading}>Učitavanje...</div>
@@ -52,27 +70,26 @@ export default function GeneralSettings() {
         <p className={styles.subtitle}>Podaci o restoranu vidljivi gostima u guest meniju.</p>
       </div>
 
-      {/* Toggle digitalno naručivanje — istaknuto na vrhu */}
-      <div className={styles.orderingCard}>
-        <div className={styles.orderingInfo}>
-          <div className={styles.orderingTitle}>Digitalno naručivanje</div>
-          <div className={styles.orderingDesc}>
-            {form.digital_ordering
-              ? 'Uključeno — gosti mogu naručivati putem menija'
-              : 'Isključeno — gosti vide meni ali ne mogu naručivati'
-            }
-          </div>
-        </div>
-        <button
-          className={`${styles.toggle} ${form.digital_ordering ? styles.toggleOn : styles.toggleOff}`}
-          onClick={() => toggleOrdering(!form.digital_ordering)}
-          title={form.digital_ordering ? 'Isključi naručivanje' : 'Uključi naručivanje'}
-        >
-          <span className={styles.toggleThumb} />
-        </button>
-      </div>
+      {/* Toggleovi */}
+      <Toggle
+        value={form.digital_ordering}
+        onChange={val => toggleField('digital_ordering', val)}
+        label="Digitalno naručivanje"
+        desc={v => v
+          ? 'Uključeno — gosti mogu naručivati putem menija'
+          : 'Isključeno — gosti vide meni ali ne mogu naručivati'}
+      />
 
-      {/* Forma sa podacima restorana */}
+      <Toggle
+        value={form.online_reservations}
+        onChange={val => toggleField('online_reservations', val)}
+        label="Online rezervacije"
+        desc={v => v
+          ? 'Uključeno — gosti mogu rezervisati sto putem linka menija'
+          : 'Isključeno — forma za rezervacije nije dostupna gostima'}
+      />
+
+      {/* Forma */}
       <form onSubmit={save} className={styles.form}>
         <div className={styles.formGrid}>
           <div className={styles.field}>
@@ -106,6 +123,20 @@ export default function GeneralSettings() {
               onChange={e => setForm(f => ({ ...f, hours: e.target.value }))}
               placeholder="npr. 09:00 – 23:00"
             />
+          </div>
+        </div>
+
+        <div className={styles.field} style={{ marginTop: '4px' }}>
+          <label>Opis restorana</label>
+          <textarea
+            value={form.description}
+            onChange={e => setForm(f => ({ ...f, description: e.target.value }))}
+            placeholder="Kratki opis restorana koji gosti vide u meniju — atmosfera, specijaliteti, priča..."
+            rows={3}
+            className={styles.textarea}
+          />
+          <div className={styles.fieldHint}>
+            Prikazuje se ispod naziva restorana u guest meniju. Max 200 karaktera.
           </div>
         </div>
 

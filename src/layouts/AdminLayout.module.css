@@ -497,3 +497,13 @@
   .hubHeader { padding: 0 16px; }
   .hubRole { display: none; }
 }
+
+/* ── Admin divider u sidebaru ── */
+.sbAdminDivider {
+  display: flex; align-items: center; gap: 8px;
+  padding: 12px 12px 4px;
+  font-size: 10px; font-weight: 500; color: rgba(255,255,255,0.3);
+  text-transform: uppercase; letter-spacing: 0.8px;
+  border-top: 1px solid rgba(255,255,255,0.08);
+  margin-top: 4px;
+}

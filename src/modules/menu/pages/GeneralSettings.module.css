@@ -147,3 +147,26 @@
   .formGrid { grid-template-columns: 1fr; }
   .page { padding: 16px; }
 }
+
+/* ── Textarea ── */
+.textarea {
+  padding: 10px 12px;
+  border: 1px solid #d0e4dc;
+  border-radius: 9px;
+  font-size: 13px;
+  font-family: 'DM Sans', sans-serif;
+  outline: none;
+  resize: vertical;
+  min-height: 80px;
+  width: 100%;
+  box-sizing: border-box;
+  line-height: 1.5;
+}
+.textarea:focus { border-color: #0d7a52; }
+
+.fieldHint {
+  font-size: 11px;
+  color: #8a9e96;
+  margin-top: 4px;
+  line-height: 1.4;
+}

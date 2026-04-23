@@ -22,6 +22,9 @@ export default function ControlPanel() {
     navigate(mod.path)
   }
 
+  const functionalModules = MODULES.filter(m => !m.adminOnly)
+  const adminModules = MODULES.filter(m => m.adminOnly)
+
   return (
     <div className={styles.page}>
       {showOnboarding && (
@@ -39,9 +42,9 @@ export default function ControlPanel() {
         <p className={styles.subtitle}>Odaberi modul kojim želiš upravljati</p>
       </div>
 
-      {/* Grid modula */}
+      {/* Funkcionalni moduli */}
       <div className={styles.grid}>
-        {MODULES.map(mod => {
+        {functionalModules.map(mod => {
           const accessible = canAccess(mod)
           return (
             <button
@@ -67,6 +70,42 @@ export default function ControlPanel() {
           )
         })}
       </div>
+
+      {/* Administrativne postavke */}
+      {(isOwner() || isSuperAdmin()) && (
+        <>
+          <div className={styles.adminSectionTitle}>Administrativne postavke</div>
+          <div className={`${styles.grid} ${styles.gridAdmin}`}>
+            <button
+              className={`${styles.card} ${styles.cardAdmin} ${styles.cardActive}`}
+              onClick={() => navigate('/admin/staff/roles')}
+            >
+              <div className={styles.cardIcon}>🔑</div>
+              <div className={styles.cardBody}>
+                <div className={styles.cardName}>Role i permisije</div>
+                <div className={styles.cardDesc}>Upravljanje rolama i pristupima osoblja</div>
+              </div>
+            </button>
+            {adminModules.map(mod => {
+              const accessible = canAccess(mod)
+              return (
+                <button
+                  key={mod.key}
+                  className={`${styles.card} ${styles.cardAdmin} ${mod.active ? styles.cardActive : styles.cardSoon} ${!accessible ? styles.cardLocked : ''}`}
+                  onClick={() => handleModuleClick(mod)}
+                  disabled={!mod.active || !accessible}
+                >
+                  <div className={styles.cardIcon}>{mod.icon}</div>
+                  <div className={styles.cardBody}>
+                    <div className={styles.cardName}>{mod.label}</div>
+                    <div className={styles.cardDesc}>{mod.desc}</div>
+                  </div>
+                </button>
+              )
+            })}
+          </div>
+        </>
+      )}
 
     </div>
   )

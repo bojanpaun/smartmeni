@@ -1,7 +1,5 @@
-// ▶ Zamijeniti: src/modules/menu/pages/GuestMenu.jsx
-
 import { useState, useEffect } from 'react'
-import { useParams, useSearchParams } from 'react-router-dom'
+import { useParams } from 'react-router-dom'
 import { supabase } from '../../../lib/supabase'
 import { getTemplate } from '../../../lib/templates'
 import styles from './GuestMenu.module.css'
@@ -64,11 +62,6 @@ const TAG_CONFIG = {
 
 export default function Menu() {
   const { slug } = useParams()
-  // ── IZMJENA 1: čita ?table= iz URL-a ──────────────────────
-  const [searchParams] = useSearchParams()
-  const tableNumber = searchParams.get('table')
-  // ──────────────────────────────────────────────────────────
-
   const [activeCat, setActiveCat] = useState('predjela')
   const [selectedItem, setSelectedItem] = useState(null)
   const [lang, setLang] = useState('sr')
@@ -76,6 +69,10 @@ export default function Menu() {
   const [showWaiter, setShowWaiter] = useState(false)
   const [realData, setRealData] = useState(null)
   const [loadingData, setLoadingData] = useState(true)
+  const [cart, setCart] = useState([])
+  const [showCart, setShowCart] = useState(false)
+  const [orderSent, setOrderSent] = useState(false)
+  const [orderSending, setOrderSending] = useState(false)
 
   useEffect(() => {
     if (!slug || slug === 'demo') { setLoadingData(false); return }
@@ -100,6 +97,8 @@ export default function Menu() {
   const r = isDemo ? data.restaurant : realData?.restaurant
   const tpl = getTemplate(r?.template)
   const digitalOrdering = isDemo ? true : (r?.digital_ordering ?? true)
+  const onlineReservations = isDemo ? true : (r?.online_reservations ?? false)
+  const tableNumber = isDemo ? 'Sto 4' : (new URLSearchParams(window.location.search).get('table') || '')
   const currentCategories = isDemo ? data.categories : realData?.categories || []
   const allItems = isDemo
     ? Object.values(data.items).flat()
@@ -110,19 +109,69 @@ export default function Menu() {
   const isEn = lang === 'en'
   const specialItem = allItems.find(i => isDemo ? i.special : i.is_special)
 
-  // ── IZMJENA 2: tableNumber se proslijeđuje u waiter_requests ──
   const sendWaiterRequest = async (type) => {
     if (!isDemo && realData?.restaurant) {
       await supabase.from('waiter_requests').insert({
         restaurant_id: realData.restaurant.id,
-        table_number: tableNumber || 'Nepoznat',
+        table_number: 'Sto',
         request_type: type,
       })
     }
     setWaiterSent(true)
     setShowWaiter(false)
   }
-  // ──────────────────────────────────────────────────────────────
+
+  const addToCart = (item) => {
+    setCart(prev => {
+      const existing = prev.find(c => c.id === item.id)
+      if (existing) return prev.map(c => c.id === item.id ? { ...c, qty: c.qty + 1 } : c)
+      return [...prev, { ...item, qty: 1 }]
+    })
+  }
+
+  const removeFromCart = (itemId) => {
+    setCart(prev => {
+      const existing = prev.find(c => c.id === itemId)
+      if (existing?.qty > 1) return prev.map(c => c.id === itemId ? { ...c, qty: c.qty - 1 } : c)
+      return prev.filter(c => c.id !== itemId)
+    })
+  }
+
+  const cartTotal = cart.reduce((s, c) => s + parseFloat(c.price) * c.qty, 0)
+  const cartCount = cart.reduce((s, c) => s + c.qty, 0)
+
+  const sendOrder = async () => {
+    if (cart.length === 0) return
+    setOrderSending(true)
+    if (!isDemo && realData?.restaurant) {
+      // Kreiraj narudžbu
+      const { data: order } = await supabase.from('orders').insert({
+        restaurant_id: realData.restaurant.id,
+        table_number: tableNumber || 'Online',
+        status: 'pending',
+        total: cartTotal,
+      }).select().single()
+
+      if (order) {
+        // Dodaj stavke narudžbe
+        await supabase.from('order_items').insert(
+          cart.map(item => ({
+            restaurant_id: realData.restaurant.id,
+            order_id: order.id,
+            menu_item_id: item.id,
+            name: item.name,
+            price: parseFloat(item.price),
+            quantity: item.qty,
+            category_id: item.category_id,
+          }))
+        )
+      }
+    }
+    setOrderSent(true)
+    setOrderSending(false)
+    setCart([])
+    setShowCart(false)
+  }
 
   if (loadingData) return (
     <div style={{ minHeight:'100vh', display:'flex', alignItems:'center', justifyContent:'center', fontFamily:'DM Sans,sans-serif', color:'#8a9e96' }}>
@@ -137,12 +186,6 @@ export default function Menu() {
       <div style={{ color:'#8a9e96' }}>Provjerite URL ili kontaktirajte restoran.</div>
     </div>
   )
-
-  // ── IZMJENA 3: tableTag prikazuje broj stola iz URL-a ──────
-  const tableLabel = tableNumber
-    ? `Sto ${tableNumber}`
-    : (r.table || '')
-  // ──────────────────────────────────────────────────────────
 
   return (
     <div className={styles.pageWrapper}>
@@ -161,11 +204,17 @@ export default function Menu() {
       {/* HEADER */}
       <div className={styles.header} style={{ background: tpl.brand }}>
         <div className={styles.headerTop}>
-          {/* IZMJENA 4: prikazuje broj stola iz QR koda */}
-          {tableLabel && <div className={styles.tableTag}>{tableLabel}</div>}
-          <button className={styles.langToggle} onClick={() => setLang(isEn ? 'sr' : 'en')}>
-            {isEn ? 'SR' : 'EN'}
-          </button>
+          <div className={styles.tableTag}>{tableNumber ? `Sto ${tableNumber}` : (r.table || '')}</div>
+          <div className={styles.headerRight}>
+            {digitalOrdering && cartCount > 0 && (
+              <button className={styles.cartBtn} onClick={() => setShowCart(true)} style={{ background: tpl.brand }}>
+                🛒 {cartCount} · €{cartTotal.toFixed(2)}
+              </button>
+            )}
+            <button className={styles.langToggle} onClick={() => setLang(isEn ? 'sr' : 'en')}>
+              {isEn ? 'SR' : 'EN'}
+            </button>
+          </div>
         </div>
         <div className={styles.restInfo}>
           <div className={styles.restLogo}>
@@ -261,7 +310,13 @@ export default function Menu() {
               <div className={styles.itemFooter}>
                 <span className={styles.itemPrice} style={{ color: tpl.priceColor }}>€{parseFloat(item.price).toFixed(2)}</span>
                 {digitalOrdering && (
-                  <button className={styles.itemAdd} style={{ background: tpl.brand }}>+</button>
+                  <button
+                    className={styles.itemAdd}
+                    style={{ background: tpl.brand }}
+                    onClick={e => { e.stopPropagation(); addToCart(item) }}
+                  >
+                    {cart.find(c => c.id === item.id)?.qty || '+'}
+                  </button>
                 )}
               </div>
             </div>
@@ -278,6 +333,19 @@ export default function Menu() {
         ) : (
           <div className={styles.waiterSent} style={{ background: tpl.catBg, color: tpl.catColor }}>
             ✓ {isEn ? 'Request sent! Waiter is on the way.' : 'Zahtjev poslan! Konobar dolazi.'}
+          </div>
+        )}
+        {onlineReservations && (
+          <a
+            href={`/${isDemo ? 'demo' : slug}/rezervacija`}
+            className={styles.reservationBtn}
+          >
+            📅 {isEn ? 'Reserve a table' : 'Rezerviši sto'}
+          </a>
+        )}
+        {orderSent && (
+          <div className={styles.orderSentMsg} style={{ background: tpl.catBg, color: tpl.catColor }}>
+            ✓ {isEn ? 'Order sent! Thank you.' : 'Narudžba poslana! Hvala.'}
           </div>
         )}
       </div>
@@ -309,7 +377,11 @@ export default function Menu() {
             </div>
             <div className={styles.sheetPrice} style={{ color: tpl.priceColor }}>€{parseFloat(selectedItem.price).toFixed(2)}</div>
             {digitalOrdering && (
-              <button className={styles.sheetAdd} style={{ background: tpl.brand }}>
+              <button
+                className={styles.sheetAdd}
+                style={{ background: tpl.brand }}
+                onClick={() => { addToCart(selectedItem); setSelectedItem(null) }}
+              >
                 {isEn ? 'Add to order' : 'Dodaj u narudžbu'}
               </button>
             )}
@@ -317,6 +389,55 @@ export default function Menu() {
               <div className={styles.orderingOff}>
                 {isEn ? 'Online ordering is currently unavailable' : 'Naručivanje putem aplikacije nije dostupno'}
               </div>
+            )}
+          </div>
+        </div>
+      )}
+
+      {/* CART OVERLAY */}
+      {showCart && (
+        <div className={styles.overlay} onClick={() => setShowCart(false)}>
+          <div className={styles.sheet} onClick={e => e.stopPropagation()}>
+            <button className={styles.sheetClose} onClick={() => setShowCart(false)}>✕</button>
+            <div className={styles.cartTitle}>{isEn ? 'Your order' : 'Vaša narudžba'}</div>
+
+            {cart.length === 0 ? (
+              <div className={styles.cartEmpty}>{isEn ? 'Cart is empty' : 'Košarica je prazna'}</div>
+            ) : (
+              <>
+                <div className={styles.cartItems}>
+                  {cart.map(item => (
+                    <div key={item.id} className={styles.cartItem}>
+                      <div className={styles.cartItemName}>{item.name}</div>
+                      <div className={styles.cartItemControls}>
+                        <button className={styles.cartQtyBtn} onClick={() => removeFromCart(item.id)}>−</button>
+                        <span className={styles.cartQty}>{item.qty}</span>
+                        <button className={styles.cartQtyBtn} onClick={() => addToCart(item)}>+</button>
+                      </div>
+                      <div className={styles.cartItemPrice}>€{(parseFloat(item.price) * item.qty).toFixed(2)}</div>
+                    </div>
+                  ))}
+                </div>
+                <div className={styles.cartTotal}>
+                  <span>{isEn ? 'Total' : 'Ukupno'}</span>
+                  <span>€{cartTotal.toFixed(2)}</span>
+                </div>
+                <button
+                  className={styles.sheetAdd}
+                  style={{ background: tpl.brand }}
+                  onClick={sendOrder}
+                  disabled={orderSending}
+                >
+                  {orderSending
+                    ? (isEn ? 'Sending...' : 'Slanje...')
+                    : (isEn ? 'Send order' : 'Pošalji narudžbu')}
+                </button>
+                {tableNumber && (
+                  <div className={styles.cartTableNote}>
+                    {isEn ? `Table ${tableNumber}` : `Sto ${tableNumber}`}
+                  </div>
+                )}
+              </>
             )}
           </div>
         </div>
@@ -360,3 +481,5 @@ export default function Menu() {
     </div>
   )
 }
+
+

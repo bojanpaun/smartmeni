@@ -55,26 +55,26 @@ const HELP_CONTENT = {
   },
 
   staff: {
-    title: 'Osoblje — uputstvo',
-    intro: 'Ovaj modul omogućava upravljanje zaposlenima i njihovim pristupom sistemu putem rola i permisija.',
+    title: 'Role i permisije — uputstvo',
+    intro: 'Ovaj modul služi isključivo za kreiranje i upravljanje rolama. Upravljanje zaposlenicima (dodavanje, uklanjanje, plate) nalazi se u modulu HR → Zaposleni.',
     sections: [
       {
-        icon: '👤',
-        title: 'Pozivanje zaposlenika',
+        icon: '🔑',
+        title: 'Kreiranje role',
         steps: [
-          'Klikni + Pozovi zaposlenika',
-          'Unesi email adresu',
-          'Odaberi rolu (Konobar, Kuhinja, Menadžer, Šank)',
-          'Zaposlenik prima email s pozivom i kreira nalog',
+          'Klikni + Nova rola ili odaberi predložak (Konobar, Kuhinja, Menadžer, Šank)',
+          'Unesi naziv role',
+          'Odaberi permisije — šta zaposlenik sa ovom rolom može da vidi i radi',
+          'Sačuvaj rolu',
         ],
       },
       {
-        icon: '🔑',
-        title: 'Role i permisije',
+        icon: '👤',
+        title: 'Dodjela role zaposleniku',
         steps: [
-          'Svaka rola ima skup permisija (šta može vidjeti i raditi)',
-          'Možeš kreirati custom rolu sa tačno onim permisijama koje trebaš',
-          'Predlošci: Konobar, Kuhinja, Menadžer, Šank — prilagodi po potrebi',
+          'Role se dodjeljuju u modulu HR → Zaposleni',
+          'Otvori karticu zaposlenika i odaberi rolu iz padajućeg menija',
+          'Promjene su trenutne — zaposlenik odmah dobija nova prava',
         ],
       },
       {
@@ -82,15 +82,17 @@ const HELP_CONTENT = {
         title: 'Sigurnost pristupa',
         steps: [
           'Zaposleni vide samo module za koje imaju permisiju',
-          'Vlasnik restorana ima puni pristup svemu',
+          'Vlasnik restorana uvijek ima puni pristup svemu',
           'Permisije možeš mijenjati u bilo kom trenutku',
+          'Brisanje role moguće samo ako nije dodijeljena nijednom zaposleniku',
         ],
       },
     ],
     tips: [
-      'Konobar tipično treba: vidjeti meni, narudžbe i zahtjeve',
+      'Konobar tipično treba: vidjeti meni, narudžbe i zahtjeve konobara',
       'Kuhinja treba: vidjeti narudžbe i mijenjati status (priprema/gotovo)',
-      'Menadžer može vidjeti analitiku i upravljati osobljem',
+      'Menadžer može vidjeti analitiku i upravljati HR modulom',
+      'Zaposleni se dodaju u HR → Zaposleni, a ne ovdje',
     ],
   },
 
@@ -229,6 +231,68 @@ const HELP_CONTENT = {
     ],
   },
 
+  hr: {
+    title: 'HR modul — uputstvo',
+    intro: 'HR modul pokriva kompletno upravljanje zaposlenima: evidenciju radnog vremena, rasporede smjena, zarade i izvještaje.',
+    sections: [
+      {
+        icon: '👤',
+        title: 'Zaposleni',
+        steps: [
+          'Dodaj zaposlenika putem email adrese',
+          'Odaberi metodu: kreiraj nalog odmah (sa lozinkom) ili pošalji link za registraciju',
+          'Dodijeli rolu i unesi podatke o plati (po satu, sedmično ili mjesečno)',
+          'Zaposlenik se automatski povezuje sa nalogom kada se registruje sa istim emailom',
+        ],
+      },
+      {
+        icon: '📅',
+        title: 'Raspored rada',
+        steps: [
+          'Otvori sedmični grid i klikni na praznu ćeliju da dodaš smjenu',
+          'Unesi početak i kraj smjene, dodaj napomenu ako je potrebno',
+          'Kopiraj prethodnu sedmicu dugmetom ↩ za brže popunjavanje',
+          'Zaposlenik vidi vlastiti raspored kada se uloguje',
+        ],
+      },
+      {
+        icon: '🕐',
+        title: 'Evidencija dolazaka',
+        steps: [
+          'Zaposlenik klika Prijavi se kada počne smjenu i Odjavi se kada završi',
+          'Moguće je prijaviti više smjena u toku jednog dana',
+          'Admin može ručno dodati ili korigovati unos za bilo koji datum',
+          'Sistem automatski računa ukupne sate rada',
+        ],
+      },
+      {
+        icon: '💰',
+        title: 'Zarade',
+        steps: [
+          'Dodaj stavke: dnevnica, bonus, odbitak, prekovremeni ili akontacija',
+          'Generiši platni list za odabrani period klikom na ime zaposlenika',
+          'Platni list prolazi kroz statuse: Nacrt → Odobreno → Plaćeno',
+          'Osnovna plata se automatski računa na osnovu sati rada i tipa plate',
+        ],
+      },
+      {
+        icon: '📊',
+        title: 'Izvještaji',
+        steps: [
+          'Pregled sati rada i troškova po svakom zaposleniku',
+          'Stopa prisustva i evidencija kašnjenja',
+          'Export u CSV format za dalju obradu',
+        ],
+      },
+    ],
+    tips: [
+      'Prvo kreiraj role u Administrativnim postavkama, pa ih dodijeli zaposlenicima',
+      'Zaposlenik mora imati nalog sa istim emailom da bi se mogao prijaviti na posao',
+      'Platni listovi se generišu na osnovu evidencije dolazaka — što preciznija evidencija, to tačniji obračun',
+      'Koristite napomene u rasporedu za vikend smjene, zamjene i slično',
+    ],
+  },
+
   analytics: {
     title: 'Analitika — uputstvo',
     intro: 'Pregled prometa, najprodavanijih jela i detaljnih izvještaja. Ovaj modul je trenutno u razvoju.',
@@ -238,19 +302,52 @@ const HELP_CONTENT = {
 
   settings: {
     title: 'Postavke — uputstvo',
-    intro: 'Opšte postavke restorana, logo, boja brenda i digitalno naručivanje.',
+    intro: 'Opšte postavke restorana, logo, vizualni predlošci i upravljanje funkcijama.',
     sections: [
       {
         icon: '🎨',
-        title: 'Brending',
+        title: 'Predlošci',
         steps: [
-          'Postavi boju brenda — koristi se u zaglavlju guest menija',
-          'Upload loga (uskoro)',
-          'Naziv i kontakt podaci restorana',
+          'Odaberi vizualni stil guest menija od 11 dostupnih predložaka',
+          'Svaki predložak mijenja boje, tipografiju i stil prikaza',
+          'Promjena je trenutna — gosti odmah vide novi izgled',
+          'Pregled predloška vidljiv je desno od liste',
+        ],
+      },
+      {
+        icon: '🖼️',
+        title: 'Logo restorana',
+        steps: [
+          'Uploadaj logo u JPG, PNG ili WebP formatu (max 2MB)',
+          'Logo se prikazuje u guest meniju, admin panelu i email notifikacijama',
+          'Preporučen format: kvadratni (1:1), min 200×200px',
+          'Bijela ili providna pozadina izgleda najbolje',
+        ],
+      },
+      {
+        icon: '⚙️',
+        title: 'Opšte postavke',
+        steps: [
+          'Naziv, lokacija, telefon i radno vrijeme vidljivi su gostima u meniju',
+          'Opis restorana prikazuje se ispod naziva u guest meniju',
+          'Digitalno naručivanje — uključi/isključi naručivanje putem menija',
+          'Online rezervacije — uključi/isključi formu za rezervaciju stola',
+        ],
+      },
+      {
+        icon: '💳',
+        title: 'Pretplata',
+        steps: [
+          'Pregled trenutnog plana i aktivnih funkcija',
+          'Upravljanje pretplatom i naplatom',
         ],
       },
     ],
-    tips: ['Promjene su odmah vidljive na guest meniju.'],
+    tips: [
+      'Sve promjene su odmah vidljive gostima na guest meniju',
+      'Online rezervacije su korisne samo ako imaš definirane stolove u modulu Stolovi',
+      'Logo i predložak zajedno grade vizualni identitet tvog restorana',
+    ],
   },
 }
 

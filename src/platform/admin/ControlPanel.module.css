@@ -148,3 +148,16 @@
     grid-template-columns: 1fr;
   }
 }
+
+/* ── Administrativne postavke ── */
+.adminSectionTitle {
+  font-size: 11px; font-weight: 500; color: #8a9e96;
+  text-transform: uppercase; letter-spacing: 0.5px;
+  padding: 20px 0 10px; border-top: 1px solid #e0e8e4; margin-top: 8px;
+}
+.gridAdmin { margin-top: 0; }
+.cardAdmin {
+  background: #f8faf9 !important;
+  border-color: #e0e8e4 !important;
+}
+.cardAdmin:hover { background: #f0f5f2 !important; }

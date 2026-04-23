@@ -1,26 +1,33 @@
-/* ▶ Novi fajl: src/modules/hr/pages/AttendancePage.module.css */
+/* ▶ Zamijeniti: src/modules/hr/pages/AttendancePage.module.css */
 
 .wrap { padding: 20px; font-family: 'DM Sans', sans-serif; max-width: 900px; }
 .loading { padding: 3rem; text-align: center; color: #8a9e96; }
 
 /* ── Clock card ── */
 .clockCard { background: #1a2e26; border-radius: 16px; padding: 20px 24px; margin-bottom: 20px; color: #fff; }
-.clockTitle { font-size: 13px; color: rgba(255,255,255,0.6); margin-bottom: 10px; text-transform: uppercase; letter-spacing: 0.5px; }
-.clockInfo { display: flex; gap: 20px; flex-wrap: wrap; margin-bottom: 14px; font-size: 14px; color: rgba(255,255,255,0.8); }
-.clockInfo strong { color: #fff; }
-.clockActions { display: flex; gap: 10px; }
-
-.btnClockIn { padding: 12px 24px; background: #0d7a52; color: #fff; border: none; border-radius: 10px; font-size: 14px; font-weight: 600; cursor: pointer; font-family: 'DM Sans', sans-serif; }
+.clockTop { display: flex; align-items: flex-start; justify-content: space-between; gap: 16px; margin-bottom: 14px; flex-wrap: wrap; }
+.clockTitle { font-size: 13px; color: rgba(255,255,255,0.6); text-transform: uppercase; letter-spacing: 0.5px; margin-bottom: 4px; }
+.clockTotalHours { font-size: 14px; color: rgba(255,255,255,0.8); }
+.clockTotalHours strong { color: #fff; }
+.clockBtns { display: flex; gap: 8px; flex-wrap: wrap; }
+.btnClockIn { padding: 11px 22px; background: #0d7a52; color: #fff; border: none; border-radius: 10px; font-size: 14px; font-weight: 600; cursor: pointer; font-family: 'DM Sans', sans-serif; }
 .btnClockIn:hover { background: #0a6343; }
 .btnClockIn:disabled { opacity: 0.6; cursor: not-allowed; }
-
-.btnClockOut { padding: 12px 24px; background: #c0392b; color: #fff; border: none; border-radius: 10px; font-size: 14px; font-weight: 600; cursor: pointer; font-family: 'DM Sans', sans-serif; }
+.btnClockOut { padding: 11px 22px; background: #c0392b; color: #fff; border: none; border-radius: 10px; font-size: 14px; font-weight: 600; cursor: pointer; font-family: 'DM Sans', sans-serif; }
 .btnClockOut:hover { background: #a93226; }
 .btnClockOut:disabled { opacity: 0.6; cursor: not-allowed; }
+.btnNewShift { padding: 11px 18px; background: rgba(255,255,255,0.15); color: #fff; border: 1px solid rgba(255,255,255,0.3); border-radius: 10px; font-size: 13px; cursor: pointer; font-family: 'DM Sans', sans-serif; }
+.btnNewShift:hover { background: rgba(255,255,255,0.25); }
 
-.clockDone { padding: 10px 20px; background: rgba(13,122,82,0.3); color: #9fd4bc; border-radius: 10px; font-size: 14px; font-weight: 500; }
+.myShifts { display: flex; flex-direction: column; gap: 6px; }
+.myShift { display: flex; align-items: center; gap: 12px; padding: 8px 12px; background: rgba(255,255,255,0.08); border-radius: 9px; }
+.myShiftActive { background: rgba(13,122,82,0.3); border: 1px solid rgba(13,122,82,0.5); }
+.myShiftNum { font-size: 11px; color: rgba(255,255,255,0.5); min-width: 60px; }
+.myShiftTime { font-size: 13px; color: #fff; flex: 1; }
+.myShiftLive { color: #9fd4bc; font-weight: 500; }
+.myShiftHours { font-size: 12px; color: rgba(255,255,255,0.6); }
 
-/* ── Header ── */
+/* ── Admin header ── */
 .header { display: flex; align-items: center; justify-content: space-between; margin-bottom: 14px; gap: 12px; flex-wrap: wrap; }
 .headerTitle { font-size: 18px; font-weight: 600; color: #1a2e26; }
 .dateFilter { padding: 8px 12px; border: 1px solid #d0e4dc; border-radius: 9px; font-size: 13px; font-family: 'DM Sans', sans-serif; outline: none; }
@@ -32,28 +39,35 @@
 .statLabel { font-size: 11px; color: #8a9e96; text-transform: uppercase; letter-spacing: 0.5px; margin-bottom: 4px; }
 .statVal { font-size: 22px; font-weight: 700; color: #1a2e26; }
 
-/* ── Lista ── */
-.list { display: flex; flex-direction: column; gap: 6px; }
+/* ── Staff sekcije ── */
+.list { display: flex; flex-direction: column; gap: 10px; }
+.staffSection { background: #fff; border: 1px solid #e0e8e4; border-radius: 14px; overflow: hidden; }
+.staffSectionHeader { display: flex; align-items: center; justify-content: space-between; padding: 12px 16px; gap: 12px; flex-wrap: wrap; }
+.staffSectionName { display: flex; align-items: center; gap: 8px; font-size: 14px; font-weight: 500; color: #1a2e26; }
+.staffAvatar { width: 32px; height: 32px; border-radius: 50%; background: #0d7a52; color: #fff; font-size: 13px; font-weight: 600; display: flex; align-items: center; justify-content: center; flex-shrink: 0; }
+.activeBadge { font-size: 11px; color: #0d7a52; background: #e0f5ec; padding: 2px 8px; border-radius: 20px; font-weight: 500; }
+.absentBadge { font-size: 11px; color: #8a9e96; background: #f0f0f0; padding: 2px 8px; border-radius: 20px; }
+.staffSectionMeta { display: flex; align-items: center; gap: 8px; }
+.staffTotalH { font-size: 13px; font-weight: 600; color: #0d7a52; }
+.btnAddEntry { padding: 5px 12px; background: #f0f5f2; border: 1px solid #d0e4dc; border-radius: 7px; font-size: 12px; cursor: pointer; font-family: 'DM Sans', sans-serif; color: #3a4a42; }
+.btnAddEntry:hover { background: #e0f5ec; border-color: #0d7a52; color: #0d7a52; }
 
-.attRow { display: grid; grid-template-columns: 1fr 90px 1fr 60px 90px; align-items: center; gap: 10px; padding: 12px 16px; background: #fff; border: 1px solid #e0e8e4; border-radius: 12px; }
-.attRowPresent { border-color: #e0e8e4; }
-.attRowAbsent { background: #fafafa; opacity: 0.8; }
-
-.attName { font-size: 13px; font-weight: 500; color: #1a2e26; }
-.attTimes { display: flex; gap: 10px; font-size: 12px; color: #5a7a6a; flex-wrap: wrap; align-items: center; }
-.planned { color: #8a9e96; font-size: 11px; }
-.attHours { font-size: 13px; font-weight: 600; color: #0d7a52; text-align: right; }
-.attActions { display: flex; justify-content: flex-end; }
-
-.pill { font-size: 11px; padding: 2px 9px; border-radius: 20px; font-weight: 500; }
-.pillPresent  { background: #e0f5ec; color: #0d7a52; }
-.pillAbsent   { background: #f0f0f0; color: #8a9e96; }
-.pillLate     { background: #fff8e0; color: #7a5c00; }
-
-.btnEdit { padding: 5px 12px; background: #f0f5f2; border: 1px solid #d0e4dc; border-radius: 7px; font-size: 12px; cursor: pointer; font-family: 'DM Sans', sans-serif; color: #3a4a42; }
+/* ── Unosi ── */
+.entriesList { border-top: 1px solid #f0f5f2; }
+.entryRow { display: flex; align-items: center; gap: 10px; padding: 9px 16px; border-bottom: 1px solid #f8faf9; flex-wrap: wrap; }
+.entryRow:last-child { border-bottom: none; }
+.entryRowActive { background: #f0faf5; }
+.entryNum { font-size: 11px; color: #8a9e96; min-width: 24px; }
+.entryTimes { font-size: 13px; color: #1a2e26; font-weight: 500; display: flex; align-items: center; gap: 6px; flex: 1; }
+.entryArrow { color: #8a9e96; }
+.liveDot { color: #0d7a52; font-weight: 600; font-size: 12px; }
+.entryHours { font-size: 12px; font-weight: 600; color: #0d7a52; background: #e0f5ec; padding: 2px 8px; border-radius: 20px; }
+.entryNote { font-size: 11px; color: #8a9e96; flex: 1; }
+.entryActions { display: flex; gap: 4px; margin-left: auto; }
+.btnEdit { padding: 4px 10px; background: #f0f5f2; border: 1px solid #d0e4dc; border-radius: 6px; font-size: 11px; cursor: pointer; font-family: 'DM Sans', sans-serif; color: #3a4a42; }
 .btnEdit:hover { background: #e0f0e8; }
-.btnAdd2 { padding: 5px 12px; background: #e0f5ec; border: 1px solid #9fd4bc; border-radius: 7px; font-size: 12px; cursor: pointer; font-family: 'DM Sans', sans-serif; color: #0d7a52; }
-.btnAdd2:hover { background: #c8edd8; }
+.btnDel { padding: 4px 8px; background: transparent; border: 1px solid #f5b0b0; border-radius: 6px; font-size: 11px; cursor: pointer; color: #c0392b; }
+.btnDel:hover { background: #fde0e0; }
 
 /* ── Modal ── */
 .overlay { position: fixed; inset: 0; background: rgba(0,0,0,0.5); display: flex; align-items: center; justify-content: center; z-index: 100; padding: 16px; }
@@ -68,13 +82,12 @@
 .field input { padding: 9px 12px; border: 1px solid #d0e4dc; border-radius: 9px; font-size: 13px; font-family: 'DM Sans', sans-serif; outline: none; }
 .field input:focus { border-color: #0d7a52; }
 .fieldRow { display: grid; grid-template-columns: 1fr 1fr; gap: 12px; }
-.btnAdd { padding: 9px 18px; background: #0d7a52; color: #fff; border: none; border-radius: 9px; font-size: 13px; font-weight: 500; cursor: pointer; font-family: 'DM Sans', sans-serif; }
-.btnAdd:disabled { background: #9ad4be; cursor: not-allowed; }
+.calcHours { text-align: center; font-size: 13px; font-weight: 600; color: #0d7a52; background: #e0f5ec; border-radius: 8px; padding: 6px; }
+.btnSave { padding: 9px 18px; background: #0d7a52; color: #fff; border: none; border-radius: 9px; font-size: 13px; font-weight: 500; cursor: pointer; font-family: 'DM Sans', sans-serif; }
+.btnSave:disabled { background: #9ad4be; cursor: not-allowed; }
 .btnSecondary { padding: 9px 14px; background: #f0f5f2; border: 1px solid #d0e4dc; border-radius: 9px; font-size: 13px; cursor: pointer; font-family: 'DM Sans', sans-serif; color: #3a4a42; }
 
 @media (max-width: 600px) {
   .statsRow { grid-template-columns: 1fr 1fr; }
-  .attRow { grid-template-columns: 1fr 80px; grid-template-rows: auto auto; }
-  .attTimes, .attHours { grid-column: 1 / -1; }
   .wrap { padding: 14px; }
 }

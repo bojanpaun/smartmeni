@@ -1,5 +1,4 @@
-/* ▶ Zamijeniti: src/modules/menu/pages/GuestMenu.module.css */
-
+/* ── Responsive wrapper — siva pozadina samo na desktopu ── */
 .pageWrapper {
   min-height: 100vh;
   background: #f5f9f7;
@@ -30,7 +29,10 @@
   }
 }
 
-.header { padding: 16px 16px 20px; color: white; }
+.header {
+  padding: 16px 16px 20px;
+  color: white;
+}
 .headerTop {
   display: flex;
   justify-content: space-between;
@@ -62,7 +64,10 @@
   display: flex; align-items: center; justify-content: center;
   flex-shrink: 0; overflow: hidden;
 }
-.restLogoImg { width: 100%; height: 100%; object-fit: cover; border-radius: 12px; }
+.restLogoImg {
+  width: 100%; height: 100%; object-fit: cover;
+  border-radius: 12px;
+}
 .restName { font-size: 18px; font-weight: 700; margin-bottom: 4px; }
 .restMeta {
   display: flex; gap: 10px; flex-wrap: wrap;
@@ -192,32 +197,26 @@
   font-size: 14px; font-weight: 500; color: var(--tpl-cat-color, #0d7a52);
 }
 
-/* ── OVERLAY — centriran modal sa blur efektom ── */
+/* OVERLAY */
 .overlay {
   position: fixed;
   inset: 0;
-  background: rgba(0,0,0,0.55);
-  backdrop-filter: blur(8px);
-  -webkit-backdrop-filter: blur(8px);
+  background: rgba(0,0,0,0.5);
   display: flex;
-  align-items: center;
-  justify-content: center;
+  align-items: flex-end;
   z-index: 50;
-  padding: 16px;
 }
-
 .sheet {
   background: white;
-  border-radius: 20px;
+  border-radius: 20px 20px 0 0;
   padding: 1.5rem;
   width: 100%;
-  max-width: 420px;
+  max-width: 480px;
+  margin: 0 auto;
   position: relative;
-  max-height: 88vh;
+  max-height: 85vh;
   overflow-y: auto;
-  box-shadow: 0 20px 60px rgba(0,0,0,0.3);
 }
-
 .sheetClose {
   position: absolute; top: 14px; right: 14px;
   background: #f5f9f7; border: none; cursor: pointer;
@@ -274,4 +273,55 @@
   font-size: 13px;
   text-align: center;
   border: 1px solid #e8ddd0;
+}
+
+/* ── Header right ── */
+.headerRight { display: flex; align-items: center; gap: 8px; }
+
+/* ── Cart dugme u headeru ── */
+.cartBtn {
+  padding: 6px 12px; border: none; border-radius: 20px;
+  color: #fff; font-size: 13px; font-weight: 600;
+  cursor: pointer; font-family: 'DM Sans', sans-serif;
+  white-space: nowrap; opacity: 0.95;
+}
+.cartBtn:hover { opacity: 1; }
+
+/* ── Cart overlay ── */
+.cartTitle { font-size: 18px; font-weight: 700; color: #1a2e26; margin-bottom: 16px; }
+.cartEmpty { text-align: center; color: #8a9e96; padding: 20px 0; font-size: 14px; }
+.cartItems { display: flex; flex-direction: column; gap: 10px; margin-bottom: 16px; }
+.cartItem { display: flex; align-items: center; gap: 10px; padding: 8px 0; border-bottom: 1px solid #f0f5f2; }
+.cartItemName { flex: 1; font-size: 14px; font-weight: 500; color: #1a2e26; }
+.cartItemControls { display: flex; align-items: center; gap: 8px; }
+.cartQtyBtn {
+  width: 28px; height: 28px; border-radius: 50%;
+  border: 1px solid #d0e4dc; background: #fff;
+  font-size: 16px; cursor: pointer; display: flex;
+  align-items: center; justify-content: center; color: #1a2e26;
+}
+.cartQtyBtn:hover { background: #f0f5f2; }
+.cartQty { font-size: 15px; font-weight: 600; color: #1a2e26; min-width: 20px; text-align: center; }
+.cartItemPrice { font-size: 14px; font-weight: 600; color: #0d7a52; min-width: 56px; text-align: right; }
+.cartTotal {
+  display: flex; justify-content: space-between; align-items: center;
+  padding: 12px 0; border-top: 2px solid #e0e8e4;
+  font-size: 16px; font-weight: 700; color: #1a2e26; margin-bottom: 12px;
+}
+.cartTableNote { text-align: center; font-size: 12px; color: #8a9e96; margin-top: 8px; }
+
+/* ── Rezervacija dugme ── */
+.reservationBtn {
+  display: block; text-align: center; padding: 14px;
+  background: #f0f5f2; border: 1px solid #d0e4dc;
+  border-radius: 14px; font-size: 15px; font-weight: 500;
+  color: #1a2e26; text-decoration: none; margin-top: 10px;
+}
+.reservationBtn:hover { background: #e0f0e8; }
+
+/* ── Narudžba poslana ── */
+.orderSentMsg {
+  text-align: center; padding: 14px;
+  border-radius: 14px; font-size: 14px;
+  font-weight: 500; margin-top: 10px;
 }

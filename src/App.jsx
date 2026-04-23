@@ -23,6 +23,7 @@ import MovementsLog from './modules/inventory/pages/MovementsLog'
 import IngredientsEditor from './modules/inventory/pages/IngredientsEditor'
 import AnalyticsPage from './modules/analytics/pages/AnalyticsPage'
 import SchedulePage from './modules/hr/pages/SchedulePage'
+import StaffPage from './modules/hr/pages/StaffPage'
 import AttendancePage from './modules/hr/pages/AttendancePage'
 import PayrollPage from './modules/hr/pages/PayrollPage'
 import HRReportsPage from './modules/hr/pages/HRReportsPage'
@@ -87,6 +88,7 @@ function AppRoutes() {
       {/* Osoblje modul */}
       <Route path="/admin/staff" element={<AdminRoute><StaffRoles /></AdminRoute>} />
       <Route path="/admin/staff/roles" element={<AdminRoute><StaffRoles /></AdminRoute>} />
+      <Route path="/admin/staff/roles/help" element={<AdminRoute><ModuleHelp moduleKey="staff" /></AdminRoute>} />
       <Route path="/admin/staff/help" element={<AdminRoute><ModuleHelp moduleKey="staff" /></AdminRoute>} />
 
       {/* Stolovi modul */}
@@ -107,13 +109,15 @@ function AppRoutes() {
       <Route path="/admin/inventory/recipes" element={<AdminRoute><IngredientsEditor /></AdminRoute>} />
       <Route path="/admin/inventory/help" element={<AdminRoute><ModuleHelp moduleKey="inventory" /></AdminRoute>} />
       {/* HR modul */}
-      <Route path="/admin/hr" element={<Navigate to="/admin/hr/schedule" replace />} />
+      <Route path="/admin/hr" element={<Navigate to="/admin/hr/staff" replace />} />
+      <Route path="/admin/hr/staff" element={<AdminRoute><StaffPage /></AdminRoute>} />
       <Route path="/admin/hr/schedule" element={<AdminRoute><SchedulePage /></AdminRoute>} />
       <Route path="/admin/hr/attendance" element={<AdminRoute><AttendancePage /></AdminRoute>} />
       <Route path="/admin/hr/payroll" element={<AdminRoute><PayrollPage /></AdminRoute>} />
       <Route path="/admin/hr/reports" element={<AdminRoute><HRReportsPage /></AdminRoute>} />
+      <Route path="/admin/hr/help" element={<AdminRoute><ModuleHelp moduleKey="hr" /></AdminRoute>} />
 
-      {/* Analitika modul */}}
+      {/* Analitika modul */}
       <Route path="/admin/analytics" element={<AdminRoute><AnalyticsPage /></AdminRoute>} />
       <Route path="/admin/analytics/help" element={<AdminRoute><ModuleHelp moduleKey="analytics" /></AdminRoute>} />
       <Route path="/admin/settings/help" element={<AdminRoute><ModuleHelp moduleKey="settings" /></AdminRoute>} />

@@ -50,19 +50,6 @@ export const MODULES = [
     ],
   },
   {
-    key: 'staff',
-    label: 'Osoblje',
-    icon: '👥',
-    desc: 'Zaposleni, role i permisije',
-    path: '/admin/staff',
-    active: true,
-    perm: 'view_staff',
-    links: [
-      { label: 'Zaposleni',        icon: '👤', path: '/admin/staff',       exact: true },
-      { label: 'Role i permisije', icon: '🔑', path: '/admin/staff/roles',  perm: 'manage_roles' },
-    ],
-  },
-  {
     key: 'hr',
     label: 'HR',
     icon: '👥',
@@ -71,6 +58,7 @@ export const MODULES = [
     active: true,
     perm: 'view_hr',
     links: [
+      { label: 'Zaposleni',  icon: '👤', path: '/admin/hr/staff' },
       { label: 'Raspored',   icon: '📅', path: '/admin/hr/schedule' },
       { label: 'Dolasci',    icon: '🕐', path: '/admin/hr/attendance' },
       { label: 'Zarade',     icon: '💰', path: '/admin/hr/payroll' },
@@ -93,6 +81,7 @@ export const MODULES = [
     key: 'settings',
     label: 'Postavke',
     icon: '⚙️',
+    adminOnly: true,
     desc: 'Predlošci, logo i podešavanja restorana',
     path: '/admin/settings',
     active: true,
@@ -131,8 +120,10 @@ export default function AdminLayout({ children }) {
       ? MODULES.find(m => m.key === 'settings')
       : ['/admin/reservations'].some(p => location.pathname.startsWith(p))
       ? MODULES.find(m => m.key === 'tables')
-      : ['/admin/staff/roles'].some(p => location.pathname.startsWith(p))
-      ? MODULES.find(m => m.key === 'staff')
+      : location.pathname.startsWith('/admin/staff')
+      ? { key: 'staff', path: '/admin/staff/roles', label: 'Role i permisije', links: [
+          { label: 'Role i permisije', icon: '🔑', path: '/admin/staff/roles', exact: true },
+        ]}
       : null
   )
 
@@ -296,6 +287,7 @@ export default function AdminLayout({ children }) {
               👁 Meni uživo
             </a>
           )}
+
           <Link
             to="/admin/account"
             className={`${styles.navItem} ${isActive('/admin/account') ? styles.navItemActive : ''}`}
