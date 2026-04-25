@@ -94,3 +94,52 @@
 
 .empty { text-align: center; padding: 3rem; color: #8a9e96; }
 .emptyIcon { font-size: 40px; margin-bottom: 10px; }
+
+.orderActions {
+  display: flex;
+  gap: 8px;
+  margin-top: 10px;
+}
+
+.orderActions .actionBtn {
+  flex: 1;
+  margin-top: 0;
+}
+
+.rejectBtn {
+  padding: 10px 16px;
+  border-radius: 10px;
+  border: 1.5px solid #e8d0d0;
+  background: #fff5f5;
+  color: #a32d2d;
+  font-size: 13px;
+  font-weight: 600;
+  cursor: pointer;
+  font-family: inherit;
+  transition: background 0.15s;
+  white-space: nowrap;
+}
+.rejectBtn:hover { background: #fce8e8; }
+
+.quickResponses {
+  display: flex; flex-wrap: wrap; gap: 6px; margin: 8px 0;
+}
+
+.quickRespBtn {
+  padding: 5px 10px; border-radius: 8px;
+  border: 1px solid #d0e4dc; background: #f0f9f5;
+  font-size: 12px; font-weight: 500; color: #0d7a52;
+  cursor: pointer; font-family: inherit;
+  transition: background 0.15s;
+}
+.quickRespBtn:hover { background: #e1f5ee; }
+
+.rejectWrap { margin-top: 8px; }
+.rejectLabel { font-size: 11px; color: #8a9e96; font-weight: 500; margin-bottom: 5px; }
+.rejectMessages { display: flex; flex-wrap: wrap; gap: 5px; }
+.rejectMsgBtn {
+  padding: 5px 9px; border-radius: 7px; font-size: 11px; font-weight: 500;
+  border: 1px solid #f0c0c0; background: #fff5f5; color: #a32d2d;
+  cursor: pointer; font-family: inherit; transition: background 0.15s; text-align: left;
+}
+.rejectMsgBtn:hover { background: #fce8e8; }

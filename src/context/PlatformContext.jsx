@@ -115,6 +115,7 @@ export function PlatformProvider({ children }) {
 
   const logout = async () => {
     await supabase.auth.signOut()
+    window.location.href = '/login'
   }
 
   return (

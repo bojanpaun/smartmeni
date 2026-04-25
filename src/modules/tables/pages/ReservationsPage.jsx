@@ -1,6 +1,7 @@
 // ▶ Zamijeniti: src/modules/tables/pages/ReservationsPage.jsx
 
-import { useState, useEffect } from 'react'
+import { useState, useEffect, useRef, useCallback } from 'react'
+import { createPortal } from 'react-dom'
 import { supabase } from '../../../lib/supabase'
 import { usePlatform } from '../../../context/PlatformContext'
 import styles from './ReservationsPage.module.css'
@@ -13,6 +14,111 @@ const STATUS_MAP = {
 }
 
 const today = () => new Date().toISOString().slice(0, 10)
+
+// ── Autocomplete za ime gosta ─────────────────────────────────
+function GuestAutocomplete({ value, onChange, onSelectGuest, restaurantId }) {
+  const [suggestions, setSuggestions] = useState([])
+  const [show, setShow] = useState(false)
+  const [dropPos, setDropPos] = useState({ top: 0, left: 0, width: 0 })
+  const wrapRef = useRef()
+  const inputRef = useRef()
+
+  useEffect(() => {
+    const handleClick = (e) => {
+      if (wrapRef.current && !wrapRef.current.contains(e.target)) setShow(false)
+    }
+    document.addEventListener('mousedown', handleClick)
+    return () => document.removeEventListener('mousedown', handleClick)
+  }, [])
+
+  const updatePos = () => {
+    if (!inputRef.current) return
+    const r = inputRef.current.getBoundingClientRect()
+    setDropPos({ top: r.bottom + window.scrollY + 4, left: r.left + window.scrollX, width: r.width })
+  }
+
+  useEffect(() => {
+    if (!value || value.length < 2) { setSuggestions([]); setShow(false); return }
+    const timeout = setTimeout(async () => {
+      const q = value.toLowerCase()
+      const { data } = await supabase
+        .from('guests')
+        .select('id, first_name, last_name, phone, email, status, total_visits, total_spent')
+        .eq('restaurant_id', restaurantId)
+        .neq('status', 'blacklist')
+        .or(`first_name.ilike.%${q}%,last_name.ilike.%${q}%,phone.ilike.%${q}%`)
+        .limit(6)
+      setSuggestions(data || [])
+      if (data?.length > 0) { updatePos(); setShow(true) }
+      else setShow(false)
+    }, 250)
+    return () => clearTimeout(timeout)
+  }, [value, restaurantId])
+
+  const STATUS_BADGE = {
+    vip: { label: 'VIP', bg: '#FAEEDA', color: '#633806' },
+    regular: null,
+    pending: { label: 'Na čekanju', bg: '#E6F1FB', color: '#0C447C' },
+  }
+
+  return (
+    <div ref={wrapRef} style={{ position: 'relative' }}>
+      <input
+        ref={inputRef}
+        value={value}
+        onChange={e => { onChange(e.target.value) }}
+        onFocus={() => { if (suggestions.length > 0) { updatePos(); setShow(true) } }}
+        placeholder="Ime i prezime"
+        required
+        style={{ width: '100%', padding: '9px 12px', border: '1px solid #d0e4dc', borderRadius: 9, fontSize: 13, fontFamily: 'DM Sans, sans-serif', outline: 'none', boxSizing: 'border-box' }}
+      />
+      {show && suggestions.length > 0 && createPortal(
+        <div style={{
+          position: 'absolute',
+          top: dropPos.top, left: dropPos.left, width: dropPos.width,
+          zIndex: 9999,
+          background: '#fff', border: '1px solid #d0e4dc', borderRadius: 10,
+          boxShadow: '0 8px 24px rgba(0,0,0,0.12)', overflow: 'hidden'
+        }}>
+          {suggestions.map(g => {
+            const badge = STATUS_BADGE[g.status]
+            return (
+              <div
+                key={g.id}
+                onMouseDown={(e) => { e.preventDefault(); onSelectGuest(g); setShow(false) }}
+                style={{
+                  padding: '10px 12px', cursor: 'pointer', display: 'flex',
+                  alignItems: 'center', gap: 10, borderBottom: '1px solid #f0f5f2',
+                }}
+                onMouseEnter={e => e.currentTarget.style.background = '#f8faf9'}
+                onMouseLeave={e => e.currentTarget.style.background = '#fff'}
+              >
+                <div style={{
+                  width: 32, height: 32, borderRadius: '50%', background: '#FAEEDA',
+                  color: '#633806', fontSize: 12, fontWeight: 600, display: 'flex',
+                  alignItems: 'center', justifyContent: 'center', flexShrink: 0
+                }}>
+                  {g.first_name?.[0]}{g.last_name?.[0]}
+                </div>
+                <div style={{ flex: 1 }}>
+                  <div style={{ fontSize: 13, fontWeight: 500, color: '#1a2e26', display: 'flex', alignItems: 'center', gap: 6 }}>
+                    {g.first_name} {g.last_name}
+                    {badge && <span style={{ fontSize: 10, padding: '2px 6px', borderRadius: 10, background: badge.bg, color: badge.color, fontWeight: 600 }}>{badge.label}</span>}
+                  </div>
+                  <div style={{ fontSize: 11, color: '#8a9e96', marginTop: 1 }}>
+                    {g.phone || g.email || '—'}
+                    {g.total_visits > 0 && ` · ${g.total_visits} posjeta · €${parseFloat(g.total_spent || 0).toFixed(0)}`}
+                  </div>
+                </div>
+              </div>
+            )
+          })}
+        </div>,
+        document.body
+      )}
+    </div>
+  )
+}
 
 // ── Kalendarski pregled ────────────────────────────────────────
 function CalendarView({ reservations, onDayClick, selectedDate }) {
@@ -177,7 +283,7 @@ export default function ReservationsPage() {
   const [savingToggle, setSavingToggle] = useState(false)
 
   const [form, setForm] = useState({
-    guest_name: '', guest_phone: '', guest_email: '',
+    guest_id: null, guest_name: '', guest_phone: '', guest_email: '',
     date: today(), time: '19:00', guests_count: 2,
     table_id: '', note: '', status: 'confirmed',
   })
@@ -215,7 +321,7 @@ export default function ReservationsPage() {
   const openForm = (res = null) => {
     if (res) {
       setForm({
-        guest_name: res.guest_name, guest_phone: res.guest_phone || '',
+        guest_id: res.guest_id || null, guest_name: res.guest_name, guest_phone: res.guest_phone || '',
         guest_email: res.guest_email || '', date: res.date,
         time: res.time.slice(0, 5), guests_count: res.guests_count,
         table_id: res.table_id || '', note: res.note || '', status: res.status,
@@ -223,7 +329,7 @@ export default function ReservationsPage() {
       setEditRes(res)
     } else {
       setForm({
-        guest_name: '', guest_phone: '', guest_email: '',
+        guest_id: null, guest_name: '', guest_phone: '', guest_email: '',
         date: filterDate || today(), time: '19:00', guests_count: 2,
         table_id: '', note: '', status: 'confirmed',
       })
@@ -240,6 +346,7 @@ export default function ReservationsPage() {
     const selectedTable = tables.find(t => t.id === form.table_id)
     const payload = {
       restaurant_id: restaurant.id,
+      guest_id: form.guest_id || null,
       guest_name: form.guest_name,
       guest_phone: form.guest_phone || null,
       guest_email: form.guest_email || null,
@@ -443,7 +550,18 @@ export default function ReservationsPage() {
               <div className={styles.grid}>
                 <div className={styles.field}>
                   <label>Ime gosta *</label>
-                  <input value={form.guest_name} onChange={e => setForm(f => ({ ...f, guest_name: e.target.value }))} placeholder="Ime i prezime" required />
+                  <GuestAutocomplete
+                    value={form.guest_name}
+                    restaurantId={restaurant.id}
+                    onChange={val => setForm(f => ({ ...f, guest_name: val, guest_id: null }))}
+                    onSelectGuest={g => setForm(f => ({
+                      ...f,
+                      guest_id: g.id,
+                      guest_name: `${g.first_name} ${g.last_name}`,
+                      guest_phone: g.phone || f.guest_phone,
+                      guest_email: g.email || f.guest_email,
+                    }))}
+                  />
                 </div>
                 <div className={styles.field}>
                   <label>Telefon</label>

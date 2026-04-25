@@ -50,17 +50,17 @@ export default function PayrollPage() {
 
   const loadData = async () => {
     setLoading(true)
-    let staffQ = supabase.from('staff').select('id, email, wage_type, wage_amount, user_profiles(full_name)')
+    let staffQ = supabase.from('staff').select('id, email, wage_type, wage_amount, first_name, last_name')
       .eq('restaurant_id', restaurant.id).eq('is_active', true).order('email')
 
     let entriesQ = supabase.from('payroll_entries')
-      .select('*, staff(email, user_profiles(full_name))')
+      .select('*, staff(email, first_name, last_name)')
       .eq('restaurant_id', restaurant.id)
       .gte('date', dateFrom).lte('date', dateTo)
       .order('date', { ascending: false })
 
     let periodsQ = supabase.from('payroll_periods')
-      .select('*, staff(email, user_profiles(full_name))')
+      .select('*, staff(email, first_name, last_name)')
       .eq('restaurant_id', restaurant.id)
       .order('period_start', { ascending: false })
 
@@ -135,7 +135,7 @@ export default function PayrollPage() {
       hours_worked: hours,
       days_worked: days,
       status: 'draft',
-    }, { onConflict: 'restaurant_id,staff_id,period_start,period_end' }).select('*, staff(email, user_profiles(full_name))').single()
+    }, { onConflict: 'restaurant_id,staff_id,period_start,period_end' }).select('*, staff(email, first_name, last_name)').single()
 
     setPeriods(prev => {
       const filtered = prev.filter(p => !(p.staff_id === staffMember.id && p.period_start === dateFrom && p.period_end === dateTo))
@@ -149,7 +149,7 @@ export default function PayrollPage() {
     setPeriods(prev => prev.map(p => p.id === id ? { ...p, status } : p))
   }
 
-  const staffName = (s) => s?.user_profiles?.full_name || s?.email?.split('@')[0] || '—'
+  const staffName = (s) => (s?.first_name && s?.last_name) ? `${s.first_name} ${s.last_name}` : s?.email?.split('@')[0] || '—'
   const typeInfo = (key) => ENTRY_TYPES.find(t => t.key === key) || ENTRY_TYPES[0]
 
   // Sumarne statistike

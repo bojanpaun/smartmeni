@@ -103,3 +103,12 @@
 .vacEditField input:focus { border-color: #0d7a52; }
 .btnSaveSmall { padding: 6px 12px; background: #0d7a52; color: #fff; border: none; border-radius: 8px; font-size: 12px; font-weight: 500; cursor: pointer; font-family: 'DM Sans', sans-serif; }
 .btnSaveSmall:hover { background: #0a6343; }
+
+/* Absence approve/reject akcije */
+.absenceActions { display: flex; align-items: center; gap: 6px; flex-shrink: 0; }
+.approvedBadge { font-size: 11px; font-weight: 500; color: #0F6E56; background: #E1F5EE; padding: 3px 9px; border-radius: 20px; }
+.pendingBadge { font-size: 11px; font-weight: 500; color: #854F0B; background: #FAEEDA; padding: 3px 9px; border-radius: 20px; }
+.btnApprove { font-size: 11px; padding: 4px 10px; border: 0.5px solid #5DCAA5; border-radius: 6px; background: transparent; color: #0F6E56; cursor: pointer; font-family: 'DM Sans', sans-serif; }
+.btnApprove:hover { background: #E1F5EE; }
+.btnReject { font-size: 11px; padding: 4px 10px; border: 0.5px solid #F09595; border-radius: 6px; background: transparent; color: #A32D2D; cursor: pointer; font-family: 'DM Sans', sans-serif; }
+.btnReject:hover { background: #FCEBEB; }

@@ -170,3 +170,68 @@
   margin-top: 4px;
   line-height: 1.4;
 }
+
+/* Sačuvano poruka */
+.savedMsg { font-size: 13px; font-weight: 500; color: #0d7a52; display: flex; align-items: center; gap: 6px; }
+
+.sectionLabel { font-size: 13px; font-weight: 600; color: #1a2e26; margin: 20px 0 4px; }
+.visDesc { font-size: 12px; color: #8a9e96; margin-bottom: 10px; }
+
+.segControl { display: flex; background: #f0f5f2; border-radius: 9px; padding: 3px; gap: 2px; flex-shrink: 0; }
+.segBtn { padding: 6px 10px; border: none; border-radius: 7px; font-size: 11px; font-weight: 500; cursor: pointer; background: transparent; color: #5a7a6a; font-family: 'DM Sans', sans-serif; white-space: nowrap; transition: all 0.15s; }
+.segBtn:hover { background: rgba(255,255,255,0.6); }
+.segBtnOff { background: #fff !important; color: #1a2e26 !important; border: 1px solid #e0e8e4; }
+.segBtnReg { background: #378add !important; color: #fff !important; }
+.segBtnAll { background: #0d7a52 !important; color: #fff !important; }
+
+/* ── Sortable message list ── */
+.sortList { display: flex; flex-direction: column; gap: 6px; margin-bottom: 4px; }
+
+.sortItem {
+  display: flex; align-items: center; gap: 8px;
+  background: #fff; border: 1px solid #e0e8e4;
+  border-radius: 10px; padding: 8px 10px;
+  cursor: grab; transition: box-shadow 0.15s;
+}
+.sortItem:active { cursor: grabbing; box-shadow: 0 3px 10px rgba(0,0,0,0.1); }
+
+.dragHandle {
+  font-size: 16px; color: #b0c0b8; cursor: grab;
+  flex-shrink: 0; user-select: none;
+}
+
+.sortInput {
+  flex: 1; border: none; outline: none; background: transparent;
+  font-size: 13px; color: #1a2e26; font-family: 'DM Sans', sans-serif;
+  padding: 2px 0;
+}
+
+.deleteBtn {
+  background: none; border: none; color: #c0b0b0;
+  font-size: 12px; cursor: pointer; padding: 2px 4px;
+  border-radius: 4px; transition: color 0.15s, background 0.15s;
+  flex-shrink: 0;
+}
+.deleteBtn:hover { color: #a32d2d; background: #fce8e8; }
+
+.addRow {
+  display: flex; align-items: center; gap: 8px; padding: 4px 2px;
+}
+
+.addInput {
+  flex: 1; border: none; border-bottom: 1px dashed #c0d0c8;
+  outline: none; background: transparent; font-size: 13px;
+  color: #5a7a6a; font-family: 'DM Sans', sans-serif; padding: 4px 0;
+}
+.addInput::placeholder { color: #a0b0a8; }
+
+.addHint { font-size: 11px; color: #a0b0a8; white-space: nowrap; }
+
+.msgSavingBadge {
+  font-size: 11px; font-weight: 400; color: #8a9e96;
+  margin-left: 8px;
+}
+.msgSavedBadge {
+  font-size: 11px; font-weight: 500; color: #0d7a52;
+  margin-left: 8px;
+}

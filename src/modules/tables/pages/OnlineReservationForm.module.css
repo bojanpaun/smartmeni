@@ -78,6 +78,7 @@
   display: flex;
   flex-direction: column;
   gap: 5px;
+  margin-bottom: 14px;
 }
 
 .field label {
@@ -167,6 +168,7 @@
 .btnSubmit {
   width: 100%;
   padding: 14px;
+  margin-top: 6px;
   color: #fff;
   border: none;
   border-radius: 12px;
@@ -249,3 +251,99 @@
   text-decoration: none;
 }
 .btnBack:hover { opacity: 0.9; }
+
+/* Konflikt stola upozorenje */
+.conflictWarn {
+  background: #FEF3C7;
+  border: 1px solid #F59E0B;
+  border-radius: 10px;
+  padding: 10px 14px;
+  font-size: 13px;
+  color: #854F0B;
+  margin-bottom: 12px;
+}
+
+/* Tabela picker u online formi */
+.tableGrid {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(70px, 1fr));
+  gap: 8px;
+  margin-top: 8px;
+}
+
+.tableBtn {
+  padding: 8px 6px;
+  border: 1.5px solid #d0e4dc;
+  border-radius: 9px;
+  background: #fff;
+  font-size: 12px;
+  font-weight: 500;
+  cursor: pointer;
+  text-align: center;
+  color: #3a4a42;
+  transition: all 0.15s;
+}
+
+.tableBtnSelected {
+  border-color: var(--brand, #0d7a52);
+  background: var(--brand-light, #e0f5ec);
+  color: var(--brand, #0d7a52);
+}
+
+.tableBtnReserved {
+  border-color: #f5b0b0;
+  background: #fff0f0;
+  color: #c0392b;
+  cursor: not-allowed;
+  opacity: 0.6;
+}
+
+/* Auth spacing fix */
+.authTitle { font-size: 15px; font-weight: 600; color: #1a2e26; margin-bottom: 8px; }
+.authDesc { font-size: 13px; color: #8a9e96; margin-bottom: 20px; line-height: 1.5; }
+.guestBadge { display: flex; align-items: center; gap: 10px; background: #f8faf9; border: 1px solid #e0e8e4; border-radius: 12px; padding: 12px 14px; margin-bottom: 18px; }
+.guestAvatar { width: 38px; height: 38px; border-radius: 50%; color: #fff; font-size: 14px; font-weight: 600; display: flex; align-items: center; justify-content: center; flex-shrink: 0; }
+.guestName { font-size: 14px; font-weight: 500; color: #1a2e26; }
+.guestContact { font-size: 12px; color: #8a9e96; }
+.btnChange { margin-left: auto; font-size: 12px; padding: 5px 10px; border: 1px solid #d0e4dc; border-radius: 7px; background: #fff; color: #5a7a6a; cursor: pointer; font-family: 'DM Sans', sans-serif; flex-shrink: 0; }
+.registerPrompt { text-align: center; font-size: 13px; color: #8a9e96; margin-top: 16px; }
+.successWrap { padding: 28px 20px; text-align: center; }
+
+/* Header — isti stil kao guest meni */
+.headerTop { display:flex; justify-content:flex-start; margin-bottom:12px; }
+.backBtn { font-size:12px; color:rgba(255,255,255,0.85); background:rgba(255,255,255,0.15); border:1px solid rgba(255,255,255,0.25); border-radius:20px; padding:5px 12px; text-decoration:none; transition:background .15s; }
+.backBtn:hover { background:rgba(255,255,255,0.25); }
+.logoWrap { display:flex; justify-content:center; margin-bottom:8px; }
+.logoImg { width:52px; height:52px; border-radius:12px; object-fit:cover; }
+.logoPlaceholder { width:52px; height:52px; border-radius:12px; background:rgba(255,255,255,0.2); color:#fff; font-size:22px; font-weight:700; display:flex; align-items:center; justify-content:center; }
+
+.resStatusBlock { margin: 14px 0; }
+
+.resStatusPill {
+  display: flex; align-items: center; gap: 8px;
+  padding: 11px 14px; border-radius: 12px;
+  font-size: 14px; font-weight: 600;
+}
+
+@keyframes blink {
+  0%, 100% { opacity: 1; } 50% { opacity: 0.3; }
+}
+
+.resPendingDot {
+  width: 8px; height: 8px; border-radius: 50%;
+  background: currentColor; margin-left: auto;
+  animation: blink 1.5s infinite;
+}
+
+.successActions {
+  display: flex; flex-direction: column; gap: 8px; margin-top: 16px;
+}
+
+.btnSecondary {
+  display: block; width: 100%; padding: 12px;
+  border-radius: 12px; border: 1.5px solid;
+  background: transparent; font-size: 14px; font-weight: 600;
+  cursor: pointer; font-family: 'DM Sans', sans-serif;
+  text-align: center; transition: opacity 0.15s;
+}
+.btnSecondary:hover { opacity: 0.75; }

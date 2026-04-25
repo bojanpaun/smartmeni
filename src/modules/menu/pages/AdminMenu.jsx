@@ -155,8 +155,6 @@ export default function AdminMenu() {
         {[
           { key: 'dashboard', label: 'Pregled', icon: '📊' },
           { key: 'menu',      label: 'Meni i stavke', icon: '🍽️' },
-          { key: 'qr',        label: 'QR kod', icon: '📱' },
-          { key: 'settings',  label: 'Postavke menija', icon: '⚙️' },
         ].map(tab => (
           <button
             key={tab.key}

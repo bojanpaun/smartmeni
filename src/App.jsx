@@ -8,7 +8,7 @@ import Landing from './platform/Landing'
 import Login from './platform/auth/Login'
 import Register from './platform/auth/Register'
 
-import GuestMenu from './modules/menu/pages/GuestMenu'
+import GuestMenu from './layouts/GuestMenu'
 import AdminMenu from './modules/menu/pages/AdminMenu'
 import WaiterDashboard from './modules/menu/pages/WaiterDashboard'
 import KitchenDashboard from './modules/menu/pages/KitchenDashboard'
@@ -22,6 +22,12 @@ import InventoryPage from './modules/inventory/pages/InventoryPage'
 import MovementsLog from './modules/inventory/pages/MovementsLog'
 import IngredientsEditor from './modules/inventory/pages/IngredientsEditor'
 import AnalyticsPage from './modules/analytics/pages/AnalyticsPage'
+import GuestsPage from './modules/guests/pages/GuestsPage'
+import GuestRegisterPage from './modules/guests/pages/GuestRegisterPage'
+import GuestPortalPage from './modules/guests/pages/GuestPortalPage'
+import GuestLoginPage from './modules/guests/pages/GuestLoginPage'
+import GuestProfilePage from './modules/guests/pages/GuestProfilePage'
+import OrderTrackerPage from './modules/guests/pages/OrderTrackerPage'
 import SchedulePage from './modules/hr/pages/SchedulePage'
 import StaffPage from './modules/hr/pages/StaffPage'
 import StaffProfilePage from './modules/hr/pages/StaffProfilePage'
@@ -35,6 +41,8 @@ import ModuleHelp from './platform/admin/ModuleHelp'
 import TemplateSettings from './modules/menu/pages/TemplateSettings'
 import LogoUpload from './modules/menu/pages/LogoUpload'
 import GeneralSettings from './modules/menu/pages/GeneralSettings'
+import AdminMenuQR from './modules/menu/pages/AdminMenuQR'
+import AdminMenuSettings from './modules/menu/pages/AdminMenuSettings'
 import BillingPage from './modules/menu/pages/BillingPage'
 import BillingSuccess from './platform/admin/BillingSuccess'
 import MyAccount from './platform/admin/MyAccount'
@@ -72,10 +80,11 @@ function AppRoutes() {
       <Route path="/admin" element={<AdminRoute><ControlPanel /></AdminRoute>} />
 
       {/* Digitalni meni modul */}
-      <Route path="/admin/menu" element={<AdminRoute><AdminMenu /></AdminRoute>} />
-      <Route path="/admin/menu/items" element={<Navigate to="/admin/menu" replace />} />
-      <Route path="/admin/menu/qr" element={<Navigate to="/admin/menu" replace />} />
+      <Route path="/admin/menu/qr" element={<AdminRoute><AdminMenuQR /></AdminRoute>} />
+      <Route path="/admin/menu/settings" element={<AdminRoute><AdminMenuSettings /></AdminRoute>} />
       <Route path="/admin/menu/help" element={<AdminRoute><ModuleHelp moduleKey="menu" /></AdminRoute>} />
+      <Route path="/admin/menu/items" element={<Navigate to="/admin/menu" replace />} />
+      <Route path="/admin/menu" element={<AdminRoute><AdminMenu /></AdminRoute>} />
       <Route path="/admin/settings" element={<AdminRoute><TemplateSettings /></AdminRoute>} />
       <Route path="/admin/settings/templates" element={<AdminRoute><TemplateSettings /></AdminRoute>} />
       <Route path="/admin/settings/logo" element={<AdminRoute><LogoUpload /></AdminRoute>} />
@@ -121,11 +130,17 @@ function AppRoutes() {
 
       {/* Analitika modul */}
       <Route path="/admin/analytics" element={<AdminRoute><AnalyticsPage /></AdminRoute>} />
+      <Route path="/admin/guests" element={<AdminRoute><GuestsPage /></AdminRoute>} />
+      <Route path="/admin/guests/:id" element={<AdminRoute><GuestProfilePage /></AdminRoute>} />
       <Route path="/admin/analytics/help" element={<AdminRoute><ModuleHelp moduleKey="analytics" /></AdminRoute>} />
       <Route path="/admin/settings/help" element={<AdminRoute><ModuleHelp moduleKey="settings" /></AdminRoute>} />
 
       {/* Javne rute restorana — redosljed je bitan! */}
       <Route path="/:slug/rezervacija" element={<OnlineReservationForm />} />
+      <Route path="/:slug/registracija" element={<GuestRegisterPage />} />
+      <Route path="/:slug/profil" element={<GuestPortalPage />} />
+      <Route path="/:slug/prijava" element={<GuestLoginPage />} />
+      <Route path="/:slug/narudzba/:orderId" element={<OrderTrackerPage />} />
       <Route path="/:slug" element={<CartProvider><GuestMenu /></CartProvider>} />
     </Routes>
   )

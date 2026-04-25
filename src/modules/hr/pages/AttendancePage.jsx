@@ -1,6 +1,6 @@
 // ▶ Zamijeniti: src/modules/hr/pages/AttendancePage.jsx
 
-import { useState, useEffect } from 'react'
+import { useState, useEffect, useRef } from 'react'
 import { supabase } from '../../../lib/supabase'
 import { usePlatform } from '../../../context/PlatformContext'
 import styles from './AttendancePage.module.css'
@@ -9,7 +9,7 @@ const toDay = () => new Date().toISOString().slice(0, 10)
 
 function fmtTime(ts) {
   if (!ts) return '—'
-  return new Date(ts).toLocaleTimeString('sr', { hour: '2-digit', minute: '2-digit' })
+  return new Date(ts).toLocaleTimeString('sr', { hour: '2-digit', minute: '2-digit', second: '2-digit' })
 }
 
 function calcHours(clockIn, clockOut) {
@@ -18,8 +18,25 @@ function calcHours(clockIn, clockOut) {
   return diff > 0 ? parseFloat(diff.toFixed(2)) : null
 }
 
-function totalHoursForDay(entries) {
-  return entries.reduce((s, e) => s + (parseFloat(e.hours_worked) || 0), 0)
+function calcSeconds(clockIn, clockOut) {
+  const end = clockOut ? new Date(clockOut) : new Date()
+  return Math.max(0, Math.floor((end - new Date(clockIn)) / 1000))
+}
+
+function fmtDuration(seconds) {
+  if (!seconds && seconds !== 0) return '—'
+  const h = Math.floor(seconds / 3600)
+  const m = Math.floor((seconds % 3600) / 60)
+  const s = seconds % 60
+  return `${String(h).padStart(2, '0')}:${String(m).padStart(2, '0')}:${String(s).padStart(2, '0')}`
+}
+
+function totalSecondsForDay(entries, now) {
+  return entries.reduce((sum, e) => {
+    if (!e.clock_in) return sum
+    const end = e.clock_out || now
+    return sum + Math.max(0, Math.floor((new Date(end) - new Date(e.clock_in)) / 1000))
+  }, 0)
 }
 
 export default function AttendancePage() {
@@ -36,6 +53,13 @@ export default function AttendancePage() {
   const [editEntry, setEditEntry] = useState(null)
   const [editForm, setEditForm] = useState({ clock_in: '', clock_out: '', note: '' })
   const [saving, setSaving] = useState(false)
+  const [now, setNow] = useState(new Date())
+
+  // Live ticker — ažurira svake sekunde za aktivne smjene
+  useEffect(() => {
+    const interval = setInterval(() => setNow(new Date()), 1000)
+    return () => clearInterval(interval)
+  }, [])
 
   useEffect(() => {
     if (restaurant && user) loadData()
@@ -44,10 +68,10 @@ export default function AttendancePage() {
   const loadData = async () => {
     setLoading(true)
     const [{ data: s }, { data: myStaff }] = await Promise.all([
-      supabase.from('staff').select('id, email, user_profiles(full_name)')
+      supabase.from('staff').select('id, email, first_name, last_name')
         .eq('restaurant_id', restaurant.id).eq('is_active', true).order('email'),
-      supabase.from('staff').select('id')
-        .eq('restaurant_id', restaurant.id).eq('user_id', user.id).single(),
+      supabase.from('staff').select('id, user_id')
+        .eq('restaurant_id', restaurant.id).eq('user_id', user.id).maybeSingle(),
     ])
     setStaff(s || [])
 
@@ -62,7 +86,7 @@ export default function AttendancePage() {
     })
     setEntriesByStaff(grouped)
 
-    if (myStaff) {
+    if (myStaff && myStaff.user_id === user.id) {
       setMyStaffRecord(myStaff)
       if (filterDate === toDay()) {
         setMyEntries(grouped[myStaff.id] || [])
@@ -168,9 +192,9 @@ export default function AttendancePage() {
     openEdit(data)
   }
 
-  const staffName = (s) => s?.user_profiles?.full_name || s?.email?.split('@')[0] || '—'
+  const staffName = (s) => (s?.first_name && s?.last_name) ? `${s.first_name} ${s.last_name}` : s?.email?.split('@')[0] || '—'
   const activeEntry = myEntries.find(e => e.clock_in && !e.clock_out)
-  const todayHours = totalHoursForDay(myEntries)
+  const todaySeconds = totalSecondsForDay(myEntries, now)
 
   if (loading) return <div className={styles.loading}>Učitavanje evidencije...</div>
 
@@ -183,11 +207,9 @@ export default function AttendancePage() {
           <div className={styles.clockTop}>
             <div>
               <div className={styles.clockTitle}>Moje smjene danas</div>
-              {todayHours > 0 && (
-                <div className={styles.clockTotalHours}>
-                  Ukupno: <strong>{todayHours.toFixed(1)}h</strong>
-                </div>
-              )}
+              <div className={styles.clockTotalHours}>
+                Ukupno: <strong>{fmtDuration(todaySeconds)}</strong>
+              </div>
             </div>
             <div className={styles.clockBtns}>
               {!activeEntry ? (
@@ -218,7 +240,9 @@ export default function AttendancePage() {
                       : <span className={styles.myShiftLive}>u toku</span>}
                   </span>
                   {entry.hours_worked && (
-                    <span className={styles.myShiftHours}>{parseFloat(entry.hours_worked).toFixed(1)}h</span>
+                    <span className={`${styles.myShiftHours} ${!entry.clock_out ? styles.myShiftHoursActive : ''}`}>
+                      {fmtDuration(calcSeconds(entry.clock_in, entry.clock_out || now))}
+                    </span>
                   )}
                 </div>
               ))}
@@ -252,8 +276,8 @@ export default function AttendancePage() {
             <div className={styles.statCard}>
               <div className={styles.statLabel}>Ukupno sati</div>
               <div className={styles.statVal}>
-                {Object.values(entriesByStaff).flat()
-                  .reduce((s, e) => s + (parseFloat(e.hours_worked) || 0), 0).toFixed(1)}h
+                {fmtDuration(Object.values(entriesByStaff).flat()
+                  .reduce((sum, e) => sum + (e.clock_in ? calcSeconds(e.clock_in, e.clock_out || now) : 0), 0))}
               </div>
             </div>
           </div>
@@ -261,7 +285,7 @@ export default function AttendancePage() {
           <div className={styles.list}>
             {staff.map(member => {
               const entries = entriesByStaff[member.id] || []
-              const totalH = totalHoursForDay(entries)
+              const totalSec = totalSecondsForDay(entries, now)
               const hasActive = entries.some(e => !e.clock_out)
 
               return (
@@ -273,7 +297,7 @@ export default function AttendancePage() {
                       {hasActive && <span className={styles.activeBadge}>● Aktivan</span>}
                     </div>
                     <div className={styles.staffSectionMeta}>
-                      {totalH > 0 && <span className={styles.staffTotalH}>{totalH.toFixed(1)}h</span>}
+                      {totalSec > 0 && <span className={styles.staffTotalH}>{fmtDuration(totalSec)}</span>}
                       {entries.length === 0 && <span className={styles.absentBadge}>Odsutan</span>}
                       <button className={styles.btnAddEntry} onClick={() => addManualEntry(member.id)}>+ Unos</button>
                     </div>
@@ -288,7 +312,11 @@ export default function AttendancePage() {
                             <span className={styles.entryArrow}>→</span>
                             {entry.clock_out ? fmtTime(entry.clock_out) : <span className={styles.liveDot}>u toku</span>}
                           </span>
-                          {entry.hours_worked && <span className={styles.entryHours}>{parseFloat(entry.hours_worked).toFixed(1)}h</span>}
+                          {entry.clock_in && (
+                            <span className={`${styles.entryHours} ${!entry.clock_out ? styles.entryHoursActive : ''}`}>
+                              {fmtDuration(calcSeconds(entry.clock_in, entry.clock_out || now))}
+                            </span>
+                          )}
                           {entry.note && <span className={styles.entryNote}>{entry.note}</span>}
                           <div className={styles.entryActions}>
                             <button className={styles.btnEdit} onClick={() => openEdit(entry)}>Uredi</button>
@@ -328,7 +356,7 @@ export default function AttendancePage() {
               </div>
               {editForm.clock_in && editForm.clock_out && (
                 <div className={styles.calcHours}>
-                  ≈ {calcHours(filterDate + 'T' + editForm.clock_in, filterDate + 'T' + editForm.clock_out)?.toFixed(1) || '—'}h
+                  {editForm.clock_in && editForm.clock_out ? fmtDuration(calcSeconds(filterDate + 'T' + editForm.clock_in, filterDate + 'T' + editForm.clock_out)) : '—'}
                 </div>
               )}
               <div className={styles.field}>

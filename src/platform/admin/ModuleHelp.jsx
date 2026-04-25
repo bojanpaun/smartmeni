@@ -233,26 +233,38 @@ const HELP_CONTENT = {
 
   hr: {
     title: 'HR modul — uputstvo',
-    intro: 'HR modul pokriva kompletno upravljanje zaposlenima: evidenciju radnog vremena, rasporede smjena, zarade i izvještaje.',
+    intro: 'HR modul pokriva kompletno upravljanje zaposlenima: profile, rasporede smjena, evidenciju dolazaka, odsustva, zarade i izvještaje.',
     sections: [
       {
         icon: '👤',
         title: 'Zaposleni',
         steps: [
-          'Dodaj zaposlenika putem email adrese',
-          'Odaberi metodu: kreiraj nalog odmah (sa lozinkom) ili pošalji link za registraciju',
+          'Dodaj zaposlenika putem email adrese — odaberi metodu: kreiraj nalog odmah (sa lozinkom) ili pošalji link za registraciju',
           'Dodijeli rolu i unesi podatke o plati (po satu, sedmično ili mjesečno)',
-          'Zaposlenik se automatski povezuje sa nalogom kada se registruje sa istim emailom',
+          'Klikni na zaposlenika da otvoriš profil sa 5 tabova: Osnovne info, Zaposlenje, Finansije, Odsustva, Historija',
+          'Zaposlenik se automatski povezuje sa nalogom kada se registruje sa istim emailom — status se mijenja u Povezan',
+        ],
+      },
+      {
+        icon: '📋',
+        title: 'Profil zaposlenika',
+        steps: [
+          'Osnovne info: lični podaci (ime, telefon, datum rođenja, adresa) i kontakt za hitne slučajeve',
+          'Zaposlenje: pozicija, tip ugovora, radno vrijeme, plata i interne napomene',
+          'Finansije: bankovni račun i porezni broj (JMBG)',
+          'Odsustva: godišnji odmor tracker (ukupno/iskorišteno/preostalo) i evidencija svih odsustva sa odobravanjem',
+          'Historija: timeline zaposlenja, unapređenja, promjena plate i upozorenja',
         ],
       },
       {
         icon: '📅',
         title: 'Raspored rada',
         steps: [
-          'Otvori sedmični grid i klikni na praznu ćeliju da dodaš smjenu',
-          'Unesi početak i kraj smjene, dodaj napomenu ako je potrebno',
-          'Kopiraj prethodnu sedmicu dugmetom ↩ za brže popunjavanje',
-          'Zaposlenik vidi vlastiti raspored kada se uloguje',
+          'Sedmični pregled: klikni na ćeliju da dodaš smjenu, klikni na smjenu da je urediš ili obrišeš',
+          'Jedan zaposlenik može imati više smjena u istom danu — klikni + za dodavanje',
+          'Dnevni pregled: horizontalni timeline (06:00–23:00) sa vizuelnim prikazom pokrivenosti',
+          'Žuti blokovi u dnevnom pregledu označavaju nepokrivene periode — brzo prepoznaj rupe u rasporedu',
+          'Kopiraj prethodnu sedmicu dugmetom ↩ za brže popunjavanje rasporeda',
         ],
       },
       {
@@ -262,7 +274,17 @@ const HELP_CONTENT = {
           'Zaposlenik klika Prijavi se kada počne smjenu i Odjavi se kada završi',
           'Moguće je prijaviti više smjena u toku jednog dana',
           'Admin može ručno dodati ili korigovati unos za bilo koji datum',
-          'Sistem automatski računa ukupne sate rada',
+          'Sistem automatski računa ukupne sate rada po danu',
+        ],
+      },
+      {
+        icon: '🌴',
+        title: 'Odsustva',
+        steps: [
+          'Tipovi odsustva: Godišnji odmor, Bolovanje, Neplaćeno odsustvo, Ostalo',
+          'Svako odsustvo može biti Na čekanju ili Odobreno — klikni Odobri ili Odbij direktno u listi',
+          'Iskorišteni dani godišnjeg odmora se automatski računaju iz odobrenih odsustva tipa Godišnji odmor',
+          'Ukupan broj dana odmora podešavaš ručno u trackeru na vrhu stranice Odsustva',
         ],
       },
       {
@@ -279,17 +301,18 @@ const HELP_CONTENT = {
         icon: '📊',
         title: 'Izvještaji',
         steps: [
-          'Pregled sati rada i troškova po svakom zaposleniku',
+          'Pregled sati rada i troškova po svakom zaposleniku za odabrani period',
           'Stopa prisustva i evidencija kašnjenja',
-          'Export u CSV format za dalju obradu',
+          'Export u CSV format za dalju obradu u Excelu ili računovodstvenom softveru',
         ],
       },
     ],
     tips: [
-      'Prvo kreiraj role u Administrativnim postavkama, pa ih dodijeli zaposlenicima',
-      'Zaposlenik mora imati nalog sa istim emailom da bi se mogao prijaviti na posao',
+      'Prvo kreiraj role u Administrativnim postavkama → Role i permisije, pa ih dodijeli zaposlenicima',
+      'Zaposlenik mora imati nalog sa istim emailom da bi se mogao prijaviti na posao i vidio vlastiti raspored',
+      'Iskorišteni dani godišnjeg odmora se računaju automatski — ne treba ih ručno unositi',
+      'Koristite dnevni prikaz rasporeda za brzu provjeru pokrivenosti smjenama',
       'Platni listovi se generišu na osnovu evidencije dolazaka — što preciznija evidencija, to tačniji obračun',
-      'Koristite napomene u rasporedu za vikend smjene, zamjene i slično',
     ],
   },
 

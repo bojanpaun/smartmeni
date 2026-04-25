@@ -1,7 +1,14 @@
 import { useState, useEffect } from 'react'
-import { useParams } from 'react-router-dom'
-import { supabase } from '../../../lib/supabase'
+import { useParams, useNavigate } from 'react-router-dom'
+import { supabase } from '../lib/supabase'
+import { getTemplate } from '../lib/templates'
 import styles from './GuestMenu.module.css'
+
+// Ključ za localStorage sesiju gosta
+const GUEST_SESSION_KEY = (slug) => `sm_guest_${slug}`
+const CART_KEY = (slug) => `sm_cart_${slug}`
+const ORDER_KEY = (slug) => `sm_order_${slug}`
+const WAITER_KEY = (slug) => `sm_waiter_${slug}`
 
 const DEMO_DATA = {
   restaurant: {
@@ -61,13 +68,73 @@ const TAG_CONFIG = {
 
 export default function Menu() {
   const { slug } = useParams()
+  const navigate = useNavigate()
   const [activeCat, setActiveCat] = useState('predjela')
   const [selectedItem, setSelectedItem] = useState(null)
   const [lang, setLang] = useState('sr')
   const [waiterSent, setWaiterSent] = useState(false)
   const [showWaiter, setShowWaiter] = useState(false)
+  const [waiterRequestId, setWaiterRequestId] = useState(() => {
+    try { return sessionStorage.getItem(WAITER_KEY(window.location.pathname.split('/')[1] || '')) || null }
+    catch { return null }
+  })
+  const [waiterResolved, setWaiterResolved] = useState(false)
+  const [waiterResponse, setWaiterResponse] = useState(null)
   const [realData, setRealData] = useState(null)
   const [loadingData, setLoadingData] = useState(true)
+  const [cart, setCart] = useState(() => {
+    try {
+      const saved = sessionStorage.getItem(CART_KEY(window.location.pathname.split('/')[1] || ''))
+      return saved ? JSON.parse(saved) : []
+    } catch { return [] }
+  })
+  const [showCart, setShowCart] = useState(false)
+  const [orderSent, setOrderSent] = useState(false)
+  const [lastOrderId, setLastOrderId] = useState(() => {
+    try { return sessionStorage.getItem(ORDER_KEY(window.location.pathname.split('/')[1] || '')) || null }
+    catch { return null }
+  })
+  const [orderSending, setOrderSending] = useState(false)
+  const [showConfirm, setShowConfirm] = useState(false)
+  const [guestSession, setGuestSession] = useState(null)
+  const [loginForm, setLoginForm] = useState({ name: '', contact: '' })
+  const [loginError, setLoginError] = useState('')
+  const [loginLoading, setLoginLoading] = useState(false)
+  const [pendingAction, setPendingAction] = useState(null)
+  const [lastActivity, setLastActivity] = useState(Date.now())
+
+  // Provjeri status aktivne narudžbe pri mountu — sinhrono briše ako je closed/served
+  useEffect(() => {
+    if (!slug || slug === 'demo') return
+    const storedId = sessionStorage.getItem(ORDER_KEY(slug))
+    if (!storedId) return
+    supabase
+      .from('orders').select('status').eq('id', storedId).single()
+      .then(({ data }) => {
+        if (!data || data.status === 'closed' || data.status === 'served') {
+          sessionStorage.removeItem(ORDER_KEY(slug))
+          setLastOrderId(null)
+        }
+      })
+  }, [slug])
+
+  // Učitaj guest sesiju iz localStorage kad znamo slug
+  useEffect(() => {
+    if (!slug || slug === 'demo') return
+    try {
+      const saved = localStorage.getItem(GUEST_SESSION_KEY(slug))
+      const lastAct = localStorage.getItem(GUEST_SESSION_KEY(slug) + '_activity')
+      if (saved && lastAct) {
+        const elapsed = Date.now() - parseInt(lastAct, 10)
+        if (elapsed < 10 * 60 * 1000) {
+          setGuestSession(JSON.parse(saved))
+        } else {
+          localStorage.removeItem(GUEST_SESSION_KEY(slug))
+          localStorage.removeItem(GUEST_SESSION_KEY(slug) + '_activity')
+        }
+      }
+    } catch {}
+  }, [slug])
 
   useEffect(() => {
     if (!slug || slug === 'demo') { setLoadingData(false); return }
@@ -83,6 +150,19 @@ export default function Menu() {
       setRealData({ restaurant: rest, categories: cats || [], items: its || [] })
       if (cats?.length) setActiveCat(cats[0].id)
       setLoadingData(false)
+
+      // Provjeri status aktivne narudžbe — obriši key ako je zatvorena/odbijena
+      try {
+        const storedOrderId = sessionStorage.getItem(ORDER_KEY(slug))
+        if (storedOrderId) {
+          const { data: ord } = await supabase
+            .from('orders').select('status').eq('id', storedOrderId).single()
+          if (!ord || ord.status === 'closed' || ord.status === 'served') {
+            sessionStorage.removeItem(ORDER_KEY(slug))
+            setLastOrderId(null)
+          }
+        }
+      } catch {}
     }
     load()
   }, [slug])
@@ -90,6 +170,18 @@ export default function Menu() {
   const isDemo = !slug || slug === 'demo' || !realData
   const data = isDemo ? DEMO_DATA : null
   const r = isDemo ? data.restaurant : realData?.restaurant
+  const tpl = getTemplate(r?.template)
+  const digitalOrdering = isDemo ? true : (r?.digital_ordering ?? true)
+  const onlineReservations = isDemo ? true : (r?.online_reservations ?? false)
+  const guestRegistration = isDemo ? true : (r?.guest_registration_enabled ?? true)
+  const waiterEnabled = isDemo ? true : (r?.waiter_requests_enabled === false ? false : (r?.waiter_requests_enabled ?? true))
+
+  // Vidljivost opcija (novi sistem — fallback na stare bool toggleove)
+  const orderingVis = isDemo ? 'all' : (r?.ordering_visibility || (r?.digital_ordering === false ? 'off' : 'all'))
+  const waiterVis = isDemo ? 'all' : (r?.waiter_visibility || (waiterEnabled ? 'all' : 'off'))
+  const reservationVis = isDemo ? 'all' : (r?.reservation_visibility || (onlineReservations ? 'all' : 'off'))
+  const registrationVis = isDemo ? 'all' : (r?.registration_visibility || (guestRegistration ? 'all' : 'off'))
+  const tableNumber = isDemo ? 'Sto 4' : (new URLSearchParams(window.location.search).get('table') || '')
   const currentCategories = isDemo ? data.categories : realData?.categories || []
   const allItems = isDemo
     ? Object.values(data.items).flat()
@@ -102,14 +194,153 @@ export default function Menu() {
 
   const sendWaiterRequest = async (type) => {
     if (!isDemo && realData?.restaurant) {
-      await supabase.from('waiter_requests').insert({
+      const { data: req } = await supabase.from('waiter_requests').insert({
         restaurant_id: realData.restaurant.id,
-        table_number: 'Sto',
+        table_number: tableNumber || 'Online',
         request_type: type,
-      })
+      }).select().single()
+      if (req?.id) {
+        setWaiterRequestId(req.id)
+        setWaiterResolved(false)
+        try { sessionStorage.setItem(WAITER_KEY(slug), req.id) } catch {}
+        // Realtime — prati kad konobar označi kao riješeno
+        const ch = supabase
+          .channel(`waiter-req-${req.id}`)
+          .on('postgres_changes', {
+            event: 'UPDATE', schema: 'public', table: 'waiter_requests',
+            filter: `id=eq.${req.id}`,
+          }, (payload) => {
+            if (payload.new.response) setWaiterResponse(payload.new.response)
+            if (payload.new.is_resolved) {
+              setWaiterResolved(true)
+              try { sessionStorage.removeItem(WAITER_KEY(slug)) } catch {}
+            }
+          })
+          .subscribe()
+      }
     }
     setWaiterSent(true)
     setShowWaiter(false)
+  }
+
+  // Čuvaj košaricu u sessionStorage pri svakoj promjeni
+  useEffect(() => {
+    try { sessionStorage.setItem(CART_KEY(slug), JSON.stringify(cart)) } catch {}
+  }, [cart, slug])
+
+  const addToCart = (item) => {
+    setCart(prev => {
+      const existing = prev.find(c => c.id === item.id)
+      if (existing) return prev.map(c => c.id === item.id ? { ...c, qty: c.qty + 1 } : c)
+      return [...prev, { ...item, qty: 1 }]
+    })
+  }
+
+  const removeFromCart = (itemId) => {
+    setCart(prev => {
+      const existing = prev.find(c => c.id === itemId)
+      if (existing?.qty > 1) return prev.map(c => c.id === itemId ? { ...c, qty: c.qty - 1 } : c)
+      return prev.filter(c => c.id !== itemId)
+    })
+  }
+
+  const cartTotal = cart.reduce((s, c) => s + parseFloat(c.price) * c.qty, 0)
+  const cartCount = cart.reduce((s, c) => s + c.qty, 0)
+
+  const sendOrder = async () => {
+    if (cart.length === 0) return
+    setOrderSending(true)
+    if (!isDemo && realData?.restaurant) {
+      // Kreiraj narudžbu
+      const { data: order } = await supabase.from('orders').insert({
+        restaurant_id: realData.restaurant.id,
+        table_number: tableNumber || 'Online',
+        status: 'received',
+        total: cartTotal,
+        guest_id: guestSession?.id || null,
+      }).select().single()
+
+      if (order) {
+        // Dodaj stavke narudžbe
+        await supabase.from('order_items').insert(
+          cart.map(item => ({
+            restaurant_id: realData.restaurant.id,
+            order_id: order.id,
+            menu_item_id: item.id,
+            name: item.name,
+            price: parseFloat(item.price),
+            quantity: item.qty,
+            category_id: item.category_id,
+          }))
+        )
+        setLastOrderId(order.id)
+        try { sessionStorage.setItem(ORDER_KEY(slug), order.id) } catch {}
+      }
+    }
+    setOrderSent(true)
+    setOrderSending(false)
+    setCart([])
+    setShowCart(false)
+  }
+
+  // ── Guest session funkcije ──────────────────────────────────
+  const canSee = (visibility) => {
+    if (visibility === 'off') return false
+    if (visibility === 'registered') return !!guestSession
+    return true
+  }
+
+  const saveGuestSession = (guest) => {
+    const session = { id: guest.id, first_name: guest.first_name, last_name: guest.last_name, status: guest.status }
+    const now = Date.now()
+    setGuestSession(session)
+    setLastActivity(now)
+    try {
+      localStorage.setItem(GUEST_SESSION_KEY(slug), JSON.stringify(session))
+      localStorage.setItem(GUEST_SESSION_KEY(slug) + '_activity', now.toString())
+    } catch {}
+    setLoginForm({ name: '', contact: '' })
+    setLoginError('')
+    if (pendingAction) { pendingAction(); setPendingAction(null) }
+  }
+
+  const logoutGuest = () => {
+    setGuestSession(null)
+    setPendingAction(null)
+    try {
+      localStorage.removeItem(GUEST_SESSION_KEY(slug))
+      localStorage.removeItem(GUEST_SESSION_KEY(slug) + '_activity')
+    } catch {}
+  }
+
+  const requireLogin = (action) => {
+    if (guestSession) { action(); return }
+    // Sačuvaj pending akciju u sessionStorage da se izvrši po povratku
+    try { sessionStorage.setItem(`sm_pending_${slug}`, action.toString()) } catch {}
+    navigate(`/${slug}/prijava`)
+  }
+
+  const handleGuestLogin = async (e) => {
+    e.preventDefault()
+    setLoginLoading(true); setLoginError('')
+    const nameParts = loginForm.name.trim().toLowerCase().split(' ')
+    const contact = loginForm.contact.trim()
+    const { data } = await supabase
+      .from('guests')
+      .select('id, first_name, last_name, status, phone, email')
+      .eq('restaurant_id', r?.id)
+      .or(`phone.eq.${contact},email.eq.${contact}`)
+      .neq('status', 'blacklist')
+      .neq('status', 'pending')
+    setLoginLoading(false)
+    if (!data?.length) { setLoginError('Nismo pronašli vaše podatke. Provjerite ime i kontakt.'); return }
+    const match = data.find(g => {
+      const fn = g.first_name?.toLowerCase() || ''
+      const ln = g.last_name?.toLowerCase() || ''
+      return nameParts.some(p => fn.includes(p) || ln.includes(p))
+    })
+    if (!match) { setLoginError('Ime se ne poklapa sa kontaktom. Pokušajte ponovo.'); return }
+    saveGuestSession(match)
   }
 
   if (loadingData) return (
@@ -128,18 +359,35 @@ export default function Menu() {
 
   return (
     <div className={styles.pageWrapper}>
-    <div className={styles.page}>
+    <div
+      className={styles.page}
+      style={{
+        background: tpl.pageBg,
+        '--tpl-brand': tpl.brand,
+        '--tpl-brand-light': tpl.catBg,
+        '--tpl-border': tpl.catBorder,
+        '--tpl-price': tpl.priceColor,
+        '--tpl-cat-color': tpl.catColor,
+      }}
+    >
 
       {/* HEADER */}
-      <div className={styles.header} style={{ background: r.color }}>
+      <div className={styles.header} style={{ background: tpl.brand }}>
         <div className={styles.headerTop}>
-          <div className={styles.tableTag}>{r.table}</div>
-          <button className={styles.langToggle} onClick={() => setLang(isEn ? 'sr' : 'en')}>
-            {isEn ? 'SR' : 'EN'}
-          </button>
+          <div className={styles.tableTag}>{tableNumber ? `Sto ${tableNumber}` : (r.table || '')}</div>
+          <div className={styles.headerRight}>
+            <button className={styles.langToggle} onClick={() => setLang(isEn ? 'sr' : 'en')}>
+              {isEn ? 'SR' : 'EN'}
+            </button>
+          </div>
         </div>
         <div className={styles.restInfo}>
-          <div className={styles.restLogo}>{r.name[0]}</div>
+          <div className={styles.restLogo}>
+            {r.logo_url
+              ? <img src={r.logo_url} alt={r.name} className={styles.restLogoImg} />
+              : r.name[0]
+            }
+          </div>
           <div>
             <div className={styles.restName}>{r.name}</div>
             <div className={styles.restMeta}>
@@ -161,7 +409,7 @@ export default function Menu() {
 
       {/* SPECIAL OFFER */}
       {specialItem && (
-        <div className={styles.special} style={{ background: r.color }} onClick={() => setSelectedItem(specialItem)}>
+        <div className={styles.special} style={{ background: tpl.brand }} onClick={() => setSelectedItem(specialItem)}>
           <div className={styles.specialLabel}>
             {isEn ? '⚡ Daily special' : '⚡ Dnevna ponuda'}
           </div>
@@ -184,8 +432,8 @@ export default function Menu() {
           <button
             key={cat.id}
             className={`${styles.cat} ${activeCat === cat.id ? styles.catActive : ''}`}
+            style={activeCat === cat.id ? { background: tpl.catBg, color: tpl.catColor, borderColor: tpl.catBorder } : {}}
             onClick={() => setActiveCat(cat.id)}
-            style={activeCat === cat.id ? { background: r.color, borderColor: r.color } : {}}
           >
             {cat.icon} {isEn ? (cat.name_en || cat.label || cat.name) : (cat.label || cat.name)}
           </button>
@@ -225,8 +473,23 @@ export default function Menu() {
                 </div>
               )}
               <div className={styles.itemFooter}>
-                <span className={styles.itemPrice}>€{parseFloat(item.price).toFixed(2)}</span>
-                <button className={styles.itemAdd} style={{ background: r.color }}>+</button>
+                <span className={styles.itemPrice} style={{ color: tpl.priceColor }}>€{parseFloat(item.price).toFixed(2)}</span>
+                {digitalOrdering && (() => {
+                  const qty = cart.find(c => c.id === item.id)?.qty || 0
+                  return qty > 0 ? (
+                    <div className={styles.itemQtyControl} onClick={e => e.stopPropagation()}>
+                      <button className={styles.itemQtyBtn} style={{ background: tpl.brand }} onClick={() => removeFromCart(item.id)}>−</button>
+                      <span className={styles.itemQtyNum}>{qty}</span>
+                      <button className={styles.itemQtyBtn} style={{ background: tpl.brand }} onClick={() => addToCart(item)}>+</button>
+                    </div>
+                  ) : (
+                    <button
+                      className={styles.itemAdd}
+                      style={{ background: tpl.brand }}
+                      onClick={e => { e.stopPropagation(); addToCart(item) }}
+                    >+</button>
+                  )
+                })()}
               </div>
             </div>
           </div>
@@ -235,14 +498,120 @@ export default function Menu() {
 
       {/* WAITER BUTTON */}
       <div className={styles.waiterSection}>
-        {!waiterSent ? (
-          <button className={styles.waiterBtn} onClick={() => setShowWaiter(true)}>
+        {digitalOrdering && cartCount > 0 && (
+          <div className={styles.cartBar} onClick={() => setShowCart(true)}>
+            <div className={styles.cartBarLeft}>
+              <span style={{ fontSize: 16 }}>🛒</span>
+              <span className={styles.cartBarLabel}>{isEn ? 'View order' : 'Pogledaj narudžbu'}</span>
+              <span className={styles.cartBarCount}>{cartCount}</span>
+            </div>
+            <span className={styles.cartBarTotal}>€{cartTotal.toFixed(2)}</span>
+          </div>
+        )}
+        {/* Sesija bar — kad je gost ulogovan */}
+        {guestSession && (
+          <div className={styles.guestSessionBar}>
+            <span>👤 {guestSession.first_name} {guestSession.last_name}</span>
+            <button className={styles.guestLogoutBtn} onClick={logoutGuest}>
+              {isEn ? 'Logout' : 'Odjava'}
+            </button>
+          </div>
+        )}
+
+        {/* Poziv konobara */}
+        {canSee(waiterVis) && (!waiterSent ? (
+          <button className={styles.waiterBtn} onClick={() => {
+            if (waiterVis === 'registered' && !guestSession) { requireLogin(() => setShowWaiter(true)); return }
+            setShowWaiter(true)
+          }}>
             🔔 {isEn ? 'Call waiter' : 'Pozovi konobara'}
           </button>
         ) : (
-          <div className={styles.waiterSent}>
-            ✓ {isEn ? 'Request sent! Waiter is on the way.' : 'Zahtjev poslan! Konobar dolazi.'}
+          <div className={styles.waiterSent} style={{
+            background: waiterResolved ? '#e1f5ee' : waiterResponse ? '#eeedfe' : tpl.catBg,
+            color: waiterResolved ? '#0d7a52' : waiterResponse ? '#534ab7' : tpl.catColor,
+          }}>
+            {waiterResolved ? (
+              <div>
+                ✓ {isEn ? 'Request resolved!' : 'Zahtjev riješen!'}
+                {waiterResponse && <div style={{ fontSize: 12, marginTop: 4, opacity: 0.85 }}>💬 {waiterResponse}</div>}
+              </div>
+            ) : waiterResponse ? (
+              <div>
+                <div>💬 {waiterResponse}</div>
+                <div style={{ fontSize: 11, marginTop: 3, opacity: 0.7 }}>
+                  {isEn ? 'Waiter replied' : 'Konobar odgovorio'}
+                </div>
+              </div>
+            ) : (
+              <div className={styles.waiterPending}>
+                <span className={styles.waiterSpinner} />
+                {isEn ? 'Request sent — waiting for waiter...' : 'Zahtjev poslan — čekamo konobara...'}
+              </div>
+            )}
           </div>
+        ))}
+
+        {/* Rezervacija */}
+        {canSee(reservationVis) && (
+          <a
+            href={(reservationVis === 'all' || guestSession) ? `/${isDemo ? 'demo' : slug}/rezervacija` : '#'}
+            className={styles.reservationBtn}
+            onClick={e => {
+              if (reservationVis === 'registered' && !guestSession) {
+                e.preventDefault()
+                requireLogin(() => { window.location.href = `/${slug}/rezervacija` })
+              }
+            }}
+          >
+            📅 {isEn ? 'Reserve a table' : 'Rezerviši sto'}
+          </a>
+        )}
+
+        {/* Separator MOJ NALOG */}
+        {(canSee(registrationVis) || guestSession) && (
+          <div className={styles.accountSeparator}>
+            <div className={styles.accountSepLine} />
+            <div className={styles.accountSepLabel}>{isEn ? 'MY ACCOUNT' : 'MOJ NALOG'}</div>
+            <div className={styles.accountSepLine} />
+          </div>
+        )}
+
+        {/* Nelogovan — dva dugmeta u redu */}
+        {!guestSession && canSee(registrationVis) && (
+          <div className={styles.accountRow}>
+            <button className={styles.accountBtn} onClick={() => navigate(`/${isDemo ? 'demo' : slug}/registracija`)}>
+              🎟️ {isEn ? 'Register' : 'Registruj se'}
+            </button>
+            <button className={styles.accountBtn} onClick={() => navigate(`/${isDemo ? 'demo' : slug}/prijava?return=/${isDemo ? 'demo' : slug}/profil`)}>
+              👤 {isEn ? 'Login' : 'Prijava'}
+            </button>
+          </div>
+        )}
+
+        {/* Logovan — jedno dugme Moj profil */}
+        {guestSession && (
+          <button
+            className={styles.accountBtnFull}
+            onClick={() => { window.location.href = `/${isDemo ? 'demo' : slug}/profil` }}
+          >
+            👤 {isEn ? 'My profile' : 'Moj profil'}
+          </button>
+        )}
+        {orderSent && (
+          <div className={styles.orderSentMsg} style={{ background: tpl.catBg, color: tpl.catColor }}>
+            ✓ {isEn ? 'Order sent! Thank you.' : 'Narudžba poslana! Hvala.'}
+          </div>
+        )}
+        {/* Dugme za praćenje — vidljivo dok narudžba postoji u sessionStorage */}
+        {lastOrderId && !isDemo && (
+          <button
+            className={styles.trackOrderBtn}
+            style={{ borderColor: tpl.brand, color: tpl.brand }}
+            onClick={() => navigate(`/${slug}/narudzba/${lastOrderId}`)}
+          >
+            📍 {isEn ? 'Track your order' : 'Prati narudžbu uživo'}
+          </button>
         )}
       </div>
 
@@ -271,13 +640,72 @@ export default function Menu() {
                 <span>{selectedItem.prep_time || selectedItem.time || '—'}</span>
               </div>
             </div>
-            <div className={styles.sheetPrice}>€{parseFloat(selectedItem.price).toFixed(2)}</div>
-            <button className={styles.sheetAdd} style={{ background: r.color }}>
-              {isEn ? 'Add to order' : 'Dodaj u narudžbu'}
-            </button>
+            <div className={styles.sheetPrice} style={{ color: tpl.priceColor }}>€{parseFloat(selectedItem.price).toFixed(2)}</div>
+            {digitalOrdering && (
+              <button
+                className={styles.sheetAdd}
+                style={{ background: tpl.brand }}
+                onClick={() => { addToCart(selectedItem); setSelectedItem(null) }}
+              >
+                {isEn ? 'Add to order' : 'Dodaj u narudžbu'}
+              </button>
+            )}
+            {!digitalOrdering && (
+              <div className={styles.orderingOff}>
+                {isEn ? 'Online ordering is currently unavailable' : 'Naručivanje putem aplikacije nije dostupno'}
+              </div>
+            )}
           </div>
         </div>
       )}
+
+      {/* CART OVERLAY */}
+      {showCart && (
+        <div className={styles.overlay} onClick={() => setShowCart(false)}>
+          <div className={styles.sheet} onClick={e => e.stopPropagation()}>
+            <button className={styles.sheetClose} onClick={() => setShowCart(false)}>✕</button>
+            <div className={styles.cartTitle}>{isEn ? 'Your order' : 'Vaša narudžba'}</div>
+
+            {cart.length === 0 ? (
+              <div className={styles.cartEmpty}>{isEn ? 'Cart is empty' : 'Košarica je prazna'}</div>
+            ) : (
+              <>
+                <div className={styles.cartItems}>
+                  {cart.map(item => (
+                    <div key={item.id} className={styles.cartItem}>
+                      <div className={styles.cartItemName}>{item.name}</div>
+                      <div className={styles.cartItemControls}>
+                        <button className={styles.cartQtyBtn} onClick={() => removeFromCart(item.id)}>−</button>
+                        <span className={styles.cartQty}>{item.qty}</span>
+                        <button className={styles.cartQtyBtn} onClick={() => addToCart(item)}>+</button>
+                      </div>
+                      <div className={styles.cartItemPrice}>€{(parseFloat(item.price) * item.qty).toFixed(2)}</div>
+                    </div>
+                  ))}
+                </div>
+                <div className={styles.cartTotal}>
+                  <span>{isEn ? 'Total' : 'Ukupno'}</span>
+                  <span>€{cartTotal.toFixed(2)}</span>
+                </div>
+                <button
+                  className={styles.sheetAdd}
+                  style={{ background: tpl.brand }}
+                  onClick={() => setShowConfirm(true)}
+                  disabled={orderSending}
+                >
+                  {isEn ? 'Send order' : 'Pošalji narudžbu'}
+                </button>
+                {tableNumber && (
+                  <div className={styles.cartTableNote}>
+                    {isEn ? `Table ${tableNumber}` : `Sto ${tableNumber}`}
+                  </div>
+                )}
+              </>
+            )}
+          </div>
+        </div>
+      )}
+
 
       {/* WAITER REQUEST OVERLAY */}
       {showWaiter && (
@@ -287,21 +715,64 @@ export default function Menu() {
             <div className={styles.waiterTitle}>
               {isEn ? 'What do you need?' : 'Šta vam je potrebno?'}
             </div>
-            {[
+            {(r?.waiter_messages || [
               { icon: '🔔', sr: 'Pozovi konobara', en: 'Call waiter' },
               { icon: '🧾', sr: 'Donesi račun', en: 'Bring the bill' },
               { icon: '🥤', sr: 'Donesi vodu', en: 'Bring water' },
               { icon: '🍽️', sr: 'Skloni prazne tanjire', en: 'Clear the table' },
-            ].map((opt, i) => (
+            ]).map((opt, i) => (
               <button
                 key={i}
                 className={styles.waiterOpt}
                 onClick={() => sendWaiterRequest(opt.sr)}
               >
                 <span className={styles.waiterOptIcon}>{opt.icon}</span>
-                <span>{isEn ? opt.en : opt.sr}</span>
+                <span>{isEn ? (opt.en || opt.sr) : opt.sr}</span>
               </button>
             ))}
+          </div>
+        </div>
+      )}
+
+      {/* CONFIRM ORDER OVERLAY */}
+      {showConfirm && (
+        <div className={styles.overlay} onClick={() => setShowConfirm(false)}>
+          <div className={styles.sheet} onClick={e => e.stopPropagation()} style={{ textAlign: 'center' }}>
+            <div style={{ fontSize: 48, marginBottom: 12 }}>🛒</div>
+            <div className={styles.sheetName}>
+              {isEn ? 'Confirm order?' : 'Potvrdi narudžbu?'}
+            </div>
+            <div className={styles.sheetDesc}>
+              {isEn
+                ? `${cartCount} item(s) · €${cartTotal.toFixed(2)} total. Once sent, the order goes directly to the kitchen.`
+                : `${cartCount} ${cartCount === 1 ? 'stavka' : 'stavke'} · ukupno €${cartTotal.toFixed(2)}. Nakon slanja, narudžba ide direktno u kuhinju.`
+              }
+            </div>
+            <div className={styles.cartItems} style={{ textAlign: 'left', marginBottom: 16 }}>
+              {cart.map(item => (
+                <div key={item.id} className={styles.cartItem}>
+                  <div className={styles.cartItemName}>{item.name}</div>
+                  <div className={styles.cartQty}>×{item.qty}</div>
+                  <div className={styles.cartItemPrice}>€{(parseFloat(item.price) * item.qty).toFixed(2)}</div>
+                </div>
+              ))}
+            </div>
+            <button
+              className={styles.sheetAdd}
+              style={{ background: tpl.brand, marginBottom: 10 }}
+              onClick={async () => { setShowConfirm(false); await sendOrder() }}
+              disabled={orderSending}
+            >
+              {orderSending
+                ? (isEn ? 'Sending...' : 'Slanje...')
+                : (isEn ? '✓ Yes, send order' : '✓ Da, pošalji narudžbu')}
+            </button>
+            <button
+              className={styles.waiterBtn}
+              onClick={() => setShowConfirm(false)}
+            >
+              {isEn ? 'Back to order' : 'Nazad na narudžbu'}
+            </button>
           </div>
         </div>
       )}

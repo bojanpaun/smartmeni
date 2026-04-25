@@ -1,0 +1,395 @@
+/* src/modules/guests/pages/OrderTrackerPage.module.css */
+
+@import url('https://fonts.googleapis.com/css2?family=DM+Sans:wght@400;500;600;700&display=swap');
+
+.pageWrapper {
+  min-height: 100vh;
+  background: #f5f5f5;
+  display: flex;
+  justify-content: center;
+}
+
+.page {
+  width: 100%;
+  max-width: 480px;
+  min-height: 100vh;
+  background: #f8faf9;
+  display: flex;
+  flex-direction: column;
+  font-family: 'DM Sans', sans-serif;
+  padding-bottom: 40px;
+}
+
+/* ── HEADER ── */
+.header {
+  padding: 14px 16px 20px;
+  color: #fff;
+}
+
+.headerTop {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 14px;
+}
+
+.backBtn {
+  background: rgba(255,255,255,0.18);
+  border: none;
+  color: #fff;
+  font-size: 13px;
+  font-weight: 500;
+  cursor: pointer;
+  padding: 5px 11px;
+  border-radius: 8px;
+  font-family: 'DM Sans', sans-serif;
+  transition: background 0.15s;
+}
+.backBtn:hover { background: rgba(255,255,255,0.28); }
+
+.langToggle {
+  background: rgba(255,255,255,0.18);
+  border: none;
+  color: #fff;
+  font-size: 12px;
+  font-weight: 600;
+  cursor: pointer;
+  padding: 4px 10px;
+  border-radius: 8px;
+  font-family: 'DM Sans', sans-serif;
+}
+
+.restInfo {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+}
+
+.restLogo {
+  width: 44px; height: 44px;
+  border-radius: 12px;
+  background: rgba(255,255,255,0.2);
+  display: flex; align-items: center; justify-content: center;
+  font-size: 20px; font-weight: 700; color: #fff;
+  overflow: hidden; flex-shrink: 0;
+}
+.restLogoImg { width: 100%; height: 100%; object-fit: cover; }
+
+.restName { font-size: 18px; font-weight: 700; color: #fff; }
+.restSub { font-size: 12px; color: rgba(255,255,255,0.75); margin-top: 2px; }
+
+/* ── ORDER ID BAR ── */
+.orderIdBar {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  padding: 10px 16px;
+  background: #fff;
+  border-bottom: 1px solid #e8f0ec;
+}
+
+.orderIdLabel {
+  font-size: 12px;
+  color: #8a9e96;
+  font-weight: 500;
+}
+
+.orderIdVal {
+  font-size: 13px;
+  font-weight: 700;
+  color: #1a2e26;
+  letter-spacing: 0.5px;
+  font-family: monospace;
+}
+
+.tableTag {
+  margin-left: auto;
+  font-size: 12px;
+  font-weight: 500;
+  color: #3a6a56;
+  background: #e1f5ee;
+  padding: 3px 9px;
+  border-radius: 6px;
+}
+
+/* ── STEPPER CARD ── */
+.stepperCard {
+  margin: 16px 16px 0;
+  background: #fff;
+  border-radius: 16px;
+  padding: 20px;
+  box-shadow: 0 2px 8px rgba(0,0,0,0.05);
+}
+
+.stepperTitle {
+  font-size: 14px;
+  font-weight: 700;
+  color: #1a2e26;
+  margin-bottom: 18px;
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+
+/* Live dot animacija */
+.liveDot {
+  width: 8px; height: 8px;
+  border-radius: 50%;
+  background: #22c55e;
+  display: inline-block;
+  animation: pulse 1.8s infinite;
+}
+
+@keyframes pulse {
+  0%, 100% { opacity: 1; transform: scale(1); }
+  50% { opacity: 0.5; transform: scale(1.3); }
+}
+
+/* ── STEPPER ── */
+.stepper {
+  display: flex;
+  flex-direction: column;
+  gap: 0;
+  position: relative;
+  margin-bottom: 20px;
+}
+
+.stepRow {
+  display: flex;
+  flex-direction: column;
+  position: relative;
+}
+
+.connector {
+  width: 2px;
+  height: 20px;
+  background: #e0e8e4;
+  margin-left: 17px;
+  transition: background 0.4s;
+}
+
+.connectorDone {
+  background: var(--tpl-brand);
+}
+
+.step {
+  display: flex;
+  align-items: flex-start;
+  gap: 12px;
+  padding: 6px 0;
+}
+
+.stepDot {
+  width: 36px; height: 36px;
+  border-radius: 50%;
+  display: flex; align-items: center; justify-content: center;
+  font-size: 16px;
+  flex-shrink: 0;
+  border: 2px solid #e0e8e4;
+  background: #f8faf9;
+  color: #b0c0b8;
+  transition: all 0.3s;
+}
+
+.stepDotActive {
+  border-color: var(--tpl-brand);
+  background: var(--tpl-brand-light, #e1f5ee);
+  color: var(--tpl-brand);
+  animation: stepPulse 2s infinite;
+}
+
+@keyframes stepPulse {
+  0%, 100% { box-shadow: 0 0 0 0 rgba(13,122,82,0.3); }
+  50% { box-shadow: 0 0 0 6px rgba(13,122,82,0); }
+}
+
+.stepDotDone {
+  border-color: var(--tpl-brand);
+  background: var(--tpl-brand);
+  color: #fff;
+  font-size: 14px;
+  font-weight: 700;
+}
+
+.stepInfo {
+  flex: 1;
+  padding-top: 6px;
+}
+
+.stepLabel {
+  font-size: 14px;
+  font-weight: 600;
+  color: #1a2e26;
+  display: flex;
+  align-items: center;
+  gap: 7px;
+}
+
+.stepFuture .stepLabel {
+  color: #b0c0b8;
+  font-weight: 500;
+}
+
+.stepNow {
+  font-size: 9px;
+  font-weight: 700;
+  letter-spacing: 0.5px;
+  color: var(--tpl-brand);
+  background: var(--tpl-brand-light, #e1f5ee);
+  padding: 2px 6px;
+  border-radius: 5px;
+}
+
+.stepDesc {
+  font-size: 12px;
+  color: #5a7a6a;
+  margin-top: 3px;
+  line-height: 1.4;
+}
+
+/* ── PROGRESS BAR ── */
+.progressBar {
+  height: 5px;
+  border-radius: 10px;
+  background: #e0e8e4;
+  overflow: hidden;
+}
+
+.progressFill {
+  height: 100%;
+  border-radius: 10px;
+  transition: width 0.8s cubic-bezier(0.4, 0, 0.2, 1);
+}
+
+/* ── CLOSED CARD ── */
+.closedCard {
+  margin: 16px 16px 0;
+  background: #fff;
+  border-radius: 16px;
+  padding: 28px 20px;
+  text-align: center;
+  box-shadow: 0 2px 8px rgba(0,0,0,0.05);
+}
+
+.closedIcon { font-size: 40px; margin-bottom: 10px; }
+.closedTitle { font-size: 18px; font-weight: 700; color: #1a2e26; margin-bottom: 6px; }
+.closedDesc { font-size: 14px; color: #5a7a6a; }
+
+/* ── ITEMS CARD ── */
+.itemsCard {
+  margin: 12px 16px 0;
+  background: #fff;
+  border-radius: 16px;
+  padding: 18px 20px;
+  box-shadow: 0 2px 8px rgba(0,0,0,0.04);
+}
+
+.itemsTitle {
+  font-size: 14px;
+  font-weight: 700;
+  color: #1a2e26;
+  margin-bottom: 14px;
+}
+
+.orderItem {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  padding: 8px 0;
+  border-bottom: 1px solid #f0f5f2;
+}
+
+.orderItem:last-of-type { border-bottom: none; }
+
+.orderItemName {
+  flex: 1;
+  font-size: 14px;
+  color: #1a2e26;
+  font-weight: 500;
+}
+
+.orderItemQty {
+  font-size: 13px;
+  color: #8a9e96;
+  min-width: 24px;
+}
+
+.orderItemPrice {
+  font-size: 14px;
+  font-weight: 600;
+  color: #0d7a52;
+  min-width: 52px;
+  text-align: right;
+}
+
+.orderTotal {
+  display: flex;
+  justify-content: space-between;
+  font-size: 15px;
+  font-weight: 700;
+  color: #1a2e26;
+  padding-top: 12px;
+  margin-top: 4px;
+  border-top: 2px solid #e0e8e4;
+}
+
+/* ── NEW ORDER BTN ── */
+.newOrderBtn {
+  display: block;
+  margin: 14px 16px 0;
+  width: calc(100% - 32px);
+  padding: 14px;
+  border: none;
+  border-radius: 14px;
+  color: #fff;
+  font-size: 15px;
+  font-weight: 600;
+  cursor: pointer;
+  font-family: 'DM Sans', sans-serif;
+  transition: opacity 0.2s;
+}
+.newOrderBtn:hover { opacity: 0.9; }
+
+/* ── FOOTER ── */
+.footer {
+  text-align: center;
+  padding: 24px 16px 0;
+}
+
+.footerBrand {
+  font-size: 12px;
+  color: #b0c0b8;
+  text-decoration: none;
+}
+
+.footerBrand strong { color: #0d7a52; }
+
+/* ── Link na meni ── */
+.menuLinkWrap {
+  display: flex;
+  justify-content: center;
+  gap: 4px;
+  padding: 4px 16px 0;
+  flex-wrap: wrap;
+}
+
+.menuLink {
+  background: none;
+  border: none;
+  font-size: 13px;
+  font-weight: 500;
+  color: #5a7a6a;
+  cursor: pointer;
+  font-family: 'DM Sans', sans-serif;
+  padding: 8px 14px;
+  text-decoration: none;
+  transition: color 0.15s;
+  border-radius: 8px;
+}
+.menuLink:hover { color: var(--tpl-brand); background: rgba(0,0,0,0.04); }
+
+.rejectionMsg {
+  font-size: 13px; color: #a32d2d; margin-top: 6px;
+  background: #fff5f5; border-radius: 8px; padding: 10px 14px;
+  border: 1px solid #f0c0c0; line-height: 1.5;
+}

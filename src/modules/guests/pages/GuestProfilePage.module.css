@@ -1,0 +1,93 @@
+/* ▶ Novi fajl: src/modules/guests/pages/GuestProfilePage.module.css */
+
+.page { padding: 20px; font-family: 'DM Sans', sans-serif; max-width: 900px; }
+.loading { padding: 3rem; text-align: center; color: #8a9e96; font-family: 'DM Sans', sans-serif; }
+
+.breadcrumb { display: flex; align-items: center; gap: 10px; margin-bottom: 16px; font-size: 13px; color: #8a9e96; }
+.backBtn { background: none; border: none; cursor: pointer; color: #0d7a52; font-size: 13px; font-family: 'DM Sans', sans-serif; padding: 0; }
+.backBtn:hover { text-decoration: underline; }
+
+.btnPrimary { padding: 9px 16px; background: #0d7a52; color: #fff; border: none; border-radius: 9px; font-size: 13px; font-weight: 500; cursor: pointer; font-family: 'DM Sans', sans-serif; }
+.btnPrimary:hover { background: #0a6343; }
+.btnPrimary:disabled { background: #9ad4be; cursor: not-allowed; }
+.btnSecondary { padding: 9px 14px; background: #f0f5f2; border: 1px solid #d0e4dc; border-radius: 9px; font-size: 13px; cursor: pointer; font-family: 'DM Sans', sans-serif; color: #3a4a42; }
+
+.profileCard { background: #fff; border: 1px solid #e0e8e4; border-radius: 16px; overflow: hidden; }
+
+/* Header */
+.profileHeader { display: flex; align-items: flex-start; gap: 16px; padding: 20px; border-bottom: 1px solid #e0e8e4; }
+.avatarWrap { position: relative; flex-shrink: 0; }
+.profileAvatar { width: 72px; height: 72px; border-radius: 50%; object-fit: cover; }
+.avatarActions { position: absolute; bottom: -4px; right: -4px; display: flex; gap: 3px; }
+.btnAvatarChange { width: 24px; height: 24px; border-radius: 50%; background: #0d7a52; border: 2px solid #fff; cursor: pointer; font-size: 11px; display: flex; align-items: center; justify-content: center; }
+.btnAvatarRemove { width: 24px; height: 24px; border-radius: 50%; background: #c0392b; border: 2px solid #fff; cursor: pointer; font-size: 11px; color: #fff; display: flex; align-items: center; justify-content: center; }
+
+.profileInfo { flex: 1; }
+.profileName { font-size: 18px; font-weight: 600; color: #1a2e26; margin-bottom: 4px; }
+.profileSub { display: flex; gap: 12px; font-size: 12px; color: #8a9e96; margin-bottom: 8px; flex-wrap: wrap; }
+.profileBadges { display: flex; gap: 6px; flex-wrap: wrap; align-items: center; }
+.badge { display: inline-block; font-size: 11px; font-weight: 500; padding: 3px 9px; border-radius: 20px; }
+.blacklistReason { font-size: 11px; color: #A32D2D; font-style: italic; }
+.headerActions { display: flex; flex-direction: column; gap: 6px; flex-shrink: 0; }
+
+/* Edit inline */
+.editInline { display: flex; flex-direction: column; gap: 8px; }
+.editInput { padding: 8px 10px; border: 1px solid #d0e4dc; border-radius: 8px; font-size: 13px; font-family: 'DM Sans', sans-serif; outline: none; width: 100%; box-sizing: border-box; }
+.editInput:focus { border-color: #0d7a52; }
+.fieldRow { display: grid; grid-template-columns: 1fr 1fr; gap: 8px; }
+
+/* Stats */
+.statsRow { display: grid; grid-template-columns: repeat(4, 1fr); border-bottom: 1px solid #e0e8e4; }
+.statBox { padding: 14px 16px; border-right: 1px solid #e0e8e4; }
+.statBox:last-child { border-right: none; }
+.statVal { font-size: 20px; font-weight: 600; color: #1a2e26; }
+.statLbl { font-size: 11px; color: #8a9e96; margin-top: 3px; }
+
+/* Tabs */
+.tabs { display: flex; border-bottom: 1px solid #e0e8e4; padding: 0 20px; }
+.tab { padding: 10px 14px; font-size: 13px; color: #8a9e96; cursor: pointer; border: none; background: none; border-bottom: 2px solid transparent; margin-bottom: -1px; font-family: 'DM Sans', sans-serif; }
+.tabActive { color: #0d7a52; border-bottom-color: #0d7a52; font-weight: 500; }
+
+/* Tab content */
+.tabContent { padding: 16px 20px; }
+.tabHeader { display: flex; align-items: center; justify-content: space-between; margin-bottom: 14px; }
+.tabTitle { font-size: 14px; font-weight: 600; color: #1a2e26; }
+
+/* Inline form */
+.inlineForm { background: #f8faf9; border: 1px solid #e0e8e4; border-radius: 12px; padding: 16px; margin-bottom: 16px; }
+.field { display: flex; flex-direction: column; gap: 4px; }
+.field label { font-size: 11px; font-weight: 500; color: #5a7a6a; }
+.field input, .field select, .field textarea { padding: 8px 10px; border: 1px solid #d0e4dc; border-radius: 8px; font-size: 13px; font-family: 'DM Sans', sans-serif; outline: none; box-sizing: border-box; width: 100%; }
+.field input:focus, .field select:focus { border-color: #0d7a52; }
+.saveRow { display: flex; gap: 8px; justify-content: flex-end; margin-top: 12px; }
+
+/* Visit list */
+.visitList { display: flex; flex-direction: column; gap: 8px; }
+.visitItem { display: flex; align-items: center; gap: 10px; padding: 10px 12px; border: 1px solid #e0e8e4; border-radius: 10px; flex-wrap: wrap; }
+.visitDate { font-size: 12px; font-weight: 500; color: #1a2e26; min-width: 90px; }
+.visitInfo { flex: 1; font-size: 12px; color: #8a9e96; }
+.visitBadge { font-size: 11px; font-weight: 500; padding: 3px 8px; border-radius: 20px; flex-shrink: 0; }
+.visitAmount { font-size: 13px; font-weight: 600; min-width: 60px; text-align: right; }
+.delBtn { background: none; border: none; cursor: pointer; color: #c0ccc6; font-size: 14px; padding: 2px 6px; border-radius: 4px; flex-shrink: 0; }
+.delBtn:hover { background: #fde0e0; color: #c0392b; }
+
+.empty { font-size: 13px; color: #8a9e96; text-align: center; padding: 2rem; }
+
+/* Notes */
+.notesArea { padding: 10px 12px; border: 1px solid #d0e4dc; border-radius: 10px; font-size: 13px; font-family: 'DM Sans', sans-serif; outline: none; width: 100%; box-sizing: border-box; resize: vertical; }
+.notesArea:focus { border-color: #0d7a52; }
+
+/* Account tab */
+.accountInfo { padding: 8px 0; }
+.accountStatus { display: flex; align-items: flex-start; gap: 14px; }
+.accountTitle { font-size: 14px; font-weight: 600; color: #1a2e26; margin-bottom: 4px; }
+.accountSub { font-size: 12px; color: #8a9e96; }
+
+@media (max-width: 600px) {
+  .page { padding: 14px; }
+  .statsRow { grid-template-columns: repeat(2, 1fr); }
+  .statsRow .statBox:nth-child(2) { border-right: none; }
+  .statsRow .statBox:nth-child(3), .statsRow .statBox:nth-child(4) { border-top: 1px solid #e0e8e4; }
+  .profileHeader { flex-wrap: wrap; }
+  .fieldRow { grid-template-columns: 1fr; }
+}

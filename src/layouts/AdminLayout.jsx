@@ -16,9 +16,11 @@ export const MODULES = [
     active: true,
     perm: 'view_menu',
     links: [
-      { label: 'Meni i stavke', icon: '🍽️', path: '/admin/menu',   exact: true },
-      { label: 'Narudžbe',      icon: '🧾', path: '/admin/orders',  perm: 'view_orders' },
-      { label: 'Zahtjevi',      icon: '🔔', path: '/admin/waiter',  perm: 'view_waiter_req' },
+      { label: 'Meni i stavke', icon: '🍽️', path: '/admin/menu',          exact: true },
+      { label: 'Narudžbe',      icon: '🧾', path: '/admin/orders',         perm: 'view_orders' },
+      { label: 'Zahtjevi',      icon: '🔔', path: '/admin/waiter',         perm: 'view_waiter_req' },
+      { label: 'QR kod',        icon: '📱', path: '/admin/menu/qr' },
+      { label: 'Postavke menija', icon: '⚙️', path: '/admin/menu/settings' },
     ],
   },
   {
@@ -66,6 +68,18 @@ export const MODULES = [
     ],
   },
   {
+    key: 'guests',
+    label: 'Gosti',
+    icon: '🎟️',
+    desc: 'Evidencija gostiju, VIP lista, historija posjeta i potrošnja',
+    path: '/admin/guests',
+    active: true,
+    perm: 'view_analytics',
+    links: [
+      { label: 'Lista gostiju', icon: '👤', path: '/admin/guests', exact: true },
+    ],
+  },
+  {
     key: 'analytics',
     label: 'Analitika',
     icon: '📊',
@@ -97,8 +111,8 @@ export const MODULES = [
 
 const BOTTOM_NAV = [
   { path: '/admin',          label: 'Početna',  icon: '⊞', exact: true },
-  { path: '/admin/menu',     label: 'Meni',     icon: '🍽️', perm: 'view_menu' },
   { path: '/admin/orders',   label: 'Narudžbe', icon: '🧾', perm: 'view_orders' },
+  { path: '/admin/waiter',   label: 'Zahtjevi', icon: '🔔', perm: 'view_waiter_req' },
   { path: '/admin/tables',   label: 'Stolovi',  icon: '🪑', perm: 'view_tables' },
   { path: '/admin/settings', label: 'Postavke', icon: '⚙️' },
 ]
@@ -114,7 +128,7 @@ export default function AdminLayout({ children }) {
   const activeModule = MODULES.find(m =>
     location.pathname === m.path || location.pathname.startsWith(m.path + '/')
   ) || (
-    ['/admin/orders', '/admin/waiter', '/admin/kitchen'].some(p => location.pathname.startsWith(p))
+    ['/admin/orders', '/admin/waiter', '/admin/kitchen', '/admin/menu/qr', '/admin/menu/settings'].some(p => location.pathname.startsWith(p))
       ? MODULES.find(m => m.key === 'menu')
       : ['/admin/settings', '/admin/billing'].some(p => location.pathname.startsWith(p))
       ? MODULES.find(m => m.key === 'settings')

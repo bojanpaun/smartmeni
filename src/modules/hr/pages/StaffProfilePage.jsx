@@ -102,6 +102,16 @@ export default function StaffProfilePage() {
     setAbsences(prev => prev.filter(a => a.id !== id))
   }
 
+  const toggleAbsenceApproval = async (id, currentApproved) => {
+    const { data } = await supabase
+      .from('staff_absences')
+      .update({ approved: !currentApproved })
+      .eq('id', id)
+      .select()
+      .single()
+    if (data) setAbsences(prev => prev.map(a => a.id === id ? { ...a, approved: data.approved } : a))
+  }
+
   if (loading) return <div className={styles.loading}>Učitavanje profila...</div>
 
   const initials = staff.first_name && staff.last_name ? `${staff.first_name[0]}${staff.last_name[0]}` : staff.email[0].toUpperCase()
@@ -299,8 +309,22 @@ export default function StaffProfilePage() {
                       {new Date(a.start_date).toLocaleDateString('sr-Latn')} — {new Date(a.end_date).toLocaleDateString('sr-Latn')}
                       <span className={styles.absenceDays}> · {a.days} {a.days===1?'dan':'dana'}</span>
                     </div>
-                    <span className={styles.absenceApproved}>{a.approved ? <span style={{color:'#0d7a52'}}>✓ Odobreno</span> : <span style={{color:'#BA7517'}}>Na čekanju</span>}</span>
-                    <button className={styles.delBtn} onClick={() => deleteAbsence(a.id)}>✕</button>
+                    <div className={styles.absenceActions}>
+                      {a.approved
+                        ? <span className={styles.approvedBadge}>✓ Odobreno</span>
+                        : <span className={styles.pendingBadge}>Na čekanju</span>
+                      }
+                      {!a.approved && (
+                        <button className={styles.btnApprove} onClick={() => toggleAbsenceApproval(a.id, a.approved)}>Odobri</button>
+                      )}
+                      {a.approved && (
+                        <button className={styles.btnReject} onClick={() => toggleAbsenceApproval(a.id, a.approved)}>Poništi</button>
+                      )}
+                      {!a.approved && (
+                        <button className={styles.btnReject} onClick={() => toggleAbsenceApproval(a.id, a.approved)}>Odbij</button>
+                      )}
+                      <button className={styles.delBtn} onClick={() => deleteAbsence(a.id)}>✕</button>
+                    </div>
                   </div>
                 ))}
               </div>

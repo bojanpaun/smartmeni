@@ -712,3 +712,9 @@
   .pricingGrid { flex-direction: column; align-items: center; }
   .sectionInner { padding: 3rem 1.5rem; }
 }
+
+/* Nav login dugme */
+.navActions { display: flex; align-items: center; gap: 10px; }
+.navLogin { font-size: 14px; font-weight: 500; color: #0d7a52; text-decoration: none; padding: 8px 14px; border: 1.5px solid #0d7a52; border-radius: 9px; transition: all 0.15s; }
+.navLogin:hover { background: #e0f5ec; }
+.mobileMenuLogin { display: block; padding: 12px 20px; font-size: 15px; color: #0d7a52; font-weight: 500; text-decoration: none; border-bottom: 1px solid #f0f5f2; }

@@ -64,17 +64,36 @@ export default function WaiterDashboard() {
     setLoading(false)
   }
 
-  const updateOrderStatus = async (orderId, status) => {
-    await supabase.from('orders').update({ status }).eq('id', orderId)
+  const updateOrderStatus = async (orderId, status, rejectionMessage = null) => {
+    const update = { status }
+    if (rejectionMessage) update.rejection_message = rejectionMessage
+    await supabase.from('orders').update(update).eq('id', orderId)
     setOrders(prev => prev.map(o =>
       o.id === orderId ? { ...o, status } : o
     ).filter(o => o.status !== 'closed'))
   }
 
-  const resolveWaiterReq = async (id) => {
-    await supabase.from('waiter_requests').update({ is_resolved: true }).eq('id', id)
+  const resolveWaiterReq = async (id, response = null) => {
+    await supabase.from('waiter_requests')
+      .update({ is_resolved: true, response })
+      .eq('id', id)
     setWaiterReqs(prev => prev.filter(r => r.id !== id))
   }
+
+  const QUICK_RESPONSES = [
+    'Dolazim odmah!',
+    'Za minut sam kod vas.',
+    'Za 2-3 minute.',
+    'Primljeno, hvala!',
+  ]
+
+  const DEFAULT_REJECT = [
+    'Žao nam je, ovaj artikal trenutno nije dostupan.',
+    'Kuhinja je zauzeta, molimo pokušajte malo kasnije.',
+    'Narudžba je primljena greškom, molimo naručite ponovo.',
+    'Restoran se zatvara, narudžba nije moguća.',
+  ]
+  const REJECT_MESSAGES = restaurant?.rejection_messages || DEFAULT_REJECT
 
   const NEXT_STATUS = {
     pending: 'received',
@@ -108,22 +127,7 @@ export default function WaiterDashboard() {
       </div>
 
       <div className={styles.content}>
-        <div className={styles.tabs}>
-          <button
-            className={`${styles.tab} ${activeTab === 'orders' ? styles.tabActive : ''}`}
-            onClick={() => setActiveTab('orders')}
-          >
-            Narudžbe
-            {newOrdersCount > 0 && <span className={styles.badge}>{newOrdersCount}</span>}
-          </button>
-          <button
-            className={`${styles.tab} ${activeTab === 'waiter' ? styles.tabActive : ''}`}
-            onClick={() => setActiveTab('waiter')}
-          >
-            Pozivi konobara
-            {newReqsCount > 0 && <span className={styles.badge}>{newReqsCount}</span>}
-          </button>
-        </div>
+
 
         {/* NARUDŽBE */}
         {activeTab === 'orders' && (
@@ -165,15 +169,30 @@ export default function WaiterDashboard() {
                   </span>
                 </div>
 
-                {NEXT_STATUS[order.status] && (
-                  <button
-                    className={styles.actionBtn}
-                    style={{ background: restaurant?.color || '#0d7a52' }}
-                    onClick={() => updateOrderStatus(order.id, NEXT_STATUS[order.status])}
-                  >
-                    {NEXT_LABEL[order.status]}
-                  </button>
-                )}
+                <div className={styles.orderActions}>
+                  {NEXT_STATUS[order.status] && (
+                    <button
+                      className={styles.actionBtn}
+                      style={{ background: restaurant?.color || '#0d7a52' }}
+                      onClick={() => updateOrderStatus(order.id, NEXT_STATUS[order.status])}
+                    >
+                      {NEXT_LABEL[order.status]}
+                    </button>
+                  )}
+                  {(order.status === 'received' || order.status === 'pending') && (
+                    <div className={styles.rejectWrap}>
+                      <div className={styles.rejectLabel}>Odbij uz poruku:</div>
+                      <div className={styles.rejectMessages}>
+                        {REJECT_MESSAGES.map(msg => (
+                          <button key={msg} className={styles.rejectMsgBtn}
+                            onClick={() => updateOrderStatus(order.id, 'closed', msg)}>
+                            {msg}
+                          </button>
+                        ))}
+                      </div>
+                    </div>
+                  )}
+                </div>
               </div>
             ))}
           </div>
@@ -196,7 +215,15 @@ export default function WaiterDashboard() {
                   </div>
                 </div>
                 <div className={styles.reqType}>{req.request_type}</div>
-                <button className={styles.resolveBtn} onClick={() => resolveWaiterReq(req.id)}>
+                <div className={styles.quickResponses}>
+                  {QUICK_RESPONSES.map(r => (
+                    <button key={r} className={styles.quickRespBtn}
+                      onClick={() => resolveWaiterReq(req.id, r)}>
+                      {r}
+                    </button>
+                  ))}
+                </div>
+                <button className={styles.resolveBtn} onClick={() => resolveWaiterReq(req.id, null)}>
                   Završeno ✓
                 </button>
               </div>

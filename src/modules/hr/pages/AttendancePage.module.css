@@ -91,3 +91,10 @@
   .statsRow { grid-template-columns: 1fr 1fr; }
   .wrap { padding: 14px; }
 }
+
+/* Live timer stilovi */
+.myShiftHoursActive { color: #fff; font-weight: 600; font-variant-numeric: tabular-nums; }
+.entryHoursActive { background: #0d7a52 !important; color: #fff !important; animation: pulse 2s infinite; }
+.clockTotalHours strong { font-variant-numeric: tabular-nums; font-size: 15px; }
+.staffTotalH { font-variant-numeric: tabular-nums; }
+@keyframes pulse { 0%, 100% { opacity: 1; } 50% { opacity: 0.75; } }

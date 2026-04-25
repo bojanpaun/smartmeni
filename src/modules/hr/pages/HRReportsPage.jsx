@@ -41,9 +41,9 @@ export default function HRReportsPage() {
   const loadData = async () => {
     setLoading(true)
     const [{ data: staff }, { data: attendance }, { data: schedules }, { data: entries }] = await Promise.all([
-      supabase.from('staff').select('id, email, wage_type, wage_amount, user_profiles(full_name)')
+      supabase.from('staff').select('id, email, wage_type, wage_amount, first_name, last_name')
         .eq('restaurant_id', restaurant.id).eq('is_active', true),
-      supabase.from('attendance').select('staff_id, hours_worked, date, status, clock_in, planned_start')
+      supabase.from('attendance_entries').select('staff_id, hours_worked, date, clock_in, clock_out')
         .eq('restaurant_id', restaurant.id).gte('date', dateFrom).lte('date', dateTo),
       supabase.from('work_schedules').select('staff_id, date, start_time, end_time, status')
         .eq('restaurant_id', restaurant.id).gte('date', dateFrom).lte('date', dateTo),
@@ -58,15 +58,16 @@ export default function HRReportsPage() {
       const sch = (schedules || []).filter(sc => sc.staff_id === s.id)
       const ent = (entries || []).filter(e => e.staff_id === s.id)
 
-      const hoursWorked = att.reduce((sum, a) => sum + (parseFloat(a.hours_worked) || 0), 0)
-      const daysWorked = att.filter(a => a.hours_worked > 0).length
+      const hoursWorked = att.reduce((sum, a) => {
+        if (a.hours_worked) return sum + parseFloat(a.hours_worked)
+        if (a.clock_in && !a.clock_out) {
+          return sum + Math.max(0, (new Date() - new Date(a.clock_in)) / 3600000)
+        }
+        return sum
+      }, 0)
+      const daysWorked = [...new Set(att.filter(a => a.clock_in).map(a => a.date))].length
       const daysScheduled = sch.length
-      const lateCount = att.filter(a => {
-        if (!a.planned_start || !a.clock_in) return false
-        const planned = new Date(a.date + 'T' + a.planned_start)
-        const actual = new Date(a.clock_in)
-        return actual - planned > 10 * 60 * 1000
-      }).length
+      const lateCount = 0 // TODO: uporediti sa rasporedom
       const attendanceRate = daysScheduled > 0 ? (daysWorked / daysScheduled) * 100 : null
 
       const wage = parseFloat(s.wage_amount || 0)
@@ -101,7 +102,7 @@ export default function HRReportsPage() {
     const rows = [
       ['Zaposlenik', 'Sati rada', 'Dana rada', 'Zakazano dana', 'Stopa prisustva', 'Kasnjenja', 'Osnovna plata', 'Dnevnice', 'Bonusi', 'Odbitci', 'Ukupno'],
       ...data.staffStats.map(s => [
-        s.user_profiles?.full_name || s.email,
+        (s.first_name && s.last_name) ? `${s.first_name} ${s.last_name}` : s.email,
         s.hoursWorked.toFixed(1),
         s.daysWorked,
         s.daysScheduled,
@@ -123,7 +124,7 @@ export default function HRReportsPage() {
     a.click()
   }
 
-  const staffName = (s) => s.user_profiles?.full_name || s.email?.split('@')[0] || '—'
+  const staffName = (s) => (s?.first_name && s?.last_name) ? `${s.first_name} ${s.last_name}` : s?.email?.split('@')[0] || '—'
 
   if (loading) return <div className={styles.loading}>Učitavanje izvještaja...</div>
   if (!data) return null

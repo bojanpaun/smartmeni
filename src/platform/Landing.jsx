@@ -177,9 +177,10 @@ export default function Landing() {
           <a href="#cijene">Cijene</a>
           <a href="#kontakt">Kontakt</a>
         </div>
-        <a href="#registracija" className={styles.navCta}>
-          Kreni besplatno
-        </a>
+        <div className={styles.navActions}>
+          <a href="/login" className={styles.navLogin}>Prijava</a>
+          <a href="#registracija" className={styles.navCta}>Kreni besplatno</a>
+        </div>
         <button className={styles.navBurger} onClick={() => setMenuOpen(!menuOpen)}>
           {menuOpen ? '✕' : '☰'}
         </button>
@@ -191,6 +192,7 @@ export default function Landing() {
           <a href="#funkcije" onClick={() => setMenuOpen(false)}>Funkcije</a>
           <a href="#cijene" onClick={() => setMenuOpen(false)}>Cijene</a>
           <a href="#kontakt" onClick={() => setMenuOpen(false)}>Kontakt</a>
+          <a href="/login" className={styles.mobileMenuLogin} onClick={() => setMenuOpen(false)}>Prijava</a>
           <a href="#registracija" className={styles.mobileMenuCta} onClick={() => setMenuOpen(false)}>Kreni besplatno</a>
         </div>
       )}
@@ -461,6 +463,7 @@ export default function Landing() {
           </div>
           <div className={styles.footerLinks}>
             <a href="mailto:info@smartmeni.me">info@smartmeni.me</a>
+            <a href="/login">Prijava</a>
             <a href="#">Privatnost</a>
             <a href="#">Uslovi korišćenja</a>
           </div>
