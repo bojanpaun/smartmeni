@@ -5,6 +5,7 @@ import { useNavigate } from 'react-router-dom'
 import { supabase } from '../../../lib/supabase'
 import { usePlatform } from '../../../context/PlatformContext'
 import styles from './WaiterMapView.module.css'
+import gsStyles from '../../menu/pages/GeneralSettings.module.css'
 
 const today = () => new Date().toISOString().slice(0, 10)
 
@@ -116,7 +117,7 @@ export default function WaiterMapView() {
       {/* Header */}
       <div className={styles.header}>
         <div className={styles.headerLeft}>
-          <div className={styles.headerTitle}>Mapa stolova</div>
+          <h1 className={gsStyles.title} style={{ margin: 0 }}>Pregled stolova</h1>
           <div className={styles.headerBadges}>
             {tables.filter(t => getTableStatus(t) === 'calling').length > 0 && (
               <span className={styles.alertBadge}>

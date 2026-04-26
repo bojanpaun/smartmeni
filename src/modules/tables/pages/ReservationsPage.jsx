@@ -5,6 +5,7 @@ import { createPortal } from 'react-dom'
 import { supabase } from '../../../lib/supabase'
 import { usePlatform } from '../../../context/PlatformContext'
 import styles from './ReservationsPage.module.css'
+import gsStyles from '../../menu/pages/GeneralSettings.module.css'
 
 const STATUS_MAP = {
   pending:   { label: 'Na čekanju',  cls: 'statusPending' },
@@ -390,12 +391,13 @@ export default function ReservationsPage() {
   if (loading) return <div className={styles.loading}>Učitavanje rezervacija...</div>
 
   return (
-    <div className={styles.wrap}>
+    <div className={gsStyles.page} style={{ maxWidth: 960 }}>
 
       {/* Header */}
       <div className={styles.header}>
         <div>
-          <div className={styles.headerTitle}>Rezervacije</div>
+          <h1 className={gsStyles.title}>Rezervacije</h1>
+          <p className={gsStyles.subtitle}>Pregled i upravljanje rezervacijama stolova.</p>
           {pendingOnline.length > 0 && (
             <div className={styles.pendingBadge}>
               🔔 {pendingOnline.length} online {pendingOnline.length === 1 ? 'zahtjev' : 'zahtjeva'} čeka odobrenje

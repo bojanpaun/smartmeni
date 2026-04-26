@@ -17,10 +17,12 @@ import SuperAdminPanel from './platform/superadmin/SuperAdminPanel'
 import TableMapEditor from './modules/tables/pages/TableMapEditor'
 import WaiterMapView from './modules/tables/pages/WaiterMapView'
 import ReservationsPage from './modules/tables/pages/ReservationsPage'
+import TablesAnalytics from './modules/tables/pages/TablesAnalytics'
 import OnlineReservationForm from './modules/tables/pages/OnlineReservationForm'
 import InventoryPage from './modules/inventory/pages/InventoryPage'
 import MovementsLog from './modules/inventory/pages/MovementsLog'
 import IngredientsEditor from './modules/inventory/pages/IngredientsEditor'
+import InventoryAnalytics from './modules/inventory/pages/InventoryAnalytics'
 import AnalyticsPage from './modules/analytics/pages/AnalyticsPage'
 import GuestsPage from './modules/guests/pages/GuestsPage'
 import GuestRegisterPage from './modules/guests/pages/GuestRegisterPage'
@@ -43,6 +45,7 @@ import LogoUpload from './modules/menu/pages/LogoUpload'
 import GeneralSettings from './modules/menu/pages/GeneralSettings'
 import AdminMenuQR from './modules/menu/pages/AdminMenuQR'
 import AdminMenuSettings from './modules/menu/pages/AdminMenuSettings'
+import AdminMenuAnalytics from './modules/menu/pages/AdminMenuAnalytics'
 import BillingPage from './modules/menu/pages/BillingPage'
 import BillingSuccess from './platform/admin/BillingSuccess'
 import MyAccount from './platform/admin/MyAccount'
@@ -80,6 +83,7 @@ function AppRoutes() {
       <Route path="/admin" element={<AdminRoute><ControlPanel /></AdminRoute>} />
 
       {/* Digitalni meni modul */}
+      <Route path="/admin/menu/analytics" element={<AdminRoute><AdminMenuAnalytics /></AdminRoute>} />
       <Route path="/admin/menu/qr" element={<AdminRoute><AdminMenuQR /></AdminRoute>} />
       <Route path="/admin/menu/settings" element={<AdminRoute><AdminMenuSettings /></AdminRoute>} />
       <Route path="/admin/menu/help" element={<AdminRoute><ModuleHelp moduleKey="menu" /></AdminRoute>} />
@@ -102,6 +106,7 @@ function AppRoutes() {
       <Route path="/admin/staff/help" element={<AdminRoute><ModuleHelp moduleKey="staff" /></AdminRoute>} />
 
       {/* Stolovi modul */}
+      <Route path="/admin/tables/analytics" element={<AdminRoute><TablesAnalytics /></AdminRoute>} />
       <Route path="/admin/tables" element={<AdminRoute><TableMapEditor /></AdminRoute>} />
       <Route path="/admin/tables/view" element={<AdminRoute><WaiterMapView /></AdminRoute>} />
       <Route path="/admin/tables/help" element={<AdminRoute><ModuleHelp moduleKey="tables" /></AdminRoute>} />
@@ -114,12 +119,13 @@ function AppRoutes() {
       <Route path="/superadmin" element={<AdminRoute><SuperAdminPanel /></AdminRoute>} />
 
       {/* Inventar modul */}
+      <Route path="/admin/inventory/analytics" element={<AdminRoute><InventoryAnalytics /></AdminRoute>} />
       <Route path="/admin/inventory" element={<AdminRoute><InventoryPage /></AdminRoute>} />
       <Route path="/admin/inventory/movements" element={<AdminRoute><MovementsLog /></AdminRoute>} />
       <Route path="/admin/inventory/recipes" element={<AdminRoute><IngredientsEditor /></AdminRoute>} />
       <Route path="/admin/inventory/help" element={<AdminRoute><ModuleHelp moduleKey="inventory" /></AdminRoute>} />
       {/* HR modul */}
-      <Route path="/admin/hr" element={<Navigate to="/admin/hr/staff" replace />} />
+      <Route path="/admin/hr" element={<Navigate to="/admin/hr/attendance" replace />} />
       <Route path="/admin/hr/staff" element={<AdminRoute><StaffPage /></AdminRoute>} />
       <Route path="/admin/hr/staff/:staffId" element={<AdminRoute><StaffProfilePage /></AdminRoute>} />
       <Route path="/admin/hr/schedule" element={<AdminRoute><SchedulePage /></AdminRoute>} />

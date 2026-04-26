@@ -4,6 +4,7 @@ import { useState, useEffect, useRef } from 'react'
 import { supabase } from '../../../lib/supabase'
 import { usePlatform } from '../../../context/PlatformContext'
 import styles from './AttendancePage.module.css'
+import gsStyles from '../../menu/pages/GeneralSettings.module.css'
 
 const toDay = () => new Date().toISOString().slice(0, 10)
 
@@ -255,7 +256,8 @@ export default function AttendancePage() {
       {isAdmin && (
         <>
           <div className={styles.header}>
-            <div className={styles.headerTitle}>Evidencija dolazaka</div>
+            <h1 className={gsStyles.title} style={{ margin: 0 }}>Dolasci</h1>
+          <p className={gsStyles.subtitle}>Evidencija dolazaka, odlazaka i radnih sati osoblja.</p>
             <input type="date" className={styles.dateFilter} value={filterDate}
               onChange={e => setFilterDate(e.target.value)} />
           </div>

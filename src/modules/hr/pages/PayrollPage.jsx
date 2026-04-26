@@ -4,6 +4,7 @@ import { useState, useEffect } from 'react'
 import { supabase } from '../../../lib/supabase'
 import { usePlatform } from '../../../context/PlatformContext'
 import styles from './PayrollPage.module.css'
+import gsStyles from '../../menu/pages/GeneralSettings.module.css'
 
 const ENTRY_TYPES = [
   { key: 'daily',     label: 'Dnevnica',    color: '#0d7a52' },
@@ -168,7 +169,8 @@ export default function PayrollPage() {
 
       {/* Header */}
       <div className={styles.header}>
-        <div className={styles.headerTitle}>Zarade</div>
+        <h1 className={gsStyles.title} style={{ margin: 0 }}>Zarade</h1>
+        <p className={gsStyles.subtitle}>Upravljanje zaradama, bonusima i odbitcima osoblja.</p>
         {isAdmin && (
           <button className={styles.btnAdd} onClick={() => setShowEntryForm(true)}>
             + Nova stavka

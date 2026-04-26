@@ -3,6 +3,7 @@ import { useNavigate } from 'react-router-dom'
 import { supabase } from '../../../lib/supabase'
 import { usePlatform } from '../../../context/PlatformContext'
 import styles from './AdminMenu.module.css'
+import gsStyles from './GeneralSettings.module.css'
 
 export default function AdminMenu() {
   const navigate = useNavigate()
@@ -12,7 +13,7 @@ export default function AdminMenu() {
   const [categories, setCategories] = useState([])
   const [items, setItems] = useState([])
   const [loading, setLoading] = useState(true)
-  const [activePage, setActivePage] = useState('dashboard')
+  const [activePage, setActivePage] = useState('menu')
   const [activeCategory, setActiveCategory] = useState(null)
 
   const [showItemForm, setShowItemForm] = useState(false)
@@ -150,23 +151,11 @@ export default function AdminMenu() {
         <div className={styles.saveToast}>✓ {saveMsg}</div>
       )}
 
-      {/* Tab navigacija */}
-      <div className={styles.pageTabs}>
-        {[
-          { key: 'dashboard', label: 'Pregled', icon: '📊' },
-          { key: 'menu',      label: 'Meni i stavke', icon: '🍽️' },
-        ].map(tab => (
-          <button
-            key={tab.key}
-            className={`${styles.pageTab} ${activePage === tab.key ? styles.pageTabActive : ''}`}
-            onClick={() => setActivePage(tab.key)}
-          >
-            {tab.icon} {tab.label}
-          </button>
-        ))}
-      </div>
-
-      <div className={styles.content}>
+      <div className={gsStyles.page} style={{ maxWidth: 960 }}>
+        <div className={gsStyles.header}>
+          <h1 className={gsStyles.title}>Uređivanje menija</h1>
+          <p className={gsStyles.subtitle}>Upravljajte kategorijama i stavkama digitalnog menija.</p>
+        </div>
 
         {/* DASHBOARD */}
         {activePage === 'dashboard' && (

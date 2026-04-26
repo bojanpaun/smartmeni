@@ -5,6 +5,7 @@ import { useNavigate } from 'react-router-dom'
 import { supabase } from '../../../lib/supabase'
 import { usePlatform } from '../../../context/PlatformContext'
 import styles from './InventoryPage.module.css'
+import gsStyles from '../../menu/pages/GeneralSettings.module.css'
 
 const UNITS = ['kom', 'kg', 'g', 'l', 'ml', 'pak']
 const CATEGORIES = ['namirnice', 'piće', 'alkohol', 'začini', 'ambalaža', 'ostalo']
@@ -148,12 +149,13 @@ export default function InventoryPage() {
   if (loading) return <div className={styles.loading}>Učitavanje inventara...</div>
 
   return (
-    <div className={styles.wrap}>
+    <div className={gsStyles.page} style={{ maxWidth: 960 }}>
 
       {/* Header */}
       <div className={styles.header}>
         <div>
-          <div className={styles.headerTitle}>Inventar</div>
+          <h1 className={gsStyles.title}>Inventar</h1>
+          <p className={gsStyles.subtitle}>Upravljajte stavkama zaliha, količinama i minimalnim nivoima.</p>
           {lowItems.length > 0 && (
             <div className={styles.lowBadge}>
               ⚠️ {lowItems.length} {lowItems.length === 1 ? 'stavka' : 'stavki'} ispod minimuma
@@ -161,12 +163,6 @@ export default function InventoryPage() {
           )}
         </div>
         <div className={styles.headerActions}>
-          <button className={styles.btnSecondary} onClick={() => navigate('/admin/inventory/movements')}>
-            📋 Pokreti
-          </button>
-          <button className={styles.btnSecondary} onClick={() => navigate('/admin/inventory/recipes')}>
-            🧪 Recepture
-          </button>
           <button className={styles.btnAdd} onClick={() => openForm()}>
             + Nova stavka
           </button>

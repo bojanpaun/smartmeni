@@ -4,6 +4,7 @@ import { useState, useEffect } from 'react'
 import { supabase } from '../../../lib/supabase'
 import { usePlatform } from '../../../context/PlatformContext'
 import styles from './HRReportsPage.module.css'
+import gsStyles from '../../menu/pages/GeneralSettings.module.css'
 
 function monthStart() { const d = new Date(); return `${d.getFullYear()}-${String(d.getMonth()+1).padStart(2,'0')}-01` }
 function monthEnd() {
@@ -136,7 +137,8 @@ export default function HRReportsPage() {
     <div className={styles.wrap}>
 
       <div className={styles.header}>
-        <div className={styles.headerTitle}>HR Izvještaji</div>
+        <h1 className={gsStyles.title} style={{ margin: 0 }}>Analitika HR</h1>
+        <p className={gsStyles.subtitle}>Pregled sati rada, troškova i performansi osoblja.</p>
         <button className={styles.btnExport} onClick={exportCSV}>↓ Export CSV</button>
       </div>
 

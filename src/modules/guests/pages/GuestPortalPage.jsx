@@ -1,7 +1,7 @@
 // ▶ Novi fajl: src/modules/guests/pages/GuestPortalPage.jsx
 // Dostupno na: /:slug/profil
 
-import { useState, useEffect } from 'react'
+import { useState, useEffect, useRef } from 'react'
 import { useParams } from 'react-router-dom'
 import { supabase } from '../../../lib/supabase'
 import { getTemplate } from '../../../lib/templates'
@@ -16,6 +16,7 @@ export default function GuestPortalPage() {
   const [mode, setMode] = useState('login') // login | profile
   const [guest, setGuest] = useState(null)
   const [reservations, setReservations] = useState([])
+  const resChannelRef = useRef(null)
   const [orders, setOrders] = useState([])
   const [activeOrderId, setActiveOrderId] = useState(null)
 
@@ -31,6 +32,13 @@ export default function GuestPortalPage() {
   const [saveMsg, setSaveMsg] = useState('')
 
   useEffect(() => { loadRestaurant() }, [slug])
+
+  // Cleanup Realtime pri unmount
+  useEffect(() => {
+    return () => {
+      if (resChannelRef.current) supabase.removeChannel(resChannelRef.current)
+    }
+  }, [])
 
   // Auto-login iz localStorage sesije + učitaj aktivnu narudžbu
   useEffect(() => {
@@ -111,6 +119,17 @@ export default function GuestPortalPage() {
       .order('date', { ascending: false })
       .limit(10)
     setReservations(data || [])
+
+    // Realtime — prati promjene statusa rezervacija
+    if (resChannelRef.current) supabase.removeChannel(resChannelRef.current)
+    const ch = supabase
+      .channel(`guest-reservations-${guestId}`)
+      .on('postgres_changes', {
+        event: '*', schema: 'public', table: 'reservations',
+        filter: `guest_id=eq.${guestId}`,
+      }, () => loadReservations(guestId))
+      .subscribe()
+    resChannelRef.current = ch
   }
 
   const loadOrders = async (guestId) => {

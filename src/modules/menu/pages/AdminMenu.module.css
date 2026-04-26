@@ -291,3 +291,8 @@
   .modalGrid { grid-template-columns: 1fr; }
   .content { padding: 14px; }
 }
+
+/* ── Page header (kao u GeneralSettings) ── */
+.pageHeader { margin-bottom: 24px; }
+.pageTitle { font-size: 26px; font-weight: 700; color: #0e1a14; margin: 0 0 6px; }
+.pageSubtitle { font-size: 14px; color: #5a7a6a; margin: 0; }

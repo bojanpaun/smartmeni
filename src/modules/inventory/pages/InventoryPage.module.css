@@ -110,9 +110,70 @@
 
 /* ── Responsive ── */
 @media (max-width: 700px) {
-  .tableHeader { display: none; }
-  .tableRow { grid-template-columns: 1fr; gap: 4px; }
-  .itemActions { justify-content: flex-start; }
-  .wrap { padding: 14px; }
+  .wrap { padding: 12px; }
   .grid { grid-template-columns: 1fr; }
+
+  /* Header kompaktan */
+  .header { margin-bottom: 10px; }
+  .headerActions { gap: 5px; }
+  .btnAdd { padding: 7px 14px; font-size: 12px; }
+
+  /* Filteri kompaktni */
+  .filters { gap: 5px; margin-bottom: 10px; }
+  .search { min-width: 0; flex: 1; font-size: 12px; }
+  .filterBtn { padding: 5px 9px; font-size: 11px; }
+
+  /* Tabela → kompaktni card layout */
+  .tableHeader { display: none; }
+  .table { border-radius: 10px; }
+
+  .tableRow {
+    display: flex;
+    flex-direction: row;
+    flex-wrap: wrap;
+    align-items: center;
+    padding: 10px 12px;
+    gap: 2px;
+    position: relative;
+  }
+
+  /* Naziv zauzima cijelu širinu */
+  .itemName {
+    flex: 0 0 100%;
+    font-size: 13px;
+    margin-bottom: 2px;
+  }
+
+  /* Kategorija, količina i min u jedan red */
+  .itemCat {
+    font-size: 11px;
+    color: #8a9e96;
+    flex: 0 0 auto;
+    margin-right: 8px;
+  }
+  .itemQty {
+    font-size: 13px;
+    font-weight: 700;
+    flex: 0 0 auto;
+  }
+  .itemMin {
+    font-size: 11px;
+    color: #b0c0b8;
+    flex: 0 0 auto;
+    margin-left: 4px;
+  }
+  .itemCost { display: none; }
+
+  /* Akcije desno, vertikalno centrirane */
+  .itemActions {
+    margin-left: auto;
+    display: flex;
+    gap: 4px;
+    align-items: center;
+    flex: 0 0 auto;
+  }
+
+  .btnMovement { padding: 5px 8px; font-size: 13px; }
+  .btnEdit { padding: 5px 8px; font-size: 11px; }
+  .btnDelete { padding: 5px 8px; font-size: 11px; }
 }

@@ -416,3 +416,29 @@
 @keyframes spin {
   to { transform: rotate(360deg); }
 }
+
+/* ── QR-only obavijest ── */
+.qrNotice {
+  margin: 10px 14px 0;
+  padding: 11px 14px;
+  background: #f0f8f4;
+  border: 1px solid #c8e8d8;
+  border-radius: 12px;
+  font-size: 13px;
+  color: #3a6a56;
+  text-align: center;
+  line-height: 1.5;
+}
+
+/* ── QR sesija istekla ── */
+.qrExpired {
+  margin: 14px 14px 0;
+  padding: 18px 16px;
+  background: #fff8f0;
+  border: 1px solid #f5d0a0;
+  border-radius: 14px;
+  text-align: center;
+}
+.qrExpiredIcon { font-size: 32px; margin-bottom: 8px; }
+.qrExpiredTitle { font-size: 15px; font-weight: 700; color: #1a2e26; margin-bottom: 6px; }
+.qrExpiredDesc { font-size: 13px; color: #7a6050; line-height: 1.5; }

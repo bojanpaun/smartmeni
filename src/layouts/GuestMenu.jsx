@@ -176,9 +176,42 @@ export default function Menu() {
   const guestRegistration = isDemo ? true : (r?.guest_registration_enabled ?? true)
   const waiterEnabled = isDemo ? true : (r?.waiter_requests_enabled === false ? false : (r?.waiter_requests_enabled ?? true))
 
+  // QR sesija — trajanje u minutama iz baze (default 30)
+  const qrSessionMs = ((r?.qr_session_minutes || 30) * 60 * 1000)
+  const isQRAccess = (() => {
+    if (isDemo) return true
+    try {
+      const params = new URLSearchParams(window.location.search)
+      if (params.get('qr') === '1') {
+        localStorage.setItem(`sm_qr_${slug}`, Date.now().toString())
+        return true
+      }
+      const ts = localStorage.getItem(`sm_qr_${slug}`)
+      if (!ts) return false
+      const elapsed = Date.now() - parseInt(ts, 10)
+      if (elapsed > qrSessionMs) {
+        localStorage.removeItem(`sm_qr_${slug}`)
+        return false
+      }
+      return true
+    } catch { return false }
+  })()
+  // qrExpired: gost koji JE skenirao ali mu je istekla sesija
+  const qrExpired = (() => {
+    if (isDemo) return false
+    try {
+      const params = new URLSearchParams(window.location.search)
+      if (params.get('qr') === '1') return false
+      const ts = localStorage.getItem(`sm_qr_${slug}`)
+      if (!ts) return false
+      const elapsed = Date.now() - parseInt(ts, 10)
+      return elapsed > qrSessionMs
+    } catch { return false }
+  })()
+
   // Vidljivost opcija (novi sistem — fallback na stare bool toggleove)
-  const orderingVis = isDemo ? 'all' : (r?.ordering_visibility || (r?.digital_ordering === false ? 'off' : 'all'))
-  const waiterVis = isDemo ? 'all' : (r?.waiter_visibility || (waiterEnabled ? 'all' : 'off'))
+  const orderingVis = isDemo ? 'all' : !isQRAccess ? 'off' : (r?.ordering_visibility || (r?.digital_ordering === false ? 'off' : 'all'))
+  const waiterVis = isDemo ? 'all' : !isQRAccess ? 'off' : (r?.waiter_visibility || (waiterEnabled ? 'all' : 'off'))
   const reservationVis = isDemo ? 'all' : (r?.reservation_visibility || (onlineReservations ? 'all' : 'off'))
   const registrationVis = isDemo ? 'all' : (r?.registration_visibility || (guestRegistration ? 'all' : 'off'))
   const tableNumber = isDemo ? 'Sto 4' : (new URLSearchParams(window.location.search).get('table') || '')
@@ -495,6 +528,30 @@ export default function Menu() {
           </div>
         ))}
       </div>
+
+      {/* QR SESIJA ISTEKLA */}
+      {qrExpired && (
+        <div className={styles.qrExpired}>
+          <div className={styles.qrExpiredIcon}>⏱️</div>
+          <div className={styles.qrExpiredTitle}>
+            {isEn ? 'Session expired' : 'QR sesija je istekla'}
+          </div>
+          <div className={styles.qrExpiredDesc}>
+            {isEn
+              ? `Your ${r?.qr_session_minutes || 30}-minute session has ended. Please scan the QR code at your table again.`
+              : `Vaša ${r?.qr_session_minutes || 30}-minutna sesija je završena. Skenirajte ponovo QR kod na stolu.`}
+          </div>
+        </div>
+      )}
+
+      {/* QR ONLY NOTICE — za goste koji nikad nisu skenirali */}
+      {!isQRAccess && !qrExpired && !isDemo && (r?.ordering_visibility !== 'off' || r?.waiter_visibility !== 'off') && (
+        <div className={styles.qrNotice}>
+          📱 {isEn
+            ? 'Scan the QR code at your table to order and call a waiter.'
+            : 'Skenirajte QR kod na stolu za narudžbu i poziv konobara.'}
+        </div>
+      )}
 
       {/* WAITER BUTTON */}
       <div className={styles.waiterSection}>

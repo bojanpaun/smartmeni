@@ -4,6 +4,7 @@ import { useState, useEffect } from 'react'
 import { supabase } from '../../../lib/supabase'
 import { usePlatform } from '../../../context/PlatformContext'
 import styles from './SchedulePage.module.css'
+import gsStyles from '../../menu/pages/GeneralSettings.module.css'
 
 const DAYS = ['Pon', 'Uto', 'Sri', 'Čet', 'Pet', 'Sub', 'Ned']
 const STAFF_COLORS = ['#0d7a52','#378add','#7f77dd','#d85a30','#d4537e','#1d9e75','#ba7517','#993556']
@@ -162,7 +163,8 @@ export default function SchedulePage() {
     <div className={styles.wrap}>
 
       <div className={styles.header}>
-        <div className={styles.headerTitle}>Raspored rada</div>
+        <h1 className={gsStyles.title} style={{ margin: 0 }}>Raspored rada</h1>
+        <p className={gsStyles.subtitle}>Planiranje i pregled smjena osoblja.</p>
         <div className={styles.headerActions}>
           <div className={styles.viewToggle}>
             <button className={`${styles.viewBtn} ${view === 'week' ? styles.viewBtnActive : ''}`} onClick={() => setView('week')}>Sedmica</button>

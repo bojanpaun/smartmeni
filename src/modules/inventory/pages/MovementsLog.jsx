@@ -5,6 +5,7 @@ import { useNavigate } from 'react-router-dom'
 import { supabase } from '../../../lib/supabase'
 import { usePlatform } from '../../../context/PlatformContext'
 import styles from './MovementsLog.module.css'
+import gsStyles from '../../menu/pages/GeneralSettings.module.css'
 
 const TYPE_MAP = {
   in:         { label: 'Ulaz',      cls: 'typeIn' },
@@ -62,13 +63,13 @@ export default function MovementsLog() {
   if (loading) return <div className={styles.loading}>Učitavanje pokreta...</div>
 
   return (
-    <div className={styles.wrap}>
+    <div className={gsStyles.page} style={{ maxWidth: 960 }}>
 
       <div className={styles.header}>
-        <div className={styles.headerTitle}>Pokreti zaliha</div>
-        <button className={styles.btnBack} onClick={() => navigate('/admin/inventory')}>
-          ← Inventar
-        </button>
+        <div>
+          <h1 className={gsStyles.title}>Promjene zaliha</h1>
+          <p className={gsStyles.subtitle}>Historija ulaza, izlaza i korekcija inventara.</p>
+        </div>
       </div>
 
       {/* Filteri */}

@@ -507,3 +507,18 @@
   border-top: 1px solid rgba(255,255,255,0.08);
   margin-top: 4px;
 }
+
+/* ── Dvosegmentni sidebar ── */
+.navSegment {
+  padding: 4px 0;
+}
+
+.navSegmentTitle {
+  font-size: 10px;
+  font-weight: 700;
+  letter-spacing: 0.8px;
+  text-transform: uppercase;
+  color: var(--sb-text-muted, rgba(255,255,255,0.35));
+  padding: 10px 18px 4px;
+  user-select: none;
+}

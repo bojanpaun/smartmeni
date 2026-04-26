@@ -11,45 +11,68 @@ export const MODULES = [
     key: 'menu',
     label: 'Digitalni meni',
     icon: '🍽️',
-    desc: 'Stavke, kategorije, narudžbe i zahtjevi konobara',
+    desc: 'Narudžbe, zahtjevi konobara i upravljanje digitalnim menijem',
     path: '/admin/menu',
     active: true,
     perm: 'view_menu',
-    links: [
-      { label: 'Meni i stavke', icon: '🍽️', path: '/admin/menu',          exact: true },
-      { label: 'Narudžbe',      icon: '🧾', path: '/admin/orders',         perm: 'view_orders' },
-      { label: 'Zahtjevi',      icon: '🔔', path: '/admin/waiter',         perm: 'view_waiter_req' },
-      { label: 'QR kod',        icon: '📱', path: '/admin/menu/qr' },
-      { label: 'Postavke menija', icon: '⚙️', path: '/admin/menu/settings' },
-    ],
+    interactive: {
+      label: 'Digitalni meni',
+      links: [
+        { label: 'Narudžbe', icon: '🧾', path: '/admin/orders', perm: 'view_orders' },
+        { label: 'Zahtjevi', icon: '🔔', path: '/admin/waiter', perm: 'view_waiter_req' },
+      ],
+    },
+    admin: {
+      label: 'Administracija menija',
+      links: [
+        { label: 'Analitika',             icon: '📊', path: '/admin/menu/analytics' },
+        { label: 'Uređivanje menija',     icon: '🍽️', path: '/admin/menu',         exact: true },
+        { label: 'Opšte postavke menija', icon: '⚙️', path: '/admin/menu/settings' },
+        { label: 'QR kod',                icon: '📱', path: '/admin/menu/qr' },
+      ],
+    },
   },
   {
     key: 'tables',
     label: 'Stolovi',
     icon: '🪑',
-    desc: 'Mapa stolova, status u realnom vremenu i rezervacije',
+    desc: 'Pregled stolova, rezervacije i upravljanje kapacitetom',
     path: '/admin/tables',
     active: true,
     perm: 'view_tables',
-    links: [
-      { label: 'Mapa stolova',    icon: '🗺️', path: '/admin/tables',        exact: true },
-      { label: 'Prikaz konobara', icon: '👁',  path: '/admin/tables/view' },
-      { label: 'Rezervacije',     icon: '📅', path: '/admin/reservations' },
-    ],
+    interactive: {
+      label: 'Pregled stolova',
+      links: [
+        { label: 'Pregled stolova', icon: '👁',  path: '/admin/tables/view' },
+        { label: 'Rezervacije',     icon: '📅', path: '/admin/reservations' },
+      ],
+    },
+    admin: {
+      label: 'Administracija stolova',
+      links: [
+        { label: 'Analitika',        icon: '📊', path: '/admin/tables/analytics' },
+        { label: 'Postavke stolova', icon: '🗺️', path: '/admin/tables', exact: true },
+      ],
+    },
   },
   {
     key: 'inventory',
     label: 'Zalihe',
     icon: '📦',
-    desc: 'Inventar, pokreti zaliha i recepture',
+    desc: 'Inventar, promjene zaliha i recepture',
     path: '/admin/inventory',
     active: true,
     perm: 'view_inventory',
-    links: [
-      { label: 'Inventar',  icon: '📦', path: '/admin/inventory',           exact: true },
-      { label: 'Pokreti',   icon: '📋', path: '/admin/inventory/movements' },
-      { label: 'Recepture', icon: '🧪', path: '/admin/inventory/recipes' },
-    ],
+    interactive: null,
+    admin: {
+      label: 'Administracija zaliha',
+      links: [
+        { label: 'Analitika',       icon: '📊', path: '/admin/inventory/analytics' },
+        { label: 'Inventar',        icon: '📦', path: '/admin/inventory',             exact: true },
+        { label: 'Promjene zaliha', icon: '📋', path: '/admin/inventory/movements' },
+        { label: 'Recepture',       icon: '🧪', path: '/admin/inventory/recipes' },
+      ],
+    },
   },
   {
     key: 'hr',
@@ -59,13 +82,21 @@ export const MODULES = [
     path: '/admin/hr',
     active: true,
     perm: 'view_hr',
-    links: [
-      { label: 'Zaposleni',  icon: '👤', path: '/admin/hr/staff' },
-      { label: 'Raspored',   icon: '📅', path: '/admin/hr/schedule' },
-      { label: 'Dolasci',    icon: '🕐', path: '/admin/hr/attendance' },
-      { label: 'Zarade',     icon: '💰', path: '/admin/hr/payroll' },
-      { label: 'Izvještaji', icon: '📊', path: '/admin/hr/reports' },
-    ],
+    interactive: {
+      label: 'HR',
+      links: [
+        { label: 'Dolasci', icon: '🕐', path: '/admin/hr/attendance' },
+      ],
+    },
+    admin: {
+      label: 'Administracija HR',
+      links: [
+        { label: 'Analitika', icon: '📊', path: '/admin/hr/reports' },
+        { label: 'Zaposleni',  icon: '👤', path: '/admin/hr/staff' },
+        { label: 'Raspored',  icon: '📅', path: '/admin/hr/schedule' },
+        { label: 'Zarade',    icon: '💰', path: '/admin/hr/payroll' },
+      ],
+    },
   },
   {
     key: 'guests',
@@ -75,9 +106,13 @@ export const MODULES = [
     path: '/admin/guests',
     active: true,
     perm: 'view_analytics',
-    links: [
-      { label: 'Lista gostiju', icon: '👤', path: '/admin/guests', exact: true },
-    ],
+    interactive: null,
+    admin: {
+      label: 'Gosti',
+      links: [
+        { label: 'Lista gostiju', icon: '👤', path: '/admin/guests', exact: true },
+      ],
+    },
   },
   {
     key: 'analytics',
@@ -87,9 +122,13 @@ export const MODULES = [
     path: '/admin/analytics',
     active: true,
     perm: 'view_analytics',
-    links: [
-      { label: 'Pregled', icon: '📊', path: '/admin/analytics', exact: true },
-    ],
+    interactive: null,
+    admin: {
+      label: 'Analitika',
+      links: [
+        { label: 'Pregled', icon: '📊', path: '/admin/analytics', exact: true },
+      ],
+    },
   },
   {
     key: 'settings',
@@ -100,12 +139,16 @@ export const MODULES = [
     path: '/admin/settings',
     active: true,
     perm: null,
-    links: [
-      { label: 'Predlošci',      icon: '🎨', path: '/admin/settings/templates', exact: true },
-      { label: 'Logo',           icon: '🖼️', path: '/admin/settings/logo' },
-      { label: 'Opšte postavke', icon: '⚙️', path: '/admin/settings/general' },
-      { label: 'Pretplata',      icon: '💳', path: '/admin/billing' },
-    ],
+    interactive: null,
+    admin: {
+      label: 'Postavke sistema',
+      links: [
+        { label: 'Predlošci',      icon: '🎨', path: '/admin/settings/templates', exact: true },
+        { label: 'Logo',           icon: '🖼️', path: '/admin/settings/logo' },
+        { label: 'Opšte postavke', icon: '⚙️', path: '/admin/settings/general' },
+        { label: 'Pretplata',      icon: '💳', path: '/admin/billing' },
+      ],
+    },
   },
 ]
 
@@ -125,41 +168,60 @@ export default function AdminLayout({ children }) {
 
   const isHub = location.pathname === '/admin'
 
-  const activeModule = MODULES.find(m =>
-    location.pathname === m.path || location.pathname.startsWith(m.path + '/')
-  ) || (
-    ['/admin/orders', '/admin/waiter', '/admin/kitchen', '/admin/menu/qr', '/admin/menu/settings'].some(p => location.pathname.startsWith(p))
+  const activeModule = MODULES.find(m => {
+    if (location.pathname === m.path) return true
+    if (location.pathname.startsWith(m.path + '/')) return true
+    const allLinks = [...(m.interactive?.links || []), ...(m.admin?.links || [])]
+    return allLinks.some(l => l.exact ? location.pathname === l.path : location.pathname.startsWith(l.path + '/'))
+  }) || (
+    ['/admin/orders', '/admin/waiter', '/admin/kitchen'].some(p => location.pathname.startsWith(p))
       ? MODULES.find(m => m.key === 'menu')
       : ['/admin/settings', '/admin/billing'].some(p => location.pathname.startsWith(p))
       ? MODULES.find(m => m.key === 'settings')
       : ['/admin/reservations'].some(p => location.pathname.startsWith(p))
       ? MODULES.find(m => m.key === 'tables')
       : location.pathname.startsWith('/admin/staff')
-      ? { key: 'staff', path: '/admin/staff/roles', label: 'Role i permisije', links: [
-          { label: 'Role i permisije', icon: '🔑', path: '/admin/staff/roles', exact: true },
-        ]}
+      ? { key: 'staff', label: 'Role i permisije', path: '/admin/staff', icon: '🔑',
+          interactive: null,
+          admin: { label: 'Administracija', links: [
+            { label: 'Role i permisije', icon: '🔑', path: '/admin/staff/roles', exact: true },
+          ]}}
       : null
   )
 
-  const handleLogout = async () => {
-    await logout()
-    navigate('/')
-  }
+  const handleLogout = async () => { await logout(); navigate('/') }
 
-  const isActive = (path, exact = false) => {
-    if (exact) return location.pathname === path
-    return location.pathname.startsWith(path)
-  }
+  const isActive = (path, exact = false) => exact ? location.pathname === path : location.pathname.startsWith(path)
 
-  const canAccess = (perm) => {
-    if (!perm) return true
-    return isOwner() || isSuperAdmin() || hasPermission(perm)
-  }
+  const canAccess = (perm) => !perm || isOwner() || isSuperAdmin() || hasPermission(perm)
 
   const restName = restaurant?.name || 'Admin'
   const restRole = isSuperAdmin() ? 'Super admin' : isOwner() ? 'Vlasnik' : 'Osoblje'
 
-  // ── Kontrolna tabla — bez sidebara ──
+  const renderSegment = (segment) => {
+    if (!segment) return null
+    const visibleLinks = segment.links.filter(l => canAccess(l.perm))
+    if (!visibleLinks.length) return null
+    return (
+      <div className={styles.navSegment}>
+        {!collapsed && (
+          <div className={styles.navSegmentTitle}>{segment.label}</div>
+        )}
+        {visibleLinks.map((link, i) => (
+          <Link
+            key={i}
+            to={link.path}
+            className={`${styles.navItem} ${isActive(link.path, link.exact) ? styles.navItemActive : ''}`}
+            title={link.label}
+          >
+            <span className={styles.navIcon}>{link.icon}</span>
+            {!collapsed && <span>{link.label}</span>}
+          </Link>
+        ))}
+      </div>
+    )
+  }
+
   if (isHub) {
     return (
       <div className={styles.hubLayout}>
@@ -174,44 +236,28 @@ export default function AdminLayout({ children }) {
             <div className={styles.hubRestIcon}>
               {restaurant?.logo_url
                 ? <img src={restaurant.logo_url} alt={restName} className={styles.hubRestLogo} />
-                : restName[0]
-              }
+                : restName[0]}
             </div>
             <span className={styles.hubRole}>{restRole}</span>
             <button className={styles.hubLogoutBtn} onClick={handleLogout}>Odjava</button>
           </div>
         </header>
-
-        <main className={styles.hubMain}>
-          {children}
-        </main>
-
+        <main className={styles.hubMain}>{children}</main>
         <footer className={styles.hubFooter}>
-          <a href="/" className={styles.hubBrand}>
-            smart<span className={styles.green}>meni</span>.me
-          </a>
+          <a href="/" className={styles.hubBrand}>smart<span className={styles.green}>meni</span>.me</a>
         </footer>
       </div>
     )
   }
 
-  // ── Modul stranica — sa sidebarom ──
   return (
     <div className={`${styles.layout} ${collapsed ? styles.layoutCollapsed : ''}`}>
 
       <aside className={`${styles.sidebar} ${collapsed ? styles.sidebarCollapsed : ''}`}>
-
         <div className={styles.sbTop}>
-          {!collapsed && (
-            <Link to="/admin" className={styles.sbRestTitle}>
-              {restName}
-            </Link>
-          )}
-          <button
-            className={styles.collapseBtn}
-            onClick={() => setCollapsed(c => !c)}
-            title={collapsed ? 'Otvori sidebar' : 'Zatvori sidebar'}
-          >
+          {!collapsed && <Link to="/admin" className={styles.sbRestTitle}>{restName}</Link>}
+          <button className={styles.collapseBtn} onClick={() => setCollapsed(c => !c)}
+            title={collapsed ? 'Otvori sidebar' : 'Zatvori sidebar'}>
             {collapsed ? '›' : '‹'}
           </button>
         </div>
@@ -221,8 +267,7 @@ export default function AdminLayout({ children }) {
             <div className={styles.sbRoleIcon}>
               {restaurant?.logo_url
                 ? <img src={restaurant.logo_url} alt={restName} className={styles.sbRoleLogoImg} />
-                : restName[0]
-              }
+                : restName[0]}
             </div>
             <div>
               <div className={styles.sbRoleName}>{restName}</div>
@@ -232,7 +277,6 @@ export default function AdminLayout({ children }) {
         )}
 
         <nav className={styles.nav}>
-
           <Link to="/admin" className={styles.navBackItem} title="Kontrolna tabla">
             <span className={styles.navIcon}>←</span>
             {!collapsed && <span>Kontrolna tabla</span>}
@@ -240,26 +284,14 @@ export default function AdminLayout({ children }) {
 
           <div className={styles.navDivider} />
 
-          {!collapsed && activeModule && (
-            <div className={styles.navModuleTitle}>
-              {activeModule.icon} {activeModule.label}
-            </div>
+          {activeModule?.interactive && (
+            <>
+              {renderSegment(activeModule.interactive)}
+              <div className={styles.navDivider} />
+            </>
           )}
 
-          {activeModule?.links.map((link, i) => {
-            if (!canAccess(link.perm)) return null
-            return (
-              <Link
-                key={i}
-                to={link.path}
-                className={`${styles.navItem} ${isActive(link.path, link.exact) ? styles.navItemActive : ''}`}
-                title={link.label}
-              >
-                <span className={styles.navIcon}>{link.icon}</span>
-                {!collapsed && <span>{link.label}</span>}
-              </Link>
-            )
-          })}
+          {renderSegment(activeModule?.admin)}
 
           {activeModule && (
             <>
@@ -278,11 +310,9 @@ export default function AdminLayout({ children }) {
           {isSuperAdmin() && (
             <>
               <div className={styles.navDivider} />
-              <Link
-                to="/superadmin"
+              <Link to="/superadmin"
                 className={`${styles.navItem} ${isActive('/superadmin') ? styles.navItemActive : ''}`}
-                title="Super admin"
-              >
+                title="Super admin">
                 <span className={styles.navIcon}>🔧</span>
                 {!collapsed && <span>Super admin</span>}
               </Link>
@@ -292,38 +322,20 @@ export default function AdminLayout({ children }) {
 
         <div className={styles.sbBottom}>
           {restaurant && !collapsed && (
-            <a
-              href={`/${restaurant.slug}`}
-              target="_blank"
-              rel="noreferrer"
-              className={styles.viewMenuBtn}
-            >
+            <a href={`/${restaurant.slug}`} target="_blank" rel="noreferrer" className={styles.viewMenuBtn}>
               👁 Meni uživo
             </a>
           )}
-
-          <Link
-            to="/admin/account"
+          <Link to="/admin/account"
             className={`${styles.navItem} ${isActive('/admin/account') ? styles.navItemActive : ''}`}
-            title="Moj nalog"
-          >
+            title="Moj nalog">
             <span className={styles.navIcon}>👤</span>
             {!collapsed && <span>Moj nalog</span>}
           </Link>
-
-          <button
-            className={styles.logoutBtn}
-            onClick={handleLogout}
-            title="Odjava"
-          >
+          <button className={styles.logoutBtn} onClick={handleLogout} title="Odjava">
             {collapsed ? '↩' : 'Odjava'}
           </button>
-
-          {!collapsed && (
-            <a href="/" className={styles.sbBrand}>
-              smartmeni.me
-            </a>
-          )}
+          {!collapsed && <a href="/" className={styles.sbBrand}>smartmeni.me</a>}
         </div>
       </aside>
 
@@ -332,20 +344,13 @@ export default function AdminLayout({ children }) {
           <div className={styles.breadcrumb}>
             <Link to="/admin" className={styles.breadcrumbLink}>Kontrolna tabla</Link>
             <span className={styles.breadcrumbSep}>/</span>
-            <span className={styles.breadcrumbCurrent}>
-              {activeModule ? activeModule.label : 'Admin'}
-            </span>
+            <span className={styles.breadcrumbCurrent}>{activeModule ? activeModule.label : 'Admin'}</span>
           </div>
         </header>
-
         <TrialBanner />
-        <main className={styles.main}>
-          {children}
-        </main>
+        <main className={styles.main}>{children}</main>
         <footer className={styles.pageFooter}>
-          <a href="/" className={styles.pageBrand}>
-            smart<span className={styles.green}>meni</span>.me
-          </a>
+          <a href="/" className={styles.pageBrand}>smart<span className={styles.green}>meni</span>.me</a>
         </footer>
       </div>
 
@@ -353,18 +358,14 @@ export default function AdminLayout({ children }) {
         {BOTTOM_NAV.map((item, i) => {
           if (!canAccess(item.perm)) return null
           return (
-            <Link
-              key={i}
-              to={item.path}
-              className={`${styles.bottomNavItem} ${isActive(item.path, item.exact) ? styles.bottomNavItemActive : ''}`}
-            >
+            <Link key={i} to={item.path}
+              className={`${styles.bottomNavItem} ${isActive(item.path, item.exact) ? styles.bottomNavItemActive : ''}`}>
               <span className={styles.bottomNavIcon}>{item.icon}</span>
               <span className={styles.bottomNavLabel}>{item.label}</span>
             </Link>
           )
         })}
       </nav>
-
     </div>
   )
 }

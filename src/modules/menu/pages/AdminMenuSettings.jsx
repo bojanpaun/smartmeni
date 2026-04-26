@@ -246,6 +246,28 @@ export default function AdminMenuSettings() {
                   style={{ flex: 1 }} />
               </div>
             </div>
+            <div className={`${styles.field} ${styles.fullWidth}`}>
+              <label>📱 Trajanje QR sesije</label>
+              <div style={{ display: 'flex', alignItems: 'center', gap: 10 }}>
+                <select
+                  value={form.qr_session_minutes || 30}
+                  onChange={e => setForm(f => ({ ...f, qr_session_minutes: parseInt(e.target.value) }))}
+                  style={{ flex: 1, padding: '8px 10px', border: '1px solid #d0e4dc', borderRadius: 8, fontSize: 13, fontFamily: 'DM Sans, sans-serif', outline: 'none' }}
+                >
+                  <option value={10}>10 minuta</option>
+                  <option value={15}>15 minuta</option>
+                  <option value={20}>20 minuta</option>
+                  <option value={30}>30 minuta (preporučeno)</option>
+                  <option value={45}>45 minuta</option>
+                  <option value={60}>60 minuta</option>
+                  <option value={90}>90 minuta</option>
+                  <option value={120}>2 sata</option>
+                </select>
+              </div>
+              <div style={{ fontSize: 11, color: '#8a9e96', marginTop: 4 }}>
+                Nakon isteka, gost mora ponovo skenirati QR kod da bi mogao naručivati i zvati konobara.
+              </div>
+            </div>
           </div>
           <div style={{ display: 'flex', alignItems: 'center', gap: 12, marginTop: 8 }}>
             <button type="submit" className={menuStyles.btnSave} disabled={saving}>
