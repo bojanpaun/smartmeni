@@ -396,18 +396,18 @@ export default function TableMapEditor() {
             <button className={styles.qrClose} onClick={() => setShowQR(null)}>✕</button>
             <div className={styles.qrTitle}>QR kod — {showQR.label || `Sto ${showQR.number}`}</div>
             <div className={styles.qrUrl}>
-              {`${window.location.origin}/${restaurant.slug}?table=${showQR.number}`}
+              {`${window.location.origin}/${restaurant.slug}?table=${showQR.number}&qr=1`}
             </div>
             <div className={styles.qrBox}>
               <img
-                src={`https://api.qrserver.com/v1/create-qr-code/?size=200x200&data=${encodeURIComponent(`${window.location.origin}/${restaurant.slug}?table=${showQR.number}`)}`}
+                src={`https://api.qrserver.com/v1/create-qr-code/?size=200x200&data=${encodeURIComponent(`${window.location.origin}/${restaurant.slug}?table=${showQR.number}&qr=1`)}`}
                 alt="QR kod"
                 width={200}
                 height={200}
               />
             </div>
             <a
-              href={`https://api.qrserver.com/v1/create-qr-code/?size=400x400&data=${encodeURIComponent(`${window.location.origin}/${restaurant.slug}?table=${showQR.number}`)}`}
+              href={`https://api.qrserver.com/v1/create-qr-code/?size=400x400&data=${encodeURIComponent(`${window.location.origin}/${restaurant.slug}?table=${showQR.number}&qr=1`)}`}
               download={`qr-sto-${showQR.number}.png`}
               className={styles.qrDownload}
             >
