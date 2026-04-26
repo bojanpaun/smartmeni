@@ -103,6 +103,15 @@ export default function Menu() {
   const [pendingAction, setPendingAction] = useState(null)
   const [lastActivity, setLastActivity] = useState(Date.now())
 
+  // QR parametar — sačuvaj odmah pri prvom renderu, prije učitavanja realData
+  useEffect(() => {
+    if (!slug || slug === 'demo') return
+    const params = new URLSearchParams(window.location.search)
+    if (params.get('qr') === '1') {
+      localStorage.setItem(`sm_qr_${slug}`, Date.now().toString())
+    }
+  }, [slug])
+
   // Provjeri status aktivne narudžbe pri mountu — sinhrono briše ako je closed/served
   useEffect(() => {
     if (!slug || slug === 'demo') return
@@ -181,11 +190,10 @@ export default function Menu() {
   const isQRAccess = (() => {
     if (isDemo) return true
     try {
+      // Provjeri ?qr=1 u URL-u (useEffect ga je već snimio u localStorage)
       const params = new URLSearchParams(window.location.search)
-      if (params.get('qr') === '1') {
-        localStorage.setItem(`sm_qr_${slug}`, Date.now().toString())
-        return true
-      }
+      if (params.get('qr') === '1') return true
+      // Provjeri localStorage sesiju
       const ts = localStorage.getItem(`sm_qr_${slug}`)
       if (!ts) return false
       const elapsed = Date.now() - parseInt(ts, 10)

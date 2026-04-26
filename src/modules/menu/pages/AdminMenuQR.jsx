@@ -9,7 +9,10 @@ export default function AdminMenuQR() {
 
   if (!restaurant) return <div className={styles.loading}>Učitavanje...</div>
 
-  const guestUrl = `https://smartmeni.me/${restaurant.slug}`
+  const baseUrl = window.location.hostname === 'localhost'
+    ? window.location.origin
+    : 'https://smartmeni.me'
+  const guestUrl = `${baseUrl}/${restaurant.slug}?qr=1`
 
   const copy = () => {
     navigator.clipboard.writeText(guestUrl)
@@ -94,7 +97,7 @@ export default function AdminMenuQR() {
 
             <div style={{ display: 'flex', gap: 10, flexWrap: 'wrap' }}>
               <a
-                href={`/${restaurant.slug}`}
+                href={`/${restaurant.slug}?qr=1`}
                 target="_blank"
                 rel="noreferrer"
                 style={{
