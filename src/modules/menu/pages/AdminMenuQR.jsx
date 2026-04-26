@@ -9,10 +9,8 @@ export default function AdminMenuQR() {
 
   if (!restaurant) return <div className={styles.loading}>Učitavanje...</div>
 
-  const baseUrl = window.location.hostname === 'localhost'
-    ? window.location.origin
-    : 'https://smartmeni.me'
-  const guestUrl = `${baseUrl}/${restaurant.slug}?qr=1`
+  // Uvijek koristi trenutni origin — radi i na localhost i na produkciji
+  const guestUrl = `${window.location.origin}/${restaurant.slug}?qr=1`
 
   const copy = () => {
     navigator.clipboard.writeText(guestUrl)
