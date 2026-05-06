@@ -5,6 +5,7 @@ import { useNavigate } from 'react-router-dom'
 import { supabase } from '../../../lib/supabase'
 import { usePlatform } from '../../../context/PlatformContext'
 import styles from './StaffPage.module.css'
+import gsStyles from '../../menu/pages/GeneralSettings.module.css'
 
 export default function StaffPage() {
   const { restaurant } = usePlatform()
@@ -22,11 +23,14 @@ export default function StaffPage() {
   useEffect(() => { if (restaurant) loadData() }, [restaurant])
 
   const loadData = async () => {
-    const [{ data: s }, { data: r }] = await Promise.all([
+    const todayStr = new Date().toISOString().slice(0, 10)
+    const [{ data: s }, { data: r }, { data: att }] = await Promise.all([
       supabase.from('staff').select('*, role:roles(name)').eq('restaurant_id', restaurant.id).order('created_at'),
       supabase.from('roles').select('*').eq('restaurant_id', restaurant.id).order('name'),
+      supabase.from('attendance_entries').select('staff_id, clock_in, clock_out').eq('restaurant_id', restaurant.id).eq('date', todayStr),
     ])
-    setStaff(s || [])
+    const presentIds = new Set((att || []).filter(a => a.clock_in && !a.clock_out).map(a => a.staff_id))
+    setStaff((s || []).map(st => ({ ...st, _present: presentIds.has(st.id) })))
     setRoles(r || [])
     setLoading(false)
   }
@@ -84,9 +88,12 @@ export default function StaffPage() {
   if (loading) return <div className={styles.loading}>Učitavanje...</div>
 
   return (
-    <div className={styles.page}>
-      <div className={styles.topbar}>
-        <div className={styles.topbarTitle}>Zaposleni</div>
+    <div className={gsStyles.page} style={{ maxWidth: 960 }}>
+      <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-start', marginBottom: 24 }}>
+        <div>
+          <h1 className={gsStyles.title}>Zaposleni</h1>
+          <p className={gsStyles.subtitle}>Pregled i upravljanje zaposlenicima.</p>
+        </div>
         <button className={styles.btnPrimary} onClick={openForm}>+ Dodaj zaposlenika</button>
       </div>
 
@@ -165,7 +172,7 @@ function StaffTable({ staff, onEdit, onToggle, onRemove }) {
           <tr>
             <th>Zaposlenik</th>
             <th>Rola</th>
-            <th>Plata</th>
+            <th>Danas</th>
             <th>Status</th>
             <th style={{ textAlign: 'right' }}>Akcije</th>
           </tr>
@@ -199,7 +206,12 @@ function StaffTable({ staff, onEdit, onToggle, onRemove }) {
                     : <span className={styles.noRole}>—</span>
                   }
                 </td>
-                <td className={styles.wageCell}>{wage}</td>
+                <td>
+                  {s._present
+                    ? <span className={styles.connectedBadge}>Na poslu</span>
+                    : <span style={{ fontSize: 12, color: 'var(--color-text-secondary, #8a9e96)' }}>—</span>
+                  }
+                </td>
                 <td>
                   {s.user_id
                     ? <span className={styles.connectedBadge}>Povezan</span>

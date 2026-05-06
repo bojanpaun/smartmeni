@@ -269,13 +269,142 @@ function TablePicker({ tables, selectedId, reservations, date, onSelect }) {
 }
 
 // ── Glavna komponenta ─────────────────────────────────────────
+
+// ── Planner (timeline po stolovima) ──────────────────────────────
+function PlannerView({ reservations, tables, date, onDateChange }) {
+  const HOURS = Array.from({ length: 13 }, (_, i) => i + 10) // 10:00–22:00
+  const HOUR_W = 60 // px po satu — kompaktan
+
+  const filteredRes = reservations.filter(r =>
+    r.date === date && r.status !== 'cancelled'
+  )
+
+  // Svrstaj rezervacije po stolu
+  const byTable = {}
+  tables.forEach(t => { byTable[t.number] = [] })
+  filteredRes.forEach(r => {
+    const tNum = r.table_number
+    if (tNum && byTable[tNum] !== undefined) byTable[tNum].push(r)
+    else if (tNum) { byTable[tNum] = [r] }
+    else { if (!byTable['—']) byTable['—'] = []; byTable['—'].push(r) }
+  })
+
+  const timeToX = (timeStr) => {
+    const [h, m] = timeStr.split(':').map(Number)
+    return (h - 9 + m / 60) * HOUR_W
+  }
+
+  const statusColor = (status) => ({
+    confirmed: { bg: '#d1f5e4', border: '#0d7a52', text: '#0d7a52' },
+    pending:   { bg: '#faeeda', border: '#ba7517', text: '#ba7517' },
+    completed: { bg: '#e8f0ee', border: '#8a9e96', text: '#8a9e96' },
+  }[status] || { bg: '#e8f0ee', border: '#8a9e96', text: '#8a9e96' })
+
+  const totalW = HOURS.length * HOUR_W
+
+  // Datum navigacija
+  const prevDay = () => {
+    const d = new Date(date); d.setDate(d.getDate() - 1)
+    onDateChange(d.toISOString().slice(0, 10))
+  }
+  const nextDay = () => {
+    const d = new Date(date); d.setDate(d.getDate() + 1)
+    onDateChange(d.toISOString().slice(0, 10))
+  }
+  const displayDate = new Date(date).toLocaleDateString('sr-Latn', { weekday: 'long', day: 'numeric', month: 'long' })
+  const tableNums = Object.keys(byTable).sort((a, b) => Number(a) - Number(b) || a.localeCompare(b))
+
+  return (
+    <div className={styles.plannerWrap}>
+      {/* Datum navigator */}
+      <div className={styles.plannerNav}>
+        <button className={styles.plannerNavBtn} onClick={prevDay}>‹</button>
+        <span className={styles.plannerDate}>{displayDate}</span>
+        <button className={styles.plannerNavBtn} onClick={nextDay}>›</button>
+      </div>
+
+      {filteredRes.length === 0 ? (
+        <div className={styles.plannerEmpty}>Nema rezervacija za ovaj dan.</div>
+      ) : (
+        <div className={styles.plannerScroll}>
+          <div style={{ display: 'flex', minWidth: 160 + totalW }}>
+
+            {/* Labele stolova */}
+            <div style={{ width: 80, flexShrink: 0 }}>
+              <div style={{ height: 32 }} /> {/* header spacer */}
+              {tableNums.map(tNum => (
+                <div key={tNum} className={styles.plannerTableLabel}>
+                  {tNum === '—' ? 'Bez stola' : `Sto ${tNum}`}
+                </div>
+              ))}
+            </div>
+
+            {/* Grid */}
+            <div style={{ flex: 1, overflowX: 'auto' }}>
+              {/* Satnica */}
+              <div className={styles.plannerHours} style={{ width: totalW }}>
+                {HOURS.map(h => (
+                  <div key={h} className={styles.plannerHour} style={{ width: HOUR_W }}>
+                    {String(h).padStart(2, '0')}:00
+                  </div>
+                ))}
+              </div>
+
+              {/* Redovi stolova */}
+              {tableNums.map(tNum => (
+                <div key={tNum} className={styles.plannerRow} style={{ width: totalW }}>
+                  {/* Vertikalne linije */}
+                  {HOURS.map(h => (
+                    <div key={h} className={styles.plannerCell} style={{ left: (h - 9) * HOUR_W, width: HOUR_W }} />
+                  ))}
+
+                  {/* Rezervacije */}
+                  {byTable[tNum].map(res => {
+                    const startX = timeToX(res.time || '12:00')
+                    const dur = res.duration_minutes || 90
+                    const w = (dur / 60) * HOUR_W
+                    const col = statusColor(res.status)
+                    return (
+                      <div
+                        key={res.id}
+                        className={styles.plannerBlock}
+                        style={{
+                          left: startX, width: Math.max(w, 40),
+                          background: col.bg, borderLeft: `3px solid ${col.border}`,
+                        }}
+                        title={`${res.guest_name} · ${res.time?.slice(0,5)} · ${res.guests_count} gosta`}
+                      >
+                        <div className={styles.plannerBlockName}>{res.guest_name}</div>
+                        <div className={styles.plannerBlockTime}>
+                          {res.time?.slice(0, 5)} · {res.guests_count}os
+                        </div>
+                      </div>
+                    )
+                  })}
+                </div>
+              ))}
+            </div>
+          </div>
+        </div>
+      )}
+
+      {/* Legenda */}
+      <div className={styles.calLegend} style={{ marginTop: 12 }}>
+        <span><span className={`${styles.calDot} ${styles.calDotConfirmed}`} /> Potvrđena</span>
+        <span><span className={`${styles.calDot} ${styles.calDotPending}`} /> Na čekanju</span>
+        <span style={{ fontSize: 11, color: '#8a9e96' }}>Blokovi pokazuju trajanje rezervacije (default 90 min)</span>
+      </div>
+    </div>
+  )
+}
+
 export default function ReservationsPage() {
   const { restaurant } = usePlatform()
 
   const [reservations, setReservations] = useState([])
   const [tables, setTables] = useState([])
   const [loading, setLoading] = useState(true)
-  const [view, setView] = useState('list') // 'list' | 'calendar'
+  const [view, setView] = useState('list') // 'list' | 'calendar' | 'planner'
   const [filterDate, setFilterDate] = useState(today())
   const [filterStatus, setFilterStatus] = useState('all')
   const [showForm, setShowForm] = useState(false)
@@ -414,6 +543,10 @@ export default function ReservationsPage() {
               className={`${styles.viewBtn} ${view === 'calendar' ? styles.viewBtnActive : ''}`}
               onClick={() => setView('calendar')}
             >📅 Kalendar</button>
+            <button
+              className={`${styles.viewBtn} ${view === 'planner' ? styles.viewBtnActive : ''}`}
+              onClick={() => setView('planner')}
+            >📊 Planner</button>
           </div>
           <button className={styles.btnAdd} onClick={() => openForm()}>+ Nova rezervacija</button>
         </div>
@@ -441,6 +574,16 @@ export default function ReservationsPage() {
           <span className={styles.toggleThumb} />
         </button>
       </div>
+
+      {/* Planner prikaz */}
+      {view === 'planner' && (
+        <PlannerView
+          reservations={reservations}
+          tables={tables}
+          date={filterDate}
+          onDateChange={setFilterDate}
+        />
+      )}
 
       {/* Kalendarski prikaz */}
       {view === 'calendar' && (

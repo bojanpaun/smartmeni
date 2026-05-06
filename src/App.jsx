@@ -18,6 +18,8 @@ import TableMapEditor from './modules/tables/pages/TableMapEditor'
 import WaiterMapView from './modules/tables/pages/WaiterMapView'
 import ReservationsPage from './modules/tables/pages/ReservationsPage'
 import TablesAnalytics from './modules/tables/pages/TablesAnalytics'
+import StaffPortalPage from './modules/hr/pages/StaffPortalPage'
+import StaffPortalInfo from './modules/hr/pages/StaffPortalInfo'
 import OnlineReservationForm from './modules/tables/pages/OnlineReservationForm'
 import InventoryPage from './modules/inventory/pages/InventoryPage'
 import MovementsLog from './modules/inventory/pages/MovementsLog'
@@ -133,6 +135,7 @@ function AppRoutes() {
       <Route path="/admin/hr/payroll" element={<AdminRoute><PayrollPage /></AdminRoute>} />
       <Route path="/admin/hr/reports" element={<AdminRoute><HRReportsPage /></AdminRoute>} />
       <Route path="/admin/hr/help" element={<AdminRoute><ModuleHelp moduleKey="hr" /></AdminRoute>} />
+      <Route path="/admin/hr/staff-portal-info" element={<AdminRoute><StaffPortalInfo /></AdminRoute>} />
 
       {/* Analitika modul */}
       <Route path="/admin/analytics" element={<AdminRoute><AnalyticsPage /></AdminRoute>} />
@@ -147,6 +150,7 @@ function AppRoutes() {
       <Route path="/:slug/profil" element={<GuestPortalPage />} />
       <Route path="/:slug/prijava" element={<GuestLoginPage />} />
       <Route path="/:slug/narudzba/:orderId" element={<OrderTrackerPage />} />
+      <Route path="/:slug/osoblje" element={<StaffPortalPage />} />
       <Route path="/:slug" element={<CartProvider><GuestMenu /></CartProvider>} />
     </Routes>
   )

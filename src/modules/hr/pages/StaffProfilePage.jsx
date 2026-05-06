@@ -6,6 +6,17 @@ import { supabase } from '../../../lib/supabase'
 import { usePlatform } from '../../../context/PlatformContext'
 import styles from './StaffProfilePage.module.css'
 
+const ENTRY_TYPES = [
+  { key: 'salary',    label: 'Zarada',       color: '#0d7a52' },
+  { key: 'daily',     label: 'Dnevnica',     color: '#3aaa70' },
+  { key: 'bonus',     label: 'Bonus',        color: '#378add' },
+  { key: 'overtime',  label: 'Prekovremeni', color: '#7f77dd' },
+  { key: 'deduction', label: 'Odbitak',      color: '#c0392b' },
+  { key: 'advance',   label: 'Akontacija',   color: '#ef9f27' },
+]
+function mStart() { const d = new Date(); return `${d.getFullYear()}-${String(d.getMonth()+1).padStart(2,'0')}-01` }
+function mEnd() { const d = new Date(); return new Date(d.getFullYear(), d.getMonth()+1, 0).toISOString().slice(0,10) }
+
 const CONTRACT_TYPES = {
   permanent:'Stalni ugovor', fixed:'Ugovor na određeno',
   seasonal:'Sezonski', probation:'Probni rad', freelance:'Ugovor o djelu',
@@ -43,9 +54,25 @@ export default function StaffProfilePage() {
   const [employForm, setEmployForm] = useState({})
   const [financeForm, setFinanceForm] = useState({})
   const [absenceForm, setAbsenceForm] = useState({ absence_type:'vacation', start_date:'', end_date:'', notes:'', approved:false })
+  const [vacationYear, setVacationYear] = useState(new Date().getFullYear())
+  // Payroll tab state — selektor mjeseca
+  const [payrollMonth, setPayrollMonth] = useState(() => {
+    const d = new Date(); return `${d.getFullYear()}-${String(d.getMonth()+1).padStart(2,'0')}`
+  })
+  const payrollDateFrom = payrollMonth + '-01'
+  const payrollDateTo = (() => {
+    const [y, m] = payrollMonth.split('-').map(Number)
+    return new Date(y, m, 0).toISOString().slice(0, 10)
+  })()
+  const [payrollEntries, setPayrollEntries] = useState([])
+  const [payrollLoading, setPayrollLoading] = useState(false)
+  const [showPayrollForm, setShowPayrollForm] = useState(false)
+  const [payrollForm, setPayrollForm] = useState({ type: 'salary', amount: '', date: new Date().toISOString().slice(0,10), note: '' })
+  const [payrollSaving, setPayrollSaving] = useState(false)
   const [historyForm, setHistoryForm] = useState({ event_type:'note', description:'', event_date:new Date().toISOString().split('T')[0] })
 
   useEffect(() => { if (restaurant) loadAll() }, [staffId, restaurant])
+  useEffect(() => { if (activeTab === 'payroll' && staffId) loadPayroll() }, [activeTab, payrollMonth, staffId])
 
   const loadAll = async () => {
     const [{ data: s }, { data: r }, { data: h }, { data: a }] = await Promise.all([
@@ -116,15 +143,193 @@ export default function StaffProfilePage() {
 
   const initials = staff.first_name && staff.last_name ? `${staff.first_name[0]}${staff.last_name[0]}` : staff.email[0].toUpperCase()
   const displayName = staff.first_name && staff.last_name ? `${staff.first_name} ${staff.last_name}` : staff.email
+  // ── Platna lista ─────────────────────────────────────────────
+  const generatePayslip = (format = 'print') => {
+    const days = Math.ceil((new Date(payrollDateTo) - new Date(payrollDateFrom)) / 86400000) + 1
+    const wage = parseFloat(staff.wage_amount || 0)
+    let base = 0
+    if (staff.wage_type === 'hourly') base = 0
+    else if (staff.wage_type === 'weekly') base = wage * Math.ceil(days / 7)
+    else base = wage // Mjesečna = puna zarada za odabrani mjesec
+
+    const additions = payrollEntries.filter(e => !['deduction','advance'].includes(e.type))
+    const deductions = payrollEntries.filter(e => ['deduction','advance'].includes(e.type))
+    const totalAdd = additions.reduce((s,e) => s + parseFloat(e.amount||0), 0)
+    const totalDed = deductions.reduce((s,e) => s + parseFloat(e.amount||0), 0)
+    const neto = base + totalAdd - totalDed
+
+    const sName = (staff.first_name && staff.last_name) ? `${staff.first_name} ${staff.last_name}` : staff.email || '—'
+    const rName = restaurant?.name || 'Restoran'
+    const period = `${new Date(payrollDateFrom).toLocaleDateString('sr-Latn', { day: 'numeric', month: 'long', year: 'numeric' })} – ${new Date(payrollDateTo).toLocaleDateString('sr-Latn', { day: 'numeric', month: 'long', year: 'numeric' })}`
+    const generated = new Date().toLocaleDateString('sr-Latn', { day: 'numeric', month: 'long', year: 'numeric' })
+
+    const typeLabel = (key) => ENTRY_TYPES.find(t => t.key === key)?.label || key
+
+    const html = `<!DOCTYPE html>
+<html lang="sr">
+<head>
+<meta charset="UTF-8">
+<title>Platna lista — ${sName}</title>
+<style>
+  @page { size: A4; margin: 2cm; }
+  * { box-sizing: border-box; margin: 0; padding: 0; }
+  body { font-family: Arial, sans-serif; font-size: 13px; color: #1a2e26; line-height: 1.5; }
+  .header { display: flex; justify-content: space-between; align-items: flex-start; border-bottom: 2px solid #0d7a52; padding-bottom: 14px; margin-bottom: 20px; }
+  .logo-area h1 { font-size: 20px; color: #0d7a52; font-weight: 700; }
+  .logo-area p { font-size: 11px; color: #5a7a6a; margin-top: 2px; }
+  .doc-info { text-align: right; }
+  .doc-info h2 { font-size: 16px; font-weight: 700; color: #1a2e26; }
+  .doc-info p { font-size: 11px; color: #5a7a6a; }
+  .employee-box { background: #f0f8f4; border-radius: 8px; padding: 14px 18px; margin-bottom: 20px; display: flex; gap: 40px; }
+  .employee-box .field label { font-size: 10px; color: #5a7a6a; text-transform: uppercase; letter-spacing: 0.5px; display: block; }
+  .employee-box .field span { font-size: 14px; font-weight: 700; color: #1a2e26; }
+  table { width: 100%; border-collapse: collapse; margin-bottom: 16px; }
+  th { font-size: 10px; text-transform: uppercase; letter-spacing: 0.5px; color: #5a7a6a; border-bottom: 1px solid #c8e0d4; padding: 7px 10px; text-align: left; }
+  td { padding: 8px 10px; border-bottom: 1px solid #e8f0ec; font-size: 13px; }
+  .section-title { font-size: 12px; font-weight: 700; color: #0d7a52; text-transform: uppercase; letter-spacing: 0.5px; margin: 16px 0 6px; }
+  .amount-pos { color: #0d7a52; font-weight: 700; }
+  .amount-neg { color: #c0392b; font-weight: 700; }
+  .summary { background: #1a2e26; color: #fff; border-radius: 8px; padding: 16px 20px; display: flex; justify-content: space-between; align-items: center; margin-top: 20px; }
+  .summary .label { font-size: 12px; color: rgba(255,255,255,0.7); }
+  .summary .val { font-size: 22px; font-weight: 700; }
+  .kpi-row { display: flex; gap: 16px; margin-bottom: 20px; }
+  .kpi-box { flex: 1; border: 1px solid #c8e0d4; border-radius: 8px; padding: 12px 14px; }
+  .kpi-box .k-label { font-size: 10px; color: #5a7a6a; text-transform: uppercase; letter-spacing: 0.5px; margin-bottom: 4px; }
+  .kpi-box .k-val { font-size: 18px; font-weight: 700; color: #1a2e26; }
+  .signatures { display: flex; gap: 40px; margin-top: 40px; }
+  .sig { flex: 1; border-top: 1px solid #c8e0d4; padding-top: 8px; font-size: 11px; color: #5a7a6a; }
+  .footer { text-align: center; font-size: 10px; color: #8a9e96; margin-top: 30px; border-top: 1px solid #e0ece6; padding-top: 10px; }
+  @media print { .no-print { display: none !important; } }
+</style>
+</head>
+<body>
+
+<div class="no-print" style="background:#f0f8f4;padding:14px 20px;display:flex;gap:10px;align-items:center;margin-bottom:20px;border-radius:8px;">
+  <span style="font-weight:700;color:#0d7a52;">Platna lista generisana</span>
+  <button onclick="window.print()" style="margin-left:auto;padding:8px 20px;background:#0d7a52;color:#fff;border:none;border-radius:8px;cursor:pointer;font-size:13px;">Štampaj / Sačuvaj PDF</button>
+  <button onclick="window.close()" style="padding:8px 14px;background:#fff;border:1px solid #c8e0d4;border-radius:8px;cursor:pointer;font-size:13px;">Zatvori</button>
+</div>
+
+<div class="header">
+  <div class="logo-area">
+    <h1>${rName}</h1>
+    <p>Platna lista za period: ${period}</p>
+  </div>
+  <div class="doc-info">
+    <h2>PLATNA LISTA</h2>
+    <p>Datum: ${generated}</p>
+  </div>
+</div>
+
+<div class="employee-box">
+  <div class="field"><label>Zaposlenik</label><span>${sName}</span></div>
+  <div class="field"><label>Pozicija</label><span>${staff.position || '—'}</span></div>
+  <div class="field"><label>Tip ugovora</label><span>${staff.contract_type === 'permanent' ? 'Stalni ugovor' : staff.contract_type === 'temporary' ? 'Privremeni' : staff.contract_type || '—'}</span></div>
+  <div class="field"><label>Tip plate</label><span>${staff.wage_type === 'hourly' ? 'Po satu' : staff.wage_type === 'weekly' ? 'Sedmična' : 'Mjesečna'}</span></div>
+</div>
+
+<div class="kpi-row">
+  <div class="kpi-box"><div class="k-label">Osnovna plata</div><div class="k-val">€${base.toFixed(2)}</div></div>
+  <div class="kpi-box"><div class="k-label">Dodaci</div><div class="k-val" style="color:#0d7a52">+€${totalAdd.toFixed(2)}</div></div>
+  <div class="kpi-box"><div class="k-label">Odbitci</div><div class="k-val" style="color:#c0392b">-€${totalDed.toFixed(2)}</div></div>
+</div>
+
+${additions.length > 0 ? `
+<div class="section-title">Dodaci na zaradu</div>
+<table>
+  <thead><tr><th>Tip</th><th>Napomena</th><th>Datum</th><th style="text-align:right">Iznos</th></tr></thead>
+  <tbody>
+    ${additions.map(e => `<tr>
+      <td>${typeLabel(e.type)}</td>
+      <td style="color:#5a7a6a">${e.note || '—'}</td>
+      <td style="color:#5a7a6a">${new Date(e.date).toLocaleDateString('sr-Latn')}</td>
+      <td class="amount-pos" style="text-align:right">+€${parseFloat(e.amount).toFixed(2)}</td>
+    </tr>`).join('')}
+  </tbody>
+</table>` : ''}
+
+${deductions.length > 0 ? `
+<div class="section-title">Odbitci</div>
+<table>
+  <thead><tr><th>Tip</th><th>Napomena</th><th>Datum</th><th style="text-align:right">Iznos</th></tr></thead>
+  <tbody>
+    ${deductions.map(e => `<tr>
+      <td>${typeLabel(e.type)}</td>
+      <td style="color:#5a7a6a">${e.note || '—'}</td>
+      <td style="color:#5a7a6a">${new Date(e.date).toLocaleDateString('sr-Latn')}</td>
+      <td class="amount-neg" style="text-align:right">-€${parseFloat(e.amount).toFixed(2)}</td>
+    </tr>`).join('')}
+  </tbody>
+</table>` : ''}
+
+<div class="summary">
+  <div>
+    <div class="label">Neto iznos za isplatu</div>
+    <div style="font-size:11px;color:rgba(255,255,255,0.5);margin-top:2px;">${period}</div>
+  </div>
+  <div class="val">€${neto.toFixed(2)}</div>
+</div>
+
+<div class="signatures">
+  <div class="sig">Potpis poslodavca<br><br><br>___________________________<br>${rName}</div>
+  <div class="sig">Potpis zaposlenika<br><br><br>___________________________<br>${sName}</div>
+</div>
+
+<div class="footer">Generisano putem SmartMeni platforme · ${generated}</div>
+
+</body>
+</html>`
+
+    const win = window.open('', '_blank', 'width=900,height=700')
+    win.document.write(html)
+    win.document.close()
+  }
+
+  const loadPayroll = async () => {
+    if (!staffId) return
+    setPayrollLoading(true)
+    const { data } = await supabase
+      .from('payroll_entries')
+      .select('*')
+      .eq('staff_id', staffId)
+      .gte('date', payrollDateFrom)
+      .lte('date', payrollDateTo)
+      .order('date', { ascending: false })
+    setPayrollEntries(data || [])
+    setPayrollLoading(false)
+  }
+
+  const savePayrollEntry = async (e) => {
+    e.preventDefault()
+    setPayrollSaving(true)
+    await supabase.from('payroll_entries').insert({
+      restaurant_id: restaurant.id,
+      staff_id: staffId,
+      type: payrollForm.type,
+      amount: parseFloat(payrollForm.amount) || 0,
+      date: payrollForm.date,
+      note: payrollForm.note || null,
+    })
+    setPayrollForm({ type: 'salary', amount: '', date: new Date().toISOString().slice(0,10), note: '' })
+    setShowPayrollForm(false)
+    setPayrollSaving(false)
+    loadPayroll()
+  }
+
+  const deletePayrollEntry = async (id) => {
+    await supabase.from('payroll_entries').delete().eq('id', id)
+    setPayrollEntries(prev => prev.filter(e => e.id !== id))
+  }
+
   const vacationDaysUsed = absences
-    .filter(a => a.absence_type === 'vacation' && a.approved)
+    .filter(a => a.absence_type === 'vacation' && a.approved && new Date(a.start_date).getFullYear() === vacationYear)
     .reduce((sum, a) => sum + (a.days || 0), 0)
   const vacationLeft = (financeForm.vacation_days_total || 0) - vacationDaysUsed
   const yearsWorked = staff.start_date ? ((new Date() - new Date(staff.start_date)) / (1000*60*60*24*365)).toFixed(1) : null
 
   const TABS = [
     { key:'basic', label:'Osnovne info' }, { key:'employ', label:'Zaposlenje' },
-    { key:'finance', label:'Finansije' }, { key:'absence', label:'Odsustva' }, { key:'history', label:'Historija' },
+    { key:'finance', label:'Finansije' }, { key:'absence', label:'Odsustva' }, { key:'history', label:'Historija' }, { key:'payroll', label:'Zarade' },
   ]
 
   return (
@@ -261,7 +466,18 @@ export default function StaffProfilePage() {
         {activeTab === 'absence' && (
           <div className={styles.card}>
             <div className={styles.vacationTracker}>
-              <div className={styles.vacTrackerTitle}>Godišnji odmor</div>
+              <div className={styles.vacTrackerTitle}>
+                Godišnji odmor
+                <select
+                  value={vacationYear}
+                  onChange={e => setVacationYear(parseInt(e.target.value))}
+                  style={{ marginLeft: 12, padding: '3px 8px', borderRadius: 7, border: '1px solid #d0e4dc', fontSize: 13, fontFamily: 'inherit', background: '#fff' }}
+                >
+                  {[new Date().getFullYear() + 1, new Date().getFullYear(), new Date().getFullYear() - 1, new Date().getFullYear() - 2].map(y => (
+                    <option key={y} value={y}>{y}.</option>
+                  ))}
+                </select>
+              </div>
               <div className={styles.vacTrackerRow}>
                 <div className={styles.vacCard}><div className={styles.vacNum}>{financeForm.vacation_days_total}</div><div className={styles.vacLabel}>Ukupno dana</div></div>
                 <div className={styles.vacCard}><div className={styles.vacNum} style={{color:'#BA7517'}}>{vacationDaysUsed}</div><div className={styles.vacLabel}>Iskorišteno</div></div>
@@ -329,6 +545,131 @@ export default function StaffProfilePage() {
                 ))}
               </div>
             )}
+          </div>
+        )}
+
+        {/* ZARADE */}
+        {activeTab === 'payroll' && (
+          <div className={styles.card}>
+            {/* Period filter */}
+            <div style={{ display: 'flex', alignItems: 'center', gap: 10, marginBottom: 16, flexWrap: 'wrap' }}>
+              <input type="month" value={payrollMonth}
+                onChange={e => setPayrollMonth(e.target.value)}
+                style={{ padding: '7px 10px', border: '1px solid #d0e4dc', borderRadius: 8, fontSize: 13, fontFamily: 'inherit' }} />
+              <div style={{ marginLeft: 'auto', display: 'flex', gap: 8 }}>
+                <button
+                  className={styles.btnSecondary}
+                  onClick={() => generatePayslip()}
+                  title="Generiši platnu listu za odabrani period"
+                >
+                  📄 Platna lista
+                </button>
+                <button className={styles.btnPrimary}
+                  onClick={() => setShowPayrollForm(v => !v)}>
+                  + Dodaj stavku
+                </button>
+              </div>
+            </div>
+
+            {/* KPI za period */}
+            {(() => {
+              const days = Math.ceil((new Date(payrollDateTo) - new Date(payrollDateFrom)) / 86400000) + 1
+              const wage = parseFloat(staff.wage_amount || 0)
+              let base = 0
+              if (staff.wage_type === 'hourly') base = 0
+              else if (staff.wage_type === 'weekly') base = wage * Math.ceil(days / 7)
+              else base = wage // Puna mjesečna zarada
+              const extras = payrollEntries.filter(e => !['deduction','advance'].includes(e.type)).reduce((s,e) => s + parseFloat(e.amount||0), 0)
+              const deductions = payrollEntries.filter(e => ['deduction','advance'].includes(e.type)).reduce((s,e) => s + parseFloat(e.amount||0), 0)
+              return (
+                <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fill, minmax(130px,1fr))', gap: 10, marginBottom: 16 }}>
+                  {[
+                    { label: 'Osnovna plata', val: `€${base.toFixed(2)}`, color: '#0d7a52' },
+                    { label: 'Dodaci', val: `+€${extras.toFixed(2)}`, color: '#378add' },
+                    { label: 'Odbitci', val: `-€${deductions.toFixed(2)}`, color: '#c0392b' },
+                    { label: 'Ukupno', val: `€${(base + extras - deductions).toFixed(2)}`, color: '#1a2e26' },
+                  ].map((k, i) => (
+                    <div key={i} style={{ background: '#f8fbf9', borderRadius: 10, padding: '12px 14px', border: '1px solid #e0ece6' }}>
+                      <div style={{ fontSize: 11, color: '#8a9e96', marginBottom: 4 }}>{k.label}</div>
+                      <div style={{ fontSize: 18, fontWeight: 700, color: k.color }}>{k.val}</div>
+                    </div>
+                  ))}
+                </div>
+              )
+            })()}
+
+            {/* Forma za dodavanje */}
+            {showPayrollForm && (
+              <form onSubmit={savePayrollEntry} style={{ background: '#f0f8f4', borderRadius: 12, padding: '16px', marginBottom: 16, border: '1px solid #c8e8d8' }}>
+                <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr 1fr', gap: 10, marginBottom: 10 }}>
+                  <div>
+                    <label style={{ fontSize: 12, color: '#5a7a6a', display: 'block', marginBottom: 4 }}>Tip</label>
+                    <select value={payrollForm.type} onChange={e => setPayrollForm(f => ({ ...f, type: e.target.value }))}
+                      style={{ width: '100%', padding: '8px 10px', border: '1px solid #d0e4dc', borderRadius: 8, fontSize: 13, fontFamily: 'inherit' }}>
+                      {ENTRY_TYPES.map(t => <option key={t.key} value={t.key}>{t.label}</option>)}
+                    </select>
+                  </div>
+                  <div>
+                    <label style={{ fontSize: 12, color: '#5a7a6a', display: 'block', marginBottom: 4 }}>Iznos (€)</label>
+                    <input type="number" min="0" step="0.01" required value={payrollForm.amount}
+                      onChange={e => setPayrollForm(f => ({ ...f, amount: e.target.value }))}
+                      style={{ width: '100%', padding: '8px 10px', border: '1px solid #d0e4dc', borderRadius: 8, fontSize: 13, fontFamily: 'inherit', boxSizing: 'border-box' }} />
+                  </div>
+                  <div>
+                    <label style={{ fontSize: 12, color: '#5a7a6a', display: 'block', marginBottom: 4 }}>Datum</label>
+                    <input type="date" required value={payrollForm.date}
+                      onChange={e => setPayrollForm(f => ({ ...f, date: e.target.value }))}
+                      style={{ width: '100%', padding: '8px 10px', border: '1px solid #d0e4dc', borderRadius: 8, fontSize: 13, fontFamily: 'inherit', boxSizing: 'border-box' }} />
+                  </div>
+                </div>
+                <div style={{ marginBottom: 10 }}>
+                  <label style={{ fontSize: 12, color: '#5a7a6a', display: 'block', marginBottom: 4 }}>Napomena</label>
+                  <input value={payrollForm.note} onChange={e => setPayrollForm(f => ({ ...f, note: e.target.value }))}
+                    placeholder="Opcionalno"
+                    style={{ width: '100%', padding: '8px 10px', border: '1px solid #d0e4dc', borderRadius: 8, fontSize: 13, fontFamily: 'inherit', boxSizing: 'border-box' }} />
+                </div>
+                <div style={{ display: 'flex', gap: 8, justifyContent: 'flex-end' }}>
+                  <button type="button" className={styles.btnSecondary} onClick={() => setShowPayrollForm(false)}>Odustani</button>
+                  <button type="submit" className={styles.btnPrimary} disabled={payrollSaving}>
+                    {payrollSaving ? 'Čuvanje...' : 'Dodaj stavku'}
+                  </button>
+                </div>
+              </form>
+            )}
+
+            {/* Lista stavki */}
+            {payrollLoading
+              ? <div style={{ color: '#8a9e96', fontSize: 13, padding: 16, textAlign: 'center' }}>Učitavanje...</div>
+              : payrollEntries.length === 0
+              ? <div className={styles.empty}>Nema stavki za odabrani period.</div>
+              : (
+                <div>
+                  {payrollEntries.map(entry => {
+                    const et = ENTRY_TYPES.find(t => t.key === entry.type)
+                    const isDeduction = ['deduction','advance'].includes(entry.type)
+                    return (
+                      <div key={entry.id} style={{ display: 'flex', alignItems: 'center', gap: 10, padding: '10px 0', borderBottom: '1px solid #f0f5f2' }}>
+                        <span style={{ fontSize: 11, fontWeight: 600, padding: '3px 9px', borderRadius: 6, background: et?.color + '22', color: et?.color }}>
+                          {et?.label}
+                        </span>
+                        <div style={{ flex: 1 }}>
+                          <div style={{ fontSize: 13, fontWeight: 600, color: isDeduction ? '#c0392b' : '#0d7a52' }}>
+                            {isDeduction ? '-' : '+'}€{parseFloat(entry.amount).toFixed(2)}
+                          </div>
+                          {entry.note && <div style={{ fontSize: 11, color: '#8a9e96' }}>{entry.note}</div>}
+                        </div>
+                        <div style={{ fontSize: 12, color: '#8a9e96' }}>
+                          {new Date(entry.date).toLocaleDateString('sr-Latn')}
+                        </div>
+                        <button onClick={() => deletePayrollEntry(entry.id)}
+                          style={{ background: 'none', border: 'none', color: '#c0b0b0', cursor: 'pointer', fontSize: 14, padding: '4px 6px', borderRadius: 4 }}
+                          title="Obriši">✕</button>
+                      </div>
+                    )
+                  })}
+                </div>
+              )
+            }
           </div>
         )}
 

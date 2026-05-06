@@ -284,3 +284,74 @@
   .calGrid { gap: 2px; }
 }
 .headerSubtitle { font-size: 13px; color: #5a7a6a; margin-top: 2px; }
+
+/* ── Planner / Timeline view ── */
+.plannerWrap { margin-top: 16px; }
+
+.plannerNav {
+  display: flex; align-items: center; gap: 12px;
+  margin-bottom: 14px; justify-content: center;
+}
+.plannerNavBtn {
+  background: #fff; border: 1px solid #d0e4dc; border-radius: 8px;
+  width: 32px; height: 32px; font-size: 18px; cursor: pointer;
+  display: flex; align-items: center; justify-content: center;
+  color: #3a6a56; transition: background 0.15s;
+}
+.plannerNavBtn:hover { background: #f0f8f4; }
+.plannerDate { font-size: 15px; font-weight: 600; color: #1a2e26; }
+
+.plannerEmpty {
+  text-align: center; padding: 40px; color: #8a9e96; font-size: 14px;
+}
+
+.plannerScroll {
+  overflow-x: auto; border-radius: 12px; border: 1px solid #e0ece6; background: #fff;
+  /* Prikaži scrollbar samo kad treba */
+  scrollbar-width: thin; scrollbar-color: #c8e0d4 #f0f5f2;
+}
+.plannerScroll::-webkit-scrollbar { height: 6px; }
+.plannerScroll::-webkit-scrollbar-track { background: #f0f5f2; }
+.plannerScroll::-webkit-scrollbar-thumb { background: #c8e0d4; border-radius: 3px; }
+
+.plannerTableLabel {
+  height: 44px; display: flex; align-items: center;
+  padding: 0 10px; font-size: 12px; font-weight: 600; color: #3a6a56;
+  border-bottom: 1px solid #f0f5f2; white-space: nowrap;
+  background: #f8fbf9;
+}
+
+.plannerHours {
+  display: flex; height: 28px;
+  border-bottom: 2px solid #e0ece6; background: #f8fbf9;
+}
+.plannerHour {
+  flex-shrink: 0; display: flex; align-items: center; justify-content: flex-start;
+  padding-left: 6px; font-size: 11px; color: #8a9e96; font-weight: 500;
+  border-right: 1px solid #e8f0ec;
+}
+
+.plannerRow {
+  position: relative; height: 44px;
+  border-bottom: 1px solid #f0f5f2;
+}
+
+.plannerCell {
+  position: absolute; top: 0; bottom: 0;
+  border-right: 1px solid #f0f5f2;
+}
+
+.plannerBlock {
+  position: absolute; top: 6px; bottom: 6px;
+  border-radius: 6px; padding: 3px 6px;
+  cursor: default; overflow: hidden;
+  transition: opacity 0.15s;
+  min-width: 40px;
+}
+.plannerBlock:hover { opacity: 0.85; }
+
+.plannerBlockName {
+  font-size: 11px; font-weight: 700; color: #1a2e26;
+  white-space: nowrap; overflow: hidden; text-overflow: ellipsis;
+}
+.plannerBlockTime { font-size: 10px; color: #5a7a6a; }

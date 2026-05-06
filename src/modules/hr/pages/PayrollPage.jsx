@@ -7,10 +7,11 @@ import styles from './PayrollPage.module.css'
 import gsStyles from '../../menu/pages/GeneralSettings.module.css'
 
 const ENTRY_TYPES = [
-  { key: 'daily',     label: 'Dnevnica',    color: '#0d7a52' },
+  { key: 'salary',    label: 'Zarada',      color: '#0d7a52' },
+  { key: 'daily',     label: 'Dnevnica',    color: '#3aaa70' },
   { key: 'bonus',     label: 'Bonus',       color: '#378add' },
-  { key: 'deduction', label: 'Odbitak',     color: '#c0392b' },
   { key: 'overtime',  label: 'Prekovremeni', color: '#7f77dd' },
+  { key: 'deduction', label: 'Odbitak',     color: '#c0392b' },
   { key: 'advance',   label: 'Akontacija',  color: '#ef9f27' },
 ]
 

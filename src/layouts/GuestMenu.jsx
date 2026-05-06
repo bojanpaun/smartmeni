@@ -103,12 +103,18 @@ export default function Menu() {
   const [pendingAction, setPendingAction] = useState(null)
   const [lastActivity, setLastActivity] = useState(Date.now())
 
-  // QR parametar — sačuvaj odmah pri prvom renderu, prije učitavanja realData
+  // QR parametar — sačuvaj/osvježi timestamp pri svakom učitavanju sa ?qr=1
+  // Ovo radi i pri ponovnom skeniranju nakon isteka sesije
   useEffect(() => {
     if (!slug || slug === 'demo') return
     const params = new URLSearchParams(window.location.search)
     if (params.get('qr') === '1') {
+      // Uvijek osvježi timestamp — novo skeniranje = nova sesija
       localStorage.setItem(`sm_qr_${slug}`, Date.now().toString())
+      // Ukloni ?qr=1 iz URL-a (čisto) ali zadrži ?table= ako postoji
+      const table = params.get('table')
+      const cleanUrl = `${window.location.pathname}${table ? `?table=${table}` : ''}`
+      window.history.replaceState({}, '', cleanUrl)
     }
   }, [slug])
 

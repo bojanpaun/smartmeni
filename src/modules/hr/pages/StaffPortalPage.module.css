@@ -1,0 +1,191 @@
+/* src/modules/hr/pages/StaffPortalPage.module.css */
+@import url('https://fonts.googleapis.com/css2?family=DM+Sans:wght@400;500;600;700&display=swap');
+
+.loading {
+  min-height: 100vh; display: flex; align-items: center; justify-content: center;
+  font-family: 'DM Sans', sans-serif; color: #8a9e96; font-size: 14px;
+}
+
+/* ── LOGIN ── */
+.page {
+  min-height: 100vh; background: #f5f5f5;
+  display: flex; align-items: center; justify-content: center;
+  font-family: 'DM Sans', sans-serif; padding: 20px;
+}
+
+.loginCard {
+  width: 100%; max-width: 380px;
+  background: #fff; border-radius: 20px;
+  overflow: hidden; box-shadow: 0 4px 24px rgba(0,0,0,0.10);
+}
+
+.loginHeader {
+  padding: 28px 24px 22px; text-align: center; color: #fff;
+}
+
+.loginLogo {
+  width: 56px; height: 56px; border-radius: 14px;
+  object-fit: cover; margin-bottom: 10px;
+  border: 2px solid rgba(255,255,255,0.3);
+}
+
+.loginLogoPlaceholder {
+  width: 56px; height: 56px; border-radius: 14px;
+  background: rgba(255,255,255,0.2); font-size: 24px; font-weight: 700;
+  display: flex; align-items: center; justify-content: center;
+  margin: 0 auto 10px; color: #fff;
+}
+
+.loginRestName { font-size: 18px; font-weight: 700; }
+.loginSubtitle { font-size: 12px; opacity: 0.75; margin-top: 3px; }
+
+.loginForm { padding: 24px; }
+.loginTitle { font-size: 16px; font-weight: 700; color: #1a2e26; margin-bottom: 18px; }
+
+.field { margin-bottom: 14px; }
+.field label { font-size: 12px; font-weight: 500; color: #5a7a6a; display: block; margin-bottom: 5px; }
+.field input {
+  width: 100%; padding: 10px 12px; border: 1px solid #d0e4dc;
+  border-radius: 10px; font-size: 14px; font-family: 'DM Sans', sans-serif;
+  outline: none; transition: border 0.15s; box-sizing: border-box;
+}
+.field input:focus { border-color: #0d7a52; }
+
+.authError {
+  font-size: 13px; color: #a32d2d; background: #fce8e8;
+  border-radius: 8px; padding: 9px 12px; margin-bottom: 12px;
+}
+
+.loginBtn {
+  width: 100%; padding: 12px; border: none; border-radius: 12px;
+  color: #fff; font-size: 14px; font-weight: 600; cursor: pointer;
+  font-family: 'DM Sans', sans-serif; transition: opacity 0.15s; margin-bottom: 12px;
+}
+.loginBtn:hover { opacity: 0.9; }
+.loginBtn:disabled { opacity: 0.6; }
+
+.backLink {
+  display: block; width: 100%; text-align: center; background: none;
+  border: none; color: #8a9e96; font-size: 13px; cursor: pointer;
+  font-family: 'DM Sans', sans-serif; padding: 4px;
+}
+.backLink:hover { color: #0d7a52; }
+
+/* ── PORTAL ── */
+.portalPage {
+  min-height: 100vh; background: #f8faf9;
+  font-family: 'DM Sans', sans-serif; max-width: 480px; margin: 0 auto;
+  display: flex; flex-direction: column;
+}
+
+.portalHeader { padding: 14px 16px 18px; color: #fff; }
+.portalHeaderTop { display: flex; justify-content: space-between; margin-bottom: 14px; }
+
+.portalBack, .portalLogout {
+  background: rgba(255,255,255,0.18); border: none; color: #fff;
+  font-size: 12px; font-weight: 500; padding: 5px 11px; border-radius: 8px;
+  cursor: pointer; font-family: 'DM Sans', sans-serif;
+}
+
+.portalInfo { display: flex; align-items: center; gap: 12px; }
+.portalAvatar {
+  width: 44px; height: 44px; border-radius: 50%;
+  background: rgba(255,255,255,0.25); display: flex; align-items: center;
+  justify-content: center; font-size: 18px; font-weight: 700; flex-shrink: 0;
+  overflow: hidden;
+}
+.portalName { font-size: 16px; font-weight: 700; }
+.portalRole { font-size: 12px; opacity: 0.8; margin-top: 2px; }
+
+/* ── TABS ── */
+.tabs {
+  display: flex; background: #fff; border-bottom: 1px solid #e0ece6;
+  overflow-x: auto; flex-shrink: 0;
+}
+
+.tab {
+  flex: 1; padding: 12px 8px; border: none; background: none;
+  font-size: 12px; font-weight: 500; color: #8a9e96; cursor: pointer;
+  border-bottom: 2px solid transparent; white-space: nowrap;
+  font-family: 'DM Sans', sans-serif; transition: color 0.15s;
+  min-width: 80px;
+}
+.tabActive { color: #0d7a52; border-bottom-color: #0d7a52; }
+
+/* ── CONTENT ── */
+.content { flex: 1; padding: 16px; }
+.loadingInline { color: #8a9e96; text-align: center; padding: 30px; font-size: 13px; }
+.empty { color: #8a9e96; font-size: 13px; padding: 20px 0; text-align: center; }
+.sectionTitle { font-size: 12px; font-weight: 600; color: #8a9e96; letter-spacing: 0.5px; text-transform: uppercase; margin: 14px 0 8px; }
+
+/* ── RASPORED ── */
+.weekCard {
+  background: #fff; border-radius: 14px; padding: 14px 16px;
+  border: 1px solid #e0ece6; margin-bottom: 14px;
+  box-shadow: 0 2px 6px rgba(0,0,0,0.04);
+}
+
+.shiftRow {
+  display: flex; align-items: center; gap: 10px; padding: 8px 0;
+  border-bottom: 1px solid #f0f5f2; flex-wrap: wrap;
+}
+.shiftRow:last-child { border-bottom: none; }
+.shiftDay { font-size: 13px; font-weight: 500; color: #1a2e26; flex: 1; text-transform: capitalize; }
+.shiftTime { font-size: 13px; font-weight: 600; }
+.shiftNote { font-size: 11px; color: #8a9e96; width: 100%; }
+.todayBadge {
+  font-size: 10px; font-weight: 600; padding: 2px 7px; border-radius: 5px;
+  background: #e1f5ee; color: #0d7a52; margin-left: 6px;
+}
+
+/* ── DOLASCI ── */
+.attRow {
+  background: #fff; border-radius: 12px; padding: 12px 14px;
+  border: 1px solid #e0ece6; margin-bottom: 8px;
+  display: flex; align-items: center; gap: 10px; flex-wrap: wrap;
+}
+.attDate { font-size: 13px; font-weight: 600; color: #1a2e26; flex: 1; text-transform: capitalize; }
+.attTimes { display: flex; gap: 12px; font-size: 12px; color: #5a7a6a; }
+.attHours { font-size: 13px; font-weight: 700; }
+.attNote { font-size: 11px; color: #8a9e96; width: 100%; }
+
+/* ── ZARADA ── */
+.monthPicker { display: flex; align-items: center; gap: 10px; margin-bottom: 14px; font-size: 13px; color: #5a7a6a; font-weight: 500; }
+
+.payKpi { display: grid; grid-template-columns: 1fr 1fr; gap: 10px; margin-bottom: 16px; }
+.payKpiCard { background: #fff; border: 1px solid #e0ece6; border-radius: 12px; padding: 12px 14px; }
+.payKpiLabel { font-size: 11px; color: #8a9e96; margin-bottom: 4px; }
+.payKpiVal { font-size: 18px; font-weight: 700; }
+
+.payRow {
+  background: #fff; border-radius: 12px; padding: 11px 14px;
+  border: 1px solid #e0ece6; margin-bottom: 8px;
+  display: flex; align-items: center; gap: 10px; flex-wrap: wrap;
+}
+.payBadge { font-size: 11px; font-weight: 600; padding: 3px 9px; border-radius: 6px; white-space: nowrap; }
+.payAmount { font-size: 14px; font-weight: 700; margin-left: auto; }
+.payMeta { font-size: 11px; color: #8a9e96; width: 100%; }
+
+/* ── ODSUSTVA ── */
+.vacSummary {
+  display: flex; background: #fff; border-radius: 14px;
+  border: 1px solid #e0ece6; margin-bottom: 16px; overflow: hidden;
+}
+.vacItem { flex: 1; padding: 16px; text-align: center; border-right: 1px solid #f0f5f2; }
+.vacItem:last-child { border-right: none; }
+.vacNum { font-size: 24px; font-weight: 700; color: #1a2e26; }
+.vacLabel { font-size: 11px; color: #8a9e96; margin-top: 4px; }
+
+.absRow {
+  background: #fff; border-radius: 12px; padding: 11px 14px;
+  border: 1px solid #e0ece6; margin-bottom: 8px;
+  display: flex; align-items: center; gap: 10px; flex-wrap: wrap;
+}
+.absDateRange { font-size: 13px; color: #1a2e26; font-weight: 500; flex: 1; }
+
+.approvedBadge { font-size: 11px; font-weight: 600; color: #0d7a52; background: #e1f5ee; padding: 3px 9px; border-radius: 6px; }
+.pendingBadge { font-size: 11px; font-weight: 600; color: #ba7517; background: #faeeda; padding: 3px 9px; border-radius: 6px; }
+
+/* ── FOOTER ── */
+.footer { text-align: center; padding: 20px; font-size: 12px; color: #b0c0b8; }
+.footer strong { color: #0d7a52; }
