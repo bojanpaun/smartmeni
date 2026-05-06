@@ -345,17 +345,26 @@ export default function AdminLayout({ children }) {
 
       <div className={styles.mainWrap}>
         <header className={styles.topbar}>
-          <button
-            className={styles.hamburger}
-            onClick={() => setMobileMenuOpen(true)}
-            aria-label="Otvori meni"
-          >
-            ☰
-          </button>
-          <div className={styles.breadcrumb}>
+          {/* Desktop breadcrumb */}
+          <div className={styles.breadcrumbDesktop}>
             <Link to="/admin" className={styles.breadcrumbLink}>Kontrolna tabla</Link>
             <span className={styles.breadcrumbSep}>/</span>
             <span className={styles.breadcrumbCurrent}>{activeModule ? activeModule.label : 'Admin'}</span>
+          </div>
+
+          {/* Mobile topbar */}
+          <div className={styles.mobileTopbar}>
+            <Link to="/admin" className={styles.mobileBackBtn}>
+              ← Nazad
+            </Link>
+            <span className={styles.mobileModuleTitle}>{activeModule ? activeModule.label : 'Admin'}</span>
+            <button
+              className={styles.hamburger}
+              onClick={() => setMobileMenuOpen(true)}
+              aria-label="Otvori meni"
+            >
+              ☰
+            </button>
           </div>
         </header>
         <TrialBanner />

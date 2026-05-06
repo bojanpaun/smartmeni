@@ -570,3 +570,25 @@
   flex-shrink: 0;
 }
 .mobileDrawerClose:hover { background: rgba(255,255,255,0.2); }
+
+/* ── Mobile topbar layout ── */
+.breadcrumbDesktop { display: flex; align-items: center; gap: 6px; font-size: 13px; }
+.mobileTopbar { display: none; }
+
+@media (max-width: 768px) {
+  .breadcrumbDesktop { display: none; }
+  .mobileTopbar {
+    display: flex; align-items: center; width: 100%; gap: 8px;
+  }
+  .mobileBackBtn {
+    color: rgba(255,255,255,0.85); text-decoration: none;
+    font-size: 13px; font-weight: 500; padding: 5px 10px;
+    border-radius: 8px; background: rgba(255,255,255,0.12);
+    white-space: nowrap; transition: background 0.15s; flex-shrink: 0;
+  }
+  .mobileBackBtn:hover { background: rgba(255,255,255,0.2); }
+  .mobileModuleTitle {
+    flex: 1; text-align: center; font-size: 14px; font-weight: 600;
+    color: #fff; overflow: hidden; text-overflow: ellipsis; white-space: nowrap;
+  }
+}
