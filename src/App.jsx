@@ -49,6 +49,7 @@ const ReservationForm      = lazy(() => import('./modules/hotel/pages/Reservatio
 const FrontDeskPage        = lazy(() => import('./modules/hotel/pages/FrontDeskPage'))
 const CalendarPage         = lazy(() => import('./modules/hotel/pages/CalendarPage'))
 const FolioPage            = lazy(() => import('./modules/hotel/pages/FolioPage'))
+const FolioPrint           = lazy(() => import('./modules/hotel/pages/FolioPrint'))
 
 const ControlPanel         = lazy(() => import('./platform/admin/ControlPanel'))
 const ModuleHelp           = lazy(() => import('./platform/admin/ModuleHelp'))
@@ -176,6 +177,7 @@ function AppRoutes() {
         <Route path="/admin/hotel/calendar" element={<AdminRoute><AddonGuard addonId="hotel_core" name="Hotel Core" description="Upravljanje sobama, rezervacijama, front desk i folio sistemom." price={299} category="hotel"><CalendarPage /></AddonGuard></AdminRoute>} />
         <Route path="/admin/hotel/reservations/:id/folio" element={<AdminRoute><AddonGuard addonId="hotel_core" name="Hotel Core" description="Upravljanje sobama, rezervacijama, front desk i folio sistemom." price={299} category="hotel"><FolioPage /></AddonGuard></AdminRoute>} />
         <Route path="/admin/hotel/help" element={<AdminRoute><ModuleHelp moduleKey="hotel" /></AdminRoute>} />
+        <Route path="/admin/hotel/reservations/:id/folio/print" element={<ProtectedRoute><Suspense fallback={<LoadingSpinner fullPage />}><FolioPrint /></Suspense></ProtectedRoute>} />
 
         {/* Analitika modul */}
         <Route path="/admin/analytics" element={<AdminRoute><AddonGuard addonId="analytics_pro" name="Analitika Pro" description="Napredna analitika prihoda, export u PDF/Excel i prilagođeni datumski rasponi." price={99} category="restaurant"><AnalyticsPage /></AddonGuard></AdminRoute>} />

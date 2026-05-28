@@ -130,6 +130,7 @@ export default function FolioPage() {
         </div>
         <div className={styles.headerActions}>
           <button className={styles.btnSecondary} onClick={() => navigate(`/admin/hotel/reservations/${id}`)}>← Rezervacija</button>
+          <button className={styles.btnSecondary} onClick={() => window.open(`/admin/hotel/reservations/${id}/folio/print`, '_blank')}>🖨️ Štampaj / PDF</button>
           {folio.status === 'open'
             ? <button className={styles.btnPrimary} onClick={handleCloseFolio}>Zatvori folio ✓</button>
             : <button className={styles.btnSecondary} onClick={handleReopenFolio}>Ponovo otvori</button>
