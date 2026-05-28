@@ -74,12 +74,12 @@ export default function FrontDeskPage() {
         <button className={styles.btnPrimary} onClick={() => navigate('/admin/hotel/reservations/new')}>+ Nova rezervacija</button>
       </div>
 
-      <div className={styles.tabs}>
-        <button className={`${styles.tab} ${tab === 'checkin' ? styles.tabActive : ''}`} onClick={() => setTab('checkin')}>
-          Check-in danas <span className={styles.tabBadge}>{arrivals.length}</span>
+      <div className={styles.filterBar}>
+        <button className={`${styles.filterBtn} ${tab === 'checkin' ? styles.filterBtnActive : ''}`} onClick={() => setTab('checkin')}>
+          Check-in danas <span className={styles.filterCount}>{arrivals.length}</span>
         </button>
-        <button className={`${styles.tab} ${tab === 'checkout' ? styles.tabActive : ''}`} onClick={() => setTab('checkout')}>
-          Check-out <span className={styles.tabBadge}>{departures.length}</span>
+        <button className={`${styles.filterBtn} ${tab === 'checkout' ? styles.filterBtnActive : ''}`} onClick={() => setTab('checkout')}>
+          Check-out <span className={styles.filterCount}>{departures.length}</span>
         </button>
       </div>
 
