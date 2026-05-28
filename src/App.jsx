@@ -41,6 +41,13 @@ const AttendancePage       = lazy(() => import('./modules/hr/pages/AttendancePag
 const PayrollPage          = lazy(() => import('./modules/hr/pages/PayrollPage'))
 const HRReportsPage        = lazy(() => import('./modules/hr/pages/HRReportsPage'))
 
+const HotelDashboard       = lazy(() => import('./modules/hotel/pages/HotelDashboard'))
+const RoomsPage            = lazy(() => import('./modules/hotel/pages/RoomsPage'))
+const RoomTypesPage        = lazy(() => import('./modules/hotel/pages/RoomTypesPage'))
+const HotelReservationsPage = lazy(() => import('./modules/hotel/pages/ReservationsPage'))
+const ReservationForm      = lazy(() => import('./modules/hotel/pages/ReservationForm'))
+const FrontDeskPage        = lazy(() => import('./modules/hotel/pages/FrontDeskPage'))
+
 const ControlPanel         = lazy(() => import('./platform/admin/ControlPanel'))
 const ModuleHelp           = lazy(() => import('./platform/admin/ModuleHelp'))
 const TemplateSettings     = lazy(() => import('./modules/menu/pages/TemplateSettings'))
@@ -155,6 +162,15 @@ function AppRoutes() {
         <Route path="/admin/hr/reports" element={<AdminRoute><AddonGuard addonId="hr_pro" name="HR Pro" description="Detaljni HR izvještaji — troškovi osoblja, produktivnost i analitika prisustva." price={149} category="restaurant"><HRReportsPage /></AddonGuard></AdminRoute>} />
         <Route path="/admin/hr/help" element={<AdminRoute><ModuleHelp moduleKey="hr" /></AdminRoute>} />
         <Route path="/admin/hr/staff-portal-info" element={<AdminRoute><StaffPortalInfo /></AdminRoute>} />
+
+        {/* Hotel Core modul */}
+        <Route path="/admin/hotel" element={<AdminRoute><AddonGuard addonId="hotel_core" name="Hotel Core" description="Upravljanje sobama, rezervacijama, front desk i folio sistemom." price={299} category="hotel"><HotelDashboard /></AddonGuard></AdminRoute>} />
+        <Route path="/admin/hotel/rooms" element={<AdminRoute><AddonGuard addonId="hotel_core" name="Hotel Core" description="Upravljanje sobama, rezervacijama, front desk i folio sistemom." price={299} category="hotel"><RoomsPage /></AddonGuard></AdminRoute>} />
+        <Route path="/admin/hotel/room-types" element={<AdminRoute><AddonGuard addonId="hotel_core" name="Hotel Core" description="Upravljanje sobama, rezervacijama, front desk i folio sistemom." price={299} category="hotel"><RoomTypesPage /></AddonGuard></AdminRoute>} />
+        <Route path="/admin/hotel/reservations" element={<AdminRoute><AddonGuard addonId="hotel_core" name="Hotel Core" description="Upravljanje sobama, rezervacijama, front desk i folio sistemom." price={299} category="hotel"><HotelReservationsPage /></AddonGuard></AdminRoute>} />
+        <Route path="/admin/hotel/reservations/new" element={<AdminRoute><AddonGuard addonId="hotel_core" name="Hotel Core" description="Upravljanje sobama, rezervacijama, front desk i folio sistemom." price={299} category="hotel"><ReservationForm /></AddonGuard></AdminRoute>} />
+        <Route path="/admin/hotel/reservations/:id" element={<AdminRoute><AddonGuard addonId="hotel_core" name="Hotel Core" description="Upravljanje sobama, rezervacijama, front desk i folio sistemom." price={299} category="hotel"><ReservationForm /></AddonGuard></AdminRoute>} />
+        <Route path="/admin/hotel/frontdesk" element={<AdminRoute><AddonGuard addonId="hotel_core" name="Hotel Core" description="Upravljanje sobama, rezervacijama, front desk i folio sistemom." price={299} category="hotel"><FrontDeskPage /></AddonGuard></AdminRoute>} />
 
         {/* Analitika modul */}
         <Route path="/admin/analytics" element={<AdminRoute><AddonGuard addonId="analytics_pro" name="Analitika Pro" description="Napredna analitika prihoda, export u PDF/Excel i prilagođeni datumski rasponi." price={99} category="restaurant"><AnalyticsPage /></AddonGuard></AdminRoute>} />

@@ -1,0 +1,10 @@
+.badge {
+  display: inline-flex;
+  align-items: center;
+  border-radius: 20px;
+  font-weight: 600;
+  white-space: nowrap;
+}
+.sm  { font-size: 11px; padding: 2px 8px; }
+.md  { font-size: 12px; padding: 4px 10px; }
+.lg  { font-size: 13px; padding: 5px 12px; }
