@@ -2,8 +2,8 @@ import { serve } from 'https://deno.land/std@0.168.0/http/server.ts'
 import { createClient } from 'https://esm.sh/@supabase/supabase-js@2'
 
 const PAYPAL_CLIENT_ID = Deno.env.get('PAYPAL_CLIENT_ID')!
-const PAYPAL_SECRET = Deno.env.get('PAYPAL_SECRET')!
-const PAYPAL_BASE = 'https://api-m.sandbox.paypal.com'
+const PAYPAL_SECRET    = Deno.env.get('PAYPAL_SECRET')!
+const PAYPAL_BASE      = 'https://api-m.paypal.com' // produkcija
 
 const corsHeaders = {
   'Access-Control-Allow-Origin': '*',
@@ -14,20 +14,40 @@ async function getPayPalToken() {
   const credentials = btoa(`${PAYPAL_CLIENT_ID}:${PAYPAL_SECRET}`)
   const res = await fetch(`${PAYPAL_BASE}/v1/oauth2/token`, {
     method: 'POST',
-    headers: {
-      'Authorization': `Basic ${credentials}`,
-      'Content-Type': 'application/x-www-form-urlencoded',
-    },
+    headers: { 'Authorization': `Basic ${credentials}`, 'Content-Type': 'application/x-www-form-urlencoded' },
     body: 'grant_type=client_credentials',
   })
   const data = await res.json()
   return data.access_token
 }
 
+// Verifikacija PayPal webhook signature (preporučeno za produkciju)
+async function verifyWebhookSignature(req: Request, body: string): Promise<boolean> {
+  const webhookId = Deno.env.get('PAYPAL_WEBHOOK_ID')
+  if (!webhookId) return true // skip u dev modu ako nije konfigurisan
+
+  const token = await getPayPalToken()
+  const res = await fetch(`${PAYPAL_BASE}/v1/notifications/verify-webhook-signature`, {
+    method: 'POST',
+    headers: { 'Authorization': `Bearer ${token}`, 'Content-Type': 'application/json' },
+    body: JSON.stringify({
+      auth_algo:         req.headers.get('paypal-auth-algo'),
+      cert_url:          req.headers.get('paypal-cert-url'),
+      transmission_id:   req.headers.get('paypal-transmission-id'),
+      transmission_sig:  req.headers.get('paypal-transmission-sig'),
+      transmission_time: req.headers.get('paypal-transmission-time'),
+      webhook_id:        webhookId,
+      webhook_event:     JSON.parse(body),
+    }),
+  })
+  const data = await res.json()
+  return data.verification_status === 'SUCCESS'
+}
+
 serve(async (req) => {
-  if (req.method === 'OPTIONS') {
-    return new Response('ok', { headers: corsHeaders })
-  }
+  if (req.method === 'OPTIONS') return new Response('ok', { headers: corsHeaders })
+
+  const rawBody = await req.text()
 
   try {
     const supabase = createClient(
@@ -35,9 +55,17 @@ serve(async (req) => {
       Deno.env.get('SUPABASE_SERVICE_ROLE_KEY')!
     )
 
-    const body = await req.json()
+    const valid = await verifyWebhookSignature(req, rawBody)
+    if (!valid) {
+      console.error('PayPal webhook signature invalid')
+      return new Response(JSON.stringify({ error: 'Invalid signature' }), {
+        status: 401, headers: { ...corsHeaders, 'Content-Type': 'application/json' }
+      })
+    }
+
+    const body = JSON.parse(rawBody)
     const eventType = body.event_type
-    const resource = body.resource
+    const resource  = body.resource
 
     console.log('PayPal webhook:', eventType, resource?.id)
 
@@ -48,82 +76,73 @@ serve(async (req) => {
         const restaurantId = resource.custom_id
         if (!restaurantId) break
 
-        await supabase.from('restaurants').update({
-          plan: 'pro',
-          subscription_id: resource.id,
-          plan_expires_at: null,
-          suspended_at: null,
-          trial_ends_at: null,
-        }).eq('id', restaurantId)
+        const periodEnd = new Date()
+        periodEnd.setFullYear(periodEnd.getFullYear() + 1)
 
-        console.log(`Restaurant ${restaurantId} upgraded to Pro`)
+        await supabase.from('subscriptions').upsert({
+          restaurant_id:         restaurantId,
+          paypal_subscription_id: resource.id,
+          plan:                  'pro',
+          status:                'active',
+          trial_ends_at:         null,
+          current_period_start:  new Date().toISOString(),
+          current_period_end:    periodEnd.toISOString(),
+          updated_at:            new Date().toISOString(),
+        }, { onConflict: 'restaurant_id' })
+
+        console.log(`Restaurant ${restaurantId} → Pro (PayPal ${resource.id})`)
         break
       }
 
-      // Plaćanje uspješno — obnovi godišnju pretplatu
+      // Plaćanje uspješno — obnovi period
       case 'PAYMENT.SALE.COMPLETED': {
         const subscriptionId = resource.billing_agreement_id
         if (!subscriptionId) break
 
-        // Nađi restaurant po subscription_id
-        const { data: rest } = await supabase
-          .from('restaurants')
-          .select('id')
-          .eq('subscription_id', subscriptionId)
-          .single()
+        const periodEnd = new Date()
+        periodEnd.setFullYear(periodEnd.getFullYear() + 1)
 
-        if (rest) {
-          // Produlji za godinu
-          const expiresAt = new Date()
-          expiresAt.setFullYear(expiresAt.getFullYear() + 1)
+        await supabase.from('subscriptions')
+          .update({
+            status:               'active',
+            plan:                 'pro',
+            current_period_start: new Date().toISOString(),
+            current_period_end:   periodEnd.toISOString(),
+            updated_at:           new Date().toISOString(),
+          })
+          .eq('paypal_subscription_id', subscriptionId)
 
-          await supabase.from('restaurants').update({
-            plan: 'pro',
-            plan_expires_at: expiresAt.toISOString(),
-            suspended_at: null,
-          }).eq('id', rest.id)
-
-          console.log(`Restaurant ${rest.id} subscription renewed`)
-        }
+        console.log(`Subscription ${subscriptionId} renewed`)
         break
       }
 
-      // Subscription otkazana
+      // Subscription otkazana ili istekla
       case 'BILLING.SUBSCRIPTION.CANCELLED':
       case 'BILLING.SUBSCRIPTION.EXPIRED': {
-        const { data: rest } = await supabase
-          .from('restaurants')
-          .select('id')
-          .eq('subscription_id', resource.id)
-          .single()
+        await supabase.from('subscriptions')
+          .update({
+            plan:                  'starter',
+            status:                'cancelled',
+            paypal_subscription_id: null,
+            current_period_end:    null,
+            updated_at:            new Date().toISOString(),
+          })
+          .eq('paypal_subscription_id', resource.id)
 
-        if (rest) {
-          await supabase.from('restaurants').update({
-            plan: 'starter',
-            subscription_id: null,
-            plan_expires_at: null,
-          }).eq('id', rest.id)
-
-          console.log(`Restaurant ${rest.id} downgraded to Starter`)
-        }
+        console.log(`Subscription ${resource.id} cancelled → Starter`)
         break
       }
 
-      // Plaćanje neuspješno — suspenduj nalog
+      // Plaćanje neuspješno
       case 'BILLING.SUBSCRIPTION.PAYMENT.FAILED': {
-        const { data: rest } = await supabase
-          .from('restaurants')
-          .select('id')
-          .eq('subscription_id', resource.id)
-          .single()
+        await supabase.from('subscriptions')
+          .update({
+            status:     'past_due',
+            updated_at: new Date().toISOString(),
+          })
+          .eq('paypal_subscription_id', resource.id)
 
-        if (rest) {
-          await supabase.from('restaurants').update({
-            suspended_at: new Date().toISOString(),
-          }).eq('id', rest.id)
-
-          console.log(`Restaurant ${rest.id} suspended due to payment failure`)
-        }
+        console.log(`Subscription ${resource.id} → past_due`)
         break
       }
     }
@@ -135,8 +154,7 @@ serve(async (req) => {
   } catch (err) {
     console.error('Webhook error:', err)
     return new Response(JSON.stringify({ error: err.message }), {
-      status: 500,
-      headers: { ...corsHeaders, 'Content-Type': 'application/json' },
+      status: 500, headers: { ...corsHeaders, 'Content-Type': 'application/json' }
     })
   }
 })
