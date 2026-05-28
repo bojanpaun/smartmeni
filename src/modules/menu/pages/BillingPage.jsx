@@ -1,6 +1,4 @@
-// ▶ Zamijeniti: src/modules/menu/pages/BillingPage.jsx
-
-import { useState } from 'react'
+import { useState, useEffect } from 'react'
 import { supabase } from '../../../lib/supabase'
 import { usePlatform } from '../../../context/PlatformContext'
 import { planStatus, trialDaysLeft } from '../../../lib/planUtils'
@@ -39,16 +37,41 @@ const PLANS = {
   },
 }
 
+const CATEGORY_LABEL = {
+  restaurant: 'Restoran',
+  hotel: 'Hotel',
+  enterprise: 'Enterprise',
+}
+
+const CATEGORY_ORDER = ['restaurant', 'hotel', 'enterprise']
+
 export default function BillingPage() {
-  const { restaurant, setRestaurant } = usePlatform()
+  const { restaurant, setRestaurant, subscription } = usePlatform()
   const [loading, setLoading] = useState(false)
   const [error, setError] = useState(null)
+  const [addonCatalog, setAddonCatalog] = useState([])
+  const [catalogLoading, setCatalogLoading] = useState(true)
+  const [activeCategory, setActiveCategory] = useState('restaurant')
 
   const status = planStatus(restaurant)
   const days = trialDaysLeft(restaurant)
   const currentPlan = restaurant?.plan || 'starter'
   const isPro = status === 'pro' || status === 'complimentary'
   const isSuspendedStatus = status === 'suspended'
+
+  const activeAddons = subscription?.addons ?? []
+
+  useEffect(() => {
+    supabase
+      .from('addon_catalog')
+      .select('*')
+      .eq('is_active', true)
+      .order('sort_order')
+      .then(({ data }) => {
+        setAddonCatalog(data ?? [])
+        setCatalogLoading(false)
+      })
+  }, [])
 
   const handleUpgrade = async () => {
     setLoading(true)
@@ -93,6 +116,11 @@ export default function BillingPage() {
     alert('Za otkazivanje pretplate kontaktiraj podršku na support@smartmeni.me')
   }
 
+  const addonsByCategory = CATEGORY_ORDER.reduce((acc, cat) => {
+    acc[cat] = addonCatalog.filter(a => a.category === cat)
+    return acc
+  }, {})
+
   // ── Complimentary prikaz ────────────────────────────────────
   if (status === 'complimentary') {
     return (
@@ -121,10 +149,16 @@ export default function BillingPage() {
             <span>✓ Prioritetna podrška</span>
           </div>
         </div>
+        <AddonSection
+          addonsByCategory={addonsByCategory}
+          activeAddons={activeAddons}
+          activeCategory={activeCategory}
+          setActiveCategory={setActiveCategory}
+          catalogLoading={catalogLoading}
+        />
       </div>
     )
   }
-  // ────────────────────────────────────────────────────────────
 
   return (
     <div className={styles.page}>
@@ -152,9 +186,8 @@ export default function BillingPage() {
         </div>
       )}
 
-      {/* Planovi */}
+      {/* Base planovi */}
       <div className={styles.plans}>
-
         {/* Starter */}
         <div className={`${styles.planCard} ${currentPlan === 'starter' && !isSuspendedStatus ? styles.planCurrent : ''}`}>
           <div className={styles.planHeader}>
@@ -216,8 +249,16 @@ export default function BillingPage() {
 
           {error && <div className={styles.error}>{error}</div>}
         </div>
-
       </div>
+
+      {/* Addon moduli */}
+      <AddonSection
+        addonsByCategory={addonsByCategory}
+        activeAddons={activeAddons}
+        activeCategory={activeCategory}
+        setActiveCategory={setActiveCategory}
+        catalogLoading={catalogLoading}
+      />
 
       {/* FAQ */}
       <div className={styles.faq}>
@@ -234,6 +275,95 @@ export default function BillingPage() {
           <div className={styles.faqQ}>Da li se podaci brišu?</div>
           <div className={styles.faqA}>Ne — podaci se nikad ne brišu. Ako obnovite pretplatu, sve je dostupno kao i ranije.</div>
         </div>
+        <div className={styles.faqItem}>
+          <div className={styles.faqQ}>Šta su addon moduli?</div>
+          <div className={styles.faqA}>Addon moduli su dodatne funkcionalnosti koje se plaćaju odvojeno od osnovnog plana. Svaki addon ima 14 dana besplatnog probnog perioda.</div>
+        </div>
+      </div>
+    </div>
+  )
+}
+
+function AddonSection({ addonsByCategory, activeAddons, activeCategory, setActiveCategory, catalogLoading }) {
+  const categories = Object.entries(addonsByCategory).filter(([, items]) => items.length > 0)
+
+  if (catalogLoading) return null
+
+  return (
+    <div className={styles.addonsSection}>
+      <div className={styles.addonsSectionHeader}>
+        <h2 className={styles.addonsSectionTitle}>Addon moduli</h2>
+        <p className={styles.addonsSectionSubtitle}>
+          Proširi SmartMeni sa dodatnim funkcionalnostima po potrebi. Svaki addon nosi 14 dana probnog perioda.
+        </p>
+      </div>
+
+      <div className={styles.categoryTabs}>
+        {categories.map(([cat]) => (
+          <button
+            key={cat}
+            className={`${styles.categoryTab} ${activeCategory === cat ? styles.categoryTabActive : ''}`}
+            onClick={() => setActiveCategory(cat)}
+          >
+            {CATEGORY_LABEL[cat] ?? cat}
+          </button>
+        ))}
+      </div>
+
+      <div className={styles.addonGrid}>
+        {(addonsByCategory[activeCategory] ?? []).map(addon => {
+          const isActive = activeAddons.includes(addon.id)
+          const missingDeps = (addon.depends_on ?? []).filter(dep => !activeAddons.includes(dep))
+          return (
+            <AddonCard
+              key={addon.id}
+              addon={addon}
+              isActive={isActive}
+              missingDeps={missingDeps}
+            />
+          )
+        })}
+      </div>
+    </div>
+  )
+}
+
+function AddonCard({ addon, isActive, missingDeps }) {
+  const isBlocked = missingDeps.length > 0
+
+  return (
+    <div className={`${styles.addonCard} ${isActive ? styles.addonActive : ''} ${isBlocked ? styles.addonBlocked : ''}`}>
+      {isActive && <div className={styles.addonActiveBadge}>Aktivan</div>}
+
+      <div className={styles.addonCardBody}>
+        <div className={styles.addonName}>{addon.name}</div>
+        <p className={styles.addonDesc}>{addon.description}</p>
+
+        {isBlocked && (
+          <p className={styles.addonDepsNote}>
+            Zahtijeva: {missingDeps.join(', ')}
+          </p>
+        )}
+      </div>
+
+      <div className={styles.addonCardFooter}>
+        {addon.price_yearly ? (
+          <span className={styles.addonPrice}>od {addon.price_yearly}€/god</span>
+        ) : (
+          <span className={styles.addonPriceTbd}>Cijena na upit</span>
+        )}
+
+        {isActive ? (
+          <span className={styles.addonActiveLabel}>✓ Aktivan</span>
+        ) : (
+          <button
+            className={styles.addonBtn}
+            disabled={isBlocked}
+            title={isBlocked ? `Potrebno: ${missingDeps.join(', ')}` : undefined}
+          >
+            {isBlocked ? 'Nedostupno' : 'Aktiviraj'}
+          </button>
+        )}
       </div>
     </div>
   )

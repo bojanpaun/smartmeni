@@ -244,9 +244,164 @@
   line-height: 1.5;
 }
 
+/* ── Addon moduli ── */
+.addonsSection {
+  margin-bottom: 36px;
+}
+
+.addonsSectionHeader {
+  margin-bottom: 20px;
+}
+
+.addonsSectionTitle {
+  font-family: 'Syne', sans-serif;
+  font-size: 17px;
+  font-weight: 700;
+  color: #1a3028;
+  margin: 0 0 6px;
+}
+
+.addonsSectionSubtitle {
+  font-size: 13px;
+  color: #7a9e8e;
+  margin: 0;
+  line-height: 1.5;
+}
+
+.categoryTabs {
+  display: flex;
+  gap: 8px;
+  margin-bottom: 20px;
+  flex-wrap: wrap;
+}
+
+.categoryTab {
+  padding: 6px 16px;
+  border-radius: 20px;
+  border: 1.5px solid #d0e4da;
+  background: transparent;
+  color: #5a7a6e;
+  font-size: 13px;
+  font-weight: 500;
+  cursor: pointer;
+  font-family: 'DM Sans', sans-serif;
+  transition: all 0.15s;
+}
+
+.categoryTab:hover { border-color: #0d7a52; color: #0d7a52; }
+
+.categoryTabActive {
+  background: #0d7a52;
+  border-color: #0d7a52;
+  color: #fff;
+}
+
+.addonGrid {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(220px, 1fr));
+  gap: 14px;
+}
+
+.addonCard {
+  background: #fff;
+  border: 1.5px solid #e0ede7;
+  border-radius: 14px;
+  padding: 18px;
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+  position: relative;
+  transition: border-color 0.15s;
+}
+
+.addonCard:hover { border-color: #0d7a52; }
+.addonActive { border-color: #0d7a52; background: #f6fdf9; }
+.addonBlocked { opacity: 0.65; }
+
+.addonActiveBadge {
+  position: absolute;
+  top: -10px;
+  right: 14px;
+  background: #0d7a52;
+  color: #fff;
+  font-size: 10px;
+  font-weight: 600;
+  padding: 2px 10px;
+  border-radius: 10px;
+}
+
+.addonCardBody { flex: 1; }
+
+.addonName {
+  font-size: 14px;
+  font-weight: 600;
+  color: #1a3028;
+  margin-bottom: 6px;
+}
+
+.addonDesc {
+  font-size: 12px;
+  color: #6a9080;
+  line-height: 1.5;
+  margin: 0;
+}
+
+.addonDepsNote {
+  font-size: 11px;
+  color: #b08060;
+  margin: 8px 0 0;
+}
+
+.addonCardFooter {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 8px;
+  padding-top: 10px;
+  border-top: 1px solid #eaf2ee;
+}
+
+.addonPrice {
+  font-size: 12px;
+  font-weight: 600;
+  color: #0d7a52;
+}
+
+.addonPriceTbd {
+  font-size: 12px;
+  color: #9ab8aa;
+}
+
+.addonActiveLabel {
+  font-size: 12px;
+  color: #0d7a52;
+  font-weight: 500;
+}
+
+.addonBtn {
+  padding: 5px 14px;
+  background: #0d7a52;
+  color: #fff;
+  border: none;
+  border-radius: 8px;
+  font-size: 12px;
+  font-weight: 600;
+  cursor: pointer;
+  font-family: 'DM Sans', sans-serif;
+  transition: background 0.15s;
+  white-space: nowrap;
+}
+
+.addonBtn:hover:not(:disabled) { background: #0a6445; }
+.addonBtn:disabled {
+  background: #c0d4ca;
+  cursor: not-allowed;
+}
+
 /* ── Responsive ── */
 @media (max-width: 600px) {
   .plans { grid-template-columns: 1fr; }
   .page { padding: 16px; }
   .complimentaryCard { padding: 28px 20px; }
+  .addonGrid { grid-template-columns: 1fr; }
 }

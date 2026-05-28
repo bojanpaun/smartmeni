@@ -1,13 +1,13 @@
-// ▶ Zamijeniti: src/context/PlatformContext.jsx
-
 import { createContext, useContext, useEffect, useState } from 'react'
 import { supabase } from '../lib/supabase'
+import { hasAddon } from '../lib/planUtils'
 
 const PlatformContext = createContext(null)
 
 export function PlatformProvider({ children }) {
   const [user, setUser] = useState(null)
   const [restaurant, setRestaurant] = useState(null)
+  const [subscription, setSubscription] = useState(null)
   const [staffProfile, setStaffProfile] = useState(null)
   const [permissions, setPermissions] = useState([])
   const [loading, setLoading] = useState(true)
@@ -29,6 +29,7 @@ export function PlatformProvider({ children }) {
       } else {
         setUser(null)
         setRestaurant(null)
+        setSubscription(null)
         setStaffProfile(null)
         setPermissions([])
         setLoading(false)
@@ -57,7 +58,10 @@ export function PlatformProvider({ children }) {
         .eq('user_id', user.id)
         .single()
 
-      if (adminRest) setRestaurant(adminRest)
+      if (adminRest) {
+        setRestaurant(adminRest)
+        await loadSubscription(adminRest.id)
+      }
 
       setLoading(false)
       return
@@ -73,6 +77,7 @@ export function PlatformProvider({ children }) {
     if (rest) {
       setRestaurant(rest)
       setPermissions(['*'])
+      await loadSubscription(rest.id)
       setLoading(false)
       return
     }
@@ -93,6 +98,7 @@ export function PlatformProvider({ children }) {
         .eq('id', staff.restaurant_id)
         .single()
       setRestaurant(staffRest)
+      if (staffRest) await loadSubscription(staffRest.id)
 
       const allPerms = []
       if (staff.role?.permissions) {
@@ -102,6 +108,15 @@ export function PlatformProvider({ children }) {
     }
 
     setLoading(false)
+  }
+
+  const loadSubscription = async (restaurantId) => {
+    const { data } = await supabase
+      .from('subscriptions')
+      .select('*')
+      .eq('restaurant_id', restaurantId)
+      .single()
+    setSubscription(data ?? null)
   }
 
   const hasPermission = (perm) => {
@@ -118,12 +133,16 @@ export function PlatformProvider({ children }) {
     window.location.href = '/login'
   }
 
+  const checkAddon = (addonId) => hasAddon(subscription, addonId)
+
   return (
     <PlatformContext.Provider value={{
       user, restaurant, setRestaurant,
+      subscription, setSubscription,
       staffProfile, permissions,
       loading, hasPermission,
       isSuperAdmin, isOwner, isStaff,
+      hasAddon: checkAddon,
       logout, loadProfile
     }}>
       {children}

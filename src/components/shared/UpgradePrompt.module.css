@@ -1,0 +1,113 @@
+.container {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  text-align: center;
+  padding: 48px 32px;
+  background: #fff;
+  border: 1.5px dashed #c8ddd4;
+  border-radius: 20px;
+  max-width: 480px;
+  margin: 0 auto;
+  font-family: 'DM Sans', sans-serif;
+}
+
+.fullPage {
+  min-height: calc(100vh - 160px);
+  justify-content: center;
+  max-width: 520px;
+}
+
+.lockIcon {
+  width: 64px;
+  height: 64px;
+  background: #f0f4f1;
+  border-radius: 50%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  color: #7a9e8e;
+  margin-bottom: 20px;
+}
+
+.categoryBadge {
+  font-size: 11px;
+  font-weight: 600;
+  padding: 3px 12px;
+  border-radius: 20px;
+  margin-bottom: 14px;
+  letter-spacing: 0.04em;
+  text-transform: uppercase;
+}
+
+.category_restaurant { background: #e0f5ec; color: #0d5c3a; }
+.category_hotel      { background: #e0eeff; color: #1a3a8a; }
+.category_enterprise { background: #f3eeff; color: #4a1a8a; }
+
+.title {
+  font-family: 'Syne', sans-serif;
+  font-size: 20px;
+  font-weight: 700;
+  color: #1a3028;
+  margin: 0 0 10px;
+}
+
+.description {
+  font-size: 14px;
+  color: #5a7a6e;
+  line-height: 1.6;
+  margin: 0 0 14px;
+}
+
+.dependsNote {
+  font-size: 12px;
+  color: #8aaa9a;
+  margin: 0 0 16px;
+}
+
+.priceRow {
+  display: flex;
+  align-items: baseline;
+  gap: 4px;
+  margin-bottom: 24px;
+}
+
+.priceAmount {
+  font-size: 26px;
+  font-weight: 700;
+  color: #0d7a52;
+}
+
+.pricePeriod {
+  font-size: 13px;
+  color: #7a9e8e;
+}
+
+.priceTbd {
+  font-size: 16px;
+  color: #7a9e8e;
+}
+
+.ctaBtn {
+  width: 100%;
+  max-width: 280px;
+  padding: 13px 24px;
+  background: #0d7a52;
+  color: #fff;
+  border: none;
+  border-radius: 12px;
+  font-size: 14px;
+  font-weight: 600;
+  cursor: pointer;
+  font-family: 'DM Sans', sans-serif;
+  transition: background 0.15s;
+  margin-bottom: 12px;
+}
+
+.ctaBtn:hover { background: #0a6445; }
+
+.trialNote {
+  font-size: 12px;
+  color: #9ab8aa;
+  margin: 0;
+}
