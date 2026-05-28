@@ -1,0 +1,63 @@
+.block {
+  background: linear-gradient(90deg, #f0f5f2 25%, #e4ede8 50%, #f0f5f2 75%);
+  background-size: 200% 100%;
+  animation: shimmer 1.4s infinite;
+  border-radius: 6px;
+}
+
+.card {
+  background: #fff;
+  border: 1px solid #e0ece6;
+  border-radius: 14px;
+  padding: 20px;
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+}
+
+.title {
+  height: 18px;
+  width: 55%;
+  margin-bottom: 4px;
+}
+
+.line {
+  height: 13px;
+}
+
+.table {
+  background: #fff;
+  border: 1px solid #e0ece6;
+  border-radius: 14px;
+  overflow: hidden;
+}
+
+.tableHeader {
+  display: flex;
+  gap: 12px;
+  padding: 14px 20px;
+  background: #f8fbf9;
+  border-bottom: 1px solid #e0ece6;
+}
+
+.tableRow {
+  display: flex;
+  gap: 12px;
+  padding: 12px 20px;
+  border-bottom: 1px solid #f0f5f2;
+}
+
+.headerCell {
+  flex: 1;
+  height: 12px;
+}
+
+.cell {
+  flex: 1;
+  height: 14px;
+}
+
+@keyframes shimmer {
+  0%   { background-position: 200% 0; }
+  100% { background-position: -200% 0; }
+}
