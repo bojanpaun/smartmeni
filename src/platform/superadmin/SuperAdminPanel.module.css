@@ -210,8 +210,65 @@
 .msgOk    { font-size: 13px; color: #0d7a52; }
 .msgError { font-size: 13px; color: #c0392b; }
 
+/* ── Addon override section ── */
+.addonSection {
+  grid-column: 1 / -1;
+}
+
+.addonLoading {
+  font-size: 13px;
+  color: #8a9e96;
+}
+
+.addonCategories {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(260px, 1fr));
+  gap: 20px;
+}
+
+.addonCategoryGroup {}
+
+.addonCategoryLabel {
+  font-size: 11px;
+  font-weight: 700;
+  text-transform: uppercase;
+  letter-spacing: 0.5px;
+  color: #8a9e96;
+  margin-bottom: 10px;
+}
+
+.addonToggles {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+}
+
+.addonToggleRow {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  cursor: pointer;
+  padding: 6px 8px;
+  border-radius: 8px;
+  transition: background 0.1s;
+}
+.addonToggleRow:hover { background: #f0f8f4; }
+
+.addonToggleName {
+  flex: 1;
+  font-size: 13px;
+  color: #1a2e26;
+}
+
+.addonTogglePrice {
+  font-size: 11px;
+  color: #8a9e96;
+  white-space: nowrap;
+}
+
 /* ── Responsive ── */
 @media (max-width: 700px) {
   .editGrid { grid-template-columns: 1fr; }
   .stats    { grid-template-columns: repeat(2, 1fr); }
+  .addonCategories { grid-template-columns: 1fr; }
 }

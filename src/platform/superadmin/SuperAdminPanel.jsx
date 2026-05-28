@@ -1,32 +1,40 @@
-// ▶ Novi fajl: src/platform/superadmin/SuperAdminPanel.jsx
-
 import { useState, useEffect } from 'react'
 import { supabase } from '../../lib/supabase'
 import { usePlatform } from '../../context/PlatformContext'
 import { planStatus } from '../../lib/planUtils'
 import styles from './SuperAdminPanel.module.css'
 
+const CATEGORY_LABELS = {
+  restaurant: '🍽️ Restoran',
+  hotel:      '🏨 Hotel',
+  enterprise: '🏢 Enterprise',
+}
+
 export default function SuperAdminPanel() {
   const { isSuperAdmin } = usePlatform()
 
   const [restaurants, setRestaurants] = useState([])
+  const [addonCatalog, setAddonCatalog] = useState([])
   const [loading, setLoading] = useState(true)
   const [search, setSearch] = useState('')
   const [filterPlan, setFilterPlan] = useState('all')
 
   const [editingId, setEditingId] = useState(null)
+  const [loadingEdit, setLoadingEdit] = useState(false)
   const [editForm, setEditForm] = useState({
     is_complimentary: false,
     complimentary_note: '',
     plan: 'starter',
     plan_expires_at: '',
     trial_ends_at: '',
+    active_addons: [],
   })
   const [saving, setSaving] = useState(false)
   const [saveMsg, setSaveMsg] = useState('')
 
   useEffect(() => {
     loadRestaurants()
+    loadAddonCatalog()
   }, [])
 
   const loadRestaurants = async () => {
@@ -40,20 +48,51 @@ export default function SuperAdminPanel() {
     setLoading(false)
   }
 
-  const openEdit = (rest) => {
+  const loadAddonCatalog = async () => {
+    const { data } = await supabase
+      .from('addon_catalog')
+      .select('id, name, category, price_monthly')
+      .eq('is_active', true)
+      .order('sort_order')
+    setAddonCatalog(data || [])
+  }
+
+  const openEdit = async (rest) => {
     setEditingId(rest.id)
+    setLoadingEdit(true)
     setEditForm({
       is_complimentary: rest.is_complimentary || false,
       complimentary_note: rest.complimentary_note || '',
       plan: rest.plan || 'starter',
       plan_expires_at: rest.plan_expires_at ? rest.plan_expires_at.slice(0, 10) : '',
       trial_ends_at: rest.trial_ends_at ? rest.trial_ends_at.slice(0, 10) : '',
+      active_addons: [],
     })
+
+    const { data: sub } = await supabase
+      .from('subscriptions')
+      .select('addons')
+      .eq('restaurant_id', rest.id)
+      .single()
+
+    const activeAddons = Array.isArray(sub?.addons) ? sub.addons : []
+    setEditForm(f => ({ ...f, active_addons: activeAddons }))
+    setLoadingEdit(false)
   }
 
   const closeEdit = () => {
     setEditingId(null)
     setSaveMsg('')
+  }
+
+  const toggleAddon = (addonId) => {
+    setEditForm(f => {
+      const current = f.active_addons
+      const next = current.includes(addonId)
+        ? current.filter(a => a !== addonId)
+        : [...current, addonId]
+      return { ...f, active_addons: next }
+    })
   }
 
   const saveEdit = async () => {
@@ -68,7 +107,6 @@ export default function SuperAdminPanel() {
       trial_ends_at: editForm.trial_ends_at || null,
     }
 
-    // Ako se dodjeljuje complimentary — automatski ukloni suspenziju
     if (editForm.is_complimentary) {
       payload.suspended_at = null
     }
@@ -79,6 +117,13 @@ export default function SuperAdminPanel() {
       .eq('id', editingId)
 
     if (!error) {
+      await supabase
+        .from('subscriptions')
+        .upsert(
+          { restaurant_id: editingId, addons: editForm.active_addons },
+          { onConflict: 'restaurant_id' }
+        )
+
       setRestaurants(rs => rs.map(r => r.id === editingId ? { ...r, ...payload } : r))
       setSaveMsg('Sačuvano!')
       setTimeout(() => setSaveMsg(''), 2500)
@@ -100,7 +145,6 @@ export default function SuperAdminPanel() {
     setRestaurants(rs => rs.map(r => r.id === rest.id ? { ...r, ...payload } : r))
   }
 
-  // Filtriranje
   const filtered = restaurants.filter(r => {
     const matchSearch =
       r.name.toLowerCase().includes(search.toLowerCase()) ||
@@ -114,13 +158,19 @@ export default function SuperAdminPanel() {
     return true
   })
 
-  // Statistike
   const stats = {
     total: restaurants.length,
     pro: restaurants.filter(r => r.plan === 'pro' && !r.is_complimentary).length,
     complimentary: restaurants.filter(r => r.is_complimentary).length,
     suspended: restaurants.filter(r => !!r.suspended_at).length,
   }
+
+  const catalogByCategory = addonCatalog.reduce((acc, addon) => {
+    const cat = addon.category || 'restaurant'
+    if (!acc[cat]) acc[cat] = []
+    acc[cat].push(addon)
+    return acc
+  }, {})
 
   if (!isSuperAdmin()) {
     return (
@@ -136,7 +186,6 @@ export default function SuperAdminPanel() {
   return (
     <div className={styles.wrap}>
 
-      {/* Zaglavlje */}
       <div className={styles.header}>
         <div>
           <div className={styles.headerTitle}>Super admin panel</div>
@@ -145,7 +194,6 @@ export default function SuperAdminPanel() {
         <button className={styles.btnRefresh} onClick={loadRestaurants}>↻ Osvježi</button>
       </div>
 
-      {/* Statistike */}
       <div className={styles.stats}>
         <div className={styles.stat}>
           <div className={styles.statVal}>{stats.total}</div>
@@ -165,7 +213,6 @@ export default function SuperAdminPanel() {
         </div>
       </div>
 
-      {/* Filteri i pretraga */}
       <div className={styles.toolbar}>
         <input
           className={styles.searchInput}
@@ -192,7 +239,6 @@ export default function SuperAdminPanel() {
         </div>
       </div>
 
-      {/* Tabela restorana */}
       <div className={styles.tableWrap}>
         <table className={styles.table}>
           <thead>
@@ -248,7 +294,6 @@ export default function SuperAdminPanel() {
         </table>
       </div>
 
-      {/* Inline edit panel */}
       {editingId && (
         <div className={styles.editPanel}>
           <div className={styles.editPanelHeader}>
@@ -320,6 +365,44 @@ export default function SuperAdminPanel() {
                   onChange={e => setEditForm(f => ({ ...f, trial_ends_at: e.target.value }))}
                 />
               </div>
+            </div>
+
+            {/* Addon override — spans full width */}
+            <div className={`${styles.editSection} ${styles.addonSection}`}>
+              <div className={styles.editSectionTitle}>🧩 Addon moduli override</div>
+              <div className={styles.fieldHint} style={{ marginBottom: 16 }}>
+                Uključeni addoni bit će dostupni tenantu bez plaćanja, bez obzira na plan. Korisno za testiranje i beta pristup pojedinih modula.
+              </div>
+
+              {loadingEdit ? (
+                <div className={styles.addonLoading}>Učitavanje...</div>
+              ) : (
+                <div className={styles.addonCategories}>
+                  {Object.entries(catalogByCategory).map(([category, addons]) => (
+                    <div key={category} className={styles.addonCategoryGroup}>
+                      <div className={styles.addonCategoryLabel}>
+                        {CATEGORY_LABELS[category] ?? category}
+                      </div>
+                      <div className={styles.addonToggles}>
+                        {addons.map(addon => {
+                          const isActive = editForm.active_addons.includes(addon.id)
+                          return (
+                            <label
+                              key={addon.id}
+                              className={styles.addonToggleRow}
+                              onClick={() => toggleAddon(addon.id)}
+                            >
+                              <div className={`${styles.toggle} ${isActive ? styles.toggleOn : styles.toggleOff}`} />
+                              <span className={styles.addonToggleName}>{addon.name}</span>
+                              <span className={styles.addonTogglePrice}>€{addon.price_monthly}/mj</span>
+                            </label>
+                          )
+                        })}
+                      </div>
+                    </div>
+                  ))}
+                </div>
+              )}
             </div>
 
           </div>

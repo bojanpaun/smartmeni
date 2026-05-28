@@ -144,6 +144,7 @@ export const MODULES = [
       links: [
         { label: 'Front Desk',  icon: '🛎️', path: '/admin/hotel/frontdesk' },
         { label: 'Rezervacije', icon: '📅', path: '/admin/hotel/reservations' },
+        { label: 'Kalendar',    icon: '📆', path: '/admin/hotel/calendar' },
         { label: 'Sobe',        icon: '🛏️', path: '/admin/hotel/rooms' },
       ],
     },
