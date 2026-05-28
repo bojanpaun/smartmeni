@@ -132,6 +132,30 @@ export const MODULES = [
     },
   },
   {
+    key: 'hotel',
+    label: 'Hotel',
+    icon: '🏨',
+    desc: 'Sobe, rezervacije, front desk i folio sistem',
+    path: '/admin/hotel',
+    active: true,
+    perm: null,
+    interactive: {
+      label: 'Hotel operacije',
+      links: [
+        { label: 'Front Desk',  icon: '🛎️', path: '/admin/hotel/frontdesk' },
+        { label: 'Rezervacije', icon: '📅', path: '/admin/hotel/reservations' },
+        { label: 'Sobe',        icon: '🛏️', path: '/admin/hotel/rooms' },
+      ],
+    },
+    admin: {
+      label: 'Administracija hotela',
+      links: [
+        { label: 'Dashboard',    icon: '📊', path: '/admin/hotel',            exact: true },
+        { label: 'Tipovi soba',  icon: '🪑', path: '/admin/hotel/room-types' },
+      ],
+    },
+  },
+  {
     key: 'settings',
     label: 'Postavke',
     icon: '⚙️',
@@ -182,6 +206,8 @@ export default function AdminLayout({ children }) {
       ? MODULES.find(m => m.key === 'settings')
       : ['/admin/reservations'].some(p => location.pathname.startsWith(p))
       ? MODULES.find(m => m.key === 'tables')
+      : location.pathname.startsWith('/admin/hotel')
+      ? MODULES.find(m => m.key === 'hotel')
       : location.pathname.startsWith('/admin/staff')
       ? { key: 'staff', label: 'Role i permisije', path: '/admin/staff', icon: '🔑',
           interactive: null,
