@@ -1,0 +1,47 @@
+-- =============================================================
+-- SMARTMENI / HospitalityOS — MASTER MIGRATION REFERENCE
+-- =============================================================
+-- Ovaj fajl je konsolidovana referenca svih migracija.
+-- Za fresh deploy okruženja, pokrenuti redom:
+--   1. sql/legacy/supabase_schema.sql         — bazna shema
+--   2. sql/legacy/ ostali migration_*.sql     — dodaci
+--   3. supabase/migrations/ (CLI managed)     — nove migracije
+--
+-- Produkcijska baza: Supabase project twtgzrngzretcvyeqpxm
+-- CLI migracije počinju od: 20260528000001
+-- =============================================================
+
+-- REDOSLIJED PRIMJENE LEGACY MIGRACIJA:
+-- 01. supabase_schema.sql              — core tablice
+-- 02. supabase_rbac_migration.sql      — RBAC uloge osoblja
+-- 03. supabase_orders_migration.sql    — narudžbe
+-- 04. migration_restaurant_columns.sql — dodatni kolone restorana
+-- 05. migration_restaurant_settings.sql
+-- 06. migration_add_template.sql       — template settings
+-- 07. migration_add_logo.sql           — logo upload
+-- 08. migration_add_billing.sql        — billing plan
+-- 09. migration_add_onboarding.sql     — onboarding wizard
+-- 10. migration_menu_visibility.sql    — vidljivost stavki
+-- 11. migration_orders_rls.sql         — RLS za narudžbe
+-- 12. migration_guests_module.sql      — gosti modul
+-- 13. migration_guest_registration.sql — registracija gostiju
+-- 14. migration_user_profiles.sql      — profili korisnika
+-- 15. migration_reservations.sql       — rezervacije
+-- 16. migration_tables_map.sql         — karta stolova
+-- 17. migration_inventory.sql          — inventar
+-- 18. migration_staff_profile.sql      — profili osoblja
+-- 19. migration_staff_wages.sql        — plaće v1
+-- 20. migration_staff_wages_1.sql      — plaće v2
+-- 21. migration_attendance_entries.sql — evidencija prisustva
+-- 22. migration_multiple_shifts.sql    — višestruke smjene
+-- 23. migration_order_tracker.sql      — tracker narudžbe
+-- 24. migration_qr_session.sql         — QR sesija
+-- 25. migration_waiter_messages.sql    — poruke konobara
+-- 26. migration_waiter_toggle.sql      — toggle waiter mode
+-- 27. migration_messages_config.sql    — konfiguracija poruka
+-- 28. migration_auto_suspend.sql       — auto suspend
+-- 29. migration_cron_email.sql         — cron email
+-- 30. migration_staff_auto_link.sql    — auto-link osoblja
+-- 31. 1_migration_add_complimentary.sql — komplementarni
+-- CLI: 20260528000001_subscriptions_addon_catalog.sql
+-- CLI: 20260528000002_subscriptions_addon_trials.sql
