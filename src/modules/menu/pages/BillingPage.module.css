@@ -330,6 +330,10 @@
   border-radius: 10px;
 }
 
+.addonTrialBadge {
+  background: #e07a00;
+}
+
 .addonCardBody { flex: 1; }
 
 .addonName {

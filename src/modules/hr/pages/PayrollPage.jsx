@@ -1,5 +1,3 @@
-// ▶ Novi fajl: src/modules/hr/pages/PayrollPage.jsx
-
 import { useState, useEffect } from 'react'
 import { supabase } from '../../../lib/supabase'
 import { usePlatform } from '../../../context/PlatformContext'

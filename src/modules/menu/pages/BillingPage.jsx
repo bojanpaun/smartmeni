@@ -1,7 +1,7 @@
 import { useState, useEffect } from 'react'
 import { supabase } from '../../../lib/supabase'
 import { usePlatform } from '../../../context/PlatformContext'
-import { planStatus, trialDaysLeft } from '../../../lib/planUtils'
+import { planStatus, trialDaysLeft, addonTrialDaysLeft } from '../../../lib/planUtils'
 import styles from './BillingPage.module.css'
 
 const PLANS = {
@@ -46,7 +46,7 @@ const CATEGORY_LABEL = {
 const CATEGORY_ORDER = ['restaurant', 'hotel', 'enterprise']
 
 export default function BillingPage() {
-  const { restaurant, setRestaurant, subscription } = usePlatform()
+  const { restaurant, setRestaurant, subscription, setSubscription } = usePlatform()
   const [loading, setLoading] = useState(false)
   const [error, setError] = useState(null)
   const [addonCatalog, setAddonCatalog] = useState([])
@@ -60,6 +60,37 @@ export default function BillingPage() {
   const isSuspendedStatus = status === 'suspended'
 
   const activeAddons = subscription?.addons ?? []
+  const addonTrials = subscription?.addon_trials ?? {}
+
+  const activateAddon = async (addonId) => {
+    try {
+      const { data: { session } } = await supabase.auth.getSession()
+      const res = await fetch(
+        `${import.meta.env.VITE_SUPABASE_URL}/functions/v1/activate-addon`,
+        {
+          method: 'POST',
+          headers: {
+            'Content-Type': 'application/json',
+            'Authorization': `Bearer ${session.access_token}`,
+            'apikey': import.meta.env.VITE_SUPABASE_KEY,
+          },
+          body: JSON.stringify({ addon_id: addonId }),
+        }
+      )
+      const data = await res.json()
+      if (!res.ok) throw new Error(data.error ?? 'Greška')
+
+      // Refresh subscription u contextu
+      const { data: newSub } = await supabase
+        .from('subscriptions')
+        .select('*')
+        .eq('restaurant_id', restaurant.id)
+        .single()
+      setSubscription(newSub)
+    } catch (err) {
+      alert(`Greška: ${err.message}`)
+    }
+  }
 
   useEffect(() => {
     supabase
@@ -152,9 +183,12 @@ export default function BillingPage() {
         <AddonSection
           addonsByCategory={addonsByCategory}
           activeAddons={activeAddons}
+          addonTrials={addonTrials}
+          subscription={subscription}
           activeCategory={activeCategory}
           setActiveCategory={setActiveCategory}
           catalogLoading={catalogLoading}
+          onActivate={activateAddon}
         />
       </div>
     )
@@ -255,9 +289,12 @@ export default function BillingPage() {
       <AddonSection
         addonsByCategory={addonsByCategory}
         activeAddons={activeAddons}
+        addonTrials={addonTrials}
+        subscription={subscription}
         activeCategory={activeCategory}
         setActiveCategory={setActiveCategory}
         catalogLoading={catalogLoading}
+        onActivate={activateAddon}
       />
 
       {/* FAQ */}
@@ -284,7 +321,7 @@ export default function BillingPage() {
   )
 }
 
-function AddonSection({ addonsByCategory, activeAddons, activeCategory, setActiveCategory, catalogLoading }) {
+function AddonSection({ addonsByCategory, activeAddons, addonTrials, subscription, activeCategory, setActiveCategory, catalogLoading, onActivate }) {
   const categories = Object.entries(addonsByCategory).filter(([, items]) => items.length > 0)
 
   if (catalogLoading) return null
@@ -313,13 +350,21 @@ function AddonSection({ addonsByCategory, activeAddons, activeCategory, setActiv
       <div className={styles.addonGrid}>
         {(addonsByCategory[activeCategory] ?? []).map(addon => {
           const isActive = activeAddons.includes(addon.id)
+          const trialEnd = addonTrials?.[addon.id]
+          const daysLeft = trialEnd
+            ? Math.max(0, Math.ceil((new Date(trialEnd) - new Date()) / (1000 * 60 * 60 * 24)))
+            : null
+          const isTrialing = isActive && daysLeft !== null && daysLeft > 0
           const missingDeps = (addon.depends_on ?? []).filter(dep => !activeAddons.includes(dep))
           return (
             <AddonCard
               key={addon.id}
               addon={addon}
               isActive={isActive}
+              isTrialing={isTrialing}
+              trialDaysLeft={daysLeft}
               missingDeps={missingDeps}
+              onActivate={onActivate}
             />
           )
         })}
@@ -328,12 +373,20 @@ function AddonSection({ addonsByCategory, activeAddons, activeCategory, setActiv
   )
 }
 
-function AddonCard({ addon, isActive, missingDeps }) {
+function AddonCard({ addon, isActive, isTrialing, trialDaysLeft, missingDeps, onActivate }) {
+  const [loading, setLoading] = useState(false)
   const isBlocked = missingDeps.length > 0
+
+  const handleActivate = async () => {
+    setLoading(true)
+    await onActivate(addon.id)
+    setLoading(false)
+  }
 
   return (
     <div className={`${styles.addonCard} ${isActive ? styles.addonActive : ''} ${isBlocked ? styles.addonBlocked : ''}`}>
-      {isActive && <div className={styles.addonActiveBadge}>Aktivan</div>}
+      {isActive && !isTrialing && <div className={styles.addonActiveBadge}>Aktivan</div>}
+      {isTrialing && <div className={`${styles.addonActiveBadge} ${styles.addonTrialBadge}`}>Trial — {trialDaysLeft}d</div>}
 
       <div className={styles.addonCardBody}>
         <div className={styles.addonName}>{addon.name}</div>
@@ -358,10 +411,11 @@ function AddonCard({ addon, isActive, missingDeps }) {
         ) : (
           <button
             className={styles.addonBtn}
-            disabled={isBlocked}
+            disabled={isBlocked || loading}
             title={isBlocked ? `Potrebno: ${missingDeps.join(', ')}` : undefined}
+            onClick={handleActivate}
           >
-            {isBlocked ? 'Nedostupno' : 'Aktiviraj'}
+            {loading ? '...' : isBlocked ? 'Nedostupno' : 'Aktiviraj'}
           </button>
         )}
       </div>

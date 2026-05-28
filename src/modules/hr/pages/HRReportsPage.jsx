@@ -1,5 +1,3 @@
-// ▶ Zamijeniti: src/modules/hr/pages/HRReportsPage.jsx
-
 import { useState, useEffect } from 'react'
 import { supabase } from '../../../lib/supabase'
 import { usePlatform } from '../../../context/PlatformContext'

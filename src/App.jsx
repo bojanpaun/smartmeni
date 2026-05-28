@@ -39,6 +39,7 @@ import AttendancePage from './modules/hr/pages/AttendancePage'
 import PayrollPage from './modules/hr/pages/PayrollPage'
 import HRReportsPage from './modules/hr/pages/HRReportsPage'
 
+import UpgradePrompt from './components/shared/UpgradePrompt'
 import AdminLayout from './layouts/AdminLayout'
 import ControlPanel from './platform/admin/ControlPanel'
 import ModuleHelp from './platform/admin/ModuleHelp'
@@ -71,6 +72,24 @@ function AdminRoute({ children }) {
       </AdminLayout>
     </ProtectedRoute>
   )
+}
+
+function AddonGuard({ addonId, name, description, price, category, dependsOn, children }) {
+  const { hasAddon } = usePlatform()
+  if (!hasAddon(addonId)) {
+    return (
+      <UpgradePrompt
+        addonId={addonId}
+        name={name}
+        description={description}
+        price={price}
+        category={category}
+        dependsOn={dependsOn}
+        fullPage
+      />
+    )
+  }
+  return children
 }
 
 function AppRoutes() {
@@ -121,10 +140,10 @@ function AppRoutes() {
       <Route path="/superadmin" element={<AdminRoute><SuperAdminPanel /></AdminRoute>} />
 
       {/* Inventar modul */}
-      <Route path="/admin/inventory/analytics" element={<AdminRoute><InventoryAnalytics /></AdminRoute>} />
+      <Route path="/admin/inventory/analytics" element={<AdminRoute><AddonGuard addonId="inventory_pro" name="Inventar Pro" description="Napredna analitika potrošnje zaliha, trendovi i izvještaji po kategorijama." price={149} category="restaurant"><InventoryAnalytics /></AddonGuard></AdminRoute>} />
       <Route path="/admin/inventory" element={<AdminRoute><InventoryPage /></AdminRoute>} />
       <Route path="/admin/inventory/movements" element={<AdminRoute><MovementsLog /></AdminRoute>} />
-      <Route path="/admin/inventory/recipes" element={<AdminRoute><IngredientsEditor /></AdminRoute>} />
+      <Route path="/admin/inventory/recipes" element={<AdminRoute><AddonGuard addonId="inventory_pro" name="Inventar Pro" description="Upravljanje receptima, FIFO rotacija zaliha i automatska upozorenja za niske zalihe." price={149} category="restaurant"><IngredientsEditor /></AddonGuard></AdminRoute>} />
       <Route path="/admin/inventory/help" element={<AdminRoute><ModuleHelp moduleKey="inventory" /></AdminRoute>} />
       {/* HR modul */}
       <Route path="/admin/hr" element={<Navigate to="/admin/hr/attendance" replace />} />
@@ -132,13 +151,13 @@ function AppRoutes() {
       <Route path="/admin/hr/staff/:staffId" element={<AdminRoute><StaffProfilePage /></AdminRoute>} />
       <Route path="/admin/hr/schedule" element={<AdminRoute><SchedulePage /></AdminRoute>} />
       <Route path="/admin/hr/attendance" element={<AdminRoute><AttendancePage /></AdminRoute>} />
-      <Route path="/admin/hr/payroll" element={<AdminRoute><PayrollPage /></AdminRoute>} />
-      <Route path="/admin/hr/reports" element={<AdminRoute><HRReportsPage /></AdminRoute>} />
+      <Route path="/admin/hr/payroll" element={<AdminRoute><AddonGuard addonId="hr_pro" name="HR Pro" description="Payroll obračun, export platnih lista i evidencija godišnjih odmora." price={149} category="restaurant"><PayrollPage /></AddonGuard></AdminRoute>} />
+      <Route path="/admin/hr/reports" element={<AdminRoute><AddonGuard addonId="hr_pro" name="HR Pro" description="Detaljni HR izvještaji — troškovi osoblja, produktivnost i analitika prisustva." price={149} category="restaurant"><HRReportsPage /></AddonGuard></AdminRoute>} />
       <Route path="/admin/hr/help" element={<AdminRoute><ModuleHelp moduleKey="hr" /></AdminRoute>} />
       <Route path="/admin/hr/staff-portal-info" element={<AdminRoute><StaffPortalInfo /></AdminRoute>} />
 
       {/* Analitika modul */}
-      <Route path="/admin/analytics" element={<AdminRoute><AnalyticsPage /></AdminRoute>} />
+      <Route path="/admin/analytics" element={<AdminRoute><AddonGuard addonId="analytics_pro" name="Analitika Pro" description="Napredna analitika prihoda, export u PDF/Excel i prilagođeni datumski rasponi." price={99} category="restaurant"><AnalyticsPage /></AddonGuard></AdminRoute>} />
       <Route path="/admin/guests" element={<AdminRoute><GuestsPage /></AdminRoute>} />
       <Route path="/admin/guests/:id" element={<AdminRoute><GuestProfilePage /></AdminRoute>} />
       <Route path="/admin/analytics/help" element={<AdminRoute><ModuleHelp moduleKey="analytics" /></AdminRoute>} />
