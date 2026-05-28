@@ -4,6 +4,34 @@ import { supabase } from '../../../lib/supabase'
 import { usePlatform } from '../../../context/PlatformContext'
 import styles from './WaiterDashboard.module.css'
 
+async function findOpenFolio(restaurantId, roomNum) {
+  const { data: room } = await supabase
+    .from('rooms')
+    .select('id')
+    .eq('restaurant_id', restaurantId)
+    .ilike('room_number', roomNum.trim())
+    .single()
+  if (!room) return { error: 'Soba nije pronađena.' }
+
+  const { data: res } = await supabase
+    .from('hotel_reservations')
+    .select('id')
+    .eq('room_id', room.id)
+    .eq('status', 'checked_in')
+    .single()
+  if (!res) return { error: 'Gost nije prijavljen u sobu.' }
+
+  const { data: folio } = await supabase
+    .from('folios')
+    .select('id, total_amount')
+    .eq('reservation_id', res.id)
+    .eq('status', 'open')
+    .single()
+  if (!folio) return { error: 'Folio nije pronađen ili je zatvoren.' }
+
+  return { folio }
+}
+
 const STATUS_CONFIG = {
   pending:   { label: 'Nova',        color: '#0d7a52', bg: '#E1F5EE' },
   received:  { label: 'Primljeno',   color: '#1D9E75', bg: '#E1F5EE' },
@@ -14,13 +42,15 @@ const STATUS_CONFIG = {
 }
 
 export default function WaiterDashboard() {
-  const { restaurant } = usePlatform()
+  const { restaurant, hasAddon } = usePlatform()
+  const hotelEnabled = hasAddon('hotel_core')
   const location = useLocation()
   const [orders, setOrders] = useState([])
   const [waiterReqs, setWaiterReqs] = useState([])
   const [activeTab, setActiveTab] = useState(
     location.pathname.includes('/waiter') ? 'waiter' : 'orders'
   )
+  const [roomChargeMap, setRoomChargeMap] = useState({})
 
   useEffect(() => {
     setActiveTab(location.pathname.includes('/waiter') ? 'waiter' : 'orders')
@@ -111,6 +141,47 @@ export default function WaiterDashboard() {
     served: 'Zatvori narudžbu',
   }
 
+  const openRoomCharge = (orderId) =>
+    setRoomChargeMap(p => ({ ...p, [orderId]: { roomNum: '', loading: false, error: '' } }))
+
+  const cancelRoomCharge = (orderId) =>
+    setRoomChargeMap(p => { const n = { ...p }; delete n[orderId]; return n })
+
+  const chargeToRoom = async (order) => {
+    const state = roomChargeMap[order.id]
+    if (!state?.roomNum?.trim()) return
+    setRoomChargeMap(p => ({ ...p, [order.id]: { ...p[order.id], loading: true, error: '' } }))
+
+    const { folio, error } = await findOpenFolio(restaurant.id, state.roomNum)
+    if (error) {
+      setRoomChargeMap(p => ({ ...p, [order.id]: { ...p[order.id], loading: false, error } }))
+      return
+    }
+
+    const amount = parseFloat(order.total) || 0
+    const desc = (order.order_items || []).map(i => `${i.quantity}× ${i.name}`).join(', ') || 'Restoran narudžba'
+
+    const { error: fiErr } = await supabase.from('folio_items').insert({
+      folio_id: folio.id, restaurant_id: restaurant.id,
+      type: 'restaurant', description: desc,
+      quantity: 1, unit_price: amount, total_price: amount,
+      date: new Date().toISOString().slice(0, 10), order_id: order.id,
+    })
+    if (fiErr) {
+      setRoomChargeMap(p => ({ ...p, [order.id]: { ...p[order.id], loading: false, error: 'Greška pri upisu na folio.' } }))
+      return
+    }
+
+    await supabase.from('folios').update({
+      total_amount: (parseFloat(folio.total_amount) || 0) + amount,
+      updated_at: new Date().toISOString(),
+    }).eq('id', folio.id)
+
+    await supabase.from('orders').update({ status: 'closed', folio_id: folio.id }).eq('id', order.id)
+    setOrders(p => p.filter(o => o.id !== order.id))
+    setRoomChargeMap(p => { const n = { ...p }; delete n[order.id]; return n })
+  }
+
   const newOrdersCount = orders.filter(o => o.status === 'pending' || o.status === 'received').length
   const newReqsCount = waiterReqs.filter(r => !r.is_resolved).length
 
@@ -179,6 +250,11 @@ export default function WaiterDashboard() {
                       {NEXT_LABEL[order.status]}
                     </button>
                   )}
+                  {order.status === 'served' && hotelEnabled && !roomChargeMap[order.id] && (
+                    <button className={styles.roomChargeBtn} onClick={() => openRoomCharge(order.id)}>
+                      🏨 Naplati na sobu
+                    </button>
+                  )}
                   {(order.status === 'received' || order.status === 'pending') && (
                     <div className={styles.rejectWrap}>
                       <div className={styles.rejectLabel}>Odbij uz poruku:</div>
@@ -193,6 +269,35 @@ export default function WaiterDashboard() {
                     </div>
                   )}
                 </div>
+
+                {order.status === 'served' && roomChargeMap[order.id] && (
+                  <div className={styles.roomChargePanel}>
+                    <div className={styles.roomChargePanelTitle}>🏨 Broj sobe:</div>
+                    <div className={styles.roomChargeRow}>
+                      <input
+                        className={styles.roomChargeInput}
+                        placeholder="npr. 101"
+                        value={roomChargeMap[order.id].roomNum}
+                        onChange={e => setRoomChargeMap(p => ({ ...p, [order.id]: { ...p[order.id], roomNum: e.target.value } }))}
+                        onKeyDown={e => e.key === 'Enter' && chargeToRoom(order)}
+                        autoFocus
+                      />
+                      <button
+                        className={styles.roomChargeConfirm}
+                        onClick={() => chargeToRoom(order)}
+                        disabled={roomChargeMap[order.id].loading}
+                      >
+                        {roomChargeMap[order.id].loading ? '...' : 'Potvrdi'}
+                      </button>
+                      <button className={styles.roomChargeCancel} onClick={() => cancelRoomCharge(order.id)}>
+                        Odustani
+                      </button>
+                    </div>
+                    {roomChargeMap[order.id].error && (
+                      <div className={styles.roomChargeError}>{roomChargeMap[order.id].error}</div>
+                    )}
+                  </div>
+                )}
               </div>
             ))}
           </div>

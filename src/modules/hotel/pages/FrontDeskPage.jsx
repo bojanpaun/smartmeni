@@ -120,7 +120,7 @@ export default function FrontDeskPage() {
                   )}
                 </div>
                 <div className={styles.fdActions}>
-                  <button className={styles.btnSecondary} onClick={() => navigate(`/admin/hotel/reservations/${res.id}`)}>Folio</button>
+                  <button className={styles.btnSecondary} onClick={() => navigate(`/admin/hotel/reservations/${res.id}/folio`)}>Folio</button>
                   <button className={styles.btnPrimary} onClick={() => handleCheckOut(res)}>Check-out ✓</button>
                 </div>
               </div>

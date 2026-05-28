@@ -191,6 +191,73 @@
 
 .empty { text-align: center; padding: 48px 20px; color: #8a9e96; font-size: 14px; display: flex; flex-direction: column; gap: 16px; align-items: center; }
 
+/* ── Folio ── */
+.folioSummary {
+  display: grid;
+  grid-template-columns: repeat(4, 1fr);
+  gap: 12px;
+  margin-bottom: 24px;
+}
+@media (max-width: 600px) { .folioSummary { grid-template-columns: repeat(2, 1fr); } }
+
+.folioSummaryItem {
+  background: #fff;
+  border: 1px solid #e0ece6;
+  border-radius: 12px;
+  padding: 14px 16px;
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+}
+.folioSummaryLabel { font-size: 11px; color: #8a9e96; font-weight: 600; text-transform: uppercase; letter-spacing: 0.4px; }
+.folioSummaryVal   { font-size: 20px; font-weight: 700; color: #0e1a14; }
+.folioBalanceDue   { color: #c05a00; }
+.folioBalancePaid  { color: #0d7a52; }
+
+.resBadgeClosed { background: #f1f5f9; color: #64748b; }
+
+.folioHead {
+  display: grid;
+  grid-template-columns: 64px 110px 1fr 90px 36px;
+  padding: 10px 16px;
+  background: #f8fbf9;
+  border-bottom: 1px solid #e0ece6;
+  font-size: 11px;
+  font-weight: 700;
+  color: #8a9e96;
+  text-transform: uppercase;
+  letter-spacing: 0.4px;
+  gap: 10px;
+}
+
+.folioRow {
+  display: grid;
+  grid-template-columns: 64px 110px 1fr 90px 36px;
+  padding: 11px 16px;
+  border-bottom: 1px solid #f0f5f2;
+  font-size: 13px;
+  color: #1a2e26;
+  gap: 10px;
+  align-items: center;
+}
+.folioRow:last-child { border-bottom: none; }
+.folioRow:hover { background: #f8fbf9; }
+
+.folioTotalRow {
+  display: grid;
+  grid-template-columns: 64px 110px 1fr 90px 36px;
+  padding: 12px 16px;
+  border-top: 2px solid #e0ece6;
+  gap: 10px;
+  align-items: center;
+}
+
+.folioDate   { color: #8a9e96; font-size: 12px; }
+.folioType   { font-size: 12px; white-space: nowrap; }
+.folioDesc   { color: #1a2e26; }
+.folioQty    { color: #8a9e96; font-size: 11px; }
+.folioAmount { text-align: right; font-weight: 600; color: #0e1a14; }
+
 /* ── Availability Calendar ── */
 .calendarWrap {
   background: #fff;
