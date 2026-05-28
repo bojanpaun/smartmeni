@@ -19,13 +19,9 @@
 .content { padding: 16px; background: #f0f2f5; min-height: calc(100vh - 57px); font-family: 'DM Sans', sans-serif; }
 .loading { padding: 3rem; text-align: center; color: #8a9e96; font-family: 'DM Sans', sans-serif; }
 
-.filters { display: flex; gap: 8px; margin-bottom: 16px; }
-.filterBtn {
-  padding: 8px 18px; border-radius: 20px; font-size: 13px; cursor: pointer;
-  border: 1px solid #d0d8e4; background: #fff; color: #6a7880;
-  font-family: 'DM Sans', sans-serif; font-weight: 500;
-}
-.filterActive { background: #1a2332; color: #fff; border-color: #1a2332; }
+.filters { composes: pillBar from '../../../styles/nav.module.css'; }
+.filterBtn { composes: pillBtn from '../../../styles/nav.module.css'; }
+.filterActive { composes: pillBtnActive from '../../../styles/nav.module.css'; }
 
 .tickets {
   display: grid;

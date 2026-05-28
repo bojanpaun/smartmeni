@@ -16,14 +16,9 @@
 }
 .headerActions { display: flex; gap: 8px; align-items: center; flex-wrap: wrap; }
 
-.viewToggle { display: flex; border: 1px solid #d0e4dc; border-radius: 9px; overflow: hidden; }
-.viewBtn {
-  padding: 8px 14px; background: #fff; border: none;
-  font-size: 13px; cursor: pointer; font-family: 'DM Sans', sans-serif;
-  color: #5a7a6a; transition: all 0.15s;
-}
-.viewBtn:hover { background: #f0f5f2; }
-.viewBtnActive { background: #0d7a52 !important; color: #fff !important; }
+.viewToggle { composes: toggleBar from '../../../styles/nav.module.css'; }
+.viewBtn { composes: toggleBtn from '../../../styles/nav.module.css'; }
+.viewBtnActive { composes: toggleBtnActive from '../../../styles/nav.module.css'; }
 
 .btnAdd {
   padding: 9px 18px; background: #0d7a52; color: #fff;
@@ -138,13 +133,8 @@
 }
 .filterClear:hover { background: #f0f5f2; }
 .filterStatus { display: flex; gap: 5px; flex-wrap: wrap; }
-.filterBtn {
-  padding: 7px 12px; border-radius: 20px; border: 1px solid #d0e4dc;
-  background: #fff; font-size: 12px; cursor: pointer;
-  font-family: 'DM Sans', sans-serif; color: #3a4a42;
-}
-.filterBtn:hover { background: #f0f5f2; }
-.filterBtnActive { background: #0d7a52; color: #fff; border-color: #0d7a52; }
+.filterBtn { composes: pillBtn from '../../../styles/nav.module.css'; }
+.filterBtnActive { composes: pillBtnActive from '../../../styles/nav.module.css'; }
 
 /* ── Lista ── */
 .list { display: flex; flex-direction: column; gap: 10px; }

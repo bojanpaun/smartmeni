@@ -19,9 +19,8 @@
 .search { padding: 8px 12px; border: 1px solid #d0e4dc; border-radius: 9px; font-size: 13px; font-family: 'DM Sans', sans-serif; outline: none; min-width: 180px; }
 .search:focus { border-color: #0d7a52; }
 .filterCats { display: flex; gap: 5px; flex-wrap: wrap; }
-.filterBtn { padding: 7px 12px; border-radius: 20px; border: 1px solid #d0e4dc; background: #fff; font-size: 12px; cursor: pointer; font-family: 'DM Sans', sans-serif; color: #3a4a42; }
-.filterBtn:hover { background: #f0f5f2; }
-.filterBtnActive { background: #0d7a52; color: #fff; border-color: #0d7a52; }
+.filterBtn { composes: pillBtn from '../../../styles/nav.module.css'; }
+.filterBtnActive { composes: pillBtnActive from '../../../styles/nav.module.css'; }
 .filterBtnLow { background: #fff8e0; color: #7a5c00; border-color: #f5d070; }
 
 /* ── Tabela ── */

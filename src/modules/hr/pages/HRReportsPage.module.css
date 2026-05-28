@@ -65,14 +65,9 @@
 .tableWrap .table th,
 .tableWrap .table td { display: table-cell !important; vertical-align: middle; }
 
-.periodBar { display: flex; flex-wrap: wrap; gap: 6px; margin-bottom: 16px; }
-.periodBtn {
-  padding: 7px 14px; border-radius: 20px; border: 1px solid #d0e4dc;
-  background: #fff; font-size: 12px; font-weight: 500; color: #5a7a6a;
-  cursor: pointer; font-family: 'DM Sans', sans-serif; transition: all 0.15s;
-}
-.periodBtn:hover { background: #f0f8f4; }
-.periodBtnActive { background: #0d7a52 !important; color: #fff !important; border-color: #0d7a52 !important; }
+.periodBar { composes: pillBar from '../../../styles/nav.module.css'; }
+.periodBtn { composes: pillBtn from '../../../styles/nav.module.css'; }
+.periodBtnActive { composes: pillBtnActive from '../../../styles/nav.module.css'; }
 
 .loadingInline { color: #8a9e96; font-size: 13px; padding: 20px 0; text-align: center; }
 

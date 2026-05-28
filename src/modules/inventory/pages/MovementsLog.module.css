@@ -15,9 +15,8 @@
 .filterDate:focus { border-color: #0d7a52; }
 .filterClear { padding: 8px 10px; border: 1px solid #d0e4dc; background: #fff; border-radius: 9px; font-size: 12px; cursor: pointer; color: #8a9e96; }
 .filterTypes { display: flex; gap: 5px; }
-.filterBtn { padding: 7px 12px; border-radius: 20px; border: 1px solid #d0e4dc; background: #fff; font-size: 12px; cursor: pointer; font-family: 'DM Sans', sans-serif; color: #3a4a42; }
-.filterBtn:hover { background: #f0f5f2; }
-.filterBtnActive { background: #0d7a52; color: #fff; border-color: #0d7a52; }
+.filterBtn { composes: pillBtn from '../../../styles/nav.module.css'; }
+.filterBtnActive { composes: pillBtnActive from '../../../styles/nav.module.css'; }
 
 .empty { text-align: center; padding: 3rem; color: #8a9e96; display: flex; flex-direction: column; gap: 10px; align-items: center; font-size: 14px; }
 .empty div:first-child { font-size: 32px; }

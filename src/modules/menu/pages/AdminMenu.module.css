@@ -31,34 +31,12 @@
 
 /* ── Tab navigacija ── */
 .pageTabs {
-  display: flex;
-  gap: 4px;
+  composes: tabBar from '../../../styles/nav.module.css';
   padding: 12px 20px 0;
-  border-bottom: 1px solid #e0e8e4;
   background: #fff;
-  flex-wrap: wrap;
 }
-
-.pageTab {
-  padding: 9px 16px;
-  border: none;
-  background: transparent;
-  font-size: 13px;
-  font-family: 'DM Sans', sans-serif;
-  color: #5a7a6a;
-  cursor: pointer;
-  border-bottom: 2px solid transparent;
-  margin-bottom: -1px;
-  border-radius: 6px 6px 0 0;
-  transition: all 0.15s;
-}
-.pageTab:hover { background: #f0f5f2; color: #1a2e26; }
-.pageTabActive {
-  color: #0d7a52;
-  font-weight: 600;
-  border-bottom-color: #0d7a52;
-  background: transparent;
-}
+.pageTab { composes: tabBtn from '../../../styles/nav.module.css'; }
+.pageTabActive { composes: tabBtnActive from '../../../styles/nav.module.css'; }
 
 
 /* ── Metrics ── */
@@ -119,13 +97,9 @@
   display: flex; align-items: center; justify-content: space-between;
   margin-bottom: 12px; flex-wrap: wrap; gap: 10px;
 }
-.catTabs { display: flex; gap: 6px; flex-wrap: wrap; }
-.catTab {
-  padding: 6px 14px; border-radius: 20px; font-size: 13px; cursor: pointer;
-  border: 1px solid #d0e4dc; background: #fff; color: #6a8880;
-  font-family: 'DM Sans', sans-serif;
-}
-.catTabActive { background: #0d7a52; color: #fff; border-color: #0d7a52; }
+.catTabs { composes: pillBar from '../../../styles/nav.module.css'; margin-bottom: 0; }
+.catTab { composes: pillBtn from '../../../styles/nav.module.css'; }
+.catTabActive { composes: pillBtnActive from '../../../styles/nav.module.css'; }
 .catTabAdd {
   padding: 6px 14px; border-radius: 20px; font-size: 13px; cursor: pointer;
   border: 1px dashed #d0e4dc; background: transparent; color: #8a9e96;

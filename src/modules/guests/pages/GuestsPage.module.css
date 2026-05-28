@@ -16,8 +16,8 @@
 .search { padding: 9px 12px; border: 1px solid #d0e4dc; border-radius: 9px; font-size: 13px; font-family: 'DM Sans', sans-serif; outline: none; width: 260px; }
 .search:focus { border-color: #0d7a52; }
 .filters { display: flex; gap: 5px; flex-wrap: wrap; }
-.filterBtn { padding: 5px 12px; border: 1px solid #d0e4dc; border-radius: 20px; font-size: 12px; background: transparent; color: #5a7a6a; cursor: pointer; font-family: 'DM Sans', sans-serif; }
-.filterActive { background: #0d7a52; color: #fff; border-color: #0d7a52; }
+.filterBtn { composes: pillBtn from '../../../styles/nav.module.css'; }
+.filterActive { composes: pillBtnActive from '../../../styles/nav.module.css'; }
 
 .tableWrap { background: #fff; border: 1px solid #e0e8e4; border-radius: 14px; overflow: hidden; }
 .table { width: 100%; border-collapse: collapse; font-family: 'DM Sans', sans-serif; font-size: 13px; }
