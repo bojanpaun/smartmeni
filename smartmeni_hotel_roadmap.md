@@ -1276,17 +1276,17 @@ git push origin feature/hotel-core
 
 | Faza | Zadatak | Status | Datum | Napomena |
 |------|---------|--------|-------|----------|
-| 1 | Stripe integracija + webhooks | ⬜ | | |
-| 1 | Subscriptions tabela | ⬜ | | |
-| 1 | Addon catalog u bazi | ⬜ | | |
-| 1 | hasAddon() helper | ⬜ | | |
-| 1 | UpgradePrompt komponenta | ⬜ | | |
-| 2 | room_types + rooms tabele | ⬜ | | |
-| 2 | hotel_reservations tabela | ⬜ | | |
-| 2 | Availability calendar UI | ⬜ | | |
-| 2 | Check-in / Check-out flow | ⬜ | | |
-| 2 | Folio sistem | ⬜ | | |
-| 2 | Restoran → folio integracija | ⬜ | | |
+| 1 | Stripe integracija + webhooks | ⬜ | | PayPal implementiran umjesto Stripea |
+| 1 | Subscriptions tabela | ✅ | 2026-05 | `subscriptions` tabela sa `addons` JSONB arraym |
+| 1 | Addon catalog u bazi | ✅ | 2026-05 | `addon_catalog` tabela, SuperAdmin panel override |
+| 1 | hasAddon() helper | ✅ | 2026-05 | `planUtils.js`, enterprise plan dobija sve |
+| 1 | UpgradePrompt komponenta | ✅ | 2026-05 | `AddonGuard` + `UpgradePrompt`, fullPage varijanta |
+| 2 | room_types + rooms tabele | ✅ | 2026-05 | RLS, migracije aplicirane |
+| 2 | hotel_reservations tabela | ✅ | 2026-05 | Svi statusi: inquiry→confirmed→checked_in→checked_out |
+| 2 | Availability calendar UI | ✅ | 2026-05 | Gantt-style, 14 dana, navigacija sedmicama |
+| 2 | Check-in / Check-out flow | ✅ | 2026-05 | FrontDeskPage, auto folio kreiranje pri check-inu |
+| 2 | Folio sistem | ✅ | 2026-05 | FolioPage, dodavanje/brisanje stavki, zatvaranje folija |
+| 2 | Restoran → folio integracija | ✅ | 2026-05 | "Naplati na sobu" u WaiterDashboard, `orders.folio_id` |
 | 3 | Rate plans + seasonal rates | ⬜ | | |
 | 3 | get_available_rooms() funkcija | ⬜ | | |
 | 3 | Javna booking stranica | ⬜ | | |

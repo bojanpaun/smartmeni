@@ -318,9 +318,161 @@ const HELP_CONTENT = {
 
   analytics: {
     title: 'Analitika — uputstvo',
-    intro: 'Pregled prometa, najprodavanijih jela i detaljnih izvještaja. Ovaj modul je trenutno u razvoju.',
-    sections: [],
-    tips: ['Modul će biti dostupan uskoro.'],
+    intro: 'Pregled prometa, najprodavanijih jela, trendova i detaljnih izvještaja po periodu.',
+    sections: [
+      {
+        icon: '📊',
+        title: 'Pregled prometa',
+        steps: [
+          'Odaberi period (danas, sedmica, mjesec ili vlastiti raspon)',
+          'Grafovi prikazuju prihod i broj narudžbi po danu',
+          'Usporedi sa prethodnim periodom da vidiš trend',
+        ],
+      },
+      {
+        icon: '🏆',
+        title: 'Najprodavanija jela',
+        steps: [
+          'Lista jela sortirana po broju prodanih porcija',
+          'Klikni na jelo da vidiš detalje po danima',
+          'Koristi ove podatke da optimizuješ meni i zalihe',
+        ],
+      },
+      {
+        icon: '📤',
+        title: 'Export',
+        steps: [
+          'Klikni Export PDF za izvještaj spreman za štampanje',
+          'Export Excel daje tabelarni prikaz za dalju obradu',
+          'Oba formata uključuju odabrani vremenski period',
+        ],
+      },
+    ],
+    tips: [
+      'Analitika Pro addon omogućava prilagođene datumske raspone i napredne vizualizacije',
+      'Uporedi promet po danima sedmice da prepoznaš najfrekventnije periode',
+      'Prihod po kategorijama pomaže da odlučiš gdje investirati u meni',
+    ],
+  },
+
+  hotel: {
+    title: 'Hotel Core — uputstvo',
+    intro: 'Hotel Core modul pokriva kompletno upravljanje hotelskim objektom: sobe, rezervacije, availability kalendar, front desk (check-in/check-out), folio sistem i integraciju s restoran narudžbama.',
+    sections: [
+      {
+        icon: '📊',
+        title: 'Dashboard',
+        steps: [
+          'Dashboard prikazuje occupancy widget s postotkom popunjenosti i statistikama',
+          'Sekcija Dolasci danas pokazuje sve rezervacije s check-in datumom danas',
+          'Klikni na brze linkove (Front Desk, Rezervacije, Kalendar, Sobe) za direktan pristup',
+          'Occupancy se računa kao broj zauzeti soba / ukupan broj soba × 100%',
+        ],
+      },
+      {
+        icon: '🛏️',
+        title: 'Upravljanje sobama',
+        steps: [
+          'Idi na Sobe da vidiš grid svih soba sa statusom u boji',
+          'Statusi: Slobodna (zelena), Zauzeta (plava), Čišćenje (žuta), Održavanje (narandžasta), Blokirana (siva)',
+          'Klikni na sobu da promijeniš status (npr. Slobodna → Održavanje)',
+          'Klikni + Nova soba da dodaš sobu — unesi broj sobe, sprat i tip',
+          'Filtriraj prikaz po statusu pomoću tabova iznad grida',
+        ],
+      },
+      {
+        icon: '🪑',
+        title: 'Tipovi soba',
+        steps: [
+          'Idi na Tipovi soba da definišeš kategorije smještaja (Standard, Deluxe, Suite...)',
+          'Za svaki tip unesi naziv, opis, maksimalnu popunjenost i osnovnu cijenu',
+          'Dodaj amenities (WiFi, AC, Minibar, Balkon...) klikom na tagove',
+          'Sobe se dodjeljuju tipu pri kreiranju — tip određuje cijenu i karakteristike',
+        ],
+      },
+      {
+        icon: '📅',
+        title: 'Rezervacije',
+        steps: [
+          'Lista svih rezervacija sa statusom i filterima (sve, potvrđene, prisutne, odavljene...)',
+          'Klikni + Nova rezervacija i popuni: gost, tip sobe, soba, datumi, cijena',
+          'Sistem automatski računa ukupan iznos na osnovu broja noći × cijena po noći',
+          'Status rezervacije: Upit → Potvrđena → Prisutna → Odjavljena',
+          'Izvor rezervacije bilježi odakle dolazi (direktno, Booking.com, Airbnb, walk-in...)',
+          'Posebni zahtjevi gosta i interne napomene čuvaju se odvojeno',
+        ],
+      },
+      {
+        icon: '📆',
+        title: 'Kalendar dostupnosti',
+        steps: [
+          'Gantt prikaz prikazuje 14 dana — svaki red je jedna soba, kolone su dani',
+          'Rezervacije su prikazane kao obojene trake: plava=potvrđena, zelena=prisutna, siva=odjavljena, žuta=upit',
+          'Navigiraj naprijed/nazad po sedmici dugmadima ‹ › ili po dvije sedmice «»',
+          'Klikni Danas da se vratiš na trenutnu sedmicu',
+          'Klikni na praznu ćeliju da otvoriš formu za novu rezervaciju',
+          'Klikni na rezervaciju (traku) da otvoriš detalje te rezervacije',
+          'Vikendi i danas su vizuelno istaknuti',
+        ],
+      },
+      {
+        icon: '🛎️',
+        title: 'Front Desk — Check-in',
+        steps: [
+          'Front Desk tab Check-in danas prikazuje sve potvrđene rezervacije s check-in datumom danas',
+          'Klikni Detalji da vidiš podatke gosta i napomene prije check-ina',
+          'Klikni Check-in ✓ da prijaviš gosta — sistem automatski:',
+          '• Mijenja status rezervacije u Prisutna',
+          '• Mijenja status sobe u Zauzeta',
+          '• Kreira otvoreni folio za gosta (evidenciju troškova)',
+        ],
+      },
+      {
+        icon: '🛎️',
+        title: 'Front Desk — Check-out',
+        steps: [
+          'Tab Check-out prikazuje sve prisutne goste koji trebaju napustiti objekat',
+          'Klikni Folio da pregledate sve troškove gosta przed odjave',
+          'Klikni Check-out ✓ da odjava gosta — sistem automatski:',
+          '• Mijenja status rezervacije u Odjavljena',
+          '• Mijenja status sobe u Čišćenje',
+          '• Zatvara folio gosta',
+        ],
+      },
+      {
+        icon: '📋',
+        title: 'Folio sistem',
+        steps: [
+          'Folio je evidencija svih troškova gosta tokom boravka',
+          'Otvara se automatski pri check-inu i prikazuje naknadu za sobu',
+          'Idi na Folio putem dugmeta u Front Desku ili na stranici rezervacije',
+          'Na foliju vidiš: datum, tip (soba/restoran/minibar/spa/ostalo), opis i iznos',
+          'Klikni + Dodaj stavku za ručno dodavanje troška (minibar, parking, spa...)',
+          'Stavke dodane iz restorana (putem Naplati na sobu) automatski se pojavljuju ovdje',
+          'Zatvori folio na kraju boravka — ovo označava da je plaćanje završeno',
+        ],
+      },
+      {
+        icon: '🍽️',
+        title: 'Integracija s restoranom',
+        steps: [
+          'Kada je narudžba servisirana u restoranu, konobar može naplatiti je na hotelsku sobu',
+          'Na kartici narudžbe (status: Servirano) klikni 🏨 Naplati na sobu',
+          'Unesi broj sobe (npr. 101) i klikni Potvrdi',
+          'Sistem provjerava: postoji li soba → je li gost prijavljen → postoji li otvoreni folio',
+          'Ako sve prođe, iznos narudžbe se dodaje na folio gosta i narudžba se zatvara',
+          'Greška se prikazuje ako soba ne postoji ili gost nije prijavljen',
+        ],
+      },
+    ],
+    tips: [
+      'Kalendar dostupnosti je najbrži način da vidiš popunjenost — koristi ga svakodnevno',
+      'Folio se kreira automatski pri check-inu — ne trebaš ga ručno kreirati',
+      'Integracija s restoranom radi samo za sobe s prijavljenim gostima (status: Prisutna)',
+      'Ako gost naruči iz restorana i identifikuje se brojem sobe, trošak ide na folio umjesto direktne naplate',
+      'Tipovi soba definišu karakteristike (amenities, cijena) — sobe nasljeđuju te karakteristike',
+      'Soba ostaje u statusu Čišćenje dok je ručno ne prebacite na Slobodna',
+    ],
   },
 
   settings: {
