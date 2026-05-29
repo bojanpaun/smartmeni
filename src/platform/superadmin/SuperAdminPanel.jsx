@@ -271,6 +271,7 @@ export default function SuperAdminPanel() {
                   <td>
                     <div className={styles.restName}>{rest.name}</div>
                     <div className={styles.restSlug}>smartmeni.me/{rest.slug}</div>
+                    <ThemeDot theme={rest.admin_theme} />
                   </td>
                   <td><PlanBadge rest={rest} /></td>
                   <td><StatusBadge status={status} /></td>
@@ -447,6 +448,13 @@ export default function SuperAdminPanel() {
       )}
 
     </div>
+  )
+}
+
+function ThemeDot({ theme }) {
+  const t = ADMIN_THEMES.find(x => x.key === (theme || 'green')) || ADMIN_THEMES[0]
+  return (
+    <span className={styles.themeDot} style={{ background: t.color }} title={`Tema: ${t.label}`} />
   )
 }
 

@@ -71,6 +71,11 @@
 
   /* Sjenke */
   --c-shadow-modal: 0 8px 40px rgba(0,0,0,0.18);
+
+  /* Sidebar */
+  --c-sb-bg:         #0d2b1e;
+  --c-sb-accent:     #5dcaa5;
+  --c-sb-accent-bg:  rgba(93, 202, 165, 0.15);
 }
 
 [data-theme="green-dark"] {
@@ -103,6 +108,11 @@
   /* Upozorenje */
   --c-warning:    #f39c12;
   --c-warning-bg: rgba(243, 156, 18, 0.12);
+
+  /* Sidebar */
+  --c-sb-bg:         #081a10;
+  --c-sb-accent:     #5dcaa5;
+  --c-sb-accent-bg:  rgba(93, 202, 165, 0.15);
 }
 
 /* ── Blue — svijetla ── */
@@ -130,6 +140,11 @@
 
   --c-warning:    #d97706;
   --c-warning-bg: #fffbeb;
+
+  /* Sidebar */
+  --c-sb-bg:         #0c1938;
+  --c-sb-accent:     #60a5fa;
+  --c-sb-accent-bg:  rgba(96, 165, 250, 0.15);
 }
 
 /* ── Blue — tamna ── */
@@ -157,6 +172,11 @@
 
   --c-warning:    #fbbf24;
   --c-warning-bg: rgba(251, 191, 36, 0.12);
+
+  /* Sidebar */
+  --c-sb-bg:         #070f22;
+  --c-sb-accent:     #60a5fa;
+  --c-sb-accent-bg:  rgba(96, 165, 250, 0.15);
 }
 
 html {
