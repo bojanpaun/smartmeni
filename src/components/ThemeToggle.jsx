@@ -1,4 +1,5 @@
 import { useTheme } from '../hooks/useTheme'
+import { usePlatform } from '../context/PlatformContext'
 import styles from './ThemeToggle.module.css'
 
 const SCHEMES = [
@@ -7,22 +8,27 @@ const SCHEMES = [
 ]
 
 export default function ThemeToggle({ variant = 'light' }) {
-  const { colorScheme, mode, toggleMode, setColorScheme } = useTheme()
+  const { restaurant, setRestaurant, isOwner, isSuperAdmin } = usePlatform()
+  const { colorScheme, mode, toggleMode, setColorScheme } = useTheme({ restaurant, setRestaurant })
+
+  const canChangePalette = isOwner() || isSuperAdmin()
   const dark = variant === 'dark'
 
   return (
     <div className={`${styles.wrap} ${dark ? styles.wrapDark : ''}`}>
-      <div className={styles.swatches}>
-        {SCHEMES.map(s => (
-          <button
-            key={s.key}
-            className={`${styles.swatch} ${colorScheme === s.key ? styles.swatchActive : ''}`}
-            style={{ '--sw': s.color }}
-            onClick={() => setColorScheme(s.key)}
-            title={s.label}
-          />
-        ))}
-      </div>
+      {canChangePalette && (
+        <div className={styles.swatches}>
+          {SCHEMES.map(s => (
+            <button
+              key={s.key}
+              className={`${styles.swatch} ${colorScheme === s.key ? styles.swatchActive : ''}`}
+              style={{ '--sw': s.color }}
+              onClick={() => setColorScheme(s.key)}
+              title={s.label}
+            />
+          ))}
+        </div>
+      )}
       <button
         className={`${styles.modeBtn} ${dark ? styles.modeBtnDark : ''}`}
         onClick={toggleMode}
