@@ -5,6 +5,7 @@ import { Link, useLocation, useNavigate } from 'react-router-dom'
 import { usePlatform } from '../context/PlatformContext'
 import styles from './AdminLayout.module.css'
 import TrialBanner from '../platform/admin/TrialBanner'
+import ThemeToggle from '../components/ThemeToggle'
 
 export const MODULES = [
   {
@@ -270,6 +271,7 @@ export default function AdminLayout({ children }) {
                 : restName[0]}
             </div>
             <span className={styles.hubRole}>{restRole}</span>
+            <ThemeToggle variant="dark" />
             <button className={styles.hubLogoutBtn} onClick={handleLogout}>Odjava</button>
           </div>
         </header>
@@ -393,6 +395,10 @@ export default function AdminLayout({ children }) {
               ☰
             </button>
           </div>
+
+          <div className={styles.topbarRight}>
+            <ThemeToggle />
+          </div>
         </header>
         <TrialBanner />
         <main className={styles.main}>{children}</main>
@@ -463,6 +469,7 @@ export default function AdminLayout({ children }) {
                   👁 Meni uživo
                 </a>
               )}
+              <ThemeToggle variant="dark" />
               <button className={styles.logoutBtn} onClick={handleLogout}>Odjava</button>
               <a href="/" className={styles.sbBrand}>smartmeni.me</a>
             </div>

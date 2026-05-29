@@ -575,6 +575,16 @@
 .breadcrumbDesktop { display: flex; align-items: center; gap: 6px; font-size: 13px; }
 .mobileTopbar { display: none; }
 
+.topbarRight {
+  margin-left: auto;
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+@media (max-width: 768px) {
+  .topbarRight { display: none; }
+}
+
 @media (max-width: 768px) {
   .breadcrumbDesktop { display: none; }
   .mobileTopbar {

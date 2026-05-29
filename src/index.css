@@ -73,6 +73,38 @@
   --c-shadow-modal: 0 8px 40px rgba(0,0,0,0.18);
 }
 
+[data-theme="dark"] {
+  /* Primarna boja */
+  --c-primary:        #1d9e75;
+  --c-primary-hover:  #25b882;
+  --c-primary-medium: #5dcaa5;
+  --c-primary-light:  rgba(29, 158, 117, 0.15);
+  --c-primary-muted:  #2d6b55;
+
+  /* Tekst */
+  --c-text:        #dceae4;
+  --c-text-medium: #8ab8a4;
+  --c-text-muted:  #5a8070;
+
+  /* Pozadine / površine */
+  --c-surface:    #1c2a24;
+  --c-bg:         #141e18;
+  --c-bg-subtle:  #1f2f28;
+
+  /* Borderi */
+  --c-border:       #2a4035;
+  --c-border-input: #2a4035;
+
+  /* Opasnost */
+  --c-danger:        #e74c3c;
+  --c-danger-bg:     rgba(231, 76, 60, 0.12);
+  --c-danger-border: rgba(231, 76, 60, 0.3);
+
+  /* Upozorenje */
+  --c-warning:    #f39c12;
+  --c-warning-bg: rgba(243, 156, 18, 0.12);
+}
+
 html {
   scroll-behavior: smooth;
 }
