@@ -1,0 +1,263 @@
+/* Period selector */
+.periodBar {
+  display: flex;
+  gap: 4px;
+  background: var(--c-surface);
+  border: 1px solid var(--c-border);
+  border-radius: 8px;
+  padding: 4px;
+}
+
+.periodBtn {
+  padding: 6px 14px;
+  border: none;
+  background: transparent;
+  border-radius: 6px;
+  cursor: pointer;
+  font-size: 13px;
+  color: var(--c-text-muted);
+  transition: background 0.15s, color 0.15s;
+}
+
+.periodBtn:hover {
+  background: var(--c-hover);
+  color: var(--c-text);
+}
+
+.periodBtnActive {
+  background: var(--c-primary);
+  color: #fff;
+}
+
+/* KPI grid */
+.kpiGrid {
+  display: grid;
+  grid-template-columns: repeat(4, 1fr);
+  gap: 16px;
+  margin-bottom: 20px;
+}
+
+@media (max-width: 900px) {
+  .kpiGrid { grid-template-columns: repeat(2, 1fr); }
+}
+@media (max-width: 520px) {
+  .kpiGrid { grid-template-columns: 1fr; }
+}
+
+.kpiCard {
+  background: var(--c-surface);
+  border: 1px solid var(--c-border);
+  border-radius: 12px;
+  padding: 20px;
+}
+
+.kpiLabel {
+  font-size: 12px;
+  color: var(--c-text-muted);
+  text-transform: uppercase;
+  letter-spacing: 0.05em;
+  margin-bottom: 6px;
+}
+
+.kpiVal {
+  font-size: 28px;
+  font-weight: 700;
+  color: var(--c-text);
+  margin-bottom: 4px;
+  line-height: 1.1;
+}
+
+.kpiPct {
+  font-size: 12px;
+  color: var(--c-text-muted);
+  margin-bottom: 2px;
+}
+
+.kpiUp  { color: #0d7a52; }
+.kpiDown { color: #c0392b; }
+
+.kpiSub {
+  font-size: 11px;
+  color: var(--c-text-muted);
+  margin-top: 4px;
+}
+
+/* Chart cards */
+.chartCard {
+  background: var(--c-surface);
+  border: 1px solid var(--c-border);
+  border-radius: 12px;
+  padding: 20px;
+  margin-bottom: 16px;
+}
+
+.chartTitle {
+  font-size: 13px;
+  font-weight: 600;
+  color: var(--c-text);
+  margin-bottom: 16px;
+}
+
+.chartRow {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 16px;
+  margin-bottom: 16px;
+}
+
+.chartRow .chartCard {
+  margin-bottom: 0;
+}
+
+@media (max-width: 700px) {
+  .chartRow { grid-template-columns: 1fr; }
+}
+
+/* Tooltip */
+.tooltip {
+  background: var(--c-surface);
+  border: 1px solid var(--c-border);
+  border-radius: 8px;
+  padding: 10px 14px;
+  font-size: 12px;
+  box-shadow: 0 4px 12px rgba(0,0,0,0.12);
+}
+
+.tooltipLabel {
+  font-weight: 600;
+  color: var(--c-text);
+  margin-bottom: 4px;
+}
+
+/* Price suggestions */
+.sugSection {
+  background: var(--c-surface);
+  border: 1px solid var(--c-border);
+  border-radius: 12px;
+  overflow: hidden;
+}
+
+.sugHeader {
+  padding: 20px 20px 16px;
+  border-bottom: 1px solid var(--c-border);
+}
+
+.sugTitle {
+  font-size: 15px;
+  font-weight: 600;
+  color: var(--c-text);
+  margin-bottom: 4px;
+}
+
+.sugSub {
+  font-size: 12px;
+  color: var(--c-text-muted);
+  line-height: 1.5;
+}
+
+.sugEmpty {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 8px;
+  padding: 48px 20px;
+  color: var(--c-text-muted);
+  font-size: 14px;
+}
+
+.sugEmpty span { font-size: 32px; }
+
+/* Table */
+.sugTable {
+  overflow-x: auto;
+}
+
+.sugTableHead {
+  display: grid;
+  grid-template-columns: 1.4fr 1.2fr 0.8fr 0.9fr 1fr 0.7fr 0.8fr;
+  gap: 8px;
+  padding: 10px 20px;
+  font-size: 11px;
+  font-weight: 600;
+  text-transform: uppercase;
+  letter-spacing: 0.05em;
+  color: var(--c-text-muted);
+  background: var(--c-bg);
+  border-bottom: 1px solid var(--c-border);
+  min-width: 640px;
+}
+
+.sugRow {
+  display: grid;
+  grid-template-columns: 1.4fr 1.2fr 0.8fr 0.9fr 1fr 0.7fr 0.8fr;
+  gap: 8px;
+  padding: 12px 20px;
+  align-items: center;
+  border-bottom: 1px solid var(--c-border);
+  font-size: 13px;
+  transition: background 0.1s;
+  min-width: 640px;
+}
+
+.sugRow:last-child { border-bottom: none; }
+.sugRow:hover { background: var(--c-hover); }
+
+.sugDate {
+  font-weight: 500;
+  color: var(--c-text);
+}
+
+.sugNum {
+  color: var(--c-text-muted);
+}
+
+.sugPrice {
+  font-weight: 600;
+  color: var(--c-text);
+}
+
+.sugDiff {
+  font-weight: 600;
+  font-size: 12px;
+}
+
+.sugDiffUp   { color: #0d7a52; }
+.sugDiffDown { color: #c0392b; }
+
+/* Occupancy bar */
+.occBar {
+  height: 6px;
+  background: var(--c-border);
+  border-radius: 3px;
+  overflow: hidden;
+  margin-bottom: 3px;
+  width: 80px;
+}
+
+.occFill {
+  height: 100%;
+  border-radius: 3px;
+  transition: width 0.3s;
+}
+
+.occLabel {
+  font-size: 11px;
+  color: var(--c-text-muted);
+}
+
+/* Apply button */
+.btnApply {
+  padding: 5px 12px;
+  background: var(--c-primary);
+  color: #fff;
+  border: none;
+  border-radius: 6px;
+  font-size: 12px;
+  font-weight: 500;
+  cursor: pointer;
+  transition: opacity 0.15s;
+  white-space: nowrap;
+}
+
+.btnApply:hover { opacity: 0.85; }
+.btnApply:disabled { opacity: 0.5; cursor: not-allowed; }

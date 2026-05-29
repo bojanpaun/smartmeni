@@ -53,6 +53,7 @@ const FolioPrint           = lazy(() => import('./modules/hotel/pages/FolioPrint
 const RatePlansPage        = lazy(() => import('./modules/hotel/pages/RatePlansPage'))
 const BookingSettings      = lazy(() => import('./modules/hotel/pages/BookingSettings'))
 const HousekeepingPage     = lazy(() => import('./modules/hotel/pages/HousekeepingPage'))
+const RevenueManagementPage = lazy(() => import('./modules/hotel/pages/RevenueManagementPage'))
 const BookingPage          = lazy(() => import('./pages/BookingPage'))
 
 const ControlPanel         = lazy(() => import('./platform/admin/ControlPanel'))
@@ -183,6 +184,7 @@ function AppRoutes() {
         <Route path="/admin/hotel/rate-plans" element={<AdminRoute><AddonGuard addonId="hotel_core" name="Hotel Core" description="Upravljanje sobama, rezervacijama, front desk i folio sistemom." price={299} category="hotel"><RatePlansPage /></AddonGuard></AdminRoute>} />
         <Route path="/admin/hotel/booking-settings" element={<AdminRoute><AddonGuard addonId="hotel_core" name="Hotel Core" description="Upravljanje sobama, rezervacijama, front desk i folio sistemom." price={299} category="hotel"><BookingSettings /></AddonGuard></AdminRoute>} />
         <Route path="/admin/hotel/housekeeping" element={<AdminRoute><AddonGuard addonId="hotel_core" name="Hotel Core" description="Upravljanje sobama, rezervacijama, front desk i folio sistemom." price={299} category="hotel"><HousekeepingPage /></AddonGuard></AdminRoute>} />
+        <Route path="/admin/hotel/revenue" element={<AdminRoute><AddonGuard addonId="hotel_core" name="Hotel Core" description="Upravljanje sobama, rezervacijama, front desk i folio sistemom." price={299} category="hotel"><RevenueManagementPage /></AddonGuard></AdminRoute>} />
         <Route path="/admin/hotel/help" element={<AdminRoute><ModuleHelp moduleKey="hotel" /></AdminRoute>} />
         <Route path="/admin/hotel/reservations/:id/folio/print" element={<ProtectedRoute><Suspense fallback={<LoadingSpinner fullPage />}><FolioPrint /></Suspense></ProtectedRoute>} />
 
