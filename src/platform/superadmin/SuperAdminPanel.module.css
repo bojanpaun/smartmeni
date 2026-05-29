@@ -203,6 +203,41 @@
 .msgOk    { font-size: 13px; color: var(--c-primary); }
 .msgError { font-size: 13px; color: var(--c-danger); }
 
+/* ── Tema admin panela ── */
+.themeOptions {
+  display: flex;
+  gap: 8px;
+}
+
+.themeOption {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  padding: 8px 14px;
+  border: 1.5px solid var(--c-border);
+  border-radius: 10px;
+  background: var(--c-surface);
+  cursor: pointer;
+  font-family: var(--c-font-sans);
+  font-size: 13px;
+  color: var(--c-text-medium);
+  transition: border-color 0.15s, background 0.15s;
+}
+.themeOption:hover { background: var(--c-bg-subtle); }
+.themeOptionActive {
+  border-color: var(--c-primary);
+  background: var(--c-primary-light);
+  color: var(--c-primary);
+  font-weight: 500;
+}
+
+.themeOptionDot {
+  width: 12px;
+  height: 12px;
+  border-radius: 50%;
+  flex-shrink: 0;
+}
+
 /* ── Addon override section ── */
 .addonSection {
   grid-column: 1 / -1;

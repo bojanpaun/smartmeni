@@ -1,34 +1,26 @@
 import { useState, useEffect } from 'react'
-import { supabase } from '../lib/supabase'
 
 function storedMode() {
   try { return localStorage.getItem('mode') || 'light' } catch { return 'light' }
 }
 
-function cacheScheme(scheme) {
-  try { localStorage.setItem('colorScheme', scheme) } catch {}
-}
-
-export function useTheme({ restaurant, setRestaurant } = {}) {
-  // Paleta: prioritet ima restaurant.admin_theme, zatim localStorage, zatim 'green'
-  const [colorScheme, setColorSchemeState] = useState(() => {
+export function useTheme({ restaurant } = {}) {
+  const [colorScheme, setColorScheme] = useState(() => {
     try { return localStorage.getItem('colorScheme') || 'green' } catch { return 'green' }
   })
 
-  // Mod: lična preferencija, samo localStorage
   const [mode, setModeState] = useState(storedMode)
 
-  // Kad restaurant stigne iz baze — sinkronizuj paletu
+  // Kad restaurant stigne iz baze — primijeni njegovu paletu
   useEffect(() => {
     if (restaurant?.admin_theme) {
-      setColorSchemeState(restaurant.admin_theme)
-      cacheScheme(restaurant.admin_theme)
+      setColorScheme(restaurant.admin_theme)
+      try { localStorage.setItem('colorScheme', restaurant.admin_theme) } catch {}
     }
   }, [restaurant?.admin_theme])
 
   const theme = mode === 'dark' ? `${colorScheme}-dark` : colorScheme
 
-  // Primijeni data-theme atribut i čuvaj mod u localStorage
   useEffect(() => {
     if (theme === 'green') {
       document.documentElement.removeAttribute('data-theme')
@@ -40,18 +32,5 @@ export function useTheme({ restaurant, setRestaurant } = {}) {
 
   const toggleMode = () => setModeState(m => (m === 'light' ? 'dark' : 'light'))
 
-  const setColorScheme = async (scheme) => {
-    setColorSchemeState(scheme)
-    cacheScheme(scheme)
-
-    if (restaurant?.id && setRestaurant) {
-      await supabase
-        .from('restaurants')
-        .update({ admin_theme: scheme })
-        .eq('id', restaurant.id)
-      setRestaurant(r => ({ ...r, admin_theme: scheme }))
-    }
-  }
-
-  return { theme, colorScheme, mode, toggleMode, setColorScheme }
+  return { theme, colorScheme, mode, toggleMode }
 }

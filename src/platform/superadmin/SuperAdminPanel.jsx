@@ -4,6 +4,11 @@ import { usePlatform } from '../../context/PlatformContext'
 import { planStatus } from '../../lib/planUtils'
 import styles from './SuperAdminPanel.module.css'
 
+const ADMIN_THEMES = [
+  { key: 'green', label: 'Zelena', color: '#0d7a52' },
+  { key: 'blue',  label: 'Plava',  color: '#2563eb' },
+]
+
 const CATEGORY_LABELS = {
   restaurant: '🍽️ Restoran',
   hotel:      '🏨 Hotel',
@@ -27,6 +32,7 @@ export default function SuperAdminPanel() {
     plan: 'starter',
     plan_expires_at: '',
     trial_ends_at: '',
+    admin_theme: 'green',
     active_addons: [],
   })
   const [saving, setSaving] = useState(false)
@@ -41,7 +47,7 @@ export default function SuperAdminPanel() {
     setLoading(true)
     const { data, error } = await supabase
       .from('restaurants')
-      .select('id, name, slug, plan, trial_ends_at, plan_expires_at, suspended_at, is_complimentary, complimentary_note, created_at')
+      .select('id, name, slug, plan, trial_ends_at, plan_expires_at, suspended_at, is_complimentary, complimentary_note, admin_theme, created_at')
       .order('created_at', { ascending: false })
 
     if (!error) setRestaurants(data || [])
@@ -66,6 +72,7 @@ export default function SuperAdminPanel() {
       plan: rest.plan || 'starter',
       plan_expires_at: rest.plan_expires_at ? rest.plan_expires_at.slice(0, 10) : '',
       trial_ends_at: rest.trial_ends_at ? rest.trial_ends_at.slice(0, 10) : '',
+      admin_theme: rest.admin_theme || 'green',
       active_addons: [],
     })
 
@@ -105,6 +112,7 @@ export default function SuperAdminPanel() {
       plan: editForm.plan,
       plan_expires_at: editForm.plan_expires_at || null,
       trial_ends_at: editForm.trial_ends_at || null,
+      admin_theme: editForm.admin_theme,
     }
 
     if (editForm.is_complimentary) {
@@ -333,6 +341,23 @@ export default function SuperAdminPanel() {
                   </div>
                 </div>
               )}
+            </div>
+
+            {/* Tema admin panela */}
+            <div className={styles.editSection}>
+              <div className={styles.editSectionTitle}>🎨 Tema admin panela</div>
+              <div className={styles.themeOptions}>
+                {ADMIN_THEMES.map(t => (
+                  <button
+                    key={t.key}
+                    className={`${styles.themeOption} ${editForm.admin_theme === t.key ? styles.themeOptionActive : ''}`}
+                    onClick={() => setEditForm(f => ({ ...f, admin_theme: t.key }))}
+                  >
+                    <span className={styles.themeOptionDot} style={{ background: t.color }} />
+                    {t.label}
+                  </button>
+                ))}
+              </div>
             </div>
 
             {/* Plan override */}
