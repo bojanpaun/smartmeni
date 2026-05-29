@@ -142,8 +142,7 @@
 .manualLaborRow { display: flex; gap: 8px; align-items: center; margin-bottom: 8px; }
 .manualLaborInput { flex: 1; max-width: 220px; padding: 9px 12px; border: 1px solid #d0e4dc; border-radius: 9px; font-size: 13px; font-family: 'DM Sans', sans-serif; outline: none; }
 .manualLaborInput:focus { border-color: #0d7a52; }
-.manualLaborBtn { padding: 9px 16px; background: #0d7a52; color: #fff; border: none; border-radius: 9px; font-size: 13px; font-weight: 500; cursor: pointer; font-family: 'DM Sans', sans-serif; }
-.manualLaborBtn:hover { background: #0a6343; }
+.manualLaborBtn { composes: btnPrimary from '../../../styles/buttons.module.css'; }
 .manualLaborNote { font-size: 11px; color: #8a9e96; line-height: 1.5; }
 
 .laborMetrics { margin-top: 12px; display: grid; grid-template-columns: 200px; }

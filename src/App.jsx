@@ -182,6 +182,7 @@ function AppRoutes() {
         {/* Analitika modul */}
         <Route path="/admin/analytics" element={<AdminRoute><AddonGuard addonId="analytics_pro" name="Analitika Pro" description="Napredna analitika prihoda, export u PDF/Excel i prilagođeni datumski rasponi." price={99} category="restaurant"><AnalyticsPage /></AddonGuard></AdminRoute>} />
         <Route path="/admin/guests" element={<AdminRoute><GuestsPage /></AdminRoute>} />
+        <Route path="/admin/guests/help" element={<AdminRoute><ModuleHelp moduleKey="guests" /></AdminRoute>} />
         <Route path="/admin/guests/:id" element={<AdminRoute><GuestProfilePage /></AdminRoute>} />
         <Route path="/admin/analytics/help" element={<AdminRoute><ModuleHelp moduleKey="analytics" /></AdminRoute>} />
         <Route path="/admin/settings/help" element={<AdminRoute><ModuleHelp moduleKey="settings" /></AdminRoute>} />

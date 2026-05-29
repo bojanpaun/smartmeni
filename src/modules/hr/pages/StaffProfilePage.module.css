@@ -27,11 +27,10 @@
 .statLabel { font-size: 11px; color: #8a9e96; margin-top: 2px; }
 
 /* Tabs */
-.tabs { display: flex; border-bottom: 1px solid #e0e8e4; background: #fff; border-radius: 12px 12px 0 0; overflow-x: auto; scrollbar-width: none; margin-bottom: 0; }
+.tabs { composes: tabBar from '../../../styles/nav.module.css'; background: #fff; border-radius: 12px 12px 0 0; overflow-x: auto; scrollbar-width: none; margin-bottom: 0; }
 .tabs::-webkit-scrollbar { display: none; }
-.tab { padding: 12px 18px; border: none; background: transparent; font-size: 13px; font-weight: 500; color: #8a9e96; cursor: pointer; white-space: nowrap; border-bottom: 2px solid transparent; font-family: 'DM Sans', sans-serif; transition: all 0.12s; }
-.tab:hover { color: #1a2e26; }
-.tabActive { color: #0d7a52; border-bottom-color: #0d7a52; }
+.tab { composes: tabBtn from '../../../styles/nav.module.css'; }
+.tabActive { composes: tabBtnActive from '../../../styles/nav.module.css'; }
 
 /* Tab body */
 .tabBody { margin-top: 0; }
@@ -80,9 +79,8 @@
 .empty { text-align: center; color: #8a9e96; padding: 28px; font-size: 13px; }
 
 /* Buttons */
-.btnPrimary { padding: 9px 16px; background: #0d7a52; color: #fff; border: none; border-radius: 9px; font-size: 13px; font-weight: 500; cursor: pointer; font-family: 'DM Sans', sans-serif; }
-.btnPrimary:hover { background: #0a6343; }
-.btnSecondary { padding: 9px 14px; background: #f0f5f2; border: 1px solid #d0e4dc; border-radius: 9px; font-size: 13px; cursor: pointer; font-family: 'DM Sans', sans-serif; color: #3a4a42; }
+.btnPrimary { composes: btnPrimary from '../../../styles/buttons.module.css'; }
+.btnSecondary { composes: btnSecondary from '../../../styles/buttons.module.css'; }
 
 @media (max-width: 600px) {
   .profileCard { flex-direction: column; }
@@ -101,8 +99,7 @@
 .vacEditField label { font-size: 11px; font-weight: 600; color: #8a9e96; letter-spacing: 0.3px; }
 .vacEditField input { padding: 8px 10px; border: 1px solid #d0e4dc; border-radius: 9px; font-size: 13px; font-family: 'DM Sans', sans-serif; outline: none; width: 100%; box-sizing: border-box; }
 .vacEditField input:focus { border-color: #0d7a52; }
-.btnSaveSmall { padding: 6px 12px; background: #0d7a52; color: #fff; border: none; border-radius: 8px; font-size: 12px; font-weight: 500; cursor: pointer; font-family: 'DM Sans', sans-serif; }
-.btnSaveSmall:hover { background: #0a6343; }
+.btnSaveSmall { composes: btnPrimary from '../../../styles/buttons.module.css'; padding: 6px 12px; font-size: 12px; border-radius: 8px; }
 
 /* Absence approve/reject akcije */
 .absenceActions { display: flex; align-items: center; gap: 6px; flex-shrink: 0; }

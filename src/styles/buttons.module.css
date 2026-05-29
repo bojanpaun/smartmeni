@@ -1,0 +1,70 @@
+/*
+  src/styles/buttons.module.css
+  ─────────────────────────────────────────────
+  Kanonska dugmad — compose u module CSS fajlove:
+    .btnPrimary { composes: btnPrimary from '../../../styles/buttons.module.css'; }
+*/
+
+/* Primarno akcijsko dugme — zeleno, filled */
+.btnPrimary {
+  padding: 9px 18px;
+  background: #0d7a52;
+  color: #fff;
+  border: none;
+  border-radius: 10px;
+  font-size: 13px;
+  font-weight: 600;
+  cursor: pointer;
+  font-family: 'DM Sans', sans-serif;
+  transition: background 0.15s;
+  white-space: nowrap;
+}
+.btnPrimary:hover { background: #0a6343; }
+.btnPrimary:disabled { background: #9ad4be; cursor: not-allowed; }
+
+/* Sekundarno dugme — bijelo s bordurom */
+.btnSecondary {
+  padding: 9px 16px;
+  background: #fff;
+  color: #1a2e26;
+  border: 1.5px solid #d0e4dc;
+  border-radius: 10px;
+  font-size: 13px;
+  font-weight: 500;
+  cursor: pointer;
+  font-family: 'DM Sans', sans-serif;
+  transition: border-color 0.15s;
+  white-space: nowrap;
+}
+.btnSecondary:hover { border-color: #0d7a52; }
+.btnSecondary:disabled { opacity: 0.5; cursor: not-allowed; }
+
+/* Destruktivna akcija — crveno */
+.btnDanger {
+  padding: 9px 16px;
+  background: #fff;
+  color: #c0392b;
+  border: 1.5px solid #f5b0b0;
+  border-radius: 10px;
+  font-size: 13px;
+  font-weight: 500;
+  cursor: pointer;
+  font-family: 'DM Sans', sans-serif;
+  transition: background 0.15s;
+  white-space: nowrap;
+}
+.btnDanger:hover { background: #fde0e0; }
+
+/* Icon-only dugme — transparentno */
+.btnIcon {
+  background: none;
+  border: none;
+  cursor: pointer;
+  font-size: 16px;
+  padding: 6px;
+  border-radius: 8px;
+  font-family: 'DM Sans', sans-serif;
+  transition: background 0.12s;
+  line-height: 1;
+}
+.btnIcon:hover { background: #f0f5f2; }

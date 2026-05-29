@@ -4,10 +4,8 @@
 .page { padding: 20px; font-family: 'DM Sans', sans-serif; max-width: 1100px; }
 .topbar { display: flex; align-items: center; justify-content: space-between; margin-bottom: 20px; }
 .topbarTitle { font-size: 20px; font-weight: 600; color: #1a2e26; }
-.btnPrimary { padding: 9px 16px; background: #0d7a52; color: #fff; border: none; border-radius: 9px; font-size: 13px; font-weight: 500; cursor: pointer; font-family: 'DM Sans', sans-serif; }
-.btnPrimary:hover { background: #0a6343; }
-.btnPrimary:disabled { background: #9ad4be; cursor: not-allowed; }
-.btnSecondary { padding: 9px 14px; background: #f0f5f2; border: 1px solid #d0e4dc; border-radius: 9px; font-size: 13px; cursor: pointer; font-family: 'DM Sans', sans-serif; color: #3a4a42; }
+.btnPrimary { composes: btnPrimary from '../../../styles/buttons.module.css'; }
+.btnSecondary { composes: btnSecondary from '../../../styles/buttons.module.css'; }
 
 .content { display: flex; flex-direction: column; gap: 28px; }
 .section {}
@@ -56,11 +54,11 @@
 .emptyDesc { font-size: 13px; color: #8a9e96; max-width: 300px; }
 
 /* --- Modal --- */
-.overlay { position: fixed; inset: 0; background: rgba(0,0,0,0.5); display: flex; align-items: center; justify-content: center; z-index: 100; padding: 16px; }
-.modal { background: #fff; border-radius: 16px; width: 100%; max-width: 460px; max-height: 90vh; overflow-y: auto; padding: 24px; }
-.modalHeader { display: flex; justify-content: space-between; align-items: center; margin-bottom: 16px; }
-.modalTitle { font-size: 16px; font-weight: 600; color: #1a2e26; }
-.modalClose { background: #f0f5f2; border: none; cursor: pointer; width: 28px; height: 28px; border-radius: 50%; font-size: 14px; color: #5a7a6a; }
+.overlay { composes: overlay from '../../../styles/modal.module.css'; }
+.modal { composes: modal from '../../../styles/modal.module.css'; max-width: 460px; }
+.modalHeader { composes: modalHeader from '../../../styles/modal.module.css'; margin-bottom: 16px; }
+.modalTitle { composes: modalTitle from '../../../styles/modal.module.css'; }
+.modalClose { composes: modalClose from '../../../styles/modal.module.css'; }
 .modalActions { display: flex; gap: 10px; justify-content: flex-end; margin-top: 16px; }
 .methodToggle { display: flex; gap: 4px; margin-bottom: 16px; background: #f0f5f2; border-radius: 10px; padding: 4px; }
 .methodBtn { flex: 1; padding: 8px; border: none; border-radius: 8px; background: transparent; font-size: 13px; cursor: pointer; font-family: 'DM Sans', sans-serif; color: #5a7a6a; }

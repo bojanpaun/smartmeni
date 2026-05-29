@@ -5,8 +5,7 @@
 
 .header { display: flex; align-items: center; justify-content: space-between; margin-bottom: 8px; }
 .headerTitle { font-size: 20px; font-weight: 600; color: #1a2e26; }
-.btnBack { padding: 8px 14px; background: #f0f5f2; border: 1px solid #d0e4dc; border-radius: 9px; font-size: 13px; cursor: pointer; font-family: 'DM Sans', sans-serif; color: #3a4a42; }
-.btnBack:hover { background: #e0f0e8; }
+.btnBack { composes: btnSecondary from '../../../styles/buttons.module.css'; }
 
 .desc { font-size: 13px; color: #8a9e96; margin-bottom: 20px; line-height: 1.5; }
 
@@ -64,9 +63,7 @@
 .addSelect:focus { border-color: #0d7a52; }
 .addQtyInput { width: 90px; padding: 9px 10px; border: 1px solid #d0e4dc; border-radius: 9px; font-size: 13px; font-family: 'DM Sans', sans-serif; outline: none; }
 .addQtyInput:focus { border-color: #0d7a52; }
-.addBtn { padding: 9px 16px; background: #0d7a52; color: #fff; border: none; border-radius: 9px; font-size: 13px; font-weight: 500; cursor: pointer; font-family: 'DM Sans', sans-serif; white-space: nowrap; }
-.addBtn:hover { background: #0a6343; }
-.addBtn:disabled { background: #9ad4be; cursor: not-allowed; }
+.addBtn { composes: btnPrimary from '../../../styles/buttons.module.css'; }
 
 .allAdded { font-size: 13px; color: #0d7a52; padding: 12px 0; border-top: 1px solid #f0f5f2; margin-top: 4px; }
 .noInventory { font-size: 13px; color: #8a9e96; padding: 12px 0; border-top: 1px solid #f0f5f2; margin-top: 4px; }
