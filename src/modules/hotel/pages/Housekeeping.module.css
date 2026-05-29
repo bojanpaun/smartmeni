@@ -1,0 +1,234 @@
+/* Stats */
+.stats {
+  display: grid;
+  grid-template-columns: repeat(4, 1fr);
+  gap: 12px;
+  margin-bottom: 20px;
+}
+@media (max-width: 600px) { .stats { grid-template-columns: repeat(2, 1fr); } }
+
+.stat {
+  background: var(--c-surface);
+  border: 1px solid var(--c-border);
+  border-radius: 12px;
+  padding: 14px 16px;
+  text-align: center;
+}
+.statVal   { font-size: 28px; font-weight: 700; line-height: 1; }
+.statLabel { font-size: 12px; color: var(--c-text-muted); margin-top: 4px; }
+
+/* Date picker */
+.datePicker {
+  padding: 8px 12px;
+  border: 1px solid var(--c-border-input);
+  border-radius: 9px;
+  font-size: 13px;
+  font-family: var(--c-font-sans);
+  outline: none;
+  background: var(--c-surface);
+  color: var(--c-text);
+}
+.datePicker:focus { border-color: var(--c-primary-medium); }
+
+/* Status filter chips */
+.statusFilter {
+  display: flex;
+  gap: 8px;
+  margin-bottom: 16px;
+  flex-wrap: wrap;
+}
+.filterChip {
+  padding: 6px 14px;
+  border-radius: 20px;
+  border: 1px solid var(--c-border);
+  background: var(--c-surface);
+  font-size: 12px;
+  cursor: pointer;
+  font-family: var(--c-font-sans);
+  color: var(--c-text-medium);
+  transition: all 0.1s;
+}
+.filterChip:hover { background: var(--c-bg-subtle); }
+.filterChipActive {
+  background: var(--c-primary-light);
+  border-color: var(--c-primary);
+  color: var(--c-primary);
+  font-weight: 600;
+}
+
+/* Form panel */
+.formPanel {
+  background: var(--c-bg-subtle);
+  border: 1.5px solid var(--c-primary-muted);
+  border-radius: 14px;
+  padding: 20px 22px;
+  margin-bottom: 20px;
+}
+.formHeader {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 16px;
+}
+.formTitle { font-size: 14px; font-weight: 600; color: var(--c-text); }
+.formClose {
+  background: var(--c-bg);
+  border: 1px solid var(--c-border);
+  border-radius: 50%;
+  width: 26px; height: 26px;
+  cursor: pointer; font-size: 12px;
+  color: var(--c-text-muted);
+}
+.formGrid {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 12px;
+  margin-bottom: 16px;
+}
+@media (max-width: 600px) { .formGrid { grid-template-columns: 1fr; } }
+
+.field { display: flex; flex-direction: column; gap: 5px; }
+.field label { font-size: 12px; font-weight: 500; color: var(--c-text-medium); }
+.field input, .field select {
+  padding: 8px 12px;
+  border: 1px solid var(--c-border-input);
+  border-radius: 9px; font-size: 13px;
+  font-family: var(--c-font-sans); outline: none;
+  background: var(--c-surface); color: var(--c-text);
+}
+.field input:focus, .field select:focus { border-color: var(--c-primary-medium); }
+
+.formActions { display: flex; gap: 10px; justify-content: flex-end; }
+
+/* Task list */
+.taskList { display: flex; flex-direction: column; gap: 10px; }
+
+.taskCard {
+  background: var(--c-surface);
+  border: 1px solid var(--c-border);
+  border-radius: 14px;
+  padding: 16px 18px;
+  display: flex;
+  align-items: flex-start;
+  gap: 16px;
+  justify-content: space-between;
+  flex-wrap: wrap;
+}
+.taskCardDone { opacity: 0.65; }
+
+.taskCardLeft { flex: 1; min-width: 200px; }
+.taskCardRight {
+  display: flex;
+  flex-direction: column;
+  align-items: flex-end;
+  gap: 8px;
+  flex-shrink: 0;
+}
+
+.taskRoomBig {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  margin-bottom: 6px;
+}
+.taskRoomIcon { font-size: 22px; }
+.taskRoomNum { font-size: 15px; font-weight: 700; color: var(--c-text); }
+.taskRoomType { font-size: 12px; color: var(--c-text-muted); }
+
+.taskType { font-size: 13px; color: var(--c-text-medium); margin-bottom: 4px; }
+.taskNotes { font-size: 12px; color: var(--c-text-muted); font-style: italic; margin-bottom: 6px; }
+
+.taskMeta {
+  display: flex;
+  gap: 8px;
+  align-items: center;
+  flex-wrap: wrap;
+}
+.taskTime { font-size: 11px; color: var(--c-text-muted); }
+
+.statusBadge { font-size: 12px; font-weight: 500; }
+.priorityBadge {
+  font-size: 11px;
+  font-weight: 600;
+  padding: 2px 8px;
+  border-radius: 20px;
+}
+
+/* Assign select */
+.assignSelect {
+  padding: 5px 10px;
+  border: 1px solid var(--c-border-input);
+  border-radius: 8px;
+  font-size: 12px;
+  font-family: var(--c-font-sans);
+  background: var(--c-surface);
+  color: var(--c-text-medium);
+  cursor: pointer;
+  outline: none;
+  min-width: 140px;
+}
+
+/* Task action buttons */
+.taskActions { display: flex; gap: 6px; }
+
+.btnStart {
+  padding: 6px 14px; border-radius: 8px;
+  border: 1px solid #d0e4dc; background: transparent;
+  font-size: 12px; cursor: pointer; color: #2563eb;
+  font-family: var(--c-font-sans); font-weight: 500;
+}
+.btnStart:hover { background: #e6f0ff; }
+
+.btnDone {
+  padding: 6px 14px; border-radius: 8px;
+  border: 1px solid var(--c-primary-muted); background: transparent;
+  font-size: 12px; cursor: pointer; color: var(--c-primary);
+  font-family: var(--c-font-sans); font-weight: 500;
+}
+.btnDone:hover { background: var(--c-primary-light); }
+
+.btnVerify {
+  padding: 6px 14px; border-radius: 8px;
+  border: 1px solid #c4aae0; background: transparent;
+  font-size: 12px; cursor: pointer; color: #7c3aed;
+  font-family: var(--c-font-sans); font-weight: 500;
+}
+.btnVerify:hover { background: #f0eaff; }
+
+.verifiedLabel { font-size: 12px; color: #7c3aed; font-weight: 500; }
+
+/* Maintenance list */
+.maintList { display: flex; flex-direction: column; gap: 10px; }
+
+.maintCard {
+  background: var(--c-surface);
+  border: 1px solid var(--c-border);
+  border-radius: 14px;
+  padding: 14px 18px;
+  display: flex;
+  align-items: center;
+  gap: 14px;
+}
+.maintIcon { font-size: 24px; flex-shrink: 0; }
+.maintBody { flex: 1; }
+.maintTitle { font-size: 14px; font-weight: 500; color: var(--c-text); margin-bottom: 6px; }
+.maintMeta {
+  display: flex;
+  gap: 10px;
+  align-items: center;
+  flex-wrap: wrap;
+  font-size: 12px;
+  color: var(--c-text-muted);
+}
+.maintDate { font-size: 11px; }
+.maintStatus { font-size: 12px; font-weight: 600; }
+.maintActions { display: flex; flex-direction: column; align-items: flex-end; gap: 6px; flex-shrink: 0; }
+
+/* Empty */
+.empty {
+  text-align: center;
+  padding: 48px 24px;
+  color: var(--c-text-muted);
+  font-size: 14px;
+}
+.emptyIcon { font-size: 40px; margin-bottom: 12px; }

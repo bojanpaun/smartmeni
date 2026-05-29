@@ -143,10 +143,11 @@ export const MODULES = [
     interactive: {
       label: 'Hotel operacije',
       links: [
-        { label: 'Front Desk',  icon: '🛎️', path: '/admin/hotel/frontdesk' },
-        { label: 'Rezervacije', icon: '📅', path: '/admin/hotel/reservations' },
-        { label: 'Kalendar',    icon: '📆', path: '/admin/hotel/calendar' },
-        { label: 'Sobe',        icon: '🛏️', path: '/admin/hotel/rooms' },
+        { label: 'Front Desk',    icon: '🛎️', path: '/admin/hotel/frontdesk' },
+        { label: 'Rezervacije',  icon: '📅', path: '/admin/hotel/reservations' },
+        { label: 'Kalendar',     icon: '📆', path: '/admin/hotel/calendar' },
+        { label: 'Sobe',         icon: '🛏️', path: '/admin/hotel/rooms' },
+        { label: 'Domaćinstvo',  icon: '🧹', path: '/admin/hotel/housekeeping' },
       ],
     },
     admin: {
