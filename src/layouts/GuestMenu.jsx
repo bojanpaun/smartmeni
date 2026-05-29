@@ -405,6 +405,7 @@ export default function Menu() {
   )
 
   return (
+    <>
     <div className={styles.pageWrapper}>
     <div
       className={styles.page}
@@ -857,6 +858,18 @@ export default function Menu() {
 
     </div>
     </div>
+
+    {/* Floating booking button */}
+    {!isDemo && r?.show_booking_button && (
+      <button
+        className={styles.bookingFab}
+        style={{ background: tpl.brand }}
+        onClick={() => navigate(`/${slug}/book`)}
+      >
+        🏨 <span>Rezerviši smještaj</span>
+      </button>
+    )}
+    </>
   )
 }
 

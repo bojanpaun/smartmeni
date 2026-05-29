@@ -442,3 +442,34 @@
 .qrExpiredIcon { font-size: 32px; margin-bottom: 8px; }
 .qrExpiredTitle { font-size: 15px; font-weight: 700; color: var(--c-text); margin-bottom: 6px; }
 .qrExpiredDesc { font-size: 13px; color: #7a6050; line-height: 1.5; }
+
+/* ── Floating booking button ── */
+.bookingFab {
+  position: fixed;
+  bottom: 24px;
+  right: 20px;
+  z-index: 200;
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  padding: 12px 20px;
+  border: none;
+  border-radius: 50px;
+  color: #fff;
+  font-size: 14px;
+  font-weight: 700;
+  font-family: var(--font-body, 'DM Sans', sans-serif);
+  cursor: pointer;
+  box-shadow: 0 4px 20px rgba(0,0,0,0.25);
+  transition: transform 0.15s, box-shadow 0.15s;
+  white-space: nowrap;
+}
+.bookingFab:hover {
+  transform: translateY(-2px);
+  box-shadow: 0 6px 28px rgba(0,0,0,0.3);
+}
+.bookingFab:active { transform: translateY(0); }
+@media (max-width: 400px) {
+  .bookingFab span { display: none; }
+  .bookingFab { padding: 14px; border-radius: 50%; font-size: 18px; }
+}

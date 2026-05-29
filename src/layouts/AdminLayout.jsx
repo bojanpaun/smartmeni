@@ -152,9 +152,10 @@ export const MODULES = [
     admin: {
       label: 'Administracija hotela',
       links: [
-        { label: 'Dashboard',      icon: '📊', path: '/admin/hotel',                exact: true },
-        { label: 'Tipovi soba',    icon: '🪑', path: '/admin/hotel/room-types' },
+        { label: 'Dashboard',        icon: '📊', path: '/admin/hotel',                    exact: true },
+        { label: 'Tipovi soba',      icon: '🪑', path: '/admin/hotel/room-types' },
         { label: 'Cjenovni planovi', icon: '🏷️', path: '/admin/hotel/rate-plans' },
+        { label: 'Online booking',   icon: '🔗', path: '/admin/hotel/booking-settings' },
       ],
     },
   },

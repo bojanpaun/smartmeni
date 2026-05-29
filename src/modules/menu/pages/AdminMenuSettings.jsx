@@ -189,6 +189,57 @@ function RejectionMessagesEditor({ restaurant, setRestaurant }) {
   )
 }
 
+function BookingButtonToggle({ restaurant, setRestaurant }) {
+  const [enabled, setEnabled] = useState(restaurant.show_booking_button ?? false)
+  const [saving, setSaving] = useState(false)
+
+  const toggle = async () => {
+    const next = !enabled
+    setEnabled(next)
+    setSaving(true)
+    await supabase.from('restaurants').update({ show_booking_button: next }).eq('id', restaurant.id)
+    setRestaurant(r => ({ ...r, show_booking_button: next }))
+    setSaving(false)
+  }
+
+  const bookingUrl = `${window.location.origin}/${restaurant.slug}/book`
+
+  return (
+    <div className={menuStyles.card} style={{ marginTop: 16 }}>
+      <div className={menuStyles.cardTitle}>Online rezervacija smještaja 🏨</div>
+      <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', gap: 16, flexWrap: 'wrap' }}>
+        <div>
+          <div style={{ fontSize: 13, color: '#1a2e26', fontWeight: 500, marginBottom: 4 }}>
+            Prikaži dugme za rezervaciju na gostovoj stranici
+          </div>
+          <div style={{ fontSize: 12, color: '#8a9e96' }}>
+            Gosti će vidjeti plovuće dugme "Rezerviši" na meniju koje vodi na stranicu za online rezervaciju.
+          </div>
+          <div style={{ fontSize: 12, color: '#0d7a52', marginTop: 8 }}>
+            🔗 <a href={bookingUrl} target="_blank" rel="noreferrer" style={{ color: 'inherit' }}>{bookingUrl}</a>
+          </div>
+        </div>
+        <button
+          onClick={toggle}
+          disabled={saving}
+          style={{
+            width: 48, height: 26, borderRadius: 13, border: 'none', cursor: 'pointer',
+            background: enabled ? '#1a9e6e' : '#d0e4dc',
+            position: 'relative', flexShrink: 0, transition: 'background 0.2s',
+          }}
+        >
+          <span style={{
+            position: 'absolute', top: 3, left: enabled ? 25 : 3,
+            width: 20, height: 20, borderRadius: '50%', background: '#fff',
+            transition: 'left 0.2s', display: 'block',
+            boxShadow: '0 1px 3px rgba(0,0,0,0.2)',
+          }} />
+        </button>
+      </div>
+    </div>
+  )
+}
+
 export default function AdminMenuSettings() {
   const { restaurant, setRestaurant } = usePlatform()
   const [form, setForm] = useState(restaurant ? { ...restaurant } : null)
@@ -280,6 +331,9 @@ export default function AdminMenuSettings() {
 
       <WaiterMessagesEditor restaurant={restaurant} setRestaurant={setRestaurant} />
       <RejectionMessagesEditor restaurant={restaurant} setRestaurant={setRestaurant} />
+
+      {/* Booking dugme */}
+      <BookingButtonToggle restaurant={restaurant} setRestaurant={setRestaurant} />
     </div>
   )
 }
