@@ -1,73 +1,73 @@
-/* ▶ Zamijeniti: src/modules/hr/pages/AttendancePage.module.css */
+﻿/* ▶ Zamijeniti: src/modules/hr/pages/AttendancePage.module.css */
 
-.wrap { padding: 20px; font-family: 'DM Sans', sans-serif; max-width: 900px; }
-.loading { padding: 3rem; text-align: center; color: #8a9e96; }
+.wrap { padding: 20px; font-family: var(--c-font-sans); max-width: 900px; }
+.loading { padding: 3rem; text-align: center; color: var(--c-text-muted); }
 
 /* ── Clock card ── */
-.clockCard { background: #1a2e26; border-radius: 16px; padding: 20px 24px; margin-bottom: 20px; color: #fff; }
+.clockCard { background: var(--c-text); border-radius: 16px; padding: 20px 24px; margin-bottom: 20px; color: var(--c-surface); }
 .clockTop { display: flex; align-items: flex-start; justify-content: space-between; gap: 16px; margin-bottom: 14px; flex-wrap: wrap; }
 .clockTitle { font-size: 13px; color: rgba(255,255,255,0.6); text-transform: uppercase; letter-spacing: 0.5px; margin-bottom: 4px; }
 .clockTotalHours { font-size: 14px; color: rgba(255,255,255,0.8); }
-.clockTotalHours strong { color: #fff; }
+.clockTotalHours strong { color: var(--c-surface); }
 .clockBtns { display: flex; gap: 8px; flex-wrap: wrap; }
-.btnClockIn { padding: 11px 22px; background: #0d7a52; color: #fff; border: none; border-radius: 10px; font-size: 14px; font-weight: 600; cursor: pointer; font-family: 'DM Sans', sans-serif; }
-.btnClockIn:hover { background: #0a6343; }
+.btnClockIn { padding: 11px 22px; background: var(--c-primary); color: var(--c-surface); border: none; border-radius: 10px; font-size: 14px; font-weight: 600; cursor: pointer; font-family: var(--c-font-sans); }
+.btnClockIn:hover { background: var(--c-primary-hover); }
 .btnClockIn:disabled { opacity: 0.6; cursor: not-allowed; }
-.btnClockOut { padding: 11px 22px; background: #c0392b; color: #fff; border: none; border-radius: 10px; font-size: 14px; font-weight: 600; cursor: pointer; font-family: 'DM Sans', sans-serif; }
-.btnClockOut:hover { background: #a93226; }
+.btnClockOut { padding: 11px 22px; background: var(--c-danger); color: var(--c-surface); border: none; border-radius: 10px; font-size: 14px; font-weight: 600; cursor: pointer; font-family: var(--c-font-sans); }
+.btnClockOut:hover { background: var(--c-danger); }
 .btnClockOut:disabled { opacity: 0.6; cursor: not-allowed; }
-.btnNewShift { padding: 11px 18px; background: rgba(255,255,255,0.15); color: #fff; border: 1px solid rgba(255,255,255,0.3); border-radius: 10px; font-size: 13px; cursor: pointer; font-family: 'DM Sans', sans-serif; }
+.btnNewShift { padding: 11px 18px; background: rgba(255,255,255,0.15); color: var(--c-surface); border: 1px solid rgba(255,255,255,0.3); border-radius: 10px; font-size: 13px; cursor: pointer; font-family: var(--c-font-sans); }
 .btnNewShift:hover { background: rgba(255,255,255,0.25); }
 
 .myShifts { display: flex; flex-direction: column; gap: 6px; }
 .myShift { display: flex; align-items: center; gap: 12px; padding: 8px 12px; background: rgba(255,255,255,0.08); border-radius: 9px; }
 .myShiftActive { background: rgba(13,122,82,0.3); border: 1px solid rgba(13,122,82,0.5); }
 .myShiftNum { font-size: 11px; color: rgba(255,255,255,0.5); min-width: 60px; }
-.myShiftTime { font-size: 13px; color: #fff; flex: 1; }
+.myShiftTime { font-size: 13px; color: var(--c-surface); flex: 1; }
 .myShiftLive { color: #9fd4bc; font-weight: 500; }
 .myShiftHours { font-size: 12px; color: rgba(255,255,255,0.6); }
 
 /* ── Admin header ── */
 .header { display: flex; align-items: center; justify-content: space-between; margin-bottom: 14px; gap: 12px; flex-wrap: wrap; }
-.headerTitle { font-size: 18px; font-weight: 600; color: #1a2e26; }
-.dateFilter { padding: 8px 12px; border: 1px solid #d0e4dc; border-radius: 9px; font-size: 13px; font-family: 'DM Sans', sans-serif; outline: none; }
-.dateFilter:focus { border-color: #0d7a52; }
+.headerTitle { font-size: 18px; font-weight: 600; color: var(--c-text); }
+.dateFilter { padding: 8px 12px; border: 1px solid var(--c-border-input); border-radius: 9px; font-size: 13px; font-family: var(--c-font-sans); outline: none; }
+.dateFilter:focus { border-color: var(--c-primary); }
 
 /* ── Stats ── */
 .statsRow { display: grid; grid-template-columns: repeat(4, 1fr); gap: 10px; margin-bottom: 16px; }
-.statCard { background: #fff; border: 1px solid #e0e8e4; border-radius: 12px; padding: 14px; text-align: center; }
-.statLabel { font-size: 11px; color: #8a9e96; text-transform: uppercase; letter-spacing: 0.5px; margin-bottom: 4px; }
-.statVal { font-size: 22px; font-weight: 700; color: #1a2e26; }
+.statCard { background: var(--c-surface); border: 1px solid var(--c-border); border-radius: 12px; padding: 14px; text-align: center; }
+.statLabel { font-size: 11px; color: var(--c-text-muted); text-transform: uppercase; letter-spacing: 0.5px; margin-bottom: 4px; }
+.statVal { font-size: 22px; font-weight: 700; color: var(--c-text); }
 
 /* ── Staff sekcije ── */
 .list { display: flex; flex-direction: column; gap: 10px; }
-.staffSection { background: #fff; border: 1px solid #e0e8e4; border-radius: 14px; overflow: hidden; }
+.staffSection { background: var(--c-surface); border: 1px solid var(--c-border); border-radius: 14px; overflow: hidden; }
 .staffSectionHeader { display: flex; align-items: center; justify-content: space-between; padding: 12px 16px; gap: 12px; flex-wrap: wrap; }
-.staffSectionName { display: flex; align-items: center; gap: 8px; font-size: 14px; font-weight: 500; color: #1a2e26; }
-.staffAvatar { width: 32px; height: 32px; border-radius: 50%; background: #0d7a52; color: #fff; font-size: 13px; font-weight: 600; display: flex; align-items: center; justify-content: center; flex-shrink: 0; }
-.activeBadge { font-size: 11px; color: #0d7a52; background: #e0f5ec; padding: 2px 8px; border-radius: 20px; font-weight: 500; }
-.absentBadge { font-size: 11px; color: #8a9e96; background: #f0f0f0; padding: 2px 8px; border-radius: 20px; }
+.staffSectionName { display: flex; align-items: center; gap: 8px; font-size: 14px; font-weight: 500; color: var(--c-text); }
+.staffAvatar { width: 32px; height: 32px; border-radius: 50%; background: var(--c-primary); color: var(--c-surface); font-size: 13px; font-weight: 600; display: flex; align-items: center; justify-content: center; flex-shrink: 0; }
+.activeBadge { font-size: 11px; color: var(--c-primary); background: var(--c-primary-light); padding: 2px 8px; border-radius: 20px; font-weight: 500; }
+.absentBadge { font-size: 11px; color: var(--c-text-muted); background: #f0f0f0; padding: 2px 8px; border-radius: 20px; }
 .staffSectionMeta { display: flex; align-items: center; gap: 8px; }
-.staffTotalH { font-size: 13px; font-weight: 600; color: #0d7a52; }
-.btnAddEntry { padding: 5px 12px; background: #f0f5f2; border: 1px solid #d0e4dc; border-radius: 7px; font-size: 12px; cursor: pointer; font-family: 'DM Sans', sans-serif; color: #3a4a42; }
-.btnAddEntry:hover { background: #e0f5ec; border-color: #0d7a52; color: #0d7a52; }
+.staffTotalH { font-size: 13px; font-weight: 600; color: var(--c-primary); }
+.btnAddEntry { padding: 5px 12px; background: var(--c-bg-subtle); border: 1px solid var(--c-border-input); border-radius: 7px; font-size: 12px; cursor: pointer; font-family: var(--c-font-sans); color: var(--c-text-medium); }
+.btnAddEntry:hover { background: var(--c-primary-light); border-color: var(--c-primary); color: var(--c-primary); }
 
 /* ── Unosi ── */
-.entriesList { border-top: 1px solid #f0f5f2; }
-.entryRow { display: flex; align-items: center; gap: 10px; padding: 9px 16px; border-bottom: 1px solid #f8faf9; flex-wrap: wrap; }
+.entriesList { border-top: 1px solid var(--c-bg-subtle); }
+.entryRow { display: flex; align-items: center; gap: 10px; padding: 9px 16px; border-bottom: 1px solid var(--c-bg); flex-wrap: wrap; }
 .entryRow:last-child { border-bottom: none; }
-.entryRowActive { background: #f0faf5; }
-.entryNum { font-size: 11px; color: #8a9e96; min-width: 24px; }
-.entryTimes { font-size: 13px; color: #1a2e26; font-weight: 500; display: flex; align-items: center; gap: 6px; flex: 1; }
-.entryArrow { color: #8a9e96; }
-.liveDot { color: #0d7a52; font-weight: 600; font-size: 12px; }
-.entryHours { font-size: 12px; font-weight: 600; color: #0d7a52; background: #e0f5ec; padding: 2px 8px; border-radius: 20px; }
-.entryNote { font-size: 11px; color: #8a9e96; flex: 1; }
+.entryRowActive { background: var(--c-bg-subtle); }
+.entryNum { font-size: 11px; color: var(--c-text-muted); min-width: 24px; }
+.entryTimes { font-size: 13px; color: var(--c-text); font-weight: 500; display: flex; align-items: center; gap: 6px; flex: 1; }
+.entryArrow { color: var(--c-text-muted); }
+.liveDot { color: var(--c-primary); font-weight: 600; font-size: 12px; }
+.entryHours { font-size: 12px; font-weight: 600; color: var(--c-primary); background: var(--c-primary-light); padding: 2px 8px; border-radius: 20px; }
+.entryNote { font-size: 11px; color: var(--c-text-muted); flex: 1; }
 .entryActions { display: flex; gap: 4px; margin-left: auto; }
-.btnEdit { padding: 4px 10px; background: #f0f5f2; border: 1px solid #d0e4dc; border-radius: 6px; font-size: 11px; cursor: pointer; font-family: 'DM Sans', sans-serif; color: #3a4a42; }
+.btnEdit { padding: 4px 10px; background: var(--c-bg-subtle); border: 1px solid var(--c-border-input); border-radius: 6px; font-size: 11px; cursor: pointer; font-family: var(--c-font-sans); color: var(--c-text-medium); }
 .btnEdit:hover { background: #e0f0e8; }
-.btnDel { padding: 4px 8px; background: transparent; border: 1px solid #f5b0b0; border-radius: 6px; font-size: 11px; cursor: pointer; color: #c0392b; }
-.btnDel:hover { background: #fde0e0; }
+.btnDel { padding: 4px 8px; background: transparent; border: 1px solid var(--c-danger-border); border-radius: 6px; font-size: 11px; cursor: pointer; color: var(--c-danger); }
+.btnDel:hover { background: var(--c-danger-bg); }
 
 /* ── Modal ── */
 .overlay { composes: overlay from '../../../styles/modal.module.css'; }
@@ -78,11 +78,11 @@
 .modalActions { display: flex; gap: 8px; justify-content: flex-end; margin-top: 16px; }
 .form { display: flex; flex-direction: column; gap: 14px; }
 .field { display: flex; flex-direction: column; gap: 5px; }
-.field label { font-size: 12px; font-weight: 500; color: #5a7a6a; }
-.field input { padding: 9px 12px; border: 1px solid #d0e4dc; border-radius: 9px; font-size: 13px; font-family: 'DM Sans', sans-serif; outline: none; }
-.field input:focus { border-color: #0d7a52; }
+.field label { font-size: 12px; font-weight: 500; color: var(--c-text-medium); }
+.field input { padding: 9px 12px; border: 1px solid var(--c-border-input); border-radius: 9px; font-size: 13px; font-family: var(--c-font-sans); outline: none; }
+.field input:focus { border-color: var(--c-primary); }
 .fieldRow { display: grid; grid-template-columns: 1fr 1fr; gap: 12px; }
-.calcHours { text-align: center; font-size: 13px; font-weight: 600; color: #0d7a52; background: #e0f5ec; border-radius: 8px; padding: 6px; }
+.calcHours { text-align: center; font-size: 13px; font-weight: 600; color: var(--c-primary); background: var(--c-primary-light); border-radius: 8px; padding: 6px; }
 .btnSave { composes: btnPrimary from '../../../styles/buttons.module.css'; }
 .btnSecondary { composes: btnSecondary from '../../../styles/buttons.module.css'; }
 
@@ -92,8 +92,8 @@
 }
 
 /* Live timer stilovi */
-.myShiftHoursActive { color: #fff; font-weight: 600; font-variant-numeric: tabular-nums; }
-.entryHoursActive { background: #0d7a52 !important; color: #fff !important; animation: pulse 2s infinite; }
+.myShiftHoursActive { color: var(--c-surface); font-weight: 600; font-variant-numeric: tabular-nums; }
+.entryHoursActive { background: var(--c-primary) !important; color: var(--c-surface) !important; animation: pulse 2s infinite; }
 .clockTotalHours strong { font-variant-numeric: tabular-nums; font-size: 15px; }
 .staffTotalH { font-variant-numeric: tabular-nums; }
 @keyframes pulse { 0%, 100% { opacity: 1; } 50% { opacity: 0.75; } }

@@ -1,10 +1,10 @@
-/* ▶ Zamijeniti: src/platform/superadmin/StaffRoles.module.css */
+﻿/* ▶ Zamijeniti: src/platform/superadmin/StaffRoles.module.css */
 
-.wrap { padding: 20px; font-family: 'DM Sans', sans-serif; max-width: 900px; }
-.loading { padding: 3rem; text-align: center; color: #8a9e96; }
+.wrap { padding: 20px; font-family: var(--c-font-sans); max-width: 900px; }
+.loading { padding: 3rem; text-align: center; color: var(--c-text-muted); }
 
 .topbar { display: flex; align-items: center; justify-content: space-between; margin-bottom: 20px; }
-.topbarTitle { font-size: 20px; font-weight: 600; color: #1a2e26; }
+.topbarTitle { font-size: 20px; font-weight: 600; color: var(--c-text); }
 
 .btnPrimary { composes: btnPrimary from '../../styles/buttons.module.css'; }
 .btnSecondary { composes: btnSecondary from '../../styles/buttons.module.css'; }
@@ -12,39 +12,39 @@
 /* ── Empty ── */
 .emptyState { text-align: center; padding: 3rem 1rem; display: flex; flex-direction: column; align-items: center; gap: 12px; }
 .emptyIcon { font-size: 44px; }
-.emptyTitle { font-size: 18px; font-weight: 600; color: #1a2e26; }
-.emptyDesc { font-size: 13px; color: #8a9e96; max-width: 400px; line-height: 1.6; }
+.emptyTitle { font-size: 18px; font-weight: 600; color: var(--c-text); }
+.emptyDesc { font-size: 13px; color: var(--c-text-muted); max-width: 400px; line-height: 1.6; }
 
 /* ── Role grid ── */
 .roleGrid { display: grid; grid-template-columns: repeat(auto-fill, minmax(260px, 1fr)); gap: 14px; margin-bottom: 16px; }
 
-.roleCard { background: #fff; border: 1px solid #e0e8e4; border-radius: 14px; padding: 18px; }
+.roleCard { background: var(--c-surface); border: 1px solid var(--c-border); border-radius: 14px; padding: 18px; }
 .roleCardHeader { display: flex; justify-content: space-between; align-items: flex-start; margin-bottom: 12px; }
-.roleName { font-size: 16px; font-weight: 600; color: #1a2e26; }
+.roleName { font-size: 16px; font-weight: 600; color: var(--c-text); }
 .roleActions { display: flex; gap: 6px; }
-.actionBtn { padding: 5px 12px; background: #f0f5f2; border: 1px solid #d0e4dc; border-radius: 7px; font-size: 12px; cursor: pointer; font-family: 'DM Sans', sans-serif; color: #3a4a42; }
+.actionBtn { padding: 5px 12px; background: var(--c-bg-subtle); border: 1px solid var(--c-border-input); border-radius: 7px; font-size: 12px; cursor: pointer; font-family: var(--c-font-sans); color: var(--c-text-medium); }
 .actionBtn:hover { background: #e0f0e8; }
-.actionBtnDanger { color: #c0392b !important; border-color: #f5b0b0 !important; }
-.actionBtnDanger:hover { background: #fde0e0 !important; }
+.actionBtnDanger { color: var(--c-danger) !important; border-color: var(--c-danger-border) !important; }
+.actionBtnDanger:hover { background: var(--c-danger-bg) !important; }
 
 .rolePerms { display: flex; gap: 5px; flex-wrap: wrap; margin-bottom: 12px; min-height: 24px; }
-.permPill { font-size: 10px; background: #f0f5f2; color: #5a7a6a; padding: 2px 8px; border-radius: 20px; }
-.permPillMore { font-size: 10px; background: #e0f5ec; color: #0d7a52; padding: 2px 8px; border-radius: 20px; font-weight: 500; }
-.permPillNone { font-size: 11px; color: #c0392b; font-style: italic; }
+.permPill { font-size: 10px; background: var(--c-bg-subtle); color: var(--c-text-medium); padding: 2px 8px; border-radius: 20px; }
+.permPillMore { font-size: 10px; background: var(--c-primary-light); color: var(--c-primary); padding: 2px 8px; border-radius: 20px; font-weight: 500; }
+.permPillNone { font-size: 11px; color: var(--c-danger); font-style: italic; }
 
-.roleFooter { border-top: 1px solid #f0f5f2; padding-top: 10px; }
-.roleStaffCount { font-size: 12px; color: #8a9e96; }
+.roleFooter { border-top: 1px solid var(--c-bg-subtle); padding-top: 10px; }
+.roleStaffCount { font-size: 12px; color: var(--c-text-muted); }
 
-.addRoleCard { display: flex; flex-direction: column; align-items: center; justify-content: center; gap: 8px; border: 2px dashed #d0e4dc; border-radius: 14px; background: transparent; cursor: pointer; padding: 28px; font-family: 'DM Sans', sans-serif; color: #8a9e96; font-size: 13px; transition: all 0.15s; }
-.addRoleCard:hover { border-color: #0d7a52; color: #0d7a52; background: #f0faf5; }
+.addRoleCard { display: flex; flex-direction: column; align-items: center; justify-content: center; gap: 8px; border: 2px dashed var(--c-border-input); border-radius: 14px; background: transparent; cursor: pointer; padding: 28px; font-family: var(--c-font-sans); color: var(--c-text-muted); font-size: 13px; transition: all 0.15s; }
+.addRoleCard:hover { border-color: var(--c-primary); color: var(--c-primary); background: var(--c-bg-subtle); }
 .addRoleIcon { font-size: 26px; font-weight: 300; }
 
 /* ── Predlošci ── */
-.templateRow { display: flex; align-items: center; gap: 8px; flex-wrap: wrap; padding: 14px 0; border-top: 1px solid #e0e8e4; }
-.templateRowLabel { font-size: 12px; color: #8a9e96; }
+.templateRow { display: flex; align-items: center; gap: 8px; flex-wrap: wrap; padding: 14px 0; border-top: 1px solid var(--c-border); }
+.templateRowLabel { font-size: 12px; color: var(--c-text-muted); }
 .templates { display: flex; gap: 8px; flex-wrap: wrap; }
-.templateBtn { padding: 7px 14px; background: #f0f5f2; border: 1px solid #d0e4dc; border-radius: 20px; font-size: 13px; cursor: pointer; font-family: 'DM Sans', sans-serif; color: #3a4a42; }
-.templateBtn:hover { background: #e0f5ec; border-color: #0d7a52; color: #0d7a52; }
+.templateBtn { padding: 7px 14px; background: var(--c-bg-subtle); border: 1px solid var(--c-border-input); border-radius: 20px; font-size: 13px; cursor: pointer; font-family: var(--c-font-sans); color: var(--c-text-medium); }
+.templateBtn:hover { background: var(--c-primary-light); border-color: var(--c-primary); color: var(--c-primary); }
 
 /* ── Modal ── */
 .overlay { composes: overlay from '../../styles/modal.module.css'; }
@@ -55,23 +55,23 @@
 .modalActions { display: flex; gap: 10px; justify-content: flex-end; margin-top: 16px; }
 
 .field { display: flex; flex-direction: column; gap: 5px; margin-bottom: 16px; }
-.field label { font-size: 12px; font-weight: 500; color: #5a7a6a; }
-.field input { padding: 10px 12px; border: 1px solid #d0e4dc; border-radius: 9px; font-size: 13px; font-family: 'DM Sans', sans-serif; outline: none; }
-.field input:focus { border-color: #0d7a52; }
+.field label { font-size: 12px; font-weight: 500; color: var(--c-text-medium); }
+.field input { padding: 10px 12px; border: 1px solid var(--c-border-input); border-radius: 9px; font-size: 13px; font-family: var(--c-font-sans); outline: none; }
+.field input:focus { border-color: var(--c-primary); }
 
 .permSection { margin-bottom: 8px; }
-.permSectionTitle { font-size: 14px; font-weight: 600; color: #1a2e26; margin-bottom: 4px; }
-.permSectionDesc { font-size: 12px; color: #8a9e96; margin-bottom: 14px; }
+.permSectionTitle { font-size: 14px; font-weight: 600; color: var(--c-text); margin-bottom: 4px; }
+.permSectionDesc { font-size: 12px; color: var(--c-text-muted); margin-bottom: 14px; }
 .permModule { margin-bottom: 18px; }
-.permModuleLabel { font-size: 12px; font-weight: 600; color: #5a7a6a; margin-bottom: 8px; padding-bottom: 4px; border-bottom: 1px solid #f0f5f2; }
+.permModuleLabel { font-size: 12px; font-weight: 600; color: var(--c-text-medium); margin-bottom: 8px; padding-bottom: 4px; border-bottom: 1px solid var(--c-bg-subtle); }
 .permList { display: flex; flex-direction: column; gap: 6px; }
 .permItem { display: flex; align-items: flex-start; gap: 10px; cursor: pointer; padding: 6px 8px; border-radius: 8px; }
-.permItem:hover { background: #f8faf9; }
-.permItem input { margin-top: 2px; cursor: pointer; accent-color: #0d7a52; flex-shrink: 0; }
-.permLabel { font-size: 13px; font-weight: 500; color: #1a2e26; }
-.permDesc { font-size: 11px; color: #8a9e96; margin-top: 1px; }
+.permItem:hover { background: var(--c-bg); }
+.permItem input { margin-top: 2px; cursor: pointer; accent-color: var(--c-primary); flex-shrink: 0; }
+.permLabel { font-size: 13px; font-weight: 500; color: var(--c-text); }
+.permDesc { font-size: 11px; color: var(--c-text-muted); margin-top: 1px; }
 
-.permCount { font-size: 12px; color: #0d7a52; background: #e0f5ec; border-radius: 8px; padding: 6px 12px; text-align: center; font-weight: 500; margin-bottom: 4px; }
+.permCount { font-size: 12px; color: var(--c-primary); background: var(--c-primary-light); border-radius: 8px; padding: 6px 12px; text-align: center; font-weight: 500; margin-bottom: 4px; }
 
 @media (max-width: 600px) {
   .roleGrid { grid-template-columns: 1fr; }

@@ -1,25 +1,25 @@
-/* ▶ Novi fajl: src/modules/hr/pages/PayrollPage.module.css */
+﻿/* ▶ Novi fajl: src/modules/hr/pages/PayrollPage.module.css */
 
-.wrap { padding: 20px; font-family: 'DM Sans', sans-serif; max-width: 900px; }
-.loading { padding: 3rem; text-align: center; color: #8a9e96; }
+.wrap { padding: 20px; font-family: var(--c-font-sans); max-width: 900px; }
+.loading { padding: 3rem; text-align: center; color: var(--c-text-muted); }
 
 .header { display: flex; align-items: center; justify-content: space-between; margin-bottom: 16px; }
-.headerTitle { font-size: 20px; font-weight: 600; color: #1a2e26; }
+.headerTitle { font-size: 20px; font-weight: 600; color: var(--c-text); }
 
 .btnAdd { composes: btnPrimary from '../../../styles/buttons.module.css'; }
 .btnSecondary { composes: btnSecondary from '../../../styles/buttons.module.css'; }
 
 /* ── Filteri ── */
 .filters { display: flex; align-items: center; gap: 8px; margin-bottom: 16px; flex-wrap: wrap; }
-.filterSelect, .filterDate { padding: 8px 12px; border: 1px solid #d0e4dc; border-radius: 9px; font-size: 13px; font-family: 'DM Sans', sans-serif; outline: none; background: #fff; }
-.filterSelect:focus, .filterDate:focus { border-color: #0d7a52; }
-.filterSep { color: #8a9e96; font-size: 13px; }
+.filterSelect, .filterDate { padding: 8px 12px; border: 1px solid var(--c-border-input); border-radius: 9px; font-size: 13px; font-family: var(--c-font-sans); outline: none; background: var(--c-surface); }
+.filterSelect:focus, .filterDate:focus { border-color: var(--c-primary); }
+.filterSep { color: var(--c-text-muted); font-size: 13px; }
 
 /* ── Summary ── */
 .summaryGrid { display: grid; grid-template-columns: repeat(4, 1fr); gap: 10px; margin-bottom: 16px; }
-.summaryCard { background: #fff; border: 1px solid #e0e8e4; border-radius: 12px; padding: 14px 16px; }
-.summaryLabel { font-size: 11px; color: #8a9e96; text-transform: uppercase; letter-spacing: 0.5px; margin-bottom: 4px; }
-.summaryVal { font-size: 20px; font-weight: 700; color: #0d7a52; }
+.summaryCard { background: var(--c-surface); border: 1px solid var(--c-border); border-radius: 12px; padding: 14px 16px; }
+.summaryLabel { font-size: 11px; color: var(--c-text-muted); text-transform: uppercase; letter-spacing: 0.5px; margin-bottom: 4px; }
+.summaryVal { font-size: 20px; font-weight: 700; color: var(--c-primary); }
 
 /* ── Tabovi ── */
 .tabs { composes: tabBar from '../../../styles/nav.module.css'; }
@@ -28,47 +28,47 @@
 
 /* ── Stavke ── */
 .entriesList { display: flex; flex-direction: column; gap: 6px; }
-.entryRow { display: grid; grid-template-columns: 110px 1fr 100px 1fr 100px 32px; align-items: center; gap: 10px; padding: 10px 14px; background: #fff; border: 1px solid #e0e8e4; border-radius: 10px; }
+.entryRow { display: grid; grid-template-columns: 110px 1fr 100px 1fr 100px 32px; align-items: center; gap: 10px; padding: 10px 14px; background: var(--c-surface); border: 1px solid var(--c-border); border-radius: 10px; }
 .typePill { font-size: 11px; padding: 3px 9px; border-radius: 20px; font-weight: 500; }
-.entryStaff { font-size: 13px; font-weight: 500; color: #1a2e26; }
-.entryDate { font-size: 12px; color: #8a9e96; }
-.entryNote { font-size: 12px; color: #5a7a6a; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+.entryStaff { font-size: 13px; font-weight: 500; color: var(--c-text); }
+.entryDate { font-size: 12px; color: var(--c-text-muted); }
+.entryNote { font-size: 12px; color: var(--c-text-medium); overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
 .entryAmount { font-size: 14px; font-weight: 700; }
 .entryDelete { background: none; border: none; cursor: pointer; color: #d0d0d0; font-size: 14px; padding: 4px; border-radius: 4px; }
-.entryDelete:hover { color: #c0392b; background: #fde0e0; }
+.entryDelete:hover { color: var(--c-danger); background: var(--c-danger-bg); }
 
-.empty { padding: 2rem; text-align: center; color: #8a9e96; font-size: 13px; }
+.empty { padding: 2rem; text-align: center; color: var(--c-text-muted); font-size: 13px; }
 
 /* ── Generiši ── */
-.generateRow { display: flex; align-items: center; gap: 10px; margin-bottom: 14px; flex-wrap: wrap; padding: 12px 16px; background: #f8faf9; border-radius: 12px; border: 1px solid #e0e8e4; }
-.generateLabel { font-size: 12px; color: #5a7a6a; font-weight: 500; }
+.generateRow { display: flex; align-items: center; gap: 10px; margin-bottom: 14px; flex-wrap: wrap; padding: 12px 16px; background: var(--c-bg); border-radius: 12px; border: 1px solid var(--c-border); }
+.generateLabel { font-size: 12px; color: var(--c-text-medium); font-weight: 500; }
 .generateBtns { display: flex; gap: 6px; flex-wrap: wrap; }
-.btnGenerate { padding: 6px 12px; background: #fff; border: 1px solid #d0e4dc; border-radius: 8px; font-size: 12px; cursor: pointer; font-family: 'DM Sans', sans-serif; color: #3a4a42; }
-.btnGenerate:hover { background: #e0f5ec; border-color: #0d7a52; color: #0d7a52; }
+.btnGenerate { padding: 6px 12px; background: var(--c-surface); border: 1px solid var(--c-border-input); border-radius: 8px; font-size: 12px; cursor: pointer; font-family: var(--c-font-sans); color: var(--c-text-medium); }
+.btnGenerate:hover { background: var(--c-primary-light); border-color: var(--c-primary); color: var(--c-primary); }
 
 /* ── Platni listovi ── */
 .periodsList { display: flex; flex-direction: column; gap: 12px; }
-.periodCard { background: #fff; border: 1px solid #e0e8e4; border-radius: 14px; padding: 18px 20px; }
+.periodCard { background: var(--c-surface); border: 1px solid var(--c-border); border-radius: 14px; padding: 18px 20px; }
 .periodHeader { display: flex; justify-content: space-between; align-items: flex-start; margin-bottom: 14px; }
-.periodName { font-size: 15px; font-weight: 600; color: #1a2e26; }
-.periodDates { font-size: 12px; color: #8a9e96; margin-top: 2px; }
+.periodName { font-size: 15px; font-weight: 600; color: var(--c-text); }
+.periodDates { font-size: 12px; color: var(--c-text-muted); margin-top: 2px; }
 
 .statusPill { font-size: 11px; padding: 4px 10px; border-radius: 20px; font-weight: 500; }
-.status-draft    { background: #f0f5f2; color: #5a7a6a; }
+.status-draft    { background: var(--c-bg-subtle); color: var(--c-text-medium); }
 .status-approved { background: #e8f0fe; color: #185fa5; }
-.status-paid     { background: #e0f5ec; color: #0d7a52; }
+.status-paid     { background: var(--c-primary-light); color: var(--c-primary); }
 
 .periodGrid { display: grid; grid-template-columns: repeat(3, 1fr); gap: 10px; margin-bottom: 14px; }
-.pgLabel { font-size: 11px; color: #8a9e96; margin-bottom: 2px; }
-.pgVal { font-size: 14px; font-weight: 600; color: #1a2e26; }
+.pgLabel { font-size: 11px; color: var(--c-text-muted); margin-bottom: 2px; }
+.pgVal { font-size: 14px; font-weight: 600; color: var(--c-text); }
 
-.periodTotal { display: flex; justify-content: space-between; align-items: center; padding: 12px 0 0; border-top: 1px solid #e0e8e4; font-size: 14px; font-weight: 600; color: #1a2e26; }
-.periodTotalVal { font-size: 20px; color: #0d7a52; }
+.periodTotal { display: flex; justify-content: space-between; align-items: center; padding: 12px 0 0; border-top: 1px solid var(--c-border); font-size: 14px; font-weight: 600; color: var(--c-text); }
+.periodTotalVal { font-size: 20px; color: var(--c-primary); }
 
 .periodActions { display: flex; gap: 8px; margin-top: 12px; }
-.btnApprove { padding: 7px 16px; background: #e8f0fe; color: #185fa5; border: 1px solid #b5d4f4; border-radius: 8px; font-size: 12px; cursor: pointer; font-family: 'DM Sans', sans-serif; font-weight: 500; }
+.btnApprove { padding: 7px 16px; background: #e8f0fe; color: #185fa5; border: 1px solid #b5d4f4; border-radius: 8px; font-size: 12px; cursor: pointer; font-family: var(--c-font-sans); font-weight: 500; }
 .btnApprove:hover { background: #c0d8f8; }
-.btnPay { padding: 7px 16px; background: #e0f5ec; color: #0d7a52; border: 1px solid #9fd4bc; border-radius: 8px; font-size: 12px; cursor: pointer; font-family: 'DM Sans', sans-serif; font-weight: 500; }
+.btnPay { padding: 7px 16px; background: var(--c-primary-light); color: var(--c-primary); border: 1px solid #9fd4bc; border-radius: 8px; font-size: 12px; cursor: pointer; font-family: var(--c-font-sans); font-weight: 500; }
 .btnPay:hover { background: #c8edd8; }
 
 /* ── Modal ── */
@@ -80,9 +80,9 @@
 .modalActions { display: flex; gap: 8px; justify-content: flex-end; margin-top: 16px; }
 .form { display: flex; flex-direction: column; gap: 14px; }
 .field { display: flex; flex-direction: column; gap: 5px; }
-.field label { font-size: 12px; font-weight: 500; color: #5a7a6a; }
-.field input, .field select { padding: 9px 12px; border: 1px solid #d0e4dc; border-radius: 9px; font-size: 13px; font-family: 'DM Sans', sans-serif; outline: none; }
-.field input:focus, .field select:focus { border-color: #0d7a52; }
+.field label { font-size: 12px; font-weight: 500; color: var(--c-text-medium); }
+.field input, .field select { padding: 9px 12px; border: 1px solid var(--c-border-input); border-radius: 9px; font-size: 13px; font-family: var(--c-font-sans); outline: none; }
+.field input:focus, .field select:focus { border-color: var(--c-primary); }
 .fieldRow { display: grid; grid-template-columns: 1fr 1fr; gap: 12px; }
 
 @media (max-width: 600px) {

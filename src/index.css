@@ -5,6 +5,7 @@
 }
 
 :root {
+  /* ── Javni (landing / guest menu) tokeni ── */
   --green: #1a9e6e;
   --green-dark: #0d7a52;
   --green-light: #e0f5ec;
@@ -25,6 +26,51 @@
   --shadow-sm: 0 1px 3px rgba(14,26,20,0.08);
   --shadow-md: 0 4px 16px rgba(14,26,20,0.1);
   --shadow-lg: 0 12px 40px rgba(14,26,20,0.12);
+
+  /* ── Admin panel dizajn tokeni ── */
+
+  /* Primarna boja */
+  --c-primary:        #0d7a52;
+  --c-primary-hover:  #0a6343;
+  --c-primary-medium: #1d9e75;
+  --c-primary-light:  #e0f5ec;
+  --c-primary-muted:  #9ad4be;
+
+  /* Tekst */
+  --c-text:        #1a2e26;
+  --c-text-medium: #5a7a6a;
+  --c-text-muted:  #8a9e96;
+
+  /* Pozadine / površine */
+  --c-surface:    #ffffff;
+  --c-bg:         #f8faf9;
+  --c-bg-subtle:  #f0f5f2;
+
+  /* Borderi */
+  --c-border:       #e0e8e4;
+  --c-border-input: #d0e4dc;
+
+  /* Opasnost (crvena) */
+  --c-danger:        #c0392b;
+  --c-danger-bg:     #fde0e0;
+  --c-danger-border: #f5b0b0;
+
+  /* Upozorenje (narandžasta) */
+  --c-warning:    #ba7517;
+  --c-warning-bg: #faeeda;
+
+  /* Tipografija */
+  --c-font-sans:    'DM Sans', sans-serif;
+  --c-font-display: 'Syne', sans-serif;
+
+  /* Radijusi — admin skala */
+  --c-radius-sm: 8px;
+  --c-radius-md: 10px;
+  --c-radius-lg: 14px;
+  --c-radius-xl: 16px;
+
+  /* Sjenke */
+  --c-shadow-modal: 0 8px 40px rgba(0,0,0,0.18);
 }
 
 html {

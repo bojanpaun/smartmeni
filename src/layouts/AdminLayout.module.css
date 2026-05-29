@@ -1,4 +1,4 @@
-/* ═══════════════════════════════════════════════════
+﻿/* ═══════════════════════════════════════════════════
    AdminLayout — CSS Module
    ═══════════════════════════════════════════════════ */
 
@@ -12,7 +12,7 @@
   --sb-border:     rgba(255, 255, 255, 0.07);
   --topbar-h:      48px;
   --bottom-nav-h:  64px;
-  --main-bg:       #f5f9f7;
+  --main-bg:       var(--c-bg);
 }
 
 /* ═══════════════════════════════════════════════════
@@ -22,7 +22,7 @@
 .hubLayout {
   min-height: 100vh;
   background: var(--main-bg);
-  font-family: 'DM Sans', sans-serif;
+  font-family: var(--c-font-sans);
   display: flex;
   flex-direction: column;
 }
@@ -39,10 +39,10 @@
 
 /* Naziv restorana — lijevo */
 .hubRestName {
-  font-family: 'Syne', sans-serif;
+  font-family: var(--c-font-display);
   font-size: 16px;
   font-weight: 700;
-  color: #fff;
+  color: var(--c-surface);
   letter-spacing: -0.01em;
 }
 
@@ -69,8 +69,8 @@
   width: 26px;
   height: 26px;
   border-radius: 6px;
-  background: #1d9e75;
-  color: #fff;
+  background: var(--c-primary-medium);
+  color: var(--c-surface);
   display: flex;
   align-items: center;
   justify-content: center;
@@ -98,10 +98,10 @@
   border-radius: 6px;
   font-size: 12px;
   cursor: pointer;
-  font-family: 'DM Sans', sans-serif;
+  font-family: var(--c-font-sans);
   transition: color 0.12s, border-color 0.12s;
 }
-.hubLogoutBtn:hover { color: #fff; border-color: rgba(255,255,255,0.3); }
+.hubLogoutBtn:hover { color: var(--c-surface); border-color: rgba(255,255,255,0.3); }
 
 .hubMain { flex: 1; }
 
@@ -118,9 +118,9 @@
   text-decoration: none;
   letter-spacing: 0.01em;
   transition: color 0.12s;
-  font-family: 'DM Sans', sans-serif;
+  font-family: var(--c-font-sans);
 }
-.hubBrand .green { color: #1d9e75; }
+.hubBrand .green { color: var(--c-primary-medium); }
 .hubBrand:hover { color: rgba(0,0,0,0.45); }
 
 /* ═══════════════════════════════════════════════════
@@ -131,7 +131,7 @@
   display: grid;
   grid-template-columns: var(--sb-width) 1fr;
   min-height: 100vh;
-  font-family: 'DM Sans', sans-serif;
+  font-family: var(--c-font-sans);
   transition: grid-template-columns 0.22s cubic-bezier(.4,0,.2,1);
 }
 
@@ -173,10 +173,10 @@
 
 /* Naziv restorana — umjesto smartmeni brenda */
 .sbRestTitle {
-  font-family: 'Syne', sans-serif;
+  font-family: var(--c-font-display);
   font-size: 15px;
   font-weight: 700;
-  color: #fff;
+  color: var(--c-surface);
   text-decoration: none;
   letter-spacing: -0.01em;
   white-space: nowrap;
@@ -225,8 +225,8 @@
   width: 28px;
   height: 28px;
   border-radius: 7px;
-  background: #1d9e75;
-  color: #fff;
+  background: var(--c-primary-medium);
+  color: var(--c-surface);
   display: flex;
   align-items: center;
   justify-content: center;
@@ -244,7 +244,7 @@
 .sbRoleName {
   font-size: 12px;
   font-weight: 500;
-  color: #fff;
+  color: var(--c-surface);
   white-space: nowrap;
   overflow: hidden;
   text-overflow: ellipsis;
@@ -298,7 +298,7 @@
   transition: background 0.12s, color 0.12s;
   white-space: nowrap;
 }
-.navItem:hover { background: rgba(255,255,255,0.05); color: #fff; }
+.navItem:hover { background: rgba(255,255,255,0.05); color: var(--c-surface); }
 .navItemActive {
   background: var(--sb-accent-bg) !important;
   color: var(--sb-accent) !important;
@@ -367,10 +367,10 @@
   border-radius: 8px;
   font-size: 12px;
   cursor: pointer;
-  font-family: 'DM Sans', sans-serif;
+  font-family: var(--c-font-sans);
   transition: color 0.12s, border-color 0.12s;
 }
-.logoutBtn:hover { color: #fff; border-color: rgba(255,255,255,0.2); }
+.logoutBtn:hover { color: var(--c-surface); border-color: rgba(255,255,255,0.2); }
 
 
 /* Collapsed dno */
@@ -403,7 +403,7 @@
 
 .topbar {
   height: var(--topbar-h);
-  background: #fff;
+  background: var(--c-surface);
   border-bottom: 1px solid #e8ede9;
   display: flex;
   align-items: center;
@@ -443,9 +443,9 @@
   text-decoration: none;
   letter-spacing: 0.01em;
   transition: color 0.12s;
-  font-family: 'DM Sans', sans-serif;
+  font-family: var(--c-font-sans);
 }
-.pageBrand .green { color: #1d9e75; }
+.pageBrand .green { color: var(--c-primary-medium); }
 .pageBrand:hover { color: rgba(0,0,0,0.45); }
 
 /* ═══════════════════════════════════════════════════
@@ -460,7 +460,7 @@
   .mainWrap { padding-bottom: 0; }
   .main { min-height: calc(100vh - var(--topbar-h)); }
   .topbar {
-    background: var(--sb-bg, #1a2e26) !important;
+    background: var(--sb-bg, var(--c-text)) !important;
     border-bottom-color: rgba(255,255,255,0.1) !important;
   }
   .breadcrumbLink, .breadcrumbCurrent, .breadcrumbSep {
@@ -525,7 +525,7 @@
 /* ── Hamburger ── */
 .hamburger {
   display: none;
-  background: none; border: none; color: var(--sb-text, #fff);
+  background: none; border: none; color: var(--sb-text, var(--c-surface));
   font-size: 20px; cursor: pointer; padding: 6px 10px;
   border-radius: 8px; line-height: 1;
   margin-right: 8px; flex-shrink: 0;
@@ -589,6 +589,6 @@
   .mobileBackBtn:hover { background: rgba(255,255,255,0.2); }
   .mobileModuleTitle {
     flex: 1; text-align: center; font-size: 14px; font-weight: 600;
-    color: #fff; overflow: hidden; text-overflow: ellipsis; white-space: nowrap;
+    color: var(--c-surface); overflow: hidden; text-overflow: ellipsis; white-space: nowrap;
   }
 }

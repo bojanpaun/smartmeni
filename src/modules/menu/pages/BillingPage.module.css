@@ -1,15 +1,15 @@
-/* ▶ Zamijeniti: src/modules/menu/pages/BillingPage.module.css */
+﻿/* ▶ Zamijeniti: src/modules/menu/pages/BillingPage.module.css */
 
 .page {
   padding: 28px 24px;
   max-width: 800px;
-  font-family: 'DM Sans', sans-serif;
+  font-family: var(--c-font-sans);
 }
 
 .header { margin-bottom: 24px; }
 
 .title {
-  font-family: 'Syne', sans-serif;
+  font-family: var(--c-font-display);
   font-size: 20px;
   font-weight: 700;
   color: #1a3028;
@@ -27,9 +27,9 @@
   line-height: 1.5;
 }
 
-.alertTrial  { background: #e0f5ec; color: #0d5c3a; border: 1px solid #a0d8bc; }
-.alertExpired { background: #faeeda; color: #7a4a00; border: 1px solid #f5c842; }
-.alertDanger  { background: #fce8e8; color: #8b0000; border: 1px solid #f5a0a0; }
+.alertTrial  { background: var(--c-primary-light); color: #0d5c3a; border: 1px solid #a0d8bc; }
+.alertExpired { background: var(--c-warning-bg); color: #7a4a00; border: 1px solid #f5c842; }
+.alertDanger  { background: var(--c-danger-bg); color: #8b0000; border: 1px solid #f5a0a0; }
 
 /* ── Planovi ── */
 .plans {
@@ -40,7 +40,7 @@
 }
 
 .planCard {
-  background: #fff;
+  background: var(--c-surface);
   border: 1.5px solid #e0ede7;
   border-radius: 16px;
   padding: 24px;
@@ -49,7 +49,7 @@
   flex-direction: column;
 }
 
-.planPro { border-color: #0d7a52; }
+.planPro { border-color: var(--c-primary); }
 .planCurrent { border-width: 2px; }
 
 .planPopular {
@@ -57,8 +57,8 @@
   top: -12px;
   left: 50%;
   transform: translateX(-50%);
-  background: #0d7a52;
-  color: #fff;
+  background: var(--c-primary);
+  color: var(--c-surface);
   font-size: 11px;
   font-weight: 600;
   padding: 3px 14px;
@@ -74,7 +74,7 @@
 }
 
 .planName {
-  font-family: 'Syne', sans-serif;
+  font-family: var(--c-font-display);
   font-size: 18px;
   font-weight: 700;
   color: #1a3028;
@@ -84,7 +84,7 @@
 .planPrice {
   font-size: 32px;
   font-weight: 700;
-  color: #0d7a52;
+  color: var(--c-primary);
 }
 
 .planPeriod {
@@ -113,7 +113,7 @@
 }
 
 .featureMissing { color: #b0c4ba; }
-.featureCheck { color: #0d7a52; font-weight: 700; flex-shrink: 0; }
+.featureCheck { color: var(--c-primary); font-weight: 700; flex-shrink: 0; }
 .featureCross  { color: #c8d8d0; flex-shrink: 0; }
 
 .currentBadge {
@@ -129,18 +129,18 @@
 .upgradeBtn {
   width: 100%;
   padding: 12px;
-  background: #0d7a52;
-  color: #fff;
+  background: var(--c-primary);
+  color: var(--c-surface);
   border: none;
   border-radius: 10px;
   font-size: 14px;
   font-weight: 600;
   cursor: pointer;
-  font-family: 'DM Sans', sans-serif;
+  font-family: var(--c-font-sans);
   transition: background 0.15s;
 }
 .upgradeBtn:hover:not(:disabled) { background: #0a6445; }
-.upgradeBtn:disabled { background: #9ad4be; cursor: default; }
+.upgradeBtn:disabled { background: var(--c-primary-muted); cursor: default; }
 
 .proActions { display: flex; flex-direction: column; gap: 8px; }
 
@@ -150,7 +150,7 @@
   color: #9e3030;
   font-size: 12px;
   cursor: pointer;
-  font-family: 'DM Sans', sans-serif;
+  font-family: var(--c-font-sans);
   text-align: center;
   padding: 4px;
   transition: color 0.12s;
@@ -160,7 +160,7 @@
 .error {
   margin-top: 10px;
   padding: 8px 12px;
-  background: #fce8e8;
+  background: var(--c-danger-bg);
   color: #c62828;
   border-radius: 8px;
   font-size: 12px;
@@ -168,7 +168,7 @@
 
 /* ── Complimentary prikaz ── */
 .complimentaryCard {
-  background: #f0faf6;
+  background: var(--c-bg-subtle);
   border: 1.5px solid #9fd4bc;
   border-radius: 16px;
   padding: 40px 32px;
@@ -183,7 +183,7 @@
   font-weight: 600;
   color: #0a4f35;
   margin-bottom: 10px;
-  font-family: 'DM Sans', sans-serif;
+  font-family: var(--c-font-sans);
 }
 
 .complimentaryDesc {
@@ -213,7 +213,7 @@
   font-size: 13px;
   padding: 5px 14px;
   border-radius: 20px;
-  font-family: 'DM Sans', sans-serif;
+  font-family: var(--c-font-sans);
 }
 
 /* ── FAQ ── */
@@ -257,7 +257,7 @@
 }
 
 .addonsSectionTitle {
-  font-family: 'Syne', sans-serif;
+  font-family: var(--c-font-display);
   font-size: 17px;
   font-weight: 700;
   color: #1a3028;
@@ -287,16 +287,16 @@
   font-size: 13px;
   font-weight: 500;
   cursor: pointer;
-  font-family: 'DM Sans', sans-serif;
+  font-family: var(--c-font-sans);
   transition: all 0.15s;
 }
 
-.categoryTab:hover { border-color: #0d7a52; color: #0d7a52; }
+.categoryTab:hover { border-color: var(--c-primary); color: var(--c-primary); }
 
 .categoryTabActive {
-  background: #0d7a52;
-  border-color: #0d7a52;
-  color: #fff;
+  background: var(--c-primary);
+  border-color: var(--c-primary);
+  color: var(--c-surface);
 }
 
 .addonGrid {
@@ -306,7 +306,7 @@
 }
 
 .addonCard {
-  background: #fff;
+  background: var(--c-surface);
   border: 1.5px solid #e0ede7;
   border-radius: 14px;
   padding: 18px;
@@ -317,16 +317,16 @@
   transition: border-color 0.15s;
 }
 
-.addonCard:hover { border-color: #0d7a52; }
-.addonActive { border-color: #0d7a52; background: #f6fdf9; }
+.addonCard:hover { border-color: var(--c-primary); }
+.addonActive { border-color: var(--c-primary); background: #f6fdf9; }
 .addonBlocked { opacity: 0.65; }
 
 .addonActiveBadge {
   position: absolute;
   top: -10px;
   right: 14px;
-  background: #0d7a52;
-  color: #fff;
+  background: var(--c-primary);
+  color: var(--c-surface);
   font-size: 10px;
   font-weight: 600;
   padding: 2px 10px;
@@ -371,7 +371,7 @@
 .addonPrice {
   font-size: 12px;
   font-weight: 600;
-  color: #0d7a52;
+  color: var(--c-primary);
 }
 
 .addonPriceTbd {
@@ -381,20 +381,20 @@
 
 .addonActiveLabel {
   font-size: 12px;
-  color: #0d7a52;
+  color: var(--c-primary);
   font-weight: 500;
 }
 
 .addonBtn {
   padding: 5px 14px;
-  background: #0d7a52;
-  color: #fff;
+  background: var(--c-primary);
+  color: var(--c-surface);
   border: none;
   border-radius: 8px;
   font-size: 12px;
   font-weight: 600;
   cursor: pointer;
-  font-family: 'DM Sans', sans-serif;
+  font-family: var(--c-font-sans);
   transition: background 0.15s;
   white-space: nowrap;
 }

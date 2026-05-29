@@ -8,52 +8,52 @@
 /* Primarno akcijsko dugme — zeleno, filled */
 .btnPrimary {
   padding: 9px 18px;
-  background: #0d7a52;
-  color: #fff;
+  background: var(--c-primary);
+  color: var(--c-surface);
   border: none;
-  border-radius: 10px;
+  border-radius: var(--c-radius-md);
   font-size: 13px;
   font-weight: 600;
   cursor: pointer;
-  font-family: 'DM Sans', sans-serif;
+  font-family: var(--c-font-sans);
   transition: background 0.15s;
   white-space: nowrap;
 }
-.btnPrimary:hover { background: #0a6343; }
-.btnPrimary:disabled { background: #9ad4be; cursor: not-allowed; }
+.btnPrimary:hover { background: var(--c-primary-hover); }
+.btnPrimary:disabled { background: var(--c-primary-muted); cursor: not-allowed; }
 
 /* Sekundarno dugme — bijelo s bordurom */
 .btnSecondary {
   padding: 9px 16px;
-  background: #fff;
-  color: #1a2e26;
-  border: 1.5px solid #d0e4dc;
-  border-radius: 10px;
+  background: var(--c-surface);
+  color: var(--c-text);
+  border: 1.5px solid var(--c-border-input);
+  border-radius: var(--c-radius-md);
   font-size: 13px;
   font-weight: 500;
   cursor: pointer;
-  font-family: 'DM Sans', sans-serif;
+  font-family: var(--c-font-sans);
   transition: border-color 0.15s;
   white-space: nowrap;
 }
-.btnSecondary:hover { border-color: #0d7a52; }
+.btnSecondary:hover { border-color: var(--c-primary); }
 .btnSecondary:disabled { opacity: 0.5; cursor: not-allowed; }
 
 /* Destruktivna akcija — crveno */
 .btnDanger {
   padding: 9px 16px;
-  background: #fff;
-  color: #c0392b;
-  border: 1.5px solid #f5b0b0;
-  border-radius: 10px;
+  background: var(--c-surface);
+  color: var(--c-danger);
+  border: 1.5px solid var(--c-danger-border);
+  border-radius: var(--c-radius-md);
   font-size: 13px;
   font-weight: 500;
   cursor: pointer;
-  font-family: 'DM Sans', sans-serif;
+  font-family: var(--c-font-sans);
   transition: background 0.15s;
   white-space: nowrap;
 }
-.btnDanger:hover { background: #fde0e0; }
+.btnDanger:hover { background: var(--c-danger-bg); }
 
 /* Icon-only dugme — transparentno */
 .btnIcon {
@@ -62,9 +62,9 @@
   cursor: pointer;
   font-size: 16px;
   padding: 6px;
-  border-radius: 8px;
-  font-family: 'DM Sans', sans-serif;
+  border-radius: var(--c-radius-sm);
+  font-family: var(--c-font-sans);
   transition: background 0.12s;
   line-height: 1;
 }
-.btnIcon:hover { background: #f0f5f2; }
+.btnIcon:hover { background: var(--c-bg-subtle); }

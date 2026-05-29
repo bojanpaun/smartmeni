@@ -1,4 +1,4 @@
-/* ControlPanel — hub stranica */
+﻿/* ControlPanel — hub stranica */
 
 .page {
   padding: 32px 28px;
@@ -14,7 +14,7 @@
   font-weight: 500;
   color: #1a3028;
   margin: 0 0 6px;
-  font-family: 'Syne', sans-serif;
+  font-family: var(--c-font-display);
 }
 
 .subtitle {
@@ -32,7 +32,7 @@
 
 /* Kartica modula */
 .card {
-  background: #fff;
+  background: var(--c-surface);
   border: 1px solid #e2ede7;
   border-radius: 12px;
   padding: 20px;
@@ -42,7 +42,7 @@
   flex-direction: column;
   gap: 10px;
   transition: border-color 0.15s, box-shadow 0.15s, transform 0.1s;
-  font-family: 'DM Sans', sans-serif;
+  font-family: var(--c-font-sans);
 }
 
 .card:not(:disabled):hover {
@@ -105,7 +105,7 @@
 }
 
 .badgeActive {
-  background: #e1f5ee;
+  background: var(--c-primary-light);
   color: #0f6e56;
 }
 
@@ -151,13 +151,13 @@
 
 /* ── Administrativne postavke ── */
 .adminSectionTitle {
-  font-size: 11px; font-weight: 500; color: #8a9e96;
+  font-size: 11px; font-weight: 500; color: var(--c-text-muted);
   text-transform: uppercase; letter-spacing: 0.5px;
-  padding: 20px 0 10px; border-top: 1px solid #e0e8e4; margin-top: 8px;
+  padding: 20px 0 10px; border-top: 1px solid var(--c-border); margin-top: 8px;
 }
 .gridAdmin { margin-top: 0; }
 .cardAdmin {
-  background: #f8faf9 !important;
-  border-color: #e0e8e4 !important;
+  background: var(--c-bg) !important;
+  border-color: var(--c-border) !important;
 }
-.cardAdmin:hover { background: #f0f5f2 !important; }
+.cardAdmin:hover { background: var(--c-bg-subtle) !important; }

@@ -1,14 +1,14 @@
-.page {
+﻿.page {
   min-height: 60vh;
   display: flex;
   align-items: center;
   justify-content: center;
   padding: 24px;
-  font-family: 'DM Sans', sans-serif;
+  font-family: var(--c-font-sans);
 }
 
 .card {
-  background: #fff;
+  background: var(--c-surface);
   border: 1px solid #e0ede7;
   border-radius: 20px;
   padding: 40px 32px;
@@ -31,7 +31,7 @@
 }
 
 .title {
-  font-family: 'Syne', sans-serif;
+  font-family: var(--c-font-display);
   font-size: 22px;
   font-weight: 700;
   color: #1a3028;
@@ -46,7 +46,7 @@
 }
 
 .features {
-  background: #f5f9f7;
+  background: var(--c-bg);
   border-radius: 10px;
   padding: 14px 18px;
   margin-bottom: 24px;
@@ -57,20 +57,20 @@
 
 .feature {
   font-size: 13px;
-  color: #0d7a52;
+  color: var(--c-primary);
   text-align: left;
 }
 
 .btn {
   padding: 12px 28px;
-  background: #0d7a52;
-  color: #fff;
+  background: var(--c-primary);
+  color: var(--c-surface);
   border: none;
   border-radius: 10px;
   font-size: 14px;
   font-weight: 500;
   cursor: pointer;
-  font-family: 'DM Sans', sans-serif;
+  font-family: var(--c-font-sans);
   transition: background 0.15s;
 }
 .btn:hover { background: #0a6445; }

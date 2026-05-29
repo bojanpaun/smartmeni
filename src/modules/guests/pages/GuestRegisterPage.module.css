@@ -1,34 +1,34 @@
-/* ▶ Novi fajl: src/modules/guests/pages/GuestRegisterPage.module.css */
+﻿/* ▶ Novi fajl: src/modules/guests/pages/GuestRegisterPage.module.css */
 
 .page {
   min-height: 100vh;
-  background: #f0f5f2;
+  background: var(--c-bg-subtle);
   display: flex;
   align-items: flex-start;
   justify-content: center;
   padding: 24px 16px 48px;
-  font-family: 'DM Sans', sans-serif;
+  font-family: var(--c-font-sans);
 }
 
 .loading, .notFound {
   padding: 3rem;
   text-align: center;
-  color: #8a9e96;
+  color: var(--c-text-muted);
 }
 
 .card {
-  background: #fff;
+  background: var(--c-surface);
   border-radius: 20px;
   width: 100%;
   max-width: 420px;
   overflow: hidden;
-  border: 1px solid #e0e8e4;
+  border: 1px solid var(--c-border);
 }
 
 /* Header — isti stil kao guest meni */
 .header {
   padding: 14px 14px 20px;
-  color: #fff;
+  color: var(--c-surface);
   text-align: center;
 }
 .headerTop {
@@ -56,10 +56,10 @@
   width: 52px; height: 52px;
   border-radius: 12px;
   background: rgba(255,255,255,0.2);
-  color: #fff; font-size: 22px; font-weight: 700;
+  color: var(--c-surface); font-size: 22px; font-weight: 700;
   display: flex; align-items: center; justify-content: center;
 }
-.restName { font-size: 16px; font-weight: 700; color: #fff; }
+.restName { font-size: 16px; font-weight: 700; color: var(--c-surface); }
 .restSub { font-size: 11px; color: rgba(255,255,255,0.7); margin-top: 3px; }
 
 /* Form */
@@ -70,13 +70,13 @@
 .formTitle {
   font-size: 16px;
   font-weight: 600;
-  color: #1a2e26;
+  color: var(--c-text);
   margin-bottom: 4px;
 }
 
 .formSub {
   font-size: 13px;
-  color: #8a9e96;
+  color: var(--c-text-muted);
   margin-bottom: 18px;
   line-height: 1.5;
 }
@@ -89,24 +89,24 @@
   display: block;
   font-size: 12px;
   font-weight: 500;
-  color: #5a7a6a;
+  color: var(--c-text-medium);
   margin-bottom: 5px;
 }
 
 .field input, .field textarea {
   width: 100%;
   padding: 10px 12px;
-  border: 1px solid #d0e4dc;
+  border: 1px solid var(--c-border-input);
   border-radius: 10px;
   font-size: 14px;
-  font-family: 'DM Sans', sans-serif;
+  font-family: var(--c-font-sans);
   outline: none;
   box-sizing: border-box;
-  color: #1a2e26;
+  color: var(--c-text);
 }
 
 .field input:focus, .field textarea:focus {
-  border-color: #0d7a52;
+  border-color: var(--c-primary);
 }
 
 .field textarea {
@@ -132,19 +132,19 @@
   height: 16px;
   margin-top: 2px;
   flex-shrink: 0;
-  accent-color: #0d7a52;
+  accent-color: var(--c-primary);
   cursor: pointer;
 }
 
 .checkboxRow label {
   font-size: 12px;
-  color: #8a9e96;
+  color: var(--c-text-muted);
   line-height: 1.5;
   cursor: pointer;
 }
 
 .error {
-  background: #FCEBEB;
+  background: var(--c-danger-bg);
   color: #791F1F;
   font-size: 13px;
   padding: 10px 12px;
@@ -155,23 +155,23 @@
 .btnSubmit {
   width: 100%;
   padding: 13px;
-  background: #0d7a52;
-  color: #fff;
+  background: var(--c-primary);
+  color: var(--c-surface);
   border: none;
   border-radius: 12px;
   font-size: 15px;
   font-weight: 600;
   cursor: pointer;
-  font-family: 'DM Sans', sans-serif;
+  font-family: var(--c-font-sans);
 }
 
-.btnSubmit:hover { background: #0a6343; }
-.btnSubmit:disabled { background: #9ad4be; cursor: not-allowed; }
+.btnSubmit:hover { background: var(--c-primary-hover); }
+.btnSubmit:disabled { background: var(--c-primary-muted); cursor: not-allowed; }
 
 .divider {
   text-align: center;
   font-size: 12px;
-  color: #c0ccc6;
+  color: var(--c-text-muted);
   margin: 14px 0;
   position: relative;
 }
@@ -182,7 +182,7 @@
   top: 50%;
   width: 42%;
   height: 1px;
-  background: #e0e8e4;
+  background: var(--c-border);
 }
 
 .divider::before { left: 0; }
@@ -192,14 +192,14 @@
   display: block;
   text-align: center;
   padding: 10px;
-  color: #0d7a52;
+  color: var(--c-primary);
   font-size: 13px;
   text-decoration: none;
-  border: 1px solid #d0e4dc;
+  border: 1px solid var(--c-border-input);
   border-radius: 10px;
 }
 
-.btnBack:hover { background: #f0f5f2; }
+.btnBack:hover { background: var(--c-bg-subtle); }
 
 /* Success */
 .success {
@@ -211,8 +211,8 @@
   width: 60px;
   height: 60px;
   border-radius: 50%;
-  background: #E1F5EE;
-  color: #0d7a52;
+  background: var(--c-primary-light);
+  color: var(--c-primary);
   font-size: 26px;
   display: flex;
   align-items: center;
@@ -223,13 +223,13 @@
 .successTitle {
   font-size: 18px;
   font-weight: 600;
-  color: #1a2e26;
+  color: var(--c-text);
   margin-bottom: 10px;
 }
 
 .successText {
   font-size: 13px;
-  color: #8a9e96;
+  color: var(--c-text-muted);
   line-height: 1.6;
   max-width: 280px;
   margin: 0 auto;
@@ -249,7 +249,7 @@
 .backToMenu {
   display: inline-block;
   margin-top: 20px;
-  color: #0d7a52;
+  color: var(--c-primary);
   font-size: 13px;
   text-decoration: none;
 }

@@ -1,13 +1,13 @@
-.page {
+﻿.page {
   padding: 28px 24px;
   max-width: 800px;
-  font-family: 'DM Sans', sans-serif;
+  font-family: var(--c-font-sans);
 }
 
 .header { margin-bottom: 24px; }
 
 .title {
-  font-family: 'Syne', sans-serif;
+  font-family: var(--c-font-display);
   font-size: 20px;
   font-weight: 700;
   color: #1a3028;
@@ -38,7 +38,7 @@
 
 /* ── Preview — uvijek vidljiv ── */
 .previewSection {
-  background: #fff;
+  background: var(--c-surface);
   border: 1px solid #e0ede7;
   border-radius: 14px;
   padding: 18px 20px;
@@ -75,7 +75,7 @@
   width: 64px;
   height: 64px;
   border-radius: 50%;
-  background: #1d9e75;
+  background: var(--c-primary-medium);
   overflow: hidden;
   display: flex;
   align-items: center;
@@ -88,7 +88,7 @@
   width: 64px;
   height: 64px;
   border-radius: 10px;
-  background: #1d9e75;
+  background: var(--c-primary-medium);
   overflow: hidden;
   display: flex;
   align-items: center;
@@ -101,7 +101,7 @@
   width: 32px;
   height: 32px;
   border-radius: 6px;
-  background: #1d9e75;
+  background: var(--c-primary-medium);
   overflow: hidden;
   display: flex;
   align-items: center;
@@ -116,15 +116,15 @@
 }
 
 .previewInitial {
-  color: #fff;
-  font-family: 'Syne', sans-serif;
+  color: var(--c-surface);
+  font-family: var(--c-font-display);
   font-weight: 700;
   font-size: 22px;
 }
 
 .previewInitialTiny {
-  color: #fff;
-  font-family: 'Syne', sans-serif;
+  color: var(--c-surface);
+  font-family: var(--c-font-display);
   font-weight: 700;
   font-size: 12px;
 }
@@ -140,8 +140,8 @@
 
 .currentBadge {
   font-size: 12px;
-  color: #0d7a52;
-  background: #e0f5ec;
+  color: var(--c-primary);
+  background: var(--c-primary-light);
   border-radius: 6px;
   padding: 6px 10px;
 }
@@ -154,11 +154,11 @@
   text-align: center;
   cursor: pointer;
   transition: border-color 0.15s, background 0.15s;
-  background: #fff;
+  background: var(--c-surface);
   position: relative;
   margin-bottom: 10px;
 }
-.dropZone:hover { border-color: #0d7a52; background: #f5faf7; }
+.dropZone:hover { border-color: var(--c-primary); background: #f5faf7; }
 
 .dropIcon { font-size: 28px; margin-bottom: 8px; }
 .dropText { font-size: 14px; font-weight: 500; color: #1a3028; margin-bottom: 3px; }
@@ -182,28 +182,28 @@
 
 .saveBtn {
   padding: 10px 24px;
-  background: #0d7a52;
-  color: #fff;
+  background: var(--c-primary);
+  color: var(--c-surface);
   border: none;
   border-radius: 10px;
   font-size: 14px;
   font-weight: 500;
   cursor: pointer;
-  font-family: 'DM Sans', sans-serif;
+  font-family: var(--c-font-sans);
   transition: background 0.15s;
 }
 .saveBtn:hover:not(:disabled) { background: #0a6445; }
-.saveBtn:disabled { background: #9ad4be; cursor: default; }
+.saveBtn:disabled { background: var(--c-primary-muted); cursor: default; }
 
 .cancelBtn {
   padding: 10px 16px;
   background: transparent;
-  border: 1px solid #d0e4dc;
+  border: 1px solid var(--c-border-input);
   color: #7a9e8e;
   border-radius: 10px;
   font-size: 14px;
   cursor: pointer;
-  font-family: 'DM Sans', sans-serif;
+  font-family: var(--c-font-sans);
   transition: all 0.12s;
 }
 .cancelBtn:hover { border-color: #7a9e8e; color: #1a3028; }
@@ -214,7 +214,7 @@
   color: #9e3030;
   font-size: 12px;
   cursor: pointer;
-  font-family: 'DM Sans', sans-serif;
+  font-family: var(--c-font-sans);
   padding: 4px 0;
   transition: color 0.12s;
 }
@@ -224,7 +224,7 @@
 .error {
   margin-top: 10px;
   padding: 10px 14px;
-  background: #fce8e8;
+  background: var(--c-danger-bg);
   color: #c62828;
   border-radius: 8px;
   font-size: 13px;
@@ -233,8 +233,8 @@
 .success {
   margin-top: 10px;
   padding: 10px 14px;
-  background: #e0f5ec;
-  color: #0d7a52;
+  background: var(--c-primary-light);
+  color: var(--c-primary);
   border-radius: 8px;
   font-size: 13px;
   font-weight: 500;
@@ -244,7 +244,7 @@
 .infoCol { display: flex; flex-direction: column; gap: 14px; }
 
 .infoCard, .tipsCard {
-  background: #fff;
+  background: var(--c-surface);
   border: 1px solid #e0ede7;
   border-radius: 12px;
   padding: 16px 18px;

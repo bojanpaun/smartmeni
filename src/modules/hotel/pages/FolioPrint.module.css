@@ -1,5 +1,5 @@
-.page {
-  font-family: 'DM Sans', sans-serif;
+﻿.page {
+  font-family: var(--c-font-sans);
   background: #f0f4f2;
   min-height: 100vh;
   padding: 24px;
@@ -7,7 +7,7 @@
 
 .loading {
   display: flex; align-items: center; justify-content: center;
-  height: 100vh; font-family: 'DM Sans', sans-serif; color: #666; font-size: 14px;
+  height: 100vh; font-family: var(--c-font-sans); color: #666; font-size: 14px;
 }
 
 /* ── Toolbar (hidden on print) ── */
@@ -16,11 +16,11 @@
   margin-bottom: 20px;
 }
 .printBtn {
-  padding: 10px 20px; background: #0d7a52; color: #fff;
+  padding: 10px 20px; background: var(--c-primary); color: var(--c-surface);
   border: none; border-radius: 8px; font-size: 14px; font-weight: 600;
   cursor: pointer; font-family: inherit;
 }
-.printBtn:hover { background: #0b6644; }
+.printBtn:hover { background: var(--c-primary-hover); }
 .closeBtn {
   padding: 10px 16px; background: transparent; color: #666;
   border: 1.5px solid #ddd; border-radius: 8px; font-size: 14px;
@@ -30,7 +30,7 @@
 
 /* ── Invoice card ── */
 .invoice {
-  background: #fff; max-width: 820px; margin: 0 auto;
+  background: var(--c-surface); max-width: 820px; margin: 0 auto;
   padding: 52px 56px; box-shadow: 0 4px 24px rgba(0,0,0,0.08);
 }
 
@@ -40,21 +40,21 @@
   margin-bottom: 28px;
 }
 .logo { height: 48px; object-fit: contain; display: block; margin-bottom: 10px; }
-.restaurantName { font-size: 20px; font-weight: 700; color: #0e1a14; margin: 0 0 4px; }
+.restaurantName { font-size: 20px; font-weight: 700; color: var(--c-text); margin: 0 0 4px; }
 .restaurantDetail { font-size: 12px; color: #777; margin: 2px 0; }
 
 .invoiceTitle {
-  font-size: 30px; font-weight: 700; color: #0d7a52;
+  font-size: 30px; font-weight: 700; color: var(--c-primary);
   margin: 0 0 14px; text-align: right; letter-spacing: -0.5px;
 }
 .metaTable { border-collapse: collapse; margin-left: auto; }
 .metaTable td { padding: 3px 0 3px 20px; font-size: 13px; color: #333; }
 .metaTable td:first-child { color: #999; text-align: right; }
 
-.paid { color: #0d7a52; }
+.paid { color: var(--c-primary); }
 .due  { color: #c05a00; }
 
-.divider { border: none; border-top: 1.5px solid #e8f0ec; margin: 24px 0; }
+.divider { border: none; border-top: 1.5px solid var(--c-border); margin: 24px 0; }
 
 /* ── Guest section ── */
 .guestSection {
@@ -64,7 +64,7 @@
   font-size: 10px; font-weight: 700; letter-spacing: 0.09em;
   color: #aaa; text-transform: uppercase; margin: 0 0 7px;
 }
-.guestName { font-size: 15px; font-weight: 600; color: #0e1a14; margin: 0 0 2px; }
+.guestName { font-size: 15px; font-weight: 600; color: var(--c-text); margin: 0 0 2px; }
 .guestSection p { margin: 2px 0; font-size: 13px; color: #444; }
 
 /* ── Items table ── */
@@ -73,7 +73,7 @@
 .itemsTable th {
   font-size: 10px; font-weight: 700; text-transform: uppercase;
   letter-spacing: 0.06em; color: #999;
-  border-bottom: 2px solid #e8f0ec; padding: 8px 10px; text-align: left;
+  border-bottom: 2px solid var(--c-border); padding: 8px 10px; text-align: left;
 }
 .itemsTable td {
   font-size: 13px; color: #333; padding: 9px 10px;
@@ -85,17 +85,17 @@
 .emptyRow { text-align: center; color: #aaa; padding: 20px !important; font-style: italic; }
 
 .totalRow td {
-  border-top: 2px solid #e8f0ec !important;
+  border-top: 2px solid var(--c-border) !important;
   padding-top: 12px !important; font-size: 14px;
 }
 
 .balanceDue td { color: #c05a00; font-size: 14px; padding-top: 4px !important; }
-.balancePaid td { color: #0d7a52; font-size: 14px; padding-top: 4px !important; }
+.balancePaid td { color: var(--c-primary); font-size: 14px; padding-top: 4px !important; }
 
 /* ── Footer ── */
 .footer {
   text-align: center; font-size: 12px; color: #bbb;
-  padding-top: 24px; border-top: 1px solid #e8f0ec; margin-top: 8px;
+  padding-top: 24px; border-top: 1px solid var(--c-border); margin-top: 8px;
 }
 
 /* ── Print overrides ── */
@@ -103,7 +103,7 @@
   .printActions { display: none; }
 
   .page {
-    background: #fff; padding: 0;
+    background: var(--c-surface); padding: 0;
   }
 
   .invoice {

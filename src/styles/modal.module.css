@@ -24,8 +24,8 @@
 
 /* Kartica — bez max-width, svaki modul postavlja lokalno */
 .modal {
-  background: #fff;
-  border-radius: 16px;
+  background: var(--c-surface);
+  border-radius: var(--c-radius-xl);
   width: 100%;
   max-height: 90vh;
   overflow-y: auto;
@@ -44,23 +44,23 @@
 .modalTitle {
   font-size: 16px;
   font-weight: 600;
-  color: #1a2e26;
-  font-family: 'DM Sans', sans-serif;
+  color: var(--c-text);
+  font-family: var(--c-font-sans);
 }
 
 /* Dugme za zatvaranje */
 .modalClose {
-  background: #f0f5f2;
+  background: var(--c-bg-subtle);
   border: none;
   cursor: pointer;
   width: 28px;
   height: 28px;
   border-radius: 50%;
   font-size: 14px;
-  color: #5a7a6a;
+  color: var(--c-text-medium);
   display: flex;
   align-items: center;
   justify-content: center;
   flex-shrink: 0;
 }
-.modalClose:hover { background: #e0ece6; }
+.modalClose:hover { background: var(--c-border); }
