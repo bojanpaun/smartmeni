@@ -3,23 +3,29 @@ import { supabase } from '../../../lib/supabase'
 
 function addDays(dateStr, n) {
   const d = new Date(dateStr)
-  d.setDate(d.getDate() + n)
+  d.setUTCDate(d.getUTCDate() + n)
   return d.toISOString().slice(0, 10)
 }
 
 function isoToday() {
-  return new Date().toISOString().slice(0, 10)
+  const now = new Date()
+  return [
+    now.getFullYear(),
+    String(now.getMonth() + 1).padStart(2, '0'),
+    String(now.getDate()).padStart(2, '0'),
+  ].join('-')
 }
 
 function buildDailyMap(rows, from, to) {
   const map = {}
   let cur = from
-  while (cur <= to) {
+  let safety = 0
+  while (cur <= to && safety++ < 400) {
     map[cur] = { date: cur, total_revenue: 0, adr: 0, reservations_count: 0, room_nights_sold: 0 }
     cur = addDays(cur, 1)
   }
   for (const r of rows ?? []) {
-    const key = r.date?.slice(0, 10) ?? r.date
+    const key = String(r.date).slice(0, 10)
     if (map[key]) {
       map[key] = { ...map[key], ...r,
         date: key,
@@ -34,37 +40,55 @@ function buildDailyMap(rows, from, to) {
 }
 
 const MAX_PREV_DAYS = 90
+const TIMEOUT_MS    = 15_000
 
 export function useRevenueMetrics(restaurantId, periodDays = 30) {
   const [data, setData]        = useState(null)
   const [suggestions, setSugs] = useState([])
-  const [loading, setLoading]  = useState(true)
+  const [loading, setLoading]  = useState(false)
+  const [error, setError]      = useState(null)   // null | 'timeout' | 'failed'
   const controllerRef          = useRef(null)
+  const timeoutRef             = useRef(null)
 
-  // Otkazivanje učitavanja
-  const cancel = useCallback(() => {
-    controllerRef.current?.abort()
-    setLoading(false)
+  // Garantovano čišćenje — uvijek pozovi kad zahtjev završi (ok, abort, error)
+  const finish = useCallback((newLoading = false) => {
+    clearTimeout(timeoutRef.current)
+    setLoading(newLoading)
   }, [])
 
+  const cancel = useCallback(() => {
+    controllerRef.current?.abort('user-cancel')
+    finish(false)
+  }, [finish])
+
   const load = useCallback(async () => {
-    // Prekinuti prethodni zahtjev ako još traje
-    controllerRef.current?.abort()
+    if (!restaurantId) return
+
+    // Prekinuti prethodne in-flight zahtjeve
+    controllerRef.current?.abort('new-load')
+    clearTimeout(timeoutRef.current)
+
     const controller = new AbortController()
     controllerRef.current = controller
     const { signal } = controller
 
-    if (!restaurantId) return
+    setError(null)
     setLoading(true)
 
-    try {
-      const today    = isoToday()
-      const from     = addDays(today, -periodDays + 1)
-      const prevDays = Math.min(periodDays, MAX_PREV_DAYS)
-      const prevTo   = addDays(from, -1)
-      const prevFrom = addDays(prevTo, -prevDays + 1)
+    // Automatski abort nakon TIMEOUT_MS
+    timeoutRef.current = setTimeout(() => {
+      controller.abort('timeout')
+      setError('timeout')
+      setLoading(false)
+    }, TIMEOUT_MS)
 
-      // Svi upiti u jednom Promise.all + AbortSignal na svakom
+    const today    = isoToday()
+    const from     = addDays(today, -periodDays + 1)
+    const prevDays = Math.min(periodDays, MAX_PREV_DAYS)
+    const prevTo   = addDays(from, -1)
+    const prevFrom = addDays(prevTo, -prevDays + 1)
+
+    try {
       const [
         { data: rows,      error: e1 },
         { data: prevRows,  error: e2 },
@@ -72,17 +96,12 @@ export function useRevenueMetrics(restaurantId, periodDays = 30) {
         { data: upcoming,  error: e4 },
         { data: ratePlans, error: e5 },
       ] = await Promise.all([
-        // RPC funkcija — direktan index scan, nema aggregate view problema
         supabase.rpc('get_daily_revenue', {
-          p_restaurant_id: restaurantId,
-          p_from: from,
-          p_to: today,
+          p_restaurant_id: restaurantId, p_from: from, p_to: today,
         }).abortSignal(signal),
 
         supabase.rpc('get_daily_revenue', {
-          p_restaurant_id: restaurantId,
-          p_from: prevFrom,
-          p_to: prevTo,
+          p_restaurant_id: restaurantId, p_from: prevFrom, p_to: prevTo,
         }).abortSignal(signal),
 
         supabase.from('rooms')
@@ -107,8 +126,11 @@ export function useRevenueMetrics(restaurantId, periodDays = 30) {
           .abortSignal(signal),
       ])
 
-      // Ako je zahtjev otkazan dok smo čekali, ne ažuriraj stanje
+      // Ako je zahtjev otkazan (abort ili timeout) — finish() je već pozvan
       if (signal.aborted) return
+
+      if (e1) console.warn('[revenue] daily query error:', e1.message)
+      if (e3) console.warn('[revenue] rooms query error:', e3.message)
 
       const totalRooms   = roomsData?.count ?? 0
       const daily        = buildDailyMap(rows, from, today)
@@ -127,13 +149,15 @@ export function useRevenueMetrics(restaurantId, periodDays = 30) {
       const prevAvail   = totalRooms * prevDays
       const prevRevpar  = prevAvail > 0 ? prevRevenue / prevAvail : 0
       const prevOcc     = prevAvail > 0 ? (prevNights / prevAvail) * 100 : 0
+      const pct         = (cur, prev) => prev === 0 ? null : ((cur - prev) / prev) * 100
 
-      const pct = (cur, prev) => prev === 0 ? null : ((cur - prev) / prev) * 100
-
+      // Prijedlozi cijena
       const upcomingMap = {}
       for (const res of upcoming ?? []) {
-        let d = res.check_in_date
-        while (d < res.check_out_date) {
+        let d = String(res.check_in_date).slice(0, 10)
+        const out = String(res.check_out_date).slice(0, 10)
+        let guard = 0
+        while (d < out && guard++ < 60) {
           upcomingMap[d] = (upcomingMap[d] || 0) + 1
           d = addDays(d, 1)
         }
@@ -171,18 +195,23 @@ export function useRevenueMetrics(restaurantId, periodDays = 30) {
         prevDays,
       })
       setSugs(sugs)
-      setLoading(false)
+      finish(false)
     } catch (err) {
-      if (signal.aborted) return  // tiho ignoriši otkazane zahtjeve
-      console.error('useRevenueMetrics error:', err)
-      setLoading(false)
+      // Ako je abort — timeout/cancel su već pozvali finish()
+      if (signal.aborted) return
+      console.error('[revenue] unexpected error:', err)
+      setError('failed')
+      finish(false)
     }
-  }, [restaurantId, periodDays])
+  }, [restaurantId, periodDays, finish])
 
-  // Čišćenje pri unmount — prekinuti sve in-flight zahtjeve
-  useEffect(() => () => { controllerRef.current?.abort() }, [])
+  // Čišćenje pri unmount
+  useEffect(() => () => {
+    controllerRef.current?.abort('unmount')
+    clearTimeout(timeoutRef.current)
+  }, [])
 
   useEffect(() => { load() }, [load])
 
-  return { data, suggestions, loading, refetch: load, cancel }
+  return { data, suggestions, loading, error, refetch: load, cancel }
 }

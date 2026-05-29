@@ -92,7 +92,7 @@ export default function RevenueManagementPage() {
   const { restaurant } = usePlatform()
   const [periodDays, setPeriodDays] = useState(30)
   const [applyingDate, setApplyingDate] = useState(null)
-  const { data, suggestions, loading, refetch, cancel } = useRevenueMetrics(restaurant?.id, periodDays)
+  const { data, suggestions, loading, error, refetch, cancel } = useRevenueMetrics(restaurant?.id, periodDays)
 
   if (!restaurant) return <LoadingSpinner fullPage />
 
@@ -179,8 +179,24 @@ export default function RevenueManagementPage() {
       {loading ? (
         <div className={rv.loadingWrap}>
           <LoadingSpinner />
-          <button className={rv.btnCancel} onClick={cancel}>
+          <p className={rv.loadingMsg}>Učitavanje podataka za {periodDays} dana…</p>
+          <button className={rv.btnCancel} onClick={cancel} type="button">
             Otkaži učitavanje
+          </button>
+        </div>
+      ) : error ? (
+        <div className={rv.errorWrap}>
+          <div className={rv.errorIcon}>⚠️</div>
+          <div className={rv.errorTitle}>
+            {error === 'timeout' ? 'Prekoračeno vrijeme čekanja (15s)' : 'Greška pri učitavanju'}
+          </div>
+          <div className={rv.errorSub}>
+            {error === 'timeout'
+              ? 'Supabase nije odgovorio na vrijeme. Provjeri konekciju ili pokušaj sa kraćim periodom.'
+              : 'Neočekivana greška. Pogledaj konzolu za detalje.'}
+          </div>
+          <button className={rv.btnRetry} onClick={refetch} type="button">
+            Pokušaj ponovo
           </button>
         </div>
       ) : (
