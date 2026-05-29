@@ -107,6 +107,25 @@ export default function ControlPanel() {
         </>
       )}
 
+      {/* Super admin */}
+      {isSuperAdmin() && (
+        <>
+          <div className={styles.adminSectionTitle}>Super admin</div>
+          <div className={`${styles.grid} ${styles.gridAdmin}`}>
+            <button
+              className={`${styles.card} ${styles.cardAdmin} ${styles.cardActive}`}
+              onClick={() => navigate('/superadmin')}
+            >
+              <div className={styles.cardIcon}>🔧</div>
+              <div className={styles.cardBody}>
+                <div className={styles.cardName}>Super admin panel</div>
+                <div className={styles.cardDesc}>Upravljanje restoranima, planovima i temama</div>
+              </div>
+            </button>
+          </div>
+        </>
+      )}
+
     </div>
   )
 }
