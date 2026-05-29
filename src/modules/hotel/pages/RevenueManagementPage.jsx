@@ -24,7 +24,7 @@ function fmtPct(n) {
   return (n >= 0 ? '+' : '') + n.toFixed(1) + '%'
 }
 
-function KpiCard({ label, value, prefix = '€', pct, sub }) {
+function KpiCard({ label, value, prefix = '€', pct, sub, prevLabel }) {
   const up = pct > 0
   const down = pct < 0
   return (
@@ -33,7 +33,7 @@ function KpiCard({ label, value, prefix = '€', pct, sub }) {
       <div className={rv.kpiVal}>{prefix}{fmt(value)}</div>
       {pct !== null && pct !== undefined && (
         <div className={`${rv.kpiPct} ${up ? rv.kpiUp : down ? rv.kpiDown : ''}`}>
-          {up ? '▲' : down ? '▼' : '—'} {Math.abs(pct).toFixed(1)}% vs prethodnog perioda
+          {up ? '▲' : down ? '▼' : '—'} {Math.abs(pct).toFixed(1)}% vs {prevLabel}
         </div>
       )}
       {sub && <div className={rv.kpiSub}>{sub}</div>}
@@ -101,6 +101,10 @@ export default function RevenueManagementPage() {
     : aggregateWeekly(data?.daily ?? []).map(d => ({ ...d, date: formatWeekAxis(d.date) }))
 
   const kpis = data?.kpis
+  const prevDays = data?.prevDays ?? periodDays
+  const prevLabel = prevDays < periodDays
+    ? `prethodnih ${prevDays} dana`
+    : 'prethodnog perioda'
 
   const handleApplySuggestion = async (sug) => {
     setApplyingDate(sug.date)
@@ -137,7 +141,7 @@ export default function RevenueManagementPage() {
     const { error } = await supabase.from('seasonal_rates').upsert({
       rate_plan_id: rp[0].id,
       restaurant_id: restaurant.id,
-      label: `Price suggestion ${sug.date}`,
+      label: `Prijedlog cijene ${sug.date}`,
       start_date: sug.date,
       end_date: sug.date,
       price_per_night: sug.suggested,
@@ -154,8 +158,8 @@ export default function RevenueManagementPage() {
       {/* Header */}
       <div className={styles.header}>
         <div>
-          <h1 className={styles.title}>Revenue Management</h1>
-          <p className={styles.subtitle}>ADR · RevPAR · Occupancy · Dinamičke cijene</p>
+          <h1 className={styles.title}>Upravljanje prihodima</h1>
+          <p className={styles.subtitle}>ADR · RevPAR · Popunjenost · Dinamičke cijene</p>
         </div>
         <div className={styles.headerActions}>
           <div className={rv.periodBar}>
@@ -180,18 +184,21 @@ export default function RevenueManagementPage() {
               label="Ukupni prihod"
               value={kpis?.totalRevenue}
               pct={kpis?.pctRevenue}
+              prevLabel={prevLabel}
             />
             <KpiCard
               label="ADR (prosječna cijena/noć)"
               value={kpis?.adr}
               pct={kpis?.pctAdr}
-              sub="Average Daily Rate"
+              sub="Prosječna dnevna stopa"
+              prevLabel={prevLabel}
             />
             <KpiCard
               label="RevPAR"
               value={kpis?.revpar}
               pct={kpis?.pctRevpar}
               sub={`${data?.totalRooms ?? 0} soba ukupno`}
+              prevLabel={prevLabel}
             />
             <KpiCard
               label="Popunjenost"
@@ -199,6 +206,7 @@ export default function RevenueManagementPage() {
               prefix=""
               pct={kpis?.pctOcc}
               sub="% zauzetosti"
+              prevLabel={prevLabel}
             />
           </div>
 

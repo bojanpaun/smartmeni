@@ -11,7 +11,6 @@ function isoToday() {
   return new Date().toISOString().slice(0, 10)
 }
 
-// Builds a range from from..to (inclusive) with zero-filled daily data
 function buildDailyMap(rows, from, to) {
   const map = {}
   let cur = from
@@ -32,10 +31,14 @@ function buildDailyMap(rows, from, to) {
   return Object.values(map).sort((a, b) => a.date.localeCompare(b.date))
 }
 
+// Prethodni period ograničen na max 90 dana — za period > 90 dana
+// godišnja poređenja nemaju smisla bez historijskih podataka
+const MAX_PREV_DAYS = 90
+
 export function useRevenueMetrics(restaurantId, periodDays = 30) {
-  const [data, setData]         = useState(null)
-  const [suggestions, setSugs]  = useState([])
-  const [loading, setLoading]   = useState(true)
+  const [data, setData]        = useState(null)
+  const [suggestions, setSugs] = useState([])
+  const [loading, setLoading]  = useState(true)
 
   const load = useCallback(async () => {
     if (!restaurantId) return
@@ -43,17 +46,19 @@ export function useRevenueMetrics(restaurantId, periodDays = 30) {
 
     const today    = isoToday()
     const from     = addDays(today, -periodDays + 1)
-    const prevFrom = addDays(from,  -periodDays)
-    const prevTo   = addDays(from,  -1)
+    const prevDays = Math.min(periodDays, MAX_PREV_DAYS)
+    const prevTo   = addDays(from, -1)
+    const prevFrom = addDays(prevTo, -prevDays + 1)
 
-    // Parallel fetches
+    // Sve u jednom Promise.all — nema serijskog čekanja
     const [
       { data: rows },
       { data: prevRows },
       { data: roomsData },
       { data: upcoming },
+      { data: ratePlans },
     ] = await Promise.all([
-      // Current period — daily revenue view
+      // Tekući period
       supabase.from('hotel_daily_revenue')
         .select('*')
         .eq('restaurant_id', restaurantId)
@@ -61,7 +66,7 @@ export function useRevenueMetrics(restaurantId, periodDays = 30) {
         .lte('date', today)
         .order('date'),
 
-      // Previous period for comparison
+      // Prethodni period (max 90 dana)
       supabase.from('hotel_daily_revenue')
         .select('*')
         .eq('restaurant_id', restaurantId)
@@ -69,43 +74,51 @@ export function useRevenueMetrics(restaurantId, periodDays = 30) {
         .lte('date', prevTo)
         .order('date'),
 
-      // Total rooms count
+      // Ukupan broj soba
       supabase.from('rooms')
         .select('id', { count: 'exact', head: true })
         .eq('restaurant_id', restaurantId),
 
-      // Upcoming 30 days reservations for price suggestions
+      // Narednih 30 dana rezervacija za prijedloge cijena
       supabase.from('hotel_reservations')
         .select('check_in_date, check_out_date, room_type_id, rate_per_night')
         .eq('restaurant_id', restaurantId)
         .gte('check_in_date', today)
         .lte('check_in_date', addDays(today, 30))
         .not('status', 'in', '("cancelled","no_show")'),
+
+      // Osnovna cijena iz aktivnog cjenovnog plana
+      supabase.from('rate_plans')
+        .select('price_per_night')
+        .eq('restaurant_id', restaurantId)
+        .eq('is_active', true)
+        .order('price_per_night')
+        .limit(1),
     ])
 
     const totalRooms = roomsData?.count ?? 0
     const daily = buildDailyMap(rows ?? [], from, today)
     const prevDailyArr = prevRows ?? []
 
-    // Aggregate KPIs — current period
-    const totalRevenue  = daily.reduce((s, d) => s + d.total_revenue, 0)
-    const totalNights   = daily.reduce((s, d) => s + d.room_nights_sold, 0)
-    const adr           = totalNights > 0 ? totalRevenue / totalNights : 0
-    const availNights   = totalRooms * periodDays
-    const revpar        = availNights > 0 ? totalRevenue / availNights : 0
-    const occupancy     = availNights > 0 ? (totalNights / availNights) * 100 : 0
+    // KPI — tekući period
+    const totalRevenue = daily.reduce((s, d) => s + d.total_revenue, 0)
+    const totalNights  = daily.reduce((s, d) => s + d.room_nights_sold, 0)
+    const adr          = totalNights > 0 ? totalRevenue / totalNights : 0
+    const availNights  = totalRooms * periodDays
+    const revpar       = availNights > 0 ? totalRevenue / availNights : 0
+    const occupancy    = availNights > 0 ? (totalNights / availNights) * 100 : 0
 
-    // Aggregate KPIs — previous period
-    const prevRevenue  = prevDailyArr.reduce((s, r) => s + Number(r.total_revenue), 0)
-    const prevNights   = prevDailyArr.reduce((s, r) => s + Number(r.room_nights_sold), 0)
-    const prevAdr      = prevNights > 0 ? prevRevenue / prevNights : 0
-    const prevAvail    = totalRooms * periodDays
-    const prevRevpar   = prevAvail > 0 ? prevRevenue / prevAvail : 0
-    const prevOcc      = prevAvail > 0 ? (prevNights / prevAvail) * 100 : 0
+    // KPI — prethodni period
+    const prevRevenue = prevDailyArr.reduce((s, r) => s + Number(r.total_revenue), 0)
+    const prevNights  = prevDailyArr.reduce((s, r) => s + Number(r.room_nights_sold), 0)
+    const prevAdr     = prevNights > 0 ? prevRevenue / prevNights : 0
+    const prevAvail   = totalRooms * prevDays
+    const prevRevpar  = prevAvail > 0 ? prevRevenue / prevAvail : 0
+    const prevOcc     = prevAvail > 0 ? (prevNights / prevAvail) * 100 : 0
 
     const pct = (cur, prev) => prev === 0 ? null : ((cur - prev) / prev) * 100
 
-    // Price suggestions for next 14 days
+    // Prijedlozi cijena za narednih 14 dana
     const upcomingMap = {}
     for (const res of upcoming ?? []) {
       let d = res.check_in_date
@@ -115,14 +128,6 @@ export function useRevenueMetrics(restaurantId, periodDays = 30) {
       }
     }
 
-    // Get base price from rate plans
-    const { data: ratePlans } = await supabase
-      .from('rate_plans')
-      .select('price_per_night')
-      .eq('restaurant_id', restaurantId)
-      .eq('is_active', true)
-      .order('price_per_night')
-      .limit(1)
     const basePrice = Number(ratePlans?.[0]?.price_per_night ?? 0)
 
     const sugs = []
@@ -130,13 +135,12 @@ export function useRevenueMetrics(restaurantId, periodDays = 30) {
       const d = addDays(today, i)
       const booked = upcomingMap[d] || 0
       const occ = totalRooms > 0 ? booked / totalRooms : 0
-      const daysAhead = i
       let mult = 1.0
       if (occ > 0.8)      mult += 0.30
       else if (occ > 0.6) mult += 0.15
       else if (occ < 0.3) mult -= 0.10
-      if (daysAhead < 3 && occ < 0.5)  mult -= 0.15
-      if (daysAhead > 10 && occ < 0.2) mult -= 0.10
+      if (i < 3 && occ < 0.5)  mult -= 0.15
+      if (i > 10 && occ < 0.2) mult -= 0.10
       mult = Math.max(0.5, Math.min(2.0, mult))
       const suggested = Math.round(basePrice * mult)
       if (basePrice > 0 && Math.abs(mult - 1) > 0.05) {
@@ -155,6 +159,7 @@ export function useRevenueMetrics(restaurantId, periodDays = 30) {
         pctOcc:     pct(occupancy, prevOcc),
       },
       totalRooms,
+      prevDays,
     })
     setSugs(sugs)
     setLoading(false)
