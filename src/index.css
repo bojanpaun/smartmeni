@@ -73,7 +73,7 @@
   --c-shadow-modal: 0 8px 40px rgba(0,0,0,0.18);
 }
 
-[data-theme="dark"] {
+[data-theme="green-dark"] {
   /* Primarna boja */
   --c-primary:        #1d9e75;
   --c-primary-hover:  #25b882;

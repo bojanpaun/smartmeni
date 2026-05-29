@@ -7,9 +7,9 @@ export default function ThemeToggle({ variant = 'light' }) {
     <button
       className={`${styles.btn} ${variant === 'dark' ? styles.btnDark : ''}`}
       onClick={toggle}
-      title={theme === 'light' ? 'Tamna tema' : 'Svijetla tema'}
+      title={theme === 'green' ? 'Tamna tema' : 'Svijetla tema'}
     >
-      {theme === 'light' ? '🌙' : '☀️'}
+      {theme === 'green' ? '🌙' : '☀️'}
     </button>
   )
 }

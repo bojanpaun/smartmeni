@@ -25,7 +25,7 @@
     <script>
       try {
         var t = localStorage.getItem('theme');
-        if (t) document.documentElement.setAttribute('data-theme', t);
+        if (t && t !== 'green') document.documentElement.setAttribute('data-theme', t);
       } catch(e) {}
     </script>
     <div id="root"></div>
