@@ -245,6 +245,31 @@
   color: var(--c-text-muted);
 }
 
+/* Loading state */
+.loadingWrap {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 16px;
+  padding: 60px 20px;
+}
+
+.btnCancel {
+  padding: 8px 20px;
+  background: transparent;
+  border: 1px solid var(--c-border);
+  border-radius: 8px;
+  font-size: 13px;
+  color: var(--c-text-muted);
+  cursor: pointer;
+  transition: background 0.15s, color 0.15s;
+}
+
+.btnCancel:hover {
+  background: var(--c-hover);
+  color: var(--c-text);
+}
+
 /* Apply button */
 .btnApply {
   padding: 5px 12px;

@@ -92,7 +92,7 @@ export default function RevenueManagementPage() {
   const { restaurant } = usePlatform()
   const [periodDays, setPeriodDays] = useState(30)
   const [applyingDate, setApplyingDate] = useState(null)
-  const { data, suggestions, loading, refetch } = useRevenueMetrics(restaurant?.id, periodDays)
+  const { data, suggestions, loading, refetch, cancel } = useRevenueMetrics(restaurant?.id, periodDays)
 
   if (!restaurant) return <LoadingSpinner fullPage />
 
@@ -176,7 +176,14 @@ export default function RevenueManagementPage() {
         </div>
       </div>
 
-      {loading ? <LoadingSpinner /> : (
+      {loading ? (
+        <div className={rv.loadingWrap}>
+          <LoadingSpinner />
+          <button className={rv.btnCancel} onClick={cancel}>
+            Otkaži učitavanje
+          </button>
+        </div>
+      ) : (
         <>
           {/* KPI Cards */}
           <div className={rv.kpiGrid}>
