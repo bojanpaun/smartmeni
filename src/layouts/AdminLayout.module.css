@@ -209,7 +209,7 @@
   flex-shrink: 0;
   transition: background 0.15s;
 }
-.collapseBtn:hover { background: #3db891; }
+.collapseBtn:hover { background: var(--c-primary-medium); }
 
 /* ── Info o restoranu/korisniku ── */
 .sbRole {
@@ -415,10 +415,10 @@
 }
 
 .breadcrumb { display: flex; align-items: center; gap: 6px; font-size: 13px; }
-.breadcrumbLink { color: #7a9e8e; text-decoration: none; }
-.breadcrumbLink:hover { color: #1a3028; }
-.breadcrumbSep { color: #b0c8ba; }
-.breadcrumbCurrent { color: #1a3028; font-weight: 500; }
+.breadcrumbLink { color: var(--c-text-muted); text-decoration: none; }
+.breadcrumbLink:hover { color: var(--c-text); }
+.breadcrumbSep { color: var(--c-text-muted); }
+.breadcrumbCurrent { color: var(--c-text); font-weight: 500; }
 
 
 .main {
