@@ -12,14 +12,14 @@
 .title {
   font-size: 22px;
   font-weight: 500;
-  color: #1a3028;
+  color: var(--c-text);
   margin: 0 0 6px;
   font-family: var(--c-font-display);
 }
 
 .subtitle {
   font-size: 14px;
-  color: #7a9e8e;
+  color: var(--c-text-medium);
   margin: 0;
 }
 
@@ -33,7 +33,7 @@
 /* Kartica modula */
 .card {
   background: var(--c-surface);
-  border: 1px solid #e2ede7;
+  border: 1px solid var(--c-border);
   border-radius: 12px;
   padding: 20px;
   text-align: left;
@@ -56,11 +56,11 @@
 }
 
 .cardActive {
-  border-color: #d0e8dc;
+  border-color: var(--c-border-input);
 }
 
 .cardSoon {
-  background: #fafbfa;
+  background: var(--c-bg);
   border-color: var(--c-border);
   opacity: 0.75;
 }
@@ -81,13 +81,13 @@
 .cardName {
   font-size: 14px;
   font-weight: 500;
-  color: #1a3028;
+  color: var(--c-text);
   margin-bottom: 4px;
 }
 
 .cardDesc {
   font-size: 12px;
-  color: #7a9e8e;
+  color: var(--c-text-medium);
   line-height: 1.5;
 }
 
@@ -106,17 +106,17 @@
 
 .badgeActive {
   background: var(--c-primary-light);
-  color: #0f6e56;
+  color: var(--c-primary);
 }
 
 .badgeSoon {
-  background: #f0f2f0;
-  color: #7a9e8e;
+  background: var(--c-bg-subtle);
+  color: var(--c-text-muted);
 }
 
 .badgeLocked {
-  background: #fde8e8;
-  color: #9e3030;
+  background: var(--c-danger-bg);
+  color: var(--c-danger);
 }
 
 /* Responsive */
