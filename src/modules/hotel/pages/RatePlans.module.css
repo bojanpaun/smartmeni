@@ -1,0 +1,186 @@
+.formPanel {
+  background: var(--c-bg-subtle);
+  border: 1.5px solid var(--c-primary-muted);
+  border-radius: 14px;
+  padding: 22px 24px;
+  margin-bottom: 24px;
+}
+.formHeader {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 18px;
+}
+.formTitle { font-size: 15px; font-weight: 600; color: var(--c-text); }
+.formClose {
+  background: var(--c-bg);
+  border: 1px solid var(--c-border);
+  border-radius: 50%;
+  width: 28px; height: 28px;
+  cursor: pointer; font-size: 13px;
+  color: var(--c-text-muted);
+}
+
+.formGrid {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 14px;
+  margin-bottom: 16px;
+}
+@media (max-width: 600px) { .formGrid { grid-template-columns: 1fr; } }
+
+.field { display: flex; flex-direction: column; gap: 5px; }
+.field label { font-size: 12px; font-weight: 500; color: var(--c-text-medium); }
+.field input, .field select {
+  padding: 9px 12px;
+  border: 1px solid var(--c-border-input);
+  border-radius: 9px; font-size: 13px;
+  font-family: var(--c-font-sans);
+  outline: none; background: var(--c-surface);
+  color: var(--c-text);
+}
+.field input:focus, .field select:focus { border-color: var(--c-primary-medium); }
+
+.toggleRow {
+  display: flex; align-items: center; gap: 10px;
+  cursor: pointer; font-size: 13px; color: var(--c-text-medium);
+  margin-bottom: 16px;
+}
+.toggle {
+  width: 40px; height: 22px; border-radius: 11px;
+  flex-shrink: 0; cursor: pointer; position: relative; transition: background 0.2s;
+}
+.toggle::after {
+  content: ''; position: absolute; top: 3px;
+  width: 16px; height: 16px; background: var(--c-surface);
+  border-radius: 50%; transition: left 0.2s;
+}
+.toggleOff { background: var(--c-border-input); }
+.toggleOff::after { left: 3px; }
+.toggleOn  { background: var(--c-primary); }
+.toggleOn::after  { left: 21px; }
+
+.formActions { display: flex; gap: 10px; justify-content: flex-end; }
+
+/* Plan list */
+.planList { display: flex; flex-direction: column; gap: 14px; }
+
+.planCard {
+  background: var(--c-surface);
+  border: 1px solid var(--c-border);
+  border-radius: 14px;
+  overflow: hidden;
+}
+
+.planCardHeader {
+  display: flex;
+  align-items: flex-start;
+  justify-content: space-between;
+  gap: 16px;
+  padding: 18px 20px;
+  flex-wrap: wrap;
+}
+
+.planInfo { flex: 1; }
+.planName { font-size: 15px; font-weight: 600; color: var(--c-text); margin-bottom: 2px; }
+.planDesc { font-size: 12px; color: var(--c-text-muted); margin-bottom: 6px; }
+.planMeta {
+  display: flex; align-items: center; gap: 8px;
+  font-size: 12px; color: var(--c-text-muted); flex-wrap: wrap;
+}
+.planPrice { font-weight: 600; color: var(--c-primary); font-size: 14px; }
+.planDot { color: var(--c-border); }
+
+.badge {
+  background: var(--c-bg-subtle);
+  color: var(--c-text-muted);
+  border: 1px solid var(--c-border);
+  border-radius: 20px;
+  font-size: 10px; font-weight: 600;
+  padding: 2px 8px;
+}
+
+.planActions { display: flex; gap: 8px; align-items: center; flex-shrink: 0; }
+
+.btnEdit {
+  padding: 6px 14px; border-radius: 8px;
+  border: 1px solid var(--c-border-input); background: transparent;
+  font-size: 12px; cursor: pointer; color: var(--c-primary);
+  font-family: var(--c-font-sans);
+}
+.btnEdit:hover { background: var(--c-primary-light); }
+
+.btnExpand {
+  padding: 6px 14px; border-radius: 8px;
+  border: 1px solid var(--c-border-input); background: transparent;
+  font-size: 12px; cursor: pointer; color: var(--c-text-medium);
+  font-family: var(--c-font-sans);
+}
+.btnExpand:hover { background: var(--c-bg-subtle); }
+
+.btnDelete {
+  padding: 6px 14px; border-radius: 8px;
+  border: 1px solid var(--c-danger-border); background: transparent;
+  font-size: 12px; cursor: pointer; color: var(--c-danger);
+  font-family: var(--c-font-sans);
+}
+.btnDelete:hover { background: var(--c-danger-bg); }
+
+/* Season section */
+.seasonSection {
+  border-top: 1px solid var(--c-border);
+  padding: 16px 20px;
+  background: var(--c-bg);
+}
+.seasonHeader {
+  display: flex; justify-content: space-between; align-items: center;
+  margin-bottom: 12px;
+}
+.seasonTitle { font-size: 12px; font-weight: 700; text-transform: uppercase; letter-spacing: 0.5px; color: var(--c-text-muted); }
+.btnAddSeason {
+  padding: 5px 12px; border-radius: 8px;
+  border: 1px dashed var(--c-primary-muted); background: transparent;
+  font-size: 12px; cursor: pointer; color: var(--c-primary);
+  font-family: var(--c-font-sans);
+}
+.btnAddSeason:hover { background: var(--c-primary-light); }
+
+.seasonForm {
+  background: var(--c-surface);
+  border: 1px solid var(--c-border);
+  border-radius: 10px;
+  padding: 14px 16px;
+  margin-bottom: 12px;
+}
+.seasonFormGrid {
+  display: grid; grid-template-columns: 1fr 1fr;
+  gap: 12px; margin-bottom: 12px;
+}
+@media (max-width: 600px) { .seasonFormGrid { grid-template-columns: 1fr; } }
+.seasonFormActions { display: flex; gap: 8px; justify-content: flex-end; }
+
+.seasonEmpty { font-size: 12px; color: var(--c-text-muted); padding: 4px 0; }
+
+.seasonRow {
+  display: flex; align-items: center; gap: 12px;
+  padding: 10px 14px;
+  background: var(--c-surface);
+  border: 1px solid var(--c-border);
+  border-radius: 10px;
+  margin-bottom: 8px;
+}
+.seasonRow:last-child { margin-bottom: 0; }
+.seasonRowInfo { flex: 1; }
+.seasonRowLabel { font-size: 13px; font-weight: 500; color: var(--c-text); }
+.seasonRowDates { font-size: 11px; color: var(--c-text-muted); margin-left: 8px; }
+.seasonRowPrice { font-size: 13px; font-weight: 600; color: var(--c-primary); white-space: nowrap; }
+.seasonRowActions { display: flex; gap: 6px; }
+
+/* Empty state */
+.empty {
+  text-align: center;
+  padding: 48px 24px;
+  color: var(--c-text-muted);
+  font-size: 14px;
+}
+.emptyIcon { font-size: 40px; margin-bottom: 12px; }

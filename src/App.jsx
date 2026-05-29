@@ -50,6 +50,8 @@ const FrontDeskPage        = lazy(() => import('./modules/hotel/pages/FrontDeskP
 const CalendarPage         = lazy(() => import('./modules/hotel/pages/CalendarPage'))
 const FolioPage            = lazy(() => import('./modules/hotel/pages/FolioPage'))
 const FolioPrint           = lazy(() => import('./modules/hotel/pages/FolioPrint'))
+const RatePlansPage        = lazy(() => import('./modules/hotel/pages/RatePlansPage'))
+const BookingPage          = lazy(() => import('./pages/BookingPage'))
 
 const ControlPanel         = lazy(() => import('./platform/admin/ControlPanel'))
 const ModuleHelp           = lazy(() => import('./platform/admin/ModuleHelp'))
@@ -176,6 +178,7 @@ function AppRoutes() {
         <Route path="/admin/hotel/frontdesk" element={<AdminRoute><AddonGuard addonId="hotel_core" name="Hotel Core" description="Upravljanje sobama, rezervacijama, front desk i folio sistemom." price={299} category="hotel"><FrontDeskPage /></AddonGuard></AdminRoute>} />
         <Route path="/admin/hotel/calendar" element={<AdminRoute><AddonGuard addonId="hotel_core" name="Hotel Core" description="Upravljanje sobama, rezervacijama, front desk i folio sistemom." price={299} category="hotel"><CalendarPage /></AddonGuard></AdminRoute>} />
         <Route path="/admin/hotel/reservations/:id/folio" element={<AdminRoute><AddonGuard addonId="hotel_core" name="Hotel Core" description="Upravljanje sobama, rezervacijama, front desk i folio sistemom." price={299} category="hotel"><FolioPage /></AddonGuard></AdminRoute>} />
+        <Route path="/admin/hotel/rate-plans" element={<AdminRoute><AddonGuard addonId="hotel_core" name="Hotel Core" description="Upravljanje sobama, rezervacijama, front desk i folio sistemom." price={299} category="hotel"><RatePlansPage /></AddonGuard></AdminRoute>} />
         <Route path="/admin/hotel/help" element={<AdminRoute><ModuleHelp moduleKey="hotel" /></AdminRoute>} />
         <Route path="/admin/hotel/reservations/:id/folio/print" element={<ProtectedRoute><Suspense fallback={<LoadingSpinner fullPage />}><FolioPrint /></Suspense></ProtectedRoute>} />
 
@@ -194,6 +197,7 @@ function AppRoutes() {
         <Route path="/:slug/prijava" element={<Suspense fallback={<LoadingSpinner fullPage />}><GuestLoginPage /></Suspense>} />
         <Route path="/:slug/narudzba/:orderId" element={<Suspense fallback={<LoadingSpinner fullPage />}><OrderTrackerPage /></Suspense>} />
         <Route path="/:slug/osoblje" element={<Suspense fallback={<LoadingSpinner fullPage />}><StaffPortalPage /></Suspense>} />
+        <Route path="/:slug/book" element={<Suspense fallback={<LoadingSpinner fullPage />}><BookingPage /></Suspense>} />
         <Route path="/:slug" element={<CartProvider><Suspense fallback={<LoadingSpinner fullPage />}><GuestMenu /></Suspense></CartProvider>} />
       </Routes>
     </Suspense>

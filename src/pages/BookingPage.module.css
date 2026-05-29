@@ -1,0 +1,445 @@
+/* Public booking page — standalone (no admin layout) */
+
+.page {
+  min-height: 100vh;
+  background: var(--surface, #f5f9f7);
+  font-family: var(--font-body, 'DM Sans', sans-serif);
+  padding: 24px 16px 48px;
+}
+
+/* Header */
+.header {
+  display: flex;
+  align-items: center;
+  gap: 16px;
+  max-width: 680px;
+  margin: 0 auto 24px;
+}
+.logo {
+  width: 48px;
+  height: 48px;
+  object-fit: contain;
+  border-radius: 10px;
+}
+.hotelName {
+  font-size: 22px;
+  font-weight: 700;
+  color: var(--ink, #0e1a14);
+  margin: 0;
+  font-family: var(--font-display, 'Syne', sans-serif);
+}
+.headerSub {
+  font-size: 12px;
+  color: var(--muted, #8a9e96);
+  margin: 2px 0 0;
+}
+
+/* Step indicator */
+.steps {
+  display: flex;
+  justify-content: center;
+  gap: 6px;
+  max-width: 680px;
+  margin: 0 auto 20px;
+}
+.step {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  opacity: 0.4;
+}
+.step + .step::before {
+  content: '';
+  display: block;
+  width: 20px;
+  height: 1px;
+  background: var(--border, rgba(14,26,20,0.1));
+  margin-right: 6px;
+}
+.stepActive, .stepDone { opacity: 1; }
+.stepDot {
+  width: 22px; height: 22px; border-radius: 50%;
+  background: var(--border, #e0e4e2);
+  display: flex; align-items: center; justify-content: center;
+  font-size: 11px; font-weight: 600; color: var(--muted, #8a9e96);
+}
+.stepActive .stepDot {
+  background: var(--green, #1a9e6e);
+  color: #fff;
+}
+.stepDone .stepDot {
+  background: var(--green-light, #e0f5ec);
+  color: var(--green-dark, #0d7a52);
+}
+.stepLabel { font-size: 12px; color: var(--ink-soft, #3a4a42); }
+
+/* Card */
+.card {
+  background: #fff;
+  border-radius: 16px;
+  box-shadow: 0 2px 24px rgba(14,26,20,0.08);
+  max-width: 680px;
+  margin: 0 auto;
+  overflow: hidden;
+}
+
+.stepContent {
+  padding: 28px 28px 32px;
+}
+@media (max-width: 480px) {
+  .stepContent { padding: 20px 16px 24px; }
+}
+
+.stepTitle {
+  font-size: 20px;
+  font-weight: 700;
+  color: var(--ink, #0e1a14);
+  margin: 0 0 6px;
+  font-family: var(--font-display, 'Syne', sans-serif);
+}
+.stepSub {
+  font-size: 13px;
+  color: var(--muted, #8a9e96);
+  margin: 0 0 20px;
+}
+
+.btnBack {
+  background: none;
+  border: none;
+  color: var(--green, #1a9e6e);
+  font-size: 13px;
+  cursor: pointer;
+  padding: 0;
+  margin-bottom: 16px;
+  font-family: inherit;
+}
+.btnBack:hover { text-decoration: underline; }
+
+/* Date grid */
+.dateGrid {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 14px;
+  margin-bottom: 16px;
+}
+@media (max-width: 480px) {
+  .dateGrid { grid-template-columns: 1fr; }
+}
+
+.field { display: flex; flex-direction: column; gap: 6px; }
+.field label { font-size: 12px; font-weight: 600; color: var(--ink-soft, #3a4a42); letter-spacing: 0.3px; }
+.field input, .field select {
+  padding: 10px 14px;
+  border: 1.5px solid var(--border, rgba(14,26,20,0.1));
+  border-radius: 10px;
+  font-size: 14px;
+  font-family: inherit;
+  outline: none;
+  color: var(--ink, #0e1a14);
+  background: #fff;
+}
+.field input:focus, .field select:focus {
+  border-color: var(--green, #1a9e6e);
+}
+.field input:disabled {
+  background: var(--surface, #f5f9f7);
+  color: var(--muted, #8a9e96);
+}
+
+.nightsInfo {
+  font-size: 13px;
+  color: var(--green-dark, #0d7a52);
+  font-weight: 600;
+  margin-bottom: 16px;
+}
+
+.error {
+  color: #c0392b;
+  font-size: 13px;
+  margin-bottom: 12px;
+  padding: 10px 14px;
+  background: #fde0e0;
+  border-radius: 8px;
+}
+
+.btnPrimary {
+  width: 100%;
+  padding: 14px;
+  background: var(--green, #1a9e6e);
+  color: #fff;
+  border: none;
+  border-radius: 12px;
+  font-size: 15px;
+  font-weight: 600;
+  cursor: pointer;
+  font-family: inherit;
+  transition: background 0.15s;
+}
+.btnPrimary:hover { background: var(--green-dark, #0d7a52); }
+.btnPrimary:disabled { opacity: 0.6; cursor: not-allowed; }
+
+.btnSecondary {
+  display: inline-block;
+  padding: 10px 20px;
+  background: #fff;
+  color: var(--ink-soft, #3a4a42);
+  border: 1.5px solid var(--border, rgba(14,26,20,0.1));
+  border-radius: 10px;
+  font-size: 14px;
+  font-weight: 500;
+  cursor: pointer;
+  font-family: inherit;
+  text-decoration: none;
+  text-align: center;
+}
+.btnSecondary:hover { background: var(--surface, #f5f9f7); }
+
+/* Room list */
+.roomList { display: flex; flex-direction: column; gap: 14px; margin-top: 16px; }
+
+.roomCard {
+  border: 1.5px solid var(--border, rgba(14,26,20,0.1));
+  border-radius: 14px;
+  overflow: hidden;
+  display: flex;
+  flex-direction: column;
+}
+@media (min-width: 540px) {
+  .roomCard { flex-direction: row; align-items: stretch; }
+}
+
+.roomImg {
+  width: 100%;
+  height: 160px;
+  object-fit: cover;
+  flex-shrink: 0;
+}
+@media (min-width: 540px) {
+  .roomImg { width: 160px; height: auto; }
+}
+
+.roomBody {
+  flex: 1;
+  padding: 16px;
+}
+.roomName { font-size: 16px; font-weight: 700; color: var(--ink, #0e1a14); margin-bottom: 4px; }
+.roomDesc { font-size: 13px; color: var(--ink-soft, #3a4a42); margin: 0 0 10px; }
+.roomMeta {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 6px;
+  font-size: 12px;
+  color: var(--muted, #8a9e96);
+}
+.amenity {
+  background: var(--surface, #f5f9f7);
+  border-radius: 6px;
+  padding: 2px 8px;
+  font-size: 11px;
+}
+
+.roomPrice {
+  padding: 16px;
+  display: flex;
+  flex-direction: column;
+  align-items: flex-end;
+  justify-content: center;
+  gap: 4px;
+  border-top: 1px solid var(--border, rgba(14,26,20,0.08));
+  min-width: 140px;
+}
+@media (min-width: 540px) {
+  .roomPrice { border-top: none; border-left: 1px solid var(--border, rgba(14,26,20,0.08)); }
+}
+.roomPriceVal { font-size: 22px; font-weight: 700; color: var(--green-dark, #0d7a52); }
+.roomPriceSub { font-size: 11px; color: var(--muted, #8a9e96); }
+.roomPriceTotal { font-size: 12px; color: var(--ink-soft, #3a4a42); margin-bottom: 8px; }
+
+.btnSelect {
+  width: 100%;
+  padding: 10px 16px;
+  background: var(--green, #1a9e6e);
+  color: #fff;
+  border: none;
+  border-radius: 10px;
+  font-size: 13px;
+  font-weight: 600;
+  cursor: pointer;
+  font-family: inherit;
+}
+.btnSelect:hover { background: var(--green-dark, #0d7a52); }
+
+.noRooms {
+  text-align: center;
+  padding: 32px 0;
+  color: var(--muted, #8a9e96);
+}
+.noRoomsIcon { font-size: 36px; margin-bottom: 12px; }
+
+/* Guest form */
+.guestGrid {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 14px;
+  margin-bottom: 20px;
+}
+@media (max-width: 480px) {
+  .guestGrid { grid-template-columns: 1fr; }
+}
+
+.textarea {
+  padding: 10px 14px;
+  border: 1.5px solid var(--border, rgba(14,26,20,0.1));
+  border-radius: 10px;
+  font-size: 14px;
+  font-family: inherit;
+  outline: none;
+  color: var(--ink, #0e1a14);
+  resize: vertical;
+}
+.textarea:focus { border-color: var(--green, #1a9e6e); }
+
+/* Summary box */
+.summaryBox {
+  background: var(--surface, #f5f9f7);
+  border-radius: 10px;
+  padding: 14px 16px;
+  margin-bottom: 20px;
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  flex-wrap: wrap;
+  gap: 8px;
+  font-size: 14px;
+  font-weight: 600;
+  color: var(--ink, #0e1a14);
+}
+.summaryMeta { font-weight: 400; font-size: 13px; color: var(--muted, #8a9e96); }
+
+/* Full summary */
+.summaryFull {
+  background: var(--surface, #f5f9f7);
+  border-radius: 12px;
+  padding: 18px;
+  margin-bottom: 20px;
+}
+.summaryRow {
+  display: flex;
+  justify-content: space-between;
+  font-size: 14px;
+  color: var(--ink-soft, #3a4a42);
+  padding: 6px 0;
+}
+.summaryRow span:first-child { color: var(--muted, #8a9e96); }
+.summaryDivider {
+  height: 1px;
+  background: var(--border, rgba(14,26,20,0.08));
+  margin: 8px 0;
+}
+.summaryTotal {
+  font-size: 16px;
+  font-weight: 700;
+  color: var(--ink, #0e1a14);
+}
+
+.paypalNote {
+  font-size: 12px;
+  color: var(--muted, #8a9e96);
+  margin-bottom: 14px;
+  text-align: center;
+}
+
+.btnPaypal {
+  width: 100%;
+  padding: 14px;
+  background: #ffc439;
+  color: #003087;
+  border: none;
+  border-radius: 12px;
+  font-size: 15px;
+  font-weight: 700;
+  cursor: pointer;
+  font-family: inherit;
+  transition: background 0.15s;
+}
+.btnPaypal:hover { background: #f0b428; }
+.btnPaypal:disabled { opacity: 0.6; cursor: not-allowed; }
+
+/* Processing / loading */
+.loading, .processing {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  min-height: 40vh;
+  gap: 16px;
+  color: var(--muted, #8a9e96);
+}
+
+.spinner {
+  width: 36px; height: 36px;
+  border: 3px solid var(--border, rgba(14,26,20,0.1));
+  border-top-color: var(--green, #1a9e6e);
+  border-radius: 50%;
+  animation: spin 0.8s linear infinite;
+}
+@keyframes spin { to { transform: rotate(360deg); } }
+
+/* Confirmation */
+.confirmBlock {
+  text-align: center;
+  padding: 12px 0;
+}
+.confirmIcon { font-size: 56px; margin-bottom: 16px; }
+.confirmTitle {
+  font-size: 24px;
+  font-weight: 700;
+  color: var(--ink, #0e1a14);
+  margin: 0 0 8px;
+  font-family: var(--font-display, 'Syne', sans-serif);
+}
+.confirmSub {
+  font-size: 14px;
+  color: var(--ink-soft, #3a4a42);
+  margin-bottom: 24px;
+}
+.confirmDetails {
+  background: var(--surface, #f5f9f7);
+  border-radius: 12px;
+  padding: 16px;
+  text-align: left;
+  margin-bottom: 24px;
+}
+.confirmRow {
+  display: flex;
+  justify-content: space-between;
+  font-size: 14px;
+  padding: 6px 0;
+  color: var(--ink-soft, #3a4a42);
+}
+.confirmRow span:first-child { color: var(--muted, #8a9e96); }
+.confirmCode { font-weight: 700; font-family: monospace; color: var(--green-dark, #0d7a52); }
+
+/* Error block */
+.errorBlock {
+  text-align: center;
+  padding: 24px 0;
+}
+.errorIcon { font-size: 40px; margin-bottom: 12px; }
+.errorBlock h3 { color: var(--ink, #0e1a14); margin: 0 0 8px; }
+.errorBlock p { color: var(--muted, #8a9e96); font-size: 14px; margin-bottom: 20px; }
+
+/* Not found */
+.notFound {
+  display: flex; flex-direction: column; align-items: center; justify-content: center;
+  min-height: 60vh; text-align: center; color: var(--muted, #8a9e96);
+}
+.notFoundIcon { font-size: 48px; margin-bottom: 12px; }
+
+/* Footer */
+.footer {
+  text-align: center;
+  font-size: 11px;
+  color: var(--muted, #8a9e96);
+  margin-top: 32px;
+}
