@@ -105,6 +105,60 @@
   --c-warning-bg: rgba(243, 156, 18, 0.12);
 }
 
+/* ── Blue — svijetla ── */
+[data-theme="blue"] {
+  --c-primary:        #2563eb;
+  --c-primary-hover:  #1d4ed8;
+  --c-primary-medium: #3b82f6;
+  --c-primary-light:  #eff6ff;
+  --c-primary-muted:  #93c5fd;
+
+  --c-text:        #1e293b;
+  --c-text-medium: #475569;
+  --c-text-muted:  #94a3b8;
+
+  --c-surface:    #ffffff;
+  --c-bg:         #f8fafc;
+  --c-bg-subtle:  #f1f5f9;
+
+  --c-border:       #e2e8f0;
+  --c-border-input: #cbd5e1;
+
+  --c-danger:        #dc2626;
+  --c-danger-bg:     #fef2f2;
+  --c-danger-border: #fecaca;
+
+  --c-warning:    #d97706;
+  --c-warning-bg: #fffbeb;
+}
+
+/* ── Blue — tamna ── */
+[data-theme="blue-dark"] {
+  --c-primary:        #60a5fa;
+  --c-primary-hover:  #93c5fd;
+  --c-primary-medium: #3b82f6;
+  --c-primary-light:  rgba(59, 130, 246, 0.15);
+  --c-primary-muted:  #1e3a6e;
+
+  --c-text:        #e2e8f0;
+  --c-text-medium: #94a3b8;
+  --c-text-muted:  #64748b;
+
+  --c-surface:    #1e2535;
+  --c-bg:         #161d2e;
+  --c-bg-subtle:  #1e2a3d;
+
+  --c-border:       #2d3f5e;
+  --c-border-input: #2d3f5e;
+
+  --c-danger:        #f87171;
+  --c-danger-bg:     rgba(248, 113, 113, 0.12);
+  --c-danger-border: rgba(248, 113, 113, 0.3);
+
+  --c-warning:    #fbbf24;
+  --c-warning-bg: rgba(251, 191, 36, 0.12);
+}
+
 html {
   scroll-behavior: smooth;
 }

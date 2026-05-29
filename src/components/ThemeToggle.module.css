@@ -1,31 +1,56 @@
-.btn {
+.wrap {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+}
+
+/* ── Swatchevi za boju ── */
+.swatches {
+  display: flex;
+  gap: 5px;
+  align-items: center;
+}
+
+.swatch {
+  width: 16px;
+  height: 16px;
+  border-radius: 50%;
+  background: var(--sw);
+  border: 2px solid transparent;
+  outline: 2px solid transparent;
+  cursor: pointer;
+  padding: 0;
+  flex-shrink: 0;
+  transition: outline-color 0.15s, transform 0.1s;
+}
+.swatch:hover { transform: scale(1.2); }
+.swatchActive { outline-color: var(--c-text); outline-offset: 2px; }
+.wrapDark .swatchActive { outline-color: rgba(255, 255, 255, 0.75); }
+
+/* ── Mod toggle (sun/moon) ── */
+.modeBtn {
   background: var(--c-bg-subtle);
   border: 1px solid var(--c-border);
   color: var(--c-text-muted);
-  width: 32px;
-  height: 32px;
+  width: 30px;
+  height: 30px;
   border-radius: 8px;
   cursor: pointer;
-  font-size: 15px;
+  font-size: 14px;
   display: flex;
   align-items: center;
   justify-content: center;
-  transition: background 0.15s, border-color 0.15s;
+  transition: background 0.15s;
   flex-shrink: 0;
 }
-.btn:hover {
-  background: var(--c-border);
-  border-color: var(--c-border-input);
-}
+.modeBtn:hover { background: var(--c-border); }
 
-/* Varijanta za tamnu podlogu (sidebar, hub header, mobile drawer) */
-.btnDark {
+.modeBtnDark {
   background: rgba(255, 255, 255, 0.08);
   border-color: rgba(255, 255, 255, 0.12);
   color: rgba(255, 255, 255, 0.6);
 }
-.btnDark:hover {
+.modeBtnDark:hover {
   background: rgba(255, 255, 255, 0.15);
-  border-color: rgba(255, 255, 255, 0.2);
   color: rgba(255, 255, 255, 0.9);
 }
