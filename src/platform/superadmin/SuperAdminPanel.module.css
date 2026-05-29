@@ -39,7 +39,7 @@
   background: var(--c-surface); border: 1px solid var(--c-border);
   border-radius: 12px; padding: 14px 16px;
 }
-.statComplimentary { border-color: #9fd4bc; background: var(--c-bg-subtle); }
+.statComplimentary { border-color: var(--c-primary-muted); background: var(--c-bg-subtle); }
 .statSuspended     { border-color: #f5c4a0; background: #fdf5f0; }
 .statVal { font-size: 26px; font-weight: 600; color: var(--c-text); line-height: 1; }
 .statComplimentary .statVal { color: #0a4f35; }
@@ -125,7 +125,7 @@
 
 /* ── Edit panel ── */
 .editPanel {
-  background: #f8fcfa; border: 1.5px solid #9fd4bc;
+  background: #f8fcfa; border: 1.5px solid var(--c-primary-muted);
   border-radius: 14px; padding: 20px 24px; margin-top: 12px;
 }
 .editPanelHeader {

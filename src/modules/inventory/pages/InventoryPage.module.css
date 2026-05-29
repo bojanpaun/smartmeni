@@ -53,7 +53,7 @@
 .itemCost { font-size: 12px; color: var(--c-text-medium); }
 
 .itemActions { display: flex; gap: 5px; justify-content: flex-end; }
-.btnMovement { padding: 6px 10px; background: var(--c-primary-light); border: 1px solid #9fd4bc; border-radius: 7px; font-size: 14px; font-weight: 700; cursor: pointer; color: var(--c-primary); font-family: var(--c-font-sans); }
+.btnMovement { padding: 6px 10px; background: var(--c-primary-light); border: 1px solid var(--c-primary-muted); border-radius: 7px; font-size: 14px; font-weight: 700; cursor: pointer; color: var(--c-primary); font-family: var(--c-font-sans); }
 .btnMovement:hover { background: #c8edd8; }
 .btnEdit { padding: 6px 10px; background: transparent; border: 1px solid var(--c-border-input); border-radius: 7px; font-size: 12px; cursor: pointer; color: var(--c-text-medium); font-family: var(--c-font-sans); }
 .btnEdit:hover { background: var(--c-bg-subtle); }

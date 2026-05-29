@@ -42,7 +42,7 @@
 
 .tcard {
   background: var(--c-surface);
-  border: 1.5px solid #e0ede7;
+  border: 1.5px solid var(--c-border);
   border-radius: 10px;
   padding: 12px;
   cursor: pointer;
@@ -53,7 +53,7 @@
 }
 
 .tcard:hover {
-  border-color: #5dcaa5;
+  border-color: var(--c-primary-medium);
   transform: translateY(-1px);
 }
 
@@ -116,7 +116,7 @@
   transition: background 0.15s;
 }
 .saveBtn:hover:not(:disabled) { background: #0a6445; }
-.saveBtn:disabled { background: #5dcaa5; cursor: default; }
+.saveBtn:disabled { background: var(--c-primary-medium); cursor: default; }
 
 .previewLink {
   font-size: 13px;
@@ -242,7 +242,7 @@
   padding: 5px 10px;
   border-radius: 16px;
   font-size: 10px;
-  border: 1px solid #d8e8e2;
+  border: 1px solid var(--c-border);
   background: var(--c-surface);
   color: #6a8880;
   white-space: nowrap;

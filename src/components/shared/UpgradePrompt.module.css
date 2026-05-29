@@ -5,7 +5,7 @@
   text-align: center;
   padding: 48px 32px;
   background: var(--c-surface);
-  border: 1.5px dashed #c8ddd4;
+  border: 1.5px dashed var(--c-border);
   border-radius: 20px;
   max-width: 480px;
   margin: 0 auto;

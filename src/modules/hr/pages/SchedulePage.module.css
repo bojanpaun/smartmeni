@@ -79,7 +79,7 @@
 
 /* Red pokrivenosti */
 .tlCoverageRow { height: 40px; position: relative; background: var(--c-bg); border-top: 1px solid var(--c-border); display: flex; align-items: center; }
-.tlCovBar { position: absolute; top: 10px; bottom: 10px; border-radius: 4px; background: var(--c-primary-light); border: 1px solid #5DCAA5; }
+.tlCovBar { position: absolute; top: 10px; bottom: 10px; border-radius: 4px; background: var(--c-primary-light); border: 1px solid var(--c-primary-medium); }
 .tlGapBar { position: absolute; top: 10px; bottom: 10px; border-radius: 4px; background: #FEF3C7; border: 1px solid #F59E0B; z-index: 2; }
 .tlNoCoverage { font-size: 12px; color: var(--c-text-muted); padding: 0 16px; }
 

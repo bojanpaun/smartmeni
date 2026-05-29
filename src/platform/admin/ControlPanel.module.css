@@ -46,7 +46,7 @@
 }
 
 .card:not(:disabled):hover {
-  border-color: #5dcaa5;
+  border-color: var(--c-primary-medium);
   box-shadow: 0 2px 12px rgba(29, 158, 117, 0.1);
   transform: translateY(-1px);
 }
@@ -61,7 +61,7 @@
 
 .cardSoon {
   background: #fafbfa;
-  border-color: #e8ede9;
+  border-color: var(--c-border);
   opacity: 0.75;
 }
 

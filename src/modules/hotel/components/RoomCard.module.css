@@ -13,7 +13,7 @@
 .occupied    { border-color: #b0d4c4; background: #f8fdfa; }
 .cleaning    { border-color: #f5c87a; background: #fffbf2; }
 .maintenance { border-color: #f5a0a0; background: #fff8f8; }
-.blocked     { border-color: #c8d8d0; background: #f5f8f6; }
+.blocked     { border-color: var(--c-border); background: #f5f8f6; }
 
 .header {
   display: flex;

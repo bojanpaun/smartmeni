@@ -41,7 +41,7 @@
 
 .planCard {
   background: var(--c-surface);
-  border: 1.5px solid #e0ede7;
+  border: 1.5px solid var(--c-border);
   border-radius: 16px;
   padding: 24px;
   position: relative;
@@ -70,7 +70,7 @@
   text-align: center;
   margin-bottom: 20px;
   padding-bottom: 16px;
-  border-bottom: 1px solid #e0ede7;
+  border-bottom: 1px solid var(--c-border);
 }
 
 .planName {
@@ -114,7 +114,7 @@
 
 .featureMissing { color: #b0c4ba; }
 .featureCheck { color: var(--c-primary); font-weight: 700; flex-shrink: 0; }
-.featureCross  { color: #c8d8d0; flex-shrink: 0; }
+.featureCross  { color: var(--c-border); flex-shrink: 0; }
 
 .currentBadge {
   text-align: center;
@@ -169,7 +169,7 @@
 /* ── Complimentary prikaz ── */
 .complimentaryCard {
   background: var(--c-bg-subtle);
-  border: 1.5px solid #9fd4bc;
+  border: 1.5px solid var(--c-primary-muted);
   border-radius: 16px;
   padding: 40px 32px;
   text-align: center;
@@ -218,7 +218,7 @@
 
 /* ── FAQ ── */
 .faq {
-  border-top: 1px solid #e0ede7;
+  border-top: 1px solid var(--c-border);
   padding-top: 24px;
 }
 
@@ -249,7 +249,7 @@
   margin-top: 12px;
   margin-bottom: 36px;
   padding-top: 32px;
-  border-top: 1px solid #e0ede7;
+  border-top: 1px solid var(--c-border);
 }
 
 .addonsSectionHeader {
@@ -281,7 +281,7 @@
 .categoryTab {
   padding: 6px 16px;
   border-radius: 20px;
-  border: 1.5px solid #d0e4da;
+  border: 1.5px solid var(--c-border-input);
   background: transparent;
   color: #5a7a6e;
   font-size: 13px;
@@ -307,7 +307,7 @@
 
 .addonCard {
   background: var(--c-surface);
-  border: 1.5px solid #e0ede7;
+  border: 1.5px solid var(--c-border);
   border-radius: 14px;
   padding: 18px;
   display: flex;
@@ -365,7 +365,7 @@
   justify-content: space-between;
   gap: 8px;
   padding-top: 10px;
-  border-top: 1px solid #eaf2ee;
+  border-top: 1px solid var(--c-border);
 }
 
 .addonPrice {

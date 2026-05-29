@@ -9,7 +9,7 @@
 
 .card {
   background: var(--c-surface);
-  border: 1px solid #e0ede7;
+  border: 1px solid var(--c-border);
   border-radius: 20px;
   padding: 40px 32px;
   text-align: center;

@@ -42,7 +42,7 @@
 .btnAction { font-size: 12px; padding: 5px 12px; border-radius: 7px; cursor: pointer; font-family: var(--c-font-sans); border: 1px solid; transition: background 0.1s; }
 .btnWarn { background: #fff8ec; border-color: #f5d88a; color: #8a6010; }
 .btnWarn:hover { background: var(--c-warning-bg); }
-.btnOk { background: var(--c-primary-light); border-color: #5dcaa5; color: var(--c-primary); }
+.btnOk { background: var(--c-primary-light); border-color: var(--c-primary-medium); color: var(--c-primary); }
 .btnOk:hover { background: #c5eddb; }
 .btnDanger { background: #fff0f0; border-color: var(--c-danger-border); color: var(--c-danger); }
 .btnDanger:hover { background: var(--c-danger-bg); }

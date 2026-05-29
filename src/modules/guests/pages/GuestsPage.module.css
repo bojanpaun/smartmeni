@@ -37,7 +37,7 @@
 
 .rowActions { display: flex; gap: 5px; justify-content: flex-end; }
 .btnEdit { font-size: 12px; padding: 5px 10px; border: 1px solid var(--c-border-input); border-radius: 6px; background: transparent; color: var(--c-text); cursor: pointer; }
-.btnApprove { font-size: 12px; padding: 5px 10px; border: 1px solid #5DCAA5; border-radius: 6px; background: transparent; color: #0F6E56; cursor: pointer; }
+.btnApprove { font-size: 12px; padding: 5px 10px; border: 1px solid var(--c-primary-medium); border-radius: 6px; background: transparent; color: #0F6E56; cursor: pointer; }
 .btnReject { font-size: 12px; padding: 5px 10px; border: 1px solid #F09595; border-radius: 6px; background: transparent; color: var(--c-danger); cursor: pointer; }
 
 .empty { display: flex; flex-direction: column; align-items: center; gap: 12px; padding: 4rem 1rem; text-align: center; }

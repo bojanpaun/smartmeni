@@ -68,7 +68,7 @@
 .periodActions { display: flex; gap: 8px; margin-top: 12px; }
 .btnApprove { padding: 7px 16px; background: #e8f0fe; color: #185fa5; border: 1px solid #b5d4f4; border-radius: 8px; font-size: 12px; cursor: pointer; font-family: var(--c-font-sans); font-weight: 500; }
 .btnApprove:hover { background: #c0d8f8; }
-.btnPay { padding: 7px 16px; background: var(--c-primary-light); color: var(--c-primary); border: 1px solid #9fd4bc; border-radius: 8px; font-size: 12px; cursor: pointer; font-family: var(--c-font-sans); font-weight: 500; }
+.btnPay { padding: 7px 16px; background: var(--c-primary-light); color: var(--c-primary); border: 1px solid var(--c-primary-muted); border-radius: 8px; font-size: 12px; cursor: pointer; font-family: var(--c-font-sans); font-weight: 500; }
 .btnPay:hover { background: #c8edd8; }
 
 /* ── Modal ── */

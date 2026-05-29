@@ -404,7 +404,7 @@
 .topbar {
   height: var(--topbar-h);
   background: var(--c-surface);
-  border-bottom: 1px solid #e8ede9;
+  border-bottom: 1px solid var(--c-border);
   display: flex;
   align-items: center;
   padding: 0 20px;

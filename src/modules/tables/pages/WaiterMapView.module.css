@@ -133,7 +133,7 @@
 .orderTime { font-size: 11px; color: var(--c-text-muted); }
 .orderNote { font-size: 12px; color: var(--c-text-medium); margin-bottom: 6px; line-height: 1.4; }
 .orderTotal { font-size: 15px; font-weight: 700; color: var(--c-text); margin-bottom: 8px; }
-.btnReady { width: 100%; padding: 7px; background: var(--c-primary-light); border: 1px solid #9fd4bc; border-radius: 7px; font-size: 12px; cursor: pointer; color: var(--c-primary); font-family: var(--c-font-sans); font-weight: 500; }
+.btnReady { width: 100%; padding: 7px; background: var(--c-primary-light); border: 1px solid var(--c-primary-muted); border-radius: 7px; font-size: 12px; cursor: pointer; color: var(--c-primary); font-family: var(--c-font-sans); font-weight: 500; }
 .btnReady:hover { background: #c8edd8; }
 
 .totalRow { display: flex; justify-content: space-between; align-items: center; padding: 12px 16px; border-top: 1px solid var(--c-bg-subtle); font-size: 14px; font-weight: 600; color: var(--c-text); }

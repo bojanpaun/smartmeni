@@ -10,7 +10,7 @@
 
 /* ── Poruke ── */
 .msg { padding: 12px 16px; border-radius: 10px; font-size: 13px; margin-bottom: 16px; }
-.msgSuccess { background: var(--c-primary-light); color: var(--c-primary-hover); border: 1px solid #9fd4bc; }
+.msgSuccess { background: var(--c-primary-light); color: var(--c-primary-hover); border: 1px solid var(--c-primary-muted); }
 .msgError   { background: var(--c-danger-bg); color: var(--c-danger); border: 1px solid var(--c-danger-border); }
 
 /* ── Layout ── */
