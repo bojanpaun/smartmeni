@@ -61,7 +61,7 @@ const BLOCK_DEFS = [
     fields: [
       { key: 'address',        label: 'Adresa',                             type: 'text', placeholder: 'Mediteranska 12, 85310 Budva' },
       { key: 'hours',          label: 'Radno vrijeme',                      type: 'text', placeholder: 'Pon–Ned 10:00–23:00' },
-      { key: 'maps_embed_url', label: 'Google Maps embed URL (opcionalno)', type: 'url',  placeholder: 'https://www.google.com/maps/embed?pb=...' },
+      { key: 'maps_embed_url', label: 'Google Maps embed URL (opcionalno)', type: 'url',  placeholder: 'https://www.google.com/maps/embed?pb=...', hint: 'Kako dobiti embed URL: Google Maps → kliknite Share → kartica "Embed a map" → kopirajte URL iz src="…" unutar iframe koda.' },
     ],
     defaultData: { address: '', hours: '', maps_embed_url: '' },
   },
@@ -258,6 +258,7 @@ export default function RestaurantLandingEditor() {
                             placeholder={field.placeholder}
                           />
                         )}
+                        {field.hint && <p className={styles.fieldHint}>{field.hint}</p>}
                       </div>
                     ))
                   )}

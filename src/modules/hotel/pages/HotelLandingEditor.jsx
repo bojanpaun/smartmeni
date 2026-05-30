@@ -72,7 +72,7 @@ const BLOCK_DEFS = [
     defaultEnabled: false,
     fields: [
       { key: 'address',        label: 'Adresa',                          type: 'text', placeholder: 'Primorska bb, 85310 Budva' },
-      { key: 'maps_embed_url', label: 'Google Maps embed URL (opcionalno)', type: 'url', placeholder: 'https://www.google.com/maps/embed?pb=...' },
+      { key: 'maps_embed_url', label: 'Google Maps embed URL (opcionalno)', type: 'url', placeholder: 'https://www.google.com/maps/embed?pb=...', hint: 'Kako dobiti embed URL: Google Maps → kliknite Share → kartica "Embed a map" → kopirajte URL iz src="…" unutar iframe koda.' },
     ],
     defaultData: { address: '', maps_embed_url: '' },
   },
@@ -271,6 +271,7 @@ export default function HotelLandingEditor() {
                             placeholder={field.placeholder}
                           />
                         )}
+                        {field.hint && <p className={styles.fieldHint}>{field.hint}</p>}
                       </div>
                     ))
                   )}
