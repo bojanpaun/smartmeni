@@ -68,9 +68,13 @@ export default function GuestAppPage() {
 
   // Load restaurant
   useEffect(() => {
-    supabase.from('restaurants').select('id, name, slug, logo_url, phone, email, description')
+    supabase.from('restaurants').select('id, name, slug, logo_url, phone, description')
       .eq('slug', slug).single()
-      .then(({ data }) => { setRestaurant(data); setLoadingRest(false) })
+      .then(({ data, error }) => {
+        if (error) console.error('Restaurant load error:', error.message)
+        setRestaurant(data)
+        setLoadingRest(false)
+      })
   }, [slug])
 
   // Restore session
@@ -379,17 +383,6 @@ export default function GuestAppPage() {
                     <div className={styles.hotelInfoLabel}>{isEn ? 'Contact' : 'Kontakt'}</div>
                     <div className={styles.hotelInfoVal}>
                       <a href={`tel:${restaurant.phone}`} className={styles.hotelLink}>{restaurant.phone}</a>
-                    </div>
-                  </div>
-                </div>
-              )}
-              {restaurant.email && (
-                <div className={styles.hotelInfoItem}>
-                  <span className={styles.hotelInfoIcon}>✉️</span>
-                  <div>
-                    <div className={styles.hotelInfoLabel}>E-mail</div>
-                    <div className={styles.hotelInfoVal}>
-                      <a href={`mailto:${restaurant.email}`} className={styles.hotelLink}>{restaurant.email}</a>
                     </div>
                   </div>
                 </div>
