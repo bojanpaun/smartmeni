@@ -1,3 +1,4 @@
+import { useNavigate } from 'react-router-dom'
 import RoomStatusBadge from './RoomStatusBadge'
 import styles from './RoomCard.module.css'
 
@@ -18,12 +19,15 @@ const ACTION_LABELS = {
 }
 
 export default function RoomCard({ room, onStatusChange }) {
+  const navigate = useNavigate()
   const actions = STATUS_ACTIONS[room.status] ?? []
 
   return (
     <div className={`${styles.card} ${styles[room.status]}`}>
       <div className={styles.header}>
-        <span className={styles.number}>{room.room_number}</span>
+        <span className={styles.number} style={{ cursor: 'pointer' }} onClick={() => navigate(`/admin/hotel/rooms/${room.id}`)}>
+          {room.room_number}
+        </span>
         <RoomStatusBadge status={room.status} />
       </div>
 

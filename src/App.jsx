@@ -57,6 +57,7 @@ const RevenueManagementPage = lazy(() => import('./modules/hotel/pages/RevenueMa
 const BookingPage          = lazy(() => import('./pages/BookingPage'))
 const GuestAppPage         = lazy(() => import('./modules/hotel/pages/GuestAppPage'))
 const HotelLandingPage     = lazy(() => import('./modules/hotel/pages/HotelLandingPage'))
+const RoomFormPage         = lazy(() => import('./modules/hotel/pages/RoomFormPage'))
 
 const ControlPanel         = lazy(() => import('./platform/admin/ControlPanel'))
 const ModuleHelp           = lazy(() => import('./platform/admin/ModuleHelp'))
@@ -176,6 +177,8 @@ function AppRoutes() {
         {/* Hotel Core modul */}
         <Route path="/admin/hotel" element={<AdminRoute><AddonGuard addonId="hotel_core" name="Hotel Core" description="Upravljanje sobama, rezervacijama, front desk i folio sistemom." price={299} category="hotel"><HotelDashboard /></AddonGuard></AdminRoute>} />
         <Route path="/admin/hotel/rooms" element={<AdminRoute><AddonGuard addonId="hotel_core" name="Hotel Core" description="Upravljanje sobama, rezervacijama, front desk i folio sistemom." price={299} category="hotel"><RoomsPage /></AddonGuard></AdminRoute>} />
+        <Route path="/admin/hotel/rooms/new" element={<AdminRoute><AddonGuard addonId="hotel_core" name="Hotel Core" description="Upravljanje sobama, rezervacijama, front desk i folio sistemom." price={299} category="hotel"><RoomFormPage /></AddonGuard></AdminRoute>} />
+        <Route path="/admin/hotel/rooms/:id" element={<AdminRoute><AddonGuard addonId="hotel_core" name="Hotel Core" description="Upravljanje sobama, rezervacijama, front desk i folio sistemom." price={299} category="hotel"><RoomFormPage /></AddonGuard></AdminRoute>} />
         <Route path="/admin/hotel/room-types" element={<AdminRoute><AddonGuard addonId="hotel_core" name="Hotel Core" description="Upravljanje sobama, rezervacijama, front desk i folio sistemom." price={299} category="hotel"><RoomTypesPage /></AddonGuard></AdminRoute>} />
         <Route path="/admin/hotel/reservations" element={<AdminRoute><AddonGuard addonId="hotel_core" name="Hotel Core" description="Upravljanje sobama, rezervacijama, front desk i folio sistemom." price={299} category="hotel"><HotelReservationsPage /></AddonGuard></AdminRoute>} />
         <Route path="/admin/hotel/reservations/new" element={<AdminRoute><AddonGuard addonId="hotel_core" name="Hotel Core" description="Upravljanje sobama, rezervacijama, front desk i folio sistemom." price={299} category="hotel"><ReservationForm /></AddonGuard></AdminRoute>} />

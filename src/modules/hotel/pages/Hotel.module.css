@@ -22,6 +22,7 @@
 
 .btnPrimary { composes: btnPrimary from '../../../styles/buttons.module.css'; }
 .btnSecondary { composes: btnSecondary from '../../../styles/buttons.module.css'; }
+.btnDanger { composes: btnDanger from '../../../styles/buttons.module.css'; }
 .btnIcon { composes: btnIcon from '../../../styles/buttons.module.css'; }
 
 /* Filter bar */
