@@ -209,6 +209,27 @@ Ova faza je nastala organički tokom razvoja. Pokriva sve što gost vidi i koris
 
 ---
 
+## ✅ Admin dashboard korekcije (2026-05-30)
+
+Korekcije identifikovane pregledom dashboarda u kontekstu novog plana:
+
+### 1. "Hotel sajt" link uz "Restoran" link ✅
+- Hub header: preimenovano "Meni uživo" → "Restoran", dodat "🏨 Hotel sajt" (vidljiv samo kad je `hotel_core` aktivan)
+- Sidebar sbBottom: isto — dva linka, uslovljeni addonom
+- Priprema za Fazu Y kad oba sajta budu potpuno customizabilna
+
+### 2. Addon badge na kartici modula ✅
+- `MODULES` dobio `addonId` polje (trenutno samo hotel: `addonId: 'hotel_core'`)
+- Kartica bez aktivnog addona: isprekidana granica, badge "Addon →", klik vodi na `/admin/billing`
+- Proširivo: kad se doda `analytics_pro`, `hr_pro` itd. — samo dodati `addonId` u MODULES
+
+### 3. Buduće korekcije (čekaju Fazu Y) ⬜
+- Hotel admin navigacija: dodati "Sajt hotela" → `/admin/hotel/landing`
+- Settings admin navigacija: dodati "Sajt restorana" → `/admin/settings/landing`
+- Oba linka se dodaju kad se implementiraju odgovarajući editori
+
+---
+
 ## 🔄 Faza Y — Customizabilni sajtovi (SLJEDEĆE — u planiranju)
 
 ### Arhitekturalna odluka (2026-05-30)
@@ -384,6 +405,7 @@ CREATE TABLE landing_pages (
 | X | Hotel Landing Page (/:slug/hotel) | ✅ | 2026-05-30 |
 | X | hotel_visibility — konfigurabilni link iz menija | ✅ | 2026-05-30 |
 | X | anon SELECT policy na room_types | ✅ | 2026-05-30 |
+| X | Dashboard korekcije — addon badge + hotel sajt link | ✅ | 2026-05-30 |
 | Y | landing_pages tabela | ⬜ | |
 | Y | Hotel sajt block editor (/admin/hotel/landing) | ⬜ | |
 | Y | Restoran sajt block editor (/admin/settings/landing) | ⬜ | |
@@ -430,4 +452,4 @@ CREATE TABLE landing_pages (
 
 ---
 
-*Roadmap ažuriran: 2026-05-30 | Branch: main | Deployment: Vercel auto-deploy*
+*Roadmap ažuriran: 2026-05-30 (dashboard korekcije) | Branch: main | Deployment: Vercel auto-deploy*

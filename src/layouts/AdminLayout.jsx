@@ -140,6 +140,7 @@ export const MODULES = [
     desc: 'Sobe, rezervacije, front desk i folio sistem',
     path: '/admin/hotel',
     active: true,
+    addonId: 'hotel_core',
     perm: null,
     interactive: {
       label: 'Hotel operacije',
@@ -193,7 +194,7 @@ const BOTTOM_NAV = [
 ]
 
 export default function AdminLayout({ children }) {
-  const { restaurant, logout, isOwner, isSuperAdmin, hasPermission } = usePlatform()
+  const { restaurant, logout, isOwner, isSuperAdmin, hasPermission, hasAddon } = usePlatform()
   const location = useLocation()
   const navigate = useNavigate()
   const [collapsed, setCollapsed] = useState(false)
@@ -267,7 +268,12 @@ export default function AdminLayout({ children }) {
           <div className={styles.hubHeaderRight}>
             {restaurant && (
               <a href={`/${restaurant.slug}`} target="_blank" rel="noreferrer" className={styles.hubLiveBtn}>
-                👁 Meni uživo
+                👁 Restoran
+              </a>
+            )}
+            {restaurant && hasAddon('hotel_core') && (
+              <a href={`/${restaurant.slug}/hotel`} target="_blank" rel="noreferrer" className={styles.hubLiveBtn}>
+                🏨 Hotel sajt
               </a>
             )}
             <div className={styles.hubRestIcon}>
@@ -362,7 +368,12 @@ export default function AdminLayout({ children }) {
         <div className={styles.sbBottom}>
           {restaurant && !collapsed && (
             <a href={`/${restaurant.slug}`} target="_blank" rel="noreferrer" className={styles.viewMenuBtn}>
-              👁 Meni uživo
+              👁 Restoran
+            </a>
+          )}
+          {restaurant && !collapsed && hasAddon('hotel_core') && (
+            <a href={`/${restaurant.slug}/hotel`} target="_blank" rel="noreferrer" className={styles.viewMenuBtn}>
+              🏨 Hotel sajt
             </a>
           )}
           <Link to="/admin/account"

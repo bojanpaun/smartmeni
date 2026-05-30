@@ -6,7 +6,7 @@ import OnboardingWizard from './OnboardingWizard'
 import styles from './ControlPanel.module.css'
 
 export default function ControlPanel() {
-  const { restaurant, hasPermission, isOwner, isSuperAdmin } = usePlatform()
+  const { restaurant, hasPermission, isOwner, isSuperAdmin, hasAddon } = usePlatform()
   const navigate = useNavigate()
   const [showOnboarding, setShowOnboarding] = useState(
     restaurant && !restaurant.onboarding_completed
@@ -17,8 +17,11 @@ export default function ControlPanel() {
     return isOwner() || isSuperAdmin() || hasPermission(mod.perm)
   }
 
+  const isAddonActive = (mod) => !mod.addonId || hasAddon(mod.addonId)
+
   const handleModuleClick = (mod) => {
     if (!mod.active) return
+    if (!isAddonActive(mod)) { navigate('/admin/billing'); return }
     navigate(mod.path)
   }
 
@@ -46,10 +49,11 @@ export default function ControlPanel() {
       <div className={styles.grid}>
         {functionalModules.map(mod => {
           const accessible = canAccess(mod)
+          const addonActive = isAddonActive(mod)
           return (
             <button
               key={mod.key}
-              className={`${styles.card} ${mod.active ? styles.cardActive : styles.cardSoon} ${!accessible ? styles.cardLocked : ''}`}
+              className={`${styles.card} ${mod.active ? styles.cardActive : styles.cardSoon} ${!accessible ? styles.cardLocked : ''} ${!addonActive ? styles.cardAddon : ''}`}
               onClick={() => handleModuleClick(mod)}
               disabled={!mod.active || !accessible}
             >
@@ -61,6 +65,8 @@ export default function ControlPanel() {
               <div className={styles.cardStatus}>
                 {!accessible
                   ? <span className={`${styles.badge} ${styles.badgeLocked}`}>Nema pristup</span>
+                  : !addonActive
+                  ? <span className={`${styles.badge} ${styles.badgeAddon}`}>Addon →</span>
                   : mod.active
                   ? <span className={`${styles.badge} ${styles.badgeActive}`}>Aktivan</span>
                   : <span className={`${styles.badge} ${styles.badgeSoon}`}>Uskoro</span>

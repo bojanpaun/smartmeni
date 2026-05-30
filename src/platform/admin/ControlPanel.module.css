@@ -119,6 +119,16 @@
   color: var(--c-danger);
 }
 
+.badgeAddon {
+  background: #ede9fe;
+  color: #6d28d9;
+}
+
+.cardAddon {
+  border-style: dashed;
+  opacity: 0.85;
+}
+
 /* Responsive */
 @media (max-width: 768px) {
   .page {
