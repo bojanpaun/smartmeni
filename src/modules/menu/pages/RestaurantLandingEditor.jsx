@@ -2,6 +2,7 @@ import { useState, useEffect } from 'react'
 import { usePlatform } from '../../../context/PlatformContext'
 import { supabase } from '../../../lib/supabase'
 import { toast } from 'react-hot-toast'
+import ImageUpload from '../../../components/shared/ImageUpload'
 import styles from '../../../modules/hotel/pages/HotelLandingEditor.module.css'
 
 const BLOCK_DEFS = [
@@ -14,7 +15,7 @@ const BLOCK_DEFS = [
     fields: [
       { key: 'title',        label: 'Naslov',               type: 'text',     placeholder: 'Npr. Restoran Ribar' },
       { key: 'subtitle',     label: 'Podnaslov',            type: 'text',     placeholder: 'Npr. Svježi morski specijaliteti od 1985.' },
-      { key: 'bg_image_url', label: 'URL pozadinske slike', type: 'url',      placeholder: 'https://...' },
+      { key: 'bg_image_url', label: 'Pozadinska slika',      type: 'image' },
     ],
     defaultData: { title: '', subtitle: '', bg_image_url: '' },
   },
@@ -26,7 +27,7 @@ const BLOCK_DEFS = [
     defaultEnabled: false,
     fields: [
       { key: 'text',      label: 'Tekst',                       type: 'textarea', placeholder: 'Napišite nešto o restoranu...' },
-      { key: 'image_url', label: 'URL fotografije (opcionalno)', type: 'url',      placeholder: 'https://...' },
+      { key: 'image_url', label: 'Fotografija (opcionalno)',      type: 'image' },
     ],
     defaultData: { text: '', image_url: '' },
   },
@@ -47,7 +48,7 @@ const BLOCK_DEFS = [
     desc: 'Grid s fotografijama restorana i jela',
     defaultEnabled: false,
     fields: [
-      { key: 'image_urls', label: 'URL-ovi fotografija (jedan po liniji)', type: 'textarea', placeholder: 'https://...\nhttps://...' },
+      { key: 'image_urls', label: 'Fotografije',                            type: 'image-gallery' },
     ],
     defaultData: { image_urls: '' },
   },
@@ -227,7 +228,20 @@ export default function RestaurantLandingEditor() {
                     def.fields.map(field => (
                       <div key={field.key} className={styles.formRow}>
                         <label className={styles.label}>{field.label}</label>
-                        {field.type === 'textarea' ? (
+                        {field.type === 'image' ? (
+                          <ImageUpload
+                            value={block.data[field.key] || ''}
+                            onChange={url => updateField(block.type, field.key, url)}
+                            restaurantId={restaurant?.id}
+                          />
+                        ) : field.type === 'image-gallery' ? (
+                          <ImageUpload
+                            value={block.data[field.key] || ''}
+                            onChange={urls => updateField(block.type, field.key, urls)}
+                            restaurantId={restaurant?.id}
+                            multiple
+                          />
+                        ) : field.type === 'textarea' ? (
                           <textarea
                             className={styles.textarea}
                             value={block.data[field.key] || ''}

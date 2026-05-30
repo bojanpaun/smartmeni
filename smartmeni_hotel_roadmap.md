@@ -1,6 +1,6 @@
 # SmartMeni → HospitalityOS — Produkt roadmap
 
-> **Verzija:** 2.1 *(arhitekturalni model revidiran — 2026-05-30)*
+> **Verzija:** 2.2 *(dopunjeno — Faze Y.1, 3d–5d, 6–10 proširene; tehnički dug detaljizovan — 2026-05-30)*
 > **Kontekst:** Evolucija SmartMeni SaaS platforme prema punom hospitality management sistemu
 > **Tim:** 1 developer + Claude Code AI asistent
 > **Branch:** `main` → direktno na produkciju (Vercel auto-deploy)
@@ -184,9 +184,81 @@ Svi ključni dijelovi hotel core modula su implementirani.
 - ✅ `RatePlansPage` + `BookingSettings` admin UI
 
 ### Preostalo:
-- ⬜ `get_available_rooms()` PostgreSQL funkcija (prava availability provjera)
-- ⬜ `room_availability` tabela (inventory management po datumu)
-- ⬜ Cancellation flow sa refundom (Stripe)
+
+#### `room_availability` tabela + `get_available_rooms()` RPC
+```sql
+-- Tabela za inventory po datumu
+CREATE TABLE room_availability (
+  id UUID PRIMARY KEY DEFAULT gen_random_uuid(),
+  room_type_id UUID REFERENCES room_types(id),
+  date DATE NOT NULL,
+  total_rooms INT,
+  available_rooms INT,
+  stop_sell BOOLEAN DEFAULT false,
+  UNIQUE(room_type_id, date)
+);
+
+-- PostgreSQL funkcija za provjeru dostupnosti
+CREATE OR REPLACE FUNCTION get_available_rooms(
+  p_restaurant_id UUID,
+  p_check_in DATE,
+  p_check_out DATE,
+  p_adults INT DEFAULT 1
+)
+RETURNS TABLE (
+  room_type_id UUID,
+  room_type_name TEXT,
+  available_count INT,
+  price_per_night NUMERIC,
+  total_price NUMERIC,
+  nights INT
+) AS $$
+DECLARE
+  v_nights INT := p_check_out - p_check_in;
+BEGIN
+  RETURN QUERY
+  SELECT
+    rt.id, rt.name,
+    MIN(ra.available_rooms)::INT,
+    rp.price_per_night,
+    rp.price_per_night * v_nights,
+    v_nights
+  FROM room_types rt
+  JOIN room_availability ra ON ra.room_type_id = rt.id
+  JOIN rate_plans rp ON rp.room_type_id = rt.id AND rp.is_active = true
+  WHERE rt.restaurant_id = p_restaurant_id
+    AND rt.max_occupancy >= p_adults
+    AND rt.is_active = true
+    AND ra.date >= p_check_in AND ra.date < p_check_out
+    AND ra.available_rooms > 0
+    AND ra.stop_sell = false
+    AND rp.min_stay <= v_nights
+  GROUP BY rt.id, rt.name, rp.price_per_night
+  HAVING COUNT(ra.date) = v_nights;
+END;
+$$ LANGUAGE plpgsql;
+```
+Trigger koji smanjuje `available_rooms` pri potvrdi rezervacije i vraća ga pri otkazivanju.
+
+#### Stripe payment flow za booking
+```
+Gost bira sobu
+  ↓
+Stripe Payment Intent (amount = total_price)
+  ↓
+Kartica potvrđena
+  ↓
+Webhook: payment_intent.succeeded
+  ↓
+Edge Function: kreira hotel_reservation, smanjuje room_availability, šalje email
+```
+
+#### Cancellation flow
+- ⬜ Gost može otkazati putem linka iz emaila (do X sati unaprijed)
+- ⬜ Stripe refund (pun ili djelimičan, zavisno od cancellation policy rate plana)
+- ⬜ `room_availability` se vraća na prethodni nivo
+
+#### Ostalo:
 - ⬜ Resend domen verifikacija (trenutno `onboarding@resend.dev`)
 
 ---
@@ -378,56 +450,382 @@ CREATE TABLE landing_pages (
 
 ---
 
-## ⬜ Faza 6 — Channel Manager
+## ⬜ Faza Y.1 — Upload slika u Supabase Storage
+
+> **Preduslov:** Faza Y završena (block editori rade).
+> **Trajanje:** 2–3 dana
+
+Trenutno editori primaju URL-ove kao text input. Cilj: pravi drag & drop upload direktno u Supabase Storage.
+
+### Šta treba:
+
+**Baza / Storage:**
+- Novi public bucket `landing-images` u Supabase Storage
+- RLS policy: INSERT dozvoljen autentifikovanim korisnicima (vlastiti tenant folder)
+- Struktura putanje: `landing-images/{restaurant_id}/{timestamp}_{filename}`
+
+**`ImageUpload` komponenta:**
+```jsx
+// src/components/shared/ImageUpload.jsx
+// Props: value (url), onChange(url), label, accept
+// Internalno: drag & drop zona + klik za odabir
+// Upload: supabase.storage.from('landing-images').upload(path, file)
+// Po uspjehu: poziva onChange sa javnim URL-om
+// Preview: thumbnail slike odmah po uploadu
+```
+
+**Gdje zamijeniti URL input s ImageUpload:**
+1. `HotelLandingEditor` — Hero `bg_image_url`, O hotelu `image_url`, Galerija `image_urls`
+2. `RestaurantLandingEditor` — Hero `bg_image_url`, Priča `image_url`, Galerija `image_urls`
+3. `RoomTypesPage` — `images` JSONB polje
+4. `LogoUpload` — već postoji, može se refaktorisati da koristi isti komponent
+
+**Definition of Done:**
+- [ ] `landing-images` bucket kreiran sa ispravnom RLS politikom
+- [ ] `ImageUpload` komponenta radi (drag & drop + click + preview)
+- [ ] Hero blokovi u oba editora koriste upload umjesto URL tekst polja
+- [ ] Galerija blok uploaduje multiple slike
+
+---
+
+## ⬜ Faza 6 — Channel Manager (`channel_manager`)
 
 > **Preduslov:** `hotel_core` + `booking_engine` s availability engineom.
-> **Trajanje:** 12–16 sedmica — najveći tehnički izazov.
+> **Trajanje:** 12–16 sedmica — najveći tehnički izazov u projektu.
+> **Napomena:** Premium addon zbog troška i kompleksnosti razvoja.
 
-**Preporučena strategija:** Beds24 middleware (već certificiran za Booking.com, Airbnb, Expedia) umjesto direktnih integracija.
+### Zašto je ovo teško
+- Booking.com Connectivity Partner program zahtijeva aplikaciju, review i certifikaciju (2–6 mj)
+- Svaki OTA kanal ima vlastiti XML/JSON API sa drugačijim modelom podataka
+- Availability i rate sync mora biti real-time — overbooking je katastrofalan
+- Svaki kanal ima drugačiju politiku otkazivanja i provizija
+
+### Strategija: Beds24 middleware (preporučeno)
+
+Umjesto direktnih integracija sa svakim OTA-om, integracija sa jednim aggregatorom:
+
+```
+SmartMeni ←→ Beds24 REST API
+                ↓
+    Beds24 ←→ Booking.com
+    Beds24 ←→ Airbnb
+    Beds24 ←→ Expedia
+    Beds24 ←→ 100+ OTA-a
+```
+
+Beds24, Lodgify i SiteMinder su već certificirani partneri svih major OTA-a. Naplatiti kao premium addon i uračunati Beds24 API trošak u cijenu.
+
+### Ključne funkcionalnosti:
+```js
+// src/lib/channelManager.js
+syncAvailability(restaurantId, roomTypeId, dates)
+  // SmartMeni → Beds24 → svi OTA kanali
+
+syncRates(restaurantId, roomTypeId, ratePlan)
+  // Sinhronizacija cijena na sve kanale
+
+handleExternalBooking(beds24Booking)
+  // Webhook: nova rezervacija sa Booking.com/Airbnb
+  // → kreira hotel_reservation (source: 'booking_com')
+  // → smanjuje room_availability
+  // → šalje email potvrdu gostu
+```
+
+**Definition of Done:**
+- [ ] Beds24 API integracija radi u test modu
+- [ ] Promjena dostupnosti u SmartMeniju se reflektuje na Booking.com
+- [ ] Nova rezervacija sa Booking.coma se pojavljuje u dashboardu
+- [ ] Otkazivanje sa eksternog kanala ažurira dostupnost
+- [ ] Overbooking prevencija radi (real-time sync ili buffer strategija)
 
 ---
 
 ## ⬜ Faza 7 — Mobilna aplikacija (React Native / Expo)
 
-> **Preduslov:** 50+ aktivnih tenanata.
+> **Preduslov:** 50+ aktivnih tenanata, validiran produkt.
+> **Trajanje:** 16–24 sedmice
+> **Tehnologija:** React Native (Expo) — dijeli hooks, API pozive i logiku sa web app
 
-**Prioritet V1:** Waiter app, Kitchen display, Housekeeping app, Front desk quick actions.
+### Zašto Expo
+- Jedan codebase → iOS + Android
+- Supabase React Native SDK postoji i dobro radi
+- Over-the-air updates bez app store reviewa (za bug fixove)
+- EAS Build — cloud build bez Mac-a (za Android)
+
+### Prioritet ekrana po verzijama
+
+**V1 (launch):**
+- Waiter app — primanje i upravljanje narudžbama, waiter requests
+- Kitchen display — prikaz narudžbi u kuhinji (mora raditi offline)
+- Housekeeping app — taskovi za sobarice, mobilni prikaz
+- Front desk quick actions — check-in/out, room status
+
+**V2:**
+- Guest app — digitalni meni, room service, rezervacije, folio
+- Manager overview — KPIs, live occupancy, prihod danas
+- HR — osoblje vidi raspored, prijava prisustva
+
+**V3:**
+- Push notifikacije za sve role
+- Offline mode za Kitchen display
+- NFC check-in
+
+```bash
+# Setup
+npm install -g @expo/cli
+npx create-expo-app smartmeni-mobile --template
+# Apple Developer: 99$/god | Google Play Console: 25$ jednokratno
+eas build --platform all  # production build
+```
+
+**Definition of Done V1:**
+- [ ] Expo projekt setup, Supabase konekcija radi
+- [ ] Waiter app — lista narudžbi, promjena statusa
+- [ ] Kitchen display — real-time narudžbe, offline tolerantan
+- [ ] Housekeeping app — lista taskova, promjena statusa
+- [ ] App store submission (iOS + Android)
 
 ---
 
-## ⬜ Faza 8 — Loyalty program + Guest App addon
+## ⬜ Faza 8 — Loyalty program + Guest App addon (`loyalty`)
 
-- Loyalty bodovi, tier sistem, redemption
-- Guest App proširenje: room service, spa booking, loyalty prikaz
+> **Preduslov:** 100+ aktivnih tenanata, stabilna platforma.
+> **Trajanje:** 8–10 sedmica
+
+### Loyalty sistem
+```sql
+CREATE TABLE loyalty_programs (
+  id UUID PRIMARY KEY DEFAULT gen_random_uuid(),
+  restaurant_id UUID REFERENCES restaurants(id),
+  name TEXT,                        -- 'SmartRewards' ili vlastiti naziv
+  points_per_euro NUMERIC DEFAULT 1,
+  redemption_rate NUMERIC DEFAULT 0.01,  -- 1 bod = 0.01€
+  tier_rules JSONB                  -- [{min_points: 0, tier: 'bronze'}, ...]
+);
+
+CREATE TABLE loyalty_accounts (
+  id UUID PRIMARY KEY DEFAULT gen_random_uuid(),
+  guest_id UUID REFERENCES guests(id),
+  restaurant_id UUID REFERENCES restaurants(id),
+  points_balance INT DEFAULT 0,
+  total_points_earned INT DEFAULT 0,
+  tier TEXT DEFAULT 'bronze',       -- bronze | silver | gold | platinum
+  UNIQUE(guest_id, restaurant_id)
+);
+
+CREATE TABLE loyalty_transactions (
+  id UUID PRIMARY KEY DEFAULT gen_random_uuid(),
+  account_id UUID REFERENCES loyalty_accounts(id),
+  type TEXT,    -- 'earn' | 'redeem' | 'expire' | 'adjustment'
+  points INT,
+  reference_id UUID,  -- folio_id ili order_id
+  description TEXT,
+  created_at TIMESTAMPTZ DEFAULT now()
+);
+```
+
+### Guest App proširenje
+Proširiti postojeći `GuestAppPage` (`/:slug/guest`) sa:
+- Prikaz loyalty bodova i tier-a
+- Room service narudžbe direktno na folio
+- Spa / wellness booking (ako aktivan addon)
+- Late checkout request
+
+**Definition of Done:**
+- [ ] Loyalty program tabele kreirane sa RLS
+- [ ] Gost zarađuje bodove pri svakoj narudžbi/boravku
+- [ ] Redemption flow — gost troši bodove pri plaćanju
+- [ ] Tier sistem automatski napreduje po bodovima
+- [ ] GuestApp prikazuje bodove i tier status
 
 ---
 
-## ⬜ Faza 9 — Portfolio Owner Dashboard
+## ⬜ Faza 9 — Portfolio Owner Dashboard (`portfolio_owner`, `multi_property`)
 
-- `portfolios`, `brands`, `property_groups` tabele
-- Portfolio KPI dashboard, komparativna analitika
-- Alert sistem za anomalije
+> **Preduslov:** `multi_property` addon aktivan, minimum 2 objekta na platformi.
+> **Trajanje:** 8–10 sedmica
+
+### Arhitektura — hijerarhija tenanata
+Trenutna arhitektura ima jedan nivo (`restaurant_id`). Portfolio owner zahtijeva:
+```
+portfolio (top-level — vlasnik)
+  └── brand (opciono — "Grand Hotels", "Bistro Co.")
+        └── property_group (opciono — "Jadranska regija", "Centralna EU")
+              └── restaurant / hotel (tenant — postojeća arhitektura)
+```
+
+### Ključne tabele:
+```sql
+CREATE TABLE portfolios (
+  id UUID PRIMARY KEY DEFAULT gen_random_uuid(),
+  owner_id UUID REFERENCES user_profiles(id),
+  name TEXT NOT NULL,
+  currency_primary TEXT DEFAULT 'EUR'
+);
+
+CREATE TABLE brands (
+  id UUID PRIMARY KEY DEFAULT gen_random_uuid(),
+  portfolio_id UUID REFERENCES portfolios(id) ON DELETE CASCADE,
+  name TEXT NOT NULL,
+  brand_type TEXT  -- 'hotel' | 'restaurant' | 'mixed'
+);
+
+CREATE TABLE property_groups (
+  id UUID PRIMARY KEY DEFAULT gen_random_uuid(),
+  portfolio_id UUID REFERENCES portfolios(id),
+  brand_id UUID REFERENCES brands(id),
+  name TEXT NOT NULL,
+  country_code TEXT
+);
+
+CREATE TABLE portfolio_properties (
+  portfolio_id UUID REFERENCES portfolios(id) ON DELETE CASCADE,
+  brand_id UUID REFERENCES brands(id),
+  property_group_id UUID REFERENCES property_groups(id),
+  restaurant_id UUID REFERENCES restaurants(id) ON DELETE CASCADE,
+  PRIMARY KEY (portfolio_id, restaurant_id)
+);
+
+CREATE TABLE portfolio_access (
+  portfolio_id UUID REFERENCES portfolios(id),
+  user_id UUID REFERENCES user_profiles(id),
+  role TEXT NOT NULL,  -- 'owner' | 'regional_manager' | 'analyst' | 'auditor'
+  scope JSONB,         -- null = sve, ili {group_ids:[...], property_ids:[...]}
+  PRIMARY KEY (portfolio_id, user_id)
+);
+
+-- Tečajevi valuta (osvježava se dnevno via ECB API)
+CREATE TABLE exchange_rates (
+  from_currency TEXT NOT NULL,
+  to_currency TEXT DEFAULT 'EUR',
+  rate NUMERIC(10,6) NOT NULL,
+  date DATE NOT NULL DEFAULT CURRENT_DATE,
+  PRIMARY KEY (from_currency, to_currency, date)
+);
+```
+
+### Portfolio Dashboard
+- Agregirani KPI-evi: ukupni prihod danas, prosječna popunjenost, broj upozorenja
+- Tabela objekata: naziv, država, prihod danas, occupancy, status
+- Filteri po brandu, državi, grupi
+- Klik → drill-down u puni admin panel objekta
+
+```sql
+-- Materialized view za performanse (osvježava se svakih 5 min)
+CREATE MATERIALIZED VIEW portfolio_kpis AS
+SELECT
+  pp.portfolio_id, r.id AS restaurant_id, r.name AS property_name,
+  r.country_code, pp.brand_id, pp.property_group_id,
+  COALESCE(SUM(CASE WHEN DATE(o.created_at) = CURRENT_DATE
+    THEN o.total_amount END), 0) AS revenue_today,
+  COALESCE(SUM(CASE WHEN DATE_TRUNC('month', o.created_at) = DATE_TRUNC('month', NOW())
+    THEN o.total_amount END), 0) AS revenue_mtd,
+  COUNT(CASE WHEN DATE(o.created_at) = CURRENT_DATE THEN 1 END) AS orders_today
+FROM portfolio_properties pp
+JOIN restaurants r ON r.id = pp.restaurant_id
+LEFT JOIN orders o ON o.restaurant_id = r.id
+GROUP BY pp.portfolio_id, r.id, r.name, r.country_code, pp.brand_id, pp.property_group_id;
+
+-- Cron osvježavanje svakih 5 minuta
+SELECT cron.schedule('refresh-portfolio-kpis', '*/5 * * * *',
+  'REFRESH MATERIALIZED VIEW CONCURRENTLY portfolio_kpis');
+```
+
+### Alert sistem
+Edge Function `detect-portfolio-alerts` (hourly cron) provjerava:
+- Prihod danas < 60% prosječnog dnevnog prihoda prošlog mj → upozorenje
+- Nema narudžbi > 4 sata u radnom vremenu → upozorenje
+- Popunjenost ispod definisanog praga → upozorenje
+- Neriješen maintenance ticket stariji od 48h → upozorenje
+
+### Komparativna analitika
+- Side-by-side prikaz 2–5 objekata: prihod MTD, occupancy, RevPAR, ADR, trošak osoblja
+- Konsolidovani finansijski izvještaji na 5 nivoa (portfelj → brand → regija → država → objekat)
+- Valutna konverzija u primarnu valutu portfelja (EUR) po ECB dnevnom tečaju
+- Export u PDF i Excel
+
+**Definition of Done:**
+- [ ] `portfolios`, `brands`, `property_groups`, `portfolio_access` tabele s RLS
+- [ ] Portfolio dashboard prikazuje live KPI-eve svih objekata
+- [ ] Hijerarhija pristupa: vlasnik vidi sve, menadžer samo vlastiti objekat
+- [ ] `portfolio_kpis` materialized view osvježava se svakih 5 min
+- [ ] Alert sistem detektuje anomalije i šalje notifikacije
+- [ ] Komparativna analitika radi za odabrane objekte
+- [ ] Konsolidovani izvještaji sa valutnom konverzijom
+- [ ] Export u PDF i Excel
 
 ---
 
-## ⬜ Faza 10 — Brand & Regional Management
+## ⬜ Faza 10 — Brand & Regional Management (`brand_mgmt`, `regional_mgmt`)
 
-- Centralizovani sabloni (meni, HR politike, housekeeping standardi)
-- Hijerarhija pristupa: owner → brand manager → regional manager → property manager
+> **Preduslov:** `portfolio_owner` aktivan.
+> **Trajanje:** 6–8 sedmica
+
+### Centralizovano upravljanje šablonima
+```sql
+CREATE TABLE brand_templates (
+  id UUID PRIMARY KEY DEFAULT gen_random_uuid(),
+  brand_id UUID REFERENCES brands(id),
+  template_type TEXT NOT NULL,
+  -- 'menu_structure'       → kategorije i nazivi stavki (bez cijena)
+  -- 'hr_policy'            → radno vrijeme, pravila odsustva
+  -- 'housekeeping'         → standardni checklist za čišćenje
+  -- 'guest_communication'  → šabloni emailova i SMS poruka
+  name TEXT NOT NULL,
+  template_data JSONB NOT NULL,
+  version INT DEFAULT 1,
+  is_active BOOLEAN DEFAULT true
+);
+
+CREATE TABLE template_assignments (
+  template_id UUID REFERENCES brand_templates(id),
+  restaurant_id UUID REFERENCES restaurants(id),
+  override_data JSONB,   -- lokalne izmjene na šablon
+  applied_at TIMESTAMPTZ DEFAULT now(),
+  applied_by UUID REFERENCES user_profiles(id),
+  PRIMARY KEY (template_id, restaurant_id)
+);
+```
+
+**Flow primjene šablona:**
+1. Vlasnik edituje brand šablon (npr. dodaje novu kategoriju menija)
+2. Klikne "Primijeni na sve Grand Hotels objekte"
+3. Sistem šalje notifikaciju manageru svakog objekta
+4. Manager prihvata / odbija / modifikuje šablon za vlastiti objekat
+5. Po prihvatanju → primjenjuje se uz mogućnost lokalnih izmjena
+
+### Hijerarhija pristupa (RBAC na portfolio nivou)
+```
+PORTFOLIO OWNER     → sve akcije, svi objekti, billing
+  ├── BRAND MANAGER → svi objekti pod jednim brandom, brand šabloni
+  ├── REGIONAL MGR  → svi objekti u svojoj grupi, HR odobravanje
+  └── PROPERTY MGR  → samo vlastiti objekat (postojeća rola)
+```
+RLS politike se proširuju da provjeravaju `portfolio_access.scope` — regional manager ne može pristupiti podacima izvan svoje grupe ni ako zna `restaurant_id`.
+
+**Definition of Done:**
+- [ ] Brand šabloni se mogu kreirati i primjenjivati na objekte
+- [ ] Manager objekta može prihvatiti/odbiti šablon sa lokalnim izmjenama
+- [ ] Regional manager ima ograničen pristup samo svojoj grupi
+- [ ] RLS politike pravilno provode cijelu hijerarhiju
+- [ ] Notifikacije pri ažuriranju šablona stižu odgovornim osobama
 
 ---
 
 ## Tehnički dug / Poznati problemi
 
-| Stavka | Prioritet | Napomena |
-|--------|-----------|----------|
-| Resend domen verifikacija | 🔴 Visok | `onboarding@resend.dev` → vlastiti domen prije produkcije |
-| RESEND_API_KEY regeneracija | 🔴 Visok | Ključ bio izložen u chatu |
-| PAYPAL_WEBHOOK_ID env var | 🟡 Srednji | Signature verifikacija ne radi bez ovoga |
-| SITE_URL env var u Supabase | 🟡 Srednji | Guest App URL u emailima zavisi od ovoga |
-| Stripe addon purchase flow | 🟡 Srednji | "Aktiviraj" dugme vodi samo na info, ne checkout |
-| `get_available_rooms()` RPC | 🟡 Srednji | Booking engine radi bez prave availability provjere |
-| Folio PDF export | 🟢 Nizak | FolioPrint postoji ali nema server-side PDF |
+| Stavka | Prioritet | Šta konkretno treba | Faza |
+|--------|-----------|---------------------|------|
+| Resend domen verifikacija | 🔴 Visok | Verifikovati vlastiti domen na resend.com, zamijeniti `onboarding@resend.dev` u Edge Function env varijablama | Y.1 |
+| RESEND_API_KEY regeneracija | 🔴 Visok | Generisati novi API key na resend.com → ažurirati u Supabase Edge Function secrets | Odmah |
+| PAYPAL_WEBHOOK_ID env var | 🟡 Srednji | Dodati `PAYPAL_WEBHOOK_ID` u Supabase Edge Function secrets (PayPal Dashboard → Webhooks → ID) | 1 |
+| SITE_URL env var u Supabase | 🟡 Srednji | Dodati `SITE_URL=https://smartmeni.vercel.app` u Supabase Edge Function secrets; koristi se u email linkovima | Odmah |
+| Stripe addon purchase flow | 🟡 Srednji | "Aktiviraj modul" dugme treba kreirati Stripe Checkout Session i redirectovati korisnika; webhook ažurira subscription.addons | 1 dopuna |
+| `room_availability` tabela + `get_available_rooms()` | 🟡 Srednji | Booking engine prikazuje sobe bez prave provjere zauzetosti — vidjeti detalje u Faza 3 Preostalo | 3 dopuna |
+| Housekeeping auto-trigger | 🟡 Srednji | DB trigger `create_checkout_cleaning_task()` koji kreira task i mijenja status sobe na 'cleaning' pri check-outu | 4 |
+| Folio PDF server-side | 🟢 Nizak | `FolioPrint` postoji kao print-friendly stranica, ali nema server-side PDF generisanja; razmotriti `@react-pdf/renderer` ili Puppeteer Edge Function | 2 dopuna |
+| ~~Upload slika u editoru~~ | ✅ Riješeno | `ImageUpload` komponenta implementirana, oba editora ažurirana | Y.1 |
+| `restaurants` tabela naziv | 🟢 Nizak | Dugoročni tehnički dug: preimenovati u `properties`/`tenants` jer hotel bez restorana i dalje ima `restaurant_id` — ne hitno za MVP | Daleka faza |
 
 ---
 
@@ -485,13 +883,39 @@ CREATE TABLE landing_pages (
 | Y | Restoran sajt block editor (/admin/settings/landing) | ✅ | 2026-05-30 |
 | Y | Dinamički rendering blokova na /:slug/hotel | ✅ | 2026-05-30 |
 | Y | Javna stranica restorana na /:slug/home | ✅ | 2026-05-30 |
-| Y | Upload slika u Supabase Storage | ⬜ | |
-| Y | Custom domain podrška | ⬜ | |
+| Y.1 | `landing-images` Supabase Storage bucket | ✅ | 2026-05-30 |
+| Y.1 | `ImageUpload` komponenta (drag & drop + preview) | ✅ | 2026-05-30 |
+| Y.1 | Hero blokovi — zamjena URL inputa s ImageUpload | ✅ | 2026-05-30 |
+| Y.1 | Galerija blok — multi-image upload | ✅ | 2026-05-30 |
+| Y.2 | Custom domain podrška (Vercel API) | ⬜ | |
+| 3d | `room_availability` tabela + trigger | ✅ | 2026-05-30 |
+| 3d | `get_available_rooms()` PostgreSQL RPC | ✅ | 2026-05-30 |
+| 3d | BookingPage integracija sa availability engineom | ✅ | 2026-05-30 |
+| 3d | Stripe payment za booking (Payment Intent flow) | ⬜ | |
+| 3d | Cancellation flow + Stripe refund | ⬜ | |
+| 4d | Auto-task trigger pri check-outu (DB trigger) | ⬜ | |
+| 4d | Mobile-optimizovani prikaz za housekeeping osoblje | ⬜ | |
+| 5d | Price suggestion algoritam (suggestPrice funkcija) | ⬜ | |
+| 5d | Export revenue analitike u PDF/Excel | ⬜ | |
+| 1d | Stripe addon purchase flow (Checkout Session) | ⬜ | |
 | 6 | Beds24 API integracija | ⬜ | |
-| 7 | Expo projekt setup | ⬜ | |
-| 8 | Loyalty program | ⬜ | |
-| 9 | Portfolio dashboard | ⬜ | |
-| 10 | Brand & Regional management | ⬜ | |
+| 6 | Availability/rate sync SmartMeni → Beds24 | ⬜ | |
+| 6 | Webhook handler za rezervacije sa eksternih kanala | ⬜ | |
+| 7 | Expo projekt setup, Supabase konekcija | ⬜ | |
+| 7 | Waiter app (lista narudžbi, promjena statusa) | ⬜ | |
+| 7 | Kitchen display (real-time, offline tolerantan) | ⬜ | |
+| 7 | Housekeeping mobilna app | ⬜ | |
+| 8 | loyalty_programs + loyalty_accounts tabele | ⬜ | |
+| 8 | Loyalty earn/redeem logika | ⬜ | |
+| 8 | GuestApp — loyalty prikaz i redemption | ⬜ | |
+| 9 | portfolios + brands + property_groups tabele | ⬜ | |
+| 9 | portfolio_kpis materialized view + cron | ⬜ | |
+| 9 | Portfolio dashboard UI | ⬜ | |
+| 9 | detect-portfolio-alerts Edge Function | ⬜ | |
+| 9 | Komparativna analitika + valutna konverzija | ⬜ | |
+| 10 | brand_templates + template_assignments tabele | ⬜ | |
+| 10 | Primjena šablona na objekte + notifikacije | ⬜ | |
+| 10 | Regional manager RBAC + RLS proširenje | ⬜ | |
 
 ---
 
@@ -500,33 +924,54 @@ CREATE TABLE landing_pages (
 ```
 2026
 │
-├── Maj        ✅ Faza 1 — Billing infrastruktura (osnova završena)
-│              ✅ Faza 2 — Hotel Core modul (ZAVRŠEN)
-│              ✅ Faza 3 — Booking Engine (booking stranica + email ✅, availability engine ⬜)
-│              ✅ Faza 4 — Housekeeping (UI ✅, auto-trigger ⬜)
-│              ✅ Faza 5 — Revenue Management (UI ✅, export ⬜)
-│              ✅ Faza X — Guest Experience (i18n, Guest App, Hotel Landing) ← OVDJE SMO
+├── Maj        ✅ Faza 0  — Stabilizacija SmartMenija
+│              ✅ Faza 1  — Billing infrastruktura (osnova: PayPal base plan, addon catalog)
+│              ✅ Faza 2  — Hotel Core modul (sobe, rezervacije, folio, front desk, calendar)
+│              ✅ Faza 3  — Booking Engine (booking stranica + email ✅)
+│              ✅ Faza 4  — Housekeeping (UI ✅)
+│              ✅ Faza 5  — Revenue Management (UI + metrics ✅)
+│              ✅ Faza X  — Guest Experience (i18n, Guest App, Hotel Landing)
 │
-├── Jun        ✅ Faza Y — Customizabilni hotel + restoran sajtovi (block editor) ← OVDJE SMO
-│                          landing_pages tabela, hotel editor (7 blokova), restoran editor (6 blokova)
-│                          /:slug/hotel block rendering, /:slug/home nova javna stranica
+├── Maj–Jun    ✅ Faza Y  — Customizabilni sajtovi (block editor, hotel + restoran)
+│                           landing_pages tabela, 7 hotel blokova, 6 restoran blokova
+│                           /:slug/hotel i /:slug/home javne stranice
 │
-├── Jun        🔄 Faza Y.1 — Upload slika u Supabase Storage (sljedeće)
+│              ← OVDJE SMO (2026-05-30)
 │
-├── Jun–Jul    🔄 Faza 3 dopuna — Availability engine, room_availability
+├── Jun        🔄 Faza Y.1 — Upload slika u Supabase Storage
+│                            ImageUpload komponenta, landing-images bucket
 │
-├── Jul–Aug    ⬜ Faza 1 dopuna — Stripe addon purchase flow
+├── Jun        🔄 HITNO: RESEND_API_KEY regeneracija + SITE_URL env var
 │
-├── Sep+       ⬜ Faza 6 — Channel Manager (Beds24)
+├── Jun–Jul    🔄 Faza 3d — Availability engine
+│                            room_availability tabela, get_available_rooms() RPC,
+│                            BookingPage integracija, Stripe payment flow
+│
+├── Jul        🔄 Faza 4d — Housekeeping auto-trigger + mobile prikaz
+│              🔄 Faza 5d — Price suggestion algoritam + analytics export
+│
+├── Jul–Aug    🔄 Faza 1d — Stripe addon purchase flow
+│
+├── Sep+       ⬜ Faza 6  — Channel Manager (Beds24 integracija)
 │
 2027
 │
-├── TBD        ⬜ Faza 7 — Mobilna aplikacija (React Native / Expo)
-├── TBD        ⬜ Faza 8 — Loyalty + Guest App addon
-├── TBD        ⬜ Faza 9 — Portfolio Owner Dashboard
-└── TBD        ⬜ Faza 10 — Brand & Regional Management
+├── Q1         ⬜ Faza 7  — Mobilna aplikacija (React Native / Expo)
+│                            V1: Waiter app, Kitchen display, Housekeeping app
+│
+├── Q2         ⬜ Faza 8  — Loyalty program + Guest App addon
+│
+├── Q3         ⬜ Faza 9  — Portfolio Owner Dashboard
+│                            portfolios tabele, KPI aggregacija, alert sistem
+│
+└── Q4         ⬜ Faza 10 — Brand & Regional Management
+                             brand šabloni, RBAC hijerarhija pristupa
+
+2028
+│
+└── TBD        ⬜ Faza Y.2 — Custom domain podrška (Vercel API, po potražnji)
 ```
 
 ---
 
-*Roadmap ažuriran: 2026-05-30 (Faza Y — block editor sajtovi) | Branch: main | Deployment: Vercel auto-deploy*
+*Roadmap ažuriran: 2026-05-30 (v2.2 — Faze Y.1, 3d–5d, 6–10 proširene; tehnički dug detaljizovan) | Branch: main | Deployment: Vercel auto-deploy*

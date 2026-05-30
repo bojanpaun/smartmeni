@@ -2,6 +2,7 @@ import { useState, useEffect } from 'react'
 import { usePlatform } from '../../../context/PlatformContext'
 import { supabase } from '../../../lib/supabase'
 import { toast } from 'react-hot-toast'
+import ImageUpload from '../../../components/shared/ImageUpload'
 import styles from './HotelLandingEditor.module.css'
 
 const BLOCK_DEFS = [
@@ -14,7 +15,7 @@ const BLOCK_DEFS = [
     fields: [
       { key: 'title',        label: 'Naslov',                  type: 'text',     placeholder: 'Npr. Hotel Mediteran' },
       { key: 'subtitle',     label: 'Podnaslov',               type: 'text',     placeholder: 'Npr. Vaša oaza mira na Jadranskom moru' },
-      { key: 'bg_image_url', label: 'URL pozadinske slike',    type: 'url',      placeholder: 'https://...' },
+      { key: 'bg_image_url', label: 'Pozadinska slika',         type: 'image' },
       { key: 'cta_text',     label: 'Tekst CTA dugmeta',       type: 'text',     placeholder: 'Rezerviši sobu' },
     ],
     defaultData: { title: '', subtitle: '', bg_image_url: '', cta_text: 'Rezerviši sobu' },
@@ -27,7 +28,7 @@ const BLOCK_DEFS = [
     defaultEnabled: false,
     fields: [
       { key: 'text',      label: 'Tekst opisa',            type: 'textarea', placeholder: 'Napišite nešto o hotelu...' },
-      { key: 'image_url', label: 'URL fotografije (opcionalno)', type: 'url', placeholder: 'https://...' },
+      { key: 'image_url', label: 'Fotografija (opcionalno)',      type: 'image' },
     ],
     defaultData: { text: '', image_url: '' },
   },
@@ -48,7 +49,7 @@ const BLOCK_DEFS = [
     desc: 'Grid s fotografijama hotela',
     defaultEnabled: false,
     fields: [
-      { key: 'image_urls', label: 'URL-ovi fotografija (jedan po liniji)', type: 'textarea', placeholder: 'https://...\nhttps://...' },
+      { key: 'image_urls', label: 'Fotografije',                            type: 'image-gallery' },
     ],
     defaultData: { image_urls: '' },
   },
@@ -240,7 +241,20 @@ export default function HotelLandingEditor() {
                     def.fields.map(field => (
                       <div key={field.key} className={styles.formRow}>
                         <label className={styles.label}>{field.label}</label>
-                        {field.type === 'textarea' ? (
+                        {field.type === 'image' ? (
+                          <ImageUpload
+                            value={block.data[field.key] || ''}
+                            onChange={url => updateField(block.type, field.key, url)}
+                            restaurantId={restaurant?.id}
+                          />
+                        ) : field.type === 'image-gallery' ? (
+                          <ImageUpload
+                            value={block.data[field.key] || ''}
+                            onChange={urls => updateField(block.type, field.key, urls)}
+                            restaurantId={restaurant?.id}
+                            multiple
+                          />
+                        ) : field.type === 'textarea' ? (
                           <textarea
                             className={styles.textarea}
                             value={block.data[field.key] || ''}
