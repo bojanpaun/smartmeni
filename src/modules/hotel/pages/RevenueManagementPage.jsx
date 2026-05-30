@@ -6,10 +6,133 @@ import LoadingSpinner from '../../../components/shared/LoadingSpinner'
 import toast from 'react-hot-toast'
 import {
   BarChart, Bar, LineChart, Line,
-  XAxis, YAxis, CartesianGrid, Tooltip, ResponsiveContainer, Legend,
+  XAxis, YAxis, CartesianGrid, Tooltip, ResponsiveContainer,
 } from 'recharts'
 import styles from './Hotel.module.css'
 import rv from './RevenueManagement.module.css'
+
+// ── Export helpers ────────────────────────────────────────────
+
+function exportCSV(data, kpis, periodDays, restaurantName) {
+  const today = new Date().toLocaleDateString('sr-Latn')
+  const pct = (v) => v != null ? (v >= 0 ? '+' : '') + v.toFixed(1) + '%' : 'N/A'
+  const eur = (v) => '€' + Number(v || 0).toFixed(2)
+
+  const lines = [
+    'SmartMeni — Analitika prihoda',
+    `Objekat:;${restaurantName}`,
+    `Period:;zadnjih ${periodDays} dana`,
+    `Generisano:;${today}`,
+    '',
+    'KPI PREGLED',
+    'Metrika;Vrijednost;Promjena vs prethodni period',
+    `Ukupni prihod;${eur(kpis.totalRevenue)};${pct(kpis.pctRevenue)}`,
+    `ADR (prosj. cijena/noć);${eur(kpis.adr)};${pct(kpis.pctAdr)}`,
+    `RevPAR;${eur(kpis.revpar)};${pct(kpis.pctRevpar)}`,
+    `Popunjenost;${Number(kpis.occupancy || 0).toFixed(1)}%;${pct(kpis.pctOcc)}`,
+    '',
+    'DNEVNI PODACI',
+    'Datum;Prihod (€);ADR (€);Rezervacije;Noćenja',
+    ...(data.daily || []).map(d =>
+      `${d.date};${Number(d.total_revenue).toFixed(2)};${Number(d.adr).toFixed(2)};${d.reservations_count};${d.room_nights_sold}`
+    ),
+  ]
+
+  const csv = lines.join('\n')
+  const blob = new Blob(['﻿' + csv], { type: 'text/csv;charset=utf-8;' })
+  const url = URL.createObjectURL(blob)
+  const a = document.createElement('a')
+  a.href = url
+  a.download = `revenue-${new Date().toISOString().slice(0, 10)}.csv`
+  document.body.appendChild(a)
+  a.click()
+  document.body.removeChild(a)
+  URL.revokeObjectURL(url)
+}
+
+function printRevenuePDF(data, kpis, periodDays, restaurantName, suggestions) {
+  const today = new Date().toLocaleDateString('sr-Latn')
+  const eur = (v) => '€' + Number(v || 0).toFixed(2)
+  const pctStr = (v) => v != null ? `<span style="color:${v >= 0 ? '#0d7a52' : '#c0392b'}">${v >= 0 ? '▲' : '▼'} ${Math.abs(v).toFixed(1)}%</span>` : '—'
+
+  const dailyRows = (data.daily || []).map(d => `
+    <tr>
+      <td>${d.date}</td>
+      <td>€${Number(d.total_revenue).toFixed(2)}</td>
+      <td>€${Number(d.adr).toFixed(2)}</td>
+      <td>${d.reservations_count}</td>
+      <td>${d.room_nights_sold}</td>
+    </tr>`).join('')
+
+  const sugRows = suggestions.length === 0
+    ? '<tr><td colspan="5" style="text-align:center;color:#6b7280">Nema prijedloga — cijene su optimalne.</td></tr>'
+    : suggestions.map(s => `
+      <tr>
+        <td>${s.date}</td>
+        <td>${s.occupancy}%</td>
+        <td>${s.booked} / ${s.totalRooms}</td>
+        <td>€${s.basePrice}</td>
+        <td><strong>€${s.suggested}</strong></td>
+      </tr>`).join('')
+
+  const html = `<!DOCTYPE html>
+<html lang="bs">
+<head>
+  <meta charset="UTF-8">
+  <title>Analitika prihoda — ${restaurantName}</title>
+  <style>
+    * { box-sizing: border-box; margin: 0; padding: 0; }
+    body { font-family: Arial, sans-serif; font-size: 13px; color: #111; padding: 32px 40px; }
+    h1 { font-size: 20px; margin-bottom: 4px; }
+    .sub { font-size: 12px; color: #6b7280; margin-bottom: 28px; }
+    h2 { font-size: 14px; font-weight: 700; margin: 24px 0 10px; padding-bottom: 4px; border-bottom: 1px solid #e5e7eb; }
+    .kpis { display: grid; grid-template-columns: repeat(4, 1fr); gap: 12px; margin-bottom: 4px; }
+    .kpi { border: 1px solid #e5e7eb; border-radius: 8px; padding: 14px; }
+    .kpi-label { font-size: 10px; text-transform: uppercase; color: #6b7280; margin-bottom: 4px; }
+    .kpi-val { font-size: 22px; font-weight: 700; }
+    .kpi-pct { font-size: 11px; margin-top: 3px; }
+    table { width: 100%; border-collapse: collapse; font-size: 12px; }
+    th { background: #f9fafb; font-size: 11px; font-weight: 600; text-transform: uppercase; color: #6b7280; padding: 8px 10px; text-align: left; border-bottom: 1px solid #e5e7eb; }
+    td { padding: 7px 10px; border-bottom: 1px solid #f3f4f6; }
+    tr:last-child td { border-bottom: none; }
+    .footer { margin-top: 32px; font-size: 11px; color: #9ca3af; text-align: center; }
+    @media print { body { padding: 16px 20px; } }
+  </style>
+</head>
+<body>
+  <h1>Analitika prihoda — ${restaurantName}</h1>
+  <p class="sub">Period: zadnjih ${periodDays} dana &nbsp;·&nbsp; Generisano: ${today}</p>
+
+  <h2>KPI pregled</h2>
+  <div class="kpis">
+    <div class="kpi"><div class="kpi-label">Ukupni prihod</div><div class="kpi-val">${eur(kpis.totalRevenue)}</div><div class="kpi-pct">${pctStr(kpis.pctRevenue)}</div></div>
+    <div class="kpi"><div class="kpi-label">ADR</div><div class="kpi-val">${eur(kpis.adr)}</div><div class="kpi-pct">${pctStr(kpis.pctAdr)}</div></div>
+    <div class="kpi"><div class="kpi-label">RevPAR</div><div class="kpi-val">${eur(kpis.revpar)}</div><div class="kpi-pct">${pctStr(kpis.pctRevpar)}</div></div>
+    <div class="kpi"><div class="kpi-label">Popunjenost</div><div class="kpi-val">${Number(kpis.occupancy || 0).toFixed(1)}%</div><div class="kpi-pct">${pctStr(kpis.pctOcc)}</div></div>
+  </div>
+
+  <h2>Dnevni podaci</h2>
+  <table>
+    <thead><tr><th>Datum</th><th>Prihod</th><th>ADR</th><th>Rezervacije</th><th>Noćenja</th></tr></thead>
+    <tbody>${dailyRows}</tbody>
+  </table>
+
+  <h2>Prijedlozi cijena — narednih 14 dana</h2>
+  <table>
+    <thead><tr><th>Datum</th><th>Popunjenost</th><th>Rezervisano</th><th>Osnovna cijena</th><th>Preporučena</th></tr></thead>
+    <tbody>${sugRows}</tbody>
+  </table>
+
+  <div class="footer">Powered by SmartMeni</div>
+  <script>window.onload = () => { window.print() }<\/script>
+</body>
+</html>`
+
+  const win = window.open('', '_blank', 'width=900,height=700')
+  if (!win) { toast.error('Dozvoli iskačuće prozore u browseru'); return }
+  win.document.write(html)
+  win.document.close()
+}
 
 const PERIODS = [
   { label: '7 dana',   days: 7 },
@@ -173,6 +296,24 @@ export default function RevenueManagementPage() {
               </button>
             ))}
           </div>
+          {!loading && !error && data && (
+            <div className={rv.exportBar}>
+              <button
+                className={rv.btnExport}
+                onClick={() => exportCSV(data, data.kpis, periodDays, restaurant.name)}
+                title="Preuzmi CSV (otvara se u Excelu)"
+              >
+                ⬇ CSV
+              </button>
+              <button
+                className={rv.btnExport}
+                onClick={() => printRevenuePDF(data, data.kpis, periodDays, restaurant.name, suggestions)}
+                title="Štampaj ili sačuvaj kao PDF"
+              >
+                🖨 PDF
+              </button>
+            </div>
+          )}
         </div>
       </div>
 

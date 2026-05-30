@@ -319,3 +319,27 @@
 
 .btnApply:hover { opacity: 0.85; }
 .btnApply:disabled { opacity: 0.5; cursor: not-allowed; }
+
+/* Export */
+.exportBar {
+  display: flex;
+  gap: 6px;
+}
+
+.btnExport {
+  padding: 7px 14px;
+  border: 1px solid var(--c-border);
+  border-radius: 8px;
+  background: var(--c-surface);
+  color: var(--c-text);
+  font-size: 13px;
+  font-weight: 500;
+  cursor: pointer;
+  font-family: var(--c-font-sans);
+  transition: background 0.15s, border-color 0.15s;
+  white-space: nowrap;
+}
+.btnExport:hover {
+  background: var(--c-hover);
+  border-color: var(--c-primary-medium);
+}
