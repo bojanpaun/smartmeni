@@ -69,7 +69,7 @@ export default function GuestAppPage() {
   // Load restaurant
   useEffect(() => {
     supabase.from('restaurants').select('*')
-      .eq('slug', slug).single()
+      .ilike('slug', slug).single()
       .then(({ data, error }) => {
         if (error) console.error('Restaurant load error:', error.message)
         setRestaurant(data)
