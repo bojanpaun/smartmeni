@@ -640,6 +640,13 @@ export default function Menu() {
           </a>
         )}
 
+        {/* Hotel landing link */}
+        {!isDemo && r?.show_booking_button && (
+          <a href={`/${slug}/hotel`} className={styles.reservationBtn}>
+            🏨 {isEn ? 'Hotel info & rooms' : 'Hotel — info i smještaj'}
+          </a>
+        )}
+
         {/* Separator MOJ NALOG */}
         {(canSee(registrationVis) || guestSession) && (
           <div className={styles.accountSeparator}>
