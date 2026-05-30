@@ -56,6 +56,7 @@ const HousekeepingPage     = lazy(() => import('./modules/hotel/pages/Housekeepi
 const RevenueManagementPage = lazy(() => import('./modules/hotel/pages/RevenueManagementPage'))
 const BookingPage          = lazy(() => import('./pages/BookingPage'))
 const GuestAppPage         = lazy(() => import('./modules/hotel/pages/GuestAppPage'))
+const HotelLandingPage     = lazy(() => import('./modules/hotel/pages/HotelLandingPage'))
 
 const ControlPanel         = lazy(() => import('./platform/admin/ControlPanel'))
 const ModuleHelp           = lazy(() => import('./platform/admin/ModuleHelp'))
@@ -206,6 +207,7 @@ function AppRoutes() {
         <Route path="/:slug/osoblje" element={<Suspense fallback={<LoadingSpinner fullPage />}><StaffPortalPage /></Suspense>} />
         <Route path="/:slug/book" element={<Suspense fallback={<LoadingSpinner fullPage />}><BookingPage /></Suspense>} />
         <Route path="/:slug/guest" element={<Suspense fallback={<LoadingSpinner fullPage />}><GuestAppPage /></Suspense>} />
+        <Route path="/:slug/hotel" element={<Suspense fallback={<LoadingSpinner fullPage />}><HotelLandingPage /></Suspense>} />
         <Route path="/:slug" element={<CartProvider><Suspense fallback={<LoadingSpinner fullPage />}><GuestMenu /></Suspense></CartProvider>} />
       </Routes>
     </Suspense>
