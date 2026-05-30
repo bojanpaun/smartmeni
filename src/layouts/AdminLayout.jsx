@@ -6,6 +6,7 @@ import { usePlatform } from '../context/PlatformContext'
 import styles from './AdminLayout.module.css'
 import TrialBanner from '../platform/admin/TrialBanner'
 import ThemeToggle from '../components/ThemeToggle'
+import LanguageSwitcher from '../i18n/LanguageSwitcher'
 
 export const MODULES = [
   {
@@ -275,6 +276,7 @@ export default function AdminLayout({ children }) {
                 : restName[0]}
             </div>
             <span className={styles.hubRole}>{restRole}</span>
+            <LanguageSwitcher variant="dark" />
             <ThemeToggle variant="dark" />
             <button className={styles.hubLogoutBtn} onClick={handleLogout}>Odjava</button>
           </div>
@@ -401,6 +403,7 @@ export default function AdminLayout({ children }) {
           </div>
 
           <div className={styles.topbarRight}>
+            <LanguageSwitcher />
             <ThemeToggle />
           </div>
         </header>
@@ -473,6 +476,7 @@ export default function AdminLayout({ children }) {
                   👁 Meni uživo
                 </a>
               )}
+              <LanguageSwitcher variant="dark" />
               <ThemeToggle variant="dark" />
               <button className={styles.logoutBtn} onClick={handleLogout}>Odjava</button>
               <a href="/" className={styles.sbBrand}>smartmeni.me</a>

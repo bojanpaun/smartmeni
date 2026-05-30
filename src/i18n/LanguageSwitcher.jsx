@@ -6,12 +6,12 @@ const LANGS = [
   { code: 'en', label: 'ENG' },
 ]
 
-export default function LanguageSwitcher() {
+export default function LanguageSwitcher({ variant = 'light' }) {
   const { i18n } = useTranslation()
   const current = i18n.language
 
   return (
-    <div className={styles.switcher}>
+    <div className={`${styles.switcher} ${variant === 'dark' ? styles.switcherDark : ''}`}>
       {LANGS.map(({ code, label }) => (
         <button
           key={code}

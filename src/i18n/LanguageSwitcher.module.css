@@ -1,3 +1,4 @@
+/* Light variant (default — booking page, admin topbar) */
 .switcher {
   display: flex;
   gap: 2px;
@@ -35,4 +36,28 @@
 .active:hover {
   background: #0d7a52;
   color: #fff;
+}
+
+/* Dark variant — hub header, sidebar */
+.switcherDark {
+  background: rgba(255,255,255,0.1);
+  border-color: rgba(255,255,255,0.12);
+}
+
+.switcherDark .btn {
+  color: rgba(255,255,255,0.5);
+}
+
+.switcherDark .btn:hover {
+  background: rgba(255,255,255,0.1);
+  color: rgba(255,255,255,0.9);
+}
+
+.switcherDark .active {
+  background: rgba(255,255,255,0.2);
+  color: #fff;
+}
+
+.switcherDark .active:hover {
+  background: rgba(255,255,255,0.25);
 }
