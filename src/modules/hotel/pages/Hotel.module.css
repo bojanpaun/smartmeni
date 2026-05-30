@@ -29,6 +29,7 @@
 .filterBtn { composes: pillBtn from '../../../styles/nav.module.css'; }
 .filterBtnActive { composes: pillBtnActive from '../../../styles/nav.module.css'; }
 .filterCount { composes: pillCount from '../../../styles/nav.module.css'; }
+.filterCountAlert { background: #c0392b; color: #fff; }
 
 /* Room grid */
 .roomGrid {
