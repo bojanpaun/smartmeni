@@ -20,8 +20,10 @@ function buildHtml(data: {
   totalAmount: number
   reservationId: string
   logoUrl?: string
+  guestAppUrl?: string | null
+  guestCode?: string
 }) {
-  const { hotelName, guestName, type, checkIn, checkOut, nights, roomType, totalAmount, reservationId, logoUrl } = data
+  const { hotelName, guestName, type, checkIn, checkOut, nights, roomType, totalAmount, reservationId, logoUrl, guestAppUrl, guestCode } = data
 
   const bannerColor: Record<string, string> = {
     confirmed: '#0d7a52',
@@ -112,8 +114,22 @@ function buildHtml(data: {
     </table>
 
     ${type === 'confirmed' ? `
-    <div style="background:#ecfdf5;border-left:3px solid #0d7a52;padding:12px 16px;border-radius:0 6px 6px 0;margin-bottom:24px;">
+    <div style="background:#ecfdf5;border-left:3px solid #0d7a52;padding:12px 16px;border-radius:0 6px 6px 0;margin-bottom:16px;">
       <p style="margin:0;font-size:13px;color:#065f46;">📋 Pri dolasku ponesите ovaj email i važeći identifikacioni dokument.</p>
+    </div>` : ''}
+
+    ${(type === 'confirmed' || type === 'checkin') && guestAppUrl ? `
+    <div style="background:#f0f9ff;border:1px solid #bae6fd;border-radius:10px;padding:18px 20px;margin-bottom:24px;text-align:center;">
+      <p style="margin:0 0 6px;font-size:14px;font-weight:600;color:#0369a1;">📱 Guest App — Online usluge</p>
+      <p style="margin:0 0 14px;font-size:13px;color:#0c4a6e;line-height:1.5;">
+        Pristupite online uslugama hotela: pregled folija, zahtjevi sobi i informacije o hotelu.
+      </p>
+      <p style="margin:0 0 10px;font-size:12px;color:#64748b;">
+        Vaš kod: <strong style="font-family:monospace;font-size:15px;letter-spacing:0.1em;color:#0369a1;">${guestCode}</strong>
+      </p>
+      <a href="${guestAppUrl}" style="display:inline-block;background:#0d7a52;color:#fff;text-decoration:none;padding:10px 24px;border-radius:8px;font-size:14px;font-weight:600;">
+        Otvori Guest App →
+      </a>
     </div>` : ''}
 
     <p style="margin:0;color:#9ca3af;font-size:13px;">Za sva pitanja kontaktirajte recepciju hotela.</p>
@@ -160,7 +176,7 @@ serve(async (req) => {
         id, check_in_date, check_out_date, total_amount,
         guest_name, guest_email,
         room_types ( name ),
-        restaurants ( name, logo_url )
+        restaurants ( name, logo_url, slug )
       `)
       .eq('id', reservation_id)
       .single()
@@ -181,10 +197,15 @@ serve(async (req) => {
       (new Date(res.check_out_date).getTime() - new Date(res.check_in_date).getTime()) / 86_400_000
     )
 
-    const hotelName = (res.restaurants as any)?.name ?? 'Hotel'
-    const logoUrl   = (res.restaurants as any)?.logo_url ?? ''
-    const roomType  = (res.room_types as any)?.name ?? 'Smještaj'
-    const guestName = res.guest_name ?? 'Gost'
+    const hotelName  = (res.restaurants as any)?.name ?? 'Hotel'
+    const logoUrl    = (res.restaurants as any)?.logo_url ?? ''
+    const hotelSlug  = (res.restaurants as any)?.slug ?? ''
+    const roomType   = (res.room_types as any)?.name ?? 'Smještaj'
+    const guestName  = res.guest_name ?? 'Gost'
+    const guestCode  = res.id.slice(0, 8).toUpperCase()
+    const guestAppUrl = hotelSlug
+      ? `${Deno.env.get('SITE_URL') ?? 'https://smartmeni.me'}/${hotelSlug}/guest`
+      : null
 
     const subjects: Record<string, string> = {
       confirmed: `✅ Potvrda rezervacije — ${hotelName}`,
@@ -201,6 +222,8 @@ serve(async (req) => {
       totalAmount: res.total_amount ?? 0,
       reservationId: res.id,
       logoUrl,
+      guestAppUrl,
+      guestCode,
     })
 
     const resendRes = await fetch(RESEND_API, {
