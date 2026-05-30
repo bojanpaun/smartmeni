@@ -41,6 +41,9 @@ export default function FrontDeskPage() {
     })
 
     toast.success(`${res.guest_name} — check-in uspješan`)
+    supabase.functions.invoke('send-booking-email', {
+      body: { reservation_id: res.id, type: 'checkin' },
+    }).catch(() => {})
     refetchArrivals()
   }
 
@@ -59,6 +62,9 @@ export default function FrontDeskPage() {
       .eq('reservation_id', res.id)
 
     toast.success(`${res.guest_name} — check-out uspješan. Soba na čišćenje.`)
+    supabase.functions.invoke('send-booking-email', {
+      body: { reservation_id: res.id, type: 'checkout' },
+    }).catch(() => {})
     refetchDep()
   }
 

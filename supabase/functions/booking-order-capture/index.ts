@@ -120,6 +120,16 @@ serve(async (req) => {
       payload: capture,
     })
 
+    // Pošalji email potvrde (fire-and-forget — ne blokiramo odgovor)
+    fetch(`${Deno.env.get('SUPABASE_URL')}/functions/v1/send-booking-email`, {
+      method: 'POST',
+      headers: {
+        Authorization: `Bearer ${Deno.env.get('SUPABASE_SERVICE_ROLE_KEY')}`,
+        'Content-Type': 'application/json',
+      },
+      body: JSON.stringify({ reservation_id: reservation.id, type: 'confirmed' }),
+    }).catch(e => console.warn('Email send failed (non-critical):', e))
+
     return new Response(JSON.stringify({
       reservation_id: reservation.id,
       guest_name,
