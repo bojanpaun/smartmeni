@@ -1,0 +1,38 @@
+.switcher {
+  display: flex;
+  gap: 2px;
+  background: rgba(14,26,20,0.06);
+  border: 1px solid rgba(14,26,20,0.1);
+  border-radius: 8px;
+  padding: 3px;
+  flex-shrink: 0;
+}
+
+.btn {
+  padding: 4px 10px;
+  border: none;
+  background: transparent;
+  border-radius: 5px;
+  cursor: pointer;
+  font-size: 11px;
+  font-weight: 700;
+  color: rgba(14,26,20,0.45);
+  letter-spacing: 0.05em;
+  transition: background 0.15s, color 0.15s;
+  font-family: inherit;
+}
+
+.btn:hover {
+  background: rgba(14,26,20,0.06);
+  color: rgba(14,26,20,0.8);
+}
+
+.active {
+  background: #1a9e6e;
+  color: #fff;
+}
+
+.active:hover {
+  background: #0d7a52;
+  color: #fff;
+}

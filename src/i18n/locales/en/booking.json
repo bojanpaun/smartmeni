@@ -1,0 +1,87 @@
+{
+  "onlineBooking": "Online Booking",
+  "hotelNotFound": "Hotel not found",
+  "hotelNotFoundSub": "Please check the link and try again.",
+
+  "steps": {
+    "dates": "Dates",
+    "room": "Room",
+    "guest": "Details",
+    "payment": "Payment",
+    "confirm": "Confirmation"
+  },
+
+  "date": {
+    "title": "Select dates and number of guests",
+    "checkIn": "Check-in",
+    "checkOut": "Check-out",
+    "adults": "Adults",
+    "children": "Children",
+    "nights_one": "{{count}} night",
+    "nights_other": "{{count}} nights",
+    "errNoDates": "Please select check-in and check-out dates",
+    "errCheckOut": "Check-out date must be after check-in date",
+    "errSearch": "Search error. Please try again.",
+    "searching": "Searching...",
+    "checkAvailability": "Check availability →"
+  },
+
+  "room": {
+    "title": "Available rooms",
+    "changeDates": "← Change dates",
+    "summary": "{{nights}} nights · {{from}} — {{to}} · {{guests}} guest(s)",
+    "noRooms": "No rooms available for the selected dates and number of guests.",
+    "changeSearch": "Change search",
+    "maxGuests": "Up to {{count}} guests",
+    "perNight": "per night",
+    "total": "total",
+    "select": "Book →"
+  },
+
+  "guest": {
+    "title": "Guest details",
+    "name": "Full name",
+    "nameRequired": "Full name *",
+    "email": "E-mail",
+    "emailRequired": "E-mail *",
+    "phone": "Phone",
+    "requests": "Special requests",
+    "requestsPlaceholder": "Allergies, late check-in, specific requests...",
+    "continue": "Continue to payment →",
+    "errName": "Guest name is required",
+    "errEmail": "Please enter a valid e-mail address"
+  },
+
+  "payment": {
+    "title": "Booking summary",
+    "accommodation": "Accommodation",
+    "checkIn": "Check-in",
+    "checkOut": "Check-out",
+    "stay": "Stay",
+    "nights_one": "{{count}} night",
+    "nights_other": "{{count}} nights",
+    "guests": "Guests",
+    "adultsOnly": "{{adults}} adult(s)",
+    "adultsAndChildren": "{{adults}} adult(s) + {{children}} child(ren)",
+    "guest": "Guest",
+    "email": "E-mail",
+    "total": "Total",
+    "secureNote": "Payment is secure and protected through PayPal.",
+    "paying": "Preparing payment...",
+    "payNow": "💳  Pay with PayPal"
+  },
+
+  "confirm": {
+    "processing": "Processing payment, please wait...",
+    "errorTitle": "Payment error",
+    "retry": "Try again",
+    "title": "Booking confirmed!",
+    "sub": "Thank you, <strong>{{name}}</strong>! Confirmation sent to <strong>{{email}}</strong>.",
+    "refNum": "Booking ref.",
+    "accommodation": "Accommodation",
+    "checkIn": "Check-in",
+    "checkOut": "Check-out",
+    "paid": "Paid",
+    "backToMenu": "← Back to menu"
+  }
+}

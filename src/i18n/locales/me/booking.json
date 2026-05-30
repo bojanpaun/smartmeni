@@ -1,0 +1,89 @@
+{
+  "onlineBooking": "Online rezervacija",
+  "hotelNotFound": "Hotel nije pronađen",
+  "hotelNotFoundSub": "Provjerite link i pokušajte ponovo.",
+
+  "steps": {
+    "dates": "Datumi",
+    "room": "Soba",
+    "guest": "Podaci",
+    "payment": "Plaćanje",
+    "confirm": "Potvrda"
+  },
+
+  "date": {
+    "title": "Odaberite datume i broj gostiju",
+    "checkIn": "Dolazak",
+    "checkOut": "Odlazak",
+    "adults": "Odrasli",
+    "children": "Djeca",
+    "nights_one": "{{count}} noć",
+    "nights_few": "{{count}} noći",
+    "nights_other": "{{count}} noći",
+    "errNoDates": "Odaberite datume dolaska i odlaska",
+    "errCheckOut": "Datum odlaska mora biti poslije datuma dolaska",
+    "errSearch": "Greška pri pretrazi. Pokušajte ponovo.",
+    "searching": "Pretraga...",
+    "checkAvailability": "Provjeri dostupnost →"
+  },
+
+  "room": {
+    "title": "Dostupne sobe",
+    "changeDates": "← Promijeni datume",
+    "summary": "{{nights}} noći · {{from}} — {{to}} · {{guests}} gost(a)",
+    "noRooms": "Nema dostupnih soba za odabrane datume i broj gostiju.",
+    "changeSearch": "Promijeni pretragu",
+    "maxGuests": "Do {{count}} gosta",
+    "perNight": "po noći",
+    "total": "ukupno",
+    "select": "Rezerviši →"
+  },
+
+  "guest": {
+    "title": "Podaci gosta",
+    "name": "Ime i prezime",
+    "nameRequired": "Ime i prezime *",
+    "email": "E-mail",
+    "emailRequired": "E-mail *",
+    "phone": "Telefon",
+    "requests": "Posebni zahtjevi",
+    "requestsPlaceholder": "Alergije, kasni check-in, specifični zahtjevi...",
+    "continue": "Nastavi na plaćanje →",
+    "errName": "Ime gosta je obavezno",
+    "errEmail": "Unesite ispravnu e-mail adresu"
+  },
+
+  "payment": {
+    "title": "Pregled rezervacije",
+    "accommodation": "Smještaj",
+    "checkIn": "Dolazak",
+    "checkOut": "Odlazak",
+    "stay": "Boravak",
+    "nights_one": "{{count}} noć",
+    "nights_few": "{{count}} noći",
+    "nights_other": "{{count}} noći",
+    "guests": "Gosti",
+    "adultsOnly": "{{adults}} odrasli",
+    "adultsAndChildren": "{{adults}} odrasli + {{children}} djece",
+    "guest": "Gost",
+    "email": "E-mail",
+    "total": "Ukupno",
+    "secureNote": "Plaćanje je sigurno i zaštićeno putem PayPal-a.",
+    "paying": "Priprema plaćanja...",
+    "payNow": "💳  Plati putem PayPal-a"
+  },
+
+  "confirm": {
+    "processing": "Obrada plaćanja, molimo sačekajte...",
+    "errorTitle": "Greška pri plaćanju",
+    "retry": "Pokušajte ponovo",
+    "title": "Rezervacija potvrđena!",
+    "sub": "Hvala, <strong>{{name}}</strong>! Potvrda je poslana na <strong>{{email}}</strong>.",
+    "refNum": "Br. rezervacije",
+    "accommodation": "Smještaj",
+    "checkIn": "Dolazak",
+    "checkOut": "Odlazak",
+    "paid": "Plaćeno",
+    "backToMenu": "← Povratak na meni"
+  }
+}
