@@ -153,6 +153,17 @@ export default function HousekeepingPage() {
             className={hk.datePicker}
           />
           <button className={styles.btnSecondary} onClick={() => setDate(TODAY)}>Danas</button>
+          {restaurant?.slug && (
+            <a
+              href={`/${restaurant.slug}/housekeeping`}
+              target="_blank"
+              rel="noreferrer"
+              className={styles.btnSecondary}
+              title="Mobilni portal za sobarice"
+            >
+              📱 Portal
+            </a>
+          )}
           <button className={styles.btnPrimary}
             onClick={() => { setShowTaskForm(true); setShowMaintForm(false) }}>
             + Novi zadatak

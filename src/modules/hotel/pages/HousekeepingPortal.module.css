@@ -1,0 +1,364 @@
+/* Mobile-first portal za housekeeping osoblje */
+
+.loadWrap {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  min-height: 100vh;
+}
+.spinner {
+  width: 32px; height: 32px;
+  border: 3px solid #e5e7eb;
+  border-top-color: #1D9E75;
+  border-radius: 50%;
+  animation: spin 0.7s linear infinite;
+}
+@keyframes spin { to { transform: rotate(360deg); } }
+.notFound { color: #6b7280; font-size: 15px; }
+
+/* ── Login ── */
+.loginPage {
+  min-height: 100vh;
+  background: linear-gradient(160deg, #0d7a52 0%, #0a5c3d 100%);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 24px 16px;
+}
+
+.loginCard {
+  background: #fff;
+  border-radius: 20px;
+  padding: 36px 28px;
+  width: 100%;
+  max-width: 380px;
+  text-align: center;
+  box-shadow: 0 8px 40px rgba(0,0,0,0.18);
+}
+
+.loginLogo {
+  width: 72px;
+  height: 72px;
+  object-fit: contain;
+  border-radius: 12px;
+  margin-bottom: 14px;
+}
+
+.loginTitle {
+  font-size: 20px;
+  font-weight: 700;
+  color: #111827;
+  margin: 0 0 4px;
+}
+
+.loginSub {
+  font-size: 13px;
+  color: #6b7280;
+  margin: 0 0 28px;
+}
+
+.loginForm {
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+}
+
+.loginInput {
+  width: 100%;
+  padding: 14px 16px;
+  border: 1.5px solid #e5e7eb;
+  border-radius: 12px;
+  font-size: 15px;
+  outline: none;
+  box-sizing: border-box;
+  font-family: inherit;
+  transition: border-color 0.15s;
+}
+.loginInput:focus { border-color: #1D9E75; }
+
+.loginError {
+  font-size: 13px;
+  color: #ef4444;
+  margin: 0;
+  text-align: left;
+}
+
+.loginBtn {
+  padding: 15px;
+  background: #1D9E75;
+  color: #fff;
+  border: none;
+  border-radius: 12px;
+  font-size: 16px;
+  font-weight: 600;
+  cursor: pointer;
+  font-family: inherit;
+  margin-top: 4px;
+  transition: background 0.15s;
+}
+.loginBtn:hover { background: #16805f; }
+.loginBtn:disabled { opacity: 0.7; cursor: default; }
+
+/* ── Portal ── */
+.portalPage {
+  min-height: 100vh;
+  background: #f3f4f6;
+  padding-bottom: 40px;
+  max-width: 540px;
+  margin: 0 auto;
+}
+
+.portalHeader {
+  background: #1D9E75;
+  color: #fff;
+  padding: 20px 20px 16px;
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+}
+
+.portalName {
+  font-size: 17px;
+  font-weight: 700;
+}
+.portalDate {
+  font-size: 12px;
+  opacity: 0.85;
+  margin-top: 2px;
+  text-transform: capitalize;
+}
+
+.logoutBtn {
+  background: rgba(255,255,255,0.2);
+  color: #fff;
+  border: 1px solid rgba(255,255,255,0.4);
+  border-radius: 8px;
+  padding: 6px 14px;
+  font-size: 13px;
+  cursor: pointer;
+  font-family: inherit;
+  transition: background 0.15s;
+}
+.logoutBtn:hover { background: rgba(255,255,255,0.3); }
+
+/* Stats bar */
+.statsBar {
+  display: flex;
+  background: #fff;
+  border-bottom: 1px solid #e5e7eb;
+}
+.statItem {
+  flex: 1;
+  text-align: center;
+  padding: 14px 8px;
+}
+.statNum {
+  font-size: 26px;
+  font-weight: 700;
+  line-height: 1;
+}
+.statLbl {
+  font-size: 11px;
+  color: #6b7280;
+  margin-top: 3px;
+}
+
+/* Task list */
+.taskList {
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+  padding: 16px;
+}
+
+.taskCard {
+  background: #fff;
+  border-radius: 16px;
+  display: flex;
+  overflow: hidden;
+  box-shadow: 0 1px 4px rgba(0,0,0,0.07);
+}
+.taskCardDone { opacity: 0.55; }
+
+.priorityStrip {
+  width: 6px;
+  flex-shrink: 0;
+}
+
+.taskBody {
+  flex: 1;
+  padding: 16px 18px;
+}
+
+.taskRoom {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  margin-bottom: 8px;
+}
+.taskIcon { font-size: 24px; flex-shrink: 0; }
+.taskRoomNum {
+  font-size: 18px;
+  font-weight: 700;
+  color: #111827;
+  line-height: 1.1;
+}
+.taskRoomType {
+  font-size: 12px;
+  color: #6b7280;
+}
+
+.urgentBadge {
+  margin-left: auto;
+  background: #fde0e0;
+  color: #c0392b;
+  font-size: 11px;
+  font-weight: 700;
+  padding: 3px 10px;
+  border-radius: 20px;
+  letter-spacing: 0.5px;
+}
+
+.taskTypeLabel {
+  font-size: 14px;
+  color: #374151;
+  margin-bottom: 6px;
+}
+
+.taskNotes {
+  font-size: 12px;
+  color: #6b7280;
+  font-style: italic;
+  margin-bottom: 10px;
+  line-height: 1.4;
+}
+
+.taskActionRow {
+  margin-top: 10px;
+}
+
+.actionBtn {
+  width: 100%;
+  padding: 14px;
+  border-radius: 12px;
+  border: none;
+  font-size: 16px;
+  font-weight: 600;
+  cursor: pointer;
+  font-family: inherit;
+  transition: filter 0.15s;
+}
+.actionBtn:active { filter: brightness(0.92); }
+
+.actionBtnStart {
+  background: #dbeafe;
+  color: #1d4ed8;
+}
+.actionBtnDone {
+  background: #d1fae5;
+  color: #065f46;
+}
+
+.doneLabel {
+  font-size: 14px;
+  color: #0d7a52;
+  font-weight: 600;
+}
+
+/* Empty */
+.empty {
+  text-align: center;
+  padding: 60px 24px;
+  color: #6b7280;
+}
+.emptyIcon { font-size: 48px; margin-bottom: 12px; }
+
+/* Maintenance */
+.maintSection {
+  padding: 8px 16px 0;
+}
+
+.maintToggleBtn {
+  width: 100%;
+  padding: 16px;
+  background: #fff;
+  border: 2px dashed #d1d5db;
+  border-radius: 14px;
+  font-size: 15px;
+  color: #374151;
+  cursor: pointer;
+  font-family: inherit;
+  transition: border-color 0.15s, color 0.15s;
+}
+.maintToggleBtn:hover { border-color: #9ca3af; color: #111827; }
+
+.maintForm {
+  background: #fff;
+  border-radius: 16px;
+  padding: 20px;
+  box-shadow: 0 1px 4px rgba(0,0,0,0.07);
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+}
+
+.maintFormHeader {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+}
+.maintFormTitle { font-size: 15px; font-weight: 600; color: #111827; }
+.maintFormClose {
+  background: #f3f4f6;
+  border: none;
+  border-radius: 50%;
+  width: 28px; height: 28px;
+  font-size: 13px;
+  cursor: pointer;
+  color: #6b7280;
+}
+
+.maintSelect, .maintTextarea {
+  width: 100%;
+  padding: 12px 14px;
+  border: 1.5px solid #e5e7eb;
+  border-radius: 10px;
+  font-size: 14px;
+  font-family: inherit;
+  outline: none;
+  box-sizing: border-box;
+  background: #fafafa;
+  color: #111827;
+  transition: border-color 0.15s;
+}
+.maintSelect:focus, .maintTextarea:focus { border-color: #1D9E75; }
+.maintTextarea { resize: vertical; min-height: 80px; line-height: 1.5; }
+
+.maintSubmitBtn {
+  padding: 15px;
+  background: #374151;
+  color: #fff;
+  border: none;
+  border-radius: 12px;
+  font-size: 15px;
+  font-weight: 600;
+  cursor: pointer;
+  font-family: inherit;
+}
+.maintSubmitBtn:disabled { opacity: 0.7; cursor: default; }
+
+.maintSuccess {
+  text-align: center;
+  font-size: 16px;
+  color: #0d7a52;
+  font-weight: 600;
+  padding: 10px 0;
+}
+
+/* Footer */
+.portalFooter {
+  text-align: center;
+  padding: 32px 16px 16px;
+  font-size: 12px;
+  color: #9ca3af;
+}

@@ -893,8 +893,8 @@ RLS politike se proširuju da provjeravaju `portfolio_access.scope` — regional
 | 3d | BookingPage integracija sa availability engineom | ✅ | 2026-05-30 |
 | 3d | Stripe payment za booking (Payment Intent flow) | ⬜ | |
 | 3d | Cancellation flow + Stripe refund | ⬜ | |
-| 4d | Auto-task trigger pri check-outu (DB trigger) | ⬜ | |
-| 4d | Mobile-optimizovani prikaz za housekeeping osoblje | ⬜ | |
+| 4d | Auto-task trigger pri check-outu (DB trigger) | ✅ | 2026-05-29 |
+| 4d | Mobile-optimizovani prikaz za housekeeping osoblje | ✅ | 2026-05-30 |
 | 5d | Price suggestion algoritam (suggestPrice funkcija) | ⬜ | |
 | 5d | Export revenue analitike u PDF/Excel | ⬜ | |
 | 1d | Stripe addon purchase flow (Checkout Session) | ⬜ | |

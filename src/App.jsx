@@ -53,6 +53,7 @@ const FolioPrint           = lazy(() => import('./modules/hotel/pages/FolioPrint
 const RatePlansPage        = lazy(() => import('./modules/hotel/pages/RatePlansPage'))
 const BookingSettings      = lazy(() => import('./modules/hotel/pages/BookingSettings'))
 const HousekeepingPage     = lazy(() => import('./modules/hotel/pages/HousekeepingPage'))
+const HousekeepingPortalPage = lazy(() => import('./modules/hotel/pages/HousekeepingPortalPage'))
 const RevenueManagementPage = lazy(() => import('./modules/hotel/pages/RevenueManagementPage'))
 const BookingPage          = lazy(() => import('./pages/BookingPage'))
 const GuestAppPage         = lazy(() => import('./modules/hotel/pages/GuestAppPage'))
@@ -214,6 +215,7 @@ function AppRoutes() {
         <Route path="/:slug/narudzba/:orderId" element={<Suspense fallback={<LoadingSpinner fullPage />}><OrderTrackerPage /></Suspense>} />
         <Route path="/:slug/osoblje" element={<Suspense fallback={<LoadingSpinner fullPage />}><StaffPortalPage /></Suspense>} />
         <Route path="/:slug/book" element={<Suspense fallback={<LoadingSpinner fullPage />}><BookingPage /></Suspense>} />
+        <Route path="/:slug/housekeeping" element={<Suspense fallback={<LoadingSpinner fullPage />}><HousekeepingPortalPage /></Suspense>} />
         <Route path="/:slug/guest" element={<Suspense fallback={<LoadingSpinner fullPage />}><GuestAppPage /></Suspense>} />
         <Route path="/:slug/hotel" element={<Suspense fallback={<LoadingSpinner fullPage />}><HotelLandingPage /></Suspense>} />
         <Route path="/:slug/home" element={<Suspense fallback={<LoadingSpinner fullPage />}><RestaurantLandingPage /></Suspense>} />
