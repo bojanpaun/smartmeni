@@ -228,6 +228,7 @@ export default function Menu() {
   const waiterVis = isDemo ? 'all' : !isQRAccess ? 'off' : (r?.waiter_visibility || (waiterEnabled ? 'all' : 'off'))
   const reservationVis = isDemo ? 'all' : (r?.reservation_visibility || (onlineReservations ? 'all' : 'off'))
   const registrationVis = isDemo ? 'all' : (r?.registration_visibility || (guestRegistration ? 'all' : 'off'))
+  const hotelVis = isDemo ? 'off' : (r?.hotel_visibility || 'off')
   const tableNumber = isDemo ? 'Sto 4' : (new URLSearchParams(window.location.search).get('table') || '')
   const currentCategories = isDemo ? data.categories : realData?.categories || []
   const allItems = isDemo
@@ -641,7 +642,7 @@ export default function Menu() {
         )}
 
         {/* Hotel landing link */}
-        {!isDemo && r?.show_booking_button && (
+        {canSee(hotelVis) && (
           <a href={`/${slug}/hotel`} className={styles.reservationBtn}>
             🏨 {isEn ? 'Hotel info & rooms' : 'Hotel — info i smještaj'}
           </a>

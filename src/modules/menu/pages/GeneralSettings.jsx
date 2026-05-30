@@ -5,6 +5,8 @@ import { supabase } from '../../../lib/supabase'
 import { usePlatform } from '../../../context/PlatformContext'
 import styles from './GeneralSettings.module.css'
 
+
+
 const VIS_OPTIONS = [
   { value: 'off', label: 'Isključeno' },
   { value: 'registered', label: 'Registrovani' },
@@ -44,7 +46,8 @@ function VisibilityControl({ value, onChange, label, icon, desc }) {
 // Drag&drop lista za poruke
 
 export default function GeneralSettings() {
-  const { restaurant, setRestaurant } = usePlatform()
+  const { restaurant, setRestaurant, hasAddon } = usePlatform()
+  const hasHotel = hasAddon('hotel_core')
   const [form, setForm] = useState(null)
   const [saving, setSaving] = useState(false)
   const [saved, setSaved] = useState(false)
@@ -64,6 +67,7 @@ export default function GeneralSettings() {
         waiter_visibility: restaurant.waiter_visibility || 'all',
         reservation_visibility: restaurant.reservation_visibility || 'all',
         registration_visibility: restaurant.registration_visibility || 'all',
+        hotel_visibility: restaurant.hotel_visibility || 'off',
       })
 
     }
@@ -112,6 +116,10 @@ export default function GeneralSettings() {
         value={form.reservation_visibility} onChange={val => toggleField('reservation_visibility', val)} />
       <VisibilityControl icon="🎟️" label="Registracija gostiju" desc="Ko vidi dugme Postani naš gost i Prijava"
         value={form.registration_visibility} onChange={val => toggleField('registration_visibility', val)} />
+      {hasHotel && (
+        <VisibilityControl icon="🏨" label="Hotel — info i smještaj" desc="Ko vidi link prema hotelskoj stranici u meniju"
+          value={form.hotel_visibility} onChange={val => toggleField('hotel_visibility', val)} />
+      )}
 
       {/* PODACI RESTORANA */}
       <div className={styles.sectionLabel} style={{ marginTop: 28 }}>Podaci restorana</div>
