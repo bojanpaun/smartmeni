@@ -1,63 +1,70 @@
-/* Light variant (default — booking page, admin topbar) */
-.switcher {
-  display: flex;
-  gap: 2px;
+/* Light variant (default) */
+.langWrap {
+  position: relative;
+  display: inline-flex;
+  align-items: center;
+  gap: 5px;
+  padding: 0 8px 0 9px;
+  height: 30px;
   background: rgba(14,26,20,0.06);
   border: 1px solid rgba(14,26,20,0.1);
   border-radius: 8px;
-  padding: 3px;
+  cursor: pointer;
+  flex-shrink: 0;
+  transition: background 0.15s, border-color 0.15s;
+}
+
+.langWrap:hover {
+  background: rgba(14,26,20,0.1);
+  border-color: rgba(14,26,20,0.18);
+}
+
+.globe {
+  font-size: 13px;
+  line-height: 1;
   flex-shrink: 0;
 }
 
-.btn {
-  padding: 4px 10px;
-  border: none;
-  background: transparent;
-  border-radius: 5px;
-  cursor: pointer;
+.label {
   font-size: 11px;
   font-weight: 700;
-  color: rgba(14,26,20,0.45);
   letter-spacing: 0.05em;
-  transition: background 0.15s, color 0.15s;
+  color: rgba(14,26,20,0.65);
   font-family: inherit;
 }
 
-.btn:hover {
-  background: rgba(14,26,20,0.06);
-  color: rgba(14,26,20,0.8);
+.chevron {
+  font-size: 9px;
+  color: rgba(14,26,20,0.35);
+  margin-left: 1px;
 }
 
-.active {
-  background: #1a9e6e;
-  color: #fff;
-}
-
-.active:hover {
-  background: #0d7a52;
-  color: #fff;
+/* Native select — invisible, covers entire wrapper */
+.nativeSelect {
+  position: absolute;
+  inset: 0;
+  opacity: 0;
+  cursor: pointer;
+  width: 100%;
+  height: 100%;
+  font-size: 16px; /* prevents iOS auto-zoom */
 }
 
 /* Dark variant — hub header, sidebar */
-.switcherDark {
+.langWrapDark {
   background: rgba(255,255,255,0.1);
   border-color: rgba(255,255,255,0.12);
 }
 
-.switcherDark .btn {
-  color: rgba(255,255,255,0.5);
+.langWrapDark:hover {
+  background: rgba(255,255,255,0.16);
+  border-color: rgba(255,255,255,0.2);
 }
 
-.switcherDark .btn:hover {
-  background: rgba(255,255,255,0.1);
-  color: rgba(255,255,255,0.9);
+.langWrapDark .label {
+  color: rgba(255,255,255,0.8);
 }
 
-.switcherDark .active {
-  background: rgba(255,255,255,0.2);
-  color: #fff;
-}
-
-.switcherDark .active:hover {
-  background: rgba(255,255,255,0.25);
+.langWrapDark .chevron {
+  color: rgba(255,255,255,0.4);
 }

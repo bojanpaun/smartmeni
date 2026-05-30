@@ -3,15 +3,23 @@ import styles from './ThemeToggle.module.css'
 
 export default function ThemeToggle({ variant = 'light' }) {
   const { mode, toggleMode } = useTheme()
+  const isDark = mode === 'dark'
   const dark = variant === 'dark'
 
   return (
     <button
-      className={`${styles.modeBtn} ${dark ? styles.modeBtnDark : ''}`}
+      className={[
+        styles.toggle,
+        isDark ? styles.isDark : '',
+        dark ? styles.toggleDark : '',
+      ].join(' ')}
       onClick={toggleMode}
-      title={mode === 'light' ? 'Tamna tema' : 'Svijetla tema'}
+      aria-label={isDark ? 'Svijetla tema' : 'Tamna tema'}
+      title={isDark ? 'Svijetla tema' : 'Tamna tema'}
     >
-      {mode === 'light' ? '🌙' : '☀️'}
+      <span className={styles.knob}>
+        {isDark ? '🌙' : '☀️'}
+      </span>
     </button>
   )
 }

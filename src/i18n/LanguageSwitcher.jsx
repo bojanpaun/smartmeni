@@ -9,19 +9,23 @@ const LANGS = [
 export default function LanguageSwitcher({ variant = 'light' }) {
   const { i18n } = useTranslation()
   const current = i18n.language
+  const currentLabel = LANGS.find(l => l.code === current)?.label ?? current.toUpperCase()
 
   return (
-    <div className={`${styles.switcher} ${variant === 'dark' ? styles.switcherDark : ''}`}>
-      {LANGS.map(({ code, label }) => (
-        <button
-          key={code}
-          className={`${styles.btn} ${current === code ? styles.active : ''}`}
-          onClick={() => i18n.changeLanguage(code)}
-          aria-label={`Switch to ${label}`}
-        >
-          {label}
-        </button>
-      ))}
+    <div className={`${styles.langWrap} ${variant === 'dark' ? styles.langWrapDark : ''}`}>
+      <span className={styles.globe}>🌐</span>
+      <span className={styles.label}>{currentLabel}</span>
+      <span className={styles.chevron}>▾</span>
+      <select
+        className={styles.nativeSelect}
+        value={current}
+        onChange={e => i18n.changeLanguage(e.target.value)}
+        aria-label="Select language"
+      >
+        {LANGS.map(({ code, label }) => (
+          <option key={code} value={code}>{label}</option>
+        ))}
+      </select>
     </div>
   )
 }
