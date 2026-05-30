@@ -57,7 +57,10 @@ const RevenueManagementPage = lazy(() => import('./modules/hotel/pages/RevenueMa
 const BookingPage          = lazy(() => import('./pages/BookingPage'))
 const GuestAppPage         = lazy(() => import('./modules/hotel/pages/GuestAppPage'))
 const HotelLandingPage     = lazy(() => import('./modules/hotel/pages/HotelLandingPage'))
+const HotelLandingEditor   = lazy(() => import('./modules/hotel/pages/HotelLandingEditor'))
 const RoomFormPage         = lazy(() => import('./modules/hotel/pages/RoomFormPage'))
+const RestaurantLandingPage = lazy(() => import('./modules/menu/pages/RestaurantLandingPage'))
+const RestaurantLandingEditor = lazy(() => import('./modules/menu/pages/RestaurantLandingEditor'))
 
 const ControlPanel         = lazy(() => import('./platform/admin/ControlPanel'))
 const ModuleHelp           = lazy(() => import('./platform/admin/ModuleHelp'))
@@ -131,6 +134,7 @@ function AppRoutes() {
         <Route path="/admin/settings/templates" element={<AdminRoute><TemplateSettings /></AdminRoute>} />
         <Route path="/admin/settings/logo" element={<AdminRoute><LogoUpload /></AdminRoute>} />
         <Route path="/admin/settings/general" element={<AdminRoute><GeneralSettings /></AdminRoute>} />
+        <Route path="/admin/settings/landing" element={<AdminRoute><RestaurantLandingEditor /></AdminRoute>} />
         <Route path="/admin/billing" element={<AdminRoute><BillingPage /></AdminRoute>} />
         <Route path="/admin/billing/success" element={<AdminRoute><BillingSuccess /></AdminRoute>} />
         <Route path="/admin/orders" element={<AdminRoute><WaiterDashboard /></AdminRoute>} />
@@ -190,6 +194,7 @@ function AppRoutes() {
         <Route path="/admin/hotel/booking-settings" element={<AdminRoute><AddonGuard addonId="hotel_core" name="Hotel Core" description="Upravljanje sobama, rezervacijama, front desk i folio sistemom." price={299} category="hotel"><BookingSettings /></AddonGuard></AdminRoute>} />
         <Route path="/admin/hotel/housekeeping" element={<AdminRoute><AddonGuard addonId="hotel_core" name="Hotel Core" description="Upravljanje sobama, rezervacijama, front desk i folio sistemom." price={299} category="hotel"><HousekeepingPage /></AddonGuard></AdminRoute>} />
         <Route path="/admin/hotel/revenue" element={<AdminRoute><AddonGuard addonId="hotel_core" name="Hotel Core" description="Upravljanje sobama, rezervacijama, front desk i folio sistemom." price={299} category="hotel"><RevenueManagementPage /></AddonGuard></AdminRoute>} />
+        <Route path="/admin/hotel/landing" element={<AdminRoute><AddonGuard addonId="hotel_core" name="Hotel Core" description="Upravljanje sobama, rezervacijama, front desk i folio sistemom." price={299} category="hotel"><HotelLandingEditor /></AddonGuard></AdminRoute>} />
         <Route path="/admin/hotel/help" element={<AdminRoute><ModuleHelp moduleKey="hotel" /></AdminRoute>} />
         <Route path="/admin/hotel/reservations/:id/folio/print" element={<ProtectedRoute><Suspense fallback={<LoadingSpinner fullPage />}><FolioPrint /></Suspense></ProtectedRoute>} />
 
@@ -211,6 +216,7 @@ function AppRoutes() {
         <Route path="/:slug/book" element={<Suspense fallback={<LoadingSpinner fullPage />}><BookingPage /></Suspense>} />
         <Route path="/:slug/guest" element={<Suspense fallback={<LoadingSpinner fullPage />}><GuestAppPage /></Suspense>} />
         <Route path="/:slug/hotel" element={<Suspense fallback={<LoadingSpinner fullPage />}><HotelLandingPage /></Suspense>} />
+        <Route path="/:slug/home" element={<Suspense fallback={<LoadingSpinner fullPage />}><RestaurantLandingPage /></Suspense>} />
         <Route path="/:slug" element={<CartProvider><Suspense fallback={<LoadingSpinner fullPage />}><GuestMenu /></Suspense></CartProvider>} />
       </Routes>
     </Suspense>

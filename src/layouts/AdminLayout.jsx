@@ -160,6 +160,7 @@ export const MODULES = [
         { label: 'Tipovi soba',        icon: '🪑', path: '/admin/hotel/room-types' },
         { label: 'Cjenovni planovi',   icon: '🏷️', path: '/admin/hotel/rate-plans' },
         { label: 'Online booking',     icon: '🔗', path: '/admin/hotel/booking-settings' },
+        { label: 'Sajt hotela',        icon: '🌐', path: '/admin/hotel/landing' },
       ],
     },
   },
@@ -176,10 +177,11 @@ export const MODULES = [
     admin: {
       label: 'Postavke sistema',
       links: [
-        { label: 'Predlošci',      icon: '🎨', path: '/admin/settings/templates', exact: true },
-        { label: 'Logo',           icon: '🖼️', path: '/admin/settings/logo' },
-        { label: 'Opšte postavke', icon: '⚙️', path: '/admin/settings/general' },
-        { label: 'Pretplata',      icon: '💳', path: '/admin/billing' },
+        { label: 'Predlošci',        icon: '🎨', path: '/admin/settings/templates', exact: true },
+        { label: 'Logo',             icon: '🖼️', path: '/admin/settings/logo' },
+        { label: 'Opšte postavke',   icon: '⚙️', path: '/admin/settings/general' },
+        { label: 'Sajt restorana',   icon: '🌐', path: '/admin/settings/landing' },
+        { label: 'Pretplata',        icon: '💳', path: '/admin/billing' },
       ],
     },
   },

@@ -1,6 +1,6 @@
 # SmartMeni → HospitalityOS — Produkt roadmap
 
-> **Verzija:** 2.0 *(potpuno ažurirano — reflektuje stvarno stanje na 2026-05-30)*
+> **Verzija:** 2.1 *(arhitekturalni model revidiran — 2026-05-30)*
 > **Kontekst:** Evolucija SmartMeni SaaS platforme prema punom hospitality management sistemu
 > **Tim:** 1 developer + Claude Code AI asistent
 > **Branch:** `main` → direktno na produkciju (Vercel auto-deploy)
@@ -9,50 +9,92 @@
 
 ## Vizija proizvoda
 
-SmartMeni počinje kao restoran SaaS. Krajnji cilj je **jedinstvena platforma** koja pokreće cijelo ugostiteljstvo — od restorana do hotela, hostelova, apartmana i resort kompleksa — sa jednim login-om, jednom bazom gostiju, i modulima koji se naplaćuju po potrebi.
+SmartMeni je **hospitality platforma** koja se sastoji od vertikalnih modula (restoran, hotel) i dijeljenih operativnih servisa (HR, gosti, zalihe, analitika). Svaki vertikalni modul može funkcionisati samostalno, a kad su oba aktivirana — dijele istu bazu gostiju, osoblja i zaliha.
 
-### Ključni arhitekturalni princip (usvojen 2026-05-30)
+---
 
-**Restoran i hotel su dva zasebna digitalna identiteta koji mogu funkcionisati potpuno samostalno, ali se uvezuju kada su oba aktivirana.**
+## Arhitekturalni model (usvojen 2026-05-30)
 
-Svaki ima:
-- Vlastiti customizabilni sajt (block-based, uređuje se iz admin panela)
-- Potencijalno vlastiti domen (`hotelbojan.com`, `restoranribar.me`)
-- Vlastitu javnu stranicu sa CTA akcijama
-- Zajednički branding (logo, boje) i zajedničku bazu gostiju
+```
+┌─────────────────────────────────────────────────────┐
+│                 PLATFORMA (uvijek tu)               │
+│   Auth · Billing · Multi-tenancy · Onboarding       │
+│   Osnovno osoblje · Osnovna baza gostiju            │
+└────────────┬─────────────────────┬──────────────────┘
+             │                     │
+    ┌────────▼────────┐   ┌────────▼────────┐
+    │  RESTORAN       │   │  HOTEL          │
+    │  verticala      │   │  verticala      │
+    │                 │   │                 │
+    │ Meni + narudžbe │   │ Sobe + booking  │
+    │ Stolovi         │   │ Front desk      │
+    │ Waiter zahtjevi │   │ Folio sistem    │
+    │ Restoran sajt   │   │ Housekeeping    │
+    │                 │   │ Revenue mgmt    │
+    │                 │   │ Hotel sajt      │
+    └────────┬────────┘   └────────┬────────┘
+             │                     │
+    ┌────────▼─────────────────────▼──────────────────┐
+    │          OPERATIVNI ADDONI (dijeljeni)           │
+    │                                                  │
+    │  HR Pro · Inventory Pro · Analytics Pro          │
+    │  Loyalty · Channel Manager · Multi-property      │
+    └──────────────────────────────────────────────────┘
+```
+
+### Ključni principi
+
+1. **Platforma nije produkt koji kupac kupuje** — to je infrastruktura. Kupac kupuje vertikale i addonе.
+
+2. **Vertikale su samostalne** — hotel bez restorana (i obratno) funkcioniše potpuno normalno. Kad su oba aktivirana, dijele podatke.
+
+3. **Operativni addoni rade za oba vertikala** — `hr_pro` podjednako vrijedi za restoransko i hotelsko osoblje, `inventory_pro` za kuhinjske i minibar zalihe.
+
+4. **Svaki vertikalni modul ima vlastiti customizabilni sajt** — block-based editor, uređuje se iz admin panela, potencijalno na vlastitom domenu.
+
+### Tehnički dug — `restaurants` tabela (⚠️ važno znati)
+
+Trenutno `restaurants` tabla služi kao primarni tenant identifikator. Hotel bez restorana i dalje ima `restaurant_id` — što je konceptualno netačno.
+
+**Dugoročno:** treba preименovati u `properties` ili `tenants` — neutralan entitet koji može biti restoran, hotel, ili oboje. Ovo nije hitno za MVP, ali treba biti svjestan da svaki novi modul koji se naslanja na `restaurant_id` produbljuje ovaj dug.
 
 ---
 
 ## Arhitektura naplate (Billing model)
 
-### Osnova (Base plan)
-Svaki tenant plaća osnovu koja uključuje:
-- Digitalni meni + narudžbe
-- Upravljanje stolovima
-- Osnovni HR (osoblje, rasporedi)
-- Gosti modul (CRM)
-- Analitika (osnovna)
-- Do 5 korisnika (staff accounts)
+### Vertikalne pretplate (šta kupac bira)
 
-### Addon moduli
+| Verticala | Šta uključuje | Okvirna cijena |
+|-----------|--------------|----------------|
+| **Restoran** | Digitalni meni, narudžbe, stolovi, waiter zahtjevi, restoran sajt, osnovna analitika, osnovni HR, osnovna baza gostiju | ~49€/mj |
+| **Hotel** | Sobe, rezervacije, front desk, folio, booking engine, housekeeping, revenue mgmt, hotel sajt, Guest App | ~99€/mj |
+| **Oba zajedno** | Sve gore + integracija restoran↔folio | ~129€/mj (popust) |
 
-| Modul | Opis | Status u kodu |
-|-------|------|---------------|
-| `inventory_pro` | Puno upravljanje zalihama, recepti, FIFO | ✅ UI postoji, billing guard aktivan |
-| `hr_pro` | Payroll, prisustvo, napredni rasporedi | ✅ UI postoji, billing guard aktivan |
-| `analytics_pro` | Napredni izvještaji, export, prognoza | ✅ UI postoji, billing guard aktivan |
-| `hotel_core` | Sobe, rezervacije, front desk, folio | ✅ Potpuno implementiran |
-| `booking_engine` | Online booking sa javne stranice | ✅ Booking stranica radi, payment ⬜ |
-| `channel_manager` | Sync sa Booking.com, Airbnb, Expedia | ⬜ Planiran Faza 6 |
-| `housekeeping` | Housekeeping dashboard, taskovi | ✅ UI implementiran |
-| `revenue_mgmt` | Dinamičke cijene, yield management | ✅ UI + metrics implementirani |
-| `spa_wellness` | Booking spa tretmana | ⬜ Daleka faza |
-| `loyalty` | Loyalty program, bodovi, nagrade | ⬜ Faza 8 |
-| `guest_app` | White-label PWA za goste | ✅ Implementiran (/:slug/guest) |
-| `multi_property` | Upravljanje više nekretnina | ⬜ Faza 9 |
+> **Napomena:** Trenutna implementacija koristi Base plan + addon model. Migracija prema vertikalnom modelu je produkt/billing odluka za kasniju fazu — kod je kompatibilan sa oba pristupa.
+
+### Operativni addoni (naplaćuju se zasebno, rade za oba vertikala)
+
+| Addon ID | Opis | Status u kodu |
+|----------|------|---------------|
+| `inventory_pro` | Puno upravljanje zalihama, recepture, FIFO | ✅ UI + billing guard |
+| `hr_pro` | Payroll, napredni rasporedi, godišnji odmori | ✅ UI + billing guard |
+| `analytics_pro` | Napredni izvještaji, export PDF/Excel | ✅ UI + billing guard |
+| `loyalty` | Loyalty bodovi, tier sistem, redemption | ⬜ Faza 8 |
+| `channel_manager` | Sync sa Booking.com, Airbnb, Expedia | ⬜ Faza 6 |
+| `multi_property` | Upravljanje više nekretnina jednim nalogom | ⬜ Faza 9 |
 | `portfolio_owner` | Portfolio dashboard, komparativna analitika | ⬜ Faza 9 |
 | `brand_mgmt` | Centralizovani sabloni, više brandova | ⬜ Faza 10 |
 | `regional_mgmt` | Hijerarhija pristupa za portfelje | ⬜ Faza 10 |
+
+### Hotel-specifični addoni (naplaćuju se kao nadgradnja Hotel verticale)
+
+| Addon ID | Opis | Status u kodu |
+|----------|------|---------------|
+| `hotel_core` | Osnova hotel verticale (sobe, rezervacije, folio) | ✅ Potpuno implementiran |
+| `booking_engine` | Online booking sa javne stranice | ✅ UI radi, Stripe payment ⬜ |
+| `housekeeping` | Housekeeping dashboard i taskovi | ✅ UI implementiran |
+| `revenue_mgmt` | Dinamičke cijene, yield management, RevPAR | ✅ UI + metrics |
+| `spa_wellness` | Booking spa tretmana i kapaciteta | ⬜ Daleka faza |
 
 ---
 
@@ -230,7 +272,38 @@ Korekcije identifikovane pregledom dashboarda u kontekstu novog plana:
 
 ---
 
-## 🔄 Faza Y — Customizabilni sajtovi (SLJEDEĆE — u planiranju)
+## ✅ Faza Y — Customizabilni sajtovi (ZAVRŠENA — osnova)
+
+### Implementirano (2026-05-30)
+
+**Baza podataka:**
+- ✅ `landing_pages` tabela sa RLS (`20260530000004`)
+  - `UNIQUE (restaurant_id, page_type)` — jedan sajt po tipu po tenantu
+  - Anon SELECT + tenant INSERT/UPDATE/DELETE politike
+  - JSONB `blocks` kolona, SEO polja, `custom_domain` (za buduće)
+
+**Hotel sajt editor** (`/admin/hotel/landing`):
+- ✅ 7 blokova: Hero, O hotelu, Tipovi smještaja (auto), Galerija, Pogodnosti, Lokacija, Kontakt
+- ✅ Toggle enable/disable po bloku
+- ✅ Up/down reordering blokova
+- ✅ Automatski upsert (INSERT prvi put, UPDATE pri svakom save)
+- ✅ SEO title/description polja
+- ✅ "Vidi sajt" link → `/:slug/hotel`
+- ✅ Zaštićeno `hotel_core` AddonGuardom
+
+**Restoran sajt editor** (`/admin/settings/landing`):
+- ✅ 6 blokova: Hero, Priča o restoranu, Pregled menija (auto), Galerija, Radno vrijeme + lokacija, Rezervacija CTA
+- ✅ Isti UI kao hotel editor (shared CSS modul)
+- ✅ "Vidi sajt" link → `/:slug/home`
+
+**Javne stranice:**
+- ✅ `/:slug/hotel` — block rendering (fallback na statički prikaz ako nema blokova)
+- ✅ `/:slug/home` — nova javna stranica restorana (block rendering + statički fallback)
+- ✅ Oba imaju statički fallback za tenanate koji još nisu konfigurirali blokove
+
+**Admin navigacija:**
+- ✅ Hotel admin sidebar: dodato "🌐 Sajt hotela" → `/admin/hotel/landing`
+- ✅ Postavke sidebar: dodato "🌐 Sajt restorana" → `/admin/settings/landing`
 
 ### Arhitekturalna odluka (2026-05-30)
 
@@ -293,14 +366,15 @@ CREATE TABLE landing_pages (
 - Vercel ruter: custom domain → `smartmeni.vercel.app/:slug/hotel`
 - **Implementirati tek kad ima potražnje** (3–5 dana zasebnog rada)
 
-**Definition of Done — Faza Y:**
-- [ ] `landing_pages` tabela sa RLS
-- [ ] Admin editor za hotel blokove
-- [ ] Admin editor za restoran blokove
-- [ ] `/:slug/hotel` čita i renderuje blokove
-- [ ] Svaki blok se može isključiti bez brisanja podataka
-- [ ] Upload slika u Supabase Storage
-- [ ] SEO title/description se može podesiti
+**Definition of Done — Faza Y (osnova):**
+- [x] `landing_pages` tabela sa RLS
+- [x] Admin editor za hotel blokove
+- [x] Admin editor za restoran blokove
+- [x] `/:slug/hotel` čita i renderuje blokove
+- [x] Svaki blok se može isključiti bez brisanja podataka
+- [x] SEO title/description se može podesiti
+- [ ] Upload slika u Supabase Storage (Faza Y.1 — sljedeće)
+- [ ] Custom domain podrška (Faza Y.2 — po potražnji)
 
 ---
 
@@ -406,11 +480,11 @@ CREATE TABLE landing_pages (
 | X | hotel_visibility — konfigurabilni link iz menija | ✅ | 2026-05-30 |
 | X | anon SELECT policy na room_types | ✅ | 2026-05-30 |
 | X | Dashboard korekcije — addon badge + hotel sajt link | ✅ | 2026-05-30 |
-| Y | landing_pages tabela | ⬜ | |
-| Y | Hotel sajt block editor (/admin/hotel/landing) | ⬜ | |
-| Y | Restoran sajt block editor (/admin/settings/landing) | ⬜ | |
-| Y | Dinamički rendering blokova na /:slug/hotel | ⬜ | |
-| Y | Dinamički rendering blokova na /:slug (ili /home) | ⬜ | |
+| Y | landing_pages tabela sa RLS | ✅ | 2026-05-30 |
+| Y | Hotel sajt block editor (/admin/hotel/landing) | ✅ | 2026-05-30 |
+| Y | Restoran sajt block editor (/admin/settings/landing) | ✅ | 2026-05-30 |
+| Y | Dinamički rendering blokova na /:slug/hotel | ✅ | 2026-05-30 |
+| Y | Javna stranica restorana na /:slug/home | ✅ | 2026-05-30 |
 | Y | Upload slika u Supabase Storage | ⬜ | |
 | Y | Custom domain podrška | ⬜ | |
 | 6 | Beds24 API integracija | ⬜ | |
@@ -433,8 +507,11 @@ CREATE TABLE landing_pages (
 │              ✅ Faza 5 — Revenue Management (UI ✅, export ⬜)
 │              ✅ Faza X — Guest Experience (i18n, Guest App, Hotel Landing) ← OVDJE SMO
 │
-├── Jun        🔄 Faza Y — Customizabilni hotel + restoran sajtovi (block editor)
-│                          landing_pages tabela, hotel editor, restoran editor
+├── Jun        ✅ Faza Y — Customizabilni hotel + restoran sajtovi (block editor) ← OVDJE SMO
+│                          landing_pages tabela, hotel editor (7 blokova), restoran editor (6 blokova)
+│                          /:slug/hotel block rendering, /:slug/home nova javna stranica
+│
+├── Jun        🔄 Faza Y.1 — Upload slika u Supabase Storage (sljedeće)
 │
 ├── Jun–Jul    🔄 Faza 3 dopuna — Availability engine, room_availability
 │
@@ -452,4 +529,4 @@ CREATE TABLE landing_pages (
 
 ---
 
-*Roadmap ažuriran: 2026-05-30 (dashboard korekcije) | Branch: main | Deployment: Vercel auto-deploy*
+*Roadmap ažuriran: 2026-05-30 (Faza Y — block editor sajtovi) | Branch: main | Deployment: Vercel auto-deploy*
