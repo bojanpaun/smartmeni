@@ -274,16 +274,17 @@ export default function HotelLandingPage() {
               )
             }
 
-            case 'location':
-              if (!block.data.address && !block.data.maps_embed_url) return null
+            case 'location': {
+              const locAddress = block.data.address || hotel.address
+              if (!locAddress && !block.data.maps_embed_url) return null
               return (
                 <section key={idx} className={styles.section}>
                   <h2 className={styles.sectionTitle}>{t.location}</h2>
                   <div className={styles.infoCard}>
-                    {block.data.address && (
+                    {locAddress && (
                       <div className={styles.infoRow}>
                         <span className={styles.infoIcon}>📍</span>
-                        <span>{block.data.address}</span>
+                        <span>{locAddress}</span>
                       </div>
                     )}
                   </div>
@@ -299,6 +300,7 @@ export default function HotelLandingPage() {
                   )}
                 </section>
               )
+            }
 
             case 'contact': {
               const phone = block.data.phone || hotel.phone

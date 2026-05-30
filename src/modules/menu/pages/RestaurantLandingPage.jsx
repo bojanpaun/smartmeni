@@ -164,14 +164,16 @@ export default function RestaurantLandingPage() {
               )
             }
 
-            case 'hours_location':
+            case 'hours_location': {
+              const locAddress = block.data.address || restaurant.address
+              if (!locAddress && !block.data.hours && !block.data.maps_embed_url) return null
               return (
                 <section key={idx} className={styles.section}>
                   <div className={styles.infoCard}>
-                    {block.data.address && (
+                    {locAddress && (
                       <div className={styles.infoRow}>
                         <span className={styles.infoIcon}>📍</span>
-                        <span>{block.data.address}</span>
+                        <span>{locAddress}</span>
                       </div>
                     )}
                     {block.data.hours && (
@@ -193,6 +195,7 @@ export default function RestaurantLandingPage() {
                   </div>
                 </section>
               )
+            }
 
             case 'reservation_cta':
               return (
