@@ -74,15 +74,20 @@ export default function StaffProfilePage() {
   useEffect(() => { if (restaurant) loadAll() }, [staffId, restaurant])
   useEffect(() => { if (activeTab === 'payroll' && staffId) loadPayroll() }, [activeTab, payrollMonth, staffId])
 
+  const [staffRoleIds, setStaffRoleIds] = useState([])
+  const [staffRolesSaving, setStaffRolesSaving] = useState(false)
+
   const loadAll = async () => {
-    const [{ data: s }, { data: r }, { data: h }, { data: a }] = await Promise.all([
+    const [{ data: s }, { data: r }, { data: h }, { data: a }, { data: sr }] = await Promise.all([
       supabase.from('staff').select('*, role:roles(name)').eq('id', staffId).single(),
       supabase.from('roles').select('*').eq('restaurant_id', restaurant.id).order('name'),
       supabase.from('staff_history').select('*').eq('staff_id', staffId).order('event_date', { ascending: false }),
       supabase.from('staff_absences').select('*').eq('staff_id', staffId).order('start_date', { ascending: false }),
+      supabase.from('staff_roles').select('role_id').eq('staff_id', staffId),
     ])
     if (!s) { navigate('/admin/hr/staff'); return }
     setStaff(s); setRoles(r||[]); setHistory(h||[]); setAbsences(a||[])
+    setStaffRoleIds((sr||[]).map(x => x.role_id))
     setBasicForm({ first_name:s.first_name||'', last_name:s.last_name||'', phone:s.phone||'', date_of_birth:s.date_of_birth||'', address:s.address||'', emergency_contact_name:s.emergency_contact_name||'', emergency_contact_phone:s.emergency_contact_phone||'' })
     setEmployForm({ position:s.position||'', contract_type:s.contract_type||'permanent', employment_type:s.employment_type||'full_time', start_date:s.start_date||'', end_date:s.end_date||'', role_id:s.role_id||'', wage_type:s.wage_type||'monthly', wage_amount:s.wage_amount||'', notes:s.notes||'' })
     setFinanceForm({ bank_account:s.bank_account||'', tax_id:s.tax_id||'', vacation_days_total:s.vacation_days_total||20, vacation_days_used:s.vacation_days_used||0 })
@@ -104,6 +109,19 @@ export default function StaffProfilePage() {
     }
     if (data) setStaff(data)
     setSaving(false); setSaved(true); setTimeout(() => setSaved(false), 2000)
+  }
+
+  const toggleStaffRole = async (roleId) => {
+    setStaffRolesSaving(true)
+    const has = staffRoleIds.includes(roleId)
+    if (has) {
+      await supabase.from('staff_roles').delete().eq('staff_id', staffId).eq('role_id', roleId)
+      setStaffRoleIds(prev => prev.filter(id => id !== roleId))
+    } else {
+      await supabase.from('staff_roles').insert({ staff_id: staffId, role_id: roleId })
+      setStaffRoleIds(prev => [...prev, roleId])
+    }
+    setStaffRolesSaving(false)
   }
 
   const saveAbsence = async (e) => {
@@ -417,12 +435,37 @@ ${deductions.length > 0 ? `
             <div className={styles.cardTitle}>Podaci o zaposlenju</div>
             <div className={styles.formGrid}>
               <Field label="Pozicija"><input value={employForm.position} onChange={e => setEmployForm(f=>({...f,position:e.target.value}))} placeholder="npr. Šef kuhinje" /></Field>
-              <Field label="Rola">
+              <Field label="Primarna rola">
                 <select value={employForm.role_id} onChange={e => setEmployForm(f=>({...f,role_id:e.target.value}))}>
                   <option value="">— Bez role —</option>
                   {roles.map(r=><option key={r.id} value={r.id}>{r.name}</option>)}
                 </select>
               </Field>
+              <div style={{ gridColumn: '1 / -1' }}>
+                <div style={{ fontSize: 12, fontWeight: 600, color: '#374151', marginBottom: 8 }}>
+                  Role u Staff portalu {staffRolesSaving && <span style={{ color: '#9ca3af', fontWeight: 400 }}> · čuvanje...</span>}
+                </div>
+                <div style={{ fontSize: 11, color: '#9ca3af', marginBottom: 10 }}>
+                  Odaberi sve role koje ovaj zaposlenik treba vidjeti u portalu (može biti više).
+                </div>
+                <div style={{ display: 'flex', flexWrap: 'wrap', gap: 8 }}>
+                  {roles.map(r => (
+                    <label key={r.id} style={{ display: 'flex', alignItems: 'center', gap: 7,
+                      background: staffRoleIds.includes(r.id) ? '#f0fdf4' : '#f9fafb',
+                      border: `1.5px solid ${staffRoleIds.includes(r.id) ? '#86efac' : '#e5e7eb'}`,
+                      borderRadius: 10, padding: '7px 12px', cursor: 'pointer',
+                      fontSize: 13, fontWeight: 500, color: '#374151', transition: 'all 0.15s' }}>
+                      <input
+                        type="checkbox"
+                        checked={staffRoleIds.includes(r.id)}
+                        onChange={() => toggleStaffRole(r.id)}
+                        style={{ accentColor: '#0d7a52' }}
+                      />
+                      {r.name}
+                    </label>
+                  ))}
+                </div>
+              </div>
               <Field label="Vrsta ugovora">
                 <select value={employForm.contract_type} onChange={e => setEmployForm(f=>({...f,contract_type:e.target.value}))}>
                   {Object.entries(CONTRACT_TYPES).map(([k,v])=><option key={k} value={k}>{v}</option>)}

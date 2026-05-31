@@ -13,11 +13,36 @@ import SpaView from './views/SpaView'
 function detectPortalType(roleName) {
   const n = (roleName || '').toLowerCase()
   if (/sobaric|housekeep|čišćen|ciscen|domaćin|domacinst/.test(n)) return 'housekeeping'
-  if (/konobar|waiter|server|kelner/.test(n)) return 'waiter'
+  if (/konobar|waiter|server|kelner|šank|sank/.test(n)) return 'waiter'
   if (/kuhin|kuvar|cook|kitchen|chef|kuhinjsk/.test(n)) return 'kitchen'
-  if (/recepci|front.?desk|portir|portirnic/.test(n)) return 'reception'
+  if (/recepci|front.?desk|portir/.test(n)) return 'reception'
   if (/terapeut|spa|masaž|masaz/.test(n)) return 'spa'
   return 'hr'
+}
+
+// Merguje tabove više rola — operativni tabovi prvi, HR uvijek na kraju
+const HR_TABS = ['schedule', 'attendance', 'payroll', 'absences']
+function mergePortalTabs(roleNames) {
+  const types = [...new Set(roleNames.map(detectPortalType))]
+  const seen = new Set()
+  const tabs = []
+  // Operativni tabovi (non-HR)
+  for (const type of types) {
+    for (const tab of (PORTAL_TABS[type] || [])) {
+      if (!seen.has(tab.key) && !HR_TABS.includes(tab.key)) {
+        seen.add(tab.key)
+        tabs.push(tab)
+      }
+    }
+  }
+  // HR tabovi uvijek na kraju
+  for (const tab of PORTAL_TABS.hr) {
+    if (!seen.has(tab.key)) {
+      seen.add(tab.key)
+      tabs.push(tab)
+    }
+  }
+  return tabs
 }
 
 const PORTAL_TABS = {
@@ -69,6 +94,7 @@ export default function StaffPortal() {
   const [staff, setStaff]           = useState(null)
   const [portalType, setPortalType] = useState('hr')
   const [activeTab, setActiveTab]   = useState(null)
+  const [mergedTabs, setMergedTabs] = useState(PORTAL_TABS.hr)
 
   useEffect(() => {
     supabase.from('restaurants')
@@ -98,10 +124,23 @@ export default function StaffPortal() {
       setAuthError('Niste pronađeni kao osoblje ovog objekta.')
       return
     }
-    const pType = detectPortalType(staffData.role?.name)
+
+    // Učitaj SVE role iz staff_roles junction tabele
+    const { data: allRolesData } = await supabase
+      .from('staff_roles')
+      .select('role:roles(name)')
+      .eq('staff_id', staffData.id)
+
+    const roleNames = [
+      ...(allRolesData?.map(r => r.role?.name).filter(Boolean) || []),
+      staffData.role?.name, // primarna rola kao fallback
+    ].filter(Boolean)
+
+    const tabs = mergePortalTabs(roleNames.length > 0 ? roleNames : ['hr'])
     setStaff(staffData)
-    setPortalType(pType)
-    setActiveTab(PORTAL_TABS[pType][0].key)
+    setPortalType(detectPortalType(roleNames[0] || ''))
+    setActiveTab(tabs[0].key)
+    setMergedTabs(tabs)
     setMode('portal')
   }
 
@@ -166,7 +205,7 @@ export default function StaffPortal() {
   )
 
   // ── Portal ────────────────────────────────────────────────────────
-  const tabs = PORTAL_TABS[portalType] || PORTAL_TABS.hr
+  const tabs = mergedTabs
   const staffName = [staff?.first_name, staff?.last_name].filter(Boolean).join(' ') || staff?.email || ''
 
   const renderView = () => {
