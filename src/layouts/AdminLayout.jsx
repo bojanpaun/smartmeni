@@ -183,7 +183,8 @@ export const MODULES = [
     admin: {
       label: 'Spa administracija',
       links: [
-        { label: 'Dashboard',   icon: '📊', path: '/admin/spa',           exact: true },
+        { label: 'Dashboard',   icon: '📊', path: '/admin/spa',              exact: true },
+        { label: 'Termini',     icon: '🗓️', path: '/admin/spa/appointments' },
         { label: 'Kalendar',    icon: '📅', path: '/admin/spa/calendar' },
         { label: 'Tretmani',    icon: '💆', path: '/admin/spa/services' },
         { label: 'Terapeuti',   icon: '👤', path: '/admin/spa/therapists' },
