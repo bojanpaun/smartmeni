@@ -160,15 +160,16 @@ export default function SuperAdminPanel() {
     if (!matchSearch) return false
     if (filterPlan === 'all') return true
     if (filterPlan === 'complimentary') return r.is_complimentary
-    if (filterPlan === 'pro') return r.plan === 'pro' && !r.is_complimentary
-    if (filterPlan === 'starter') return r.plan !== 'pro' && !r.is_complimentary
+    if (filterPlan === 'paid') return PAID_PLANS.includes(r.plan) && !r.is_complimentary
+    if (filterPlan === 'starter') return !PAID_PLANS.includes(r.plan) && !r.is_complimentary
     if (filterPlan === 'suspended') return !!r.suspended_at
     return true
   })
 
+  const PAID_PLANS = ['restaurant', 'hotel', 'hotel_pro', 'enterprise', 'pro']
   const stats = {
     total: restaurants.length,
-    pro: restaurants.filter(r => r.plan === 'pro' && !r.is_complimentary).length,
+    pro: restaurants.filter(r => PAID_PLANS.includes(r.plan) && !r.is_complimentary).length,
     complimentary: restaurants.filter(r => r.is_complimentary).length,
     suspended: restaurants.filter(r => !!r.suspended_at).length,
   }
@@ -231,7 +232,7 @@ export default function SuperAdminPanel() {
         <div className={styles.filterBtns}>
           {[
             { key: 'all',           label: 'Svi' },
-            { key: 'pro',           label: 'Pro' },
+            { key: 'paid',          label: '💳 Plaćeni' },
             { key: 'complimentary', label: '🎁 Complimentary' },
             { key: 'starter',       label: 'Starter' },
             { key: 'suspended',     label: '⚠️ Suspendirani' },
@@ -371,7 +372,10 @@ export default function SuperAdminPanel() {
                   onChange={e => setEditForm(f => ({ ...f, plan: e.target.value }))}
                 >
                   <option value="starter">Starter (besplatan)</option>
-                  <option value="pro">Pro (plaćen)</option>
+                  <option value="restaurant">Restoran — €29/mj</option>
+                  <option value="hotel">Hotel — €79/mj</option>
+                  <option value="hotel_pro">Hotel Pro — €119/mj</option>
+                  <option value="enterprise">Enterprise</option>
                 </select>
               </div>
               <div className={styles.field}>
@@ -458,14 +462,26 @@ function ThemeDot({ theme }) {
   )
 }
 
+const PLAN_LABELS = {
+  starter:    'Starter',
+  restaurant: 'Restoran',
+  hotel:      'Hotel',
+  hotel_pro:  'Hotel Pro',
+  enterprise: 'Enterprise',
+  pro:        'Restoran', // backward compat
+}
+
 function PlanBadge({ rest }) {
   if (rest.is_complimentary) {
     return <span className={`${styles.badge} ${styles.badgeComplimentary}`}>🎁 Complimentary</span>
   }
-  if (rest.plan === 'pro') {
-    return <span className={`${styles.badge} ${styles.badgePro}`}>Pro</span>
-  }
-  return <span className={`${styles.badge} ${styles.badgeStarter}`}>Starter</span>
+  const plan = rest.plan || 'starter'
+  const isPaid = ['restaurant', 'hotel', 'hotel_pro', 'enterprise', 'pro'].includes(plan)
+  return (
+    <span className={`${styles.badge} ${isPaid ? styles.badgePro : styles.badgeStarter}`}>
+      {PLAN_LABELS[plan] || plan}
+    </span>
+  )
 }
 
 function StatusBadge({ status }) {
