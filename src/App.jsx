@@ -1,5 +1,5 @@
 import { lazy, Suspense } from 'react'
-import { Routes, Route, Navigate } from 'react-router-dom'
+import { Routes, Route, Navigate, useParams } from 'react-router-dom'
 import { PlatformProvider, usePlatform } from './context/PlatformContext'
 import { CartProvider } from './context/CartContext'
 import LoadingSpinner from './components/shared/LoadingSpinner'
@@ -124,6 +124,12 @@ function AddonGuard({ addonId, name, description, price, category, dependsOn, ch
   return children
 }
 
+// Redirect sa starog URL-a na /:slug/staff koristeći apsolutan path
+function StaffPortalRedirect() {
+  const { slug } = useParams()
+  return <Navigate to={`/${slug}/staff`} replace />
+}
+
 function AppRoutes() {
   return (
     <Suspense fallback={<LoadingSpinner fullPage />}>
@@ -238,9 +244,9 @@ function AppRoutes() {
         <Route path="/:slug/narudzba/:orderId" element={<Suspense fallback={<LoadingSpinner fullPage />}><OrderTrackerPage /></Suspense>} />
         {/* Unified staff portal */}
         <Route path="/:slug/staff" element={<Suspense fallback={<LoadingSpinner fullPage />}><StaffPortal /></Suspense>} />
-        {/* Redirecti sa starih portal URL-ova */}
-        <Route path="/:slug/osoblje" element={<Navigate to="../staff" replace />} />
-        <Route path="/:slug/housekeeping" element={<Navigate to="../staff" replace />} />
+        {/* Redirecti sa starih portal URL-ova — apsolutan path via useParams */}
+        <Route path="/:slug/osoblje" element={<StaffPortalRedirect />} />
+        <Route path="/:slug/housekeeping" element={<StaffPortalRedirect />} />
         <Route path="/:slug/book" element={<Suspense fallback={<LoadingSpinner fullPage />}><BookingPage /></Suspense>} />
         <Route path="/:slug/spa"  element={<Suspense fallback={<LoadingSpinner fullPage />}><SpaBookingPage /></Suspense>} />
         <Route path="/:slug/guest" element={<Suspense fallback={<LoadingSpinner fullPage />}><GuestAppPage /></Suspense>} />
