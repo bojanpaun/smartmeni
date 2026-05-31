@@ -1,4 +1,4 @@
-import { lazy, Suspense } from 'react'
+import { lazy, Suspense, Component } from 'react'
 import { Routes, Route, Navigate, useParams } from 'react-router-dom'
 import { PlatformProvider, usePlatform } from './context/PlatformContext'
 import { CartProvider } from './context/CartContext'
@@ -131,8 +131,22 @@ function StaffPortalRedirect() {
   return <Navigate to={`/${slug}/staff`} replace />
 }
 
+class ChunkErrorBoundary extends Component {
+  componentDidCatch(error) {
+    if (
+      error?.message?.includes('Failed to fetch dynamically imported module') ||
+      error?.message?.includes('Loading chunk') ||
+      error?.message?.includes('Importing a module script failed')
+    ) {
+      window.location.reload()
+    }
+  }
+  render() { return this.props.children }
+}
+
 function AppRoutes() {
   return (
+    <ChunkErrorBoundary>
     <Suspense fallback={<LoadingSpinner fullPage />}>
       <Routes>
         {/* Javne rute */}
@@ -257,6 +271,7 @@ function AppRoutes() {
         <Route path="/:slug" element={<CartProvider><Suspense fallback={<LoadingSpinner fullPage />}><GuestMenu /></Suspense></CartProvider>} />
       </Routes>
     </Suspense>
+    </ChunkErrorBoundary>
   )
 }
 
