@@ -2,6 +2,7 @@ import { useState, useEffect } from 'react'
 import { useParams } from 'react-router-dom'
 import { supabase } from '../../../lib/supabase'
 import LanguageSwitcher from '../../../i18n/LanguageSwitcher'
+import GuestSpaTab from './GuestSpaTab'
 import styles from './GuestApp.module.css'
 
 const SESSION_KEY = (slug) => `sm_guest_app_${slug}`
@@ -118,8 +119,9 @@ export default function GuestAppPage() {
     }
 
     const res = data[0]
-    sessionStorage.setItem(SESSION_KEY(slug), JSON.stringify(res))
-    setSession(res)
+    const sessionData = { ...res, reservation_code: loginCode.trim(), guest_email: loginEmail.trim() }
+    sessionStorage.setItem(SESSION_KEY(slug), JSON.stringify(sessionData))
+    setSession(sessionData)
   }
 
   const loadFolio = async () => {
@@ -248,6 +250,7 @@ export default function GuestAppPage() {
   const TABS = [
     { id: 'stay',     icon: '🏠', label: isEn ? 'Stay'     : 'Boravak'  },
     { id: 'hotel',    icon: '🏨', label: isEn ? 'Hotel'    : 'Hotel'    },
+    { id: 'spa',      icon: '💆', label: isEn ? 'Spa'      : 'Spa'      },
     { id: 'requests', icon: '📋', label: isEn ? 'Requests' : 'Zahtjevi' },
     { id: 'folio',    icon: '🧾', label: isEn ? 'Folio'    : 'Folio'    },
   ]
@@ -346,6 +349,17 @@ export default function GuestAppPage() {
                 {isEn ? 'View folio' : 'Pregled folija'}
               </button>
             </div>
+          </div>
+        )}
+
+        {/* ── TAB: SPA ── */}
+        {tab === 'spa' && (
+          <div className={styles.requestsTab}>
+            <GuestSpaTab
+              restaurantId={restaurant.id}
+              session={session}
+              isEn={isEn}
+            />
           </div>
         )}
 
