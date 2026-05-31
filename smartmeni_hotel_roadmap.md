@@ -1,6 +1,6 @@
 # SmartMeni → HospitalityOS — Produkt roadmap
 
-> **Verzija:** 2.5 *(dopunjeno — Faza Z implementirana, staff_roles, WaiterView, role UI tabovi, Guest App spa tab, email podsjetnik — 2026-05-31)*
+> **Verzija:** 2.6 *(dopunjeno — novi billing model Starter/Restoran/Hotel/Hotel Pro, annual toggle, planUtils refaktor, SuperAdminPanel update — 2026-05-31)*
 > **Kontekst:** Evolucija SmartMeni SaaS platforme prema punom hospitality management sistemu
 > **Tim:** 1 developer + Claude Code AI asistent
 > **Branch:** `main` → direktno na produkciju (Vercel auto-deploy)
@@ -1513,6 +1513,11 @@ RLS politike se proširuju da provjeravaju `portfolio_access.scope` — regional
 | Z | Role UI — horizontalni tabovi + Odaberi/Obriši sve po modulu | ✅ | 2026-05-31 |
 | 8d | Guest App spa tab — katalog, termini, folio booking | ✅ | 2026-05-31 |
 | 8.5 | send-spa-reminder Edge Function + pg_cron svakih 15 min | ✅ | 2026-05-31 |
+| billing | Novi plan model — Starter/Restoran/Hotel/Hotel Pro | ✅ | 2026-05-31 |
+| billing | Monthly/Annual toggle sa 20% popustom (annual default) | ✅ | 2026-05-31 |
+| billing | planUtils.js — PLAN_INCLUDES mapa, hasAddon backward compat | ✅ | 2026-05-31 |
+| billing | BillingPage redesign — 4 plan kartice, responsive grid | ✅ | 2026-05-31 |
+| billing | SuperAdminPanel — novi planovi u dropdown + PlanBadge update | ✅ | 2026-05-31 |
 | 9 | portfolios + brands + property_groups tabele | ⬜ | |
 | 9 | portfolio_kpis materialized view + cron | ⬜ | |
 | 9 | Portfolio dashboard UI | ⬜ | |
@@ -1583,4 +1588,4 @@ RLS politike se proširuju da provjeravaju `portfolio_access.scope` — regional
 
 ---
 
-*Roadmap ažuriran: 2026-05-31 (v2.5 — Faza Z implementirana i završena: /:slug/staff, 5 role viewova, staff_roles junction tabela, permissions hotel/spa, role UI tabovi; Faza 8 dopuna završena: Guest App spa tab; Faza 8.5 dopuna: email podsjetnik pg_cron; dnevnik napretka +13 stavki; timeline i DoD ažurirani) | Branch: main | Deployment: Vercel auto-deploy*
+*Roadmap ažuriran: 2026-05-31 (v2.6 — Novi billing model: Starter besplatno + Restoran €29/mj + Hotel €79/mj + Hotel Pro €119/mj, annual toggle 20% popust; planUtils PLAN_INCLUDES refaktor; BillingPage redesign; SuperAdminPanel novi planovi) | Branch: main | Deployment: Vercel auto-deploy*
