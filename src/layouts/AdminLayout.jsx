@@ -1,6 +1,6 @@
 // ▶ Zamijeniti: src/layouts/AdminLayout.jsx
 
-import { useState, useEffect, useRef } from 'react'
+import { useState, useEffect } from 'react'
 import { Link, useLocation, useNavigate } from 'react-router-dom'
 import { usePlatform } from '../context/PlatformContext'
 import { supabase } from '../lib/supabase'
@@ -11,40 +11,32 @@ import LanguageSwitcher from '../i18n/LanguageSwitcher'
 
 function useKitchenCounts(restaurantId) {
   const [counts, setCounts] = useState({ kitchen: 0, bar: 0 })
-  const barIdsRef = useRef(null)
 
   useEffect(() => {
     if (!restaurantId) return
 
     const loadCounts = async () => {
-      if (!barIdsRef.current) {
-        const { data } = await supabase.from('categories')
-          .select('id').eq('restaurant_id', restaurantId).eq('is_bar', true)
-        barIdsRef.current = new Set((data || []).map(c => c.id))
-      }
-      const barIds = barIdsRef.current
-
-      const [{ data: orders }, { count: waiterReqCount }] = await Promise.all([
-        supabase.from('orders')
-          .select('id, status, order_items(category_id)')
-          .eq('restaurant_id', restaurantId)
-          .in('status', ['pending', 'received', 'preparing', 'ready']),
-        supabase.from('waiter_requests')
-          .select('id', { count: 'exact', head: true })
-          .eq('restaurant_id', restaurantId)
-          .eq('is_resolved', false),
+      const [
+        { count: waiter },
+        { count: kitchen },
+        { count: bar },
+        { count: waiterReq },
+      ] = await Promise.all([
+        supabase.from('orders').select('id', { count: 'exact', head: true })
+          .eq('restaurant_id', restaurantId).in('status', ['pending', 'received', 'ready']),
+        supabase.from('orders').select('id', { count: 'exact', head: true })
+          .eq('restaurant_id', restaurantId).eq('kitchen_status', 'preparing'),
+        supabase.from('orders').select('id', { count: 'exact', head: true })
+          .eq('restaurant_id', restaurantId).eq('bar_status', 'preparing'),
+        supabase.from('waiter_requests').select('id', { count: 'exact', head: true })
+          .eq('restaurant_id', restaurantId).eq('is_resolved', false),
       ])
-
-      let waiter = 0, kitchen = 0, bar = 0
-      for (const o of orders || []) {
-        const items = o.order_items || []
-        if (o.status === 'pending' || o.status === 'received' || o.status === 'ready') waiter++
-        if (o.status === 'preparing') {
-          if (items.some(i => !barIds.has(i.category_id))) kitchen++
-          if (items.some(i =>  barIds.has(i.category_id))) bar++
-        }
-      }
-      setCounts({ waiter, waiterReq: waiterReqCount || 0, kitchen, bar })
+      setCounts({
+        waiter:    waiter    || 0,
+        kitchen:   kitchen   || 0,
+        bar:       bar       || 0,
+        waiterReq: waiterReq || 0,
+      })
     }
 
     loadCounts()

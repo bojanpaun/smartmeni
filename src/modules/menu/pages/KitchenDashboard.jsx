@@ -79,8 +79,9 @@ export default function KitchenDashboard({ mode = 'kitchen' }) {
         .lte('created_at', endOfDay(to))
         .order('created_at', { ascending: false })
     } else {
-      const statuses = statusFilter === 'active' ? ['received', 'preparing'] : ['ready']
-      query = query.in('status', statuses).order('created_at', { ascending: true })
+      const stationCol = isBar ? 'bar_status' : 'kitchen_status'
+      const stationVal = statusFilter === 'active' ? 'preparing' : 'ready'
+      query = query.eq(stationCol, stationVal).order('created_at', { ascending: true })
     }
 
     const { data } = await query
@@ -89,7 +90,21 @@ export default function KitchenDashboard({ mode = 'kitchen' }) {
   }
 
   const markReady = async (orderId) => {
-    await supabase.from('orders').update({ status: 'ready' }).eq('id', orderId)
+    const stationCol = isBar ? 'bar_status' : 'kitchen_status'
+    const { data: updated } = await supabase
+      .from('orders')
+      .update({ [stationCol]: 'ready' })
+      .eq('id', orderId)
+      .select('kitchen_status, bar_status')
+      .single()
+
+    if (updated) {
+      const kitchenDone = !updated.kitchen_status || updated.kitchen_status === 'ready'
+      const barDone     = !updated.bar_status     || updated.bar_status     === 'ready'
+      if (kitchenDone && barDone) {
+        await supabase.from('orders').update({ status: 'ready' }).eq('id', orderId)
+      }
+    }
   }
 
   const timeAgo = (dateStr) => {

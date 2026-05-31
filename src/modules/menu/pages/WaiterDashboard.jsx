@@ -1,4 +1,4 @@
-import { useState, useEffect } from 'react'
+import { useState, useEffect, useRef } from 'react'
 import { useLocation } from 'react-router-dom'
 import { supabase } from '../../../lib/supabase'
 import { usePlatform } from '../../../context/PlatformContext'
@@ -44,6 +44,16 @@ const STATUS_CONFIG = {
 export default function WaiterDashboard() {
   const { restaurant, hasAddon } = usePlatform()
   const hotelEnabled = hasAddon('hotel_core')
+  const barCatIdsRef = useRef(null)
+
+  const getBarCatIds = async () => {
+    if (!barCatIdsRef.current) {
+      const { data } = await supabase.from('categories')
+        .select('id').eq('restaurant_id', restaurant.id).eq('is_bar', true)
+      barCatIdsRef.current = new Set((data || []).map(c => c.id))
+    }
+    return barCatIdsRef.current
+  }
   const location = useLocation()
   const [orders, setOrders] = useState([])
   const [waiterReqs, setWaiterReqs] = useState([])
@@ -97,9 +107,20 @@ export default function WaiterDashboard() {
   const updateOrderStatus = async (orderId, status, rejectionMessage = null) => {
     const update = { status }
     if (rejectionMessage) update.rejection_message = rejectionMessage
+
+    if (status === 'preparing') {
+      const order = orders.find(o => o.id === orderId)
+      const items = order?.order_items || []
+      const barIds = await getBarCatIds()
+      const hasKitchen = items.some(i => !barIds.has(i.category_id))
+      const hasBar     = items.some(i =>  barIds.has(i.category_id))
+      if (hasKitchen) update.kitchen_status = 'preparing'
+      if (hasBar)     update.bar_status     = 'preparing'
+    }
+
     await supabase.from('orders').update(update).eq('id', orderId)
     setOrders(prev => prev.map(o =>
-      o.id === orderId ? { ...o, status } : o
+      o.id === orderId ? { ...o, ...update } : o
     ).filter(o => o.status !== 'closed'))
   }
 
