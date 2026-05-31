@@ -162,6 +162,8 @@ export const MODULES = [
         { label: 'Online booking',     icon: '🔗', path: '/admin/hotel/booking-settings' },
         { label: 'Spa dashboard',      icon: '💆', path: '/admin/hotel/spa' },
         { label: 'Spa kalendar',       icon: '📅', path: '/admin/hotel/spa/calendar' },
+        { label: 'Spa analitika',      icon: '📊', path: '/admin/hotel/spa/analytics' },
+        { label: 'Spa paketi',         icon: '🎁', path: '/admin/hotel/spa/packages' },
         { label: 'Sajt hotela',        icon: '🌐', path: '/admin/hotel/landing' },
       ],
     },

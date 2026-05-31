@@ -1409,16 +1409,20 @@ RLS politike se proširuju da provjeravaju `portfolio_access.scope` — regional
 | 8 | loyalty_programs + loyalty_accounts tabele | ⬜ | |
 | 8 | Loyalty earn/redeem logika | ⬜ | |
 | 8 | GuestApp — loyalty prikaz i redemption | ⬜ | |
-| 8.5 | spa_rooms + spa_services + spa_therapists tabele | ⬜ | |
-| 8.5 | spa_appointments tabela sa RLS | ⬜ | |
-| 8.5 | get_available_spa_slots() PostgreSQL funkcija | ⬜ | |
-| 8.5 | DB trigger → folio item za hotel goste | ⬜ | |
-| 8.5 | Spa Calendar Gantt (terapeuti × vremenski slotovi) | ⬜ | |
-| 8.5 | Javna booking stranica /:slug/spa | ⬜ | |
-| 8.5 | Booking flow hotelski gost (folio plaćanje) | ⬜ | |
-| 8.5 | Booking flow vanjski gost (Stripe plaćanje) | ⬜ | |
-| 8.5 | Email potvrda i podsjetnik 2h prije termina | ⬜ | |
-| 8.5 | Spa analitika (utilization rate, revenue per treatment) | ⬜ | |
+| 8.5 | spa_rooms + spa_services + spa_therapists tabele | ✅ | 2026-05-31 |
+| 8.5 | spa_appointments tabela sa RLS | ✅ | 2026-05-31 |
+| 8.5 | get_available_spa_slots() PostgreSQL funkcija | ✅ | 2026-05-31 |
+| 8.5 | DB trigger → folio item za hotel goste | ✅ | 2026-05-31 |
+| 8.5 | Admin UI — Services, Therapists, Rooms, Settings | ✅ | 2026-05-31 |
+| 8.5 | Spa Calendar Gantt (terapeuti × vremenski slotovi) | ✅ | 2026-05-31 |
+| 8.5 | book_spa_appointment() RPC (anon booking) | ✅ | 2026-05-31 |
+| 8.5 | Javna booking stranica /:slug/spa | ✅ | 2026-05-31 |
+| 8.5 | Booking flow hotelski gost (folio plaćanje + kod) | ✅ | 2026-05-31 |
+| 8.5 | Email potvrda (send-spa-email Edge Function) | ✅ | 2026-05-31 |
+| 8.5 | Spa analitika (revenue per treatment, no-show, CSV) | ✅ | 2026-05-31 |
+| 8.5 | Spa paketi (CRUD, includes lista) | ✅ | 2026-05-31 |
+| 8.5 | Booking flow vanjski gost — Stripe plaćanje | ⬜ | (Stripe odložen) |
+| 8.5 | Email podsjetnik X sati prije (pg_cron) | ⬜ | |
 | 9 | portfolios + brands + property_groups tabele | ⬜ | |
 | 9 | portfolio_kpis materialized view + cron | ⬜ | |
 | 9 | Portfolio dashboard UI | ⬜ | |

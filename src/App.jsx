@@ -69,6 +69,8 @@ const SpaRoomsPage         = lazy(() => import('./modules/spa/pages/SpaRoomsPage
 const SpaSettingsPage      = lazy(() => import('./modules/spa/pages/SpaSettingsPage'))
 const SpaCalendarPage      = lazy(() => import('./modules/spa/pages/SpaCalendarPage'))
 const SpaBookingPage       = lazy(() => import('./pages/SpaBookingPage'))
+const SpaAnalyticsPage     = lazy(() => import('./modules/spa/pages/SpaAnalyticsPage'))
+const SpaPackagesPage      = lazy(() => import('./modules/spa/pages/PackagesPage'))
 const RestaurantLandingEditor = lazy(() => import('./modules/menu/pages/RestaurantLandingEditor'))
 
 const ControlPanel         = lazy(() => import('./platform/admin/ControlPanel'))
@@ -213,6 +215,8 @@ function AppRoutes() {
         <Route path="/admin/hotel/spa/rooms" element={<AdminRoute><AddonGuard addonId="spa_wellness" name="Spa & Wellness" description="Upravljanje spa tretmanima, terapeutima, kalendarom i booking sistemom." price={199} category="hotel"><SpaRoomsPage /></AddonGuard></AdminRoute>} />
         <Route path="/admin/hotel/spa/settings" element={<AdminRoute><AddonGuard addonId="spa_wellness" name="Spa & Wellness" description="Upravljanje spa tretmanima, terapeutima, kalendarom i booking sistemom." price={199} category="hotel"><SpaSettingsPage /></AddonGuard></AdminRoute>} />
         <Route path="/admin/hotel/spa/calendar" element={<AdminRoute><AddonGuard addonId="spa_wellness" name="Spa & Wellness" description="Upravljanje spa tretmanima, terapeutima, kalendarom i booking sistemom." price={199} category="hotel"><SpaCalendarPage /></AddonGuard></AdminRoute>} />
+        <Route path="/admin/hotel/spa/analytics" element={<AdminRoute><AddonGuard addonId="spa_wellness" name="Spa & Wellness" description="Upravljanje spa tretmanima, terapeutima, kalendarom i booking sistemom." price={199} category="hotel"><SpaAnalyticsPage /></AddonGuard></AdminRoute>} />
+        <Route path="/admin/hotel/spa/packages" element={<AdminRoute><AddonGuard addonId="spa_wellness" name="Spa & Wellness" description="Upravljanje spa tretmanima, terapeutima, kalendarom i booking sistemom." price={199} category="hotel"><SpaPackagesPage /></AddonGuard></AdminRoute>} />
         <Route path="/admin/hotel/reservations/:id/folio/print" element={<ProtectedRoute><Suspense fallback={<LoadingSpinner fullPage />}><FolioPrint /></Suspense></ProtectedRoute>} />
 
         {/* Analitika modul */}
