@@ -1,12 +1,55 @@
 // ▶ Zamijeniti: src/layouts/AdminLayout.jsx
 
-import { useState } from 'react'
+import { useState, useEffect, useRef } from 'react'
 import { Link, useLocation, useNavigate } from 'react-router-dom'
 import { usePlatform } from '../context/PlatformContext'
+import { supabase } from '../lib/supabase'
 import styles from './AdminLayout.module.css'
 import TrialBanner from '../platform/admin/TrialBanner'
 import ThemeToggle from '../components/ThemeToggle'
 import LanguageSwitcher from '../i18n/LanguageSwitcher'
+
+function useKitchenCounts(restaurantId) {
+  const [counts, setCounts] = useState({ kitchen: 0, bar: 0 })
+  const barIdsRef = useRef(null)
+
+  useEffect(() => {
+    if (!restaurantId) return
+
+    const loadCounts = async () => {
+      if (!barIdsRef.current) {
+        const { data } = await supabase.from('categories')
+          .select('id').eq('restaurant_id', restaurantId).eq('is_bar', true)
+        barIdsRef.current = new Set((data || []).map(c => c.id))
+      }
+      const barIds = barIdsRef.current
+
+      const { data: orders } = await supabase.from('orders')
+        .select('id, order_items(category_id)')
+        .eq('restaurant_id', restaurantId)
+        .in('status', ['received', 'preparing'])
+
+      let kitchen = 0, bar = 0
+      for (const o of orders || []) {
+        const items = o.order_items || []
+        if (items.some(i => !barIds.has(i.category_id))) kitchen++
+        if (items.some(i =>  barIds.has(i.category_id))) bar++
+      }
+      setCounts({ kitchen, bar })
+    }
+
+    loadCounts()
+
+    const ch = supabase.channel(`kc-${restaurantId}`)
+      .on('postgres_changes', { event: '*', schema: 'public', table: 'orders',
+        filter: `restaurant_id=eq.${restaurantId}` }, loadCounts)
+      .subscribe()
+
+    return () => supabase.removeChannel(ch)
+  }, [restaurantId])
+
+  return counts
+}
 
 export const MODULES = [
   {
@@ -20,9 +63,10 @@ export const MODULES = [
     interactive: {
       label: 'Digitalni meni',
       links: [
-        { label: 'Narudžbe', icon: '🧾', path: '/admin/orders', perm: 'view_orders' },
-        { label: 'Zahtjevi', icon: '🔔', path: '/admin/waiter', perm: 'view_waiter_req' },
+        { label: 'Narudžbe', icon: '🧾', path: '/admin/orders',  perm: 'view_orders' },
+        { label: 'Zahtjevi', icon: '🔔', path: '/admin/waiter',  perm: 'view_waiter_req' },
         { label: 'Kuhinja',  icon: '🧑‍🍳', path: '/admin/kitchen', perm: 'view_orders' },
+        { label: 'Bar',      icon: '🍷', path: '/admin/bar',     perm: 'view_orders' },
       ],
     },
     admin: {
@@ -228,6 +272,11 @@ const BOTTOM_NAV = [
 
 export default function AdminLayout({ children }) {
   const { restaurant, logout, isOwner, isSuperAdmin, hasPermission, hasAddon } = usePlatform()
+  const kitchenCounts = useKitchenCounts(restaurant?.id)
+  const badges = {
+    '/admin/kitchen': kitchenCounts.kitchen || 0,
+    '/admin/bar':     kitchenCounts.bar || 0,
+  }
   const location = useLocation()
   const navigate = useNavigate()
   const [collapsed, setCollapsed] = useState(false)
@@ -241,7 +290,7 @@ export default function AdminLayout({ children }) {
     const allLinks = [...(m.interactive?.links || []), ...(m.admin?.links || [])]
     return allLinks.some(l => l.exact ? location.pathname === l.path : location.pathname.startsWith(l.path + '/'))
   }) || (
-    ['/admin/orders', '/admin/waiter', '/admin/kitchen'].some(p => location.pathname.startsWith(p))
+    ['/admin/orders', '/admin/waiter', '/admin/kitchen', '/admin/bar'].some(p => location.pathname.startsWith(p))
       ? MODULES.find(m => m.key === 'menu')
       : ['/admin/settings', '/admin/billing'].some(p => location.pathname.startsWith(p))
       ? MODULES.find(m => m.key === 'settings')
@@ -277,18 +326,24 @@ export default function AdminLayout({ children }) {
         {expanded && (
           <div className={styles.navSegmentTitle}>{segment.label}</div>
         )}
-        {visibleLinks.map((link, i) => (
-          <Link
-            key={i}
-            to={link.path}
-            className={`${styles.navItem} ${isActive(link.path, link.exact) ? styles.navItemActive : ''}`}
-            title={link.label}
-            onClick={onLinkClick}
-          >
-            <span className={styles.navIcon}>{link.icon}</span>
-            {expanded && <span>{link.label}</span>}
-          </Link>
-        ))}
+        {visibleLinks.map((link, i) => {
+          const badge = badges[link.path] || 0
+          return (
+            <Link
+              key={i}
+              to={link.path}
+              className={`${styles.navItem} ${isActive(link.path, link.exact) ? styles.navItemActive : ''}`}
+              title={link.label}
+              onClick={onLinkClick}
+            >
+              <span className={styles.navIcon}>{link.icon}</span>
+              {expanded && <span className={styles.navLinkLabel}>{link.label}</span>}
+              {badge > 0 && (
+                <span className={styles.navBadge}>{badge}</span>
+              )}
+            </Link>
+          )
+        })}
       </div>
     )
   }

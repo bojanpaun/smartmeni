@@ -29,23 +29,26 @@ function getPeriodRange(key, customFrom, customTo) {
   return { from: customFrom || TODAY, to: customTo || TODAY }
 }
 
-export default function KitchenDashboard() {
+// mode: 'kitchen' | 'bar'
+export default function KitchenDashboard({ mode = 'kitchen' }) {
   const { restaurant } = usePlatform()
   const [orders, setOrders] = useState([])
   const [barCatIds, setBarCatIds] = useState(new Set())
   const [loading, setLoading] = useState(true)
-  const [tab, setTab] = useState('kitchen')   // 'kitchen' | 'bar' | 'done'
-  const [statusFilter, setStatusFilter] = useState('active') // 'active' | 'ready'
+  const [statusFilter, setStatusFilter] = useState('active')
   const [period, setPeriod] = useState('today')
   const [customFrom, setCustomFrom] = useState(TODAY)
   const [customTo, setCustomTo] = useState(TODAY)
 
-  const isDone = tab === 'done'
-  const isBar  = tab === 'bar'
+  const isDone = statusFilter === 'done'
+  const isBar  = mode === 'bar'
 
   useEffect(() => {
     if (!restaurant) return
-    loadCategories()
+    supabase.from('categories').select('id, is_bar').eq('restaurant_id', restaurant.id)
+      .then(({ data }) => {
+        setBarCatIds(new Set((data || []).filter(c => c.is_bar).map(c => c.id)))
+      })
   }, [restaurant])
 
   useEffect(() => {
@@ -53,23 +56,14 @@ export default function KitchenDashboard() {
     loadOrders()
     if (isDone) return
     const channel = supabase
-      .channel(`kitchen-${tab}-${restaurant.id}`)
+      .channel(`kitchen-${mode}-${restaurant.id}`)
       .on('postgres_changes', {
         event: '*', schema: 'public', table: 'orders',
         filter: `restaurant_id=eq.${restaurant.id}`,
       }, () => loadOrders())
       .subscribe()
     return () => supabase.removeChannel(channel)
-  }, [restaurant, tab, statusFilter, period, customFrom, customTo])
-
-  const loadCategories = async () => {
-    const { data } = await supabase
-      .from('categories')
-      .select('id, is_bar')
-      .eq('restaurant_id', restaurant.id)
-    const ids = new Set((data || []).filter(c => c.is_bar).map(c => c.id))
-    setBarCatIds(ids)
-  }
+  }, [restaurant, statusFilter, period, customFrom, customTo])
 
   const loadOrders = async () => {
     let query = supabase
@@ -118,7 +112,6 @@ export default function KitchenDashboard() {
   const isUrgent = (dateStr) =>
     (Date.now() - new Date(dateStr)) > 10 * 60 * 1000
 
-  // Filtrira stavke naloga prema tabu (kitchen/bar)
   const filterItems = (orderItems = []) => {
     if (isDone) return orderItems
     return orderItems.filter(item =>
@@ -126,13 +119,12 @@ export default function KitchenDashboard() {
     )
   }
 
-  // Prikazati samo narudžbe koje imaju relevantnih stavki za ovaj tab
   const visibleOrders = useMemo(() => {
     if (isDone) return orders
     return orders
       .map(o => ({ ...o, order_items: filterItems(o.order_items) }))
       .filter(o => o.order_items.length > 0)
-  }, [orders, barCatIds, tab])
+  }, [orders, barCatIds, statusFilter])
 
   const totalItems = useMemo(() =>
     visibleOrders.reduce((sum, o) => sum + (o.order_items?.length || 0), 0)
@@ -142,26 +134,9 @@ export default function KitchenDashboard() {
 
   return (
     <div>
-      <div className={styles.topbar}>
-        <div className={styles.topbarTabs}>
-          <button
-            className={`${styles.topbarTab} ${tab === 'kitchen' ? styles.topbarTabActive : ''}`}
-            onClick={() => setTab('kitchen')}
-          >
-            🧑‍🍳 Kuhinja
-          </button>
-          <button
-            className={`${styles.topbarTab} ${tab === 'bar' ? styles.topbarTabActiveBar : ''}`}
-            onClick={() => setTab('bar')}
-          >
-            🍷 Bar
-          </button>
-          <button
-            className={`${styles.topbarTab} ${tab === 'done' ? styles.topbarTabActiveDone : ''}`}
-            onClick={() => setTab('done')}
-          >
-            Završene
-          </button>
+      <div className={`${styles.topbar} ${isBar ? styles.topbarBar : ''}`}>
+        <div className={styles.topbarTitle}>
+          {isBar ? '🍷 Bar' : '🧑‍🍳 Kuhinja'}
         </div>
         {!isDone && (
           <div className={styles.liveBadge}>
@@ -172,26 +147,27 @@ export default function KitchenDashboard() {
       </div>
 
       <div className={styles.content}>
+        <div className={styles.filters}>
+          <button
+            className={`${styles.filterBtn} ${statusFilter === 'active' ? styles.filterActive : ''}`}
+            onClick={() => setStatusFilter('active')}
+          >
+            Aktivne{statusFilter === 'active' ? ` (${visibleOrders.length})` : ''}
+          </button>
+          <button
+            className={`${styles.filterBtn} ${statusFilter === 'ready' ? styles.filterActive : ''}`}
+            onClick={() => setStatusFilter('ready')}
+          >
+            Gotove{statusFilter === 'ready' ? ` (${visibleOrders.length})` : ''}
+          </button>
+          <button
+            className={`${styles.filterBtn} ${isDone ? styles.filterActive : ''}`}
+            onClick={() => setStatusFilter('done')}
+          >
+            Završene
+          </button>
+        </div>
 
-        {/* ── Status filter (Kitchen i Bar) ── */}
-        {!isDone && (
-          <div className={styles.filters}>
-            <button
-              className={`${styles.filterBtn} ${statusFilter === 'active' ? styles.filterActive : ''}`}
-              onClick={() => setStatusFilter('active')}
-            >
-              Aktivne{statusFilter === 'active' ? ` (${visibleOrders.length})` : ''}
-            </button>
-            <button
-              className={`${styles.filterBtn} ${statusFilter === 'ready' ? styles.filterActive : ''}`}
-              onClick={() => setStatusFilter('ready')}
-            >
-              Gotove{statusFilter === 'ready' ? ` (${visibleOrders.length})` : ''}
-            </button>
-          </div>
-        )}
-
-        {/* ── Period filter (Završene) ── */}
         {isDone && (
           <div className={styles.periodBar}>
             <div className={styles.periodBtns}>
@@ -226,13 +202,12 @@ export default function KitchenDashboard() {
 
         {visibleOrders.length === 0 ? (
           <div className={styles.empty}>
-            <div className={styles.emptyIcon}>{tab === 'bar' ? '🍷' : tab === 'done' ? '📋' : '✓'}</div>
+            <div className={styles.emptyIcon}>{isBar ? '🍷' : statusFilter === 'done' ? '📋' : '✓'}</div>
             <div className={styles.emptyText}>
-              {tab === 'kitchen' && statusFilter === 'active' ? 'Sve narudžbe su odrađene!' : 'Nema narudžbi'}
+              {statusFilter === 'active' ? (isBar ? 'Nema aktivnih narudžbi za bar.' : 'Sve narudžbe su odrađene!') : 'Nema narudžbi'}
             </div>
           </div>
         ) : isDone ? (
-          /* ── Završene: table view ── */
           <div className={styles.doneTable}>
             <div className={styles.doneTableHead}>
               <span>Sto</span>
@@ -262,7 +237,6 @@ export default function KitchenDashboard() {
             })}
           </div>
         ) : (
-          /* ── Aktivne / Gotove: ticket grid ── */
           <div className={styles.tickets}>
             {visibleOrders.map(order => (
               <div
@@ -307,10 +281,8 @@ export default function KitchenDashboard() {
                     </button>
                   )}
                   {order.status === 'preparing' && (
-                    <button
-                      className={`${styles.ticketBtn} ${styles.ticketBtnSuccess}`}
-                      onClick={() => markReady(order.id)}
-                    >
+                    <button className={`${styles.ticketBtn} ${styles.ticketBtnSuccess}`}
+                      onClick={() => markReady(order.id)}>
                       Gotovo! ✓
                     </button>
                   )}

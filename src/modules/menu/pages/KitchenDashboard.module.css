@@ -5,6 +5,7 @@
   min-height: 52px;
 }
 .topbarTitle { font-size: 16px; font-weight: 600; color: var(--c-surface); font-family: var(--c-font-display); }
+.topbarBar { background: #2d1f5e !important; }
 .topbarTabs { display: flex; gap: 2px; height: 52px; align-items: flex-end; }
 .topbarTab {
   padding: 0 18px; height: 42px; border: none; background: transparent;

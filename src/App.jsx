@@ -14,6 +14,7 @@ const GuestMenu            = lazy(() => import('./layouts/GuestMenu'))
 const AdminMenu            = lazy(() => import('./modules/menu/pages/AdminMenu'))
 const WaiterDashboard      = lazy(() => import('./modules/menu/pages/WaiterDashboard'))
 const KitchenDashboard     = lazy(() => import('./modules/menu/pages/KitchenDashboard'))
+const BarDashboard         = lazy(() => import('./modules/menu/pages/BarDashboard'))
 const StaffRoles           = lazy(() => import('./platform/superadmin/StaffRoles'))
 const SuperAdminPanel      = lazy(() => import('./platform/superadmin/SuperAdminPanel'))
 const TableMapEditor       = lazy(() => import('./modules/tables/pages/TableMapEditor'))
@@ -159,6 +160,7 @@ function AppRoutes() {
         <Route path="/admin/orders" element={<AdminRoute><WaiterDashboard /></AdminRoute>} />
         <Route path="/admin/waiter" element={<AdminRoute><WaiterDashboard /></AdminRoute>} />
         <Route path="/admin/kitchen" element={<AdminRoute><KitchenDashboard /></AdminRoute>} />
+        <Route path="/admin/bar"     element={<AdminRoute><BarDashboard /></AdminRoute>} />
 
         {/* Osoblje modul */}
         <Route path="/admin/staff" element={<AdminRoute><StaffRoles /></AdminRoute>} />
