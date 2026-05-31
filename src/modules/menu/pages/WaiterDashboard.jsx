@@ -18,7 +18,7 @@ async function findOpenFolio(restaurantId, roomNum) {
     .select('id')
     .eq('room_id', room.id)
     .eq('status', 'checked_in')
-    .single()
+    .maybeSingle()
   if (!res) return { error: 'Gost nije prijavljen u sobu.' }
 
   const { data: folio } = await supabase

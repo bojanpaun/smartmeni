@@ -88,3 +88,141 @@
 .empty { text-align: center; padding: 4rem 1rem; }
 .emptyIcon { font-size: 48px; margin-bottom: 12px; }
 .emptyText { font-size: 16px; color: var(--c-text-muted); }
+
+/* ── Period bar (Završene) ── */
+.periodBar {
+  display: flex;
+  align-items: center;
+  flex-wrap: wrap;
+  gap: 10px;
+  margin-bottom: 16px;
+  padding: 12px 14px;
+  background: white;
+  border-radius: 12px;
+  border: 1px solid var(--c-border);
+}
+.periodBtns {
+  display: flex;
+  gap: 6px;
+  flex-wrap: wrap;
+}
+.periodBtn {
+  padding: 6px 14px;
+  border-radius: 20px;
+  border: 1px solid var(--c-border);
+  background: var(--c-bg-subtle);
+  font-size: 13px;
+  font-weight: 500;
+  color: var(--c-text-muted);
+  cursor: pointer;
+  font-family: var(--c-font-sans);
+  transition: all 0.15s;
+}
+.periodBtn:hover { border-color: var(--c-primary-medium); color: var(--c-primary); }
+.periodActive {
+  background: var(--c-primary-light) !important;
+  border-color: var(--c-primary-medium) !important;
+  color: var(--c-primary) !important;
+  font-weight: 600;
+}
+.dateRange {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+.dateInput {
+  padding: 5px 10px;
+  border: 1px solid var(--c-border);
+  border-radius: 8px;
+  font-size: 13px;
+  font-family: var(--c-font-sans);
+  color: var(--c-text);
+  background: white;
+  cursor: pointer;
+}
+.dateSep { color: var(--c-text-muted); font-size: 13px; }
+.doneSummary {
+  margin-left: auto;
+  display: flex;
+  gap: 6px;
+  font-size: 13px;
+  color: var(--c-text-muted);
+  font-family: var(--c-font-sans);
+}
+
+/* ── Done table view ── */
+.doneTable {
+  background: white;
+  border-radius: 14px;
+  border: 1px solid var(--c-border);
+  overflow: hidden;
+}
+.doneTableHead {
+  display: grid;
+  grid-template-columns: 80px 1fr 70px 70px 70px;
+  padding: 10px 16px;
+  background: var(--c-bg-subtle);
+  border-bottom: 1px solid var(--c-border);
+  font-size: 11px;
+  font-weight: 700;
+  color: var(--c-text-muted);
+  text-transform: uppercase;
+  letter-spacing: 0.05em;
+  font-family: var(--c-font-sans);
+}
+.doneRow {
+  display: grid;
+  grid-template-columns: 80px 1fr 70px 70px 70px;
+  padding: 10px 16px;
+  border-bottom: 1px solid var(--c-bg-subtle);
+  align-items: center;
+  font-family: var(--c-font-sans);
+  transition: background 0.1s;
+}
+.doneRow:last-child { border-bottom: none; }
+.doneRow:hover { background: var(--c-bg-subtle); }
+.doneRowTable {
+  font-size: 13px;
+  font-weight: 700;
+  color: var(--c-text);
+  font-family: var(--c-font-display);
+}
+.doneRowItems {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  overflow: hidden;
+}
+.doneItemCount {
+  flex-shrink: 0;
+  background: var(--c-bg-subtle);
+  border: 1px solid var(--c-border);
+  border-radius: 6px;
+  padding: 1px 7px;
+  font-size: 12px;
+  font-weight: 700;
+  color: var(--c-text-muted);
+}
+.doneItemNames {
+  font-size: 12.5px;
+  color: var(--c-text-muted);
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+.doneRowDate {
+  font-size: 12px;
+  color: var(--c-text-muted);
+  text-align: center;
+}
+.doneRowTime {
+  font-size: 13px;
+  font-weight: 600;
+  color: var(--c-text);
+  text-align: center;
+}
+.doneRowDur {
+  font-size: 12px;
+  color: var(--c-text-muted);
+  text-align: center;
+}
