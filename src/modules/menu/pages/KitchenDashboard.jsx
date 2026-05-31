@@ -81,7 +81,10 @@ export default function KitchenDashboard({ mode = 'kitchen' }) {
     } else {
       const stationCol = isBar ? 'bar_status' : 'kitchen_status'
       const stationVal = statusFilter === 'active' ? 'preparing' : 'ready'
-      query = query.eq(stationCol, stationVal).order('created_at', { ascending: true })
+      query = query
+        .eq(stationCol, stationVal)
+        .not('status', 'in', '("served","closed")')
+        .order('created_at', { ascending: true })
     }
 
     const { data } = await query
