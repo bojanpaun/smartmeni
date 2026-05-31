@@ -53,6 +53,17 @@ export default function SpaDashboard() {
             style={{ padding: '8px 12px', border: '1px solid var(--c-border-input)', borderRadius: 9, fontSize: 13, background: 'var(--c-surface)', color: 'var(--c-text)', outline: 'none', fontFamily: 'inherit' }}
           />
           <button className={styles.btnSecondary} onClick={() => setDate(TODAY)}>Danas</button>
+          {restaurant?.slug && (
+            <a
+              href={`/${restaurant.slug}/spa`}
+              target="_blank"
+              rel="noreferrer"
+              className={styles.btnSecondary}
+              title="Javna booking stranica za goste"
+            >
+              🌐 Spa stranica
+            </a>
+          )}
           <button className={styles.btnPrimary} onClick={() => navigate('/admin/spa/appointments')}>
             + Novi termin
           </button>
