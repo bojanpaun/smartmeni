@@ -176,7 +176,7 @@
   font-family: var(--c-font-display);
   font-size: 15px;
   font-weight: 700;
-  color: var(--c-surface);
+  color: rgba(255,255,255,0.9);
   text-decoration: none;
   letter-spacing: -0.01em;
   white-space: nowrap;
@@ -244,7 +244,7 @@
 .sbRoleName {
   font-size: 12px;
   font-weight: 500;
-  color: var(--c-surface);
+  color: rgba(255,255,255,0.9);
   white-space: nowrap;
   overflow: hidden;
   text-overflow: ellipsis;

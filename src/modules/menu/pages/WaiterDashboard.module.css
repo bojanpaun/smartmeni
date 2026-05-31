@@ -117,8 +117,8 @@
 .rejectBtn {
   padding: 10px 16px;
   border-radius: 10px;
-  border: 1.5px solid #e8d0d0;
-  background: #fff5f5;
+  border: 1.5px solid var(--c-danger-border);
+  background: var(--c-danger-bg);
   color: var(--c-danger);
   font-size: 13px;
   font-weight: 600;
@@ -127,7 +127,7 @@
   transition: background 0.15s;
   white-space: nowrap;
 }
-.rejectBtn:hover { background: var(--c-danger-bg); }
+.rejectBtn:hover { filter: brightness(0.95); }
 
 .quickResponses {
   display: flex; flex-wrap: wrap; gap: 6px; margin: 8px 0;
@@ -147,47 +147,48 @@
 .rejectMessages { display: flex; flex-wrap: wrap; gap: 5px; }
 .rejectMsgBtn {
   padding: 5px 9px; border-radius: 7px; font-size: 11px; font-weight: 500;
-  border: 1px solid #f0c0c0; background: #fff5f5; color: var(--c-danger);
-  cursor: pointer; font-family: inherit; transition: background 0.15s; text-align: left;
+  border: 1px solid var(--c-danger-border); background: var(--c-danger-bg); color: var(--c-danger);
+  cursor: pointer; font-family: inherit; transition: filter 0.15s; text-align: left;
 }
-.rejectMsgBtn:hover { background: var(--c-danger-bg); }
+.rejectMsgBtn:hover { filter: brightness(0.95); }
 
 /* ── Room charge ── */
 .roomChargeBtn {
   padding: 10px 14px; border-radius: 10px;
-  border: 1.5px solid #bcd4f0; background: #eff6ff;
-  color: #1e40af; font-size: 13px; font-weight: 500;
+  border: 1.5px solid var(--c-border-input); background: var(--c-primary-light);
+  color: var(--c-primary); font-size: 13px; font-weight: 500;
   cursor: pointer; font-family: inherit; white-space: nowrap;
   transition: background 0.15s;
 }
-.roomChargeBtn:hover { background: #dbeafe; }
+.roomChargeBtn:hover { background: var(--c-primary-muted); color: var(--c-surface); }
 
 .roomChargePanel {
   margin-top: 10px; padding: 10px 12px;
-  background: #eff6ff; border: 1.5px solid #bcd4f0; border-radius: 10px;
+  background: var(--c-primary-light); border: 1.5px solid var(--c-border-input); border-radius: 10px;
 }
-.roomChargePanelTitle { font-size: 12px; font-weight: 600; color: #1e40af; margin-bottom: 8px; }
+.roomChargePanelTitle { font-size: 12px; font-weight: 600; color: var(--c-primary); margin-bottom: 8px; }
 .roomChargeRow { display: flex; gap: 6px; align-items: center; }
 
 .roomChargeInput {
   flex: 1; padding: 8px 10px;
-  border: 1.5px solid #93c5fd; border-radius: 8px;
+  border: 1.5px solid var(--c-border-input); border-radius: 8px;
   font-size: 13px; font-family: inherit; outline: none; background: var(--c-surface);
 }
-.roomChargeInput:focus { border-color: #3b82f6; }
+.roomChargeInput:focus { border-color: var(--c-primary-medium); }
 
 .roomChargeConfirm {
-  padding: 8px 14px; background: #1d4ed8; color: var(--c-surface);
+  padding: 8px 14px; background: var(--c-primary); color: var(--c-surface);
   border: none; border-radius: 8px; font-size: 13px; font-weight: 600;
   cursor: pointer; font-family: inherit; white-space: nowrap;
 }
-.roomChargeConfirm:disabled { background: #93c5fd; cursor: not-allowed; }
+.roomChargeConfirm:hover { background: var(--c-primary-hover); }
+.roomChargeConfirm:disabled { background: var(--c-primary-muted); cursor: not-allowed; }
 
 .roomChargeCancel {
   padding: 8px 12px; background: transparent;
-  border: 1.5px solid #93c5fd; color: #1e40af;
+  border: 1.5px solid var(--c-border-input); color: var(--c-text-medium);
   border-radius: 8px; font-size: 13px; cursor: pointer; font-family: inherit;
 }
-.roomChargeCancel:hover { background: #dbeafe; }
+.roomChargeCancel:hover { background: var(--c-bg-subtle); }
 
-.roomChargeError { margin-top: 6px; font-size: 12px; color: #dc2626; }
+.roomChargeError { margin-top: 6px; font-size: 12px; color: var(--c-danger); }

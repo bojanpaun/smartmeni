@@ -1,4 +1,4 @@
-/* Light variant (default) */
+/* Light variant (default) — koristi CSS varijable, automatski se adaptira na dark mode */
 .langWrap {
   position: relative;
   display: inline-flex;
@@ -6,8 +6,8 @@
   gap: 5px;
   padding: 0 8px 0 9px;
   height: 30px;
-  background: rgba(14,26,20,0.06);
-  border: 1px solid rgba(14,26,20,0.1);
+  background: var(--c-bg-subtle);
+  border: 1px solid var(--c-border);
   border-radius: 8px;
   cursor: pointer;
   flex-shrink: 0;
@@ -15,8 +15,8 @@
 }
 
 .langWrap:hover {
-  background: rgba(14,26,20,0.1);
-  border-color: rgba(14,26,20,0.18);
+  background: var(--c-border);
+  border-color: var(--c-border-input);
 }
 
 .globe {
@@ -29,13 +29,13 @@
   font-size: 11px;
   font-weight: 700;
   letter-spacing: 0.05em;
-  color: rgba(14,26,20,0.65);
+  color: var(--c-text-medium);
   font-family: inherit;
 }
 
 .chevron {
   font-size: 9px;
-  color: rgba(14,26,20,0.35);
+  color: var(--c-text-muted);
   margin-left: 1px;
 }
 
@@ -50,7 +50,7 @@
   font-size: 16px; /* prevents iOS auto-zoom */
 }
 
-/* Dark variant — hub header, sidebar */
+/* Dark variant — hub header, sidebar, mobile drawer */
 .langWrapDark {
   background: rgba(255,255,255,0.1);
   border-color: rgba(255,255,255,0.12);
