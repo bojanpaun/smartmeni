@@ -25,9 +25,11 @@ function useKitchenCounts(restaurantId) {
         supabase.from('orders').select('id', { count: 'exact', head: true })
           .eq('restaurant_id', restaurantId).in('status', ['pending', 'received', 'ready']),
         supabase.from('orders').select('id', { count: 'exact', head: true })
-          .eq('restaurant_id', restaurantId).eq('kitchen_status', 'preparing'),
+          .eq('restaurant_id', restaurantId).eq('kitchen_status', 'preparing')
+          .not('status', 'in', '("served","closed")'),
         supabase.from('orders').select('id', { count: 'exact', head: true })
-          .eq('restaurant_id', restaurantId).eq('bar_status', 'preparing'),
+          .eq('restaurant_id', restaurantId).eq('bar_status', 'preparing')
+          .not('status', 'in', '("served","closed")'),
         supabase.from('waiter_requests').select('id', { count: 'exact', head: true })
           .eq('restaurant_id', restaurantId).eq('is_resolved', false),
       ])
