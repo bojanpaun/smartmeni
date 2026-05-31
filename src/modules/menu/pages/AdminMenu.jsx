@@ -231,6 +231,7 @@ export default function AdminMenu() {
                     onClick={() => setActiveCategory(cat.id)}
                   >
                     {cat.icon} {cat.name}
+                    {cat.is_bar && <span className={styles.barBadge}>Bar</span>}
                   </button>
                 ))}
                 <button className={styles.catTabAdd} onClick={addCategory}>+ Kategorija</button>
@@ -239,6 +240,24 @@ export default function AdminMenu() {
                 + Dodaj jelo
               </button>
             </div>
+            {activeCategory && (() => {
+              const cat = categories.find(c => c.id === activeCategory)
+              if (!cat) return null
+              const toggleBar = async () => {
+                const next = !cat.is_bar
+                await supabase.from('categories').update({ is_bar: next }).eq('id', cat.id)
+                setCategories(categories.map(c => c.id === cat.id ? { ...c, is_bar: next } : c))
+              }
+              return (
+                <div className={styles.catSettings}>
+                  <label className={styles.catToggleLabel}>
+                    <input type="checkbox" checked={!!cat.is_bar} onChange={toggleBar} />
+                    <span>🍷 Bar kategorija</span>
+                    <span className={styles.catToggleHint}>Stavke iz ove kategorije idu na Bar dashboard, ne u Kuhinju</span>
+                  </label>
+                </div>
+              )
+            })()}
 
             <div className={styles.card}>
               {filteredItems.length === 0 ? (

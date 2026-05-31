@@ -1,9 +1,27 @@
 ﻿.topbar {
   background: #1a2332; border-bottom: 1px solid rgba(255,255,255,0.08);
-  padding: 14px 20px;
+  padding: 0 20px;
   display: flex; align-items: center; justify-content: space-between;
+  min-height: 52px;
 }
 .topbarTitle { font-size: 16px; font-weight: 600; color: var(--c-surface); font-family: var(--c-font-display); }
+.topbarTabs { display: flex; gap: 2px; height: 52px; align-items: flex-end; }
+.topbarTab {
+  padding: 0 18px; height: 42px; border: none; background: transparent;
+  color: rgba(255,255,255,0.45); font-size: 13.5px; font-weight: 500;
+  cursor: pointer; border-radius: 10px 10px 0 0; font-family: var(--c-font-sans);
+  transition: background 0.15s, color 0.15s;
+}
+.topbarTab:hover { background: rgba(255,255,255,0.07); color: rgba(255,255,255,0.75); }
+.topbarTabActive {
+  background: #f0f2f5 !important; color: #1a2332 !important; font-weight: 700;
+}
+.topbarTabActiveBar {
+  background: #f0eefe !important; color: #534AB7 !important; font-weight: 700;
+}
+.topbarTabActiveDone {
+  background: #f0f2f5 !important; color: #1a2332 !important; font-weight: 700;
+}
 .liveBadge {
   display: flex; align-items: center; gap: 6px;
   font-size: 12px; color: var(--c-primary-medium);
@@ -35,6 +53,7 @@
   border-left: 4px solid #d0d8e4;
 }
 .ticketNew { border-left-color: var(--c-primary-medium); background: #f8fffe; }
+.ticketNewBar { border-left-color: #7c6af0; background: #f9f8ff; }
 .ticketUrgent { border-left-color: #E24B4A !important; background: #fff8f8 !important; }
 
 .ticketHeader {
@@ -78,6 +97,8 @@
 }
 .ticketBtnPrimary { background: #1a2332; color: var(--c-surface); }
 .ticketBtnPrimary:hover { background: #263347; }
+.ticketBtnBar { background: #534AB7; color: white; }
+.ticketBtnBar:hover { background: #4038a0; }
 .ticketBtnSuccess { background: var(--c-primary-medium); color: var(--c-surface); }
 .ticketBtnSuccess:hover { background: var(--c-primary); }
 .ticketReady {
