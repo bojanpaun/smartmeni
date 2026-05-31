@@ -1,6 +1,6 @@
 # SmartMeni → HospitalityOS — Produkt roadmap
 
-> **Verzija:** 2.2 *(dopunjeno — Faze Y.1, 3d–5d, 6–10 proširene; tehnički dug detaljizovan — 2026-05-30)*
+> **Verzija:** 2.3 *(dopunjeno — Faza 8.5 Spa & Wellness razrađena i korigovana — 2026-05-31)*
 > **Kontekst:** Evolucija SmartMeni SaaS platforme prema punom hospitality management sistemu
 > **Tim:** 1 developer + Claude Code AI asistent
 > **Branch:** `main` → direktno na produkciju (Vercel auto-deploy)
@@ -31,6 +31,7 @@ SmartMeni je **hospitality platforma** koja se sastoji od vertikalnih modula (re
     │ Waiter zahtjevi │   │ Folio sistem    │
     │ Restoran sajt   │   │ Housekeeping    │
     │                 │   │ Revenue mgmt    │
+    │                 │   │ Spa & Wellness  │
     │                 │   │ Hotel sajt      │
     └────────┬────────┘   └────────┬────────┘
              │                     │
@@ -94,7 +95,7 @@ Trenutno `restaurants` tabla služi kao primarni tenant identifikator. Hotel bez
 | `booking_engine` | Online booking sa javne stranice | ✅ UI radi, Stripe payment ⬜ |
 | `housekeeping` | Housekeeping dashboard i taskovi | ✅ UI implementiran |
 | `revenue_mgmt` | Dinamičke cijene, yield management, RevPAR | ✅ UI + metrics |
-| `spa_wellness` | Booking spa tretmana i kapaciteta | ⬜ Daleka faza |
+| `spa_wellness` | Booking spa tretmana, kapaciteta, terapeuti, folio integracija | ⬜ Faza 8.5 |
 
 ---
 
@@ -640,6 +641,506 @@ Proširiti postojeći `GuestAppPage` (`/:slug/guest`) sa:
 
 ---
 
+
+## ⬜ Faza 8.5 — Spa & Wellness modul (`spa_wellness`)
+
+> **Preduslov:** `hotel_core` aktivan. `booking_engine` i `housekeeping` preporučeni ali nisu strogi preduslov.
+> **Trajanje:** 8–10 sedmica
+> **Tim:** 2 developera
+> **Addon cijena:** ~199€/godišnje (hotel-specifični addon, nadgradnja Hotel verticale)
+
+Spa & Wellness modul pokriva kompletan životni ciklus spa objekta unutar hotela — od kataloga tretmana i booking sistema do operativnog dashboarda za spa menadžera i folio integracije sa hotelskim računom.
+
+---
+
+### 8.5.1 Baza podataka — nove tabele
+
+```sql
+-- Prostorije / kabine spa centra
+CREATE TABLE spa_rooms (
+  id UUID PRIMARY KEY DEFAULT gen_random_uuid(),
+  restaurant_id UUID REFERENCES restaurants(id) ON DELETE CASCADE,
+  name TEXT NOT NULL,                  -- 'Kabina 1', 'Sauna', 'Hammam', 'Bazen'
+  type TEXT NOT NULL,                  -- 'treatment_room' | 'wet_facility' | 'fitness' | 'group'
+  capacity INT DEFAULT 1,              -- 1 = solo, 2 = par, 10+ = grupni
+  description TEXT,
+  amenities JSONB DEFAULT '[]',       -- ['heated_table', 'music', 'shower']
+  is_active BOOLEAN DEFAULT true,
+  display_order INT DEFAULT 0,
+  created_at TIMESTAMPTZ DEFAULT now()
+);
+
+-- Katalog tretmana
+CREATE TABLE spa_services (
+  id UUID PRIMARY KEY DEFAULT gen_random_uuid(),
+  restaurant_id UUID REFERENCES restaurants(id) ON DELETE CASCADE,
+  name TEXT NOT NULL,                  -- 'Aromaterapijska masaža', 'Hot stone', 'Facial'
+  category TEXT NOT NULL,              -- 'massage' | 'facial' | 'body' | 'nail' | 'wellness' | 'group'
+  description TEXT,
+  duration_minutes INT NOT NULL,       -- 30, 60, 90, 120
+  buffer_minutes INT DEFAULT 15,       -- priprema kabine između tretmana
+  price NUMERIC(10,2) NOT NULL,
+  price_couple NUMERIC(10,2),          -- cijena za par tretman (opciono)
+  max_guests INT DEFAULT 1,
+  allowed_room_types TEXT[],           -- koji tip kabine može primiti ovaj tretman
+  image_url TEXT,
+  is_active BOOLEAN DEFAULT true,
+  requires_consultation BOOLEAN DEFAULT false,
+  created_at TIMESTAMPTZ DEFAULT now()
+);
+
+-- Terapeuti (proširenje na staff modul)
+CREATE TABLE spa_therapists (
+  id UUID PRIMARY KEY DEFAULT gen_random_uuid(),
+  staff_id UUID REFERENCES staff(id) ON DELETE CASCADE,
+  restaurant_id UUID REFERENCES restaurants(id) ON DELETE CASCADE,
+  bio TEXT,
+  specializations TEXT[],              -- ['deep_tissue', 'hot_stone', 'facial']
+  languages TEXT[] DEFAULT ARRAY['bs'],
+  rating NUMERIC(3,2),                 -- 0.00–5.00, automatski iz recenzija
+  is_available BOOLEAN DEFAULT true,
+  UNIQUE(staff_id, restaurant_id)
+);
+
+-- Veza: koji terapeut može raditi koji tretman
+CREATE TABLE spa_therapist_services (
+  therapist_id UUID REFERENCES spa_therapists(id) ON DELETE CASCADE,
+  service_id UUID REFERENCES spa_services(id) ON DELETE CASCADE,
+  PRIMARY KEY (therapist_id, service_id)
+);
+
+-- Sezonski cjenovnik (override na spa_services.price)
+CREATE TABLE spa_pricing_rules (
+  id UUID PRIMARY KEY DEFAULT gen_random_uuid(),
+  restaurant_id UUID REFERENCES restaurants(id),
+  service_id UUID REFERENCES spa_services(id),
+  label TEXT NOT NULL,                 -- 'Ljetna sezona', 'Vikend rate', 'Early bird'
+  price_override NUMERIC(10,2),
+  valid_from DATE NOT NULL,
+  valid_to DATE NOT NULL,
+  days_of_week INT[],                  -- [1,2,3,4,5] = pon-pet, [6,7] = vikend
+  is_active BOOLEAN DEFAULT true
+);
+
+-- Spa rezervacije (termini)
+CREATE TABLE spa_appointments (
+  id UUID PRIMARY KEY DEFAULT gen_random_uuid(),
+  restaurant_id UUID REFERENCES restaurants(id) ON DELETE CASCADE,
+  service_id UUID REFERENCES spa_services(id),
+  therapist_id UUID REFERENCES spa_therapists(id),
+  spa_room_id UUID REFERENCES spa_rooms(id),
+  guest_id UUID REFERENCES guests(id),
+  hotel_reservation_id UUID REFERENCES hotel_reservations(id), -- null za vanjske goste
+
+  -- Termin
+  appointment_date DATE NOT NULL,
+  start_time TIME NOT NULL,
+  end_time TIME NOT NULL,              -- start_time + duration + buffer
+  duration_minutes INT NOT NULL,
+
+  -- Gost podaci (za vanjske goste koji nisu u guests tabeli)
+  external_guest_name TEXT,
+  external_guest_phone TEXT,
+  external_guest_email TEXT,           -- potreban za email potvrdu vanjskim gostima
+
+  -- Finansije
+  price NUMERIC(10,2) NOT NULL,
+  payment_method TEXT,                 -- 'folio' | 'card' | 'cash'
+  payment_status TEXT DEFAULT 'pending', -- pending | paid | refunded | no_show
+
+  -- Status
+  status TEXT DEFAULT 'confirmed',    -- confirmed | checked_in | completed | cancelled | no_show
+  notes TEXT,                          -- interni notes terapeuta
+  guest_notes TEXT,                    -- posebni zahtjevi gosta
+
+  -- Cancellation
+  cancelled_at TIMESTAMPTZ,
+  cancellation_reason TEXT,
+
+  created_at TIMESTAMPTZ DEFAULT now(),
+  updated_at TIMESTAMPTZ DEFAULT now()
+);
+
+-- Podešavanja spa centra (radno vrijeme, politika otkazivanja)
+CREATE TABLE spa_settings (
+  id UUID PRIMARY KEY DEFAULT gen_random_uuid(),
+  restaurant_id UUID REFERENCES restaurants(id) ON DELETE CASCADE UNIQUE,
+  open_time TIME DEFAULT '09:00',
+  close_time TIME DEFAULT '20:00',
+  -- Radno vrijeme po danima (null = ne radi; 0=ned, 1=pon, ..., 6=sub)
+  working_days INT[] DEFAULT ARRAY[1,2,3,4,5,6],
+  min_advance_hours INT DEFAULT 2,     -- minimum X sati unaprijed za booking
+  cancellation_hours INT DEFAULT 24,   -- besplatno otkazivanje do X sati prije
+  reminder_hours INT DEFAULT 2,        -- email podsjetnik X sati prije termina
+  updated_at TIMESTAMPTZ DEFAULT now()
+);
+
+-- Spa inventar (potrošni materijal — ulja, kreme, čarape...)
+-- Koristi postojeću inventory_items tabelu sa category = 'spa'
+-- Dodati kolonu ako ne postoji:
+ALTER TABLE inventory_items ADD COLUMN IF NOT EXISTS
+  category TEXT DEFAULT 'general';
+
+-- Napomena: folio_items.type treba podržavati vrijednost 'spa'.
+-- Ako postoji CHECK constraint, dodati 'spa' u dozvoljene tipove migracijom:
+-- ALTER TABLE folio_items DROP CONSTRAINT IF EXISTS folio_items_type_check;
+-- (folio_items.type je TEXT bez constraint-a — nova vrijednost 'spa' radi bez izmjene)
+
+-- Retail spa proizvodi (prodaja gostima)
+CREATE TABLE spa_retail_items (
+  id UUID PRIMARY KEY DEFAULT gen_random_uuid(),
+  restaurant_id UUID REFERENCES restaurants(id),
+  name TEXT NOT NULL,                  -- 'Lavender massage oil 100ml'
+  brand TEXT,
+  price NUMERIC(10,2),
+  stock_quantity INT DEFAULT 0,
+  image_url TEXT,
+  is_active BOOLEAN DEFAULT true
+);
+
+-- Spa paketi (hotel soba + tretmani = paket cijena)
+CREATE TABLE spa_packages (
+  id UUID PRIMARY KEY DEFAULT gen_random_uuid(),
+  restaurant_id UUID REFERENCES restaurants(id),
+  name TEXT NOT NULL,                  -- 'Romantic getaway', 'Wellness weekend'
+  description TEXT,
+  includes JSONB NOT NULL,
+  -- [{type: 'room_type', id: '...', nights: 2},
+  --  {type: 'spa_service', id: '...', quantity: 2},
+  --  {type: 'meal', description: 'Breakfast included'}]
+  total_price NUMERIC(10,2),
+  valid_from DATE,
+  valid_to DATE,
+  is_active BOOLEAN DEFAULT true,
+  created_at TIMESTAMPTZ DEFAULT now()
+);
+```
+
+---
+
+### 8.5.2 Dostupnost — algoritam za spa termine
+
+Za razliku od soba (dostupnost po danima), spa termin je dostupan po vremenskim slotovima unutar dana.
+
+```sql
+-- PostgreSQL funkcija: slobodni termini za tretman na određeni dan
+CREATE OR REPLACE FUNCTION get_available_spa_slots(
+  p_restaurant_id UUID,
+  p_service_id UUID,
+  p_date DATE,
+  p_therapist_id UUID DEFAULT NULL  -- null = bilo koji dostupni terapeut
+)
+RETURNS TABLE (
+  slot_start TIME,
+  slot_end TIME,
+  therapist_id UUID,
+  therapist_name TEXT,
+  spa_room_id UUID,
+  room_name TEXT,
+  price NUMERIC
+) AS $$
+DECLARE
+  v_service spa_services%ROWTYPE;
+  v_duration INT;
+  v_buffer INT;
+  v_total_minutes INT;
+  v_open_time TIME := '09:00';    -- ovo će biti iz restaurant_settings
+  v_close_time TIME := '20:00';
+BEGIN
+  SELECT * INTO v_service FROM spa_services WHERE id = p_service_id;
+  -- Učitaj radno vrijeme iz spa_settings (fallback na 09:00-20:00)
+  SELECT COALESCE(ss.open_time,  '09:00'::TIME),
+         COALESCE(ss.close_time, '20:00'::TIME)
+  INTO v_open_time, v_close_time
+  FROM spa_settings ss
+  WHERE ss.restaurant_id = p_restaurant_id;
+
+  v_total_minutes := v_service.duration_minutes + v_service.buffer_minutes;
+
+  RETURN QUERY
+  WITH time_slots AS (
+    -- Generiše sve potencijalne slotove svakih 30 min
+    SELECT generate_series(
+      p_date + v_open_time,
+      p_date + v_close_time - (v_total_minutes || ' minutes')::INTERVAL,
+      '30 minutes'::INTERVAL
+    )::TIMESTAMPTZ AS slot_start
+  ),
+  available_therapists AS (
+    SELECT t.id AS therapist_id,
+           s.first_name || ' ' || s.last_name AS therapist_name
+    FROM spa_therapists t
+    JOIN staff s ON s.id = t.staff_id
+    JOIN spa_therapist_services ts ON ts.therapist_id = t.id
+    WHERE t.restaurant_id = p_restaurant_id
+    AND ts.service_id = p_service_id
+    AND t.is_available = true
+    AND (p_therapist_id IS NULL OR t.id = p_therapist_id)
+  ),
+  available_rooms AS (
+    SELECT r.id AS room_id, r.name AS room_name
+    FROM spa_rooms r
+    WHERE r.restaurant_id = p_restaurant_id
+    AND r.is_active = true
+    AND v_service.allowed_room_types @> ARRAY[r.type]
+  )
+  SELECT
+    ts.slot_start::TIME,
+    (ts.slot_start + (v_service.duration_minutes || ' minutes')::INTERVAL)::TIME,
+    at.therapist_id,
+    at.therapist_name,
+    ar.room_id,
+    ar.room_name,
+    COALESCE(
+      (SELECT price_override FROM spa_pricing_rules
+       WHERE service_id = p_service_id
+       AND p_date BETWEEN valid_from AND valid_to
+       AND is_active = true
+       AND (days_of_week IS NULL OR EXTRACT(DOW FROM p_date) = ANY(days_of_week))
+       LIMIT 1),
+      v_service.price
+    ) AS price
+  FROM time_slots ts
+  CROSS JOIN available_therapists at
+  CROSS JOIN available_rooms ar
+  WHERE NOT EXISTS (
+    -- Provjeri da terapeut nema drugi termin koji se preklapa (uz buffer)
+    SELECT 1 FROM spa_appointments a
+    WHERE a.therapist_id = at.therapist_id
+    AND a.appointment_date = p_date
+    AND a.status NOT IN ('cancelled', 'no_show')
+    AND (
+      ts.slot_start::TIME < a.end_time AND
+      (ts.slot_start + (v_total_minutes || ' minutes')::INTERVAL)::TIME > a.start_time
+    )
+  )
+  AND NOT EXISTS (
+    -- Provjeri da kabina nije zauzeta
+    SELECT 1 FROM spa_appointments a
+    WHERE a.spa_room_id = ar.room_id
+    AND a.appointment_date = p_date
+    AND a.status NOT IN ('cancelled', 'no_show')
+    AND (
+      ts.slot_start::TIME < a.end_time AND
+      (ts.slot_start + (v_total_minutes || ' minutes')::INTERVAL)::TIME > a.start_time
+    )
+  )
+  ORDER BY ts.slot_start, at.therapist_name;
+END;
+$$ LANGUAGE plpgsql;
+```
+
+---
+
+### 8.5.3 DB trigger — automatski folio item
+
+Kada se spa termin potvrdi sa `payment_method = 'folio'`, automatski se dodaje stavka na hotelski folio:
+
+```sql
+CREATE OR REPLACE FUNCTION create_spa_folio_item()
+RETURNS TRIGGER AS $$
+BEGIN
+  IF NEW.payment_method = 'folio'
+     AND NEW.hotel_reservation_id IS NOT NULL
+     AND NEW.status = 'confirmed'
+     AND (OLD.status IS DISTINCT FROM 'confirmed' OR TG_OP = 'INSERT') THEN
+
+    INSERT INTO folio_items (
+      folio_id, type, description, quantity, unit_price, total_price, date
+    )
+    SELECT
+      f.id,
+      'spa',
+      (SELECT name FROM spa_services WHERE id = NEW.service_id),
+      1,
+      NEW.price,
+      NEW.price,
+      NEW.appointment_date
+    FROM folios f
+    WHERE f.reservation_id = NEW.hotel_reservation_id
+    AND f.status = 'open'
+    LIMIT 1;
+  END IF;
+  RETURN NEW;
+END;
+$$ LANGUAGE plpgsql;
+
+CREATE TRIGGER trigger_spa_folio
+AFTER INSERT OR UPDATE ON spa_appointments
+FOR EACH ROW EXECUTE FUNCTION create_spa_folio_item();
+```
+
+---
+
+### 8.5.4 Frontend struktura
+
+**Admin rute** (sve pod `/admin/hotel/spa/...` jer preduslov je `hotel_core`):
+
+| Ruta | Stranica |
+|------|---------|
+| `/admin/hotel/spa` | SpaDashboard |
+| `/admin/hotel/spa/calendar` | SpaCalendarPage |
+| `/admin/hotel/spa/appointments` | AppointmentsPage |
+| `/admin/hotel/spa/services` | ServicesPage |
+| `/admin/hotel/spa/therapists` | TherapistsPage |
+| `/admin/hotel/spa/rooms` | SpaRoomsPage |
+| `/admin/hotel/spa/packages` | PackagesPage |
+| `/admin/hotel/spa/analytics` | SpaAnalyticsPage |
+| `/admin/hotel/spa/settings` | SpaSettingsPage |
+
+```
+src/modules/spa/
+├── pages/
+│   ├── SpaDashboard.jsx          -- Dnevni pregled: termini, prihod, utilization
+│   ├── SpaCalendarPage.jsx       -- Gantt po terapeutima i kabinama (dnevni/sedmični)
+│   ├── AppointmentsPage.jsx      -- Lista svih termina sa filterima
+│   ├── AppointmentDetail.jsx     -- Detalji termina, notes, folio status
+│   ├── ServicesPage.jsx          -- Upravljanje katalogom tretmana
+│   ├── TherapistsPage.jsx        -- Profili terapeuta, specijalizacije, raspored
+│   ├── SpaRoomsPage.jsx          -- Upravljanje kabinama
+│   ├── PackagesPage.jsx          -- Kreiranje i upravljanje spa paketima
+│   ├── SpaAnalyticsPage.jsx      -- Revenue per treatment, utilization rate
+│   └── SpaSettingsPage.jsx       -- Radno vrijeme, buffer, politika otkazivanja
+├── components/
+│   ├── AppointmentCard.jsx       -- Kartica termina u kalendaru
+│   ├── TherapistSchedule.jsx     -- Raspored jednog terapeuta (dnevni view)
+│   ├── ServiceCard.jsx           -- Kartica tretmana sa slikom i cijenom
+│   ├── SlotPicker.jsx            -- UI za odabir slobodnog termina
+│   └── SpaKPIWidgets.jsx         -- Revenue, bookings today, utilization
+└── hooks/
+    ├── useSpaAvailability.js     -- Poziva get_available_spa_slots()
+    ├── useSpaAppointments.js     -- CRUD za termine
+    └── useSpaAnalytics.js        -- Revenue i utilization metrike
+```
+
+---
+
+### 8.5.5 Javni booking widget (gosti)
+
+Dostupan na `/:slug/spa` za direktno bookiranje tretmana:
+
+```
+Tok za hotelskog gosta (iz Guest App, login putem rezervacijskog koda):
+1. Pregled kataloga tretmana (slike, opis, trajanje, cijena)
+2. Odabir tretmana
+3. Odabir terapeuta (opciono — "bez preference" je opcija)
+4. Odabir datuma i slobodnog termina (get_available_spa_slots())
+5. Potvrda + odabir načina plaćanja (folio ili kartica)
+6. Email potvrda → folio item automatski kreira DB trigger
+7. Podsjetnik email X sati prije (iz spa_settings.reminder_hours)
+
+Tok za vanjskog gosta (spa day visitor, bez hotel rezervacije):
+1. Isti tok odabira tretmana / terapeuta / termina
+2. Unos kontakt podataka (ime, telefon, email → external_guest_*)
+3. Plaćanje karticom (Stripe Payment Intent)
+4. Email potvrda na external_guest_email
+5. Podsjetnik email X sati prije termina
+```
+
+**Booking flow za spa pakete (`spa_packages`):**
+Paketi se kreiraju u admin panelu (`PackagesPage`). Gost ih može bookirati na `/:slug/spa` na posebnoj kartici "Paketi". Odabirom paketa koji uključuje smještaj, sistem preusmjerava na standardni hotel booking flow (`/:slug/book`) sa pre-odabranim tipom sobe, a tretmani se automatski dodaju kao spa termini uz rezervaciju. Paketi bez smještaja direktno otvaraju spa booking flow za sve uključene tretmane.
+
+**Email podsjetnik — implementacija:**
+Edge Function `send-spa-reminder` poziva se pg_cron jobom svakih 15 minuta:
+```sql
+SELECT cron.schedule('spa-reminders', '*/15 * * * *',
+  $$SELECT net.http_post(url := current_setting('app.supabase_url') || '/functions/v1/send-spa-reminder',
+    headers := '{"Authorization": "Bearer " || current_setting("app.service_key")}',
+    body := '{}') $$
+);
+```
+Funkcija traži termine čiji je `start_time` za `reminder_hours` sati od sada (±15 min tolerancija), i šalje HTML email sa detaljima termina.
+
+---
+
+### 8.5.6 Operativni dashboard — Spa menadžer
+
+Spa Calendar prikazuje Gantt po terapeutima — svaki red je terapeut, kolone su vremenski slotovi:
+
+```
+          | 09:00 | 09:30 | 10:00 | 10:30 | 11:00 | 11:30 | 12:00 |
+----------|-------|-------|-------|-------|-------|-------|-------|
+Ana K.    | [==Aromaterapija 60min==]  |  [prep] | [===Hot Stone===]
+Marko P.  |       | [=Facial 45min=]          |       | [==Deep tissue==]
+Kabina 3  | [==============Hammam (par)================]  |
+```
+
+**Ključne metrike na dashboard-u:**
+- Termini danas: potvrđeni / završeni / no-show
+- Prihod danas (folio + direktno)
+- Utilization rate: % popunjenosti rasporeda terapeuta
+- Upcoming termini — sljedećih 2 sata
+
+---
+
+### 8.5.7 Analitika
+
+```sql
+-- View za spa analitiku
+CREATE OR REPLACE VIEW spa_analytics AS
+SELECT
+  a.restaurant_id,
+  DATE_TRUNC('month', a.appointment_date) AS month,
+  COUNT(*) AS total_appointments,
+  COUNT(CASE WHEN a.status = 'completed' THEN 1 END) AS completed,
+  COUNT(CASE WHEN a.status = 'no_show' THEN 1 END) AS no_shows,
+  SUM(CASE WHEN a.status = 'completed' THEN a.price ELSE 0 END) AS revenue,
+  AVG(CASE WHEN a.status = 'completed' THEN a.price END) AS avg_revenue_per_treatment,
+  COUNT(CASE WHEN a.hotel_reservation_id IS NOT NULL THEN 1 END) AS hotel_guests,
+  COUNT(CASE WHEN a.hotel_reservation_id IS NULL THEN 1 END) AS external_guests,
+  -- Utilization = zauzeti minuti / (radni sati * broj terapeuta * radni dani)
+  SUM(CASE WHEN a.status = 'completed' THEN a.duration_minutes ELSE 0 END) AS total_treatment_minutes,
+  s.name AS service_name
+FROM spa_appointments a
+JOIN spa_services s ON s.id = a.service_id
+GROUP BY a.restaurant_id, DATE_TRUNC('month', a.appointment_date), s.name;
+```
+
+**Izvještaji dostupni spa menadžeru:**
+- Revenue po tretmanu (koji tretman donosi najviše prihoda)
+- Utilization rate po terapeutu (ko je najpopularniji)
+- No-show stopa i trend (za optimizaciju politike otkazivanja)
+- Hotel gosti vs. vanjski gosti — omjer
+- Najpopularniji termini (peak hours)
+- Export u PDF/Excel
+
+---
+
+### 8.5.8 Integracije sa postojećim modulima
+
+| Modul | Integracija |
+|-------|-------------|
+| `hotel_core` / Folio | Spa tretman → automatski folio item via DB trigger |
+| `booking_engine` | Spa booking dostupan na hotelskoj landing stranici |
+| `inventory_pro` | Spa potrošni materijal (ulja, kreme) prati se kroz inventory |
+| `hr_pro` | Terapeuti su u staff tabeli — rasporedi, prisustvo, payroll |
+| `housekeeping` | Kabina nakon tretmana → automatski housekeeping task (čišćenje) |
+| `loyalty` | Spa tretman donosi loyalty bodove hotelskim gostima |
+| `guest_app` | Gost booira tretman direktno iz Guest App na telefonu |
+| `analytics_pro` | Spa metrike integrisane u opći revenue dashboard hotela |
+
+---
+
+### Definition of Done — Faza 8.5
+
+- [ ] `spa_rooms`, `spa_services`, `spa_therapists`, `spa_appointments` tabele kreirane sa RLS
+- [ ] `spa_therapist_services` veza radi (terapeut → tretmani koje može raditi)
+- [ ] `get_available_spa_slots()` PostgreSQL funkcija vraća ispravne slobodne termine
+- [ ] Buffer vrijeme između termina se pravilno računa (terapeut i kabina)
+- [ ] DB trigger automatski kreira folio item za hotel goste
+- [ ] Spa Calendar (Gantt) prikazuje dnevni/sedmični raspored po terapeutima
+- [ ] Javna booking stranica radi na `/:slug/spa`
+- [ ] Booking flow za hotelskog gosta (folio plaćanje) radi end-to-end
+- [ ] Booking flow za vanjskog gosta (Stripe plaćanje) radi end-to-end
+- [ ] Email potvrda i podsjetnik se šalju automatski
+- [ ] No-show tracking — terapeut može označiti no-show
+- [ ] Spa paket (room + tretmani) se može kreirati i bookirati
+- [ ] Spa analitika prikazuje utilization rate i revenue per treatment
+- [ ] `inventory_pro` integracija — spa materijal se oduzima po završenom tretmanu (opciono)
+- [ ] RLS: spa podaci jednog hotela nisu vidljivi drugom
+
+---
+
 ## ⬜ Faza 9 — Portfolio Owner Dashboard (`portfolio_owner`, `multi_property`)
 
 > **Preduslov:** `multi_property` addon aktivan, minimum 2 objekta na platformi.
@@ -908,6 +1409,16 @@ RLS politike se proširuju da provjeravaju `portfolio_access.scope` — regional
 | 8 | loyalty_programs + loyalty_accounts tabele | ⬜ | |
 | 8 | Loyalty earn/redeem logika | ⬜ | |
 | 8 | GuestApp — loyalty prikaz i redemption | ⬜ | |
+| 8.5 | spa_rooms + spa_services + spa_therapists tabele | ⬜ | |
+| 8.5 | spa_appointments tabela sa RLS | ⬜ | |
+| 8.5 | get_available_spa_slots() PostgreSQL funkcija | ⬜ | |
+| 8.5 | DB trigger → folio item za hotel goste | ⬜ | |
+| 8.5 | Spa Calendar Gantt (terapeuti × vremenski slotovi) | ⬜ | |
+| 8.5 | Javna booking stranica /:slug/spa | ⬜ | |
+| 8.5 | Booking flow hotelski gost (folio plaćanje) | ⬜ | |
+| 8.5 | Booking flow vanjski gost (Stripe plaćanje) | ⬜ | |
+| 8.5 | Email potvrda i podsjetnik 2h prije termina | ⬜ | |
+| 8.5 | Spa analitika (utilization rate, revenue per treatment) | ⬜ | |
 | 9 | portfolios + brands + property_groups tabele | ⬜ | |
 | 9 | portfolio_kpis materialized view + cron | ⬜ | |
 | 9 | Portfolio dashboard UI | ⬜ | |
@@ -961,7 +1472,14 @@ RLS politike se proširuju da provjeravaju `portfolio_access.scope` — regional
 │
 ├── Q2         ⬜ Faza 8  — Loyalty program + Guest App addon
 │
-├── Q3         ⬜ Faza 9  — Portfolio Owner Dashboard
+├── Q2–Q3      ⬜ Faza 8.5 — Spa & Wellness modul
+│                            8.5.A: DB shema + get_available_spa_slots() + folio trigger
+│                            8.5.B: Admin UI (Services, Therapists, Rooms, Settings)
+│                            8.5.C: Spa Calendar (Gantt terapeuti × slotovi)
+│                            8.5.D: Javna booking stranica /:slug/spa + email podsjetnik
+│                            8.5.E: Analitika + paketi
+│
+├── Q3–Q4      ⬜ Faza 9  — Portfolio Owner Dashboard
 │                            portfolios tabele, KPI aggregacija, alert sistem
 │
 └── Q4         ⬜ Faza 10 — Brand & Regional Management
@@ -974,4 +1492,4 @@ RLS politike se proširuju da provjeravaju `portfolio_access.scope` — regional
 
 ---
 
-*Roadmap ažuriran: 2026-05-30 (v2.2 — Faze Y.1, 3d–5d, 6–10 proširene; tehnički dug detaljizovan) | Branch: main | Deployment: Vercel auto-deploy*
+*Roadmap ažuriran: 2026-05-31 (v2.3 — Faza 8.5 Spa & Wellness korigovana i dopunjena: bug fix full_name→first/last_name, external_guest_email, languages array sintaksa, spa_settings tabela, admin rute, spa packages booking flow, email reminder implementacija, dijagram i timeline) | Branch: main | Deployment: Vercel auto-deploy*
