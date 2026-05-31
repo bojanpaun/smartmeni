@@ -1,0 +1,209 @@
+/* Shared styles for all Spa admin pages */
+
+/* ── KPI strip ── */
+.kpiGrid {
+  display: grid;
+  grid-template-columns: repeat(4, 1fr);
+  gap: 14px;
+  margin-bottom: 24px;
+}
+@media (max-width: 900px) { .kpiGrid { grid-template-columns: repeat(2, 1fr); } }
+@media (max-width: 520px) { .kpiGrid { grid-template-columns: 1fr 1fr; } }
+
+.kpiCard {
+  background: var(--c-surface);
+  border: 1px solid var(--c-border);
+  border-radius: 12px;
+  padding: 18px 20px;
+}
+.kpiLabel { font-size: 11px; text-transform: uppercase; letter-spacing: .05em; color: var(--c-text-muted); margin-bottom: 6px; }
+.kpiVal   { font-size: 26px; font-weight: 700; color: var(--c-text); line-height: 1.1; }
+.kpiSub   { font-size: 11px; color: var(--c-text-muted); margin-top: 4px; }
+
+/* ── Cards grid ── */
+.cardGrid {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(280px, 1fr));
+  gap: 16px;
+}
+
+.card {
+  background: var(--c-surface);
+  border: 1px solid var(--c-border);
+  border-radius: 14px;
+  overflow: hidden;
+  transition: box-shadow 0.15s;
+}
+.card:hover { box-shadow: 0 4px 16px rgba(0,0,0,.08); }
+
+.cardImg {
+  width: 100%;
+  height: 140px;
+  object-fit: cover;
+  display: block;
+  background: var(--c-bg);
+}
+.cardImgPlaceholder {
+  width: 100%;
+  height: 140px;
+  background: var(--c-bg-subtle);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 40px;
+}
+
+.cardBody { padding: 16px; }
+.cardTitle { font-size: 15px; font-weight: 600; color: var(--c-text); margin-bottom: 4px; }
+.cardMeta  { font-size: 12px; color: var(--c-text-muted); margin-bottom: 10px; display: flex; gap: 10px; flex-wrap: wrap; }
+.cardPrice { font-size: 16px; font-weight: 700; color: var(--c-primary); }
+.cardDuration { font-size: 12px; color: var(--c-text-muted); }
+
+.cardActions { display: flex; gap: 8px; margin-top: 12px; }
+
+/* ── Badges ── */
+.badge {
+  display: inline-flex;
+  align-items: center;
+  gap: 4px;
+  padding: 3px 10px;
+  border-radius: 20px;
+  font-size: 11px;
+  font-weight: 600;
+}
+.badgeActive   { background: #d1fae5; color: #065f46; }
+.badgeInactive { background: #f3f4f6; color: #6b7280; }
+.badgeMassage  { background: #ede9fe; color: #6d28d9; }
+.badgeFacial   { background: #fce7f3; color: #9d174d; }
+.badgeBody     { background: #dbeafe; color: #1e40af; }
+.badgeWellness { background: #d1fae5; color: #065f46; }
+.badgeGroup    { background: #fef3c7; color: #92400e; }
+.badgeNail     { background: #fce7f3; color: #9d174d; }
+
+/* ── Form panel ── */
+.formPanel {
+  background: var(--c-bg-subtle);
+  border: 1.5px solid var(--c-primary-muted);
+  border-radius: 14px;
+  padding: 22px 24px;
+  margin-bottom: 24px;
+}
+.formPanelHeader {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 18px;
+}
+.formPanelTitle { font-size: 15px; font-weight: 600; color: var(--c-text); }
+.formPanelClose {
+  background: var(--c-bg);
+  border: 1px solid var(--c-border);
+  border-radius: 50%;
+  width: 28px; height: 28px;
+  cursor: pointer; font-size: 13px;
+  color: var(--c-text-muted);
+}
+
+.formGrid {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 14px;
+  margin-bottom: 16px;
+}
+@media (max-width: 640px) { .formGrid { grid-template-columns: 1fr; } }
+
+.formField { display: flex; flex-direction: column; gap: 5px; }
+.formLabel { font-size: 12px; font-weight: 500; color: var(--c-text-medium); }
+.formInput, .formSelect, .formTextarea {
+  padding: 9px 12px;
+  border: 1px solid var(--c-border-input);
+  border-radius: 9px;
+  font-size: 13px;
+  font-family: var(--c-font-sans);
+  outline: none;
+  background: var(--c-surface);
+  color: var(--c-text);
+  box-sizing: border-box;
+  width: 100%;
+  transition: border-color 0.15s;
+}
+.formInput:focus, .formSelect:focus, .formTextarea:focus {
+  border-color: var(--c-primary-medium);
+}
+.formTextarea { resize: vertical; min-height: 80px; line-height: 1.5; }
+.formActions  { display: flex; gap: 10px; justify-content: flex-end; }
+
+/* ── Table ── */
+.table {
+  width: 100%;
+  border-collapse: collapse;
+  font-size: 13px;
+}
+.table th {
+  background: var(--c-bg);
+  font-size: 11px;
+  font-weight: 600;
+  text-transform: uppercase;
+  letter-spacing: .04em;
+  color: var(--c-text-muted);
+  padding: 10px 14px;
+  text-align: left;
+  border-bottom: 1px solid var(--c-border);
+}
+.table td {
+  padding: 12px 14px;
+  border-bottom: 1px solid var(--c-border-subtle, #f3f4f6);
+  color: var(--c-text);
+  vertical-align: middle;
+}
+.table tr:last-child td { border-bottom: none; }
+.table tr:hover td { background: var(--c-hover); }
+
+/* ── Toggle switch ── */
+.toggle {
+  position: relative;
+  display: inline-block;
+  width: 38px;
+  height: 22px;
+  flex-shrink: 0;
+}
+.toggle input { opacity: 0; width: 0; height: 0; }
+.toggleSlider {
+  position: absolute;
+  cursor: pointer;
+  top: 0; left: 0; right: 0; bottom: 0;
+  background: #d1d5db;
+  border-radius: 22px;
+  transition: background 0.2s;
+}
+.toggleSlider::before {
+  content: '';
+  position: absolute;
+  width: 16px; height: 16px;
+  left: 3px; bottom: 3px;
+  background: white;
+  border-radius: 50%;
+  transition: transform 0.2s;
+}
+.toggle input:checked + .toggleSlider { background: var(--c-primary); }
+.toggle input:checked + .toggleSlider::before { transform: translateX(16px); }
+
+/* ── Empty state ── */
+.empty {
+  text-align: center;
+  padding: 60px 24px;
+  color: var(--c-text-muted);
+  font-size: 14px;
+}
+.emptyIcon { font-size: 44px; margin-bottom: 12px; }
+
+/* ── Chips (specijalizacije, jezici) ── */
+.chipWrap { display: flex; flex-wrap: wrap; gap: 6px; margin-top: 4px; }
+.chip {
+  padding: 3px 10px;
+  background: var(--c-primary-light);
+  color: var(--c-primary);
+  border-radius: 20px;
+  font-size: 11px;
+  font-weight: 600;
+}

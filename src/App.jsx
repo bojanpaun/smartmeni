@@ -61,6 +61,12 @@ const HotelLandingPage     = lazy(() => import('./modules/hotel/pages/HotelLandi
 const HotelLandingEditor   = lazy(() => import('./modules/hotel/pages/HotelLandingEditor'))
 const RoomFormPage         = lazy(() => import('./modules/hotel/pages/RoomFormPage'))
 const RestaurantLandingPage = lazy(() => import('./modules/menu/pages/RestaurantLandingPage'))
+
+const SpaDashboard         = lazy(() => import('./modules/spa/pages/SpaDashboard'))
+const SpaServicesPage      = lazy(() => import('./modules/spa/pages/ServicesPage'))
+const SpaTherapistsPage    = lazy(() => import('./modules/spa/pages/TherapistsPage'))
+const SpaRoomsPage         = lazy(() => import('./modules/spa/pages/SpaRoomsPage'))
+const SpaSettingsPage      = lazy(() => import('./modules/spa/pages/SpaSettingsPage'))
 const RestaurantLandingEditor = lazy(() => import('./modules/menu/pages/RestaurantLandingEditor'))
 
 const ControlPanel         = lazy(() => import('./platform/admin/ControlPanel'))
@@ -197,6 +203,13 @@ function AppRoutes() {
         <Route path="/admin/hotel/revenue" element={<AdminRoute><AddonGuard addonId="hotel_core" name="Hotel Core" description="Upravljanje sobama, rezervacijama, front desk i folio sistemom." price={299} category="hotel"><RevenueManagementPage /></AddonGuard></AdminRoute>} />
         <Route path="/admin/hotel/landing" element={<AdminRoute><AddonGuard addonId="hotel_core" name="Hotel Core" description="Upravljanje sobama, rezervacijama, front desk i folio sistemom." price={299} category="hotel"><HotelLandingEditor /></AddonGuard></AdminRoute>} />
         <Route path="/admin/hotel/help" element={<AdminRoute><ModuleHelp moduleKey="hotel" /></AdminRoute>} />
+
+        {/* Spa & Wellness modul */}
+        <Route path="/admin/hotel/spa" element={<AdminRoute><AddonGuard addonId="spa_wellness" name="Spa & Wellness" description="Upravljanje spa tretmanima, terapeutima, kalendarom i booking sistemom." price={199} category="hotel"><SpaDashboard /></AddonGuard></AdminRoute>} />
+        <Route path="/admin/hotel/spa/services" element={<AdminRoute><AddonGuard addonId="spa_wellness" name="Spa & Wellness" description="Upravljanje spa tretmanima, terapeutima, kalendarom i booking sistemom." price={199} category="hotel"><SpaServicesPage /></AddonGuard></AdminRoute>} />
+        <Route path="/admin/hotel/spa/therapists" element={<AdminRoute><AddonGuard addonId="spa_wellness" name="Spa & Wellness" description="Upravljanje spa tretmanima, terapeutima, kalendarom i booking sistemom." price={199} category="hotel"><SpaTherapistsPage /></AddonGuard></AdminRoute>} />
+        <Route path="/admin/hotel/spa/rooms" element={<AdminRoute><AddonGuard addonId="spa_wellness" name="Spa & Wellness" description="Upravljanje spa tretmanima, terapeutima, kalendarom i booking sistemom." price={199} category="hotel"><SpaRoomsPage /></AddonGuard></AdminRoute>} />
+        <Route path="/admin/hotel/spa/settings" element={<AdminRoute><AddonGuard addonId="spa_wellness" name="Spa & Wellness" description="Upravljanje spa tretmanima, terapeutima, kalendarom i booking sistemom." price={199} category="hotel"><SpaSettingsPage /></AddonGuard></AdminRoute>} />
         <Route path="/admin/hotel/reservations/:id/folio/print" element={<ProtectedRoute><Suspense fallback={<LoadingSpinner fullPage />}><FolioPrint /></Suspense></ProtectedRoute>} />
 
         {/* Analitika modul */}
