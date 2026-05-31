@@ -48,6 +48,7 @@ function VisibilityControl({ value, onChange, label, icon, desc }) {
 export default function GeneralSettings() {
   const { restaurant, setRestaurant, hasAddon } = usePlatform()
   const hasHotel = hasAddon('hotel_core')
+  const hasSpa = hasAddon('spa_wellness')
   const [form, setForm] = useState(null)
   const [saving, setSaving] = useState(false)
   const [saved, setSaved] = useState(false)
@@ -68,6 +69,7 @@ export default function GeneralSettings() {
         reservation_visibility: restaurant.reservation_visibility || 'all',
         registration_visibility: restaurant.registration_visibility || 'all',
         hotel_visibility: restaurant.hotel_visibility || 'off',
+        spa_visibility: restaurant.spa_visibility || 'off',
       })
 
     }
@@ -119,6 +121,10 @@ export default function GeneralSettings() {
       {hasHotel && (
         <VisibilityControl icon="🏨" label="Hotel — info i smještaj" desc="Ko vidi link prema hotelskoj stranici u meniju"
           value={form.hotel_visibility} onChange={val => toggleField('hotel_visibility', val)} />
+      )}
+      {hasSpa && (
+        <VisibilityControl icon="✨" label="Spa & Wellness" desc="Ko vidi link prema spa booking stranici u meniju"
+          value={form.spa_visibility} onChange={val => toggleField('spa_visibility', val)} />
       )}
 
       {/* PODACI RESTORANA */}
