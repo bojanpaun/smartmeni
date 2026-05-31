@@ -24,29 +24,35 @@ function useKitchenCounts(restaurantId) {
       }
       const barIds = barIdsRef.current
 
-      const { data: orders } = await supabase.from('orders')
-        .select('id, status, order_items(category_id)')
-        .eq('restaurant_id', restaurantId)
-        .in('status', ['pending', 'received', 'preparing', 'ready'])
+      const [{ data: orders }, { count: waiterReqCount }] = await Promise.all([
+        supabase.from('orders')
+          .select('id, status, order_items(category_id)')
+          .eq('restaurant_id', restaurantId)
+          .in('status', ['pending', 'received', 'preparing', 'ready']),
+        supabase.from('waiter_requests')
+          .select('id', { count: 'exact', head: true })
+          .eq('restaurant_id', restaurantId)
+          .eq('is_resolved', false),
+      ])
 
       let waiter = 0, kitchen = 0, bar = 0
       for (const o of orders || []) {
         const items = o.order_items || []
-        if (o.status === 'pending' || o.status === 'received' || o.status === 'ready') {
-          waiter++
-        }
+        if (o.status === 'pending' || o.status === 'received' || o.status === 'ready') waiter++
         if (o.status === 'preparing') {
           if (items.some(i => !barIds.has(i.category_id))) kitchen++
           if (items.some(i =>  barIds.has(i.category_id))) bar++
         }
       }
-      setCounts({ waiter, kitchen, bar })
+      setCounts({ waiter, waiterReq: waiterReqCount || 0, kitchen, bar })
     }
 
     loadCounts()
 
     const ch = supabase.channel(`kc-${restaurantId}`)
       .on('postgres_changes', { event: '*', schema: 'public', table: 'orders',
+        filter: `restaurant_id=eq.${restaurantId}` }, loadCounts)
+      .on('postgres_changes', { event: '*', schema: 'public', table: 'waiter_requests',
         filter: `restaurant_id=eq.${restaurantId}` }, loadCounts)
       .subscribe()
 
@@ -279,10 +285,10 @@ export default function AdminLayout({ children }) {
   const { restaurant, logout, isOwner, isSuperAdmin, hasPermission, hasAddon } = usePlatform()
   const kitchenCounts = useKitchenCounts(restaurant?.id)
   const badges = {
-    '/admin/orders':  kitchenCounts.waiter  || 0,
-    '/admin/waiter':  kitchenCounts.waiter  || 0,
-    '/admin/kitchen': kitchenCounts.kitchen || 0,
-    '/admin/bar':     kitchenCounts.bar     || 0,
+    '/admin/orders':  kitchenCounts.waiter    || 0,
+    '/admin/waiter':  kitchenCounts.waiterReq || 0,
+    '/admin/kitchen': kitchenCounts.kitchen   || 0,
+    '/admin/bar':     kitchenCounts.bar       || 0,
   }
   const location = useLocation()
   const navigate = useNavigate()
