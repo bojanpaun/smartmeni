@@ -262,7 +262,14 @@ export default function WaiterDashboard() {
                 </div>
 
                 <div className={styles.orderActions}>
-                  {NEXT_STATUS[order.status] && (
+                  {order.status === 'preparing' && (order.kitchen_status || order.bar_status) ? (
+                    <div className={styles.preparingInfo}>
+                      {order.kitchen_status === 'preparing' && <span>🧑‍🍳 Kuhinja priprema</span>}
+                      {order.bar_status     === 'preparing' && <span>🍷 Bar priprema</span>}
+                      {order.kitchen_status === 'ready'     && <span className={styles.stationDone}>🧑‍🍳 Kuhinja gotova</span>}
+                      {order.bar_status     === 'ready'     && <span className={styles.stationDone}>🍷 Bar gotov</span>}
+                    </div>
+                  ) : NEXT_STATUS[order.status] && (
                     <button
                       className={styles.actionBtn}
                       style={{ background: restaurant?.color || '#0d7a52' }}
