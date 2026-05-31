@@ -56,7 +56,7 @@ export default function AppointmentsPage() {
         start_time, end_time, payment_method, payment_status,
         external_guest_name, external_guest_email, notes,
         spa_services(name, category, duration_minutes),
-        spa_therapists(id, staff(first_name, last_name)),
+        spa_therapists(id, staff!staff_id(first_name, last_name)),
         spa_rooms(id, name)
       `)
       .eq('restaurant_id', restaurant.id)

@@ -14,7 +14,7 @@ export function useSpaAnalytics(restaurantId, fromDate, toDate) {
         id, status, price, duration_minutes, appointment_date, start_time,
         hotel_reservation_id, payment_method,
         spa_services(name, category),
-        spa_therapists(id, staff(first_name, last_name))
+        spa_therapists(id, staff!staff_id(first_name, last_name))
       `)
       .eq('restaurant_id', restaurantId)
       .gte('appointment_date', fromDate)

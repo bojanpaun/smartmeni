@@ -81,7 +81,6 @@ export default function Menu() {
   const [waiterResolved, setWaiterResolved] = useState(false)
   const [waiterResponse, setWaiterResponse] = useState(null)
   const [realData, setRealData] = useState(null)
-  const [hasSpa, setHasSpa] = useState(false)
   const [loadingData, setLoadingData] = useState(true)
   const [cart, setCart] = useState(() => {
     try {
@@ -158,13 +157,11 @@ export default function Menu() {
       const { data: rest } = await supabase
         .from('restaurants').select('*').eq('slug', slug).single()
       if (!rest) { setLoadingData(false); return }
-      const [{ data: cats }, { data: its }, { count: spaCount }] = await Promise.all([
+      const [{ data: cats }, { data: its }] = await Promise.all([
         supabase.from('categories').select('*').eq('restaurant_id', rest.id).order('sort_order'),
         supabase.from('menu_items').select('*').eq('restaurant_id', rest.id).eq('is_visible', true).order('sort_order'),
-        supabase.from('spa_services').select('id', { count: 'exact', head: true }).eq('restaurant_id', rest.id).eq('is_active', true),
       ])
       setRealData({ restaurant: rest, categories: cats || [], items: its || [] })
-      setHasSpa((spaCount ?? 0) > 0)
       if (cats?.length) setActiveCat(cats[0].id)
       setLoadingData(false)
 
@@ -651,9 +648,9 @@ export default function Menu() {
         )}
 
         {/* Spa & Wellness booking link */}
-        {!isDemo && hasSpa && (
+        {!isDemo && (
           <a href={`/${slug}/spa`} className={styles.reservationBtn}>
-            ✨ {isEn ? 'Spa & Wellness' : 'Spa & Wellness'}
+            ✨ Spa & Wellness
           </a>
         )}
 

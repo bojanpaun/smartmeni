@@ -15,7 +15,7 @@ export function useSpaTherapists(restaurantId) {
         .from('spa_therapists')
         .select(`
           *,
-          staff(id, first_name, last_name, role),
+          staff!staff_id(id, first_name, last_name, role),
           spa_therapist_services(service_id, spa_services(id, name))
         `)
         .eq('restaurant_id', restaurantId)

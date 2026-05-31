@@ -90,7 +90,7 @@ export default function SpaBookingPage() {
     if (!restaurant || !selectedService) return
     supabase
       .from('spa_therapists')
-      .select('id, staff(first_name, last_name), spa_therapist_services!inner(service_id)')
+      .select('id, staff!staff_id(first_name, last_name), spa_therapist_services!inner(service_id)')
       .eq('restaurant_id', restaurant.id)
       .eq('is_available', true)
       .eq('spa_therapist_services.service_id', selectedService.id)

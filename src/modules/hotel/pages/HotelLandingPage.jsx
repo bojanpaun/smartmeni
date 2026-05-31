@@ -59,7 +59,6 @@ export default function HotelLandingPage() {
   const [hotel, setHotel] = useState(null)
   const [roomTypes, setRoomTypes] = useState([])
   const [landingBlocks, setLandingBlocks] = useState(null)
-  const [hasSpa, setHasSpa] = useState(false)
   const [loading, setLoading] = useState(true)
   const [notFound, setNotFound] = useState(false)
 
@@ -75,7 +74,7 @@ export default function HotelLandingPage() {
       if (error || !rest) { setNotFound(true); setLoading(false); return }
       setHotel(rest)
 
-      const [{ data: types }, { data: lp }, { count: spaCount }] = await Promise.all([
+      const [{ data: types }, { data: lp }] = await Promise.all([
         supabase.from('room_types')
           .select('id, name, description, max_occupancy, base_price, amenities, images')
           .eq('restaurant_id', rest.id)
@@ -86,12 +85,7 @@ export default function HotelLandingPage() {
           .eq('restaurant_id', rest.id)
           .eq('page_type', 'hotel')
           .maybeSingle(),
-        supabase.from('spa_services')
-          .select('id', { count: 'exact', head: true })
-          .eq('restaurant_id', rest.id)
-          .eq('is_active', true),
       ])
-      setHasSpa((spaCount ?? 0) > 0)
 
       setRoomTypes(types ?? [])
       const activeBlocks = lp?.blocks?.filter(b => b.enabled) ?? null
@@ -193,12 +187,10 @@ export default function HotelLandingPage() {
       <button className={styles.ctaPrimary} onClick={() => navigate(`/${slug}/book`)}>
         🛏️ {t.book}
       </button>
-      {hasSpa && (
-        <button className={styles.ctaSecondary} onClick={() => navigate(`/${slug}/spa`)}>
-          <span className={styles.ctaSecLabel}>✨ {t.spaBook}</span>
-          <span className={styles.ctaSecSub}>Booking tretmana</span>
-        </button>
-      )}
+      <button className={styles.ctaSecondary} onClick={() => navigate(`/${slug}/spa`)}>
+        <span className={styles.ctaSecLabel}>✨ {t.spaBook}</span>
+        <span className={styles.ctaSecSub}>Booking tretmana</span>
+      </button>
       <button className={styles.ctaSecondary} onClick={() => navigate(`/${slug}/guest`)}>
         <span className={styles.ctaSecLabel}>🔑 {t.guestApp}</span>
         <span className={styles.ctaSecSub}>{t.guestAppSub}</span>

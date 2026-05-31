@@ -85,7 +85,7 @@ export default function SpaCalendarPage() {
       const [{ data: settings }, { data: t }, { data: r }, { data: a }] = await Promise.all([
         supabase.from('spa_settings').select('open_time, close_time').eq('restaurant_id', restaurant.id).maybeSingle(),
         supabase.from('spa_therapists')
-          .select('id, staff(first_name, last_name, role)')
+          .select('id, staff!staff_id(first_name, last_name, role)')
           .eq('restaurant_id', restaurant.id)
           .eq('is_available', true),
         supabase.from('spa_rooms')
@@ -98,7 +98,7 @@ export default function SpaCalendarPage() {
             id, start_time, end_time, duration_minutes, price, status,
             external_guest_name, guest_id, payment_method,
             spa_services(name, category),
-            spa_therapists(id, staff(first_name, last_name)),
+            spa_therapists(id, staff!staff_id(first_name, last_name)),
             spa_rooms(id, name)
           `)
           .eq('restaurant_id', restaurant.id)

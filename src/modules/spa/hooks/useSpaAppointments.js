@@ -14,7 +14,7 @@ export function useSpaAppointments(restaurantId, date) {
       .select(`
         *,
         spa_services(id, name, category, duration_minutes),
-        spa_therapists(id, staff(first_name, last_name)),
+        spa_therapists(id, staff!staff_id(first_name, last_name)),
         spa_rooms(id, name)
       `)
       .eq('restaurant_id', restaurantId)
