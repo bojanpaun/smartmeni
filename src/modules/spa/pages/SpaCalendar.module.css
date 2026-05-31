@@ -1,0 +1,244 @@
+/* Spa Calendar — Gantt po terapeutima × vremenskim slotovima */
+
+.calendarWrap {
+  overflow-x: auto;
+  border: 1px solid var(--c-border);
+  border-radius: 14px;
+  background: var(--c-surface);
+}
+
+.calendarInner {
+  min-width: 800px;
+}
+
+/* ── Header (time labels row) ── */
+.headerRow {
+  display: flex;
+  border-bottom: 2px solid var(--c-border);
+  background: var(--c-bg);
+  position: sticky;
+  top: 0;
+  z-index: 2;
+}
+
+.labelCol {
+  width: 150px;
+  flex-shrink: 0;
+  padding: 10px 14px;
+  font-size: 11px;
+  font-weight: 600;
+  text-transform: uppercase;
+  letter-spacing: .05em;
+  color: var(--c-text-muted);
+  border-right: 1px solid var(--c-border);
+  display: flex;
+  align-items: center;
+}
+
+.timelineHeader {
+  flex: 1;
+  position: relative;
+  height: 38px;
+}
+
+.timeLabel {
+  position: absolute;
+  top: 50%;
+  transform: translate(-50%, -50%);
+  font-size: 11px;
+  font-weight: 500;
+  color: var(--c-text-muted);
+  white-space: nowrap;
+  pointer-events: none;
+}
+
+.timeLabelHour {
+  color: var(--c-text);
+  font-weight: 600;
+}
+
+/* ── Row (therapist) ── */
+.row {
+  display: flex;
+  border-bottom: 1px solid var(--c-border);
+  min-height: 60px;
+}
+.row:last-child { border-bottom: none; }
+.row:hover .timeline { background: var(--c-hover); }
+
+.rowLabel {
+  width: 150px;
+  flex-shrink: 0;
+  padding: 10px 14px;
+  border-right: 1px solid var(--c-border);
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  gap: 2px;
+}
+.rowName {
+  font-size: 13px;
+  font-weight: 600;
+  color: var(--c-text);
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+.rowSub {
+  font-size: 11px;
+  color: var(--c-text-muted);
+}
+
+/* ── Timeline ── */
+.timeline {
+  flex: 1;
+  position: relative;
+  transition: background 0.1s;
+}
+
+/* Background grid slots */
+.slotBg {
+  position: absolute;
+  top: 0; bottom: 0;
+  border-right: 1px solid var(--c-border-subtle, #f3f4f6);
+  pointer-events: none;
+}
+.slotBgHour {
+  border-right-color: var(--c-border);
+}
+
+/* Appointment bar */
+.apptBar {
+  position: absolute;
+  top: 8px;
+  bottom: 8px;
+  border-radius: 7px;
+  border: 1.5px solid;
+  overflow: hidden;
+  cursor: pointer;
+  transition: filter 0.1s, box-shadow 0.1s;
+  display: flex;
+  align-items: center;
+  padding: 0 8px;
+  min-width: 32px;
+  z-index: 1;
+}
+.apptBar:hover {
+  filter: brightness(0.95);
+  box-shadow: 0 2px 8px rgba(0,0,0,.12);
+  z-index: 2;
+}
+
+.apptContent {
+  overflow: hidden;
+  white-space: nowrap;
+}
+.apptName {
+  font-size: 11px;
+  font-weight: 600;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+.apptTime {
+  font-size: 10px;
+  opacity: 0.75;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+/* Current time line */
+.nowLine {
+  position: absolute;
+  top: 0; bottom: 0;
+  width: 2px;
+  background: #ef4444;
+  z-index: 3;
+  pointer-events: none;
+}
+.nowLine::before {
+  content: '';
+  position: absolute;
+  top: 0;
+  left: -4px;
+  width: 10px; height: 10px;
+  background: #ef4444;
+  border-radius: 50%;
+}
+
+/* ── Legend ── */
+.legend {
+  display: flex;
+  gap: 16px;
+  padding: 12px 16px;
+  border-top: 1px solid var(--c-border);
+  flex-wrap: wrap;
+}
+.legendItem {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  font-size: 12px;
+  color: var(--c-text-muted);
+}
+.legendDot {
+  width: 12px; height: 12px;
+  border-radius: 3px;
+  border: 1.5px solid;
+  flex-shrink: 0;
+}
+
+/* ── View toggle ── */
+.viewToggle {
+  display: flex;
+  background: var(--c-surface);
+  border: 1px solid var(--c-border);
+  border-radius: 8px;
+  overflow: hidden;
+}
+.viewBtn {
+  padding: 7px 14px;
+  font-size: 13px;
+  font-weight: 500;
+  border: none;
+  background: transparent;
+  color: var(--c-text-muted);
+  cursor: pointer;
+  font-family: var(--c-font-sans);
+  transition: background 0.15s, color 0.15s;
+}
+.viewBtn:hover { background: var(--c-hover); }
+.viewBtnActive {
+  background: var(--c-primary);
+  color: #fff;
+}
+
+/* ── Empty ── */
+.empty {
+  text-align: center;
+  padding: 48px 24px;
+  color: var(--c-text-muted);
+  font-size: 14px;
+}
+
+/* ── Appointment detail popup ── */
+.popup {
+  position: fixed;
+  z-index: 100;
+  background: var(--c-surface);
+  border: 1px solid var(--c-border);
+  border-radius: 12px;
+  padding: 16px 18px;
+  box-shadow: 0 8px 32px rgba(0,0,0,.16);
+  min-width: 220px;
+  max-width: 300px;
+  pointer-events: auto;
+}
+.popupTitle   { font-size: 14px; font-weight: 700; margin-bottom: 8px; }
+.popupRow     { font-size: 12px; color: var(--c-text-muted); margin-bottom: 4px; display: flex; gap: 6px; }
+.popupClose {
+  position: absolute; top: 10px; right: 10px;
+  background: var(--c-bg); border: 1px solid var(--c-border);
+  border-radius: 50%; width: 24px; height: 24px;
+  cursor: pointer; font-size: 11px; color: var(--c-text-muted);
+  display: flex; align-items: center; justify-content: center;
+}
