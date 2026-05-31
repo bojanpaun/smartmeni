@@ -22,11 +22,13 @@ export function PlatformProvider({ children }) {
       }
     })
 
-    const { data: listener } = supabase.auth.onAuthStateChange((_event, session) => {
-      if (session) {
-        setUser(session.user)
-        loadProfile(session.user)
-      } else {
+    const { data: listener } = supabase.auth.onAuthStateChange((event, session) => {
+      if (event === 'SIGNED_IN' || event === 'INITIAL_SESSION') {
+        if (session) {
+          setUser(session.user)
+          loadProfile(session.user)
+        }
+      } else if (event === 'SIGNED_OUT') {
         setUser(null)
         setRestaurant(null)
         setSubscription(null)
@@ -34,6 +36,7 @@ export function PlatformProvider({ children }) {
         setPermissions([])
         setLoading(false)
       }
+      // TOKEN_REFRESHED i ostale akcije ne pokrecu loadProfile ponovo
     })
 
     return () => listener.subscription.unsubscribe()
@@ -45,7 +48,7 @@ export function PlatformProvider({ children }) {
       .from('user_profiles')
       .select('*')
       .eq('id', user.id)
-      .single()
+      .maybeSingle()
 
     if (profile?.is_superadmin) {
       setStaffProfile({ ...profile, role: 'superadmin' })
@@ -56,7 +59,7 @@ export function PlatformProvider({ children }) {
         .from('restaurants')
         .select('*')
         .eq('user_id', user.id)
-        .single()
+        .maybeSingle()
 
       if (adminRest) {
         setRestaurant(adminRest)
@@ -72,7 +75,7 @@ export function PlatformProvider({ children }) {
       .from('restaurants')
       .select('*')
       .eq('user_id', user.id)
-      .single()
+      .maybeSingle()
 
     if (rest) {
       setRestaurant(rest)
@@ -88,7 +91,7 @@ export function PlatformProvider({ children }) {
       .select(`*, role:roles(*)`)
       .eq('user_id', user.id)
       .eq('is_active', true)
-      .single()
+      .maybeSingle()
 
     if (staff) {
       setStaffProfile(staff)
@@ -96,7 +99,7 @@ export function PlatformProvider({ children }) {
         .from('restaurants')
         .select('*')
         .eq('id', staff.restaurant_id)
-        .single()
+        .maybeSingle()
       setRestaurant(staffRest)
       if (staffRest) await loadSubscription(staffRest.id)
 
@@ -115,7 +118,7 @@ export function PlatformProvider({ children }) {
       .from('subscriptions')
       .select('*')
       .eq('restaurant_id', restaurantId)
-      .single()
+      .maybeSingle()
     setSubscription(data ?? null)
   }
 
