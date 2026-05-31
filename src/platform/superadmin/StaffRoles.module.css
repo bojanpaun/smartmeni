@@ -61,12 +61,71 @@
 
 .permSection { margin-bottom: 8px; }
 .permSectionTitle { font-size: 14px; font-weight: 600; color: var(--c-text); margin-bottom: 4px; }
-.permSectionDesc { font-size: 12px; color: var(--c-text-muted); margin-bottom: 14px; }
-.permModule { margin-bottom: 18px; }
-.permModuleLabel { font-size: 12px; font-weight: 600; color: var(--c-text-medium); margin-bottom: 8px; padding-bottom: 4px; border-bottom: 1px solid var(--c-bg-subtle); }
-.permList { display: flex; flex-direction: column; gap: 6px; }
-.permItem { display: flex; align-items: flex-start; gap: 10px; cursor: pointer; padding: 6px 8px; border-radius: 8px; }
-.permItem:hover { background: var(--c-bg); }
+.permSectionDesc { font-size: 12px; color: var(--c-text-muted); margin-bottom: 12px; }
+
+/* ── Modul tabovi ── */
+.permTabBar {
+  display: flex;
+  gap: 6px;
+  flex-wrap: wrap;
+  padding-bottom: 12px;
+  margin-bottom: 2px;
+  border-bottom: 1px solid var(--c-border);
+}
+.permTab {
+  padding: 6px 13px;
+  border: 1.5px solid var(--c-border-input);
+  border-radius: 20px;
+  background: transparent;
+  font-size: 12px;
+  font-weight: 500;
+  cursor: pointer;
+  font-family: var(--c-font-sans);
+  color: var(--c-text-muted);
+  white-space: nowrap;
+  transition: all 0.12s;
+}
+.permTab:hover { border-color: var(--c-primary); color: var(--c-primary); }
+.permTabActive {
+  background: var(--c-primary-light);
+  border-color: var(--c-primary);
+  color: var(--c-primary);
+  font-weight: 600;
+}
+
+/* ── Modul panel ── */
+.permModulePanel { padding: 14px 0 4px; }
+.permModuleActions {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  margin-bottom: 12px;
+}
+.permModuleTitle {
+  font-size: 13px;
+  font-weight: 600;
+  color: var(--c-text-medium);
+  flex: 1;
+}
+.permBulkBtn {
+  padding: 4px 12px;
+  border-radius: 8px;
+  font-size: 11px;
+  font-weight: 600;
+  cursor: pointer;
+  font-family: var(--c-font-sans);
+  border: 1.5px solid var(--c-border-input);
+  background: var(--c-bg-subtle);
+  color: var(--c-text-medium);
+  transition: all 0.12s;
+}
+.permBulkBtn:hover { border-color: var(--c-primary); color: var(--c-primary); background: var(--c-primary-light); }
+.permBulkBtnClear:hover { border-color: var(--c-danger); color: var(--c-danger); background: var(--c-danger-bg); }
+
+.permList { display: flex; flex-direction: column; gap: 4px; }
+.permItem { display: flex; align-items: flex-start; gap: 10px; cursor: pointer; padding: 8px 10px; border-radius: 8px; border: 1.5px solid transparent; transition: all 0.1s; }
+.permItem:hover { background: var(--c-bg); border-color: var(--c-border); }
+.permItemChecked { background: var(--c-primary-light) !important; border-color: var(--c-primary) !important; }
 .permItem input { margin-top: 2px; cursor: pointer; accent-color: var(--c-primary); flex-shrink: 0; }
 .permLabel { font-size: 13px; font-weight: 500; color: var(--c-text); }
 .permDesc { font-size: 11px; color: var(--c-text-muted); margin-top: 1px; }

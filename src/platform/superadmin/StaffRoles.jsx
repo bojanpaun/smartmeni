@@ -16,6 +16,7 @@ export default function StaffRoles() {
   const [editRole, setEditRole] = useState(null)
   const [roleForm, setRoleForm] = useState({ name: '', permissions: [] })
   const [saving, setSaving] = useState(false)
+  const [permTab, setPermTab] = useState(Object.keys(PERMISSIONS)[0])
 
   useEffect(() => {
     if (restaurant) loadData()
@@ -37,7 +38,24 @@ export default function StaffRoles() {
     if (role) { setRoleForm({ name: role.name, permissions: role.permissions || [] }); setEditRole(role) }
     else if (template) { setRoleForm({ name: template.name, permissions: template.permissions }); setEditRole(null) }
     else { setRoleForm({ name: '', permissions: [] }); setEditRole(null) }
+    setPermTab(Object.keys(PERMISSIONS)[0])
     setShowRoleForm(true)
+  }
+
+  const selectAllInModule = (moduleKey) => {
+    const modulePerms = Object.keys(PERMISSIONS[moduleKey].permissions)
+    setRoleForm(f => ({
+      ...f,
+      permissions: [...new Set([...f.permissions, ...modulePerms])],
+    }))
+  }
+
+  const clearAllInModule = (moduleKey) => {
+    const modulePerms = Object.keys(PERMISSIONS[moduleKey].permissions)
+    setRoleForm(f => ({
+      ...f,
+      permissions: f.permissions.filter(p => !modulePerms.includes(p)),
+    }))
   }
 
   const togglePerm = (perm) => {
@@ -158,24 +176,87 @@ export default function StaffRoles() {
               <div className={styles.permSection}>
                 <div className={styles.permSectionTitle}>Permisije</div>
                 <div className={styles.permSectionDesc}>Odaberite šta zaposlenik sa ovom rolom može da vidi i radi.</div>
-                {Object.entries(PERMISSIONS).map(([moduleKey, module]) => (
-                  <div key={moduleKey} className={styles.permModule}>
-                    <div className={styles.permModuleLabel}>{module.icon} {module.label}</div>
-                    <div className={styles.permList}>
-                      {Object.entries(module.permissions).map(([permKey, perm]) => (
-                        <label key={permKey} className={styles.permItem}>
-                          <input type="checkbox" checked={roleForm.permissions.includes(permKey)} onChange={() => togglePerm(permKey)} />
-                          <div>
-                            <div className={styles.permLabel}>{perm.label}</div>
-                            <div className={styles.permDesc}>{perm.desc}</div>
-                          </div>
-                        </label>
-                      ))}
+
+                {/* ── Horizontalna tab navigacija po modulu ── */}
+                <div className={styles.permTabBar}>
+                  {Object.entries(PERMISSIONS).map(([moduleKey, module]) => {
+                    const modulePerms = Object.keys(module.permissions)
+                    const selectedCount = roleForm.permissions.filter(p => modulePerms.includes(p)).length
+                    return (
+                      <button
+                        key={moduleKey}
+                        type="button"
+                        className={`${styles.permTab} ${permTab === moduleKey ? styles.permTabActive : ''}`}
+                        onClick={() => setPermTab(moduleKey)}
+                      >
+                        {module.icon} {module.label}
+                        {selectedCount > 0 && (
+                          <span style={{ marginLeft: 5, background: 'var(--c-primary)', color: '#fff',
+                            borderRadius: '50%', fontSize: 10, fontWeight: 700,
+                            padding: '1px 5px', verticalAlign: 'middle' }}>
+                            {selectedCount}
+                          </span>
+                        )}
+                      </button>
+                    )
+                  })}
+                </div>
+
+                {/* ── Aktivni modul panel ── */}
+                {Object.entries(PERMISSIONS).map(([moduleKey, module]) => {
+                  if (moduleKey !== permTab) return null
+                  const modulePerms = Object.keys(module.permissions)
+                  const allSelected = modulePerms.every(p => roleForm.permissions.includes(p))
+                  const noneSelected = modulePerms.every(p => !roleForm.permissions.includes(p))
+                  return (
+                    <div key={moduleKey} className={styles.permModulePanel}>
+                      <div className={styles.permModuleActions}>
+                        <div className={styles.permModuleTitle}>{module.icon} {module.label}</div>
+                        <button
+                          type="button"
+                          className={styles.permBulkBtn}
+                          onClick={() => selectAllInModule(moduleKey)}
+                          disabled={allSelected}
+                        >
+                          ✓ Odaberi sve
+                        </button>
+                        <button
+                          type="button"
+                          className={`${styles.permBulkBtn} ${styles.permBulkBtnClear}`}
+                          onClick={() => clearAllInModule(moduleKey)}
+                          disabled={noneSelected}
+                        >
+                          ✕ Obriši sve
+                        </button>
+                      </div>
+                      <div className={styles.permList}>
+                        {Object.entries(module.permissions).map(([permKey, perm]) => {
+                          const checked = roleForm.permissions.includes(permKey)
+                          return (
+                            <label
+                              key={permKey}
+                              className={`${styles.permItem} ${checked ? styles.permItemChecked : ''}`}
+                            >
+                              <input
+                                type="checkbox"
+                                checked={checked}
+                                onChange={() => togglePerm(permKey)}
+                              />
+                              <div>
+                                <div className={styles.permLabel}>{perm.label}</div>
+                                <div className={styles.permDesc}>{perm.desc}</div>
+                              </div>
+                            </label>
+                          )
+                        })}
+                      </div>
                     </div>
-                  </div>
-                ))}
+                  )
+                })}
               </div>
-              <div className={styles.permCount}>Odabrano: {roleForm.permissions.length} permisija</div>
+              <div className={styles.permCount}>
+                Ukupno odabrano: {roleForm.permissions.length} permisija
+              </div>
               <div className={styles.modalActions}>
                 <button type="button" className={styles.btnSecondary} onClick={() => setShowRoleForm(false)}>Odustani</button>
                 <button type="submit" className={styles.btnPrimary} disabled={saving}>{saving ? 'Čuvanje...' : 'Sačuvaj rolu'}</button>
