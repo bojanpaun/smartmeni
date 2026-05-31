@@ -44,10 +44,10 @@
 
 .pillBtnActive {
   background: var(--c-primary);
-  color: var(--c-surface);
+  color: rgba(255,255,255,0.95);
   border-color: var(--c-primary);
 }
-.pillBtnActive:hover { background: var(--c-primary-hover); border-color: var(--c-primary-hover); color: var(--c-surface); }
+.pillBtnActive:hover { background: var(--c-primary-hover); border-color: var(--c-primary-hover); color: rgba(255,255,255,0.95); }
 
 .pillCount {
   background: rgba(13, 122, 82, 0.1);
@@ -58,7 +58,7 @@
   font-weight: 600;
   line-height: 1.4;
 }
-.pillBtnActive .pillCount { background: rgba(255, 255, 255, 0.25); color: var(--c-surface); }
+.pillBtnActive .pillCount { background: rgba(255, 255, 255, 0.25); color: rgba(255,255,255,0.95); }
 
 
 /* ══════════════════════════════════════════════════
@@ -101,7 +101,7 @@
 
 .tabCount {
   background: #E24B4A;
-  color: var(--c-surface);
+  color: rgba(255,255,255,0.95);
   font-size: 11px;
   padding: 1px 6px;
   border-radius: 10px;
@@ -136,5 +136,5 @@
 }
 .toggleBtn:hover { background: var(--c-bg-subtle); }
 
-.toggleBtnActive { background: var(--c-primary); color: var(--c-surface); }
-.toggleBtnActive:hover { background: var(--c-primary-hover); color: var(--c-surface); }
+.toggleBtnActive { background: var(--c-primary); color: rgba(255,255,255,0.95); }
+.toggleBtnActive:hover { background: var(--c-primary-hover); color: rgba(255,255,255,0.95); }
