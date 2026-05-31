@@ -1,6 +1,6 @@
 # SmartMeni → HospitalityOS — Produkt roadmap
 
-> **Verzija:** 2.4 *(dopunjeno — Faza Z Unified Staff Portal usvojena, bug fixes, dnevnik napretka 2026-05-31)*
+> **Verzija:** 2.5 *(dopunjeno — Faza Z implementirana, staff_roles, WaiterView, role UI tabovi, Guest App spa tab, email podsjetnik — 2026-05-31)*
 > **Kontekst:** Evolucija SmartMeni SaaS platforme prema punom hospitality management sistemu
 > **Tim:** 1 developer + Claude Code AI asistent
 > **Branch:** `main` → direktno na produkciju (Vercel auto-deploy)
@@ -1190,15 +1190,19 @@ Razlog: Restoran gost skenira QR za 10 sekundi — login ekran bi ga odbio. Hote
 
 ### Definition of Done
 
-- [ ] `/:slug/staff` — login stranica (email + lozinka)
-- [ ] Role-based routing nakon logina (čita `staff.role_id → roles.name`)
-- [ ] Konobar view — lista narudžbi, promjena statusa, waiter requests
-- [ ] Kuhinja view — real-time kitchen display
-- [ ] Sobarica view — housekeeping zadaci po datumu (migriran iz `/housekeeping`)
-- [ ] Recepcija view — check-in/out za danas, status soba
-- [ ] Spa terapeut view — dnevni termini iz spa_appointments
-- [ ] Redirect: `/osoblje` i `/housekeeping` → `/staff`
-- [ ] Admin: jedan link "Staff portal" u sidebaru (zamjenjuje zasebne info stranice)
+- [x] `/:slug/staff` — login stranica (email + lozinka)
+- [x] Role-based routing nakon logina (čita `staff.role_id → roles.name`)
+- [x] Konobar view — lista narudžbi, puni status lanac, waiter requests + quick responses
+- [x] Kuhinja view — real-time kitchen display
+- [x] Sobarica view — housekeeping zadaci po datumu
+- [x] Recepcija view — check-in/out za danas, status soba
+- [x] Spa terapeut view — dnevni termini iz spa_appointments
+- [x] Redirect: `/osoblje` i `/housekeeping` → `/staff`
+- [x] Admin: "Staff portal" link u sidebaru s ažuriranim URL-om i opisom
+- [x] `staff_roles` junction tabela — više rola po zaposleniku (Opcija A)
+- [x] `StaffProfilePage` — multi-role checkbox UI u employment tabu
+- [x] `permissions.js` — hotel/spa permisije + 5 novih predložaka rola
+- [x] Role UI — horizontalni tabovi po modulu + Odaberi sve / Obriši sve
 
 ---
 
@@ -1389,7 +1393,7 @@ RLS politike se proširuju da provjeravaju `portfolio_access.scope` — regional
 | ~~Upload slika u editoru~~ | ✅ Riješeno | `ImageUpload` komponenta implementirana, oba editora ažurirana | Y.1 |
 | ~~spa/housekeeping FK constraints~~ | ✅ Riješeno | Tabele kreirane ručno bez FK-ova uzrokovale 400 greške; migracije 000004–000008 dodaju sve FK-ove | fix |
 | ~~PlatformContext 406 loop~~ | ✅ Riješeno | `.single()` → `.maybeSingle()` + filtriranje TOKEN_REFRESHED eventa | fix |
-| `/:slug/osoblje` i `/:slug/housekeeping` portali | 🟡 Srednji | Zastarjeli portali — treba redirect na novi `/:slug/staff` po završetku Faze Z | Z |
+| ~~Zastarjeli portali /osoblje i /housekeeping~~ | ✅ Riješeno | Redirect na `/:slug/staff` implementiran sa `StaffPortalRedirect` komponentom | Z |
 | `restaurants` tabela naziv | 🟢 Nizak | Dugoročni tehnički dug: preimenovati u `properties`/`tenants` jer hotel bez restorana i dalje ima `restaurant_id` — ne hitno za MVP | Daleka faza |
 
 ---
@@ -1486,7 +1490,7 @@ RLS politike se proširuju da provjeravaju `portfolio_access.scope` — regional
 | 8.5 | Spa analitika (revenue per treatment, no-show, CSV) | ✅ | 2026-05-31 |
 | 8.5 | Spa paketi (CRUD, includes lista) | ✅ | 2026-05-31 |
 | 8.5 | Booking flow vanjski gost — Stripe plaćanje | ⬜ | (Stripe odložen) |
-| 8.5 | Email podsjetnik X sati prije (pg_cron) | ⬜ | |
+| 8.5 | Email podsjetnik X sati prije (pg_cron) | ✅ | 2026-05-31 |
 | fix | spa_therapists FK constraints + anon RLS politike | ✅ | 2026-05-31 |
 | fix | spa_visibility toggle u opštim postavkama (addon guard) | ✅ | 2026-05-31 |
 | fix | spa sidebar — duplikat Termini/Kalendar uklonjen | ✅ | 2026-05-31 |
@@ -1497,6 +1501,18 @@ RLS politike se proširuju da provjeravaju `portfolio_access.scope` — regional
 | fix | PlatformContext 406 greška — single→maybeSingle svuda | ✅ | 2026-05-31 |
 | fix | PlatformContext loop — loadProfile samo na SIGNED_IN | ✅ | 2026-05-31 |
 | arch | Unified Staff Portal arhitektura usvojena (Faza Z) | ✅ | 2026-05-31 |
+| Z | /:slug/staff — login + role detection + bottom nav shell | ✅ | 2026-05-31 |
+| Z | Konobar view — puni status lanac + quick responses + odbijanje | ✅ | 2026-05-31 |
+| Z | Kuhinja view — real-time kitchen display | ✅ | 2026-05-31 |
+| Z | Sobarica view — housekeeping zadaci | ✅ | 2026-05-31 |
+| Z | Recepcija view — check-in/out + status soba | ✅ | 2026-05-31 |
+| Z | Spa terapeut view — dnevni termini | ✅ | 2026-05-31 |
+| Z | Redirect /osoblje i /housekeeping → /staff (apsolutan path) | ✅ | 2026-05-31 |
+| Z | staff_roles junction tabela + multi-role portal support | ✅ | 2026-05-31 |
+| Z | permissions.js — hotel/spa permisije + 5 novih predložaka | ✅ | 2026-05-31 |
+| Z | Role UI — horizontalni tabovi + Odaberi/Obriši sve po modulu | ✅ | 2026-05-31 |
+| 8d | Guest App spa tab — katalog, termini, folio booking | ✅ | 2026-05-31 |
+| 8.5 | send-spa-reminder Edge Function + pg_cron svakih 15 min | ✅ | 2026-05-31 |
 | 9 | portfolios + brands + property_groups tabele | ⬜ | |
 | 9 | portfolio_kpis materialized view + cron | ⬜ | |
 | 9 | Portfolio dashboard UI | ⬜ | |
@@ -1527,21 +1543,23 @@ RLS politike se proširuju da provjeravaju `portfolio_access.scope` — regional
 │
 │              ← OVDJE SMO (2026-05-31)
 │
-│              ✅ Faza 8.5 — Spa & Wellness modul (ZAVRŠENA — osnova)
-│                            DB shema, FK fix, admin UI, booking, analitika, paketi
-│                            spa_visibility toggle, addon guard u GuestMenu
+│              ✅ Faza 8.5 — Spa & Wellness modul (ZAVRŠENA)
+│                            DB shema, FK fix, admin UI, booking, analitika, paketi,
+│                            spa_visibility, email podsjetnik (pg_cron)
 │
-├── Jun        🔄 SLJEDEĆE: Faza Z — Unified Staff Portal
-│                            /:slug/staff sa role-based routingom
-│                            Zamjena za /osoblje i /housekeeping portale
+│              ✅ Faza Z — Unified Staff Portal (ZAVRŠENA)
+│                            /:slug/staff, 5 role viewova, staff_roles junction,
+│                            permissions hotel/spa, role UI tabovi
+│
+│              ✅ Faza 8 dopuna — Guest App spa tab (ZAVRŠENA)
+│                            Katalog, termini, folio booking direktno iz /:slug/guest
 │
 ├── Jun        🔄 HITNO: RESEND_API_KEY regeneracija + SITE_URL env var
 │
-├── Jun–Jul    🔄 Faza 3d — Stripe payment za booking (Payment Intent flow)
+├── Jun–Jul    🔄 SLJEDEĆE: Faza 3d — Stripe payment za booking
+│                            Payment Intent flow, webhook, email potvrda
 │
 ├── Jul        🔄 Faza 1d — Stripe addon purchase flow
-│
-├── Aug        🔄 Faza 8 dopuna — Hotel Guest App proširenje (spa tab)
 │
 ├── Sep+       ⬜ Faza 6  — Channel Manager (Beds24 integracija)
 │
@@ -1565,4 +1583,4 @@ RLS politike se proširuju da provjeravaju `portfolio_access.scope` — regional
 
 ---
 
-*Roadmap ažuriran: 2026-05-31 (v2.4 — Faza 8.5 označena završenom; Faza Z Unified Staff Portal usvojena i dokumentovana; bug fixes: spa FK/400/sidebar, housekeeping FK/trigger, hotel CTA redesign, admin header responsive, PlatformContext 406/loop; tehnički dug ažuriran; timeline ažuriran) | Branch: main | Deployment: Vercel auto-deploy*
+*Roadmap ažuriran: 2026-05-31 (v2.5 — Faza Z implementirana i završena: /:slug/staff, 5 role viewova, staff_roles junction tabela, permissions hotel/spa, role UI tabovi; Faza 8 dopuna završena: Guest App spa tab; Faza 8.5 dopuna: email podsjetnik pg_cron; dnevnik napretka +13 stavki; timeline i DoD ažurirani) | Branch: main | Deployment: Vercel auto-deploy*
