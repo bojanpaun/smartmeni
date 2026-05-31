@@ -97,7 +97,7 @@ export const MODULES = [
         { label: 'Zaposleni',  icon: '👤', path: '/admin/hr/staff' },
         { label: 'Raspored',  icon: '📅', path: '/admin/hr/schedule' },
         { label: 'Zarade',    icon: '💰', path: '/admin/hr/payroll' },
-        { label: 'Portal zaposlenika', icon: '📱', path: '/admin/hr/staff-portal-info' },
+        { label: 'Staff portal', icon: '📱', path: '/admin/hr/staff-portal-info' },
       ],
     },
   },

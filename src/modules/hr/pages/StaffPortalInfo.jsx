@@ -9,7 +9,7 @@ export default function StaffPortalInfo() {
 
   if (!restaurant) return null
 
-  const portalUrl = `${window.location.origin}/${restaurant.slug}/osoblje`
+  const portalUrl = `${window.location.origin}/${restaurant.slug}/staff`
 
   const copy = () => {
     navigator.clipboard.writeText(portalUrl)
@@ -21,7 +21,7 @@ export default function StaffPortalInfo() {
     <div className={gsStyles.page} style={{ maxWidth: 640 }}>
       <div className={gsStyles.header}>
         <h1 className={gsStyles.title}>Portal zaposlenika</h1>
-        <p className={gsStyles.subtitle}>Vaši zaposlenici mogu pristupiti svom rasporedu, dolascima i zaradama.</p>
+        <p className={gsStyles.subtitle}>Jedan portal za sve zaposlenike — sadržaj se prilagođava ulozi (konobar, sobarica, recepcija, spa terapeut…)</p>
       </div>
 
       {/* Link */}
@@ -75,10 +75,12 @@ export default function StaffPortalInfo() {
       <div style={{ background: '#fff', borderRadius: 16, border: '1px solid #e0ece6', padding: '20px 24px' }}>
         <div style={{ fontSize: 13, fontWeight: 600, color: '#0e1a14', marginBottom: 14 }}>Šta zaposlenik može vidjeti</div>
         {[
-          { icon: '📅', label: 'Raspored', desc: 'Smjene za tekući mjesec, sedmična smjena istaknuta' },
-          { icon: '🕐', label: 'Dolasci', desc: 'Clock in/out vremena i ukupni sati rada' },
-          { icon: '💰', label: 'Zarada', desc: 'Osnovna plata, dodaci i odbitci po mjesecu' },
-          { icon: '🏖️', label: 'Odsustva', desc: 'Godišnji odmor — iskorišteno i preostalo' },
+          { icon: '🧹', label: 'Sobarica', desc: 'Zadaci čišćenja za danas, prijava kvarova' },
+          { icon: '🍽️', label: 'Konobar', desc: 'Aktivne narudžbe, waiter zahtjevi' },
+          { icon: '🍳', label: 'Kuhinja', desc: 'Real-time kitchen display narudžbi' },
+          { icon: '🛎️', label: 'Recepcija', desc: 'Check-in/out za danas, status soba' },
+          { icon: '💆', label: 'Spa terapeut', desc: 'Dnevni termini i raspored' },
+          { icon: '📅', label: 'Svi', desc: 'Raspored, dolasci, zarada, odsustva (HR tab)' },
         ].map(item => (
           <div key={item.label} style={{ display: 'flex', gap: 12, marginBottom: 10, alignItems: 'center' }}>
             <span style={{ fontSize: 20, width: 28, textAlign: 'center', flexShrink: 0 }}>{item.icon}</span>

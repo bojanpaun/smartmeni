@@ -56,6 +56,7 @@ const HousekeepingPage     = lazy(() => import('./modules/hotel/pages/Housekeepi
 const HousekeepingPortalPage = lazy(() => import('./modules/hotel/pages/HousekeepingPortalPage'))
 const RevenueManagementPage = lazy(() => import('./modules/hotel/pages/RevenueManagementPage'))
 const BookingPage          = lazy(() => import('./pages/BookingPage'))
+const StaffPortal          = lazy(() => import('./pages/StaffPortal/StaffPortal'))
 const GuestAppPage         = lazy(() => import('./modules/hotel/pages/GuestAppPage'))
 const HotelLandingPage     = lazy(() => import('./modules/hotel/pages/HotelLandingPage'))
 const HotelLandingEditor   = lazy(() => import('./modules/hotel/pages/HotelLandingEditor'))
@@ -235,10 +236,13 @@ function AppRoutes() {
         <Route path="/:slug/profil" element={<Suspense fallback={<LoadingSpinner fullPage />}><GuestPortalPage /></Suspense>} />
         <Route path="/:slug/prijava" element={<Suspense fallback={<LoadingSpinner fullPage />}><GuestLoginPage /></Suspense>} />
         <Route path="/:slug/narudzba/:orderId" element={<Suspense fallback={<LoadingSpinner fullPage />}><OrderTrackerPage /></Suspense>} />
-        <Route path="/:slug/osoblje" element={<Suspense fallback={<LoadingSpinner fullPage />}><StaffPortalPage /></Suspense>} />
+        {/* Unified staff portal */}
+        <Route path="/:slug/staff" element={<Suspense fallback={<LoadingSpinner fullPage />}><StaffPortal /></Suspense>} />
+        {/* Redirecti sa starih portal URL-ova */}
+        <Route path="/:slug/osoblje" element={<Navigate to="../staff" replace />} />
+        <Route path="/:slug/housekeeping" element={<Navigate to="../staff" replace />} />
         <Route path="/:slug/book" element={<Suspense fallback={<LoadingSpinner fullPage />}><BookingPage /></Suspense>} />
         <Route path="/:slug/spa"  element={<Suspense fallback={<LoadingSpinner fullPage />}><SpaBookingPage /></Suspense>} />
-        <Route path="/:slug/housekeeping" element={<Suspense fallback={<LoadingSpinner fullPage />}><HousekeepingPortalPage /></Suspense>} />
         <Route path="/:slug/guest" element={<Suspense fallback={<LoadingSpinner fullPage />}><GuestAppPage /></Suspense>} />
         <Route path="/:slug/hotel" element={<Suspense fallback={<LoadingSpinner fullPage />}><HotelLandingPage /></Suspense>} />
         <Route path="/:slug/home" element={<Suspense fallback={<LoadingSpinner fullPage />}><RestaurantLandingPage /></Suspense>} />
