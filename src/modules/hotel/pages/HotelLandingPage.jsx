@@ -187,14 +187,16 @@ export default function HotelLandingPage() {
       <button className={styles.ctaPrimary} onClick={() => navigate(`/${slug}/book`)}>
         🛏️ {t.book}
       </button>
-      <button className={styles.ctaSecondary} onClick={() => navigate(`/${slug}/spa`)}>
-        <span className={styles.ctaSecLabel}>✨ {t.spaBook}</span>
-        <span className={styles.ctaSecSub}>Booking tretmana</span>
-      </button>
-      <button className={styles.ctaSecondary} onClick={() => navigate(`/${slug}/guest`)}>
-        <span className={styles.ctaSecLabel}>🔑 {t.guestApp}</span>
-        <span className={styles.ctaSecSub}>{t.guestAppSub}</span>
-      </button>
+      <div className={styles.ctaRow}>
+        <button className={styles.ctaSecondary} onClick={() => navigate(`/${slug}/spa`)}>
+          <span className={styles.ctaSecLabel}>✨ {t.spaBook}</span>
+          <span className={styles.ctaSecSub}>{isEn ? 'Book a treatment' : 'Booking tretmana'}</span>
+        </button>
+        <button className={styles.ctaSecondary} onClick={() => navigate(`/${slug}/guest`)}>
+          <span className={styles.ctaSecLabel}>🔑 {t.guestApp}</span>
+          <span className={styles.ctaSecSub}>{t.guestAppSub}</span>
+        </button>
+      </div>
     </div>
   )
 

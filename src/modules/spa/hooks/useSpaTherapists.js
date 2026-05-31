@@ -15,14 +15,14 @@ export function useSpaTherapists(restaurantId) {
         .from('spa_therapists')
         .select(`
           *,
-          staff!staff_id(id, first_name, last_name, role),
+          staff!staff_id(id, first_name, last_name, role:roles(name)),
           spa_therapist_services(service_id, spa_services(id, name))
         `)
         .eq('restaurant_id', restaurantId)
         .order('created_at'),
       supabase
         .from('staff')
-        .select('id, first_name, last_name, role')
+        .select('id, first_name, last_name, role:roles(name)')
         .eq('restaurant_id', restaurantId)
         .eq('is_active', true)
         .order('first_name'),

@@ -177,7 +177,7 @@ export const MODULES = [
       label: 'Spa operacije',
       links: [
         { label: 'Kalendar',    icon: '📅', path: '/admin/spa/calendar' },
-        { label: 'Termini',     icon: '🗓️', path: '/admin/spa' },
+        { label: 'Termini',     icon: '🗓️', path: '/admin/spa/appointments' },
       ],
     },
     admin: {

@@ -493,8 +493,11 @@
   .bottomNavIcon { font-size: 20px; line-height: 1; }
   .bottomNavLabel { font-size: 10px; font-weight: 500; white-space: nowrap; }
 
-  .hubHeader { padding: 0 16px; }
+  .hubHeader { padding: 0 14px; gap: 8px; }
   .hubRole { display: none; }
+  .hubLiveBtn { display: none; }
+  .hubLogoutBtn { padding: 4px 8px; font-size: 11px; }
+  .hubRestName { font-size: 14px; }
 }
 
 /* ── Admin divider u sidebaru ── */

@@ -85,7 +85,7 @@ export default function TherapistsPage() {
               <select className={spa.formSelect} value={form.staff_id} onChange={e => upd('staff_id', e.target.value)}>
                 <option value="">— Odaberite osobu —</option>
                 {availableStaff.map(s => (
-                  <option key={s.id} value={s.id}>{s.first_name} {s.last_name} ({s.role})</option>
+                  <option key={s.id} value={s.id}>{s.first_name} {s.last_name}{s.role?.name ? ` (${s.role.name})` : ''}</option>
                 ))}
               </select>
             </div>
@@ -162,7 +162,7 @@ export default function TherapistsPage() {
                 <tr key={t.id}>
                   <td style={{ fontWeight: 600 }}>
                     <div>{name}</div>
-                    {staffInfo?.role && <div style={{ fontSize: 11, color: 'var(--c-text-muted)' }}>{staffInfo.role}</div>}
+                    {staffInfo?.role?.name && <div style={{ fontSize: 11, color: 'var(--c-text-muted)' }}>{staffInfo.role.name}</div>}
                   </td>
                   <td>
                     <div className={spa.chipWrap}>
