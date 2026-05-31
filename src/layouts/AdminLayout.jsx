@@ -25,17 +25,22 @@ function useKitchenCounts(restaurantId) {
       const barIds = barIdsRef.current
 
       const { data: orders } = await supabase.from('orders')
-        .select('id, order_items(category_id)')
+        .select('id, status, order_items(category_id)')
         .eq('restaurant_id', restaurantId)
-        .in('status', ['received', 'preparing'])
+        .in('status', ['pending', 'received', 'preparing', 'ready'])
 
-      let kitchen = 0, bar = 0
+      let waiter = 0, kitchen = 0, bar = 0
       for (const o of orders || []) {
         const items = o.order_items || []
-        if (items.some(i => !barIds.has(i.category_id))) kitchen++
-        if (items.some(i =>  barIds.has(i.category_id))) bar++
+        if (o.status === 'pending' || o.status === 'received' || o.status === 'ready') {
+          waiter++
+        }
+        if (o.status === 'preparing') {
+          if (items.some(i => !barIds.has(i.category_id))) kitchen++
+          if (items.some(i =>  barIds.has(i.category_id))) bar++
+        }
       }
-      setCounts({ kitchen, bar })
+      setCounts({ waiter, kitchen, bar })
     }
 
     loadCounts()
@@ -274,8 +279,10 @@ export default function AdminLayout({ children }) {
   const { restaurant, logout, isOwner, isSuperAdmin, hasPermission, hasAddon } = usePlatform()
   const kitchenCounts = useKitchenCounts(restaurant?.id)
   const badges = {
+    '/admin/orders':  kitchenCounts.waiter  || 0,
+    '/admin/waiter':  kitchenCounts.waiter  || 0,
     '/admin/kitchen': kitchenCounts.kitchen || 0,
-    '/admin/bar':     kitchenCounts.bar || 0,
+    '/admin/bar':     kitchenCounts.bar     || 0,
   }
   const location = useLocation()
   const navigate = useNavigate()
