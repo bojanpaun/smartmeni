@@ -271,7 +271,7 @@ export default function SuperAdminPanel() {
                 <tr key={rest.id} className={editingId === rest.id ? styles.rowEditing : ''}>
                   <td>
                     <div className={styles.restName}>{rest.name}</div>
-                    <div className={styles.restSlug}>smartmeni.me/{rest.slug}</div>
+                    <div className={styles.restSlug}>rest.by.me/{rest.slug}</div>
                     <ThemeDot theme={rest.admin_theme} />
                   </td>
                   <td><PlanBadge rest={rest} /></td>

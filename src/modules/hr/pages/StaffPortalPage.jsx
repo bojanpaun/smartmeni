@@ -455,7 +455,7 @@ export default function StaffPortalPage() {
       </div>
 
       <div className={styles.footer}>
-        Powered by <strong>smartmeni.me</strong>
+        Powered by <strong>rest.by.me</strong>
       </div>
     </div>
   )

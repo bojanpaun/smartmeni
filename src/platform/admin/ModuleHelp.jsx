@@ -32,7 +32,7 @@ const HELP_CONTENT = {
           'Idi na tab QR kod',
           'Ovaj QR vodi na generalni meni restorana — bez informacije o stolu',
           'Koristi ga na ulazu, jelovniku, vizit karti ili društvenim mrežama',
-          'Odštampaj i podijeli link smartmeni.me/vas-slug',
+          'Odštampaj i podijeli link rest.by.me/vas-slug',
         ],
       },
       {
@@ -140,7 +140,7 @@ const HELP_CONTENT = {
         title: 'Online rezervacije',
         steps: [
           'U sekciji Rezervacije uključi toggle Online rezervacije',
-          'Gosti mogu slati zahtjeve na: smartmeni.me/vas-slug/rezervacija',
+          'Gosti mogu slati zahtjeve na: rest.by.me/vas-slug/rezervacija',
           'Svaki zahtjev ima status Na čekanju dok ga ne odobriš',
           'Klikni Potvrdi ili Odbij na svakom zahtjevu',
           'Potvrđene rezervacije se automatski prikazuju na mapi konobara',
@@ -152,7 +152,7 @@ const HELP_CONTENT = {
         steps: [
           'Klikni na sto u editoru, a zatim na dugme QR kod',
           'Ovaj QR je drugačiji od generalnog QR-a u Digitalnom meniju',
-          'Svaki sto ima jedinstveni QR koji vodi na meni sa brojem stola (npr. smartmeni.me/slug?table=3)',
+          'Svaki sto ima jedinstveni QR koji vodi na meni sa brojem stola (npr. rest.by.me/slug?table=3)',
           'Preuzmi QR i odštampaj ga — zalijepite na svaki sto posebno',
           'Kad gost skenira QR i pozove konobara, konobar vidi tačno koji sto zove',
         ],

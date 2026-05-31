@@ -87,7 +87,7 @@ serve(async (req) => {
         payment_source: {
           paypal: {
             experience_context: {
-              brand_name: 'SmartMeni',
+              brand_name: 'RestByMe',
               locale: 'hr-HR',
               landing_page: 'NO_PREFERENCE',
               shipping_preference: 'NO_SHIPPING',

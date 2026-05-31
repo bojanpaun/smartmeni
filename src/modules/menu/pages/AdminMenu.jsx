@@ -173,7 +173,7 @@ export default function AdminMenu() {
               <div className={styles.metric}>
                 <div className={styles.metricLabel}>Vaš URL</div>
                 <div className={styles.metricVal} style={{ fontSize: 14 }}>
-                  smartmeni.me/{restaurant?.slug}
+                  rest.by.me/{restaurant?.slug}
                 </div>
               </div>
             </div>
@@ -329,8 +329,8 @@ export default function AdminMenu() {
               <div className={styles.qrInfo}>
                 <div className={styles.qrUrlLabel}>Link za goste</div>
                 <div className={styles.qrUrl}>
-                  <span>smartmeni.me/{restaurant?.slug}</span>
-                  <button onClick={() => navigator.clipboard.writeText(`https://smartmeni.me/${restaurant?.slug}`)}>
+                  <span>rest.by.me/{restaurant?.slug}</span>
+                  <button onClick={() => navigator.clipboard.writeText(`https://rest.by.me/${restaurant?.slug}`)}>
                     Kopiraj
                   </button>
                 </div>

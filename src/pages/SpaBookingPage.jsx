@@ -505,7 +505,7 @@ export default function SpaBookingPage() {
       </div>
 
       <div className={styles.footer}>
-        <span>Powered by <strong>SmartMeni</strong></span>
+        <span>Powered by <strong>RestByMe</strong></span>
       </div>
     </div>
   )

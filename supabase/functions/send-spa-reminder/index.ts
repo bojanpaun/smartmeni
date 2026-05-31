@@ -2,7 +2,7 @@ import { serve } from 'https://deno.land/std@0.168.0/http/server.ts'
 import { createClient } from 'https://esm.sh/@supabase/supabase-js@2'
 
 const RESEND_API = 'https://api.resend.com/emails'
-const FROM       = 'SmartMeni Spa <onboarding@resend.dev>'
+const FROM       = 'RestByMe Spa <onboarding@resend.dev>'
 
 function fmt(dateStr: string) {
   return new Date(dateStr + 'T12:00:00').toLocaleDateString('sr-Latn', {
@@ -83,7 +83,7 @@ function buildReminderHtml(a: {
     </div>
 
     <p style="color:#6b7280;font-size:12px;text-align:center;margin-top:24px;">
-      Powered by <strong>SmartMeni</strong>
+      Powered by <strong>RestByMe</strong>
     </p>
   </td></tr>
 </table>

@@ -238,7 +238,7 @@ export default function GuestAppPage() {
           </form>
         </div>
 
-        <div className={styles.loginFooter}>Powered by SmartMeni</div>
+        <div className={styles.loginFooter}>Powered by RestByMe</div>
       </div>
     )
   }

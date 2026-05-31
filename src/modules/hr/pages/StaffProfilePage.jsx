@@ -293,7 +293,7 @@ ${deductions.length > 0 ? `
   <div class="sig">Potpis zaposlenika<br><br><br>___________________________<br>${sName}</div>
 </div>
 
-<div class="footer">Generisano putem SmartMeni platforme · ${generated}</div>
+<div class="footer">Generisano putem RestByMe platforme · ${generated}</div>
 
 </body>
 </html>`

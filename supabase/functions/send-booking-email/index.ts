@@ -2,7 +2,7 @@ import { serve } from 'https://deno.land/std@0.168.0/http/server.ts'
 import { createClient } from 'https://esm.sh/@supabase/supabase-js@2'
 
 const RESEND_API = 'https://api.resend.com/emails'
-const FROM       = 'SmartMeni Booking <onboarding@resend.dev>'
+const FROM       = 'RestByMe Booking <onboarding@resend.dev>'
 
 const corsHeaders = {
   'Access-Control-Allow-Origin': '*',
@@ -138,7 +138,7 @@ function buildHtml(data: {
   <!-- Footer -->
   <tr><td style="background:#f9fafb;padding:18px 32px;text-align:center;border-top:1px solid #e5e7eb;">
     <p style="margin:0;font-size:12px;color:#9ca3af;">Automatski generisan email • <strong>${hotelName}</strong></p>
-    <p style="margin:5px 0 0;font-size:11px;color:#d1d5db;">Powered by <strong>SmartMeni</strong></p>
+    <p style="margin:5px 0 0;font-size:11px;color:#d1d5db;">Powered by <strong>RestByMe</strong></p>
   </td></tr>
 
 </table>
@@ -204,7 +204,7 @@ serve(async (req) => {
     const guestName  = res.guest_name ?? 'Gost'
     const guestCode  = res.id.slice(0, 8).toUpperCase()
     const guestAppUrl = hotelSlug
-      ? `${Deno.env.get('SITE_URL') ?? 'https://smartmeni.me'}/${hotelSlug}/guest`
+      ? `${Deno.env.get('SITE_URL') ?? 'https://rest.by.me'}/${hotelSlug}/guest`
       : null
 
     const subjects: Record<string, string> = {

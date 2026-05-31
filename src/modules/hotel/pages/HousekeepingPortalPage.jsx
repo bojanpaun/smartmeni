@@ -360,7 +360,7 @@ export default function HousekeepingPortalPage() {
       </div>
 
       <footer className={styles.portalFooter}>
-        Powered by <strong>SmartMeni</strong>
+        Powered by <strong>RestByMe</strong>
       </footer>
     </div>
   )

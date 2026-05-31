@@ -1,5 +1,5 @@
 // ═══════════════════════════════════════════════════
-// SmartMeni — Registar predložaka
+// RestByMe — Registar predložaka
 // ═══════════════════════════════════════════════════
 
 export const TEMPLATES = [

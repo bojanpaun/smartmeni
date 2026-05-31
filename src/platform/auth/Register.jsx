@@ -82,7 +82,7 @@ export default function Register() {
     <div className={styles.page}>
       <div className={styles.card}>
         <Link to="/" className={styles.logo}>
-          smart<span>meni</span>.me
+          rest.by.me
         </Link>
 
         <div className={styles.steps}>
@@ -143,9 +143,9 @@ export default function Register() {
                 />
               </div>
               <div className={styles.field}>
-                <label>Vaš URL na SmartMeniju</label>
+                <label>Vaš URL na RestByMeju</label>
                 <div className={styles.slugWrap}>
-                  <span className={styles.slugPrefix}>smartmeni.me/</span>
+                  <span className={styles.slugPrefix}>rest.by.me/</span>
                   <input
                     type="text"
                     value={form.slug}

@@ -356,7 +356,7 @@ export default function HotelLandingPage() {
           </button>
         </div>
         <footer className={styles.footer}>
-          <p>Powered by <strong>SmartMeni</strong></p>
+          <p>Powered by <strong>RestByMe</strong></p>
         </footer>
       </div>
     )
@@ -410,7 +410,7 @@ export default function HotelLandingPage() {
         </button>
       </div>
       <footer className={styles.footer}>
-        <p>Powered by <strong>SmartMeni</strong></p>
+        <p>Powered by <strong>RestByMe</strong></p>
       </footer>
     </div>
   )

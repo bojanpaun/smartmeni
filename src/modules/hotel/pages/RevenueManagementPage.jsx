@@ -19,7 +19,7 @@ function exportCSV(data, kpis, periodDays, restaurantName) {
   const eur = (v) => '€' + Number(v || 0).toFixed(2)
 
   const lines = [
-    'SmartMeni — Analitika prihoda',
+    'RestByMe — Analitika prihoda',
     `Objekat:;${restaurantName}`,
     `Period:;zadnjih ${periodDays} dana`,
     `Generisano:;${today}`,
@@ -123,7 +123,7 @@ function printRevenuePDF(data, kpis, periodDays, restaurantName, suggestions) {
     <tbody>${sugRows}</tbody>
   </table>
 
-  <div class="footer">Powered by SmartMeni</div>
+  <div class="footer">Powered by RestByMe</div>
   <script>window.onload = () => { window.print() }<\/script>
 </body>
 </html>`

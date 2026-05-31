@@ -79,7 +79,7 @@ serve(async (req) => {
         plan_id: PAYPAL_PLAN_ID,
         subscriber: { name: { given_name: restaurant.name } },
         application_context: {
-          brand_name: 'SmartMeni',
+          brand_name: 'RestByMe',
           locale: 'hr-HR',
           shipping_preference: 'NO_SHIPPING',
           user_action: 'SUBSCRIBE_NOW',

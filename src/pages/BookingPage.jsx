@@ -503,7 +503,7 @@ export default function BookingPage() {
       </div>
 
       <div className={styles.footer}>
-        <span>Powered by SmartMeni</span>
+        <span>Powered by RestByMe</span>
       </div>
     </div>
   )

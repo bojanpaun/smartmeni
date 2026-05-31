@@ -238,7 +238,7 @@ export default function StaffPortal() {
       {/* Content */}
       <div className={s.content}>
         {renderView()}
-        <div className={s.portalFooter}>Powered by <strong>SmartMeni</strong></div>
+        <div className={s.portalFooter}>Powered by <strong>RestByMe</strong></div>
       </div>
 
       {/* Bottom navigation */}

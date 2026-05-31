@@ -21,7 +21,7 @@ function addDays(n) {
 
 function exportCSV(metrics, serviceStats, therapistStats, restaurantName, fromDate, toDate) {
   const lines = [
-    'SmartMeni — Spa & Wellness analitika',
+    'RestByMe — Spa & Wellness analitika',
     `Objekat:;${restaurantName}`,
     `Period:;${fromDate} – ${toDate}`,
     `Generisano:;${new Date().toLocaleDateString('sr-Latn')}`,

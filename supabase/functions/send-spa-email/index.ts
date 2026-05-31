@@ -1,7 +1,7 @@
 import { serve } from 'https://deno.land/std@0.168.0/http/server.ts'
 
 const RESEND_API = 'https://api.resend.com/emails'
-const FROM       = 'SmartMeni Spa <onboarding@resend.dev>'
+const FROM       = 'RestByMe Spa <onboarding@resend.dev>'
 
 const corsHeaders = {
   'Access-Control-Allow-Origin': '*',
@@ -109,7 +109,7 @@ function buildHtml(data: {
     </div>` : ''}
 
     <p style="color:#6b7280;font-size:12px;text-align:center;margin-top:24px;">
-      Powered by <strong>SmartMeni</strong>
+      Powered by <strong>RestByMe</strong>
     </p>
   </td></tr>
 

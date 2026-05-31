@@ -218,7 +218,7 @@ export default function RestaurantLandingPage() {
         })}
 
         <footer className={styles.footer}>
-          <p>Powered by <strong>SmartMeni</strong></p>
+          <p>Powered by <strong>RestByMe</strong></p>
         </footer>
       </div>
     )
@@ -292,7 +292,7 @@ export default function RestaurantLandingPage() {
       )}
 
       <footer className={styles.footer}>
-        <p>Powered by <strong>SmartMeni</strong></p>
+        <p>Powered by <strong>RestByMe</strong></p>
       </footer>
     </div>
   )

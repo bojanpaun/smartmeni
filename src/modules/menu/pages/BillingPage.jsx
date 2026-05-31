@@ -155,7 +155,7 @@ export default function BillingPage() {
       {/* Status alertovi */}
       {status === 'suspended' && (
         <div className={styles.alertDanger}>
-          ⚠️ Nalog je suspendovan. Obnovi pretplatu da nastaviš koristiti SmartMeni.
+          ⚠️ Nalog je suspendovan. Obnovi pretplatu da nastaviš koristiti RestByMe.
         </div>
       )}
       {status === 'trial' && days > 0 && (
@@ -255,7 +255,7 @@ export default function BillingPage() {
                   </div>
                 ) : plan.id === 'starter' ? (
                   isDowngrade ? (
-                    <button className={styles.downgradeBtn} onClick={() => alert('Za downgrade kontaktirajte podršku na support@smartmeni.me')}>
+                    <button className={styles.downgradeBtn} onClick={() => alert('Za downgrade kontaktirajte podršku na support@rest.by.me')}>
                       Smanji plan
                     </button>
                   ) : null
@@ -272,7 +272,7 @@ export default function BillingPage() {
                   <div className={styles.comingSoonWrap}>
                     <div className={styles.comingSoonBadge}>Stripe — uskoro</div>
                     <a
-                      href={`mailto:support@smartmeni.me?subject=Interes za ${plan.name} plan`}
+                      href={`mailto:support@rest.by.me?subject=Interes za ${plan.name} plan`}
                       className={styles.contactBtn}
                     >
                       ✉️ Kontaktirajte nas
@@ -297,7 +297,7 @@ export default function BillingPage() {
           </div>
         </div>
         <a
-          href="mailto:support@smartmeni.me?subject=Enterprise upit"
+          href="mailto:support@rest.by.me?subject=Enterprise upit"
           className={styles.enterpriseBtn}
         >
           Kontaktirajte nas →

@@ -263,7 +263,7 @@ export default function OrderTrackerPage() {
         {/* FOOTER */}
         <div className={styles.footer}>
           <a href="/" className={styles.footerBrand}>
-            Powered by <strong>smartmeni.me</strong>
+            Powered by <strong>rest.by.me</strong>
           </a>
         </div>
       </div>

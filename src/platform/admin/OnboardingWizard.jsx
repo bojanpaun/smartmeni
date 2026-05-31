@@ -360,7 +360,7 @@ export default function OnboardingWizard({ onComplete, onSkip }) {
                 </div>
                 {restaurant && (
                   <div className={styles.qrUrl}>
-                    smartmeni.me/<strong>{restaurant.slug}</strong>
+                    rest.by.me/<strong>{restaurant.slug}</strong>
                   </div>
                 )}
                 <div className={styles.qrNote}>

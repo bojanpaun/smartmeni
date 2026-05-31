@@ -7,7 +7,7 @@ import { serve } from 'https://deno.land/std@0.168.0/http/server.ts'
 import { createClient } from 'https://esm.sh/@supabase/supabase-js@2'
 
 const RESEND_API_KEY = Deno.env.get('RESEND_API_KEY')!
-const APP_URL        = Deno.env.get('APP_URL') || 'https://smartmeni.me'
+const APP_URL        = Deno.env.get('APP_URL') || 'https://rest.by.me'
 
 const corsHeaders = {
   'Access-Control-Allow-Origin': '*',
@@ -22,7 +22,7 @@ async function sendEmail(to: string, subject: string, html: string) {
       'Content-Type': 'application/json',
     },
     body: JSON.stringify({
-      from: 'SmartMeni <noreply@smartmeni.me>',
+      from: 'RestByMe <noreply@rest.by.me>',
       to,
       subject,
       html,
@@ -43,7 +43,7 @@ function reminderEmail(restaurantName: string, daysLeft: number): string {
       </h1>
       <p style="font-size:14px;color:#5a7a6a;line-height:1.6;margin-bottom:20px;">
         Zdravo, <strong>${restaurantName}</strong>!<br><br>
-        Vaš besplatni trial period za SmartMeni Pro ističe za
+        Vaš besplatni trial period za RestByMe Pro ističe za
         <strong>${daysLeft} ${daysLeft === 1 ? 'dan' : 'dana'}</strong>.
         Nakon isteka, nalog će biti prebačen na Starter plan.
       </p>
@@ -61,7 +61,7 @@ function reminderEmail(restaurantName: string, daysLeft: number): string {
         Pređi na Pro — €19/god →
       </a>
       <p style="font-size:12px;color:#8a9e96;margin-top:32px;line-height:1.5;">
-        Pitanja? <a href="mailto:support@smartmeni.me" style="color:#0d7a52;">support@smartmeni.me</a>
+        Pitanja? <a href="mailto:support@rest.by.me" style="color:#0d7a52;">support@rest.by.me</a>
       </p>
     </div>
   `
@@ -78,7 +78,7 @@ function expiredEmail(restaurantName: string): string {
       </h1>
       <p style="font-size:14px;color:#5a7a6a;line-height:1.6;margin-bottom:20px;">
         Zdravo, <strong>${restaurantName}</strong>!<br><br>
-        Vaš SmartMeni trial period je istekao. Prebačeni ste na besplatni Starter plan.
+        Vaš RestByMe trial period je istekao. Prebačeni ste na besplatni Starter plan.
         Svi vaši podaci su sačuvani — možete se nadograditi u bilo kom trenutku.
       </p>
       <a href="${APP_URL}/admin/billing"
@@ -86,7 +86,7 @@ function expiredEmail(restaurantName: string): string {
         Aktiviraj Pro →
       </a>
       <p style="font-size:12px;color:#8a9e96;margin-top:32px;line-height:1.5;">
-        Pitanja? <a href="mailto:support@smartmeni.me" style="color:#0d7a52;">support@smartmeni.me</a>
+        Pitanja? <a href="mailto:support@rest.by.me" style="color:#0d7a52;">support@rest.by.me</a>
       </p>
     </div>
   `
@@ -137,7 +137,7 @@ serve(async (req) => {
       const email = authUser?.user?.email
       if (!email) continue
 
-      const sent = await sendEmail(email, 'SmartMeni: Vaš trial ističe za 7 dana', reminderEmail(rest.name, 7))
+      const sent = await sendEmail(email, 'RestByMe: Vaš trial ističe za 7 dana', reminderEmail(rest.name, 7))
       if (sent) remindersSent++
     }
 
@@ -159,7 +159,7 @@ serve(async (req) => {
       const { data: authUser } = await supabase.auth.admin.getUserById(rest.user_id)
       const email = authUser?.user?.email
       if (email) {
-        await sendEmail(email, 'SmartMeni: Trial period istekao', expiredEmail(rest.name))
+        await sendEmail(email, 'RestByMe: Trial period istekao', expiredEmail(rest.name))
       }
       expiredCount++
     }

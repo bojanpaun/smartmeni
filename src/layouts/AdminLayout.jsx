@@ -22,6 +22,7 @@ export const MODULES = [
       links: [
         { label: 'Narudžbe', icon: '🧾', path: '/admin/orders', perm: 'view_orders' },
         { label: 'Zahtjevi', icon: '🔔', path: '/admin/waiter', perm: 'view_waiter_req' },
+        { label: 'Kuhinja',  icon: '🧑‍🍳', path: '/admin/kitchen', perm: 'view_orders' },
       ],
     },
     admin: {
@@ -220,6 +221,7 @@ const BOTTOM_NAV = [
   { path: '/admin',          label: 'Početna',  icon: '⊞', exact: true },
   { path: '/admin/orders',   label: 'Narudžbe', icon: '🧾', perm: 'view_orders' },
   { path: '/admin/waiter',   label: 'Zahtjevi', icon: '🔔', perm: 'view_waiter_req' },
+  { path: '/admin/kitchen',  label: 'Kuhinja',  icon: '🧑‍🍳', perm: 'view_orders' },
   { path: '/admin/tables',   label: 'Stolovi',  icon: '🪑', perm: 'view_tables' },
   { path: '/admin/settings', label: 'Postavke', icon: '⚙️' },
 ]
@@ -320,7 +322,7 @@ export default function AdminLayout({ children }) {
         </header>
         <main className={styles.hubMain}>{children}</main>
         <footer className={styles.hubFooter}>
-          <a href="/" className={styles.hubBrand}>smart<span className={styles.green}>meni</span>.me</a>
+          <a href="/" className={styles.hubBrand}>rest.by<span className={styles.green}>.me</span></a>
         </footer>
       </div>
     )
@@ -416,7 +418,7 @@ export default function AdminLayout({ children }) {
           <button className={styles.logoutBtn} onClick={handleLogout} title="Odjava">
             {collapsed ? '↩' : 'Odjava'}
           </button>
-          {!collapsed && <a href="/" className={styles.sbBrand}>smartmeni.me</a>}
+          {!collapsed && <a href="/" className={styles.sbBrand}>rest.by.me</a>}
         </div>
       </aside>
 
@@ -452,7 +454,7 @@ export default function AdminLayout({ children }) {
         <TrialBanner />
         <main className={styles.main}>{children}</main>
         <footer className={styles.pageFooter}>
-          <a href="/" className={styles.pageBrand}>smart<span className={styles.green}>meni</span>.me</a>
+          <a href="/" className={styles.pageBrand}>rest.by<span className={styles.green}>.me</span></a>
         </footer>
       </div>
 
@@ -521,7 +523,7 @@ export default function AdminLayout({ children }) {
               <LanguageSwitcher variant="dark" />
               <ThemeToggle variant="dark" />
               <button className={styles.logoutBtn} onClick={handleLogout}>Odjava</button>
-              <a href="/" className={styles.sbBrand}>smartmeni.me</a>
+              <a href="/" className={styles.sbBrand}>rest.by.me</a>
             </div>
           </aside>
         </div>

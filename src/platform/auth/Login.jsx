@@ -29,7 +29,7 @@ export default function Login() {
     <div className={styles.page}>
       <div className={styles.card}>
         <Link to="/" className={styles.logo}>
-          smart<span>meni</span>.me
+          rest.by.me
         </Link>
 
         <h1 className={styles.title}>Dobrodošli nazad</h1>
