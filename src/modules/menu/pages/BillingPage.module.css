@@ -1,414 +1,174 @@
-﻿/* ▶ Zamijeniti: src/modules/menu/pages/BillingPage.module.css */
-
 .page {
   padding: 28px 24px;
-  max-width: 800px;
+  max-width: 960px;
   font-family: var(--c-font-sans);
 }
 
 .header { margin-bottom: 24px; }
-
 .title {
   font-family: var(--c-font-display);
-  font-size: 20px;
-  font-weight: 700;
-  color: #1a3028;
-  margin: 0 0 6px;
+  font-size: 22px; font-weight: 700;
+  color: var(--c-text); margin: 0 0 6px;
 }
-
-.subtitle { font-size: 14px; color: #7a9e8e; margin: 0; }
+.subtitle { font-size: 14px; color: var(--c-text-muted); margin: 0; }
 
 /* ── Alertovi ── */
 .alertTrial, .alertExpired, .alertDanger {
-  padding: 12px 16px;
-  border-radius: 10px;
-  font-size: 13px;
-  margin-bottom: 20px;
-  line-height: 1.5;
+  padding: 12px 16px; border-radius: 10px;
+  font-size: 13px; margin-bottom: 20px; line-height: 1.5;
 }
-
-.alertTrial  { background: var(--c-primary-light); color: #0d5c3a; border: 1px solid #a0d8bc; }
+.alertTrial   { background: var(--c-primary-light); color: #0d5c3a; border: 1px solid #a0d8bc; }
 .alertExpired { background: var(--c-warning-bg); color: #7a4a00; border: 1px solid #f5c842; }
 .alertDanger  { background: var(--c-danger-bg); color: #8b0000; border: 1px solid #f5a0a0; }
 
-/* ── Planovi ── */
-.plans {
+/* ── Complimentary ── */
+.complimentaryCard {
+  background: var(--c-surface); border: 1.5px solid var(--c-border);
+  border-radius: 16px; padding: 32px; text-align: center;
+}
+.complimentaryIcon { font-size: 44px; margin-bottom: 12px; }
+.complimentaryTitle { font-size: 20px; font-weight: 700; color: var(--c-text); margin-bottom: 8px; }
+.complimentaryDesc { font-size: 14px; color: var(--c-text-muted); line-height: 1.6; }
+.complimentaryNote { margin-top: 8px; font-style: italic; color: var(--c-text-medium); }
+
+/* ── Billing cycle toggle ── */
+.cycleToggleWrap {
+  display: flex; flex-direction: column; align-items: center;
+  gap: 8px; margin-bottom: 28px;
+}
+.cycleToggle {
+  display: inline-flex;
+  background: var(--c-bg-subtle);
+  border-radius: 12px; padding: 4px; gap: 2px;
+}
+.cycleBtn {
+  padding: 8px 20px; border: none; border-radius: 9px;
+  font-size: 14px; font-weight: 500; cursor: pointer;
+  font-family: var(--c-font-sans); color: var(--c-text-muted);
+  background: transparent; transition: all 0.15s;
+  display: flex; align-items: center; gap: 8px;
+}
+.cycleBtnActive {
+  background: var(--c-surface); color: var(--c-text);
+  font-weight: 600; box-shadow: 0 1px 4px rgba(0,0,0,.08);
+}
+.saveBadge {
+  background: #dcfce7; color: #15803d;
+  font-size: 11px; font-weight: 700; padding: 2px 7px;
+  border-radius: 20px; white-space: nowrap;
+}
+.annualNote { font-size: 12px; color: var(--c-text-muted); }
+
+/* ── Plans grid ── */
+.plansGrid {
   display: grid;
-  grid-template-columns: 1fr 1fr;
-  gap: 16px;
-  margin-bottom: 32px;
+  grid-template-columns: repeat(4, 1fr);
+  gap: 14px;
+  margin-bottom: 24px;
+  align-items: start;
+}
+@media (max-width: 900px) {
+  .plansGrid { grid-template-columns: repeat(2, 1fr); }
+}
+@media (max-width: 560px) {
+  .plansGrid { grid-template-columns: 1fr; }
 }
 
+/* ── Plan card ── */
 .planCard {
   background: var(--c-surface);
   border: 1.5px solid var(--c-border);
-  border-radius: 16px;
-  padding: 24px;
-  position: relative;
-  display: flex;
-  flex-direction: column;
+  border-radius: 16px; padding: 22px;
+  display: flex; flex-direction: column;
+  position: relative; transition: box-shadow 0.15s;
 }
-
-.planPro { border-color: var(--c-primary); }
+.planCard:hover { box-shadow: 0 4px 16px rgba(0,0,0,.08); }
 .planCurrent { border-width: 2px; }
+.planPopular { box-shadow: 0 4px 20px rgba(37,99,235,.15); }
 
-.planPopular {
-  position: absolute;
-  top: -12px;
-  left: 50%;
-  transform: translateX(-50%);
-  background: var(--c-primary);
-  color: var(--c-surface);
-  font-size: 11px;
-  font-weight: 600;
-  padding: 3px 14px;
-  border-radius: 20px;
-  white-space: nowrap;
+.popularBadge {
+  position: absolute; top: -1px; left: 50%; transform: translateX(-50%);
+  background: var(--c-primary); color: #fff;
+  font-size: 11px; font-weight: 700; padding: 3px 12px;
+  border-radius: 0 0 10px 10px; white-space: nowrap;
 }
 
-.planHeader {
-  text-align: center;
-  margin-bottom: 20px;
-  padding-bottom: 16px;
-  border-bottom: 1px solid var(--c-border);
-}
+.planHeader { margin-bottom: 14px; margin-top: 14px; }
+.planName { font-size: 18px; font-weight: 800; margin-bottom: 4px; }
+.planDesc { font-size: 12px; color: var(--c-text-muted); line-height: 1.4; }
 
-.planName {
-  font-family: var(--c-font-display);
-  font-size: 18px;
-  font-weight: 700;
-  color: #1a3028;
-  margin-bottom: 6px;
+.planPricing {
+  margin-bottom: 18px; display: flex;
+  align-items: baseline; gap: 3px; flex-wrap: wrap;
 }
-
-.planPrice {
-  font-size: 32px;
-  font-weight: 700;
-  color: var(--c-primary);
-}
-
-.planPeriod {
-  font-size: 12px;
-  color: #7a9e8e;
-  margin-top: 2px;
-}
+.planPrice { font-size: 28px; font-weight: 800; color: var(--c-text); }
+.planPeriod { font-size: 13px; color: var(--c-text-muted); }
+.annualTotal { width: 100%; font-size: 11px; color: var(--c-text-muted); margin-top: 2px; }
 
 .featureList {
-  list-style: none;
-  padding: 0;
-  margin: 0 0 20px;
-  flex: 1;
-  display: flex;
-  flex-direction: column;
-  gap: 8px;
+  list-style: none; margin: 0 0 20px; padding: 0;
+  display: flex; flex-direction: column; gap: 7px; flex: 1;
 }
+.featureItem { display: flex; gap: 8px; font-size: 13px; color: var(--c-text); align-items: flex-start; }
+.featureCheck { font-weight: 700; flex-shrink: 0; margin-top: 1px; }
 
-.featureItem {
-  font-size: 13px;
-  color: #1a3028;
-  display: flex;
-  align-items: flex-start;
-  gap: 8px;
-  line-height: 1.4;
-}
-
-.featureMissing { color: #b0c4ba; }
-.featureCheck { color: var(--c-primary); font-weight: 700; flex-shrink: 0; }
-.featureCross  { color: var(--c-border); flex-shrink: 0; }
-
-.currentBadge {
-  text-align: center;
-  padding: 8px;
-  background: #f0f4f1;
-  color: #7a9e8e;
-  border-radius: 8px;
-  font-size: 12px;
-  font-weight: 500;
-}
+/* ── CTA ── */
+.planCta { margin-top: auto; }
 
 .upgradeBtn {
-  width: 100%;
-  padding: 12px;
-  background: var(--c-primary);
-  color: var(--c-surface);
-  border: none;
-  border-radius: 10px;
-  font-size: 14px;
-  font-weight: 600;
-  cursor: pointer;
-  font-family: var(--c-font-sans);
-  transition: background 0.15s;
+  width: 100%; padding: 11px; border: none; border-radius: 10px;
+  color: #fff; font-size: 14px; font-weight: 700; cursor: pointer;
+  font-family: var(--c-font-sans); transition: opacity 0.15s;
 }
-.upgradeBtn:hover:not(:disabled) { background: #0a6445; }
-.upgradeBtn:disabled { background: var(--c-primary-muted); cursor: default; }
+.upgradeBtn:hover { opacity: 0.88; }
+.upgradeBtn:disabled { opacity: 0.5; cursor: not-allowed; }
 
-.proActions { display: flex; flex-direction: column; gap: 8px; }
-
-.cancelBtn {
-  background: transparent;
-  border: none;
-  color: #9e3030;
-  font-size: 12px;
-  cursor: pointer;
-  font-family: var(--c-font-sans);
-  text-align: center;
-  padding: 4px;
-  transition: color 0.12s;
-}
-.cancelBtn:hover { color: #c62828; }
-
-.error {
-  margin-top: 10px;
-  padding: 8px 12px;
-  background: var(--c-danger-bg);
-  color: #c62828;
-  border-radius: 8px;
-  font-size: 12px;
+.currentLabel {
+  text-align: center; font-size: 13px; font-weight: 700;
+  padding: 10px 0;
 }
 
-/* ── Complimentary prikaz ── */
-.complimentaryCard {
-  background: var(--c-bg-subtle);
-  border: 1.5px solid var(--c-primary-muted);
-  border-radius: 16px;
-  padding: 40px 32px;
-  text-align: center;
-  max-width: 480px;
+.downgradeBtn {
+  width: 100%; padding: 10px; border: 1.5px solid var(--c-border-input);
+  border-radius: 10px; background: transparent; color: var(--c-text-muted);
+  font-size: 13px; cursor: pointer; font-family: var(--c-font-sans);
 }
 
-.complimentaryIcon { font-size: 52px; margin-bottom: 14px; }
-
-.complimentaryTitle {
-  font-size: 22px;
-  font-weight: 600;
-  color: #0a4f35;
-  margin-bottom: 10px;
-  font-family: var(--c-font-sans);
+.comingSoonWrap { display: flex; flex-direction: column; gap: 8px; }
+.comingSoonBadge {
+  text-align: center; font-size: 11px; font-weight: 700;
+  color: #7c3aed; background: #f5f3ff; border: 1px solid #e9d5ff;
+  border-radius: 8px; padding: 6px;
 }
-
-.complimentaryDesc {
-  font-size: 14px;
-  color: #3d7a60;
-  line-height: 1.6;
-  margin-bottom: 22px;
+.contactBtn {
+  display: block; text-align: center; padding: 10px;
+  border: 1.5px solid var(--c-border-input); border-radius: 10px;
+  font-size: 13px; font-weight: 600; color: var(--c-text-medium);
+  text-decoration: none; transition: all 0.15s;
 }
+.contactBtn:hover { border-color: #7c3aed; color: #7c3aed; }
 
-.complimentaryNote {
-  margin-top: 10px;
-  font-size: 13px;
-  color: #5a9e80;
-  font-style: italic;
+/* ── Enterprise ── */
+.enterpriseCard {
+  display: flex; align-items: center; justify-content: space-between;
+  gap: 20px; background: var(--c-bg-subtle);
+  border: 1.5px solid var(--c-border); border-radius: 14px;
+  padding: 20px 24px; margin-bottom: 28px; flex-wrap: wrap;
 }
-
-.complimentaryFeatures {
-  display: flex;
-  flex-wrap: wrap;
-  gap: 8px;
-  justify-content: center;
+.enterpriseName { font-size: 16px; font-weight: 700; color: var(--c-text); margin-bottom: 4px; }
+.enterpriseDesc { font-size: 13px; color: var(--c-text-muted); line-height: 1.5; max-width: 520px; }
+.enterpriseLeft { flex: 1; }
+.enterpriseBtn {
+  padding: 10px 22px; background: var(--c-text); color: var(--c-surface);
+  border-radius: 10px; font-size: 14px; font-weight: 600;
+  text-decoration: none; white-space: nowrap; transition: opacity 0.15s;
+  flex-shrink: 0;
 }
-
-.complimentaryFeatures span {
-  background: #d4f0e3;
-  color: #0a4f35;
-  font-size: 13px;
-  padding: 5px 14px;
-  border-radius: 20px;
-  font-family: var(--c-font-sans);
-}
+.enterpriseBtn:hover { opacity: 0.85; }
 
 /* ── FAQ ── */
-.faq {
-  border-top: 1px solid var(--c-border);
-  padding-top: 24px;
-}
-
-.faqTitle {
-  font-size: 14px;
-  font-weight: 600;
-  color: #1a3028;
-  margin-bottom: 16px;
-}
-
+.faq { border-top: 1px solid var(--c-border); padding-top: 24px; }
+.faqTitle { font-size: 15px; font-weight: 700; color: var(--c-text); margin-bottom: 16px; }
 .faqItem { margin-bottom: 14px; }
-
-.faqQ {
-  font-size: 13px;
-  font-weight: 500;
-  color: #1a3028;
-  margin-bottom: 4px;
-}
-
-.faqA {
-  font-size: 13px;
-  color: #7a9e8e;
-  line-height: 1.5;
-}
-
-/* ── Addon moduli ── */
-.addonsSection {
-  margin-top: 12px;
-  margin-bottom: 36px;
-  padding-top: 32px;
-  border-top: 1px solid var(--c-border);
-}
-
-.addonsSectionHeader {
-  margin-bottom: 20px;
-}
-
-.addonsSectionTitle {
-  font-family: var(--c-font-display);
-  font-size: 17px;
-  font-weight: 700;
-  color: #1a3028;
-  margin: 0 0 6px;
-}
-
-.addonsSectionSubtitle {
-  font-size: 13px;
-  color: #7a9e8e;
-  margin: 0;
-  line-height: 1.5;
-}
-
-.categoryTabs {
-  display: flex;
-  gap: 8px;
-  margin-bottom: 20px;
-  flex-wrap: wrap;
-}
-
-.categoryTab {
-  padding: 6px 16px;
-  border-radius: 20px;
-  border: 1.5px solid var(--c-border-input);
-  background: transparent;
-  color: #5a7a6e;
-  font-size: 13px;
-  font-weight: 500;
-  cursor: pointer;
-  font-family: var(--c-font-sans);
-  transition: all 0.15s;
-}
-
-.categoryTab:hover { border-color: var(--c-primary); color: var(--c-primary); }
-
-.categoryTabActive {
-  background: var(--c-primary);
-  border-color: var(--c-primary);
-  color: var(--c-surface);
-}
-
-.addonGrid {
-  display: grid;
-  grid-template-columns: repeat(auto-fill, minmax(220px, 1fr));
-  gap: 14px;
-}
-
-.addonCard {
-  background: var(--c-surface);
-  border: 1.5px solid var(--c-border);
-  border-radius: 14px;
-  padding: 18px;
-  display: flex;
-  flex-direction: column;
-  gap: 12px;
-  position: relative;
-  transition: border-color 0.15s;
-}
-
-.addonCard:hover { border-color: var(--c-primary); }
-.addonActive { border-color: var(--c-primary); background: #f6fdf9; }
-.addonBlocked { opacity: 0.65; }
-
-.addonActiveBadge {
-  position: absolute;
-  top: -10px;
-  right: 14px;
-  background: var(--c-primary);
-  color: var(--c-surface);
-  font-size: 10px;
-  font-weight: 600;
-  padding: 2px 10px;
-  border-radius: 10px;
-}
-
-.addonTrialBadge {
-  background: #e07a00;
-}
-
-.addonCardBody { flex: 1; }
-
-.addonName {
-  font-size: 14px;
-  font-weight: 600;
-  color: #1a3028;
-  margin-bottom: 6px;
-}
-
-.addonDesc {
-  font-size: 12px;
-  color: #6a9080;
-  line-height: 1.5;
-  margin: 0;
-}
-
-.addonDepsNote {
-  font-size: 11px;
-  color: #b08060;
-  margin: 8px 0 0;
-}
-
-.addonCardFooter {
-  display: flex;
-  align-items: center;
-  justify-content: space-between;
-  gap: 8px;
-  padding-top: 10px;
-  border-top: 1px solid var(--c-border);
-}
-
-.addonPrice {
-  font-size: 12px;
-  font-weight: 600;
-  color: var(--c-primary);
-}
-
-.addonPriceTbd {
-  font-size: 12px;
-  color: #9ab8aa;
-}
-
-.addonActiveLabel {
-  font-size: 12px;
-  color: var(--c-primary);
-  font-weight: 500;
-}
-
-.addonBtn {
-  padding: 5px 14px;
-  background: var(--c-primary);
-  color: var(--c-surface);
-  border: none;
-  border-radius: 8px;
-  font-size: 12px;
-  font-weight: 600;
-  cursor: pointer;
-  font-family: var(--c-font-sans);
-  transition: background 0.15s;
-  white-space: nowrap;
-}
-
-.addonBtn:hover:not(:disabled) { background: #0a6445; }
-.addonBtn:disabled {
-  background: #c0d4ca;
-  cursor: not-allowed;
-}
-
-/* ── Responsive ── */
-@media (max-width: 600px) {
-  .plans { grid-template-columns: 1fr; }
-  .page { padding: 16px; }
-  .complimentaryCard { padding: 28px 20px; }
-  .addonGrid { grid-template-columns: 1fr; }
-}
+.faqQ { font-size: 13px; font-weight: 600; color: var(--c-text); margin-bottom: 4px; }
+.faqA { font-size: 13px; color: var(--c-text-muted); line-height: 1.6; }
