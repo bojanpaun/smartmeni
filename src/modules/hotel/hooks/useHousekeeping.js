@@ -30,7 +30,7 @@ export function useHousekeeping(restaurantId, date) {
         .order('created_at'),
       supabase
         .from('staff')
-        .select('id, first_name, last_name, role')
+        .select('id, first_name, last_name, role:roles(name)')
         .eq('restaurant_id', restaurantId)
         .eq('is_active', true)
         .order('first_name'),
