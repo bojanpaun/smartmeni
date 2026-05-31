@@ -53,7 +53,7 @@ export default function SpaDashboard() {
             style={{ padding: '8px 12px', border: '1px solid var(--c-border-input)', borderRadius: 9, fontSize: 13, background: 'var(--c-surface)', color: 'var(--c-text)', outline: 'none', fontFamily: 'inherit' }}
           />
           <button className={styles.btnSecondary} onClick={() => setDate(TODAY)}>Danas</button>
-          <button className={styles.btnPrimary} onClick={() => navigate('/admin/hotel/spa/appointments')}>
+          <button className={styles.btnPrimary} onClick={() => navigate('/admin/spa/appointments')}>
             + Novi termin
           </button>
         </div>
@@ -82,12 +82,12 @@ export default function SpaDashboard() {
       {/* Quick nav */}
       <div style={{ display: 'flex', gap: 10, marginBottom: 24, flexWrap: 'wrap' }}>
         {[
-          { label: '📅 Kalendar', path: '/admin/hotel/spa/calendar' },
-          { label: '🛎 Katalog tretmana', path: '/admin/hotel/spa/services' },
-          { label: '👤 Terapeuti', path: '/admin/hotel/spa/therapists' },
-          { label: '🚪 Kabine', path: '/admin/hotel/spa/rooms' },
-          { label: '📊 Analitika', path: '/admin/hotel/spa/analytics' },
-          { label: '⚙️ Postavke', path: '/admin/hotel/spa/settings' },
+          { label: '📅 Kalendar', path: '/admin/spa/calendar' },
+          { label: '🛎 Katalog tretmana', path: '/admin/spa/services' },
+          { label: '👤 Terapeuti', path: '/admin/spa/therapists' },
+          { label: '🚪 Kabine', path: '/admin/spa/rooms' },
+          { label: '📊 Analitika', path: '/admin/spa/analytics' },
+          { label: '⚙️ Postavke', path: '/admin/spa/settings' },
         ].map(item => (
           <button
             key={item.path}
