@@ -94,16 +94,19 @@ export default function KitchenDashboard({ mode = 'kitchen' }) {
 
   const markReady = async (orderId) => {
     const stationCol = isBar ? 'bar_status' : 'kitchen_status'
-    const { data: updated } = await supabase
-      .from('orders')
+
+    await supabase.from('orders')
       .update({ [stationCol]: 'ready' })
       .eq('id', orderId)
-      .select('kitchen_status, bar_status')
-      .single()
 
-    if (updated) {
-      const kitchenDone = !updated.kitchen_status || updated.kitchen_status === 'ready'
-      const barDone     = !updated.bar_status     || updated.bar_status     === 'ready'
+    const { data: current } = await supabase.from('orders')
+      .select('kitchen_status, bar_status')
+      .eq('id', orderId)
+      .maybeSingle()
+
+    if (current) {
+      const kitchenDone = !current.kitchen_status || current.kitchen_status === 'ready'
+      const barDone     = !current.bar_status     || current.bar_status     === 'ready'
       if (kitchenDone && barDone) {
         await supabase.from('orders').update({ status: 'ready' }).eq('id', orderId)
       }
