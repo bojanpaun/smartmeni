@@ -1,0 +1,295 @@
+/* Public Spa Booking Page */
+
+.loadWrap {
+  display: flex; align-items: center; justify-content: center;
+  min-height: 100vh;
+}
+.spinner {
+  width: 32px; height: 32px;
+  border: 3px solid #e5e7eb;
+  border-top-color: #6d28d9;
+  border-radius: 50%;
+  animation: spin 0.7s linear infinite;
+}
+@keyframes spin { to { transform: rotate(360deg); } }
+.notFound { color: #6b7280; font-size: 15px; }
+
+/* ── Page shell ── */
+.page {
+  min-height: 100vh;
+  background: #f5f3ff;
+  padding-bottom: 40px;
+}
+
+.header {
+  background: linear-gradient(135deg, #6d28d9 0%, #4f46e5 100%);
+  padding: 24px 20px;
+  color: #fff;
+}
+.headerLeft { display: flex; align-items: center; gap: 14px; }
+.logo { width: 52px; height: 52px; object-fit: contain; border-radius: 10px; background: rgba(255,255,255,.15); }
+.hotelName { font-size: 20px; font-weight: 700; margin: 0 0 2px; }
+.headerSub { font-size: 13px; opacity: .85; margin: 0; }
+
+/* ── Step indicator ── */
+.steps {
+  display: flex;
+  justify-content: center;
+  gap: 0;
+  padding: 16px 12px;
+  background: #fff;
+  border-bottom: 1px solid #e5e7eb;
+  overflow-x: auto;
+}
+.step {
+  display: flex; flex-direction: column; align-items: center; gap: 4px;
+  min-width: 60px;
+  color: #9ca3af;
+  font-size: 11px;
+  position: relative;
+}
+.step + .step::before {
+  content: '';
+  position: absolute; left: -50%;
+  top: 12px; width: 100%; height: 2px;
+  background: #e5e7eb;
+}
+.stepDone + .step::before, .stepActive + .step::before { background: #6d28d9; }
+.stepDot {
+  width: 26px; height: 26px;
+  border-radius: 50%;
+  background: #e5e7eb;
+  display: flex; align-items: center; justify-content: center;
+  font-size: 12px; font-weight: 700;
+  position: relative; z-index: 1;
+}
+.stepActive .stepDot { background: #6d28d9; color: #fff; }
+.stepDone .stepDot { background: #6d28d9; color: #fff; }
+.stepActive, .stepDone { color: #6d28d9; }
+.stepLabel { font-size: 10px; white-space: nowrap; }
+
+/* ── Card ── */
+.card {
+  max-width: 640px;
+  margin: 20px auto;
+  background: #fff;
+  border-radius: 16px;
+  box-shadow: 0 2px 12px rgba(0,0,0,.08);
+  overflow: hidden;
+}
+
+.stepContent { padding: 28px 24px; }
+.stepTitle { font-size: 20px; font-weight: 700; color: #111827; margin: 0 0 6px; }
+.stepSub { font-size: 13px; color: #6b7280; margin: 0 0 20px; }
+
+/* ── Category filter ── */
+.catFilter {
+  display: flex; gap: 8px; flex-wrap: wrap;
+  margin-bottom: 20px;
+}
+.catBtn {
+  padding: 6px 14px; border-radius: 20px;
+  border: 1px solid #e5e7eb;
+  background: #fff; color: #6b7280;
+  font-size: 13px; cursor: pointer;
+  font-family: inherit;
+  transition: all .15s;
+}
+.catBtn:hover { border-color: #c4b5fd; color: #6d28d9; }
+.catBtnActive { background: #6d28d9; color: #fff; border-color: #6d28d9; font-weight: 600; }
+
+/* ── Service cards ── */
+.serviceGrid { display: flex; flex-direction: column; gap: 12px; }
+.serviceCard {
+  border: 1.5px solid #e5e7eb;
+  border-radius: 12px;
+  overflow: hidden;
+  cursor: pointer;
+  display: flex;
+  transition: border-color .15s, box-shadow .15s;
+}
+.serviceCard:hover { border-color: #c4b5fd; box-shadow: 0 4px 16px rgba(109,40,217,.1); }
+.serviceImg { width: 110px; object-fit: cover; flex-shrink: 0; }
+.serviceImgPlaceholder {
+  width: 110px; flex-shrink: 0;
+  background: #f5f3ff;
+  display: flex; align-items: center; justify-content: center;
+  font-size: 36px;
+}
+.serviceBody { padding: 14px 16px; flex: 1; }
+.serviceName { font-size: 15px; font-weight: 700; color: #111827; margin-bottom: 4px; }
+.serviceMeta { font-size: 12px; color: #6b7280; display: flex; gap: 12px; margin-bottom: 6px; }
+.serviceDesc { font-size: 12px; color: #6b7280; line-height: 1.5; margin: 0 0 10px; }
+.serviceFooter { display: flex; justify-content: space-between; align-items: center; }
+.servicePrice { font-size: 18px; font-weight: 700; color: #6d28d9; }
+.selectBtn {
+  padding: 7px 14px; background: #6d28d9; color: #fff;
+  border: none; border-radius: 8px; font-size: 13px;
+  font-weight: 600; cursor: pointer; font-family: inherit;
+}
+
+/* ── Fields ── */
+.fieldGroup { margin-bottom: 16px; }
+.fieldLabel { display: block; font-size: 13px; font-weight: 500; color: #374151; margin-bottom: 6px; }
+.fieldInput, .fieldTextarea {
+  width: 100%; box-sizing: border-box;
+  padding: 11px 14px;
+  border: 1.5px solid #e5e7eb;
+  border-radius: 10px;
+  font-size: 14px; font-family: inherit;
+  outline: none; background: #fff; color: #111827;
+  transition: border-color .15s;
+}
+.fieldInput:focus, .fieldTextarea:focus { border-color: #6d28d9; }
+.fieldTextarea { resize: vertical; min-height: 80px; line-height: 1.5; }
+.fieldHint { font-size: 11px; color: #9ca3af; margin: 4px 0 0; }
+
+/* ── Slots ── */
+.slotsLoading { text-align: center; padding: 32px; }
+.noSlots { text-align: center; padding: 40px 20px; }
+.noSlotsIcon { font-size: 40px; margin-bottom: 10px; }
+.slotsGrid {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(100px, 1fr));
+  gap: 10px;
+  margin-top: 16px;
+}
+.slotBtn {
+  border: 1.5px solid #e5e7eb;
+  border-radius: 10px;
+  padding: 12px 8px;
+  text-align: center;
+  cursor: pointer;
+  background: #fff;
+  transition: all .15s;
+  font-family: inherit;
+}
+.slotBtn:hover { border-color: #c4b5fd; background: #f5f3ff; }
+.slotBtnActive { border-color: #6d28d9; background: #f5f3ff; }
+.slotTime { font-size: 16px; font-weight: 700; color: #111827; }
+.slotTherapist { font-size: 10px; color: #6b7280; margin-top: 2px; }
+.slotPrice { font-size: 12px; color: #6d28d9; font-weight: 600; margin-top: 4px; }
+
+/* ── Summary box ── */
+.summaryBox {
+  background: #f5f3ff;
+  border: 1px solid #ddd6fe;
+  border-radius: 10px;
+  padding: 14px 16px;
+  margin-bottom: 20px;
+  display: flex; flex-direction: column; gap: 4px;
+}
+.summaryBox strong { font-size: 15px; color: #111827; }
+.summaryMeta { font-size: 12px; color: #6b7280; }
+
+/* ── Summary full ── */
+.summaryFull {
+  background: #f9fafb;
+  border-radius: 12px;
+  overflow: hidden;
+  margin-bottom: 20px;
+}
+.summaryRow {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: 12px 16px;
+  border-bottom: 1px solid #f3f4f6;
+  font-size: 13px;
+  color: #374151;
+}
+.summaryKey { color: #6b7280; }
+.summaryRow:last-child { border-bottom: none; }
+.summaryDivider { height: 1px; background: #e5e7eb; }
+.summaryTotal { font-weight: 700; font-size: 15px; color: #6d28d9; }
+
+/* ── Payment ── */
+.paymentSection { margin-bottom: 20px; }
+.paymentLabel { font-size: 13px; font-weight: 600; color: #374151; margin-bottom: 10px; }
+.paymentOptions { display: flex; flex-direction: column; gap: 10px; }
+.payOpt {
+  display: flex; align-items: center; gap: 10px;
+  padding: 14px 16px;
+  border: 1.5px solid #e5e7eb;
+  border-radius: 10px;
+  cursor: pointer;
+  font-size: 14px;
+  color: #374151;
+  transition: border-color .15s, background .15s;
+}
+.payOpt:hover { border-color: #c4b5fd; }
+.payOptActive { border-color: #6d28d9; background: #f5f3ff; color: #6d28d9; font-weight: 600; }
+.payOpt input[type="radio"] { accent-color: #6d28d9; }
+
+/* ── Buttons ── */
+.btnBack {
+  background: none; border: none; color: #6b7280;
+  font-size: 13px; cursor: pointer; padding: 0 0 16px;
+  font-family: inherit;
+}
+.btnBack:hover { color: #111827; }
+.btnPrimary {
+  width: 100%; padding: 14px;
+  background: #6d28d9; color: #fff;
+  border: none; border-radius: 12px;
+  font-size: 16px; font-weight: 600;
+  cursor: pointer; font-family: inherit;
+  transition: opacity .15s;
+  margin-top: 8px;
+}
+.btnPrimary:disabled { opacity: .5; cursor: default; }
+.btnPrimary:not(:disabled):hover { opacity: .88; }
+.btnSecondary {
+  width: 100%; padding: 12px;
+  background: transparent;
+  border: 1.5px solid #e5e7eb;
+  border-radius: 12px;
+  font-size: 14px; color: #374151;
+  cursor: pointer; font-family: inherit;
+  margin-top: 10px;
+}
+.btnSecondary:hover { border-color: #c4b5fd; color: #6d28d9; }
+.btnConfirm {
+  width: 100%; padding: 16px;
+  background: #6d28d9; color: #fff;
+  border: none; border-radius: 12px;
+  font-size: 16px; font-weight: 700;
+  cursor: pointer; font-family: inherit;
+  transition: opacity .15s;
+}
+.btnConfirm:disabled { opacity: .5; cursor: default; }
+.btnConfirm:not(:disabled):hover { opacity: .88; }
+
+/* ── Error ── */
+.error {
+  background: #fde0e0; color: #c0392b;
+  border-radius: 8px; padding: 12px 14px;
+  font-size: 13px; margin-bottom: 12px;
+}
+
+/* ── Empty ── */
+.empty { text-align: center; padding: 40px; color: #6b7280; font-size: 14px; }
+
+/* ── Confirmation ── */
+.confirmBlock { text-align: center; padding: 12px 0; }
+.confirmIcon { font-size: 56px; margin-bottom: 16px; }
+.confirmTitle { font-size: 22px; font-weight: 700; color: #111827; margin: 0 0 10px; }
+.confirmSub { font-size: 14px; color: #6b7280; line-height: 1.6; margin: 0 0 24px; }
+.confirmDetails {
+  background: #f9fafb; border-radius: 12px;
+  overflow: hidden; margin: 0 0 20px;
+  text-align: left;
+}
+.confirmRow {
+  display: flex; justify-content: space-between;
+  padding: 11px 16px;
+  border-bottom: 1px solid #f3f4f6;
+  font-size: 13px; color: #374151;
+}
+.confirmRow:last-child { border-bottom: none; }
+.confirmCode { font-family: monospace; font-weight: 700; font-size: 15px; color: #6d28d9; }
+
+/* ── Footer ── */
+.footer {
+  text-align: center; font-size: 12px; color: #9ca3af; padding: 20px;
+}
