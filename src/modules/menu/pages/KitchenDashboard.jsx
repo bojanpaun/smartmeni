@@ -88,10 +88,6 @@ export default function KitchenDashboard({ mode = 'kitchen' }) {
     setLoading(false)
   }
 
-  const startPreparing = async (orderId) => {
-    await supabase.from('orders').update({ status: 'preparing' }).eq('id', orderId)
-  }
-
   const markReady = async (orderId) => {
     await supabase.from('orders').update({ status: 'ready' }).eq('id', orderId)
   }
@@ -112,19 +108,16 @@ export default function KitchenDashboard({ mode = 'kitchen' }) {
   const isUrgent = (dateStr) =>
     (Date.now() - new Date(dateStr)) > 10 * 60 * 1000
 
-  const filterItems = (orderItems = []) => {
-    if (isDone) return orderItems
-    return orderItems.filter(item =>
+  const filterItems = (orderItems = []) =>
+    orderItems.filter(item =>
       isBar ? barCatIds.has(item.category_id) : !barCatIds.has(item.category_id)
     )
-  }
 
-  const visibleOrders = useMemo(() => {
-    if (isDone) return orders
-    return orders
+  const visibleOrders = useMemo(() =>
+    orders
       .map(o => ({ ...o, order_items: filterItems(o.order_items) }))
       .filter(o => o.order_items.length > 0)
-  }, [orders, barCatIds, statusFilter])
+  , [orders, barCatIds, statusFilter])
 
   const totalItems = useMemo(() =>
     visibleOrders.reduce((sum, o) => sum + (o.order_items?.length || 0), 0)
@@ -273,12 +266,7 @@ export default function KitchenDashboard({ mode = 'kitchen' }) {
 
                 <div className={styles.ticketActions}>
                   {order.status === 'received' && (
-                    <button
-                      className={`${styles.ticketBtn} ${isBar ? styles.ticketBtnBar : styles.ticketBtnPrimary}`}
-                      onClick={() => startPreparing(order.id)}
-                    >
-                      {isBar ? 'Pripremi piće' : 'Počni pripremu'}
-                    </button>
+                    <div className={styles.ticketWaiting}>Čeka konobara...</div>
                   )}
                   {order.status === 'preparing' && (
                     <button className={`${styles.ticketBtn} ${styles.ticketBtnSuccess}`}
