@@ -16,11 +16,13 @@ function useKitchenCounts(restaurantId) {
     if (!restaurantId) return
 
     const loadCounts = async () => {
+      const today = new Date().toISOString().slice(0, 10)
       const [
         { count: waiter },
         { count: kitchen },
         { count: bar },
         { count: waiterReq },
+        { count: housekeeping },
       ] = await Promise.all([
         supabase.from('orders').select('id', { count: 'exact', head: true })
           .eq('restaurant_id', restaurantId).in('status', ['pending', 'received', 'ready']),
@@ -32,12 +34,17 @@ function useKitchenCounts(restaurantId) {
           .not('status', 'in', '("served","closed")'),
         supabase.from('waiter_requests').select('id', { count: 'exact', head: true })
           .eq('restaurant_id', restaurantId).eq('is_resolved', false),
+        supabase.from('housekeeping_tasks').select('id', { count: 'exact', head: true })
+          .eq('restaurant_id', restaurantId)
+          .in('status', ['pending', 'in_progress'])
+          .eq('scheduled_for', today),
       ])
       setCounts({
-        waiter:    waiter    || 0,
-        kitchen:   kitchen   || 0,
-        bar:       bar       || 0,
-        waiterReq: waiterReq || 0,
+        waiter:       waiter       || 0,
+        kitchen:      kitchen      || 0,
+        bar:          bar          || 0,
+        waiterReq:    waiterReq    || 0,
+        housekeeping: housekeeping || 0,
       })
     }
 
@@ -47,6 +54,8 @@ function useKitchenCounts(restaurantId) {
       .on('postgres_changes', { event: '*', schema: 'public', table: 'orders',
         filter: `restaurant_id=eq.${restaurantId}` }, loadCounts)
       .on('postgres_changes', { event: '*', schema: 'public', table: 'waiter_requests',
+        filter: `restaurant_id=eq.${restaurantId}` }, loadCounts)
+      .on('postgres_changes', { event: '*', schema: 'public', table: 'housekeeping_tasks',
         filter: `restaurant_id=eq.${restaurantId}` }, loadCounts)
       .subscribe()
 
@@ -278,10 +287,11 @@ export default function AdminLayout({ children }) {
   const { restaurant, logout, isOwner, isSuperAdmin, hasPermission, hasAddon } = usePlatform()
   const kitchenCounts = useKitchenCounts(restaurant?.id)
   const badges = {
-    '/admin/orders':  kitchenCounts.waiter    || 0,
-    '/admin/waiter':  kitchenCounts.waiterReq || 0,
-    '/admin/kitchen': kitchenCounts.kitchen   || 0,
-    '/admin/bar':     kitchenCounts.bar       || 0,
+    '/admin/orders':             kitchenCounts.waiter       || 0,
+    '/admin/waiter':             kitchenCounts.waiterReq    || 0,
+    '/admin/kitchen':            kitchenCounts.kitchen      || 0,
+    '/admin/bar':                kitchenCounts.bar          || 0,
+    '/admin/hotel/housekeeping': kitchenCounts.housekeeping || 0,
   }
   const location = useLocation()
   const navigate = useNavigate()
