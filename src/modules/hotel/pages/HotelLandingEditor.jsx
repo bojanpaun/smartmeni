@@ -1,4 +1,4 @@
-import { useState, useEffect } from 'react'
+import { useState, useEffect, useRef } from 'react'
 import { DndContext, closestCenter, PointerSensor, KeyboardSensor, useSensor, useSensors } from '@dnd-kit/core'
 import { SortableContext, verticalListSortingStrategy, arrayMove } from '@dnd-kit/sortable'
 import { usePlatform } from '../../../context/PlatformContext'
@@ -128,6 +128,9 @@ export default function HotelLandingEditor() {
   const [loading, setLoading] = useState(true)
   const [saving, setSaving] = useState(false)
   const [collapsed, setCollapsed] = useState(() => new Set(BLOCK_DEFS.map(d => d.type)))
+  const [showPreview, setShowPreview] = useState(false)
+  const [panelWidth, setPanelWidth] = useState(420)
+  const dragRef = useRef({ active: false, startX: 0, startW: 0 })
 
   const sensors = useSensors(
     useSensor(PointerSensor, { activationConstraint: { distance: 5 } }),
@@ -165,6 +168,23 @@ export default function HotelLandingEditor() {
       next.has(type) ? next.delete(type) : next.add(type)
       return next
     })
+
+  const onDividerMouseDown = (e) => {
+    e.preventDefault()
+    dragRef.current = { active: true, startX: e.clientX, startW: panelWidth }
+    const onMove = (e) => {
+      if (!dragRef.current.active) return
+      const delta = e.clientX - dragRef.current.startX
+      setPanelWidth(Math.max(280, Math.min(700, dragRef.current.startW + delta)))
+    }
+    const onUp = () => {
+      dragRef.current.active = false
+      document.removeEventListener('mousemove', onMove)
+      document.removeEventListener('mouseup', onUp)
+    }
+    document.addEventListener('mousemove', onMove)
+    document.addEventListener('mouseup', onUp)
+  }
 
   const updateField = (type, field, value) =>
     setBlocks(prev => prev.map(b =>
@@ -212,17 +232,20 @@ export default function HotelLandingEditor() {
   return (
     <div className={styles.editorShell}>
       {/* ── Form panel ── */}
-      <div className={styles.formPanel}>
+      <div className={styles.formPanel} style={{ width: showPreview ? panelWidth : undefined, maxWidth: showPreview ? undefined : 760 }}>
         <div className={styles.header}>
           <div>
             <h1 className={styles.title}>Sajt hotela</h1>
-            <p className={styles.subtitle}>Uređujte blokove — preview se ažurira u realnom vremenu</p>
+            <p className={styles.subtitle}>Uređujte blokove i pratite promjene u realnom vremenu</p>
           </div>
           <div className={styles.headerActions}>
-            {restaurant && (
-              <a href={`/${restaurant.slug}/hotel`} target="_blank" rel="noreferrer" className={styles.previewLink}>
-                👁 Vidi sajt
-              </a>
+            {previewSrc && (
+              <button
+                className={`${styles.previewToggleBtn} ${showPreview ? styles.previewToggleBtnOn : ''}`}
+                onClick={() => setShowPreview(v => !v)}
+              >
+                {showPreview ? '✕ Preview' : '👁 Preview'}
+              </button>
             )}
             <button className={styles.saveBtn} onClick={handleSave} disabled={saving}>
               {saving ? 'Čuvanje...' : 'Sačuvaj'}
@@ -322,7 +345,12 @@ export default function HotelLandingEditor() {
       </div>
 
       {/* ── Preview panel ── */}
-      {previewSrc && <LandingPreview src={previewSrc} blocks={blocks} />}
+      {showPreview && previewSrc && (
+        <>
+          <div className={styles.panelDivider} onMouseDown={onDividerMouseDown} />
+          <LandingPreview src={previewSrc} blocks={blocks} onClose={() => setShowPreview(false)} />
+        </>
+      )}
     </div>
   )
 }

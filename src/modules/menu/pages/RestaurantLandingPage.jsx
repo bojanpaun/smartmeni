@@ -69,6 +69,17 @@ export default function RestaurantLandingPage() {
     return () => window.removeEventListener('message', handler)
   }, [])
 
+  // Send full content height to editor iframe parent
+  useEffect(() => {
+    if (!isPreview) return
+    const send = () => window.parent?.postMessage(
+      { type: 'PREVIEW_HEIGHT', height: document.documentElement.scrollHeight },
+      window.location.origin
+    )
+    const t = setTimeout(send, 400)
+    return () => clearTimeout(t)
+  }, [blocks, loading])
+
   useEffect(() => {
     const onLang = (lng) => setLang(lng)
     i18n.on('languageChanged', onLang)

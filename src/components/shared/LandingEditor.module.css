@@ -7,7 +7,6 @@
 }
 
 .formPanel {
-  width: 420px;
   flex-shrink: 0;
   padding: 24px 20px 40px;
   border-right: 1px solid var(--c-border);
@@ -16,21 +15,41 @@
   overflow-y: auto;
 }
 
+/* ── Resizable divider ── */
+.panelDivider {
+  width: 5px;
+  flex-shrink: 0;
+  background: var(--c-border);
+  cursor: col-resize;
+  position: relative;
+  transition: background 0.15s;
+  user-select: none;
+}
+
+.panelDivider::after {
+  content: '';
+  position: absolute;
+  inset: 0 -5px;
+}
+
+.panelDivider:hover { background: var(--c-primary-medium); }
+
+/* ── Preview panel ── */
 .previewPanel {
   flex: 1;
   position: sticky;
   top: 0;
   height: calc(100vh - 60px);
+  overflow-y: auto;
   display: flex;
   flex-direction: column;
   background: var(--c-bg-subtle);
-  overflow: hidden;
 }
 
 @media (max-width: 1100px) {
   .editorShell { display: block; }
-  .formPanel { width: 100%; max-width: 760px; border-right: none; padding: 24px; min-height: auto; }
-  .previewPanel { display: none; }
+  .formPanel { width: 100% !important; max-width: 760px; border-right: none; padding: 24px; min-height: auto; }
+  .previewPanel, .panelDivider { display: none; }
 }
 
 /* ── Preview panel ── */
@@ -79,7 +98,6 @@
 }
 
 .openLink {
-  margin-left: auto;
   font-size: 12px;
   color: var(--c-primary);
   text-decoration: none;
@@ -91,20 +109,28 @@
 
 .openLink:hover { opacity: 0.8; }
 
+.closePreviewBtn {
+  margin-left: auto;
+  background: none;
+  border: none;
+  cursor: pointer;
+  color: var(--c-text-muted);
+  font-size: 15px;
+  padding: 4px 8px;
+  border-radius: 5px;
+  line-height: 1;
+  transition: color 0.15s, background 0.15s;
+}
+
+.closePreviewBtn:hover { color: var(--c-text); background: var(--c-bg-subtle); }
+
 .previewFrame {
-  flex: 1;
   padding: 12px;
-  overflow: hidden;
-  display: flex;
-  flex-direction: column;
 }
 
 .previewFrameInner {
-  height: 100%;
   margin: 0 auto;
   transition: width 0.3s ease;
-  display: flex;
-  flex-direction: column;
   border-radius: 10px;
   overflow: hidden;
   box-shadow: 0 4px 24px rgba(0,0,0,0.14);
@@ -112,7 +138,6 @@
 
 .previewIframe {
   width: 100%;
-  flex: 1;
   border: none;
   background: #fff;
   display: block;
@@ -149,18 +174,30 @@
   flex-shrink: 0;
 }
 
-.previewLink {
+.previewToggleBtn {
   font-size: 13px;
-  color: var(--c-primary);
-  text-decoration: none;
   padding: 7px 13px;
-  border: 1px solid var(--c-primary-medium);
   border-radius: 8px;
-  background: var(--c-primary-light);
+  border: 1px solid var(--c-border);
+  background: var(--c-bg);
+  color: var(--c-text-muted);
+  cursor: pointer;
   white-space: nowrap;
+  font-family: var(--c-font-sans);
+  transition: border-color 0.15s, color 0.15s, background 0.15s;
 }
 
-.previewLink:hover { opacity: 0.85; }
+.previewToggleBtn:hover {
+  border-color: var(--c-primary-medium);
+  color: var(--c-primary);
+  background: var(--c-primary-light);
+}
+
+.previewToggleBtnOn {
+  border-color: var(--c-primary-medium);
+  color: var(--c-primary);
+  background: var(--c-primary-light);
+}
 
 .saveBtn {
   font-size: 13px;
