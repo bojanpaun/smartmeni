@@ -4,7 +4,8 @@ import { PlatformProvider, usePlatform } from './context/PlatformContext'
 import { CartProvider } from './context/CartContext'
 import LoadingSpinner from './components/shared/LoadingSpinner'
 import UpgradePrompt from './components/shared/UpgradePrompt'
-import AdminLayout from './layouts/AdminLayout'
+
+const AdminLayout = lazy(() => import('./layouts/AdminLayout'))
 
 const Landing              = lazy(() => import('./platform/Landing'))
 const Login                = lazy(() => import('./platform/auth/Login'))
@@ -98,11 +99,13 @@ function ProtectedRoute({ children }) {
 function AdminRoute({ children }) {
   return (
     <ProtectedRoute>
-      <AdminLayout>
-        <Suspense fallback={<LoadingSpinner fullPage />}>
-          {children}
-        </Suspense>
-      </AdminLayout>
+      <Suspense fallback={<LoadingSpinner fullPage />}>
+        <AdminLayout>
+          <Suspense fallback={<LoadingSpinner fullPage />}>
+            {children}
+          </Suspense>
+        </AdminLayout>
+      </Suspense>
     </ProtectedRoute>
   )
 }

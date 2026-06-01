@@ -285,14 +285,6 @@ const BOTTOM_NAV = [
 
 export default function AdminLayout({ children }) {
   const { restaurant, logout, isOwner, isSuperAdmin, hasPermission, hasAddon } = usePlatform()
-  const kitchenCounts = useKitchenCounts(restaurant?.id)
-  const badges = {
-    '/admin/orders':             kitchenCounts.waiter       || 0,
-    '/admin/waiter':             kitchenCounts.waiterReq    || 0,
-    '/admin/kitchen':            kitchenCounts.kitchen      || 0,
-    '/admin/bar':                kitchenCounts.bar          || 0,
-    '/admin/hotel/housekeeping': kitchenCounts.housekeeping || 0,
-  }
   const location = useLocation()
   const navigate = useNavigate()
   const [collapsed, setCollapsed] = useState(false)
@@ -322,6 +314,17 @@ export default function AdminLayout({ children }) {
           ]}}
       : null
   )
+
+  // Badges se prikazuju samo u menu i hotel modulu — ne pokretati queries na svim ostalim stranicama
+  const needsBadges = ['menu', 'hotel'].includes(activeModule?.key)
+  const kitchenCounts = useKitchenCounts(needsBadges ? restaurant?.id : null)
+  const badges = {
+    '/admin/orders':             kitchenCounts.waiter       || 0,
+    '/admin/waiter':             kitchenCounts.waiterReq    || 0,
+    '/admin/kitchen':            kitchenCounts.kitchen      || 0,
+    '/admin/bar':                kitchenCounts.bar          || 0,
+    '/admin/hotel/housekeeping': kitchenCounts.housekeeping || 0,
+  }
 
   const handleLogout = async () => { await logout(); navigate('/') }
 

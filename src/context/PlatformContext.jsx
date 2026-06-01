@@ -43,71 +43,43 @@ export function PlatformProvider({ children }) {
   }, [])
 
   const loadProfile = async (user) => {
-    // Check if superadmin
-    const { data: profile } = await supabase
-      .from('user_profiles')
-      .select('*')
-      .eq('id', user.id)
-      .maybeSingle()
+    // Sve tri query-je pokrenuti paralelno — eliminišemo waterfall od 3-5 round-tripova
+    const [{ data: profile }, { data: ownerRest }, { data: staff }] = await Promise.all([
+      supabase.from('user_profiles').select('*').eq('id', user.id).maybeSingle(),
+      supabase.from('restaurants').select('*').eq('user_id', user.id).maybeSingle(),
+      supabase.from('staff').select('*, role:roles(*)').eq('user_id', user.id).eq('is_active', true).maybeSingle(),
+    ])
 
     if (profile?.is_superadmin) {
       setStaffProfile({ ...profile, role: 'superadmin' })
       setPermissions(['*'])
-
-      // Super admin može imati i vlastiti restoran — učitaj ga ako postoji
-      const { data: adminRest } = await supabase
-        .from('restaurants')
-        .select('*')
-        .eq('user_id', user.id)
-        .maybeSingle()
-
-      if (adminRest) {
-        setRestaurant(adminRest)
-        await loadSubscription(adminRest.id)
+      if (ownerRest) {
+        setRestaurant(ownerRest)
+        await loadSubscription(ownerRest.id)
       }
-
       setLoading(false)
       return
     }
 
-    // Check if restaurant owner
-    const { data: rest } = await supabase
-      .from('restaurants')
-      .select('*')
-      .eq('user_id', user.id)
-      .maybeSingle()
-
-    if (rest) {
-      setRestaurant(rest)
+    if (ownerRest) {
+      setRestaurant(ownerRest)
       setPermissions(['*'])
-      await loadSubscription(rest.id)
+      await loadSubscription(ownerRest.id)
       setLoading(false)
       return
     }
-
-    // Check if staff member
-    const { data: staff } = await supabase
-      .from('staff')
-      .select(`*, role:roles(*)`)
-      .eq('user_id', user.id)
-      .eq('is_active', true)
-      .maybeSingle()
 
     if (staff) {
       setStaffProfile(staff)
-      const { data: staffRest } = await supabase
-        .from('restaurants')
-        .select('*')
-        .eq('id', staff.restaurant_id)
-        .maybeSingle()
-      setRestaurant(staffRest)
-      if (staffRest) await loadSubscription(staffRest.id)
-
-      const allPerms = []
-      if (staff.role?.permissions) {
-        allPerms.push(...staff.role.permissions)
-      }
+      const allPerms = staff.role?.permissions ? [...staff.role.permissions] : []
       setPermissions(allPerms)
+      // Restaurant i subscription za staffa — paralelno
+      const [{ data: staffRest }, { data: sub }] = await Promise.all([
+        supabase.from('restaurants').select('*').eq('id', staff.restaurant_id).maybeSingle(),
+        supabase.from('subscriptions').select('plan, addons, addon_trials').eq('restaurant_id', staff.restaurant_id).maybeSingle(),
+      ])
+      setRestaurant(staffRest)
+      setSubscription(sub ?? null)
     }
 
     setLoading(false)
@@ -115,10 +87,7 @@ export function PlatformProvider({ children }) {
 
   const loadSubscription = async (restaurantId) => {
     const { data } = await supabase
-      .from('subscriptions')
-      .select('*')
-      .eq('restaurant_id', restaurantId)
-      .maybeSingle()
+      .from('subscriptions').select('*').eq('restaurant_id', restaurantId).maybeSingle()
     setSubscription(data ?? null)
   }
 
