@@ -1,6 +1,6 @@
 # rest.by.me — HospitalityOS Produkt roadmap
 
-> **Verzija:** 2.8 *(dopunjeno — Faza Y.3 Visual Page Editor: live preview, drag & drop, layout varijante, novi blokovi — 2026-06-01)*
+> **Verzija:** 2.9 *(dopunjeno — Faza Y.3 kompletna: live preview, DnD, collapse, layout varijante, novi blokovi, resizable divider, admin sidebar jedan scroll — 2026-06-01)*
 > **Kontekst:** Evolucija rest.by.me (bivši SmartMeni) SaaS platforme prema punom hospitality management sistemu
 > **Tim:** 1 developer + Claude Code AI asistent
 > **Branch:** `main` → direktno na produkciju (Vercel auto-deploy)
@@ -490,7 +490,7 @@ Trenutno editori primaju URL-ove kao text input. Cilj: pravi drag & drop upload 
 
 ---
 
-## ⬜ Faza Y.3 — Visual Page Editor (Hotel + Restoran)
+## ✅ Faza Y.3 — Visual Page Editor (Hotel + Restoran) (ZAVRŠENA)
 
 > **Preduslov:** Faza Y.1 završena (block editori i ImageUpload rade).
 > **Trajanje:** 8–10 dana
@@ -1872,6 +1872,22 @@ RLS politike se proširuju da provjeravaju `portfolio_access.scope` — regional
 | fix | Dark mode — bijeli tekst na obojanim površinama (bijela umjesto --c-surface) | ✅ | 2026-06-01 |
 | fix | Hardcoded boje — WaiterDashboard, LanguageSwitcher, sbRestTitle | ✅ | 2026-06-01 |
 | fix | KitchenDashboard — CSS varijable umjesto hardcodovanih boja | ✅ | 2026-06-01 |
+| Y.3 | Live preview (iframe split-screen, postMessage, debounce) — Hotel + Restoran | ✅ | 2026-06-01 |
+| Y.3 | Device toggle (📱/📓/🖥) u editoru | ✅ | 2026-06-01 |
+| Y.3 | BlockSortable.jsx — DnD wrapper (dnd-kit) | ✅ | 2026-06-01 |
+| Y.3 | Drag & drop reorder — Hotel + Restoran editor | ✅ | 2026-06-01 |
+| Y.3 | Collapse/expand blokova — svi blokovi startuju kolasirani | ✅ | 2026-06-01 |
+| Y.3 | BlockLayoutPicker.jsx — layout radio thumbnails (15 tipova blokova) | ✅ | 2026-06-01 |
+| Y.3 | Layout varijante — hero/about/story/gallery/amenities/contact/CTA | ✅ | 2026-06-01 |
+| Y.3 | Novi blok: reviews — Hotel + Restoran (zvjezdice, admin unos) | ✅ | 2026-06-01 |
+| Y.3 | Novi blok: video embed — Hotel + Restoran (YouTube/Vimeo auto-convert) | ✅ | 2026-06-01 |
+| Y.3 | Novi blok: cta_banner — Hotel + Restoran | ✅ | 2026-06-01 |
+| Y.3 | Novi blok: faq accordion — Hotel | ✅ | 2026-06-01 |
+| Y.3 | Novi blok: specials (3 stavke sa slikom) — Restoran | ✅ | 2026-06-01 |
+| Y.3 | LandingEditor.module.css — zajednički CSS, eliminacija hotel-importa iz restoran editora | ✅ | 2026-06-01 |
+| Y.3 | Preview panel: toggle aktivacija, resizable divider, full-height iframe | ✅ | 2026-06-01 |
+| Y.3 | PREVIEW_HEIGHT postMessage — iframe visina = puna visina landing stranice | ✅ | 2026-06-01 |
+| fix | AdminLayout sidebar — jedan page scroll, bez zasebnog sidebar scrollera | ✅ | 2026-06-01 |
 | 9 | portfolios + brands + property_groups tabele | ⬜ | |
 | 9 | portfolio_kpis materialized view + cron | ⬜ | |
 | 9 | Portfolio dashboard UI | ⬜ | |
@@ -1953,4 +1969,4 @@ RLS politike se proširuju da provjeravaju `portfolio_access.scope` — regional
 
 ---
 
-*Roadmap ažuriran: 2026-06-01 (v2.8 — Faza Y.3 Visual Page Editor: live preview iframe, drag & drop reorder, layout varijante, novi blokovi reviews/video/cta_banner/faq/specials, shared komponente refaktor — hotel + restoran) | Branch: main | Deployment: Vercel auto-deploy*
+*Roadmap ažuriran: 2026-06-01 (v2.9 — Faza Y.3 ZAVRŠENA: Visual Page Editor hotel+restoran — live preview iframe, DnD reorder, collapse/expand blokova, layout varijante, 5 novih tipova blokova, resizable split panel; AdminLayout: jedan page scroll bez sidebar scrollera) | Branch: main | Deployment: Vercel auto-deploy*
