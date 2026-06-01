@@ -1,77 +1,25 @@
-// ▶ Zamijeniti: src/modules/menu/pages/GeneralSettings.jsx
-
 import { useState, useEffect } from 'react'
 import { supabase } from '../../../lib/supabase'
 import { usePlatform } from '../../../context/PlatformContext'
 import styles from './GeneralSettings.module.css'
 
-
-
-const VIS_OPTIONS = [
-  { value: 'off', label: 'Isključeno' },
-  { value: 'registered', label: 'Registrovani' },
-  { value: 'all', label: 'Svi' },
-]
-
-
-function VisibilityControl({ value, onChange, label, icon, desc }) {
-  return (
-    <div className={styles.orderingCard}>
-      <div className={styles.orderingInfo}>
-        <div className={styles.orderingTitle}>{icon} {label}</div>
-        <div className={styles.orderingDesc}>{desc}</div>
-      </div>
-      <div className={styles.segControl}>
-        {VIS_OPTIONS.map(opt => (
-          <button
-            key={opt.value}
-            type="button"
-            className={[
-              styles.segBtn,
-              value === opt.value ? styles.segBtnActive : '',
-              value === opt.value && opt.value === 'off' ? styles.segBtnOff : '',
-              value === opt.value && opt.value === 'registered' ? styles.segBtnReg : '',
-              value === opt.value && opt.value === 'all' ? styles.segBtnAll : '',
-            ].join(' ')}
-            onClick={() => onChange(opt.value)}
-          >
-            {opt.label}
-          </button>
-        ))}
-      </div>
-    </div>
-  )
-}
-
-// Drag&drop lista za poruke
-
 export default function GeneralSettings() {
-  const { restaurant, setRestaurant, hasAddon } = usePlatform()
-  const hasHotel = hasAddon('hotel_core')
-  const hasSpa = hasAddon('spa_wellness')
-  const [form, setForm] = useState(null)
+  const { restaurant, setRestaurant } = usePlatform()
+  const [form, setForm]     = useState(null)
   const [saving, setSaving] = useState(false)
-  const [saved, setSaved] = useState(false)
+  const [saved, setSaved]   = useState(false)
   const [isDirty, setIsDirty] = useState(false)
-
 
   useEffect(() => {
     if (restaurant) {
       setIsDirty(false)
       setForm({
-        name: restaurant.name || '',
-        location: restaurant.location || '',
-        phone: restaurant.phone || '',
-        hours: restaurant.hours || '',
+        name:        restaurant.name        || '',
+        location:    restaurant.location    || '',
+        phone:       restaurant.phone       || '',
+        hours:       restaurant.hours       || '',
         description: restaurant.description || '',
-        ordering_visibility: restaurant.ordering_visibility || 'all',
-        waiter_visibility: restaurant.waiter_visibility || 'all',
-        reservation_visibility: restaurant.reservation_visibility || 'all',
-        registration_visibility: restaurant.registration_visibility || 'all',
-        hotel_visibility: restaurant.hotel_visibility || 'off',
-        spa_visibility: restaurant.spa_visibility || 'off',
       })
-
     }
   }, [restaurant])
 
@@ -87,16 +35,7 @@ export default function GeneralSettings() {
     setTimeout(() => setSaved(false), 3000)
   }
 
-  const toggleField = async (field, val) => {
-    setForm(f => ({ ...f, [field]: val }))
-    const { error } = await supabase.from('restaurants').update({ [field]: val }).eq('id', restaurant.id)
-    if (error) { setForm(f => ({ ...f, [field]: form[field] })); alert('Greška pri čuvanju.'); return }
-    setRestaurant(r => ({ ...r, [field]: val }))
-  }
-
   const setField = (field, val) => { setForm(f => ({ ...f, [field]: val })); setIsDirty(true) }
-
-
 
   if (!form) return <div className={styles.loading}>Učitavanje...</div>
 
@@ -104,31 +43,9 @@ export default function GeneralSettings() {
     <div className={styles.page}>
       <div className={styles.header}>
         <h1 className={styles.title}>Opšte postavke</h1>
-        <p className={styles.subtitle}>Podaci o restoranu vidljivi gostima u guest meniju.</p>
+        <p className={styles.subtitle}>Osnovni podaci o objektu vidljivi gostima.</p>
       </div>
 
-      <div className={styles.sectionLabel}>Vidljivost u digitalnom meniju</div>
-      <div className={styles.visDesc}>Za svaku opciju odaberi ko je može vidjeti</div>
-
-      <VisibilityControl icon="🛒" label="Digitalno naručivanje" desc="Ko može naručivati iz menija"
-        value={form.ordering_visibility} onChange={val => toggleField('ordering_visibility', val)} />
-      <VisibilityControl icon="🔔" label="Poziv konobara" desc="Ko može pozvati konobara"
-        value={form.waiter_visibility} onChange={val => toggleField('waiter_visibility', val)} />
-      <VisibilityControl icon="📅" label="Online rezervacije" desc="Ko može rezervisati sto"
-        value={form.reservation_visibility} onChange={val => toggleField('reservation_visibility', val)} />
-      <VisibilityControl icon="🎟️" label="Registracija gostiju" desc="Ko vidi dugme Postani naš gost i Prijava"
-        value={form.registration_visibility} onChange={val => toggleField('registration_visibility', val)} />
-      {hasHotel && (
-        <VisibilityControl icon="🏨" label="Hotel — info i smještaj" desc="Ko vidi link prema hotelskoj stranici u meniju"
-          value={form.hotel_visibility} onChange={val => toggleField('hotel_visibility', val)} />
-      )}
-      {hasSpa && (
-        <VisibilityControl icon="✨" label="Spa & Wellness" desc="Ko vidi link prema spa booking stranici u meniju"
-          value={form.spa_visibility} onChange={val => toggleField('spa_visibility', val)} />
-      )}
-
-      {/* PODACI RESTORANA */}
-      <div className={styles.sectionLabel} style={{ marginTop: 28 }}>Podaci restorana</div>
       <form onSubmit={save} className={styles.form}>
         <div className={styles.formGrid}>
           <div className={styles.field}>
@@ -148,11 +65,15 @@ export default function GeneralSettings() {
             <input value={form.hours} onChange={e => setField('hours', e.target.value)} placeholder="npr. 09:00 – 23:00" />
           </div>
         </div>
-        <div className={styles.field} style={{ marginTop: '4px' }}>
+        <div className={styles.field} style={{ marginBottom: 20 }}>
           <label>Opis restorana</label>
-          <textarea value={form.description} onChange={e => setField('description', e.target.value)}
+          <textarea
+            value={form.description}
+            onChange={e => setField('description', e.target.value)}
             placeholder="Kratki opis restorana koji gosti vide u meniju..."
-            rows={3} className={styles.textarea} />
+            rows={3}
+            className={styles.textarea}
+          />
           <div className={styles.fieldHint}>Prikazuje se ispod naziva restorana u guest meniju. Max 200 karaktera.</div>
         </div>
         <div className={styles.formActions}>
