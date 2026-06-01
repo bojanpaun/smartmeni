@@ -225,7 +225,7 @@ export default function HousekeepingPage() {
         </div>
         <div className={hk.stat}>
           <div className={hk.statVal} style={{ color: '#c0392b' }}>{maintOpen}</div>
-          <div className={hk.statLabel}>Maintenance otvoreni</div>
+          <div className={hk.statLabel}>Održavanje aktivno</div>
         </div>
       </div>
 
@@ -237,7 +237,7 @@ export default function HousekeepingPage() {
         </button>
         <button className={`${styles.filterBtn} ${tab === 'maintenance' ? styles.filterBtnActive : ''}`}
           onClick={() => setTab('maintenance')}>
-          Maintenance <span className={styles.filterCount}>{maintenance.length}</span>
+          Održavanje <span className={styles.filterCount}>{maintenance.length}</span>
         </button>
       </div>
 

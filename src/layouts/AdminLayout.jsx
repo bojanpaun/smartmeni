@@ -23,6 +23,7 @@ function useKitchenCounts(restaurantId) {
         { count: bar },
         { count: waiterReq },
         { count: housekeeping },
+        { count: maintOpen },
       ] = await Promise.all([
         supabase.from('orders').select('id', { count: 'exact', head: true })
           .eq('restaurant_id', restaurantId).in('status', ['pending', 'received', 'ready']),
@@ -38,6 +39,9 @@ function useKitchenCounts(restaurantId) {
           .eq('restaurant_id', restaurantId)
           .in('status', ['pending', 'in_progress'])
           .eq('scheduled_for', today),
+        supabase.from('maintenance_requests').select('id', { count: 'exact', head: true })
+          .eq('restaurant_id', restaurantId)
+          .not('status', 'in', '("verified","resolved")'),
       ])
       setCounts({
         waiter:       waiter       || 0,
@@ -45,6 +49,7 @@ function useKitchenCounts(restaurantId) {
         bar:          bar          || 0,
         waiterReq:    waiterReq    || 0,
         housekeeping: housekeeping || 0,
+        maintOpen:    maintOpen    || 0,
       })
     }
 
@@ -56,6 +61,8 @@ function useKitchenCounts(restaurantId) {
       .on('postgres_changes', { event: '*', schema: 'public', table: 'waiter_requests',
         filter: `restaurant_id=eq.${restaurantId}` }, loadCounts)
       .on('postgres_changes', { event: '*', schema: 'public', table: 'housekeeping_tasks',
+        filter: `restaurant_id=eq.${restaurantId}` }, loadCounts)
+      .on('postgres_changes', { event: '*', schema: 'public', table: 'maintenance_requests',
         filter: `restaurant_id=eq.${restaurantId}` }, loadCounts)
       .subscribe()
 
@@ -323,7 +330,7 @@ export default function AdminLayout({ children }) {
     '/admin/waiter':             kitchenCounts.waiterReq    || 0,
     '/admin/kitchen':            kitchenCounts.kitchen      || 0,
     '/admin/bar':                kitchenCounts.bar          || 0,
-    '/admin/hotel/housekeeping': kitchenCounts.housekeeping || 0,
+    '/admin/hotel/housekeeping': (kitchenCounts.housekeeping || 0) + (kitchenCounts.maintOpen || 0),
   }
 
   const handleLogout = async () => { await logout(); navigate('/') }
