@@ -23,7 +23,7 @@ function useDashboardData(restaurant, hasHotel, hasSpa) {
       const base = [
         supabase.from('orders').select('id', { count: 'exact', head: true })
           .eq('restaurant_id', rid).gte('created_at', `${today}T00:00:00.000Z`),
-        supabase.from('orders').select('total_amount')
+        supabase.from('orders').select('total')
           .eq('restaurant_id', rid).gte('created_at', `${today}T00:00:00.000Z`)
           .not('status', 'in', '(cancelled,closed)'),
         supabase.from('orders').select('id', { count: 'exact', head: true })
@@ -51,7 +51,7 @@ function useDashboardData(restaurant, hasHotel, hasSpa) {
 
       setKpi({
         ordersToday:   ordersR.count ?? 0,
-        revenueToday:  (revenueR.data || []).reduce((s, o) => s + (Number(o.total_amount) || 0), 0),
+        revenueToday:  (revenueR.data || []).reduce((s, o) => s + (Number(o.total) || 0), 0),
         checkinsToday: hasHotel ? (rest[0]?.count ?? 0) : null,
         spaToday:      hasSpa   ? (rest[hasHotel ? 1 : 0]?.count ?? 0) : null,
       })
