@@ -10,6 +10,25 @@ import hk from './Housekeeping.module.css'
 
 const TODAY = new Date().toISOString().slice(0, 10)
 
+function toDateStr(d) { return d.toISOString().slice(0, 10) }
+
+const PERIOD_OPTIONS = [
+  { key: 'today',     label: 'Danas' },
+  { key: 'yesterday', label: 'Juče' },
+  { key: '7days',     label: '7 dana' },
+  { key: '30days',    label: '30 dana' },
+  { key: 'custom',    label: 'Period' },
+]
+
+function getPeriodRange(key, customFrom, customTo) {
+  const now = new Date()
+  if (key === 'today')     return { from: TODAY, to: TODAY }
+  if (key === 'yesterday') { const d = new Date(now); d.setDate(d.getDate() - 1); const s = toDateStr(d); return { from: s, to: s } }
+  if (key === '7days')  { const f = new Date(now); f.setDate(f.getDate() - 6); return { from: toDateStr(f), to: TODAY } }
+  if (key === '30days') { const f = new Date(now); f.setDate(f.getDate() - 29); return { from: toDateStr(f), to: TODAY } }
+  return { from: customFrom || TODAY, to: customTo || TODAY }
+}
+
 const TASK_TYPES = [
   { value: 'checkout_clean', label: 'Checkout čišćenje',  icon: '🚪' },
   { value: 'stayover_clean', label: 'Svakodnevno',         icon: '🧹' },
@@ -73,7 +92,9 @@ function PriorityBadge({ priority }) {
 
 export default function HousekeepingPage() {
   const { restaurant } = usePlatform()
-  const [date, setDate] = useState(TODAY)
+  const [period, setPeriod] = useState('today')
+  const [customFrom, setCustomFrom] = useState(TODAY)
+  const [customTo, setCustomTo] = useState(TODAY)
   const [tab, setTab] = useState('tasks')
   const [statusFilter, setStatusFilter] = useState('all')
   const [maintStatusFilter, setMaintStatusFilter] = useState('all')
@@ -83,7 +104,8 @@ export default function HousekeepingPage() {
   const [maintForm, setMaintForm] = useState(BLANK_MAINT)
   const [saving, setSaving] = useState(false)
 
-  const { tasks, maintenance, staff, loading, refetch, updateTaskStatus, assignTask } = useHousekeeping(restaurant?.id, date)
+  const { from, to } = getPeriodRange(period, customFrom, customTo)
+  const { tasks, maintenance, staff, loading, refetch, updateTaskStatus, assignTask } = useHousekeeping(restaurant?.id, from, to)
   const { rooms } = useRooms(restaurant?.id)
 
   if (!restaurant) return <LoadingSpinner fullPage />
@@ -93,13 +115,7 @@ export default function HousekeepingPage() {
   const inProgress = tasks.filter(t => t.status === 'in_progress').length
   const done       = tasks.filter(t => t.status === 'done').length
   const verified   = tasks.filter(t => t.status === 'verified').length
-  const maintOpen     = maintenance.filter(m => !['resolved', 'verified'].includes(m.status)).length
-  const maintCounts   = {
-    open:        maintenance.filter(m => m.status === 'open').length,
-    in_progress: maintenance.filter(m => m.status === 'in_progress').length,
-    done:        maintenance.filter(m => m.status === 'done').length,
-    verified:    maintenance.filter(m => m.status === 'verified').length,
-  }
+  const maintOpen = maintenance.filter(m => !['resolved', 'verified'].includes(m.status)).length
   const filteredMaintenance = maintStatusFilter === 'all'
     ? maintenance
     : maintenance.filter(m => m.status === maintStatusFilter)
@@ -180,13 +196,6 @@ export default function HousekeepingPage() {
           <p className={styles.subtitle}>Zadaci čišćenja i zahtjevi za održavanje</p>
         </div>
         <div className={styles.headerActions}>
-          <input
-            type="date"
-            value={date}
-            onChange={e => setDate(e.target.value)}
-            className={hk.datePicker}
-          />
-          <button className={styles.btnSecondary} onClick={() => setDate(TODAY)}>Danas</button>
           {restaurant?.slug && (
             <a
               href={`/${restaurant.slug}/housekeeping`}
@@ -230,7 +239,7 @@ export default function HousekeepingPage() {
       </div>
 
       {/* Tabs */}
-      <div className={styles.filterBar} style={{ marginBottom: 16 }}>
+      <div className={styles.filterBar} style={{ marginBottom: 8 }}>
         <button className={`${styles.filterBtn} ${tab === 'tasks' ? styles.filterBtnActive : ''}`}
           onClick={() => setTab('tasks')}>
           Zadaci čišćenja <span className={styles.filterCount}>{tasks.length}</span>
@@ -239,6 +248,30 @@ export default function HousekeepingPage() {
           onClick={() => setTab('maintenance')}>
           Održavanje <span className={styles.filterCount}>{maintenance.length}</span>
         </button>
+      </div>
+
+      {/* Period chips — vidljivo za oba taba */}
+      <div className={hk.statusFilter} style={{ marginBottom: 16 }}>
+        {PERIOD_OPTIONS.map(p => (
+          <button
+            key={p.key}
+            className={`${hk.filterChip} ${period === p.key ? hk.filterChipActive : ''}`}
+            onClick={() => setPeriod(p.key)}
+          >
+            {p.label}
+          </button>
+        ))}
+        {period === 'custom' && (
+          <>
+            <input type="date" value={customFrom} max={customTo}
+              onChange={e => setCustomFrom(e.target.value)}
+              style={{ padding: '4px 8px', borderRadius: 6, border: '1px solid var(--c-border)', fontSize: 13, background: 'var(--c-surface)', color: 'var(--c-text)' }} />
+            <span style={{ color: 'var(--c-text-muted)', fontSize: 13 }}>—</span>
+            <input type="date" value={customTo} min={customFrom} max={TODAY}
+              onChange={e => setCustomTo(e.target.value)}
+              style={{ padding: '4px 8px', borderRadius: 6, border: '1px solid var(--c-border)', fontSize: 13, background: 'var(--c-surface)', color: 'var(--c-text)' }} />
+          </>
+        )}
       </div>
 
       {loading && <LoadingSpinner />}
@@ -401,20 +434,6 @@ export default function HousekeepingPage() {
               onClick={() => { setShowMaintForm(true); setShowTaskForm(false) }}>
               + Novi zahtjev
             </button>
-          </div>
-
-          {/* Stats sub-row */}
-          <div className={hk.stats} style={{ marginBottom: 12 }}>
-            {Object.entries(maintCounts).map(([key, val]) => {
-              const s = MAINT_STATUS_MAP[key]
-              return (
-                <div key={key} className={hk.stat} style={{ cursor: 'pointer' }}
-                  onClick={() => setMaintStatusFilter(key === maintStatusFilter ? 'all' : key)}>
-                  <div className={hk.statVal} style={{ color: s.color }}>{val}</div>
-                  <div className={hk.statLabel}>{s.label}</div>
-                </div>
-              )
-            })}
           </div>
 
           {/* Status filter chips */}

@@ -1,7 +1,9 @@
 import { useState, useEffect, useCallback } from 'react'
 import { supabase } from '../../../lib/supabase'
 
-export function useHousekeeping(restaurantId, date) {
+const TODAY = new Date().toISOString().slice(0, 10)
+
+export function useHousekeeping(restaurantId, dateFrom, dateTo) {
   const [tasks, setTasks]     = useState([])
   const [maintenance, setMaintenance] = useState([])
   const [staff, setStaff]     = useState([])
@@ -11,14 +13,16 @@ export function useHousekeeping(restaurantId, date) {
     if (!restaurantId) return
     setLoading(true)
 
-    const targetDate = date || new Date().toISOString().slice(0, 10)
+    const from = dateFrom || TODAY
+    const to   = dateTo   || TODAY
 
     const [{ data: t }, { data: m }, { data: s }] = await Promise.all([
       supabase
         .from('housekeeping_tasks')
         .select('*, rooms(room_number, floor, room_types(name)), staff!housekeeping_tasks_assigned_to_fkey(first_name, last_name)')
         .eq('restaurant_id', restaurantId)
-        .eq('scheduled_for', targetDate)
+        .gte('scheduled_for', from)
+        .lte('scheduled_for', to)
         .order('priority', { ascending: false })
         .order('created_at'),
       supabase
@@ -26,6 +30,8 @@ export function useHousekeeping(restaurantId, date) {
         .select('*, rooms(room_number, floor), staff!maintenance_requests_reported_by_fkey(first_name, last_name)')
         .eq('restaurant_id', restaurantId)
         .neq('status', 'resolved')
+        .gte('created_at', `${from}T00:00:00Z`)
+        .lte('created_at', `${to}T23:59:59Z`)
         .order('priority', { ascending: false })
         .order('created_at'),
       supabase
@@ -40,7 +46,7 @@ export function useHousekeeping(restaurantId, date) {
     setMaintenance(m ?? [])
     setStaff(s ?? [])
     setLoading(false)
-  }, [restaurantId, date])
+  }, [restaurantId, dateFrom, dateTo])
 
   useEffect(() => { load() }, [load])
 

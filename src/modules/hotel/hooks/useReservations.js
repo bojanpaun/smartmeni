@@ -14,16 +14,22 @@ export function useReservations(restaurantId, filters = {}) {
       .eq('restaurant_id', restaurantId)
       .order('check_in_date', { ascending: true })
 
-    if (filters.status)       q = q.eq('status', filters.status)
-    if (filters.dateFrom)     q = q.gte('check_in_date', filters.dateFrom)
-    if (filters.dateTo)       q = q.lte('check_out_date', filters.dateTo)
-    if (filters.checkInDate)  q = q.eq('check_in_date', filters.checkInDate)
-    if (filters.checkOutDate) q = q.lte('check_out_date', filters.checkOutDate)
+    if (filters.status)        q = q.eq('status', filters.status)
+    if (filters.dateFrom)      q = q.gte('check_in_date', filters.dateFrom)
+    if (filters.dateTo)        q = q.lte('check_out_date', filters.dateTo)
+    if (filters.checkInDate)   q = q.eq('check_in_date', filters.checkInDate)
+    if (filters.checkOutDate)  q = q.lte('check_out_date', filters.checkOutDate)
+    if (filters.checkInFrom)   q = q.gte('check_in_date', filters.checkInFrom)
+    if (filters.checkInTo)     q = q.lte('check_in_date', filters.checkInTo)
+    if (filters.checkOutFrom)  q = q.gte('check_out_date', filters.checkOutFrom)
+    if (filters.checkOutTo)    q = q.lte('check_out_date', filters.checkOutTo)
 
     const { data } = await q
     setReservations(data ?? [])
     setLoading(false)
-  }, [restaurantId, filters.status, filters.dateFrom, filters.dateTo, filters.checkInDate, filters.checkOutDate])
+  }, [restaurantId, filters.status, filters.dateFrom, filters.dateTo,
+      filters.checkInDate, filters.checkOutDate,
+      filters.checkInFrom, filters.checkInTo, filters.checkOutFrom, filters.checkOutTo])
 
   useEffect(() => { load() }, [load])
 

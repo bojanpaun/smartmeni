@@ -12,18 +12,20 @@ const TODAY = new Date().toISOString().slice(0, 10)
 function toDateStr(d) { return d.toISOString().slice(0, 10) }
 
 const PERIOD_OPTIONS = [
-  { key: 'yesterday', label: 'Juče' },
   { key: 'today',     label: 'Danas' },
-  { key: 'tomorrow',  label: 'Sutra' },
+  { key: 'yesterday', label: 'Juče' },
+  { key: '7days',     label: '7 dana' },
+  { key: '30days',    label: '30 dana' },
   { key: 'custom',    label: 'Period' },
 ]
 
-function getPeriodDate(key, customDate) {
+function getPeriodRange(key, customFrom, customTo) {
   const now = new Date()
-  if (key === 'today')     return TODAY
-  if (key === 'yesterday') { const d = new Date(now); d.setDate(d.getDate() - 1); return toDateStr(d) }
-  if (key === 'tomorrow')  { const d = new Date(now); d.setDate(d.getDate() + 1); return toDateStr(d) }
-  return customDate || TODAY
+  if (key === 'today')     return { from: TODAY, to: TODAY }
+  if (key === 'yesterday') { const d = new Date(now); d.setDate(d.getDate() - 1); const s = toDateStr(d); return { from: s, to: s } }
+  if (key === '7days')  { const f = new Date(now); f.setDate(f.getDate() - 6); return { from: toDateStr(f), to: TODAY } }
+  if (key === '30days') { const f = new Date(now); f.setDate(f.getDate() - 29); return { from: toDateStr(f), to: TODAY } }
+  return { from: customFrom || TODAY, to: customTo || TODAY }
 }
 
 const REQ_STATUS = {
@@ -42,15 +44,16 @@ export default function FrontDeskPage() {
   const navigate = useNavigate()
   const [tab, setTab] = useState('checkin')
   const [period, setPeriod] = useState('today')
-  const [customDate, setCustomDate] = useState(TODAY)
+  const [customFrom, setCustomFrom] = useState(TODAY)
+  const [customTo, setCustomTo] = useState(TODAY)
 
-  const selectedDate = getPeriodDate(period, customDate)
+  const { from, to } = getPeriodRange(period, customFrom, customTo)
 
   const { reservations: arrivals, loading: loadingArrivals, refetch: refetchArrivals } = useReservations(restaurant?.id, {
-    status: 'confirmed', checkInDate: selectedDate,
+    status: 'confirmed', checkInFrom: from, checkInTo: to,
   })
   const { reservations: departures, loading: loadingDep, refetch: refetchDep } = useReservations(restaurant?.id, {
-    status: 'checked_in', checkOutDate: selectedDate,
+    status: 'checked_in', checkOutFrom: from, checkOutTo: to,
   })
 
   const [requests, setRequests] = useState([])
@@ -172,7 +175,7 @@ export default function FrontDeskPage() {
       </div>
 
       {tab !== 'requests' && (
-        <div className={styles.filterBar} style={{ gap: 6, marginTop: -8, marginBottom: 8 }}>
+        <div className={styles.filterBar} style={{ gap: 6, marginTop: -8, marginBottom: 8, flexWrap: 'wrap' }}>
           {PERIOD_OPTIONS.map(p => (
             <button
               key={p.key}
@@ -183,12 +186,15 @@ export default function FrontDeskPage() {
             </button>
           ))}
           {period === 'custom' && (
-            <input
-              type="date"
-              value={customDate}
-              onChange={e => setCustomDate(e.target.value)}
-              style={{ padding: '4px 8px', borderRadius: 6, border: '1px solid var(--c-border)', fontSize: 13, background: 'var(--c-surface)', color: 'var(--c-text)' }}
-            />
+            <>
+              <input type="date" value={customFrom} max={customTo}
+                onChange={e => setCustomFrom(e.target.value)}
+                style={{ padding: '4px 8px', borderRadius: 6, border: '1px solid var(--c-border)', fontSize: 13, background: 'var(--c-surface)', color: 'var(--c-text)' }} />
+              <span style={{ color: 'var(--c-text-muted)', fontSize: 13 }}>—</span>
+              <input type="date" value={customTo} min={customFrom}
+                onChange={e => setCustomTo(e.target.value)}
+                style={{ padding: '4px 8px', borderRadius: 6, border: '1px solid var(--c-border)', fontSize: 13, background: 'var(--c-surface)', color: 'var(--c-text)' }} />
+            </>
           )}
         </div>
       )}
