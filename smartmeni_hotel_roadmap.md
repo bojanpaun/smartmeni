@@ -1,6 +1,6 @@
 # rest.by.me — HospitalityOS Produkt roadmap
 
-> **Verzija:** 3.1 *(dopunjeno — Performance optimizacije: PlatformContext Promise.all, AdminLayout lazy bundle, useKitchenCounts conditional, subscription select sužen — 2026-06-01)*
+> **Verzija:** 3.2 *(dopunjeno — Housekeeping/Maintenance workflow fiksovi, FrontDesk period navigacija, preview scroll fix — 2026-06-01)*
 > **Kontekst:** Evolucija rest.by.me (bivši SmartMeni) SaaS platforme prema punom hospitality management sistemu
 > **Tim:** 1 developer + Claude Code AI asistent
 > **Branch:** `main` → direktno na produkciju (Vercel auto-deploy)
@@ -1899,6 +1899,15 @@ RLS politike se proširuju da provjeravaju `portfolio_access.scope` — regional
 | perf | useKitchenCounts — 5 DB queries + 3 realtime kanala aktivni samo kad je aktivan menu/hotel modul | ✅ | 2026-06-01 |
 | perf | subscriptions.select('*') → select('plan, addons, addon_trials') | ✅ | 2026-06-01 |
 | perf | storageImg.js utility — Supabase Storage image transformacije (width/quality params) | ✅ | 2026-06-01 |
+| fix | FrontDeskPage — period navigacija (Juče/Danas/Sutra/Period) za check-in i check-out tabove | ✅ | 2026-06-01 |
+| fix | useReservations — checkInDate (eq) i checkOutDate (lte) filteri; popravka existing check-in query za multi-night rezervacije | ✅ | 2026-06-01 |
+| fix | HousekeepingPage — verifikacija čišćenja (verified) ažurira rooms.status = 'available' | ✅ | 2026-06-01 |
+| fix | HousekeepingPage — Verifikovano filter chip + split stats (done/verified zasebno) + prijevod Verifikuj/Verifikovano | ✅ | 2026-06-01 |
+| fix | RestaurantLandingEditor/HotelLandingEditor — preview iframe scrollbar eliminisan (overflow:hidden na body u preview modu, inicijalna visina 1500px) | ✅ | 2026-06-01 |
+| feat | Maintenance 4-step workflow: open → in_progress → done → verified (mirror čišćenje) | ✅ | 2026-06-01 |
+| feat | Maintenance kreiranje s room_id → rooms.status = 'maintenance' automatski (soba blokirana za booking) | ✅ | 2026-06-01 |
+| feat | Maintenance verifikacija → rooms.status = 'available' automatski (soba oslobođena) | ✅ | 2026-06-01 |
+| feat | Maintenance stats sub-row + filter chipovi (Otvoreno/U toku/Završeno/Verifikovano) + MaintStatusBadge | ✅ | 2026-06-01 |
 | 9 | portfolios + brands + property_groups tabele | ⬜ | |
 | 9 | portfolio_kpis materialized view + cron | ⬜ | |
 | 9 | Portfolio dashboard UI | ⬜ | |
@@ -1952,6 +1961,13 @@ RLS politike se proširuju da provjeravaju `portfolio_access.scope` — regional
 │                            AdminLayout lazy import, useKitchenCounts conditional,
 │                            subscription select sužen, storageImg utility
 │
+│              ✅ Housekeeping & Maintenance workflow fiksovi
+│                            Verifikacija čišćenja → soba 'available' automatski
+│                            Maintenance 4-step workflow (open→in_progress→done→verified)
+│                            Prijava popravke → soba 'maintenance', verifikacija → 'available'
+│                            FrontDesk period navigacija (Juče/Danas/Sutra/Period)
+│                            Preview scroll fix (RestaurantLandingEditor)
+│
 │              ← OVDJE SMO (2026-06-01)
 │
 │              🔄 HITNO: RESEND_API_KEY regeneracija + SITE_URL env var
@@ -1983,4 +1999,4 @@ RLS politike se proširuju da provjeravaju `portfolio_access.scope` — regional
 
 ---
 
-*Roadmap ažuriran: 2026-06-01 (v3.1 — Performance optimizacije: PlatformContext login waterfall → Promise.all, AdminLayout lazy bundle, useKitchenCounts conditional na menu/hotel modulu, subscription select sužen, storageImg utility; Faza Y.3 završena) | Branch: main | Deployment: Vercel auto-deploy*
+*Roadmap ažuriran: 2026-06-01 (v3.2 — Housekeeping/Maintenance 4-step workflow sa automatskim statusom sobe; FrontDesk period navigacija; preview scroll fix; Verifikovano chip + split stats) | Branch: main | Deployment: Vercel auto-deploy*
