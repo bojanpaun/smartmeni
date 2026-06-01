@@ -127,6 +127,7 @@ export default function HotelLandingEditor() {
   const [seoDesc, setSeoDesc] = useState('')
   const [loading, setLoading] = useState(true)
   const [saving, setSaving] = useState(false)
+  const [collapsed, setCollapsed] = useState(() => new Set(BLOCK_DEFS.map(d => d.type)))
 
   const sensors = useSensors(
     useSensor(PointerSensor, { activationConstraint: { distance: 5 } }),
@@ -157,6 +158,13 @@ export default function HotelLandingEditor() {
 
   const toggleBlock = (type) =>
     setBlocks(prev => prev.map(b => b.type === type ? { ...b, enabled: !b.enabled } : b))
+
+  const toggleCollapse = (type) =>
+    setCollapsed(prev => {
+      const next = new Set(prev)
+      next.has(type) ? next.delete(type) : next.add(type)
+      return next
+    })
 
   const updateField = (type, field, value) =>
     setBlocks(prev => prev.map(b =>
@@ -232,8 +240,12 @@ export default function HotelLandingEditor() {
                   <BlockSortable key={block.type} id={block.type}>
                     {({ dragHandleProps }) => (
                       <div className={`${styles.block} ${block.enabled ? styles.blockEnabled : ''}`}>
-                        <div className={styles.blockHeader}>
-                          <span className={styles.dragHandle} {...dragHandleProps} title="Prevuci za reorder">⠿</span>
+                        <div
+                          className={styles.blockHeader}
+                          onClick={() => toggleCollapse(block.type)}
+                          style={{ cursor: 'pointer' }}
+                        >
+                          <span className={styles.dragHandle} {...dragHandleProps} title="Prevuci za reorder" onClick={e => e.stopPropagation()}>⠿</span>
                           <span className={styles.blockIcon}>{def.icon}</span>
                           <div className={styles.blockMeta}>
                             <div className={styles.blockLabel}>{def.label}</div>
@@ -242,14 +254,17 @@ export default function HotelLandingEditor() {
                           <div className={styles.blockActions}>
                             <button
                               className={`${styles.toggleBtn} ${block.enabled ? styles.toggleBtnOn : ''}`}
-                              onClick={() => toggleBlock(block.type)}
+                              onClick={e => { e.stopPropagation(); toggleBlock(block.type) }}
                             >
                               {block.enabled ? 'Aktivan' : 'Isključen'}
+                            </button>
+                            <button className={styles.collapseBtn} onClick={e => { e.stopPropagation(); toggleCollapse(block.type) }}>
+                              <span className={`${styles.chevron} ${!collapsed.has(block.type) ? styles.chevronOpen : ''}`}>›</span>
                             </button>
                           </div>
                         </div>
 
-                        {block.enabled && (
+                        {block.enabled && !collapsed.has(block.type) && (
                           <div className={styles.blockBody}>
                             {def.hasLayout && (
                               <BlockLayoutPicker
