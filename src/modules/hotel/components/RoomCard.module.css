@@ -57,8 +57,9 @@
   transition: background 0.12s;
 }
 .btn:hover { background: var(--c-bg-subtle); }
-.btn_available   { border-color: var(--c-primary); color: var(--c-primary); }
-.btn_occupied    { border-color: var(--c-text); background: var(--c-text); color: var(--c-surface); }
-.btn_cleaning    { border-color: var(--c-warning); color: var(--c-warning); }
-.btn_maintenance { border-color: var(--c-danger); color: var(--c-danger); }
+.btn_available   { border-color: var(--c-primary);    color: var(--c-primary); }
+.btn_occupied    { border-color: var(--c-primary);    background: var(--c-primary); color: #fff; }
+.btn_occupied:hover { border-color: var(--c-primary-medium); background: var(--c-primary-medium); }
+.btn_cleaning    { border-color: var(--c-warning);    color: var(--c-warning); }
+.btn_maintenance { border-color: var(--c-danger);     color: var(--c-danger); }
 .btn_blocked     { border-color: var(--c-text-muted); color: var(--c-text-muted); }
