@@ -36,7 +36,13 @@
     "maxGuests": "Do {{count}} gosta",
     "perNight": "po noći",
     "total": "ukupno",
-    "select": "Rezerviši →"
+    "select": "Rezerviši →",
+    "selectPackage": "Odaberi paket →",
+    "close": "Zatvori",
+    "from": "od",
+    "choosePackage": "Odaberite paket:",
+    "noPackages": "Nema dostupnih paketa.",
+    "continue": "Nastavi →"
   },
 
   "guest": {
@@ -56,6 +62,7 @@
   "payment": {
     "title": "Pregled rezervacije",
     "accommodation": "Smještaj",
+    "package": "Paket",
     "checkIn": "Dolazak",
     "checkOut": "Odlazak",
     "stay": "Boravak",

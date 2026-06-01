@@ -35,7 +35,13 @@
     "maxGuests": "Up to {{count}} guests",
     "perNight": "per night",
     "total": "total",
-    "select": "Book →"
+    "select": "Book →",
+    "selectPackage": "Choose package →",
+    "close": "Close",
+    "from": "from",
+    "choosePackage": "Choose a package:",
+    "noPackages": "No packages available.",
+    "continue": "Continue →"
   },
 
   "guest": {
@@ -55,6 +61,7 @@
   "payment": {
     "title": "Booking summary",
     "accommodation": "Accommodation",
+    "package": "Package",
     "checkIn": "Check-in",
     "checkOut": "Check-out",
     "stay": "Stay",

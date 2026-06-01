@@ -35,6 +35,11 @@ export default function BookingPage() {
   const [selectedRoom, setSelectedRoom] = useState(null)
   const [searchError, setSearchError] = useState('')
 
+  const [expandedRoom, setExpandedRoom] = useState(null)
+  const [packagesCache, setPackagesCache] = useState({})
+  const [packagesLoading, setPackagesLoading] = useState(false)
+  const [selectedPackage, setSelectedPackage] = useState(null)
+
   const [guestName, setGuestName] = useState('')
   const [guestEmail, setGuestEmail] = useState('')
   const [guestPhone, setGuestPhone] = useState('')
@@ -46,7 +51,8 @@ export default function BookingPage() {
   const [confirmation, setConfirmation] = useState(null)
 
   const nights = nightsBetween(checkIn, checkOut)
-  const totalAmount = selectedRoom ? (selectedRoom.price_per_night * nights) : 0
+  const activePricePerNight = selectedPackage?.price_per_night ?? selectedRoom?.price_per_night ?? 0
+  const totalAmount = activePricePerNight * nights
 
   useEffect(() => {
     supabase
@@ -94,8 +100,34 @@ export default function BookingPage() {
     setStep(1)
   }
 
-  const handleSelectRoom = (room) => {
+  const handleSelectRoom = async (room) => {
+    if (!room.has_packages) {
+      setSelectedRoom(room)
+      setSelectedPackage(null)
+      setStep(2)
+      return
+    }
+    if (expandedRoom === room.room_type_id) {
+      setExpandedRoom(null)
+      return
+    }
+    setExpandedRoom(room.room_type_id)
+    setSelectedPackage(null)
+    if (packagesCache[room.room_type_id]) return
+    setPackagesLoading(true)
+    const { data } = await supabase.rpc('get_room_packages', {
+      p_room_type_id:  room.room_type_id,
+      p_restaurant_id: restaurant.id,
+      p_check_in:      checkIn,
+      p_check_out:     checkOut,
+    })
+    setPackagesCache(prev => ({ ...prev, [room.room_type_id]: data ?? [] }))
+    setPackagesLoading(false)
+  }
+
+  const handleConfirmPackage = (room) => {
     setSelectedRoom(room)
+    setExpandedRoom(null)
     setStep(2)
   }
 
@@ -117,18 +149,20 @@ export default function BookingPage() {
     setPayError('')
 
     const pending = {
-      restaurant_id: restaurant.id,
-      room_type_id: selectedRoom.room_type_id,
-      check_in: checkIn,
-      check_out: checkOut,
+      restaurant_id:  restaurant.id,
+      room_type_id:   selectedRoom.room_type_id,
+      rate_plan_id:   selectedPackage?.rate_plan_id ?? null,
+      package_name:   selectedPackage?.plan_name ?? null,
+      check_in:       checkIn,
+      check_out:      checkOut,
       adults,
       children,
-      guest_name: guestName,
-      guest_email: guestEmail,
-      guest_phone: guestPhone,
+      guest_name:     guestName,
+      guest_email:    guestEmail,
+      guest_phone:    guestPhone,
       special_requests: specialRequests,
-      price_per_night: selectedRoom.price_per_night,
-      total_amount: totalAmount,
+      price_per_night: activePricePerNight,
+      total_amount:   totalAmount,
     }
 
     try {
@@ -311,34 +345,86 @@ export default function BookingPage() {
               </div>
             ) : (
               <div className={styles.roomList}>
-                {rooms.map(room => (
-                  <div key={room.room_type_id} className={styles.roomCard}>
-                    {room.images?.length > 0 && (
-                      <img src={room.images[0]} alt={room.name} className={styles.roomImg} />
-                    )}
-                    <div className={styles.roomBody}>
-                      <div className={styles.roomName}>{room.name}</div>
-                      {room.description && <p className={styles.roomDesc}>{room.description}</p>}
-                      <div className={styles.roomMeta}>
-                        <span>👥 {t('room.maxGuests', { count: room.max_occupancy })}</span>
-                        {room.amenities?.slice(0, 4).map(a => (
-                          <span key={a} className={styles.amenity}>{a}</span>
-                        ))}
-                        {(room.amenities?.length ?? 0) > 4 && (
-                          <span className={styles.amenity}>+{room.amenities.length - 4}</span>
-                        )}
+                {rooms.map(room => {
+                  const isExpanded = expandedRoom === room.room_type_id
+                  const pkgs = packagesCache[room.room_type_id] ?? []
+                  return (
+                    <div key={room.room_type_id} className={`${styles.roomCard} ${isExpanded ? styles.roomCardExpanded : ''}`}>
+                      {room.images?.length > 0 && (
+                        <img src={room.images[0]} alt={room.name} className={styles.roomImg} />
+                      )}
+                      <div className={styles.roomBody}>
+                        <div className={styles.roomName}>{room.name}</div>
+                        {room.description && <p className={styles.roomDesc}>{room.description}</p>}
+                        <div className={styles.roomMeta}>
+                          <span>👥 {t('room.maxGuests', { count: room.max_occupancy })}</span>
+                          {room.amenities?.slice(0, 4).map(a => (
+                            <span key={a} className={styles.amenity}>{a}</span>
+                          ))}
+                          {(room.amenities?.length ?? 0) > 4 && (
+                            <span className={styles.amenity}>+{room.amenities.length - 4}</span>
+                          )}
+                        </div>
                       </div>
+                      <div className={styles.roomPrice}>
+                        <div className={styles.roomPriceLabel}>{room.has_packages ? t('room.from') : ''}</div>
+                        <div className={styles.roomPriceVal}>€{Number(room.price_per_night).toFixed(2)}</div>
+                        <div className={styles.roomPriceSub}>{t('room.perNight')}</div>
+                        <div className={styles.roomPriceTotal}>€{(room.price_per_night * nights).toFixed(2)} {t('room.total')}</div>
+                        <button className={styles.btnSelect} onClick={() => handleSelectRoom(room)}>
+                          {isExpanded ? t('room.close') : room.has_packages ? t('room.selectPackage') : t('room.select')}
+                        </button>
+                      </div>
+
+                      {/* Package picker */}
+                      {isExpanded && (
+                        <div className={styles.packagePicker}>
+                          <p className={styles.pkgTitle}>{t('room.choosePackage')}</p>
+                          {packagesLoading && !pkgs.length ? (
+                            <div className={styles.pkgLoading}><div className={styles.spinner} /></div>
+                          ) : pkgs.length === 0 ? (
+                            <p className={styles.pkgEmpty}>{t('room.noPackages')}</p>
+                          ) : (
+                            pkgs.map(pkg => (
+                              <label
+                                key={pkg.rate_plan_id}
+                                className={`${styles.pkgOption} ${selectedPackage?.rate_plan_id === pkg.rate_plan_id ? styles.pkgSelected : ''}`}
+                              >
+                                <input
+                                  type="radio"
+                                  name={`pkg-${room.room_type_id}`}
+                                  checked={selectedPackage?.rate_plan_id === pkg.rate_plan_id}
+                                  onChange={() => setSelectedPackage(pkg)}
+                                  className={styles.pkgRadio}
+                                />
+                                <div className={styles.pkgInfo}>
+                                  <span className={styles.pkgName}>{pkg.plan_name}</span>
+                                  {pkg.plan_description && <span className={styles.pkgDesc}>{pkg.plan_description}</span>}
+                                </div>
+                                <div className={styles.pkgPrices}>
+                                  <span className={styles.pkgPrice}>€{Number(pkg.price_per_night).toFixed(2)}</span>
+                                  <span className={styles.pkgPriceSub}>{t('room.perNight')}</span>
+                                </div>
+                              </label>
+                            ))
+                          )}
+                          <div className={styles.pkgActions}>
+                            <button className={styles.btnSecondary} onClick={() => { setExpandedRoom(null); setSelectedPackage(null) }}>
+                              {t('room.changeDates')}
+                            </button>
+                            <button
+                              className={styles.btnPrimary}
+                              onClick={() => handleConfirmPackage(room)}
+                              disabled={!selectedPackage && pkgs.length > 0}
+                            >
+                              {t('room.continue')}
+                            </button>
+                          </div>
+                        </div>
+                      )}
                     </div>
-                    <div className={styles.roomPrice}>
-                      <div className={styles.roomPriceVal}>€{Number(room.price_per_night).toFixed(2)}</div>
-                      <div className={styles.roomPriceSub}>{t('room.perNight')}</div>
-                      <div className={styles.roomPriceTotal}>€{(room.price_per_night * nights).toFixed(2)} {t('room.total')}</div>
-                      <button className={styles.btnSelect} onClick={() => handleSelectRoom(room)}>
-                        {t('room.select')}
-                      </button>
-                    </div>
-                  </div>
-                ))}
+                  )
+                })}
               </div>
             )}
           </div>
@@ -351,7 +437,10 @@ export default function BookingPage() {
             <h2 className={styles.stepTitle}>{t('guest.title')}</h2>
 
             <div className={styles.summaryBox}>
-              <strong>{selectedRoom.name}</strong>
+              <strong>
+                {selectedRoom.name}
+                {selectedPackage && <span className={styles.summaryPackage}> — {selectedPackage.plan_name}</span>}
+              </strong>
               <span className={styles.summaryMeta}>
                 {formatDate(checkIn, lang)} — {formatDate(checkOut, lang)} · {t('date.nights', { count: nights })} · €{totalAmount.toFixed(2)}
               </span>
@@ -399,6 +488,12 @@ export default function BookingPage() {
                 <span>{t('payment.accommodation')}</span>
                 <span>{selectedRoom.name}</span>
               </div>
+              {selectedPackage && (
+                <div className={styles.summaryRow}>
+                  <span>{t('payment.package')}</span>
+                  <span>{selectedPackage.plan_name}</span>
+                </div>
+              )}
               <div className={styles.summaryRow}>
                 <span>{t('payment.checkIn')}</span>
                 <span>{formatDate(checkIn, lang)}</span>

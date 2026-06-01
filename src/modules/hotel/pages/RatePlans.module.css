@@ -176,6 +176,56 @@
 .seasonRowPrice { font-size: 13px; font-weight: 600; color: var(--c-primary); white-space: nowrap; }
 .seasonRowActions { display: flex; gap: 6px; }
 
+/* Section headers */
+.sectionHeader {
+  display: flex; align-items: baseline; gap: 10px;
+  margin-bottom: 14px;
+}
+.sectionTitle { font-size: 14px; font-weight: 700; color: var(--c-text); }
+.sectionHint  { font-size: 12px; color: var(--c-text-muted); }
+
+/* Plan type toggle */
+.typeToggle {
+  display: flex; gap: 0;
+  border: 1px solid var(--c-border-input);
+  border-radius: 10px; overflow: hidden;
+  margin-bottom: 12px;
+}
+.typeBtn {
+  flex: 1; padding: 9px 14px;
+  background: transparent; border: none;
+  font-size: 13px; cursor: pointer; font-family: var(--c-font-sans);
+  color: var(--c-text-medium); transition: background 0.15s;
+}
+.typeBtn + .typeBtn { border-left: 1px solid var(--c-border-input); }
+.typeBtnActive { background: var(--c-primary-light); color: var(--c-primary); font-weight: 600; }
+
+.typeHint {
+  font-size: 12px; color: var(--c-text-muted);
+  background: var(--c-bg-subtle); border-radius: 8px;
+  padding: 8px 12px; margin-bottom: 14px;
+}
+
+/* Badge variants */
+.badgeWarn {
+  background: #fff8e1; color: #b45309;
+  border: 1px solid #fde68a;
+  border-radius: 20px; font-size: 10px; font-weight: 600;
+  padding: 2px 8px; margin-left: 6px;
+}
+
+/* Room type label on plan card */
+.planRoomType {
+  background: var(--c-primary-light);
+  color: var(--c-primary);
+  border-radius: 6px; font-size: 11px; font-weight: 600;
+  padding: 2px 8px;
+}
+
+/* Multiplier color */
+.multUp   { color: #c0392b; }
+.multDown { color: #0d7a52; }
+
 /* Empty state */
 .empty {
   text-align: center;
