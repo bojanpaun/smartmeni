@@ -441,3 +441,314 @@ a.infoRow:hover {
   border-radius: 12px;
   margin-top: 12px;
 }
+
+/* ── Hero layout variants ── */
+.heroCompact { min-height: 180px; }
+
+.heroSplit {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  min-height: 260px;
+  align-items: stretch;
+}
+
+.heroSplit .heroOverlay { display: none; }
+.heroSplit .heroContent { padding: 32px 24px; text-align: left; }
+
+/* ── About layout variants ── */
+.aboutWrap {
+  display: flex;
+  flex-direction: row;
+  gap: 28px;
+  align-items: flex-start;
+}
+
+.aboutWrap[data-layout="image-left"] { flex-direction: row-reverse; }
+.aboutWrap[data-layout="text-only"] .aboutImg { display: none; }
+
+@media (max-width: 600px) {
+  .aboutWrap { flex-direction: column !important; }
+}
+
+/* ── Gallery layout variants ── */
+.galleryGrid {
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  gap: 8px;
+}
+
+.galleryGrid2 {
+  display: grid;
+  grid-template-columns: repeat(2, 1fr);
+  gap: 8px;
+}
+
+.galleryMasonry {
+  columns: 3;
+  gap: 8px;
+}
+
+.galleryMasonry .galleryImg {
+  width: 100%;
+  aspect-ratio: auto;
+  margin-bottom: 8px;
+  break-inside: avoid;
+}
+
+@media (max-width: 600px) {
+  .galleryGrid, .galleryGrid2, .galleryMasonry { columns: 2; grid-template-columns: repeat(2, 1fr); }
+}
+
+/* ── Amenities layout variants ── */
+.amenitiesGrid {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(160px, 1fr));
+  gap: 10px;
+}
+
+.amenitiesList {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+}
+
+.amenitiesCards {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(200px, 1fr));
+  gap: 12px;
+}
+
+.amenitiesCards .amenityItem {
+  background: #fff;
+  border: 1px solid #e5e7eb;
+  border-radius: 12px;
+  padding: 16px;
+  font-size: 15px;
+  text-align: center;
+  color: #111827;
+  box-shadow: 0 1px 4px rgba(0,0,0,0.06);
+}
+
+/* ── Contact layout variants ── */
+.contactTwoCol {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 8px;
+}
+
+.contactTwoCol .infoRow { border-radius: 10px; }
+
+.contactMinimal {
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+  padding: 8px 0;
+}
+
+.contactMinimal .infoRow {
+  background: none;
+  border: none;
+  padding: 0;
+}
+
+/* ── Reviews block ── */
+.reviewsGrid {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(220px, 1fr));
+  gap: 14px;
+}
+
+.reviewsList {
+  grid-template-columns: 1fr;
+}
+
+.reviewsFeatured {
+  grid-template-columns: 1fr;
+}
+
+.reviewsFeatured .reviewCard:first-child {
+  grid-column: 1 / -1;
+  display: grid;
+  grid-template-columns: auto 1fr;
+  gap: 16px;
+  align-items: start;
+}
+
+.reviewCard {
+  background: #fff;
+  border: 1px solid #e5e7eb;
+  border-radius: 14px;
+  padding: 18px;
+  box-shadow: 0 1px 4px rgba(0,0,0,0.06);
+}
+
+.reviewStars {
+  color: #f59e0b;
+  font-size: 15px;
+  letter-spacing: 1px;
+  margin-bottom: 8px;
+}
+
+.reviewText {
+  font-size: 14px;
+  line-height: 1.6;
+  color: #374151;
+  margin: 0 0 12px;
+  font-style: italic;
+}
+
+.reviewMeta {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  gap: 8px;
+}
+
+.reviewName {
+  font-size: 13px;
+  font-weight: 600;
+  color: #111827;
+}
+
+.reviewDate {
+  font-size: 12px;
+  color: #9ca3af;
+}
+
+/* ── Video block ── */
+.videoWrap {
+  max-width: 800px;
+  margin: 0 auto;
+}
+
+.videoIframe {
+  width: 100%;
+  aspect-ratio: 16 / 9;
+  border: none;
+  border-radius: 12px;
+  display: block;
+}
+
+.sectionCentered { text-align: center; }
+
+/* ── FAQ block ── */
+.faqList {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+}
+
+.faqGrid {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 8px;
+}
+
+@media (max-width: 640px) {
+  .faqGrid { grid-template-columns: 1fr; }
+}
+
+.faqItem {
+  border: 1px solid #e5e7eb;
+  border-radius: 10px;
+  overflow: hidden;
+  background: #fff;
+}
+
+.faqItem[open] { border-color: #d1fae5; }
+
+.faqQuestion {
+  width: 100%;
+  background: none;
+  border: none;
+  text-align: left;
+  padding: 14px 16px;
+  font-size: 14px;
+  font-weight: 500;
+  color: #111827;
+  cursor: pointer;
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  gap: 8px;
+  list-style: none;
+  font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif;
+}
+
+.faqQuestion::-webkit-details-marker { display: none; }
+
+.faqChevron {
+  font-size: 18px;
+  color: #0d7a52;
+  transition: transform 0.2s;
+  flex-shrink: 0;
+}
+
+.faqItem[open] .faqChevron { transform: rotate(90deg); }
+
+.faqAnswer {
+  padding: 0 16px 14px;
+  font-size: 14px;
+  line-height: 1.65;
+  color: #374151;
+  margin: 0;
+}
+
+/* ── CTA Banner block ── */
+.ctaBanner {
+  background: linear-gradient(135deg, #0a5c3c 0%, #0d7a52 100%);
+  color: #fff;
+  padding: 48px 24px;
+  text-align: center;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 20px;
+}
+
+.ctaBannerLeft {
+  flex-direction: row;
+  text-align: left;
+  justify-content: space-between;
+  padding: 32px 40px;
+}
+
+.ctaBannerContent { flex: 1; }
+
+.ctaBannerTitle {
+  font-size: 24px;
+  font-weight: 700;
+  margin: 0 0 8px;
+  color: #fff;
+}
+
+.ctaBannerSub {
+  font-size: 15px;
+  color: rgba(255,255,255,0.82);
+  margin: 0;
+}
+
+.ctaBannerBtn {
+  display: inline-block;
+  background: #fff;
+  color: #0d7a52;
+  padding: 13px 28px;
+  border-radius: 50px;
+  font-size: 15px;
+  font-weight: 600;
+  text-decoration: none;
+  border: none;
+  cursor: pointer;
+  white-space: nowrap;
+  transition: opacity 0.15s, transform 0.1s;
+  font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif;
+}
+
+.ctaBannerBtn:hover { opacity: 0.92; transform: translateY(-1px); }
+
+@media (max-width: 600px) {
+  .ctaBannerLeft { flex-direction: column; padding: 32px 24px; }
+  .contactTwoCol { grid-template-columns: 1fr; }
+  .reviewsGrid { grid-template-columns: 1fr; }
+  .galleryGrid { grid-template-columns: repeat(2, 1fr); }
+}

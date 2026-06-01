@@ -1,81 +1,96 @@
 import { useState, useEffect } from 'react'
+import { DndContext, closestCenter, PointerSensor, KeyboardSensor, useSensor, useSensors } from '@dnd-kit/core'
+import { SortableContext, verticalListSortingStrategy, arrayMove } from '@dnd-kit/sortable'
 import { usePlatform } from '../../../context/PlatformContext'
 import { supabase } from '../../../lib/supabase'
 import { toast } from 'react-hot-toast'
-import ImageUpload from '../../../components/shared/ImageUpload'
-import styles from '../../../modules/hotel/pages/HotelLandingEditor.module.css'
+import BlockSortable from '../../../components/shared/BlockSortable'
+import LandingPreview from '../../../components/shared/LandingPreview'
+import BlockLayoutPicker from '../../../components/shared/BlockLayoutPicker'
+import BlockFieldRenderer from '../../../components/shared/BlockFieldRenderer'
+import styles from '../../../components/shared/LandingEditor.module.css'
 
 const BLOCK_DEFS = [
   {
-    type: 'hero',
-    label: 'Hero sekcija',
-    icon: '🖼️',
-    desc: 'Naslovna sekcija s pozadinskom slikom i CTA dugmetom',
-    defaultEnabled: true,
+    type: 'hero', label: 'Hero sekcija', icon: '🖼️', hasLayout: true,
+    desc: 'Naslovna sekcija s pozadinskom slikom i CTA dugmetom', defaultEnabled: true,
     fields: [
-      { key: 'title',        label: 'Naslov',               type: 'text',     placeholder: 'Npr. Restoran Ribar' },
-      { key: 'subtitle',     label: 'Podnaslov',            type: 'text',     placeholder: 'Npr. Svježi morski specijaliteti od 1985.' },
-      { key: 'bg_image_url', label: 'Pozadinska slika',      type: 'image' },
+      { key: 'title',        label: 'Naslov',           type: 'text',  placeholder: 'Npr. Restoran Ribar' },
+      { key: 'subtitle',     label: 'Podnaslov',        type: 'text',  placeholder: 'Svježi morski specijaliteti od 1985.' },
+      { key: 'bg_image_url', label: 'Pozadinska slika', type: 'image' },
     ],
-    defaultData: { title: '', subtitle: '', bg_image_url: '' },
+    defaultData: { title: '', subtitle: '', bg_image_url: '', layout: 'fullscreen' },
   },
   {
-    type: 'story',
-    label: 'Priča o restoranu',
-    icon: '📖',
-    desc: 'Kratki opis restorana s opcionalnom fotografijom',
-    defaultEnabled: false,
+    type: 'story', label: 'Priča o restoranu', icon: '📖', hasLayout: true,
+    desc: 'Kratki opis restorana s opcionalnom fotografijom', defaultEnabled: false,
     fields: [
-      { key: 'text',      label: 'Tekst',                       type: 'textarea', placeholder: 'Napišite nešto o restoranu...' },
-      { key: 'image_url', label: 'Fotografija (opcionalno)',      type: 'image' },
+      { key: 'text',      label: 'Tekst',                     type: 'textarea', placeholder: 'Napišite nešto o restoranu...' },
+      { key: 'image_url', label: 'Fotografija (opcionalno)',  type: 'image' },
     ],
-    defaultData: { text: '', image_url: '' },
+    defaultData: { text: '', image_url: '', layout: 'image-right' },
   },
   {
-    type: 'menu_preview',
-    label: 'Pregled menija',
-    icon: '🍽️',
-    desc: 'Automatski prikazuje kategorije menija s linkom na digitalni meni',
-    defaultEnabled: true,
-    auto: true,
-    fields: [],
-    defaultData: {},
+    type: 'menu_preview', label: 'Pregled menija', icon: '🍽️', hasLayout: true,
+    desc: 'Automatski prikazuje kategorije menija s linkom na digitalni meni', defaultEnabled: true,
+    auto: true, fields: [], defaultData: { layout: 'grid' },
   },
   {
-    type: 'gallery',
-    label: 'Galerija',
-    icon: '🖼️',
-    desc: 'Grid s fotografijama restorana i jela',
-    defaultEnabled: false,
+    type: 'specials', label: 'Specijaliteti', icon: '🌟', hasLayout: true,
+    desc: 'Dnevni ili sedmični specijaliteti (do 3)', defaultEnabled: false,
+    fields: [{ key: 'specials', label: 'Specijaliteti', type: 'specials-list' }],
+    defaultData: { specials: [], layout: 'cards' },
+  },
+  {
+    type: 'gallery', label: 'Galerija', icon: '🖼️', hasLayout: true,
+    desc: 'Grid s fotografijama restorana i jela', defaultEnabled: false,
+    fields: [{ key: 'image_urls', label: 'Fotografije', type: 'image-gallery' }],
+    defaultData: { image_urls: '', layout: 'grid-3' },
+  },
+  {
+    type: 'reviews', label: 'Recenzije', icon: '⭐', hasLayout: true,
+    desc: 'Recenzije gostiju sa zvjezdicama', defaultEnabled: false,
+    fields: [{ key: 'reviews', label: 'Recenzije', type: 'reviews-list' }],
+    defaultData: { reviews: [], layout: 'cards' },
+  },
+  {
+    type: 'video', label: 'Video', icon: '🎬', hasLayout: true,
+    desc: 'YouTube ili Vimeo video embed', defaultEnabled: false,
     fields: [
-      { key: 'image_urls', label: 'Fotografije',                            type: 'image-gallery' },
+      { key: 'title',     label: 'Naslov (opcionalno)',    type: 'text',      placeholder: 'Pogledajte naš restoran' },
+      { key: 'video_url', label: 'YouTube ili Vimeo URL', type: 'video-url' },
     ],
-    defaultData: { image_urls: '' },
+    defaultData: { title: '', video_url: '', layout: 'full' },
   },
   {
-    type: 'hours_location',
-    label: 'Radno vrijeme i lokacija',
-    icon: '⏰',
-    desc: 'Adresa, radno vrijeme i opcioni Google Maps embed',
-    defaultEnabled: false,
+    type: 'cta_banner', label: 'CTA Banner', icon: '📢', hasLayout: true,
+    desc: 'Promotivni strip sa pozivom na akciju', defaultEnabled: false,
     fields: [
-      { key: 'address',        label: 'Adresa',                             type: 'text', placeholder: 'Mediteranska 12, 85310 Budva' },
-      { key: 'hours',          label: 'Radno vrijeme',                      type: 'text', placeholder: 'Pon–Ned 10:00–23:00' },
-      { key: 'maps_embed_url', label: 'Google Maps embed URL (opcionalno)', type: 'url',  placeholder: 'https://www.google.com/maps/embed?pb=...', hint: 'Kako dobiti embed URL: Google Maps → kliknite Share → kartica "Embed a map" → kopirajte URL iz src="…" unutar iframe koda.' },
+      { key: 'title',    label: 'Naslov',           type: 'text', placeholder: 'Rezerviši večeras!' },
+      { key: 'subtitle', label: 'Opis (opcionalno)', type: 'text', placeholder: 'Slobodna mjesta za večeras' },
+      { key: 'btn_text', label: 'Tekst dugmeta',    type: 'text', placeholder: 'Rezerviši sto' },
+      { key: 'btn_link', label: 'Link dugmeta',     type: 'url',  placeholder: 'https://...' },
     ],
-    defaultData: { address: '', hours: '', maps_embed_url: '' },
+    defaultData: { title: '', subtitle: '', btn_text: '', btn_link: '', layout: 'centered' },
   },
   {
-    type: 'reservation_cta',
-    label: 'Rezervacija stola',
-    icon: '📅',
-    desc: 'CTA blok s pozivom na rezervaciju stola',
-    defaultEnabled: true,
+    type: 'hours_location', label: 'Radno vrijeme i lokacija', icon: '⏰', hasLayout: true,
+    desc: 'Adresa, radno vrijeme i opcioni Google Maps embed', defaultEnabled: false,
+    fields: [
+      { key: 'address',        label: 'Adresa',               type: 'text', placeholder: 'Mediteranska 12, 85310 Budva' },
+      { key: 'hours',          label: 'Radno vrijeme',        type: 'text', placeholder: 'Pon–Ned 10:00–23:00' },
+      { key: 'maps_embed_url', label: 'Google Maps embed URL', type: 'url',  placeholder: 'https://www.google.com/maps/embed?pb=...', hint: 'Google Maps → Share → Embed a map → kopirajte URL iz src="…"' },
+    ],
+    defaultData: { address: '', hours: '', maps_embed_url: '', layout: 'card-with-map' },
+  },
+  {
+    type: 'reservation_cta', label: 'Rezervacija stola', icon: '📅', hasLayout: true,
+    desc: 'CTA blok s pozivom na rezervaciju stola', defaultEnabled: true,
     fields: [
       { key: 'text',     label: 'Tekst CTA dugmeta',    type: 'text', placeholder: 'Rezerviši sto' },
-      { key: 'subtitle', label: 'Podnaslov (opcionalno)', type: 'text', placeholder: 'Npr. Slobodna mjesta za večeras' },
+      { key: 'subtitle', label: 'Podnaslov (opcionalno)', type: 'text', placeholder: 'Slobodna mjesta za večeras' },
     ],
-    defaultData: { text: 'Rezerviši sto', subtitle: '' },
+    defaultData: { text: 'Rezerviši sto', subtitle: '', layout: 'banner' },
   },
 ]
 
@@ -101,9 +116,14 @@ export default function RestaurantLandingEditor() {
   const [blocks, setBlocks] = useState([])
   const [pageId, setPageId] = useState(null)
   const [seoTitle, setSeoTitle] = useState('')
-  const [seoDescription, setSeoDescription] = useState('')
+  const [seoDesc, setSeoDesc] = useState('')
   const [loading, setLoading] = useState(true)
   const [saving, setSaving] = useState(false)
+
+  const sensors = useSensors(
+    useSensor(PointerSensor, { activationConstraint: { distance: 5 } }),
+    useSensor(KeyboardSensor)
+  )
 
   useEffect(() => {
     if (!restaurant) return
@@ -114,12 +134,11 @@ export default function RestaurantLandingEditor() {
         .eq('restaurant_id', restaurant.id)
         .eq('page_type', 'restaurant')
         .maybeSingle()
-
       if (data) {
         setPageId(data.id)
         setBlocks(mergeWithDefaults(data.blocks || []))
         setSeoTitle(data.seo_title || '')
-        setSeoDescription(data.seo_description || '')
+        setSeoDesc(data.seo_description || '')
       } else {
         setBlocks(initBlocks(restaurant))
       }
@@ -136,13 +155,12 @@ export default function RestaurantLandingEditor() {
       b.type === type ? { ...b, data: { ...b.data, [field]: value } } : b
     ))
 
-  const moveBlock = (idx, dir) => {
+  const handleDragEnd = ({ active, over }) => {
+    if (!over || active.id === over.id) return
     setBlocks(prev => {
-      const next = [...prev]
-      const target = idx + dir
-      if (target < 0 || target >= next.length) return prev
-      ;[next[idx], next[target]] = [next[target], next[idx]]
-      return next
+      const oldIdx = prev.findIndex(b => b.type === active.id)
+      const newIdx = prev.findIndex(b => b.type === over.id)
+      return arrayMove(prev, oldIdx, newIdx)
     })
   }
 
@@ -154,7 +172,7 @@ export default function RestaurantLandingEditor() {
       page_type: 'restaurant',
       blocks: blocks.map(({ type, enabled, data }) => ({ type, enabled, data })),
       seo_title: seoTitle.trim() || null,
-      seo_description: seoDescription.trim() || null,
+      seo_description: seoDesc.trim() || null,
       updated_at: new Date().toISOString(),
     }
     let error
@@ -173,131 +191,115 @@ export default function RestaurantLandingEditor() {
 
   if (loading) return <div className={styles.loadWrap}>Učitavanje...</div>
 
+  const previewSrc = restaurant ? `/${restaurant.slug}/home?preview=true` : null
+
   return (
-    <div className={styles.page}>
-      <div className={styles.header}>
-        <div>
-          <h1 className={styles.title}>Sajt restorana</h1>
-          <p className={styles.subtitle}>Uredite blokove koji se prikazuju na vašoj restornanskoj web stranici</p>
+    <div className={styles.editorShell}>
+      {/* ── Form panel ── */}
+      <div className={styles.formPanel}>
+        <div className={styles.header}>
+          <div>
+            <h1 className={styles.title}>Sajt restorana</h1>
+            <p className={styles.subtitle}>Uređujte blokove — preview se ažurira u realnom vremenu</p>
+          </div>
+          <div className={styles.headerActions}>
+            {restaurant && (
+              <a href={`/${restaurant.slug}/home`} target="_blank" rel="noreferrer" className={styles.previewLink}>
+                👁 Vidi sajt
+              </a>
+            )}
+            <button className={styles.saveBtn} onClick={handleSave} disabled={saving}>
+              {saving ? 'Čuvanje...' : 'Sačuvaj'}
+            </button>
+          </div>
         </div>
-        <div className={styles.headerActions}>
-          {restaurant && (
-            <a href={`/${restaurant.slug}/home`} target="_blank" rel="noreferrer" className={styles.previewLink}>
-              👁 Vidi sajt
-            </a>
-          )}
+
+        <DndContext sensors={sensors} collisionDetection={closestCenter} onDragEnd={handleDragEnd}>
+          <SortableContext items={blocks.map(b => b.type)} strategy={verticalListSortingStrategy}>
+            <div className={styles.blockList}>
+              {blocks.map((block) => {
+                const def = BLOCK_DEFS.find(d => d.type === block.type)
+                if (!def) return null
+                return (
+                  <BlockSortable key={block.type} id={block.type}>
+                    {({ dragHandleProps }) => (
+                      <div className={`${styles.block} ${block.enabled ? styles.blockEnabled : ''}`}>
+                        <div className={styles.blockHeader}>
+                          <span className={styles.dragHandle} {...dragHandleProps} title="Prevuci za reorder">⠿</span>
+                          <span className={styles.blockIcon}>{def.icon}</span>
+                          <div className={styles.blockMeta}>
+                            <div className={styles.blockLabel}>{def.label}</div>
+                            <div className={styles.blockDesc}>{def.desc}</div>
+                          </div>
+                          <div className={styles.blockActions}>
+                            <button
+                              className={`${styles.toggleBtn} ${block.enabled ? styles.toggleBtnOn : ''}`}
+                              onClick={() => toggleBlock(block.type)}
+                            >
+                              {block.enabled ? 'Aktivan' : 'Isključen'}
+                            </button>
+                          </div>
+                        </div>
+
+                        {block.enabled && (
+                          <div className={styles.blockBody}>
+                            {def.hasLayout && (
+                              <BlockLayoutPicker
+                                blockType={block.type}
+                                value={block.data.layout}
+                                onChange={v => updateField(block.type, 'layout', v)}
+                              />
+                            )}
+                            {def.auto ? (
+                              <p className={styles.autoNote}>
+                                ℹ️ Ovaj blok automatski generiše sadržaj iz baze podataka.
+                              </p>
+                            ) : (
+                              def.fields.map(field => (
+                                <div key={field.key} className={styles.formRow}>
+                                  {field.label && <label className={styles.label}>{field.label}</label>}
+                                  <BlockFieldRenderer
+                                    field={field}
+                                    value={block.data[field.key]}
+                                    onChange={val => updateField(block.type, field.key, val)}
+                                    restaurantId={restaurant?.id}
+                                  />
+                                  {field.hint && <p className={styles.fieldHint}>{field.hint}</p>}
+                                </div>
+                              ))
+                            )}
+                          </div>
+                        )}
+                      </div>
+                    )}
+                  </BlockSortable>
+                )
+              })}
+            </div>
+          </SortableContext>
+        </DndContext>
+
+        <div className={styles.seoSection}>
+          <h2 className={styles.seoHeading}>SEO postavke</h2>
+          <div className={styles.formRow}>
+            <label className={styles.label}>SEO naslov (title tag)</label>
+            <input type="text" className={styles.input} value={seoTitle} onChange={e => setSeoTitle(e.target.value)} placeholder={`${restaurant?.name || 'Restoran'} — Meni i rezervacije`} />
+          </div>
+          <div className={styles.formRow}>
+            <label className={styles.label}>SEO opis (meta description, do 160 znakova)</label>
+            <textarea className={styles.textarea} value={seoDesc} onChange={e => setSeoDesc(e.target.value)} placeholder="Kratki opis restorana za pretraživače..." rows={3} />
+          </div>
+        </div>
+
+        <div className={styles.saveRow}>
           <button className={styles.saveBtn} onClick={handleSave} disabled={saving}>
-            {saving ? 'Čuvanje...' : 'Sačuvaj'}
+            {saving ? 'Čuvanje...' : 'Sačuvaj sve promjene'}
           </button>
         </div>
       </div>
 
-      <div className={styles.blockList}>
-        {blocks.map((block, idx) => {
-          const def = BLOCK_DEFS.find(d => d.type === block.type)
-          if (!def) return null
-          return (
-            <div key={block.type} className={`${styles.block} ${block.enabled ? styles.blockEnabled : ''}`}>
-              <div className={styles.blockHeader}>
-                <span className={styles.blockIcon}>{def.icon}</span>
-                <div className={styles.blockMeta}>
-                  <div className={styles.blockLabel}>{def.label}</div>
-                  <div className={styles.blockDesc}>{def.desc}</div>
-                </div>
-                <div className={styles.blockActions}>
-                  <div className={styles.reorderBtns}>
-                    <button className={styles.reorderBtn} onClick={() => moveBlock(idx, -1)} disabled={idx === 0} title="Pomjeri gore">↑</button>
-                    <button className={styles.reorderBtn} onClick={() => moveBlock(idx, 1)} disabled={idx === blocks.length - 1} title="Pomjeri dole">↓</button>
-                  </div>
-                  <button
-                    className={`${styles.toggleBtn} ${block.enabled ? styles.toggleBtnOn : ''}`}
-                    onClick={() => toggleBlock(block.type)}
-                  >
-                    {block.enabled ? 'Aktivan' : 'Isključen'}
-                  </button>
-                </div>
-              </div>
-
-              {block.enabled && (
-                <div className={styles.blockBody}>
-                  {def.auto ? (
-                    <p className={styles.autoNote}>
-                      ℹ️ Ovaj blok automatski generiše sadržaj iz baze podataka i nema polja za konfiguraciju.
-                    </p>
-                  ) : (
-                    def.fields.map(field => (
-                      <div key={field.key} className={styles.formRow}>
-                        <label className={styles.label}>{field.label}</label>
-                        {field.type === 'image' ? (
-                          <ImageUpload
-                            value={block.data[field.key] || ''}
-                            onChange={url => updateField(block.type, field.key, url)}
-                            restaurantId={restaurant?.id}
-                          />
-                        ) : field.type === 'image-gallery' ? (
-                          <ImageUpload
-                            value={block.data[field.key] || ''}
-                            onChange={urls => updateField(block.type, field.key, urls)}
-                            restaurantId={restaurant?.id}
-                            multiple
-                          />
-                        ) : field.type === 'textarea' ? (
-                          <textarea
-                            className={styles.textarea}
-                            value={block.data[field.key] || ''}
-                            onChange={e => updateField(block.type, field.key, e.target.value)}
-                            placeholder={field.placeholder}
-                            rows={4}
-                          />
-                        ) : (
-                          <input
-                            type={field.type}
-                            className={styles.input}
-                            value={block.data[field.key] || ''}
-                            onChange={e => updateField(block.type, field.key, e.target.value)}
-                            placeholder={field.placeholder}
-                          />
-                        )}
-                        {field.hint && <p className={styles.fieldHint}>{field.hint}</p>}
-                      </div>
-                    ))
-                  )}
-                </div>
-              )}
-            </div>
-          )
-        })}
-      </div>
-
-      <div className={styles.seoSection}>
-        <h2 className={styles.seoHeading}>SEO postavke</h2>
-        <div className={styles.formRow}>
-          <label className={styles.label}>SEO naslov (title tag)</label>
-          <input
-            type="text"
-            className={styles.input}
-            value={seoTitle}
-            onChange={e => setSeoTitle(e.target.value)}
-            placeholder={`${restaurant?.name || 'Restoran'} — Meni i rezervacije`}
-          />
-        </div>
-        <div className={styles.formRow}>
-          <label className={styles.label}>SEO opis (meta description, do 160 znakova)</label>
-          <textarea
-            className={styles.textarea}
-            value={seoDescription}
-            onChange={e => setSeoDescription(e.target.value)}
-            placeholder="Kratki opis restorana za pretraživače..."
-            rows={3}
-          />
-        </div>
-      </div>
-
-      <div className={styles.saveRow}>
-        <button className={styles.saveBtn} onClick={handleSave} disabled={saving}>
-          {saving ? 'Čuvanje...' : 'Sačuvaj sve promjene'}
-        </button>
-      </div>
+      {/* ── Preview panel ── */}
+      {previewSrc && <LandingPreview src={previewSrc} blocks={blocks} />}
     </div>
   )
 }

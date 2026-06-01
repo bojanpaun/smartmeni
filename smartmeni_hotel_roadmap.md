@@ -1,9 +1,10 @@
-# SmartMeni → HospitalityOS — Produkt roadmap
+# rest.by.me — HospitalityOS Produkt roadmap
 
-> **Verzija:** 2.6 *(dopunjeno — novi billing model Starter/Restoran/Hotel/Hotel Pro, annual toggle, planUtils refaktor, SuperAdminPanel update — 2026-05-31)*
-> **Kontekst:** Evolucija SmartMeni SaaS platforme prema punom hospitality management sistemu
+> **Verzija:** 2.8 *(dopunjeno — Faza Y.3 Visual Page Editor: live preview, drag & drop, layout varijante, novi blokovi — 2026-06-01)*
+> **Kontekst:** Evolucija rest.by.me (bivši SmartMeni) SaaS platforme prema punom hospitality management sistemu
 > **Tim:** 1 developer + Claude Code AI asistent
 > **Branch:** `main` → direktno na produkciju (Vercel auto-deploy)
+> **Rebrand:** SmartMeni → **rest.by.me** (izvršeno 2026-05-31 — novi Landing page, logotip, domen)
 
 ---
 
@@ -451,7 +452,7 @@ CREATE TABLE landing_pages (
 
 ---
 
-## ⬜ Faza Y.1 — Upload slika u Supabase Storage
+## ✅ Faza Y.1 — Upload slika u Supabase Storage (ZAVRŠENA)
 
 > **Preduslov:** Faza Y završena (block editori rade).
 > **Trajanje:** 2–3 dana
@@ -486,6 +487,304 @@ Trenutno editori primaju URL-ove kao text input. Cilj: pravi drag & drop upload 
 - [ ] `ImageUpload` komponenta radi (drag & drop + click + preview)
 - [ ] Hero blokovi u oba editora koriste upload umjesto URL tekst polja
 - [ ] Galerija blok uploaduje multiple slike
+
+---
+
+## ⬜ Faza Y.3 — Visual Page Editor (Hotel + Restoran)
+
+> **Preduslov:** Faza Y.1 završena (block editori i ImageUpload rade).
+> **Trajanje:** 8–10 dana
+> **Važi za:** Oba editora — `HotelLandingEditor` + `RestaurantLandingEditor`
+> **Odluka usvojena:** 2026-06-01
+
+Trenutni block editor radi ispravno ali administrator nema vizuelni osjećaj kako stranica izgleda dok uređuje. Cilj ove faze je **uvesti live preview, drag & drop reorder, layout varijante po bloku i nove vrste blokova** — bez prelaška na kompleksni canvas editor koji bi bio preskup za maintain.
+
+### Arhitektura editora (poslije Y.3)
+
+```
+┌─────────────────────────────────────────────────────────┐
+│  HotelLandingEditor / RestaurantLandingEditor           │
+│                                                         │
+│  ┌──────────────────┐  ┌──────────────────────────────┐ │
+│  │  PANEL LIJEVO    │  │  PANEL DESNO — Live Preview  │ │
+│  │  (40% širine)    │  │  (60% širine)                │ │
+│  │                  │  │                              │ │
+│  │  [⠿] Hero ──────│─→│  iframe: /:slug/hotel        │ │
+│  │       forma...   │  │         ?preview=true        │ │
+│  │  [⠿] O hotelu   │  │                              │ │
+│  │       forma...   │  │  [📱] [💻] toggle           │ │
+│  │  [⠿] Galerija   │  │                              │ │
+│  │  ...             │  │  ← ažurira se u realnom     │ │
+│  │                  │  │    vremenu postMessage-om    │ │
+│  └──────────────────┘  └──────────────────────────────┘ │
+└─────────────────────────────────────────────────────────┘
+```
+
+---
+
+### Y.3.A — Live Preview (iframe split-screen)
+
+**Princip rada:**
+1. Editor otvara iframe koji prikazuje `/[slug]/hotel?preview=true` (ili `/[slug]/home?preview=true`)
+2. Svaki put kad se blok promijeni, editor šalje poruku u iframe putem `postMessage` (debounce 300ms)
+3. Landing stranica u preview modu prima poruku i ažurira prikaz bez DB poziva
+4. Admin vidi promjenu u roku od ~300ms
+
+**Kod — editor strana (parent):**
+```jsx
+const iframeRef = useRef()
+const sendPreview = useMemo(
+  () => debounce((blocks) => {
+    iframeRef.current?.contentWindow?.postMessage(
+      { type: 'PREVIEW_UPDATE', blocks },
+      window.location.origin  // isti origin — Vercel domen
+    )
+  }, 300),
+  []
+)
+useEffect(() => sendPreview(blocks), [blocks, sendPreview])
+```
+
+**Kod — landing stranica (iframe child):**
+```jsx
+const isPreview = new URLSearchParams(window.location.search).get('preview') === 'true'
+
+useEffect(() => {
+  if (!isPreview) return
+  const handler = (e) => {
+    if (e.origin !== window.location.origin) return  // sigurnosna provjera
+    if (e.data?.type === 'PREVIEW_UPDATE')
+      setLandingBlocks(e.data.blocks.filter(b => b.enabled))
+  }
+  window.addEventListener('message', handler)
+  return () => window.removeEventListener('message', handler)
+}, [isPreview])
+```
+
+**Preview mod skriva:** scroll-bar, header admina, "Powered by" footer u punom viewu — prikazuje samo čistu stranicu.
+
+**Device toggle:**
+```jsx
+const DEVICE_WIDTHS = { mobile: '375px', tablet: '768px', desktop: '100%' }
+// iframe wrapper dobija: style={{ width: DEVICE_WIDTHS[device], margin: '0 auto' }}
+```
+
+---
+
+### Y.3.B — Drag & Drop Reorder
+
+**Paket:** `@dnd-kit/core` + `@dnd-kit/sortable` (nema heavy dependencija, accessibility-friendly)
+
+```bash
+npm install @dnd-kit/core @dnd-kit/sortable @dnd-kit/utilities
+```
+
+**Implementacija:**
+```jsx
+import { DndContext, closestCenter } from '@dnd-kit/core'
+import { SortableContext, useSortable, verticalListSortingStrategy, arrayMove } from '@dnd-kit/sortable'
+
+// U editoru:
+const handleDragEnd = ({ active, over }) => {
+  if (!over || active.id === over.id) return
+  setBlocks(prev => {
+    const oldIdx = prev.findIndex(b => b.type === active.id)
+    const newIdx = prev.findIndex(b => b.type === over.id)
+    return arrayMove(prev, oldIdx, newIdx)
+  })
+}
+
+// Svaki blok postaje SortableItem sa drag handleom (⠿)
+// ↑↓ dugmad se uklanjaju
+```
+
+**`BlockSortable.jsx`** — nova dijeljenja komponenta:
+```
+src/components/shared/BlockSortable.jsx
+  Props: id, children
+  Interna: useSortable(id) → dragHandle div + transform/transition CSS
+  Vizuelno: ⠿ ikona, cursor grab, shadow pri dragovanju
+```
+
+---
+
+### Y.3.C — Layout varijante po bloku
+
+Svaki blok dobija opciono `layout` polje unutar `data` JSONB-a. Nema DB migracija — `data` je slobodan JSONB.
+
+U editoru: **`BlockLayoutPicker.jsx`** — set radio-dugmadi sa mini thumbnail prikazom.
+
+**Hotel blokovi — varijante:**
+
+| Blok | Varijante | Default |
+|------|-----------|---------|
+| `hero` | `fullscreen` · `compact` · `split` | `fullscreen` |
+| `about` | `image-right` · `image-left` · `text-only` | `image-right` |
+| `gallery` | `grid-2` · `grid-3` · `masonry` | `grid-3` |
+| `amenities` | `icons-row` · `list` · `cards` | `icons-row` |
+| `contact` | `card` · `minimal` · `two-column` | `card` |
+| `rooms` | (auto, bez varijanti) | — |
+| `location` | `card-only` · `card-with-map` | `card-with-map` |
+
+**Restoran blokovi — varijante:**
+
+| Blok | Varijante | Default |
+|------|-----------|---------|
+| `hero` | `fullscreen` · `compact` · `split` | `fullscreen` |
+| `story` | `image-right` · `image-left` · `text-only` · `image-above` | `image-right` |
+| `gallery` | `grid-2` · `grid-3` · `masonry` | `grid-3` |
+| `menu_preview` | `grid` · `list` · `cards` | `grid` |
+| `hours_location` | `card-only` · `card-with-map` | `card-with-map` |
+| `reservation_cta` | `banner` · `card` · `minimal` | `banner` |
+
+**Layout varijante u CSS-u:**
+```css
+/* Primjer — about blok */
+.aboutWrap[data-layout="image-right"]  { flex-direction: row; }
+.aboutWrap[data-layout="image-left"]   { flex-direction: row-reverse; }
+.aboutWrap[data-layout="text-only"]    { /* sakrij img */ }
+
+/* Primjer — hero blok */
+.hero[data-layout="fullscreen"]  { min-height: 100vh; }
+.hero[data-layout="compact"]     { min-height: 50vh; }
+.hero[data-layout="split"]       { display: grid; grid-template-columns: 1fr 1fr; }
+```
+
+---
+
+### Y.3.D — Novi blokovi
+
+**Zajednički za Hotel i Restoran:**
+
+#### `reviews` — Recenzije gostiju
+```
+Admin unos: do 6 recenzija
+  - Ime gosta (text)
+  - Ocjena (1–5 zvjezdica, select)
+  - Tekst recenzije (textarea)
+  - Datum ili "2025" (text, opcionalno)
+
+Javni prikaz: horizontalni scroll kartice (mobile) / 3-kolone grid (desktop)
+Layout varijante: cards / list / featured (jedna istaknuta + ostale manje)
+```
+
+Nema integracije sa vanjskim review platformama — ručni unos je namjerno jednostavniji i bez dependencija.
+
+#### `video` — Video embed
+```
+Admin unos:
+  - YouTube ili Vimeo URL (text input)
+  - Naslov iznad videa (opcionalno)
+  - Automatska konverzija URL → embed URL:
+    youtube.com/watch?v=ID  →  youtube.com/embed/ID
+    youtu.be/ID             →  youtube.com/embed/ID
+    vimeo.com/ID            →  player.vimeo.com/video/ID
+
+Javni prikaz: responsive iframe (16:9, max-width: 800px, centrirano)
+```
+
+#### `cta_banner` — Promotivni strip
+```
+Admin unos:
+  - Naslov (text)
+  - Podnaslov / opis (text, opcionalno)
+  - Tekst dugmeta (text)
+  - Link dugmeta (url — može biti eksterni ili /slug/book)
+  - Pozadinska boja (color picker — samo za ovaj blok)
+
+Javni prikaz: puni-width strip sa akcentnom bojom, naslov + dugme
+Layout varijante: centered / left-aligned / with-image (+ ImageUpload)
+```
+
+**Samo Hotel:**
+
+#### `faq` — Česta pitanja
+```
+Admin unos: do 10 Q&A parova
+  - Pitanje (text)
+  - Odgovor (textarea)
+
+Javni prikaz: accordion (HTML <details>/<summary>), nema JS potreban)
+Layout varijante: default / two-column
+```
+
+**Samo Restoran:**
+
+#### `specials` — Specijaliteti
+```
+Admin unos: do 3 stavke
+  - Naziv jela (text)
+  - Opis (text, kratki)
+  - Cijena (text, npr. "12€")
+  - Slika (ImageUpload)
+
+Javni prikaz: 3 kartice u redu, slika + ime + cijena
+Layout varijante: cards / list / featured
+```
+
+---
+
+### Y.3.E — Shared komponente (refaktor)
+
+Trenutno `RestaurantLandingEditor` importuje CSS iz hotel modula (`HotelLandingEditor.module.css`) — ovo je tehnički dug koji se rješava u ovoj fazi.
+
+```
+src/components/shared/
+  BlockSortable.jsx       — DnD sortable wrapper (drag handle, transform, transition)
+  LandingPreview.jsx      — iframe panel + 📱/💻 device toggle
+  BlockLayoutPicker.jsx   — Radio thumbnails za layout varijante
+  BlockFieldRenderer.jsx  — Extrahovana logika renderovanja polja (image, textarea, url, ...)
+  LandingEditor.module.css — Zajednički CSS koji importuju oba editora (zamjena hotel-specific CSS-a)
+```
+
+Oba editora (`HotelLandingEditor`, `RestaurantLandingEditor`) ostaju odvojeni (svaki ima vlastiti `BLOCK_DEFS`), ali koriste iste shared komponente. Ovo smanjuje duplikaciju i olakšava buduće izmjene.
+
+---
+
+### Definition of Done — Faza Y.3
+
+**A — Live Preview:**
+- [ ] Editor se dijeli na lijevu (forme, 40%) i desnu (iframe, 60%) panel na desktopima
+- [ ] Na mobilnom prikazu editora: preview se skriva, prikazuje se samo forma
+- [ ] iframe prikazuje `/[slug]/hotel?preview=true` (ili `/home`) — isti origin
+- [ ] Promjene blokova se reflektuju u iframe-u u realnom vremenu (postMessage, debounce 300ms)
+- [ ] Device toggle: 📱 Mobile (375px) / 💻 Tablet (768px) / 🖥 Desktop (full)
+- [ ] Preview mod landing stranice ne prikazuje admin elemente (back dugmad, breadcrumbi)
+- [ ] "Vidi sajt" link i dalje radi (otvara stranicu u novom tabu, bez `?preview`)
+
+**B — Drag & Drop:**
+- [ ] `@dnd-kit` instaliran i konfigurisan
+- [ ] Hotel editor: drag & drop reorder blokova radi
+- [ ] Restoran editor: drag & drop reorder blokova radi
+- [ ] Drag handle (⠿) vidljiv na svakom bloku, cursor grab
+- [ ] ↑↓ dugmad uklonjena
+- [ ] `BlockSortable.jsx` shared komponenta kreirana
+
+**C — Layout varijante:**
+- [ ] `BlockLayoutPicker.jsx` komponenta kreirana (radio + mini thumbnail prikaz)
+- [ ] Hotel — hero: 3 varijante renderuju se ispravno na javnoj stranici
+- [ ] Hotel — about: 3 varijante (image-right, image-left, text-only)
+- [ ] Hotel — gallery: 3 varijante (2-kolone, 3-kolone, masonry)
+- [ ] Hotel — amenities: 3 varijante (icons-row, list, cards)
+- [ ] Restoran — story: 4 varijante
+- [ ] Restoran — gallery: 3 varijante
+- [ ] Restoran — reservation_cta: 3 varijante (banner, card, minimal)
+- [ ] Layout se čuva u `data.layout` unutar postojećeg JSONB-a (nema DB migracija)
+
+**D — Novi blokovi:**
+- [ ] `reviews` — Hotel: admin unos + javni prikaz sa zvjezdicama
+- [ ] `reviews` — Restoran: admin unos + javni prikaz
+- [ ] `video` — Hotel: URL → auto-convert → embed iframe
+- [ ] `video` — Restoran: isti
+- [ ] `cta_banner` — Hotel: naslov + dugme + link
+- [ ] `cta_banner` — Restoran: isti
+- [ ] `faq` — Hotel: accordion Q&A
+- [ ] `specials` — Restoran: 3 stavke sa slikom i cijenom
+
+**E — Shared komponente:**
+- [ ] `LandingEditor.module.css` kreiran i importuje se u oba editora (RestaurantLandingEditor više ne importuje iz hotel modula)
+- [ ] `LandingPreview.jsx` kreirana i koristi se u oba editora
+- [ ] `BlockFieldRenderer.jsx` extrahovana, eliminiše duplikaciju u oba editora
 
 ---
 
@@ -1206,6 +1505,32 @@ Razlog: Restoran gost skenira QR za 10 sekundi — login ekran bi ga odbio. Hote
 
 ---
 
+## ✅ Faza R — Bar kao posebna stanica (Restoran enhancement) (ZAVRŠENA)
+
+> **Datum:** 2026-05-31 – 2026-06-01
+> **Motivacija:** Restoran može imati šank (bar) kao zasebnu stanicu pored kuhinje — osoblje bara treba odvojen real-time prikaz i workflow, a konobar treba vidjeti status oba duela.
+
+### DB izmjene:
+- ✅ `categories.is_bar` kolona (BOOLEAN, default false) — kategorizuje stavke menija kao barske
+- ✅ `orders.kitchen_status` + `orders.bar_status` — odvojeni statusi po stanici (pending/preparing/ready/served)
+
+### KitchenDashboard (`/admin/kuhinja`):
+- ✅ Bar tab odvojen od Kuhinje — svaki tab prikazuje samo narudžbe relevantne za svoju stanicu
+- ✅ Real-time badge za Bar u sidebaru (samo aktivne narudžbe, served/closed isključeni iz broja)
+- ✅ CSS varijable umjesto hardcodovanih boja (dark mode kompatibilnost)
+
+### WaiterDashboard & Staff portal:
+- ✅ `markReady` — odvojen SELECT nakon UPDATE za pouzdano čitanje station statusa
+- ✅ Badge Narudžbe/Kuhinja/Bar prate workflow ispravno (served/closed isključeni)
+- ✅ Zahtjevi badge = nerazriješeni `waiter_requests` (ranije pogrešno brojao narudžbe)
+- ✅ Hardcoded boje zamijenjene CSS varijablama (WaiterDashboard, LanguageSwitcher, sbRestTitle)
+
+### Ostalo:
+- ✅ `ChunkErrorBoundary` — auto reload pri stale chunk grešci nakon Vercel deploya
+- ✅ Dark mode — bijeli tekst na svim obojanim površinama (zamjena `var(--c-surface)` → `white`)
+
+---
+
 ## ⬜ Faza 9 — Portfolio Owner Dashboard (`portfolio_owner`, `multi_property`)
 
 > **Preduslov:** `multi_property` addon aktivan, minimum 2 objekta na platformi.
@@ -1467,6 +1792,23 @@ RLS politike se proširuju da provjeravaju `portfolio_access.scope` — regional
 | 5d | Price suggestion algoritam (suggestPrice funkcija) | ✅ | 2026-05-29 |
 | 5d | Export revenue analitike u PDF/Excel | ✅ | 2026-05-30 |
 | 1d | Stripe addon purchase flow (Checkout Session) | ⬜ | |
+| Y.3 | Live preview (iframe split-screen, postMessage, debounce) — Hotel | ⬜ | |
+| Y.3 | Live preview — Restoran | ⬜ | |
+| Y.3 | Device toggle (📱/💻/🖥) u editoru | ⬜ | |
+| Y.3 | BlockSortable.jsx — DnD wrapper (dnd-kit) | ⬜ | |
+| Y.3 | Drag & drop reorder — Hotel editor | ⬜ | |
+| Y.3 | Drag & drop reorder — Restoran editor | ⬜ | |
+| Y.3 | BlockLayoutPicker.jsx — layout radio thumbnails | ⬜ | |
+| Y.3 | Layout varijante — hero, about/story, gallery, amenities, CTA (Hotel) | ⬜ | |
+| Y.3 | Layout varijante — hero, story, gallery, menu_preview, reservation_cta (Restoran) | ⬜ | |
+| Y.3 | Novi blok: reviews — Hotel (admin + javni prikaz) | ⬜ | |
+| Y.3 | Novi blok: reviews — Restoran | ⬜ | |
+| Y.3 | Novi blok: video embed — Hotel + Restoran | ⬜ | |
+| Y.3 | Novi blok: cta_banner — Hotel + Restoran | ⬜ | |
+| Y.3 | Novi blok: faq (accordion) — Hotel | ⬜ | |
+| Y.3 | Novi blok: specials (3 stavke) — Restoran | ⬜ | |
+| Y.3 | LandingEditor.module.css — zajednički CSS, eliminacija hotel-importa iz restoran editora | ⬜ | |
+| Y.3 | BlockFieldRenderer.jsx — extrahovana logika polja | ⬜ | |
 | 6 | Beds24 API integracija | ⬜ | |
 | 6 | Availability/rate sync SmartMeni → Beds24 | ⬜ | |
 | 6 | Webhook handler za rezervacije sa eksternih kanala | ⬜ | |
@@ -1518,6 +1860,18 @@ RLS politike se proširuju da provjeravaju `portfolio_access.scope` — regional
 | billing | planUtils.js — PLAN_INCLUDES mapa, hasAddon backward compat | ✅ | 2026-05-31 |
 | billing | BillingPage redesign — 4 plan kartice, responsive grid | ✅ | 2026-05-31 |
 | billing | SuperAdminPanel — novi planovi u dropdown + PlanBadge update | ✅ | 2026-05-31 |
+| rebrand | SmartMeni → rest.by.me + novi Landing page + Kuhinja u sidebaru | ✅ | 2026-05-31 |
+| R | categories.is_bar + orders.kitchen_status / bar_status (DB migracija) | ✅ | 2026-05-31 |
+| R | Bar tab u KitchenDashboard + is_bar na kategorijama (admin UI) | ✅ | 2026-05-31 |
+| R | Bar kao poseban sidebar tab + realtime badge (served/closed isključeni) | ✅ | 2026-05-31 |
+| R | Kuhinja/Bar workflow fix + završene narudžbe filter po modu | ✅ | 2026-05-31 |
+| R | Narudžbe — uklonjen 'Označi kao gotovo', prikazuje se status stanica | ✅ | 2026-05-31 |
+| fix | ChunkErrorBoundary — auto reload pri stale chunk grešci nakon deploya | ✅ | 2026-05-31 |
+| fix | markReady — odvojen SELECT/UPDATE za pouzdano čitanje station statusa | ✅ | 2026-06-01 |
+| fix | Badge Kuhinja/Bar — isključi served/closed iz count querija | ✅ | 2026-06-01 |
+| fix | Dark mode — bijeli tekst na obojanim površinama (bijela umjesto --c-surface) | ✅ | 2026-06-01 |
+| fix | Hardcoded boje — WaiterDashboard, LanguageSwitcher, sbRestTitle | ✅ | 2026-06-01 |
+| fix | KitchenDashboard — CSS varijable umjesto hardcodovanih boja | ✅ | 2026-06-01 |
 | 9 | portfolios + brands + property_groups tabele | ⬜ | |
 | 9 | portfolio_kpis materialized view + cron | ⬜ | |
 | 9 | Portfolio dashboard UI | ⬜ | |
@@ -1546,8 +1900,6 @@ RLS politike se proširuju da provjeravaju `portfolio_access.scope` — regional
 │                           landing_pages tabela, 7 hotel blokova, 6 restoran blokova
 │                           /:slug/hotel i /:slug/home javne stranice
 │
-│              ← OVDJE SMO (2026-05-31)
-│
 │              ✅ Faza 8.5 — Spa & Wellness modul (ZAVRŠENA)
 │                            DB shema, FK fix, admin UI, booking, analitika, paketi,
 │                            spa_visibility, email podsjetnik (pg_cron)
@@ -1559,9 +1911,22 @@ RLS politike se proširuju da provjeravaju `portfolio_access.scope` — regional
 │              ✅ Faza 8 dopuna — Guest App spa tab (ZAVRŠENA)
 │                            Katalog, termini, folio booking direktno iz /:slug/guest
 │
-├── Jun        🔄 HITNO: RESEND_API_KEY regeneracija + SITE_URL env var
+├── Jun        ✅ Rebrand SmartMeni → rest.by.me (Landing, logotip, domen)
+│              ✅ Faza R — Bar modul (is_bar, kitchen_status/bar_status, Bar tab)
+│              ✅ Dark mode & CSS varijable fiksovi (KitchenDashboard, WaiterDashboard)
 │
-├── Jun–Jul    🔄 SLJEDEĆE: Faza 3d — Stripe payment za booking
+│              ← OVDJE SMO (2026-06-01)
+│
+│              🔄 HITNO: RESEND_API_KEY regeneracija + SITE_URL env var
+│
+├── Jun        ⬜ Faza Y.3 — Visual Page Editor (hotel + restoran)
+│                            A: Live preview iframe (postMessage, device toggle)
+│                            B: Drag & drop reorder (dnd-kit)
+│                            C: Layout varijante po bloku (hero/gallery/about/...)
+│                            D: Novi blokovi (reviews, video, cta_banner, faq, specials)
+│                            E: Shared komponente (LandingEditor.module.css refaktor)
+│
+├── Jun–Jul    🔄 Faza 3d — Stripe payment za booking
 │                            Payment Intent flow, webhook, email potvrda
 │
 ├── Jul        🔄 Faza 1d — Stripe addon purchase flow
@@ -1588,4 +1953,4 @@ RLS politike se proširuju da provjeravaju `portfolio_access.scope` — regional
 
 ---
 
-*Roadmap ažuriran: 2026-05-31 (v2.6 — Novi billing model: Starter besplatno + Restoran €29/mj + Hotel €79/mj + Hotel Pro €119/mj, annual toggle 20% popust; planUtils PLAN_INCLUDES refaktor; BillingPage redesign; SuperAdminPanel novi planovi) | Branch: main | Deployment: Vercel auto-deploy*
+*Roadmap ažuriran: 2026-06-01 (v2.8 — Faza Y.3 Visual Page Editor: live preview iframe, drag & drop reorder, layout varijante, novi blokovi reviews/video/cta_banner/faq/specials, shared komponente refaktor — hotel + restoran) | Branch: main | Deployment: Vercel auto-deploy*
