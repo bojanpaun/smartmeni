@@ -1,6 +1,6 @@
 # rest.by.me — HospitalityOS Produkt roadmap
 
-> **Verzija:** 3.0 *(dopunjeno — UX reorganizacija admin panela: ControlPanel vertikale + KPI-evi, AdminMenuSettings tabovi, settings/menu navigacijska čišćenja — 2026-06-01)*
+> **Verzija:** 3.1 *(dopunjeno — Performance optimizacije: PlatformContext Promise.all, AdminLayout lazy bundle, useKitchenCounts conditional, subscription select sužen — 2026-06-01)*
 > **Kontekst:** Evolucija rest.by.me (bivši SmartMeni) SaaS platforme prema punom hospitality management sistemu
 > **Tim:** 1 developer + Claude Code AI asistent
 > **Branch:** `main` → direktno na produkciju (Vercel auto-deploy)
@@ -1894,6 +1894,11 @@ RLS politike se proširuju da provjeravaju `portfolio_access.scope` — regional
 | ux | GeneralSettings — ostaju samo osnovni podaci objekta (naziv/lokacija/telefon/opis) | ✅ | 2026-06-01 |
 | ux | Settings sidebar: ukloniti Predlošci + Sajt restorana; "Opšte postavke" → "Osnovni podaci" | ✅ | 2026-06-01 |
 | ux | Menu sidebar: dodati Sajt restorana + Predlošci prelazi u tab Postavki menija | ✅ | 2026-06-01 |
+| perf | PlatformContext — login waterfall eliminisan (user_profiles + restaurants + staff paralelno, staff path + sub paralelno) | ✅ | 2026-06-01 |
+| perf | AdminLayout — lazy import, main bundle smanjen (bio 483kB, Suspense omata i layout i children) | ✅ | 2026-06-01 |
+| perf | useKitchenCounts — 5 DB queries + 3 realtime kanala aktivni samo kad je aktivan menu/hotel modul | ✅ | 2026-06-01 |
+| perf | subscriptions.select('*') → select('plan, addons, addon_trials') | ✅ | 2026-06-01 |
+| perf | storageImg.js utility — Supabase Storage image transformacije (width/quality params) | ✅ | 2026-06-01 |
 | 9 | portfolios + brands + property_groups tabele | ⬜ | |
 | 9 | portfolio_kpis materialized view + cron | ⬜ | |
 | 9 | Portfolio dashboard UI | ⬜ | |
@@ -1937,16 +1942,19 @@ RLS politike se proširuju da provjeravaju `portfolio_access.scope` — regional
 │              ✅ Faza R — Bar modul (is_bar, kitchen_status/bar_status, Bar tab)
 │              ✅ Dark mode & CSS varijable fiksovi (KitchenDashboard, WaiterDashboard)
 │
+│              ✅ Faza Y.3 — Visual Page Editor (hotel + restoran) (ZAVRŠENA)
+│                            Live preview iframe, device toggle, DnD reorder,
+│                            layout varijante, novi blokovi (reviews/video/cta/faq/specials),
+│                            shared komponente (LandingEditor.module.css)
+│
+│              ✅ Performance optimizacije
+│                            PlatformContext Promise.all (eliminisan login waterfall),
+│                            AdminLayout lazy import, useKitchenCounts conditional,
+│                            subscription select sužen, storageImg utility
+│
 │              ← OVDJE SMO (2026-06-01)
 │
 │              🔄 HITNO: RESEND_API_KEY regeneracija + SITE_URL env var
-│
-├── Jun        ⬜ Faza Y.3 — Visual Page Editor (hotel + restoran)
-│                            A: Live preview iframe (postMessage, device toggle)
-│                            B: Drag & drop reorder (dnd-kit)
-│                            C: Layout varijante po bloku (hero/gallery/about/...)
-│                            D: Novi blokovi (reviews, video, cta_banner, faq, specials)
-│                            E: Shared komponente (LandingEditor.module.css refaktor)
 │
 ├── Jun–Jul    🔄 Faza 3d — Stripe payment za booking
 │                            Payment Intent flow, webhook, email potvrda
@@ -1975,4 +1983,4 @@ RLS politike se proširuju da provjeravaju `portfolio_access.scope` — regional
 
 ---
 
-*Roadmap ažuriran: 2026-06-01 (v3.0 — UX reorganizacija admin panela: ControlPanel redesign sa vertikalama/KPI-evima/quick akcijama; AdminMenuSettings 4 taba (Opšte/Vidljivost/Poruke/Predlošci); Settings sidebar čišćenje — Predlošci i Sajt restorana premješteni u Menu modul; Osnovni podaci renamed) | Branch: main | Deployment: Vercel auto-deploy*
+*Roadmap ažuriran: 2026-06-01 (v3.1 — Performance optimizacije: PlatformContext login waterfall → Promise.all, AdminLayout lazy bundle, useKitchenCounts conditional na menu/hotel modulu, subscription select sužen, storageImg utility; Faza Y.3 završena) | Branch: main | Deployment: Vercel auto-deploy*
