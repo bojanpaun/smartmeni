@@ -1,33 +1,13 @@
 import { useState, useEffect, useMemo } from 'react'
 import { supabase } from '../../../lib/supabase'
 import { usePlatform } from '../../../context/PlatformContext'
+import DateNav, { DATE_TODAY } from '../../../components/shared/DateNav'
 import styles from './KitchenDashboard.module.css'
 
 const TODAY = new Date().toISOString().slice(0, 10)
 
-function toDateStr(d) { return d.toISOString().slice(0, 10) }
 function startOfDay(dateStr) { return `${dateStr}T00:00:00.000Z` }
 function endOfDay(dateStr) { return `${dateStr}T23:59:59.999Z` }
-
-const PERIOD_OPTIONS = [
-  { key: 'today',     label: 'Danas' },
-  { key: 'yesterday', label: 'Juče' },
-  { key: '7days',     label: '7 dana' },
-  { key: '30days',    label: '30 dana' },
-  { key: 'custom',    label: 'Period' },
-]
-
-function getPeriodRange(key, customFrom, customTo) {
-  const now = new Date()
-  if (key === 'today')     return { from: TODAY, to: TODAY }
-  if (key === 'yesterday') {
-    const y = new Date(now); y.setDate(y.getDate() - 1)
-    const s = toDateStr(y); return { from: s, to: s }
-  }
-  if (key === '7days')  { const f = new Date(now); f.setDate(f.getDate() - 6); return { from: toDateStr(f), to: TODAY } }
-  if (key === '30days') { const f = new Date(now); f.setDate(f.getDate() - 29); return { from: toDateStr(f), to: TODAY } }
-  return { from: customFrom || TODAY, to: customTo || TODAY }
-}
 
 // mode: 'kitchen' | 'bar'
 export default function KitchenDashboard({ mode = 'kitchen' }) {
@@ -36,9 +16,9 @@ export default function KitchenDashboard({ mode = 'kitchen' }) {
   const [barCatIds, setBarCatIds] = useState(new Set())
   const [loading, setLoading] = useState(true)
   const [statusFilter, setStatusFilter] = useState('active')
-  const [period, setPeriod] = useState('today')
-  const [customFrom, setCustomFrom] = useState(TODAY)
-  const [customTo, setCustomTo] = useState(TODAY)
+  const [from, setFrom] = useState(DATE_TODAY)
+  const [to, setTo] = useState(DATE_TODAY)
+  const [search, setSearch] = useState('')
 
   const isDone = statusFilter === 'done'
   const isBar  = mode === 'bar'
@@ -63,7 +43,7 @@ export default function KitchenDashboard({ mode = 'kitchen' }) {
       }, () => loadOrders())
       .subscribe()
     return () => supabase.removeChannel(channel)
-  }, [restaurant, statusFilter, period, customFrom, customTo])
+  }, [restaurant, statusFilter, from, to])
 
   const loadOrders = async () => {
     let query = supabase
@@ -72,7 +52,6 @@ export default function KitchenDashboard({ mode = 'kitchen' }) {
       .eq('restaurant_id', restaurant.id)
 
     if (isDone) {
-      const { from, to } = getPeriodRange(period, customFrom, customTo)
       query = query
         .in('status', ['served', 'closed'])
         .gte('created_at', startOfDay(from))
@@ -134,11 +113,18 @@ export default function KitchenDashboard({ mode = 'kitchen' }) {
       isBar ? barCatIds.has(item.category_id) : !barCatIds.has(item.category_id)
     )
 
-  const visibleOrders = useMemo(() =>
-    orders
+  const visibleOrders = useMemo(() => {
+    const q = search.toLowerCase()
+    return orders
       .map(o => ({ ...o, order_items: filterItems(o.order_items) }))
       .filter(o => o.order_items.length > 0)
-  , [orders, barCatIds, statusFilter])
+      .filter(o => {
+        if (!q) return true
+        const tableMatch = String(o.table_number || '').toLowerCase().includes(q)
+        const itemMatch = (o.order_items || []).some(i => (i.name || '').toLowerCase().includes(q))
+        return tableMatch || itemMatch
+      })
+  }, [orders, barCatIds, statusFilter, search])
 
   const totalItems = useMemo(() =>
     visibleOrders.reduce((sum, o) => sum + (o.order_items?.length || 0), 0)
@@ -182,35 +168,23 @@ export default function KitchenDashboard({ mode = 'kitchen' }) {
           </button>
         </div>
 
-        {isDone && (
+        <DateNav
+          from={from}
+          to={to}
+          search={search}
+          onChange={(f, t) => { setFrom(f); setTo(t) }}
+          onSearch={setSearch}
+          showFuture={false}
+          placeholder="Pretraži sto ili stavku..."
+        />
+
+        {isDone && visibleOrders.length > 0 && (
           <div className={styles.periodBar}>
-            <div className={styles.periodBtns}>
-              {PERIOD_OPTIONS.map(p => (
-                <button
-                  key={p.key}
-                  className={`${styles.periodBtn} ${period === p.key ? styles.periodActive : ''}`}
-                  onClick={() => setPeriod(p.key)}
-                >
-                  {p.label}
-                </button>
-              ))}
+            <div className={styles.doneSummary}>
+              <span>{visibleOrders.length} narudžbi</span>
+              <span>·</span>
+              <span>{totalItems} stavki</span>
             </div>
-            {period === 'custom' && (
-              <div className={styles.dateRange}>
-                <input type="date" className={styles.dateInput} value={customFrom} max={customTo}
-                  onChange={e => setCustomFrom(e.target.value)} />
-                <span className={styles.dateSep}>—</span>
-                <input type="date" className={styles.dateInput} value={customTo} min={customFrom} max={TODAY}
-                  onChange={e => setCustomTo(e.target.value)} />
-              </div>
-            )}
-            {visibleOrders.length > 0 && (
-              <div className={styles.doneSummary}>
-                <span>{visibleOrders.length} narudžbi</span>
-                <span>·</span>
-                <span>{totalItems} stavki</span>
-              </div>
-            )}
           </div>
         )}
 

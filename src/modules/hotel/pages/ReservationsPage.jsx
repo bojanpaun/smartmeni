@@ -2,9 +2,12 @@ import { useState } from 'react'
 import { useNavigate } from 'react-router-dom'
 import { usePlatform } from '../../../context/PlatformContext'
 import { useReservations } from '../hooks/useReservations'
+import DateNav from '../../../components/shared/DateNav'
 import RoomStatusBadge from '../components/RoomStatusBadge'
 import LoadingSpinner from '../../../components/shared/LoadingSpinner'
 import styles from './Hotel.module.css'
+
+const TODAY = new Date().toISOString().slice(0, 10)
 
 const STATUS_COLORS = {
   inquiry:     '#8a9e96',
@@ -25,21 +28,48 @@ export default function ReservationsPage() {
   const { restaurant } = usePlatform()
   const navigate = useNavigate()
   const [statusFilter, setStatusFilter] = useState('')
-  const { reservations, loading } = useReservations(restaurant?.id, { status: statusFilter || undefined })
+  const [from, setFrom] = useState(TODAY)
+  const [to, setTo] = useState(TODAY)
+  const [search, setSearch] = useState('')
+
+  const { reservations, loading } = useReservations(restaurant?.id, {
+    status: statusFilter || undefined,
+    checkInFrom: from,
+    checkInTo: to,
+  })
 
   if (loading) return <LoadingSpinner fullPage />
+
+  const filteredReservations = reservations.filter(res => {
+    if (!search) return true
+    const q = search.toLowerCase()
+    return (
+      (res.guest_name || '').toLowerCase().includes(q) ||
+      String(res.rooms?.room_number || '').toLowerCase().includes(q)
+    )
+  })
 
   return (
     <div className={styles.page}>
       <div className={styles.header}>
         <div>
           <h1 className={styles.title}>Rezervacije</h1>
-          <p className={styles.subtitle}>{reservations.length} rezervacija</p>
+          <p className={styles.subtitle}>{filteredReservations.length} rezervacija</p>
         </div>
         <button className={styles.btnPrimary} onClick={() => navigate('/admin/hotel/reservations/new')}>
           + Nova rezervacija
         </button>
       </div>
+
+      <DateNav
+        from={from}
+        to={to}
+        search={search}
+        onChange={(f, t) => { setFrom(f); setTo(t) }}
+        onSearch={setSearch}
+        showFuture={true}
+        placeholder="Pretraži gosta ili sobu..."
+      />
 
       <div className={styles.filterBar}>
         {STATUS_FILTERS.map(s => (
@@ -53,7 +83,7 @@ export default function ReservationsPage() {
         ))}
       </div>
 
-      {reservations.length === 0 ? (
+      {filteredReservations.length === 0 ? (
         <div className={styles.empty}><p>Nema rezervacija.</p></div>
       ) : (
         <div className={styles.table}>
@@ -66,7 +96,7 @@ export default function ReservationsPage() {
             <span>Iznos</span>
             <span>Status</span>
           </div>
-          {reservations.map(res => {
+          {filteredReservations.map(res => {
             const nights = Math.ceil((new Date(res.check_out_date) - new Date(res.check_in_date)) / 86400000)
             return (
               <div key={res.id} className={styles.tableRow} onClick={() => navigate(`/admin/hotel/reservations/${res.id}`)}>

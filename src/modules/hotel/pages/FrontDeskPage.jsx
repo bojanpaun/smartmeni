@@ -3,30 +3,10 @@ import { useNavigate } from 'react-router-dom'
 import { usePlatform } from '../../../context/PlatformContext'
 import { useReservations } from '../hooks/useReservations'
 import { supabase } from '../../../lib/supabase'
+import DateNav, { DATE_TODAY } from '../../../components/shared/DateNav'
 import LoadingSpinner from '../../../components/shared/LoadingSpinner'
 import toast from 'react-hot-toast'
 import styles from './Hotel.module.css'
-
-const TODAY = new Date().toISOString().slice(0, 10)
-
-function toDateStr(d) { return d.toISOString().slice(0, 10) }
-
-const PERIOD_OPTIONS = [
-  { key: 'today',     label: 'Danas' },
-  { key: 'yesterday', label: 'Juče' },
-  { key: '7days',     label: '7 dana' },
-  { key: '30days',    label: '30 dana' },
-  { key: 'custom',    label: 'Period' },
-]
-
-function getPeriodRange(key, customFrom, customTo) {
-  const now = new Date()
-  if (key === 'today')     return { from: TODAY, to: TODAY }
-  if (key === 'yesterday') { const d = new Date(now); d.setDate(d.getDate() - 1); const s = toDateStr(d); return { from: s, to: s } }
-  if (key === '7days')  { const f = new Date(now); f.setDate(f.getDate() - 6); return { from: toDateStr(f), to: TODAY } }
-  if (key === '30days') { const f = new Date(now); f.setDate(f.getDate() - 29); return { from: toDateStr(f), to: TODAY } }
-  return { from: customFrom || TODAY, to: customTo || TODAY }
-}
 
 const REQ_STATUS = {
   pending:     { label: 'Primljeno',  color: '#e67e22', bg: '#fff7ed' },
@@ -43,11 +23,9 @@ export default function FrontDeskPage() {
   const { restaurant } = usePlatform()
   const navigate = useNavigate()
   const [tab, setTab] = useState('checkin')
-  const [period, setPeriod] = useState('today')
-  const [customFrom, setCustomFrom] = useState(TODAY)
-  const [customTo, setCustomTo] = useState(TODAY)
-
-  const { from, to } = getPeriodRange(period, customFrom, customTo)
+  const [from, setFrom] = useState(DATE_TODAY)
+  const [to, setTo] = useState(DATE_TODAY)
+  const [search, setSearch] = useState('')
 
   const { reservations: arrivals, loading: loadingArrivals, refetch: refetchArrivals } = useReservations(restaurant?.id, {
     status: 'confirmed', checkInFrom: from, checkInTo: to,
@@ -151,6 +129,30 @@ export default function FrontDeskPage() {
 
   const pendingCount = requests.filter(r => r.status === 'pending').length
 
+  // Client-side search filter
+  const q = search.toLowerCase()
+  const filteredArrivals = arrivals.filter(res => {
+    if (!q) return true
+    return (
+      (res.guest_name || '').toLowerCase().includes(q) ||
+      String(res.rooms?.room_number || '').toLowerCase().includes(q)
+    )
+  })
+  const filteredDepartures = departures.filter(res => {
+    if (!q) return true
+    return (
+      (res.guest_name || '').toLowerCase().includes(q) ||
+      String(res.rooms?.room_number || '').toLowerCase().includes(q)
+    )
+  })
+  const filteredRequests = requests.filter(req => {
+    if (!q) return true
+    return (
+      (req.hotel_reservations?.guest_name || '').toLowerCase().includes(q) ||
+      (req.message || '').toLowerCase().includes(q)
+    )
+  })
+
   return (
     <div className={styles.page}>
       <div className={styles.header}>
@@ -175,112 +177,140 @@ export default function FrontDeskPage() {
       </div>
 
       {tab !== 'requests' && (
-        <div className={styles.filterBar} style={{ gap: 6, marginTop: -8, marginBottom: 8, flexWrap: 'wrap' }}>
-          {PERIOD_OPTIONS.map(p => (
-            <button
-              key={p.key}
-              className={`${styles.filterBtn} ${period === p.key ? styles.filterBtnActive : ''}`}
-              onClick={() => setPeriod(p.key)}
-            >
-              {p.label}
-            </button>
-          ))}
-          {period === 'custom' && (
-            <>
-              <input type="date" value={customFrom} max={customTo}
-                onChange={e => setCustomFrom(e.target.value)}
-                style={{ padding: '4px 8px', borderRadius: 6, border: '1px solid var(--c-border)', fontSize: 13, background: 'var(--c-surface)', color: 'var(--c-text)' }} />
-              <span style={{ color: 'var(--c-text-muted)', fontSize: 13 }}>—</span>
-              <input type="date" value={customTo} min={customFrom}
-                onChange={e => setCustomTo(e.target.value)}
-                style={{ padding: '4px 8px', borderRadius: 6, border: '1px solid var(--c-border)', fontSize: 13, background: 'var(--c-surface)', color: 'var(--c-text)' }} />
-            </>
-          )}
-        </div>
+        <DateNav
+          from={from}
+          to={to}
+          search={search}
+          onChange={(f, t) => { setFrom(f); setTo(t) }}
+          onSearch={setSearch}
+          showFuture={true}
+          placeholder="Pretraži gosta ili sobu..."
+        />
+      )}
+
+      {tab === 'requests' && search !== '' && (
+        <DateNav
+          from={from}
+          to={to}
+          search={search}
+          onChange={(f, t) => { setFrom(f); setTo(t) }}
+          onSearch={setSearch}
+          showFuture={true}
+          hidePeriod={true}
+          placeholder="Pretraži gosta ili poruku..."
+        />
       )}
 
       {/* ── Check-in tab ── */}
       {tab === 'checkin' && (
-        loading ? <LoadingSpinner /> : (
-          <div className={styles.fdList}>
-            {arrivals.length === 0
-              ? <div className={styles.empty}><p>Nema dolazaka danas.</p></div>
-              : arrivals.map(res => (
-                <div key={res.id} className={styles.fdCard}>
-                  <div className={styles.fdInfo}>
-                    <div className={styles.fdName}>{res.guest_name}</div>
-                    <div className={styles.fdMeta}>
-                      {res.room_types?.name ?? '—'} · {res.rooms?.room_number ? `Soba ${res.rooms.room_number}` : 'Soba nije dodijeljena'}
-                    </div>
-                    <div className={styles.fdMeta}>
-                      {res.adults}+{res.children} gost(a) · do {new Date(res.check_out_date).toLocaleDateString('sr-Latn')}
-                    </div>
-                    {res.special_requests && <div className={styles.fdNote}>{res.special_requests}</div>}
-                  </div>
-                  <div className={styles.fdActions}>
-                    <button className={styles.btnSecondary} onClick={() => navigate(`/admin/hotel/reservations/${res.id}`)}>Detalji</button>
-                    <button className={styles.btnPrimary} onClick={() => handleCheckIn(res)}>Check-in ✓</button>
-                  </div>
-                </div>
-              ))
-            }
+        loading ? <LoadingSpinner /> : filteredArrivals.length === 0 ? (
+          <div className={styles.empty}><p>Nema dolazaka za odabrani period.</p></div>
+        ) : (
+          <div className={styles.table}>
+            <div className={styles.tableHead} style={{ gridTemplateColumns: '2.5fr 1fr 1fr 60px 2fr 160px' }}>
+              <span>Gost</span>
+              <span>Soba / Tip</span>
+              <span>Check-out</span>
+              <span>Gosti</span>
+              <span>Spec. zahtjevi</span>
+              <span></span>
+            </div>
+            {filteredArrivals.map(res => (
+              <div key={res.id} className={styles.tableRow} style={{ gridTemplateColumns: '2.5fr 1fr 1fr 60px 2fr 160px', cursor: 'default' }}>
+                <span className={styles.bold}>{res.guest_name}</span>
+                <span>
+                  <div>{res.rooms?.room_number ? `Soba ${res.rooms.room_number}` : 'Nije dodijeljena'}</div>
+                  {res.room_types?.name && <div style={{ fontSize: 11, color: 'var(--c-text-muted)' }}>{res.room_types.name}</div>}
+                </span>
+                <span>{new Date(res.check_out_date).toLocaleDateString('sr-Latn')}</span>
+                <span>{(res.adults || 1) + (res.children || 0)}</span>
+                <span style={{ fontSize: 12, color: res.special_requests ? 'var(--c-warning)' : 'var(--c-text-muted)' }}>
+                  {res.special_requests || '—'}
+                </span>
+                <span style={{ display: 'flex', gap: 6, justifyContent: 'flex-end' }}>
+                  <button className={styles.btnSecondary} onClick={() => navigate(`/admin/hotel/reservations/${res.id}`)}>Detalji</button>
+                  <button className={styles.btnPrimary} onClick={() => handleCheckIn(res)}>Check-in ✓</button>
+                </span>
+              </div>
+            ))}
           </div>
         )
       )}
 
       {/* ── Check-out tab ── */}
       {tab === 'checkout' && (
-        loading ? <LoadingSpinner /> : (
-          <div className={styles.fdList}>
-            {departures.length === 0
-              ? <div className={styles.empty}><p>Nema odjava danas.</p></div>
-              : departures.map(res => (
-                <div key={res.id} className={styles.fdCard}>
-                  <div className={styles.fdInfo}>
-                    <div className={styles.fdName}>{res.guest_name}</div>
-                    <div className={styles.fdMeta}>
-                      {res.rooms?.room_number ? `Soba ${res.rooms.room_number}` : '—'} · check-in {new Date(res.check_in_date).toLocaleDateString('sr-Latn')}
-                    </div>
-                    {res.total_amount && (
-                      <div className={styles.fdMeta}>Ukupno: €{Number(res.total_amount).toFixed(2)} · {res.payment_status}</div>
-                    )}
-                  </div>
-                  <div className={styles.fdActions}>
-                    <button className={styles.btnSecondary} onClick={() => navigate(`/admin/hotel/reservations/${res.id}/folio`)}>Folio</button>
-                    <button className={styles.btnPrimary} onClick={() => handleCheckOut(res)}>Check-out ✓</button>
-                  </div>
-                </div>
-              ))
-            }
+        loading ? <LoadingSpinner /> : filteredDepartures.length === 0 ? (
+          <div className={styles.empty}><p>Nema odjava za odabrani period.</p></div>
+        ) : (
+          <div className={styles.table}>
+            <div className={styles.tableHead} style={{ gridTemplateColumns: '2fr 1fr 1fr 80px 140px' }}>
+              <span>Gost</span>
+              <span>Soba</span>
+              <span>Check-in</span>
+              <span>Iznos</span>
+              <span></span>
+            </div>
+            {filteredDepartures.map(res => (
+              <div key={res.id} className={styles.tableRow} style={{ gridTemplateColumns: '2fr 1fr 1fr 80px 140px', cursor: 'default' }}>
+                <span className={styles.bold}>{res.guest_name}</span>
+                <span>{res.rooms?.room_number ? `Soba ${res.rooms.room_number}` : '—'}</span>
+                <span>{new Date(res.check_in_date).toLocaleDateString('sr-Latn')}</span>
+                <span style={{ fontWeight: 600 }}>{res.total_amount ? `€${Number(res.total_amount).toFixed(2)}` : '—'}</span>
+                <span style={{ display: 'flex', gap: 6, justifyContent: 'flex-end' }}>
+                  <button className={styles.btnSecondary} onClick={() => navigate(`/admin/hotel/reservations/${res.id}/folio`)}>Folio</button>
+                  <button className={styles.btnPrimary} onClick={() => handleCheckOut(res)}>Check-out ✓</button>
+                </span>
+              </div>
+            ))}
           </div>
         )
       )}
 
       {/* ── Zahtjevi gostiju tab ── */}
       {tab === 'requests' && (
-        loadingReq ? <LoadingSpinner /> : (
-          <div className={styles.fdList}>
-            {requests.length === 0
-              ? <div className={styles.empty}><p>Nema aktivnih zahtjeva gostiju.</p></div>
-              : requests.map(req => {
+        <>
+          {search === '' && (
+            <div style={{ marginBottom: 8 }}>
+              <DateNav
+                from={from}
+                to={to}
+                search={search}
+                onChange={(f, t) => { setFrom(f); setTo(t) }}
+                onSearch={setSearch}
+                showFuture={true}
+                hidePeriod={true}
+                placeholder="Pretraži gosta ili poruku..."
+              />
+            </div>
+          )}
+          {loadingReq ? <LoadingSpinner /> : filteredRequests.length === 0 ? (
+            <div className={styles.empty}><p>Nema aktivnih zahtjeva gostiju.</p></div>
+          ) : (
+            <div className={styles.table}>
+              <div className={styles.tableHead} style={{ gridTemplateColumns: '2fr 1fr 2fr 70px 100px 160px' }}>
+                <span>Kategorija + Gost</span>
+                <span>Soba</span>
+                <span>Poruka</span>
+                <span>Vrijeme</span>
+                <span>Status</span>
+                <span></span>
+              </div>
+              {filteredRequests.map(req => {
                 const st = REQ_STATUS[req.status] ?? REQ_STATUS.pending
                 const guestName = req.hotel_reservations?.guest_name ?? '—'
                 const roomNum = req.hotel_reservations?.rooms?.room_number
                 return (
-                  <div key={req.id} className={styles.fdCard}>
-                    <div className={styles.fdInfo}>
-                      <div className={styles.fdName}>
-                        {REQ_CAT_ICON[req.category] ?? '📋'} {guestName}
-                        {roomNum && <span className={styles.fdMeta}> · Soba {roomNum}</span>}
-                      </div>
-                      <div className={styles.fdNote} style={{ marginTop: 4 }}>{req.message}</div>
-                      <div className={styles.fdMeta} style={{ marginTop: 4 }}>
-                        {new Date(req.created_at).toLocaleTimeString('sr-Latn', { hour: '2-digit', minute: '2-digit' })}
-                        {' · '}
-                        <span style={{ color: st.color, fontWeight: 600 }}>{st.label}</span>
-                      </div>
-                    </div>
-                    <div className={styles.fdActions} style={{ flexDirection: 'column', gap: 6 }}>
+                  <div key={req.id} className={styles.tableRow} style={{ gridTemplateColumns: '2fr 1fr 2fr 70px 100px 160px', cursor: 'default' }}>
+                    <span>
+                      <div style={{ fontWeight: 600 }}>{REQ_CAT_ICON[req.category] ?? '📋'} {guestName}</div>
+                    </span>
+                    <span>{roomNum ? `Soba ${roomNum}` : '—'}</span>
+                    <span style={{ fontSize: 12, color: 'var(--c-text-muted)' }}>{req.message}</span>
+                    <span style={{ fontSize: 11, color: 'var(--c-text-muted)' }}>
+                      {new Date(req.created_at).toLocaleTimeString('sr-Latn', { hour: '2-digit', minute: '2-digit' })}
+                    </span>
+                    <span style={{ color: st.color, fontWeight: 600, fontSize: 12 }}>{st.label}</span>
+                    <span style={{ display: 'flex', gap: 6, justifyContent: 'flex-end' }}>
                       {req.status === 'pending' && (
                         <button
                           className={styles.btnSecondary}
@@ -299,13 +329,13 @@ export default function FrontDeskPage() {
                           Riješeno ✓
                         </button>
                       )}
-                    </div>
+                    </span>
                   </div>
                 )
-              })
-            }
-          </div>
-        )
+              })}
+            </div>
+          )}
+        </>
       )}
     </div>
   )

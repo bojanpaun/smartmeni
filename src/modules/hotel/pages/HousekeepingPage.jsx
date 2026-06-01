@@ -3,31 +3,13 @@ import { usePlatform } from '../../../context/PlatformContext'
 import { useHousekeeping } from '../hooks/useHousekeeping'
 import { useRooms } from '../hooks/useRooms'
 import { supabase } from '../../../lib/supabase'
+import DateNav, { DATE_TODAY } from '../../../components/shared/DateNav'
 import LoadingSpinner from '../../../components/shared/LoadingSpinner'
 import toast from 'react-hot-toast'
 import styles from './Hotel.module.css'
 import hk from './Housekeeping.module.css'
 
 const TODAY = new Date().toISOString().slice(0, 10)
-
-function toDateStr(d) { return d.toISOString().slice(0, 10) }
-
-const PERIOD_OPTIONS = [
-  { key: 'today',     label: 'Danas' },
-  { key: 'yesterday', label: 'Juče' },
-  { key: '7days',     label: '7 dana' },
-  { key: '30days',    label: '30 dana' },
-  { key: 'custom',    label: 'Period' },
-]
-
-function getPeriodRange(key, customFrom, customTo) {
-  const now = new Date()
-  if (key === 'today')     return { from: TODAY, to: TODAY }
-  if (key === 'yesterday') { const d = new Date(now); d.setDate(d.getDate() - 1); const s = toDateStr(d); return { from: s, to: s } }
-  if (key === '7days')  { const f = new Date(now); f.setDate(f.getDate() - 6); return { from: toDateStr(f), to: TODAY } }
-  if (key === '30days') { const f = new Date(now); f.setDate(f.getDate() - 29); return { from: toDateStr(f), to: TODAY } }
-  return { from: customFrom || TODAY, to: customTo || TODAY }
-}
 
 const TASK_TYPES = [
   { value: 'checkout_clean', label: 'Checkout čišćenje',  icon: '🚪' },
@@ -92,9 +74,9 @@ function PriorityBadge({ priority }) {
 
 export default function HousekeepingPage() {
   const { restaurant } = usePlatform()
-  const [period, setPeriod] = useState('today')
-  const [customFrom, setCustomFrom] = useState(TODAY)
-  const [customTo, setCustomTo] = useState(TODAY)
+  const [from, setFrom] = useState(DATE_TODAY)
+  const [to, setTo] = useState(DATE_TODAY)
+  const [search, setSearch] = useState('')
   const [tab, setTab] = useState('tasks')
   const [statusFilter, setStatusFilter] = useState('all')
   const [maintStatusFilter, setMaintStatusFilter] = useState('all')
@@ -104,7 +86,6 @@ export default function HousekeepingPage() {
   const [maintForm, setMaintForm] = useState(BLANK_MAINT)
   const [saving, setSaving] = useState(false)
 
-  const { from, to } = getPeriodRange(period, customFrom, customTo)
   const { tasks, maintenance, staff, loading, refetch, updateTaskStatus, assignTask } = useHousekeeping(restaurant?.id, from, to)
   const { rooms } = useRooms(restaurant?.id)
 
@@ -116,13 +97,31 @@ export default function HousekeepingPage() {
   const done       = tasks.filter(t => t.status === 'done').length
   const verified   = tasks.filter(t => t.status === 'verified').length
   const maintOpen = maintenance.filter(m => !['resolved', 'verified'].includes(m.status)).length
-  const filteredMaintenance = maintStatusFilter === 'all'
-    ? maintenance
-    : maintenance.filter(m => m.status === maintStatusFilter)
 
-  const filteredTasks = statusFilter === 'all'
-    ? tasks
-    : tasks.filter(t => t.status === statusFilter)
+  const filteredMaintenance = maintenance.filter(m => {
+    const matchStatus = maintStatusFilter === 'all' || m.status === maintStatusFilter
+    if (!search) return matchStatus
+    const q = search.toLowerCase()
+    const matchSearch = (
+      (m.description || '').toLowerCase().includes(q) ||
+      String(m.rooms?.room_number || '').toLowerCase().includes(q)
+    )
+    return matchStatus && matchSearch
+  })
+
+  const filteredTasks = tasks.filter(t => {
+    const matchStatus = statusFilter === 'all' || t.status === statusFilter
+    if (!search) return matchStatus
+    const q = search.toLowerCase()
+    const staffName = staff.find(s => s.id === t.assigned_to)
+    const staffStr = staffName ? `${staffName.first_name} ${staffName.last_name}`.toLowerCase() : ''
+    const matchSearch = (
+      String(t.rooms?.room_number || '').toLowerCase().includes(q) ||
+      (t.notes || '').toLowerCase().includes(q) ||
+      staffStr.includes(q)
+    )
+    return matchStatus && matchSearch
+  })
 
   const handleTaskStatusChange = async (task, newStatus) => {
     const err = await updateTaskStatus(task.id, newStatus)
@@ -250,29 +249,16 @@ export default function HousekeepingPage() {
         </button>
       </div>
 
-      {/* Period chips — vidljivo za oba taba */}
-      <div className={hk.statusFilter} style={{ marginBottom: 16 }}>
-        {PERIOD_OPTIONS.map(p => (
-          <button
-            key={p.key}
-            className={`${hk.filterChip} ${period === p.key ? hk.filterChipActive : ''}`}
-            onClick={() => setPeriod(p.key)}
-          >
-            {p.label}
-          </button>
-        ))}
-        {period === 'custom' && (
-          <>
-            <input type="date" value={customFrom} max={customTo}
-              onChange={e => setCustomFrom(e.target.value)}
-              style={{ padding: '4px 8px', borderRadius: 6, border: '1px solid var(--c-border)', fontSize: 13, background: 'var(--c-surface)', color: 'var(--c-text)' }} />
-            <span style={{ color: 'var(--c-text-muted)', fontSize: 13 }}>—</span>
-            <input type="date" value={customTo} min={customFrom} max={TODAY}
-              onChange={e => setCustomTo(e.target.value)}
-              style={{ padding: '4px 8px', borderRadius: 6, border: '1px solid var(--c-border)', fontSize: 13, background: 'var(--c-surface)', color: 'var(--c-text)' }} />
-          </>
-        )}
-      </div>
+      {/* DateNav — visible for both tabs */}
+      <DateNav
+        from={from}
+        to={to}
+        search={search}
+        onChange={(f, t) => { setFrom(f); setTo(t) }}
+        onSearch={setSearch}
+        showFuture={true}
+        placeholder="Pretraži sobu, osoblje..."
+      />
 
       {loading && <LoadingSpinner />}
 
@@ -353,7 +339,7 @@ export default function HousekeepingPage() {
           {filteredTasks.length === 0 ? (
             <div className={hk.empty}>
               <div className={hk.emptyIcon}>🧹</div>
-              <p>{statusFilter === 'all' ? 'Nema zadataka za odabrani dan.' : 'Nema zadataka u ovom statusu.'}</p>
+              <p>{statusFilter === 'all' ? 'Nema zadataka za odabrani period.' : 'Nema zadataka u ovom statusu.'}</p>
             </div>
           ) : (
             <div className={hk.taskList}>

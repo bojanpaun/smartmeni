@@ -2,11 +2,10 @@ import { useState } from 'react'
 import { useNavigate } from 'react-router-dom'
 import { usePlatform } from '../../../context/PlatformContext'
 import { useSpaAppointments } from '../hooks/useSpaAppointments'
+import DateNav, { DATE_TODAY } from '../../../components/shared/DateNav'
 import LoadingSpinner from '../../../components/shared/LoadingSpinner'
 import styles from '../../hotel/pages/Hotel.module.css'
 import spa from './Spa.module.css'
-
-const TODAY = new Date().toISOString().slice(0, 10)
 
 const STATUS_LABEL = {
   confirmed:  { label: 'Potvrđen',   color: '#2563eb', bg: '#dbeafe' },
@@ -24,11 +23,20 @@ const CATEGORY_ICON = {
 export default function SpaDashboard() {
   const { restaurant } = usePlatform()
   const navigate = useNavigate()
-  const [date, setDate] = useState(TODAY)
+  const [from, setFrom] = useState(DATE_TODAY)
+  const [to, setTo] = useState(DATE_TODAY)
+  const [search, setSearch] = useState('')
 
-  const { appointments, loading, updateStatus, cancel } = useSpaAppointments(restaurant?.id, date)
+  const { appointments, loading, updateStatus, cancel } = useSpaAppointments(restaurant?.id, from, to)
 
   if (!restaurant) return <LoadingSpinner fullPage />
+
+  const filteredAppts = appointments.filter(a =>
+    !search || (
+      a.spa_services?.name?.toLowerCase().includes(search.toLowerCase()) ||
+      (a.external_guest_name || '').toLowerCase().includes(search.toLowerCase())
+    )
+  )
 
   const confirmed  = appointments.filter(a => a.status === 'confirmed').length
   const inProgress = appointments.filter(a => a.status === 'checked_in').length
@@ -41,18 +49,10 @@ export default function SpaDashboard() {
     <div className={styles.page}>
       <div className={styles.header}>
         <div>
-          <h1 className={styles.title}>Spa & Wellness</h1>
+          <h1 className={styles.title}>Spa &amp; Wellness</h1>
           <p className={styles.subtitle}>Termini, tretmani i terapeuti</p>
         </div>
         <div className={styles.headerActions}>
-          <input
-            type="date"
-            value={date}
-            onChange={e => setDate(e.target.value)}
-            className={styles.dateInput || ''}
-            style={{ padding: '8px 12px', border: '1px solid var(--c-border-input)', borderRadius: 9, fontSize: 13, background: 'var(--c-surface)', color: 'var(--c-text)', outline: 'none', fontFamily: 'inherit' }}
-          />
-          <button className={styles.btnSecondary} onClick={() => setDate(TODAY)}>Danas</button>
           {restaurant?.slug && (
             <a
               href={`/${restaurant.slug}/spa`}
@@ -69,6 +69,16 @@ export default function SpaDashboard() {
           </button>
         </div>
       </div>
+
+      <DateNav
+        from={from}
+        to={to}
+        search={search}
+        onChange={(f, t) => { setFrom(f); setTo(t) }}
+        onSearch={setSearch}
+        showFuture={true}
+        placeholder="Pretraži gosta ili uslugu..."
+      />
 
       {/* KPIs */}
       <div className={spa.kpiGrid}>
@@ -114,13 +124,16 @@ export default function SpaDashboard() {
       {/* Appointment list for selected date */}
       <div className={styles.sectionCard || ''} style={{ background: 'var(--c-surface)', border: '1px solid var(--c-border)', borderRadius: 14, overflow: 'hidden' }}>
         <div style={{ padding: '16px 20px', borderBottom: '1px solid var(--c-border)', fontWeight: 600, fontSize: 14 }}>
-          Termini — {new Date(date).toLocaleDateString('sr-Latn', { weekday: 'long', day: 'numeric', month: 'long' })}
+          Termini — {from === to
+            ? new Date(from).toLocaleDateString('sr-Latn', { weekday: 'long', day: 'numeric', month: 'long' })
+            : `${new Date(from).toLocaleDateString('sr-Latn', { day: 'numeric', month: 'long' })} — ${new Date(to).toLocaleDateString('sr-Latn', { day: 'numeric', month: 'long' })}`
+          }
         </div>
 
-        {loading ? <LoadingSpinner /> : appointments.length === 0 ? (
+        {loading ? <LoadingSpinner /> : filteredAppts.length === 0 ? (
           <div className={spa.empty}>
             <div className={spa.emptyIcon}>💆</div>
-            <p>Nema termina za odabrani dan.</p>
+            <p>Nema termina za odabrani period{search ? ' i pretragu' : ''}.</p>
           </div>
         ) : (
           <table className={spa.table}>
@@ -137,7 +150,7 @@ export default function SpaDashboard() {
               </tr>
             </thead>
             <tbody>
-              {appointments.map(a => {
+              {filteredAppts.map(a => {
                 const svc = a.spa_services
                 const therapistName = a.spa_therapists?.staff
                   ? `${a.spa_therapists.staff.first_name} ${a.spa_therapists.staff.last_name}`

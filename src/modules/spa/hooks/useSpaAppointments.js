@@ -2,7 +2,7 @@ import { useState, useEffect, useCallback } from 'react'
 import { supabase } from '../../../lib/supabase'
 import toast from 'react-hot-toast'
 
-export function useSpaAppointments(restaurantId, date) {
+export function useSpaAppointments(restaurantId, dateFrom, dateTo) {
   const [appointments, setAppointments] = useState([])
   const [loading, setLoading]           = useState(true)
 
@@ -18,12 +18,13 @@ export function useSpaAppointments(restaurantId, date) {
         spa_rooms(id, name)
       `)
       .eq('restaurant_id', restaurantId)
-      .eq('appointment_date', date)
+      .gte('appointment_date', dateFrom)
+      .lte('appointment_date', dateTo)
       .not('status', 'in', '(cancelled,no_show)')
       .order('start_time')
     setAppointments(data ?? [])
     setLoading(false)
-  }, [restaurantId, date])
+  }, [restaurantId, dateFrom, dateTo])
 
   useEffect(() => { load() }, [load])
 

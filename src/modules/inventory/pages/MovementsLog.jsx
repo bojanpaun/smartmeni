@@ -1,11 +1,14 @@
 // ▶ Novi fajl: src/modules/inventory/pages/MovementsLog.jsx
 
-import { useState, useEffect } from 'react'
+import { useState, useEffect, useCallback } from 'react'
 import { useNavigate } from 'react-router-dom'
 import { supabase } from '../../../lib/supabase'
 import { usePlatform } from '../../../context/PlatformContext'
+import DateNav from '../../../components/shared/DateNav'
 import styles from './MovementsLog.module.css'
 import gsStyles from '../../menu/pages/GeneralSettings.module.css'
+
+const TODAY = new Date().toISOString().slice(0, 10)
 
 const TYPE_MAP = {
   in:         { label: 'Ulaz',      cls: 'typeIn' },
@@ -23,41 +26,38 @@ export default function MovementsLog() {
   const navigate = useNavigate()
 
   const [movements, setMovements] = useState([])
-  const [items, setItems] = useState([])
   const [loading, setLoading] = useState(true)
-  const [filterItem, setFilterItem] = useState('')
   const [filterType, setFilterType] = useState('all')
-  const [filterDate, setFilterDate] = useState('')
+  const [from, setFrom] = useState(TODAY)
+  const [to, setTo] = useState(TODAY)
+  const [search, setSearch] = useState('')
+
+  const loadAll = useCallback(async () => {
+    if (!restaurant) return
+    setLoading(true)
+    const { data: movs } = await supabase
+      .from('inventory_movements')
+      .select('*, inventory_items(name, unit)')
+      .eq('restaurant_id', restaurant.id)
+      .gte('created_at', from + 'T00:00:00Z')
+      .lte('created_at', to + 'T23:59:59Z')
+      .order('created_at', { ascending: false })
+      .limit(1000)
+    setMovements(movs || [])
+    setLoading(false)
+  }, [restaurant, from, to])
 
   useEffect(() => {
     if (restaurant) loadAll()
-  }, [restaurant])
-
-  const loadAll = async () => {
-    setLoading(true)
-    const [{ data: movs }, { data: itms }] = await Promise.all([
-      supabase
-        .from('inventory_movements')
-        .select('*, inventory_items(name, unit)')
-        .eq('restaurant_id', restaurant.id)
-        .order('created_at', { ascending: false })
-        .limit(200),
-      supabase
-        .from('inventory_items')
-        .select('id, name')
-        .eq('restaurant_id', restaurant.id)
-        .order('name'),
-    ])
-    setMovements(movs || [])
-    setItems(itms || [])
-    setLoading(false)
-  }
+  }, [loadAll])
 
   const filtered = movements.filter(m => {
-    const matchItem = !filterItem || m.item_id === filterItem
     const matchType = filterType === 'all' || m.type === filterType
-    const matchDate = !filterDate || m.created_at.startsWith(filterDate)
-    return matchItem && matchType && matchDate
+    const matchSearch = !search || (
+      (m.inventory_items?.name || '').toLowerCase().includes(search.toLowerCase()) ||
+      (m.note || '').toLowerCase().includes(search.toLowerCase())
+    )
+    return matchType && matchSearch
   })
 
   if (loading) return <div className={styles.loading}>Učitavanje pokreta...</div>
@@ -72,17 +72,18 @@ export default function MovementsLog() {
         </div>
       </div>
 
+      <DateNav
+        from={from}
+        to={to}
+        search={search}
+        onChange={(f, t) => { setFrom(f); setTo(t) }}
+        onSearch={setSearch}
+        showFuture={false}
+        placeholder="Pretraži stavku ili napomenu..."
+      />
+
       {/* Filteri */}
       <div className={styles.filters}>
-        <select
-          className={styles.filterSelect}
-          value={filterItem}
-          onChange={e => setFilterItem(e.target.value)}
-        >
-          <option value="">Sve stavke</option>
-          {items.map(i => <option key={i.id} value={i.id}>{i.name}</option>)}
-        </select>
-
         <div className={styles.filterTypes}>
           {['all', 'in', 'out', 'adjustment'].map(t => (
             <button
@@ -94,16 +95,6 @@ export default function MovementsLog() {
             </button>
           ))}
         </div>
-
-        <input
-          type="date"
-          className={styles.filterDate}
-          value={filterDate}
-          onChange={e => setFilterDate(e.target.value)}
-        />
-        {filterDate && (
-          <button className={styles.filterClear} onClick={() => setFilterDate('')}>✕</button>
-        )}
       </div>
 
       {/* Lista */}

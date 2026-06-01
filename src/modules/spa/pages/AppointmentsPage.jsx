@@ -4,6 +4,7 @@ import { supabase } from '../../../lib/supabase'
 import { useSpaServices } from '../hooks/useSpaServices'
 import { useSpaTherapists } from '../hooks/useSpaTherapists'
 import { useSpaRooms } from '../hooks/useSpaRooms'
+import DateNav from '../../../components/shared/DateNav'
 import LoadingSpinner from '../../../components/shared/LoadingSpinner'
 import toast from 'react-hot-toast'
 import styles from '../../hotel/pages/Hotel.module.css'
@@ -38,7 +39,9 @@ export default function AppointmentsPage() {
   const { therapists } = useSpaTherapists(restaurant?.id)
   const { rooms }      = useSpaRooms(restaurant?.id)
 
-  const [dateFilter, setDateFilter]       = useState(TODAY)
+  const [from, setFrom]                   = useState(TODAY)
+  const [to, setTo]                       = useState(TODAY)
+  const [search, setSearch]               = useState('')
   const [statusFilter, setStatusFilter]   = useState('all')
   const [appointments, setAppointments]   = useState([])
   const [loading, setLoading]             = useState(true)
@@ -60,7 +63,8 @@ export default function AppointmentsPage() {
         spa_rooms(id, name)
       `)
       .eq('restaurant_id', restaurant.id)
-      .eq('appointment_date', dateFilter)
+      .gte('appointment_date', from)
+      .lte('appointment_date', to)
       .order('start_time')
 
     if (statusFilter !== 'all') q = q.eq('status', statusFilter)
@@ -68,7 +72,7 @@ export default function AppointmentsPage() {
     const { data } = await q
     setAppointments(data ?? [])
     setLoading(false)
-  }, [restaurant, dateFilter, statusFilter])
+  }, [restaurant, from, to, statusFilter])
 
   useEffect(() => { load() }, [load])
 
@@ -149,16 +153,19 @@ export default function AppointmentsPage() {
           <p className={styles.subtitle}>Pregled i upravljanje spa terminima</p>
         </div>
         <div className={styles.headerActions}>
-          <input
-            type="date"
-            value={dateFilter}
-            onChange={e => setDateFilter(e.target.value)}
-            style={{ padding: '7px 12px', border: '1px solid var(--c-border-input)', borderRadius: 9, fontSize: 13, background: 'var(--c-surface)', color: 'var(--c-text)', outline: 'none', fontFamily: 'inherit' }}
-          />
-          <button className={styles.btnSecondary} onClick={() => setDateFilter(TODAY)}>Danas</button>
           <button className={styles.btnPrimary} onClick={() => setShowForm(true)}>+ Novi termin</button>
         </div>
       </div>
+
+      <DateNav
+        from={from}
+        to={to}
+        search={search}
+        onChange={(f, t) => { setFrom(f); setTo(t) }}
+        onSearch={setSearch}
+        showFuture={true}
+        placeholder="Pretraži gosta, terapeuta..."
+      />
 
       {/* Status filter */}
       <div style={{ display: 'flex', gap: 8, marginBottom: 20, flexWrap: 'wrap' }}>
@@ -257,13 +264,26 @@ export default function AppointmentsPage() {
       )}
 
       {/* Appointments table */}
-      {loading ? <LoadingSpinner /> : appointments.length === 0 ? (
-        <div className={spa.empty}>
-          <div className={spa.emptyIcon}>🗓️</div>
-          <p>Nema termina za odabrani dan{statusFilter !== 'all' ? ' i status' : ''}.</p>
-        </div>
-      ) : (
-        <div style={{ background: 'var(--c-surface)', border: '1px solid var(--c-border)', borderRadius: 14, overflow: 'hidden' }}>
+      {loading ? <LoadingSpinner /> : (() => {
+        const q = search.toLowerCase()
+        const filtered = appointments.filter(a => {
+          if (!q) return true
+          const therapistName = a.spa_therapists?.staff
+            ? `${a.spa_therapists.staff.first_name} ${a.spa_therapists.staff.last_name}`.toLowerCase()
+            : ''
+          return (
+            (a.external_guest_name || '').toLowerCase().includes(q) ||
+            (a.spa_services?.name || '').toLowerCase().includes(q) ||
+            therapistName.includes(q)
+          )
+        })
+        return filtered.length === 0 ? (
+          <div className={spa.empty}>
+            <div className={spa.emptyIcon}>🗓️</div>
+            <p>Nema termina za odabrani period{statusFilter !== 'all' ? ' i status' : ''}{search ? ' i pretragu' : ''}.</p>
+          </div>
+        ) : (
+          <div style={{ background: 'var(--c-surface)', border: '1px solid var(--c-border)', borderRadius: 14, overflow: 'hidden' }}>
           <table className={spa.table}>
             <thead>
               <tr>
@@ -277,7 +297,7 @@ export default function AppointmentsPage() {
               </tr>
             </thead>
             <tbody>
-              {appointments.map(a => {
+              {filtered.map(a => {
                 const sl = STATUS_MAP[a.status] || STATUS_MAP.confirmed
                 const therapistName = a.spa_therapists?.staff
                   ? `${a.spa_therapists.staff.first_name} ${a.spa_therapists.staff.last_name}`
@@ -331,7 +351,8 @@ export default function AppointmentsPage() {
             </tbody>
           </table>
         </div>
-      )}
+        )
+      })()}
     </div>
   )
 }

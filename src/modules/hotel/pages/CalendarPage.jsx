@@ -3,6 +3,7 @@ import { useNavigate } from 'react-router-dom'
 import { usePlatform } from '../../../context/PlatformContext'
 import { useRooms } from '../hooks/useRooms'
 import { supabase } from '../../../lib/supabase'
+import DateNav, { DATE_TODAY } from '../../../components/shared/DateNav'
 import LoadingSpinner from '../../../components/shared/LoadingSpinner'
 import styles from './Hotel.module.css'
 
@@ -49,6 +50,8 @@ export default function CalendarPage() {
   const [startDate, setStartDate] = useState(() => getMondayOf(new Date()))
   const [reservations, setReservations] = useState([])
   const [loadingRes, setLoadingRes] = useState(true)
+  const [navFrom, setNavFrom] = useState(DATE_TODAY)
+  const [search, setSearch] = useState('')
 
   const dates = Array.from({ length: DAYS }, (_, i) => addDays(startDate, i))
   const rangeStart = toStr(startDate)
@@ -96,6 +99,20 @@ export default function CalendarPage() {
 
   const loading = roomsLoading || loadingRes
 
+  const filteredRooms = rooms.filter(room => {
+    if (!search) return true
+    const q = search.toLowerCase()
+    return (
+      String(room.room_number || '').toLowerCase().includes(q) ||
+      (room.room_types?.name || '').toLowerCase().includes(q)
+    )
+  })
+
+  const handleNavChange = (f) => {
+    setNavFrom(f)
+    setStartDate(getMondayOf(new Date(f + 'T12:00:00')))
+  }
+
   return (
     <div className={styles.page}>
       <div className={styles.header}>
@@ -110,7 +127,7 @@ export default function CalendarPage() {
         <div className={styles.headerActions}>
           <button className={styles.btnSecondary} onClick={() => shift(-2)}>«</button>
           <button className={styles.btnSecondary} onClick={() => shift(-1)}>‹ Nazad</button>
-          <button className={styles.btnSecondary} onClick={() => setStartDate(getMondayOf(new Date()))}>Danas</button>
+          <button className={styles.btnSecondary} onClick={() => { setStartDate(getMondayOf(new Date())); setNavFrom(DATE_TODAY) }}>Danas</button>
           <button className={styles.btnSecondary} onClick={() => shift(1)}>Naprijed ›</button>
           <button className={styles.btnSecondary} onClick={() => shift(2)}>»</button>
           <button className={styles.btnPrimary} onClick={() => navigate('/admin/hotel/reservations/new')}>
@@ -118,6 +135,17 @@ export default function CalendarPage() {
           </button>
         </div>
       </div>
+
+      <DateNav
+        from={navFrom}
+        to={navFrom}
+        search={search}
+        onChange={(f) => handleNavChange(f)}
+        onSearch={setSearch}
+        showFuture={true}
+        hidePeriod={true}
+        placeholder="Pretraži sobu..."
+      />
 
       {loading ? <LoadingSpinner /> : rooms.length === 0 ? (
         <div className={styles.empty}>
@@ -154,7 +182,7 @@ export default function CalendarPage() {
           </div>
 
           {/* Room rows */}
-          {rooms.map(room => (
+          {filteredRooms.map(room => (
             <div key={room.id} className={styles.calendarRow}>
               <div className={styles.calendarRoomLabel}>
                 <div className={styles.calendarRoomNum}>{room.room_number}</div>
