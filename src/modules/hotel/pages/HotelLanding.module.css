@@ -389,6 +389,8 @@ a.infoRow:hover {
 }
 
 .aboutText {
+  flex: 1;
+  min-width: 0;
   font-size: 14px;
   line-height: 1.75;
   color: #374151;
@@ -397,10 +399,12 @@ a.infoRow:hover {
 }
 
 .aboutImg {
-  width: 100%;
+  flex: 1;
+  min-width: 0;
   border-radius: 12px;
   object-fit: cover;
-  max-height: 280px;
+  max-height: 320px;
+  width: 100%;
 }
 
 /* ── Gallery block ── */

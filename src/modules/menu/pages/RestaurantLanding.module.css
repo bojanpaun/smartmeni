@@ -164,20 +164,22 @@
 }
 
 .storyText {
+  flex: 1;
+  min-width: 0;
   font-size: 15px;
   line-height: 1.75;
   color: var(--c-text-medium, #555);
   margin: 0;
   white-space: pre-wrap;
-  flex: 1;
 }
 
 .storyImg {
-  width: 100%;
+  flex: 1;
+  min-width: 0;
   max-height: 320px;
   object-fit: cover;
   border-radius: 12px;
-  flex: 1;
+  width: 100%;
 }
 
 /* ── Menu preview — layout variants ── */

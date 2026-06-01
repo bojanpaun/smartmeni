@@ -6,7 +6,7 @@ import { supabase } from '../../../lib/supabase'
 import { toast } from 'react-hot-toast'
 import BlockSortable from '../../../components/shared/BlockSortable'
 import LandingPreview from '../../../components/shared/LandingPreview'
-import BlockLayoutPicker from '../../../components/shared/BlockLayoutPicker'
+import BlockLayoutPicker, { ColSplitPicker } from '../../../components/shared/BlockLayoutPicker'
 import BlockFieldRenderer from '../../../components/shared/BlockFieldRenderer'
 import styles from '../../../components/shared/LandingEditor.module.css'
 
@@ -23,13 +23,13 @@ const BLOCK_DEFS = [
     defaultData: { title: '', subtitle: '', bg_image_url: '', cta_text: 'Rezerviši sobu', layout: 'fullscreen' },
   },
   {
-    type: 'about', label: 'O hotelu', icon: 'ℹ️', hasLayout: true,
+    type: 'about', label: 'O hotelu', icon: 'ℹ️', hasLayout: true, hasColSplit: true,
     desc: 'Kratki opis hotela s opcionalnom fotografijom', defaultEnabled: false,
     fields: [
       { key: 'text',      label: 'Tekst opisa',   type: 'textarea', placeholder: 'Napišite nešto o hotelu...' },
       { key: 'image_url', label: 'Fotografija',    type: 'image' },
     ],
-    defaultData: { text: '', image_url: '', layout: 'image-right' },
+    defaultData: { text: '', image_url: '', layout: 'image-right', col_split: '50-50' },
   },
   {
     type: 'rooms', label: 'Tipovi smještaja', icon: '🛏️',
@@ -294,6 +294,12 @@ export default function HotelLandingEditor() {
                                 blockType={block.type}
                                 value={block.data.layout}
                                 onChange={v => updateField(block.type, 'layout', v)}
+                              />
+                            )}
+                            {def.hasColSplit && block.data.layout !== 'text-only' && (
+                              <ColSplitPicker
+                                value={block.data.col_split || '50-50'}
+                                onChange={v => updateField(block.type, 'col_split', v)}
                               />
                             )}
                             {def.auto ? (

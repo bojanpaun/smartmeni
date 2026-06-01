@@ -18,6 +18,34 @@ const OPTIONS = {
   menu_preview:    [{ v: 'grid', l: 'Grid', i: '⊞' }, { v: 'list', l: 'Lista', i: '≡' }, { v: 'cards', l: 'Kartice', i: '▭' }],
 }
 
+const COL_SPLITS = [
+  { value: '30-70', label: '30 / 70' },
+  { value: '40-60', label: '40 / 60' },
+  { value: '50-50', label: '50 / 50' },
+  { value: '60-40', label: '60 / 40' },
+  { value: '70-30', label: '70 / 30' },
+]
+
+export function ColSplitPicker({ value, onChange }) {
+  return (
+    <div className={styles.formRow}>
+      <div className={styles.layoutPickerLabel}>Širina kolona (tekst / slika)</div>
+      <div className={styles.layoutPicker}>
+        {COL_SPLITS.map(opt => (
+          <button
+            key={opt.value}
+            type="button"
+            className={`${styles.layoutOption} ${value === opt.value ? styles.layoutOptionActive : ''}`}
+            onClick={() => onChange(opt.value)}
+          >
+            <span className={styles.layoutLabel}>{opt.label}</span>
+          </button>
+        ))}
+      </div>
+    </div>
+  )
+}
+
 export default function BlockLayoutPicker({ blockType, value, onChange }) {
   const opts = OPTIONS[blockType]
   if (!opts) return null

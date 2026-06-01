@@ -117,18 +117,23 @@ export default function RestaurantLandingPage() {
           </div>
         )
 
-      case 'story':
+      case 'story': {
         if (!block.data.text) return null
+        const [textFlex, imgFlex] = (block.data.col_split || '50-50').split('-').map(Number)
         return (
           <section key={idx} className={styles.section}>
             <div className={styles.storyWrap} data-layout={layout || 'image-right'}>
-              <p className={styles.storyText}>{block.data.text}</p>
-              {block.data.image_url && layout !== 'text-only' && (
+              <p className={styles.storyText} style={{ flex: textFlex }}>{block.data.text}</p>
+              {block.data.image_url && layout !== 'text-only' && layout !== 'image-above' && (
+                <img src={block.data.image_url} alt="" className={styles.storyImg} style={{ flex: imgFlex }} />
+              )}
+              {block.data.image_url && layout === 'image-above' && (
                 <img src={block.data.image_url} alt="" className={styles.storyImg} />
               )}
             </div>
           </section>
         )
+      }
 
       case 'menu_preview':
         if (categories.length === 0) return null

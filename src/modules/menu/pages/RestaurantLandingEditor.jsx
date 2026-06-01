@@ -6,7 +6,7 @@ import { supabase } from '../../../lib/supabase'
 import { toast } from 'react-hot-toast'
 import BlockSortable from '../../../components/shared/BlockSortable'
 import LandingPreview from '../../../components/shared/LandingPreview'
-import BlockLayoutPicker from '../../../components/shared/BlockLayoutPicker'
+import BlockLayoutPicker, { ColSplitPicker } from '../../../components/shared/BlockLayoutPicker'
 import BlockFieldRenderer from '../../../components/shared/BlockFieldRenderer'
 import styles from '../../../components/shared/LandingEditor.module.css'
 
@@ -22,13 +22,13 @@ const BLOCK_DEFS = [
     defaultData: { title: '', subtitle: '', bg_image_url: '', layout: 'fullscreen' },
   },
   {
-    type: 'story', label: 'Priča o restoranu', icon: '📖', hasLayout: true,
+    type: 'story', label: 'Priča o restoranu', icon: '📖', hasLayout: true, hasColSplit: true,
     desc: 'Kratki opis restorana s opcionalnom fotografijom', defaultEnabled: false,
     fields: [
       { key: 'text',      label: 'Tekst',                     type: 'textarea', placeholder: 'Napišite nešto o restoranu...' },
       { key: 'image_url', label: 'Fotografija (opcionalno)',  type: 'image' },
     ],
-    defaultData: { text: '', image_url: '', layout: 'image-right' },
+    defaultData: { text: '', image_url: '', layout: 'image-right', col_split: '50-50' },
   },
   {
     type: 'menu_preview', label: 'Pregled menija', icon: '🍽️', hasLayout: true,
@@ -286,6 +286,12 @@ export default function RestaurantLandingEditor() {
                                 blockType={block.type}
                                 value={block.data.layout}
                                 onChange={v => updateField(block.type, 'layout', v)}
+                              />
+                            )}
+                            {def.hasColSplit && block.data.layout !== 'text-only' && block.data.layout !== 'image-above' && (
+                              <ColSplitPicker
+                                value={block.data.col_split || '50-50'}
+                                onChange={v => updateField(block.type, 'col_split', v)}
                               />
                             )}
                             {def.auto ? (

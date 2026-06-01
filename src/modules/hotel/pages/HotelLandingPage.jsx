@@ -186,19 +186,21 @@ export default function HotelLandingPage() {
         )
       }
 
-      case 'about':
+      case 'about': {
         if (!block.data.text) return null
+        const [textFlex, imgFlex] = (block.data.col_split || '50-50').split('-').map(Number)
         return (
           <section key={idx} className={styles.section}>
             <h2 className={styles.sectionTitle}>{t.about}</h2>
             <div className={styles.aboutWrap} data-layout={layout || 'image-right'}>
-              <p className={styles.aboutText}>{block.data.text}</p>
+              <p className={styles.aboutText} style={{ flex: textFlex }}>{block.data.text}</p>
               {block.data.image_url && layout !== 'text-only' && (
-                <img src={block.data.image_url} alt="" className={styles.aboutImg} />
+                <img src={block.data.image_url} alt="" className={styles.aboutImg} style={{ flex: imgFlex }} />
               )}
             </div>
           </section>
         )
+      }
 
       case 'rooms':
         return <div key={idx}>{renderRooms()}</div>
