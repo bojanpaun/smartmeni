@@ -94,7 +94,7 @@ export default function RoomTypesPage() {
                 <input className={styles.input} type="number" min={0} value={form.base_price} onChange={e => setForm(f => ({ ...f, base_price: e.target.value }))} placeholder="0.00" />
               </label>
               <label className={styles.formLabel} style={{ gridColumn: '1/-1' }}>Opis
-                <textarea className={styles.textarea} value={form.description} onChange={e => setForm(f => ({ ...f, description: e.target.value }))} rows={2} placeholder="Opis tipa sobe..." />
+                <textarea className={`${styles.input} ${styles.textarea}`} value={form.description} onChange={e => setForm(f => ({ ...f, description: e.target.value }))} rows={2} placeholder="Opis tipa sobe..." />
               </label>
             </div>
             <div className={styles.formLabel}>Sadržaj

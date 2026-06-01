@@ -126,7 +126,7 @@ export default function RatePlansPage() {
       ? await supabase.from('rate_plans').update(payload).eq('id', editing.id)
       : await supabase.from('rate_plans').insert(payload)
     setSaving(false)
-    if (error) return toast.error('Greška pri čuvanju')
+    if (error) return toast.error(error.message ?? 'Greška pri čuvanju')
     toast.success(editing ? 'Plan ažuriran' : 'Plan dodan')
     setShowForm(false)
     refetch()
