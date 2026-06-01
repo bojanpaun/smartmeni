@@ -77,10 +77,11 @@ export const MODULES = [
     admin: {
       label: 'Administracija menija',
       links: [
-        { label: 'Analitika',             icon: '📊', path: '/admin/menu/analytics' },
-        { label: 'Uređivanje menija',     icon: '🍽️', path: '/admin/menu',         exact: true },
-        { label: 'Opšte postavke menija', icon: '⚙️', path: '/admin/menu/settings' },
-        { label: 'QR kod',                icon: '📱', path: '/admin/menu/qr' },
+        { label: 'Analitika',         icon: '📊', path: '/admin/menu/analytics' },
+        { label: 'Uređivanje menija', icon: '🍽️', path: '/admin/menu',           exact: true },
+        { label: 'Postavke menija',   icon: '⚙️', path: '/admin/menu/settings' },
+        { label: 'Sajt restorana',    icon: '🌐', path: '/admin/settings/landing' },
+        { label: 'QR kod',            icon: '📱', path: '/admin/menu/qr' },
       ],
     },
   },
@@ -256,11 +257,9 @@ export const MODULES = [
     admin: {
       label: 'Postavke sistema',
       links: [
-        { label: 'Predlošci',        icon: '🎨', path: '/admin/settings/templates', exact: true },
-        { label: 'Logo',             icon: '🖼️', path: '/admin/settings/logo' },
-        { label: 'Opšte postavke',   icon: '⚙️', path: '/admin/settings/general' },
-        { label: 'Sajt restorana',   icon: '🌐', path: '/admin/settings/landing' },
-        { label: 'Pretplata',        icon: '💳', path: '/admin/billing' },
+        { label: 'Logo',           icon: '🖼️', path: '/admin/settings/logo' },
+        { label: 'Osnovni podaci', icon: '📋', path: '/admin/settings/general' },
+        { label: 'Pretplata',      icon: '💳', path: '/admin/billing' },
       ],
     },
   },

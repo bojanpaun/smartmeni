@@ -1,6 +1,7 @@
 import { useState, useRef } from 'react'
 import { supabase } from '../../../lib/supabase'
 import { usePlatform } from '../../../context/PlatformContext'
+import TemplateSettings from './TemplateSettings'
 import styles from './GeneralSettings.module.css'
 import menuStyles from './AdminMenu.module.css'
 
@@ -32,6 +33,7 @@ const TABS = [
   { id: 'opste',      label: 'Opšte' },
   { id: 'vidljivost', label: 'Vidljivost' },
   { id: 'poruke',     label: 'Poruke' },
+  { id: 'predlosci',  label: 'Predlošci' },
 ]
 
 // ── Sub-komponente ─────────────────────────────────────────
@@ -406,6 +408,9 @@ export default function AdminMenuSettings() {
           <RejectionMessagesEditor restaurant={restaurant} setRestaurant={setRestaurant} />
         </>
       )}
+
+      {/* ── Tab: Predlošci ── */}
+      {activeTab === 'predlosci' && <TemplateSettings />}
     </div>
   )
 }
