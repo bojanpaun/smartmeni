@@ -4,8 +4,6 @@
 .editorShell {
   display: flex;
   align-items: stretch;
-  height: calc(100vh - 60px);
-  overflow: hidden;
 }
 
 .formPanel {
@@ -13,7 +11,6 @@
   padding: 24px 20px 40px;
   border-right: 1px solid var(--c-border);
   box-sizing: border-box;
-  overflow-y: auto;
 }
 
 /* ── Resizable divider ── */
@@ -52,15 +49,14 @@
 /* ── Preview panel ── */
 .previewPanel {
   flex: 1;
-  overflow-y: auto;
   display: flex;
   flex-direction: column;
   background: var(--c-bg-subtle);
 }
 
 @media (max-width: 1100px) {
-  .editorShell { display: block; height: auto; overflow: visible; }
-  .formPanel { width: 100% !important; max-width: 760px; border-right: none; padding: 24px; overflow-y: visible; }
+  .editorShell { display: block; }
+  .formPanel { width: 100% !important; max-width: 760px; border-right: none; padding: 24px; }
   .previewPanel, .panelDivider { display: none; }
 }
 
@@ -73,6 +69,9 @@
   background: var(--c-surface);
   border-bottom: 1px solid var(--c-border);
   flex-shrink: 0;
+  position: sticky;
+  top: 0;
+  z-index: 10;
 }
 
 .previewLabel {
