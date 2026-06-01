@@ -10,10 +10,10 @@
 }
 .card:hover { box-shadow: 0 4px 16px rgba(0,0,0,0.07); }
 
-.occupied    { border-color: #b0d4c4; background: #f8fdfa; }
-.cleaning    { border-color: #f5c87a; background: #fffbf2; }
-.maintenance { border-color: #f5a0a0; background: #fff8f8; }
-.blocked     { border-color: var(--c-border); background: #f5f8f6; }
+.occupied    { border-color: var(--c-primary-medium); background: var(--c-primary-light); }
+.cleaning    { border-color: var(--c-warning);        background: var(--c-warning-bg); }
+.maintenance { border-color: var(--c-danger-border);  background: var(--c-danger-bg); }
+.blocked     { border-color: var(--c-border);         background: var(--c-bg-subtle); }
 
 .header {
   display: flex;
@@ -56,7 +56,7 @@
   color: var(--c-text);
   transition: background 0.12s;
 }
-.btn:hover { background: #e8f5ee; }
+.btn:hover { background: var(--c-bg-subtle); }
 .btn_available   { border-color: var(--c-primary); color: var(--c-primary); }
 .btn_occupied    { border-color: var(--c-text); background: var(--c-text); color: var(--c-surface); }
 .btn_cleaning    { border-color: var(--c-warning); color: var(--c-warning); }

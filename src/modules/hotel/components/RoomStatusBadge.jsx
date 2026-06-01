@@ -1,11 +1,11 @@
 import styles from './RoomStatusBadge.module.css'
 
 const STATUS_CONFIG = {
-  available:   { label: 'Slobodna',    color: '#0d7a52', bg: '#e8f5f0' },
-  occupied:    { label: 'Zauzeta',     color: '#1a2e26', bg: '#d4e8e0' },
-  cleaning:    { label: 'Čišćenje',    color: '#ba7517', bg: '#fef3e2' },
-  maintenance: { label: 'Servis',      color: '#a32d2d', bg: '#fde8e8' },
-  blocked:     { label: 'Blokirana',   color: '#5a7a6a', bg: '#f0f5f2' },
+  available:   { label: 'Slobodna',  color: 'var(--c-primary)',      bg: 'var(--c-primary-light)' },
+  occupied:    { label: 'Zauzeta',   color: 'var(--c-primary)',      bg: 'var(--c-primary-light)' },
+  cleaning:    { label: 'Čišćenje', color: 'var(--c-warning)',      bg: 'var(--c-warning-bg)' },
+  maintenance: { label: 'Servis',    color: 'var(--c-danger)',       bg: 'var(--c-danger-bg)' },
+  blocked:     { label: 'Blokirana', color: 'var(--c-text-muted)',   bg: 'var(--c-bg-subtle)' },
 }
 
 export default function RoomStatusBadge({ status, size = 'sm' }) {
