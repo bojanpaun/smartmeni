@@ -32,6 +32,19 @@ const STATUS_MAP = {
   verified:    { label: 'Verifikovano',  icon: '⭐', color: '#7c3aed' },
 }
 
+const MAINT_STATUS_MAP = {
+  open:        { label: 'Otvoreno',     icon: '🔧', color: '#e67e22' },
+  in_progress: { label: 'U toku',       icon: '🔄', color: '#2563eb' },
+  done:        { label: 'Završeno',     icon: '✅', color: '#0d7a52' },
+  verified:    { label: 'Verifikovano', icon: '⭐', color: '#7c3aed' },
+  resolved:    { label: 'Riješeno',     icon: '✓',  color: '#8a9e96' },
+}
+
+function MaintStatusBadge({ status }) {
+  const s = MAINT_STATUS_MAP[status] || MAINT_STATUS_MAP.open
+  return <span className={hk.statusBadge} style={{ color: s.color }}>{s.icon} {s.label}</span>
+}
+
 const MAINT_CATS = [
   { value: 'plumbing',    label: 'Vodoinstalacije',  icon: '🔧' },
   { value: 'electrical',  label: 'Elektrika',         icon: '⚡' },
@@ -63,6 +76,7 @@ export default function HousekeepingPage() {
   const [date, setDate] = useState(TODAY)
   const [tab, setTab] = useState('tasks')
   const [statusFilter, setStatusFilter] = useState('all')
+  const [maintStatusFilter, setMaintStatusFilter] = useState('all')
   const [showTaskForm, setShowTaskForm] = useState(false)
   const [showMaintForm, setShowMaintForm] = useState(false)
   const [taskForm, setTaskForm] = useState(BLANK_TASK)
@@ -79,7 +93,16 @@ export default function HousekeepingPage() {
   const inProgress = tasks.filter(t => t.status === 'in_progress').length
   const done       = tasks.filter(t => t.status === 'done').length
   const verified   = tasks.filter(t => t.status === 'verified').length
-  const maintOpen  = maintenance.filter(m => m.status === 'open').length
+  const maintOpen     = maintenance.filter(m => !['resolved', 'verified'].includes(m.status)).length
+  const maintCounts   = {
+    open:        maintenance.filter(m => m.status === 'open').length,
+    in_progress: maintenance.filter(m => m.status === 'in_progress').length,
+    done:        maintenance.filter(m => m.status === 'done').length,
+    verified:    maintenance.filter(m => m.status === 'verified').length,
+  }
+  const filteredMaintenance = maintStatusFilter === 'all'
+    ? maintenance
+    : maintenance.filter(m => m.status === maintStatusFilter)
 
   const filteredTasks = statusFilter === 'all'
     ? tasks
@@ -120,9 +143,12 @@ export default function HousekeepingPage() {
       restaurant_id: restaurant.id,
       room_id: maintForm.room_id || null,
     })
+    if (!error && maintForm.room_id) {
+      await supabase.from('rooms').update({ status: 'maintenance' }).eq('id', maintForm.room_id)
+    }
     setSaving(false)
     if (error) return toast.error('Greška pri kreiranju zahtjeva')
-    toast.success('Zahtjev kreiran')
+    toast.success('Zahtjev kreiran — soba postavljena na servis')
     setShowMaintForm(false)
     setMaintForm(BLANK_MAINT)
     refetch()
@@ -130,9 +156,16 @@ export default function HousekeepingPage() {
 
   const handleMaintStatus = async (id, status) => {
     const patch = { status, updated_at: new Date().toISOString() }
-    if (status === 'resolved') patch.resolved_at = new Date().toISOString()
+    if (status === 'verified') patch.resolved_at = new Date().toISOString()
     await supabase.from('maintenance_requests').update(patch).eq('id', id)
-    toast.success(status === 'resolved' ? 'Zahtjev riješen' : 'Status ažuriran')
+    if (status === 'verified') {
+      const m = maintenance.find(x => x.id === id)
+      if (m?.room_id) {
+        await supabase.from('rooms').update({ status: 'available' }).eq('id', m.room_id)
+      }
+    }
+    const labels = { in_progress: 'U toku', done: 'Završeno', verified: 'Verifikovano — soba dostupna' }
+    toast.success(labels[status] || 'Status ažuriran')
     refetch()
   }
 
@@ -370,6 +403,39 @@ export default function HousekeepingPage() {
             </button>
           </div>
 
+          {/* Stats sub-row */}
+          <div className={hk.stats} style={{ marginBottom: 12 }}>
+            {Object.entries(maintCounts).map(([key, val]) => {
+              const s = MAINT_STATUS_MAP[key]
+              return (
+                <div key={key} className={hk.stat} style={{ cursor: 'pointer' }}
+                  onClick={() => setMaintStatusFilter(key === maintStatusFilter ? 'all' : key)}>
+                  <div className={hk.statVal} style={{ color: s.color }}>{val}</div>
+                  <div className={hk.statLabel}>{s.label}</div>
+                </div>
+              )
+            })}
+          </div>
+
+          {/* Status filter chips */}
+          <div className={hk.statusFilter} style={{ marginBottom: 14 }}>
+            <button
+              className={`${hk.filterChip} ${maintStatusFilter === 'all' ? hk.filterChipActive : ''}`}
+              onClick={() => setMaintStatusFilter('all')}
+            >
+              Svi ({maintenance.length})
+            </button>
+            {Object.entries(MAINT_STATUS_MAP).filter(([k]) => k !== 'resolved').map(([key, s]) => (
+              <button
+                key={key}
+                className={`${hk.filterChip} ${maintStatusFilter === key ? hk.filterChipActive : ''}`}
+                onClick={() => setMaintStatusFilter(key)}
+              >
+                {s.icon} {s.label}
+              </button>
+            ))}
+          </div>
+
           {/* Maint form */}
           {showMaintForm && (
             <div className={hk.formPanel}>
@@ -413,14 +479,14 @@ export default function HousekeepingPage() {
             </div>
           )}
 
-          {maintenance.length === 0 ? (
+          {filteredMaintenance.length === 0 ? (
             <div className={hk.empty}>
               <div className={hk.emptyIcon}>🔧</div>
-              <p>Nema otvorenih zahtjeva za održavanje.</p>
+              <p>{maintStatusFilter === 'all' ? 'Nema zahtjeva za održavanje.' : `Nema zahtjeva u statusu "${MAINT_STATUS_MAP[maintStatusFilter]?.label}".`}</p>
             </div>
           ) : (
             <div className={hk.maintList}>
-              {maintenance.map(m => {
+              {filteredMaintenance.map(m => {
                 const cat = MAINT_CATS.find(c => c.value === m.category) || MAINT_CATS[5]
                 return (
                   <div key={m.id} className={hk.maintCard}>
@@ -440,16 +506,20 @@ export default function HousekeepingPage() {
                     <div className={hk.maintActions}>
                       {m.status === 'open' && (
                         <button className={hk.btnStart}
-                          onClick={() => handleMaintStatus(m.id, 'in_progress')}>U rad</button>
+                          onClick={() => handleMaintStatus(m.id, 'in_progress')}>▶ U rad</button>
                       )}
                       {m.status === 'in_progress' && (
                         <button className={hk.btnDone}
-                          onClick={() => handleMaintStatus(m.id, 'resolved')}>Riješeno</button>
+                          onClick={() => handleMaintStatus(m.id, 'done')}>✓ Završi</button>
                       )}
-                      <span className={hk.maintStatus}
-                        style={{ color: m.status === 'open' ? '#e67e22' : m.status === 'in_progress' ? '#2563eb' : '#0d7a52' }}>
-                        {m.status === 'open' ? 'Otvoreno' : m.status === 'in_progress' ? 'U toku' : 'Riješeno'}
-                      </span>
+                      {m.status === 'done' && (
+                        <button className={hk.btnVerify}
+                          onClick={() => handleMaintStatus(m.id, 'verified')}>⭐ Verifikuj</button>
+                      )}
+                      {m.status === 'verified' && (
+                        <span className={hk.verifiedLabel}>Verifikovano ✓</span>
+                      )}
+                      <MaintStatusBadge status={m.status} />
                     </div>
                   </div>
                 )
