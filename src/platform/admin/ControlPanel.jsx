@@ -22,10 +22,10 @@ function useDashboardData(restaurant, hasHotel, hasSpa) {
     async function load() {
       const base = [
         supabase.from('orders').select('id', { count: 'exact', head: true })
-          .eq('restaurant_id', rid).gte('created_at', `${today}T00:00:00`),
+          .eq('restaurant_id', rid).gte('created_at', `${today}T00:00:00.000Z`),
         supabase.from('orders').select('total_amount')
-          .eq('restaurant_id', rid).gte('created_at', `${today}T00:00:00`)
-          .not('status', 'in', '("cancelled","closed")'),
+          .eq('restaurant_id', rid).gte('created_at', `${today}T00:00:00.000Z`)
+          .not('status', 'in', '(cancelled,closed)'),
         supabase.from('orders').select('id', { count: 'exact', head: true })
           .eq('restaurant_id', rid).in('status', ['pending', 'received', 'ready']),
         supabase.from('orders').select('id', { count: 'exact', head: true })
@@ -39,7 +39,7 @@ function useDashboardData(restaurant, hasHotel, hasSpa) {
       ]
       if (hasHotel) base.push(
         supabase.from('hotel_reservations').select('id', { count: 'exact', head: true })
-          .eq('restaurant_id', rid).eq('check_in', today).in('status', ['confirmed', 'checked_in'])
+          .eq('restaurant_id', rid).eq('check_in_date', today).in('status', ['confirmed', 'checked_in'])
       )
       if (hasSpa) base.push(
         supabase.from('spa_appointments').select('id', { count: 'exact', head: true })
