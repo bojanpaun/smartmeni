@@ -1,6 +1,6 @@
 # rest.by.me — HospitalityOS Produkt roadmap
 
-> **Verzija:** 2.9 *(dopunjeno — Faza Y.3 kompletna: live preview, DnD, collapse, layout varijante, novi blokovi, resizable divider, admin sidebar jedan scroll — 2026-06-01)*
+> **Verzija:** 3.0 *(dopunjeno — UX reorganizacija admin panela: ControlPanel vertikale + KPI-evi, AdminMenuSettings tabovi, settings/menu navigacijska čišćenja — 2026-06-01)*
 > **Kontekst:** Evolucija rest.by.me (bivši SmartMeni) SaaS platforme prema punom hospitality management sistemu
 > **Tim:** 1 developer + Claude Code AI asistent
 > **Branch:** `main` → direktno na produkciju (Vercel auto-deploy)
@@ -1888,6 +1888,12 @@ RLS politike se proširuju da provjeravaju `portfolio_access.scope` — regional
 | Y.3 | Preview panel: toggle aktivacija, resizable divider, full-height iframe | ✅ | 2026-06-01 |
 | Y.3 | PREVIEW_HEIGHT postMessage — iframe visina = puna visina landing stranice | ✅ | 2026-06-01 |
 | fix | AdminLayout sidebar — jedan page scroll, bez zasebnog sidebar scrollera | ✅ | 2026-06-01 |
+| ux | ControlPanel redesign — vertikale (Restoran/Hotel/Upravljanje/Sistem), KPI row (live), quick actions sa badge-ovima | ✅ | 2026-06-01 |
+| ux | AdminMenuSettings — 4 taba: Opšte / Vidljivost / Poruke / Predlošci | ✅ | 2026-06-01 |
+| ux | Vidljivost kontrole premještene iz GeneralSettings → AdminMenuSettings tab | ✅ | 2026-06-01 |
+| ux | GeneralSettings — ostaju samo osnovni podaci objekta (naziv/lokacija/telefon/opis) | ✅ | 2026-06-01 |
+| ux | Settings sidebar: ukloniti Predlošci + Sajt restorana; "Opšte postavke" → "Osnovni podaci" | ✅ | 2026-06-01 |
+| ux | Menu sidebar: dodati Sajt restorana + Predlošci prelazi u tab Postavki menija | ✅ | 2026-06-01 |
 | 9 | portfolios + brands + property_groups tabele | ⬜ | |
 | 9 | portfolio_kpis materialized view + cron | ⬜ | |
 | 9 | Portfolio dashboard UI | ⬜ | |
@@ -1969,4 +1975,4 @@ RLS politike se proširuju da provjeravaju `portfolio_access.scope` — regional
 
 ---
 
-*Roadmap ažuriran: 2026-06-01 (v2.9 — Faza Y.3 ZAVRŠENA: Visual Page Editor hotel+restoran — live preview iframe, DnD reorder, collapse/expand blokova, layout varijante, 5 novih tipova blokova, resizable split panel; AdminLayout: jedan page scroll bez sidebar scrollera) | Branch: main | Deployment: Vercel auto-deploy*
+*Roadmap ažuriran: 2026-06-01 (v3.0 — UX reorganizacija admin panela: ControlPanel redesign sa vertikalama/KPI-evima/quick akcijama; AdminMenuSettings 4 taba (Opšte/Vidljivost/Poruke/Predlošci); Settings sidebar čišćenje — Predlošci i Sajt restorana premješteni u Menu modul; Osnovni podaci renamed) | Branch: main | Deployment: Vercel auto-deploy*
