@@ -554,7 +554,9 @@ export default function BookingPage() {
               </div>
             </div>
 
-            <p className={styles.paypalNote}>{t('payment.secureNote')}</p>
+            {selectedPackage?.payment_type !== 'on_arrival' && (
+              <p className={styles.paypalNote}>{t('payment.secureNote')}</p>
+            )}
             {payError && <p className={styles.error}>{payError}</p>}
             {selectedPackage?.payment_type === 'on_arrival' ? (
               <button className={styles.btnOnArrival} onClick={handlePayOnArrival} disabled={payLoading}>
