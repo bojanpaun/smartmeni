@@ -3,8 +3,10 @@ import { useNavigate } from 'react-router-dom'
 import { usePlatform } from '../../../context/PlatformContext'
 import { useReservations } from '../hooks/useReservations'
 import DateNav from '../../../components/shared/DateNav'
+import SortableHead from '../../../components/shared/SortableHead'
 import RoomStatusBadge from '../components/RoomStatusBadge'
 import LoadingSpinner from '../../../components/shared/LoadingSpinner'
+import { useSortable } from '../../../hooks/useSortable'
 import styles from './Hotel.module.css'
 
 const TODAY = new Date().toISOString().slice(0, 10)
@@ -31,6 +33,7 @@ export default function ReservationsPage() {
   const [from, setFrom] = useState(TODAY)
   const [to, setTo] = useState(TODAY)
   const [search, setSearch] = useState('')
+  const { sortBy, sortDir, onSort, sort } = useSortable('check_in_date')
 
   const { reservations, loading } = useReservations(restaurant?.id, {
     status: statusFilter || undefined,
@@ -88,15 +91,15 @@ export default function ReservationsPage() {
       ) : (
         <div className={styles.table}>
           <div className={styles.tableHead}>
-            <span>Gost</span>
-            <span>Soba</span>
-            <span>Check-in</span>
-            <span>Check-out</span>
+            <SortableHead col="guest_name"      label="Gost"     sortBy={sortBy} sortDir={sortDir} onSort={onSort} />
+            <SortableHead col="rooms.room_number" label="Soba"   sortBy={sortBy} sortDir={sortDir} onSort={onSort} />
+            <SortableHead col="check_in_date"   label="Check-in" sortBy={sortBy} sortDir={sortDir} onSort={onSort} />
+            <SortableHead col="check_out_date"  label="Check-out" sortBy={sortBy} sortDir={sortDir} onSort={onSort} />
             <span>Noći</span>
-            <span>Iznos</span>
-            <span>Status</span>
+            <SortableHead col="total_amount"    label="Iznos"    sortBy={sortBy} sortDir={sortDir} onSort={onSort} />
+            <SortableHead col="status"          label="Status"   sortBy={sortBy} sortDir={sortDir} onSort={onSort} />
           </div>
-          {filteredReservations.map(res => {
+          {sort(filteredReservations).map(res => {
             const nights = Math.ceil((new Date(res.check_out_date) - new Date(res.check_in_date)) / 86400000)
             return (
               <div key={res.id} className={styles.tableRow} onClick={() => navigate(`/admin/hotel/reservations/${res.id}`)}>

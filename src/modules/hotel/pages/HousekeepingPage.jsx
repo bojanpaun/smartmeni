@@ -4,6 +4,8 @@ import { useHousekeeping } from '../hooks/useHousekeeping'
 import { useRooms } from '../hooks/useRooms'
 import { supabase } from '../../../lib/supabase'
 import DateNav, { DATE_TODAY } from '../../../components/shared/DateNav'
+import SortableHead from '../../../components/shared/SortableHead'
+import { useSortable } from '../../../hooks/useSortable'
 import LoadingSpinner from '../../../components/shared/LoadingSpinner'
 import toast from 'react-hot-toast'
 import styles from './Hotel.module.css'
@@ -87,6 +89,8 @@ export default function HousekeepingPage() {
   const [saving, setSaving] = useState(false)
 
   const { tasks, maintenance, staff, loading, refetch, updateTaskStatus, assignTask } = useHousekeeping(restaurant?.id, from, to)
+  const taskSort = useSortable('scheduled_for')
+  const maintSort = useSortable('created_at', 'desc')
   const { rooms } = useRooms(restaurant?.id)
 
   if (!restaurant) return <LoadingSpinner fullPage />
@@ -379,15 +383,15 @@ export default function HousekeepingPage() {
           ) : (
             <div className={styles.table} style={{ overflowX: 'auto' }}>
               <div className={styles.tableHead} style={{ gridTemplateColumns: '2fr 1fr 90px 1.5fr 90px 120px 180px' }}>
-                <span>Soba</span>
-                <span>Tip</span>
-                <span>Datum</span>
+                <SortableHead col="rooms.room_number" label="Soba"      sortBy={taskSort.sortBy} sortDir={taskSort.sortDir} onSort={taskSort.onSort} />
+                <SortableHead col="type"              label="Tip"       sortBy={taskSort.sortBy} sortDir={taskSort.sortDir} onSort={taskSort.onSort} />
+                <SortableHead col="scheduled_for"     label="Datum"     sortBy={taskSort.sortBy} sortDir={taskSort.sortDir} onSort={taskSort.onSort} />
                 <span>Dodijeljeno</span>
-                <span>Prioritet</span>
-                <span>Status</span>
+                <SortableHead col="priority"          label="Prioritet" sortBy={taskSort.sortBy} sortDir={taskSort.sortDir} onSort={taskSort.onSort} />
+                <SortableHead col="status"            label="Status"    sortBy={taskSort.sortBy} sortDir={taskSort.sortDir} onSort={taskSort.onSort} />
                 <span></span>
               </div>
-              {filteredTasks.map(task => {
+              {taskSort.sort(filteredTasks).map(task => {
                 const typeInfo = TASK_TYPES.find(t => t.value === task.type) || TASK_TYPES[0]
                 return (
                   <div key={task.id} className={styles.tableRow}
@@ -504,14 +508,14 @@ export default function HousekeepingPage() {
           ) : (
             <div className={styles.table} style={{ overflowX: 'auto' }}>
               <div className={styles.tableHead} style={{ gridTemplateColumns: '3fr 80px 1fr 90px 130px 180px' }}>
-                <span>Opis</span>
-                <span>Soba</span>
-                <span>Kategorija</span>
-                <span>Prioritet</span>
-                <span>Status</span>
+                <SortableHead col="description"    label="Opis"       sortBy={maintSort.sortBy} sortDir={maintSort.sortDir} onSort={maintSort.onSort} />
+                <SortableHead col="rooms.room_number" label="Soba"    sortBy={maintSort.sortBy} sortDir={maintSort.sortDir} onSort={maintSort.onSort} />
+                <SortableHead col="category"       label="Kategorija" sortBy={maintSort.sortBy} sortDir={maintSort.sortDir} onSort={maintSort.onSort} />
+                <SortableHead col="priority"       label="Prioritet"  sortBy={maintSort.sortBy} sortDir={maintSort.sortDir} onSort={maintSort.onSort} />
+                <SortableHead col="status"         label="Status"     sortBy={maintSort.sortBy} sortDir={maintSort.sortDir} onSort={maintSort.onSort} />
                 <span></span>
               </div>
-              {filteredMaintenance.map(m => {
+              {maintSort.sort(filteredMaintenance).map(m => {
                 const cat = MAINT_CATS.find(c => c.value === m.category) || MAINT_CATS[5]
                 return (
                   <div key={m.id} className={styles.tableRow}

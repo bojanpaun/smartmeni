@@ -4,6 +4,8 @@ import { usePlatform } from '../../../context/PlatformContext'
 import { useReservations } from '../hooks/useReservations'
 import { supabase } from '../../../lib/supabase'
 import DateNav, { DATE_TODAY } from '../../../components/shared/DateNav'
+import SortableHead from '../../../components/shared/SortableHead'
+import { useSortable } from '../../../hooks/useSortable'
 import LoadingSpinner from '../../../components/shared/LoadingSpinner'
 import toast from 'react-hot-toast'
 import styles from './Hotel.module.css'
@@ -26,6 +28,9 @@ export default function FrontDeskPage() {
   const [from, setFrom] = useState(DATE_TODAY)
   const [to, setTo] = useState(DATE_TODAY)
   const [search, setSearch] = useState('')
+  const ciSort  = useSortable('check_out_date')
+  const coSort  = useSortable('check_in_date')
+  const reqSort = useSortable('created_at', 'desc')
 
   const { reservations: arrivals, loading: loadingArrivals, refetch: refetchArrivals } = useReservations(restaurant?.id, {
     status: 'confirmed', checkInFrom: from, checkInTo: to,
@@ -208,14 +213,14 @@ export default function FrontDeskPage() {
         ) : (
           <div className={styles.table}>
             <div className={styles.tableHead} style={{ gridTemplateColumns: '2.5fr 1fr 1fr 60px 2fr 160px' }}>
-              <span>Gost</span>
-              <span>Soba / Tip</span>
-              <span>Check-out</span>
-              <span>Gosti</span>
+              <SortableHead col="guest_name"     label="Gost"          sortBy={ciSort.sortBy} sortDir={ciSort.sortDir} onSort={ciSort.onSort} />
+              <SortableHead col="rooms.room_number" label="Soba / Tip" sortBy={ciSort.sortBy} sortDir={ciSort.sortDir} onSort={ciSort.onSort} />
+              <SortableHead col="check_out_date" label="Check-out"     sortBy={ciSort.sortBy} sortDir={ciSort.sortDir} onSort={ciSort.onSort} />
+              <SortableHead col="adults"         label="Gosti"         sortBy={ciSort.sortBy} sortDir={ciSort.sortDir} onSort={ciSort.onSort} />
               <span>Spec. zahtjevi</span>
               <span></span>
             </div>
-            {filteredArrivals.map(res => (
+            {ciSort.sort(filteredArrivals).map(res => (
               <div key={res.id} className={styles.tableRow} style={{ gridTemplateColumns: '2.5fr 1fr 1fr 60px 2fr 160px', cursor: 'default' }}>
                 <span className={styles.bold}>{res.guest_name}</span>
                 <span>
@@ -244,13 +249,13 @@ export default function FrontDeskPage() {
         ) : (
           <div className={styles.table}>
             <div className={styles.tableHead} style={{ gridTemplateColumns: '2fr 1fr 1fr 80px 140px' }}>
-              <span>Gost</span>
-              <span>Soba</span>
-              <span>Check-in</span>
-              <span>Iznos</span>
+              <SortableHead col="guest_name"      label="Gost"     sortBy={coSort.sortBy} sortDir={coSort.sortDir} onSort={coSort.onSort} />
+              <SortableHead col="rooms.room_number" label="Soba"   sortBy={coSort.sortBy} sortDir={coSort.sortDir} onSort={coSort.onSort} />
+              <SortableHead col="check_in_date"   label="Check-in" sortBy={coSort.sortBy} sortDir={coSort.sortDir} onSort={coSort.onSort} />
+              <SortableHead col="total_amount"    label="Iznos"    sortBy={coSort.sortBy} sortDir={coSort.sortDir} onSort={coSort.onSort} />
               <span></span>
             </div>
-            {filteredDepartures.map(res => (
+            {coSort.sort(filteredDepartures).map(res => (
               <div key={res.id} className={styles.tableRow} style={{ gridTemplateColumns: '2fr 1fr 1fr 80px 140px', cursor: 'default' }}>
                 <span className={styles.bold}>{res.guest_name}</span>
                 <span>{res.rooms?.room_number ? `Soba ${res.rooms.room_number}` : '—'}</span>
@@ -288,14 +293,14 @@ export default function FrontDeskPage() {
           ) : (
             <div className={styles.table}>
               <div className={styles.tableHead} style={{ gridTemplateColumns: '2fr 1fr 2fr 70px 100px 160px' }}>
-                <span>Kategorija + Gost</span>
-                <span>Soba</span>
+                <SortableHead col="hotel_reservations.guest_name" label="Gost"    sortBy={reqSort.sortBy} sortDir={reqSort.sortDir} onSort={reqSort.onSort} />
+                <SortableHead col="hotel_reservations.rooms.room_number" label="Soba" sortBy={reqSort.sortBy} sortDir={reqSort.sortDir} onSort={reqSort.onSort} />
                 <span>Poruka</span>
-                <span>Vrijeme</span>
-                <span>Status</span>
+                <SortableHead col="created_at" label="Vrijeme"                   sortBy={reqSort.sortBy} sortDir={reqSort.sortDir} onSort={reqSort.onSort} />
+                <SortableHead col="status"     label="Status"                    sortBy={reqSort.sortBy} sortDir={reqSort.sortDir} onSort={reqSort.onSort} />
                 <span></span>
               </div>
-              {filteredRequests.map(req => {
+              {reqSort.sort(filteredRequests).map(req => {
                 const st = REQ_STATUS[req.status] ?? REQ_STATUS.pending
                 const guestName = req.hotel_reservations?.guest_name ?? '—'
                 const roomNum = req.hotel_reservations?.rooms?.room_number
