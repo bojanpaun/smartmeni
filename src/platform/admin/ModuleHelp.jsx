@@ -1,80 +1,126 @@
 import styles from './ModuleHelp.module.css'
 
-// Uputstva po modulima — dodaj novi modul ovdje
 const HELP_CONTENT = {
+
+  // ─────────────────────────────────────────────
   menu: {
     title: 'Digitalni meni — uputstvo',
-    intro: 'Ovaj modul omogućava upravljanje digitalnim menijem vašeg restorana. Gosti skeniraju QR kod i otvaraju meni na svom telefonu.',
+    intro: 'Ovaj modul omogućava upravljanje digitalnim menijem, narudžbama, barskim i kuhinjskim workflowom i javnom web stranicom restorana.',
     sections: [
       {
         icon: '🗂️',
-        title: 'Kategorije',
+        title: 'Kategorije i stavke menija',
         steps: [
-          'Idi na tab Meni',
+          'Idi na Uređivanje menija',
           'Klikni + Kategorija da dodaš novu kategoriju (npr. Predjela, Riba, Piće)',
-          'Svaka kategorija dobija emoji ikonu i naziv',
-        ],
-      },
-      {
-        icon: '🍽️',
-        title: 'Dodavanje jela',
-        steps: [
-          'Odaberi kategoriju u koju dodaješ jelo',
-          'Klikni + Dodaj jelo',
-          'Popuni naziv, opis, cijenu i po želji dodaj sliku',
-          'Možeš označiti jelo kao Dnevnu ponudu',
-        ],
-      },
-      {
-        icon: '📱',
-        title: 'QR kod restorana',
-        steps: [
-          'Idi na tab QR kod',
-          'Ovaj QR vodi na generalni meni restorana — bez informacije o stolu',
-          'Koristi ga na ulazu, jelovniku, vizit karti ili društvenim mrežama',
-          'Odštampaj i podijeli link rest.by.me/vas-slug',
+          'Za barske artikle (kokteli, alkohol...) uključi toggle Je bar kategorija — ove stavke idu na Bar stanicu, ne kuhinjsku',
+          'Unutar kategorije klikni + Dodaj jelo i popuni naziv, opis, cijenu i sliku',
+          'Jela možeš označiti kao Dnevnu ponudu — prikazuju se istaknuto u guest meniju',
         ],
       },
       {
         icon: '🧾',
         title: 'Narudžbe',
         steps: [
-          'U sekciji Narudžbe pratiš sve narudžbe u realtime-u',
-          'Status narudžbe: primljeno → priprema → gotovo → serviranje',
-          'Zahtjevi konobara se prikazuju odmah kad gost pritisne dugme',
+          'U sekciji Narudžbe pratiš sve aktivne narudžbe u realnom vremenu',
+          'Svaka narudžba ima status po stanici: kuhinja i bar se prate odvojeno',
+          'Status narudžbe: Primljeno → u pripremi (kuhinja/bar) → Gotovo → Servirano',
+          'Konobar vidi status svake stavke — ne mora zvati kuhinju da pita',
+        ],
+      },
+      {
+        icon: '🧑‍🍳',
+        title: 'Kuhinja i Bar — odvojene stanice',
+        steps: [
+          'Kuhinja i Bar su odvojeni tabovi u admin sidebaru, svaki sa realtime badge-om',
+          'Kuhinja prikazuje samo narudžbe koje sadrže kuhinjske stavke (bez bar kategorija)',
+          'Bar prikazuje samo narudžbe sa barskim artiklima (kategorije označene Je bar)',
+          'Osoblje kulinarne stanice i šank-a rade potpuno nezavisno — svako vidi samo svoje',
+          'Narudžba je gotova za konobara tek kad su obje stanice označile svoj dio kao Gotovo',
+        ],
+      },
+      {
+        icon: '🔔',
+        title: 'Zahtjevi konobara',
+        steps: [
+          'Gosti šalju zahtjeve iz menija (Pozovi konobara, Donesi račun...)',
+          'Novi zahtjev se prikazuje kao crveni badge na Zahtjevi tabu u sidebaru',
+          'Konobar odabire zahtjev, piše kratki odgovor i označava kao Riješeno',
+          'Poruke koje gosti vide definišeš u Postavke menija → Poruke',
+        ],
+      },
+      {
+        icon: '⚙️',
+        title: 'Postavke menija — tabovi',
+        steps: [
+          'Opšte: naziv, lokacija, telefon, radno vrijeme, opis, boja brenda, trajanje QR sesije',
+          'Vidljivost: za svaku funkciju odaberi ko je vidi (Isključeno / Registrovani / Svi) — naručivanje, konobar, rezervacije, registracija gostiju, hotel link, spa link',
+          'Poruke: prilagodi poruke koje gosti biraju za poziv konobara i poruke odbijanja narudžbi',
+          'Predlošci: odaberi vizualni stil guest menija od dostupnih predložaka — promjena je trenutna',
+        ],
+      },
+      {
+        icon: '🌐',
+        title: 'Sajt restorana',
+        steps: [
+          'U sidebaru klikni Sajt restorana da otvoriš vizualni editor javne web stranice',
+          'Editor je podjeljen: lijevo forma, desno live preview koji se ažurira dok tipkaš',
+          'Blokovi (Hero, Priča, Galerija, Specijaliteti...) se pale/gase i reorderuju drag & drop-om',
+          'Svaki blok ima odabir izgleda (layout varijante) i polja za sadržaj i slike',
+          'Klikni Sačuvaj da objaviš promjene — stranica je dostupna na rest.by.me/vas-slug/home',
+        ],
+      },
+      {
+        icon: '📱',
+        title: 'QR kod restorana',
+        steps: [
+          'Idi na QR kod za generalni QR koji vodi na meni bez podatka o stolu',
+          'Koristi ga na ulazu, vizit karti, društvenim mrežama ili jelovniku',
+          'Za narudžbe po stolu koristi QR kodove iz modula Stolovi (svaki sto ima vlastiti QR)',
         ],
       },
     ],
     tips: [
-      'Postoje dva različita QR koda — generalni (ovaj tab) i QR po stolu (modul Stolovi)',
-      'QR po stolu omogućava praćenje s kojeg stola dolazi narudžba — preporučujemo ga za svakodnevno korišćenje',
-      'Gosti vide samo jela označena kao vidljiva (toggle dugme u tabeli)',
-      'Dnevna ponuda se ističe posebno na vrhu menija',
-      'Promjene u meniju su vidljive gostima odmah',
+      'Bar kategorije su ključne za ispravan workflow — svaka kategorija pića treba biti označena Je bar',
+      'Predlošci i boja brenda zajedno grade vizualni identitet guest menija',
+      'QR po stolu (modul Stolovi) je preporučen za svakodnevno korišćenje jer prati s kojeg stola dolazi narudžba',
+      'Vidljivost naručivanja možeš isključiti za goste bez registracije — korisno za VIP prikaze ili demo mode',
+      'Sajt restorana i guest meni su odvojeni: meni je za narudžbe za stolom, sajt je javna web stranica',
     ],
   },
 
+  // ─────────────────────────────────────────────
   staff: {
     title: 'Role i permisije — uputstvo',
-    intro: 'Ovaj modul služi isključivo za kreiranje i upravljanje rolama. Upravljanje zaposlenicima (dodavanje, uklanjanje, plate) nalazi se u modulu HR → Zaposleni.',
+    intro: 'Ovaj modul služi za kreiranje i upravljanje rolama. Dodjela rola zaposlenima radi se u modulu HR → Zaposleni.',
     sections: [
       {
         icon: '🔑',
         title: 'Kreiranje role',
         steps: [
-          'Klikni + Nova rola ili odaberi predložak (Konobar, Kuhinja, Menadžer, Šank)',
+          'Klikni + Nova rola ili odaberi predložak (Konobar, Kuhinja, Bar, Menadžer, Recepcija, Spa terapeut...)',
           'Unesi naziv role',
-          'Odaberi permisije — šta zaposlenik sa ovom rolom može da vidi i radi',
+          'Permisije su grupisane po modulima (horizontalni tabovi): Restoran, Hotel, Spa...',
+          'Klikni Odaberi sve za jedan modul ili označi granularne permisije ručno',
           'Sačuvaj rolu',
         ],
       },
       {
         icon: '👤',
-        title: 'Dodjela role zaposleniku',
+        title: 'Dodjela rola zaposleniku',
         steps: [
           'Role se dodjeljuju u modulu HR → Zaposleni',
-          'Otvori karticu zaposlenika i odaberi rolu iz padajućeg menija',
+          'Jedan zaposlenik može imati više rola istovremeno (npr. Konobar + Bar)',
           'Promjene su trenutne — zaposlenik odmah dobija nova prava',
+        ],
+      },
+      {
+        icon: '📱',
+        title: 'Staff portal (/slug/staff)',
+        steps: [
+          'Zaposleni pristupaju operativnom prikazu na rest.by.me/vas-slug/staff',
+          'Svaka rola vidi drugačiji prikaz: konobar (narudžbe), kuhinja (kitchen display), sobarica (housekeeping zadaci), recepcija (check-in/out), spa terapeut (dnevni termini)',
+          'Bez potrebe za admin nalogom — zaposleni se prijavljuju sa vlastitim kredencijalima',
         ],
       },
       {
@@ -82,29 +128,31 @@ const HELP_CONTENT = {
         title: 'Sigurnost pristupa',
         steps: [
           'Zaposleni vide samo module za koje imaju permisiju',
-          'Vlasnik restorana uvijek ima puni pristup svemu',
+          'Vlasnik uvijek ima puni pristup',
           'Permisije možeš mijenjati u bilo kom trenutku',
           'Brisanje role moguće samo ako nije dodijeljena nijednom zaposleniku',
         ],
       },
     ],
     tips: [
-      'Konobar tipično treba: vidjeti meni, narudžbe i zahtjeve konobara',
-      'Kuhinja treba: vidjeti narudžbe i mijenjati status (priprema/gotovo)',
-      'Menadžer može vidjeti analitiku i upravljati HR modulom',
-      'Zaposleni se dodaju u HR → Zaposleni, a ne ovdje',
+      'Konobar tipično treba: narudžbe, zahtjevi konobara, prikaz stolova',
+      'Kuhinja treba: narudžbe (kuhinja prikaz) — bez pristupa ostalim modulima',
+      'Sobarica treba: housekeeping zadaci — bez pristupa administraciji',
+      'Recepcija treba: hotel front desk, rezervacije, folio',
+      'Menadžer može imati HR i analitiku pored operativnih funkcija',
     ],
   },
 
+  // ─────────────────────────────────────────────
   tables: {
     title: 'Stolovi — uputstvo',
-    intro: 'Ovaj modul omogućava crtanje mape stolova, praćenje statusa u realnom vremenu i upravljanje rezervacijama.',
+    intro: 'Crtanje mape stolova, praćenje statusa u realnom vremenu, rezervacije i QR kodovi po stolu.',
     sections: [
       {
         icon: '🗺️',
         title: 'Crtanje mape stolova',
         steps: [
-          'Idi na Mapa stolova',
+          'Idi na Postavke stolova',
           'Klikni Kvadratni sto ili Okrugli sto u toolbaru da dodaš sto',
           'Klikni na canvas da postaviš sto na željeno mjesto',
           'Prevuci sto mišem da promijeniš poziciju',
@@ -117,78 +165,73 @@ const HELP_CONTENT = {
         icon: '👁',
         title: 'Prikaz konobara',
         steps: [
-          'Idi na Prikaz konobara za realtime pregled svih stolova',
-          'Slobodni stolovi su bijeli, zauzeti narandžasti, a plavi su rezervisani',
+          'Idi na Prikaz stolova za realtime pregled',
+          'Slobodni stolovi su bijeli, zauzeti narandžasti, rezervisani plavi',
           'Crveni sto sa animacijom znači da gost zove konobara',
           'Klikni na sto da vidiš aktivne narudžbe i ukupan račun',
-          'Stranica se automatski osvježava bez potrebe za refreshom',
+          'Stranica se automatski osvježava',
         ],
       },
       {
         icon: '📅',
         title: 'Rezervacije',
         steps: [
-          'Idi na Rezervacije da upravljaš rezervacijama',
+          'Idi na Rezervacije za upravljanje rezervacijama',
           'Klikni + Nova rezervacija i popuni podatke gosta',
           'Na mapi unutar forme klikni na sto da ga vizuelno odabereš',
           'Koristi Kalendar prikaz da vidiš koji dani su zauzeti',
-          'Klikni na dan u kalendaru da filtriiraš listu za taj dan',
         ],
       },
       {
         icon: '🌐',
         title: 'Online rezervacije',
         steps: [
-          'U sekciji Rezervacije uključi toggle Online rezervacije',
-          'Gosti mogu slati zahtjeve na: rest.by.me/vas-slug/rezervacija',
+          'Uključi toggle Online rezervacije u postavkama',
+          'Gosti šalju zahtjeve na rest.by.me/vas-slug/rezervacija',
           'Svaki zahtjev ima status Na čekanju dok ga ne odobriš',
-          'Klikni Potvrdi ili Odbij na svakom zahtjevu',
-          'Potvrđene rezervacije se automatski prikazuju na mapi konobara',
+          'Potvrđene rezervacije se prikazuju na mapi konobara',
         ],
       },
       {
         icon: '📱',
         title: 'QR kodovi po stolu',
         steps: [
-          'Klikni na sto u editoru, a zatim na dugme QR kod',
-          'Ovaj QR je drugačiji od generalnog QR-a u Digitalnom meniju',
-          'Svaki sto ima jedinstveni QR koji vodi na meni sa brojem stola (npr. rest.by.me/slug?table=3)',
-          'Preuzmi QR i odštampaj ga — zalijepite na svaki sto posebno',
-          'Kad gost skenira QR i pozove konobara, konobar vidi tačno koji sto zove',
+          'Klikni na sto u editoru pa na dugme QR kod',
+          'Svaki sto ima jedinstven QR koji vodi na meni sa brojem stola',
+          'Preuzmi i odštampaj — zalijepite na svaki sto posebno',
+          'Kad gost skenira i pozove konobara, konobar vidi tačno koji sto zove',
         ],
       },
     ],
     tips: [
+      'QR po stolu je preporučen za svakodnevno korišćenje — prati narudžbe po stolu',
       'Mapa se čuva automatski — gosti i konobar odmah vide promjene',
-      'Jedan sto može imati više rezervacija u toku dana — konobar vidi sve termine u badge-u',
-      'Rezervisani stolovi se prikazuju plavom bojom sa vremenima na mapi konobara',
+      'Rezervisani stolovi prikazuju se plavom bojom sa vremenima na mapi konobara',
     ],
   },
 
+  // ─────────────────────────────────────────────
   inventory: {
     title: 'Zalihe — uputstvo',
-    intro: 'Ovaj modul prati namirnice i gotove proizvode, bilježi ulaze i izlaze, i automatski odbija zalihe kad se narudžba primi.',
+    intro: 'Praćenje namirnica i gotovih proizvoda, ulazi/izlazi i automatski odbitak zaliha pri narudžbi.',
     sections: [
       {
         icon: '📦',
         title: 'Dodavanje stavki inventara',
         steps: [
           'Idi na Inventar i klikni + Nova stavka',
-          'Unesi naziv (npr. Brašno T-500), kategoriju i jedinicu mjere',
-          'Postavi trenutnu količinu i minimalnu količinu',
-          'Minimalna količina je prag ispod kojeg se prikazuje upozorenje',
+          'Unesi naziv, kategoriju i jedinicu mjere',
+          'Postavi trenutnu količinu i minimalnu količinu (prag za upozorenje)',
           'Opcionalno unesi cijenu po jedinici za praćenje troškova',
         ],
       },
       {
         icon: '±',
-        title: 'Ručni pokreti zaliha',
+        title: 'Pokreti zaliha',
         steps: [
-          'Klikni ± dugme pored stavke za ručni ulaz ili izlaz',
-          'Ulaz — dodaje količinu na zalihu (npr. nova dostava)',
-          'Izlaz — oduzima količinu sa zalihe (npr. rashod)',
-          'Korekcija — direktno postavlja novu količinu (inventura)',
-          'Svaki pokret se bilježi u istoriji Pokreti',
+          'Klikni ± pored stavke za ručni ulaz ili izlaz',
+          'Ulaz — nova dostava, Izlaz — rashod, Korekcija — direktno postavi novu količinu (inventura)',
+          'Svaki pokret se bilježi u Pokreti historiji',
         ],
       },
       {
@@ -196,83 +239,57 @@ const HELP_CONTENT = {
         title: 'Recepture',
         steps: [
           'Idi na Recepture da definišeš koje namirnice troši svako jelo',
-          'Odaberi stavku menija s lijeve strane',
           'Dodaj sastojke i odredi količinu po porciji',
-          'Npr. Pizza Margherita: 200g brašna, 150ml sosa, 100g mozzarelle',
           'Kad se narudžba primi, zalihe se automatski odbijaju prema recepturi',
         ],
       },
       {
         icon: '⚠️',
-        title: 'Upozorenja za niske zalihe',
+        title: 'Upozorenja',
         steps: [
-          'Stavke ispod minimalne količine imaju narandžast indikator',
-          'U headeru se prikazuje broj stavki ispod minimuma',
-          'Klikni filter Niske zalihe da vidiš samo te stavke',
-          'Ažuriraj količinu putem ± dugmeta kad stignu nove zalihe',
-        ],
-      },
-      {
-        icon: '📋',
-        title: 'Istorija pokreta',
-        steps: [
-          'Idi na Pokreti za kompletnu istoriju ulaza i izlaza',
-          'Filtriraj po stavci, tipu pokreta ili datumu',
-          'Automatski pokreti od narudžbi imaju oznaku Narudžba',
-          'Ručni pokreti imaju oznaku Ručno',
+          'Stavke ispod minimuma imaju narandžast indikator',
+          'Klikni filter Niske zalihe da vidiš samo kritične stavke',
+          'Ažuriraj količinu putem ± kad stignu nove zalihe',
         ],
       },
     ],
     tips: [
       'Automatski odbitak radi samo ako su definisane recepture za stavke menija',
       'Korekcija je korisna za usklađivanje stanja nakon fizičke inventure',
-      'Postavljanje minimalne količine na 0 isključuje upozorenja za tu stavku',
-      'Cijena po jedinici nije obavezna, ali pomaže pri praćenju troškova nabavke',
+      'Spa potrošni materijal (ulja, kreme) prati se u istom modulu — koristi kategoriju Spa',
     ],
   },
 
+  // ─────────────────────────────────────────────
   hr: {
     title: 'HR modul — uputstvo',
-    intro: 'HR modul pokriva kompletno upravljanje zaposlenima: profile, rasporede smjena, evidenciju dolazaka, odsustva, zarade i izvještaje.',
+    intro: 'Kompletno upravljanje zaposlenima: profili, rasporedi, dolasci, odsustva, zarade i izvještaji.',
     sections: [
       {
         icon: '👤',
         title: 'Zaposleni',
         steps: [
-          'Dodaj zaposlenika putem email adrese — odaberi metodu: kreiraj nalog odmah (sa lozinkom) ili pošalji link za registraciju',
-          'Dodijeli rolu i unesi podatke o plati (po satu, sedmično ili mjesečno)',
-          'Klikni na zaposlenika da otvoriš profil sa 5 tabova: Osnovne info, Zaposlenje, Finansije, Odsustva, Historija',
-          'Zaposlenik se automatski povezuje sa nalogom kada se registruje sa istim emailom — status se mijenja u Povezan',
-        ],
-      },
-      {
-        icon: '📋',
-        title: 'Profil zaposlenika',
-        steps: [
-          'Osnovne info: lični podaci (ime, telefon, datum rođenja, adresa) i kontakt za hitne slučajeve',
-          'Zaposlenje: pozicija, tip ugovora, radno vrijeme, plata i interne napomene',
-          'Finansije: bankovni račun i porezni broj (JMBG)',
-          'Odsustva: godišnji odmor tracker (ukupno/iskorišteno/preostalo) i evidencija svih odsustva sa odobravanjem',
-          'Historija: timeline zaposlenja, unapređenja, promjena plate i upozorenja',
+          'Dodaj zaposlenika putem email adrese — kreiraj nalog odmah ili pošalji link za registraciju',
+          'Unesi podatke o plati (po satu, sedmično ili mjesečno)',
+          'Profil zaposlenika ima tabove: Osnovne info, Zaposlenje, Finansije, Odsustva, Historija',
+          'Rola se dodjeljuje u tabu Zaposlenje — zaposlenik može imati više rola',
         ],
       },
       {
         icon: '📅',
         title: 'Raspored rada',
         steps: [
-          'Sedmični pregled: klikni na ćeliju da dodaš smjenu, klikni na smjenu da je urediš ili obrišeš',
-          'Jedan zaposlenik može imati više smjena u istom danu — klikni + za dodavanje',
-          'Dnevni pregled: horizontalni timeline (06:00–23:00) sa vizuelnim prikazom pokrivenosti',
-          'Žuti blokovi u dnevnom pregledu označavaju nepokrivene periode — brzo prepoznaj rupe u rasporedu',
-          'Kopiraj prethodnu sedmicu dugmetom ↩ za brže popunjavanje rasporeda',
+          'Sedmični pregled: klikni na ćeliju da dodaš smjenu',
+          'Jedan zaposlenik može imati više smjena u istom danu',
+          'Dnevni pregled: horizontalni timeline (06:00–23:00) — žuti blokovi su nepokriveni periodi',
+          'Kopiraj prethodnu sedmicu dugmetom ↩ za brže popunjavanje',
         ],
       },
       {
         icon: '🕐',
         title: 'Evidencija dolazaka',
         steps: [
-          'Zaposlenik klika Prijavi se kada počne smjenu i Odjavi se kada završi',
-          'Moguće je prijaviti više smjena u toku jednog dana',
+          'Zaposlenik klika Prijavi se i Odjavi se putem Staff portala',
           'Admin može ručno dodati ili korigovati unos za bilo koji datum',
           'Sistem automatski računa ukupne sate rada po danu',
         ],
@@ -281,10 +298,9 @@ const HELP_CONTENT = {
         icon: '🌴',
         title: 'Odsustva',
         steps: [
-          'Tipovi odsustva: Godišnji odmor, Bolovanje, Neplaćeno odsustvo, Ostalo',
-          'Svako odsustvo može biti Na čekanju ili Odobreno — klikni Odobri ili Odbij direktno u listi',
-          'Iskorišteni dani godišnjeg odmora se automatski računaju iz odobrenih odsustva tipa Godišnji odmor',
-          'Ukupan broj dana odmora podešavaš ručno u trackeru na vrhu stranice Odsustva',
+          'Tipovi: Godišnji odmor, Bolovanje, Neplaćeno, Ostalo',
+          'Svako odsustvo može biti Na čekanju ili Odobreno — klikni Odobri ili Odbij',
+          'Iskorišteni dani godišnjeg odmora se automatski računaju',
         ],
       },
       {
@@ -292,30 +308,69 @@ const HELP_CONTENT = {
         title: 'Zarade',
         steps: [
           'Dodaj stavke: dnevnica, bonus, odbitak, prekovremeni ili akontacija',
-          'Generiši platni list za odabrani period klikom na ime zaposlenika',
-          'Platni list prolazi kroz statuse: Nacrt → Odobreno → Plaćeno',
-          'Osnovna plata se automatski računa na osnovu sati rada i tipa plate',
+          'Generiši platni list za odabrani period',
+          'Platni list: Nacrt → Odobreno → Plaćeno',
         ],
       },
       {
         icon: '📊',
         title: 'Izvještaji',
         steps: [
-          'Pregled sati rada i troškova po svakom zaposleniku za odabrani period',
-          'Stopa prisustva i evidencija kašnjenja',
-          'Export u CSV format za dalju obradu u Excelu ili računovodstvenom softveru',
+          'Pregled sati rada i troškova po zaposleniku za odabrani period',
+          'Export u CSV za dalju obradu u Excelu',
         ],
       },
     ],
     tips: [
-      'Prvo kreiraj role u Administrativnim postavkama → Role i permisije, pa ih dodijeli zaposlenicima',
-      'Zaposlenik mora imati nalog sa istim emailom da bi se mogao prijaviti na posao i vidio vlastiti raspored',
-      'Iskorišteni dani godišnjeg odmora se računaju automatski — ne treba ih ručno unositi',
+      'Zaposlenik mora imati nalog sa istim emailom da bi se mogao prijaviti i vidio vlastiti raspored',
+      'Role se definišu u Administrativnim postavkama → Role i permisije',
+      'Staff portal (rest.by.me/slug/staff) je operativni prikaz za zaposlene — bez admin pristupa',
       'Koristite dnevni prikaz rasporeda za brzu provjeru pokrivenosti smjenama',
-      'Platni listovi se generišu na osnovu evidencije dolazaka — što preciznija evidencija, to tačniji obračun',
     ],
   },
 
+  // ─────────────────────────────────────────────
+  guests: {
+    title: 'Gosti — uputstvo',
+    intro: 'Evidencija gostiju koji su se registrirali putem guest menija, historija posjeta i troškova.',
+    sections: [
+      {
+        icon: '👤',
+        title: 'Lista gostiju',
+        steps: [
+          'Gosti se automatski dodaju u evidenciju kada se registruju putem guest menija',
+          'Svaki gost ima profil sa osnovnim podacima (ime, email, telefon)',
+          'Pretraži goste po imenu ili emailu',
+          'Klikni na gosta da vidiš detalje: historiju narudžbi, ukupnu potrošnju i napomene',
+        ],
+      },
+      {
+        icon: '🏨',
+        title: 'Hotel gosti',
+        steps: [
+          'Gosti koji su imali hotelsku rezervaciju automatski su u evidenciji',
+          'Hotel gosti mogu pristupiti Guest App-u (rest.by.me/slug/guest) sa rezervacijskim kodom',
+          'Guest App prikazuje: detalje boravka, folio troškove, zahtjeve sobi i spa booking',
+        ],
+      },
+      {
+        icon: '🔍',
+        title: 'Filteri i pretraga',
+        steps: [
+          'Filtriraj goste po datumu prvog posjeta ili ukupnoj potrošnji',
+          'VIP oznaka se može ručno dodijeliti gostima sa visokom potrošnjom',
+          'Export liste za marketing ili analitiku',
+        ],
+      },
+    ],
+    tips: [
+      'Registracija gostiju u guest meniju se može isključiti u Postavke menija → Vidljivost',
+      'Hotel gosti su automatski u evidenciji — bez potrebe za ručnim unosom',
+      'Loyalty program (buduća faza) će koristiti ovu bazu za bodove i nagrade',
+    ],
+  },
+
+  // ─────────────────────────────────────────────
   analytics: {
     title: 'Analitika — uputstvo',
     intro: 'Pregled prometa, najprodavanijih jela, trendova i detaljnih izvještaja po periodu.',
@@ -326,7 +381,7 @@ const HELP_CONTENT = {
         steps: [
           'Odaberi period (danas, sedmica, mjesec ili vlastiti raspon)',
           'Grafovi prikazuju prihod i broj narudžbi po danu',
-          'Usporedi sa prethodnim periodom da vidiš trend',
+          'Uporedi sa prethodnim periodom da vidiš trend',
         ],
       },
       {
@@ -349,179 +404,255 @@ const HELP_CONTENT = {
       },
     ],
     tips: [
-      'Analitika Pro addon omogućava prilagođene datumske raspone i napredne vizualizacije',
       'Uporedi promet po danima sedmice da prepoznaš najfrekventnije periode',
       'Prihod po kategorijama pomaže da odlučiš gdje investirati u meni',
+      'Hotel Revenue Management (RevPAR, ADR, Occupancy) nalazi se u modulu Hotel → Upravljanje prihodima',
     ],
   },
 
+  // ─────────────────────────────────────────────
   hotel: {
     title: 'Hotel Core — uputstvo',
-    intro: 'Hotel Core modul pokriva kompletno upravljanje hotelskim objektom: sobe, rezervacije, availability kalendar, front desk (check-in/check-out), folio sistem i integraciju s restoran narudžbama.',
+    intro: 'Kompletno upravljanje hotelskim objektom: sobe, rezervacije, availability kalendar, front desk, folio, housekeeping, online booking i Guest App za goste.',
     sections: [
       {
         icon: '📊',
         title: 'Dashboard',
         steps: [
-          'Dashboard prikazuje occupancy widget s postotkom popunjenosti i statistikama',
-          'Sekcija Dolasci danas pokazuje sve rezervacije s check-in datumom danas',
-          'Klikni na brze linkove (Front Desk, Rezervacije, Kalendar, Sobe) za direktan pristup',
-          'Occupancy se računa kao broj zauzeti soba / ukupan broj soba × 100%',
+          'Dashboard prikazuje occupancy widget sa postotkom popunjenosti i statistikama',
+          'Dolasci danas — sve rezervacije s check-in datumom danas',
+          'Brzi linkovi: Front Desk, Rezervacije, Kalendar, Sobe',
         ],
       },
       {
         icon: '🛏️',
-        title: 'Upravljanje sobama',
+        title: 'Sobe i tipovi soba',
         steps: [
-          'Idi na Sobe da vidiš grid svih soba sa statusom u boji',
-          'Statusi: Slobodna (zelena), Zauzeta (plava), Čišćenje (žuta), Održavanje (narandžasta), Blokirana (siva)',
-          'Klikni na sobu da promijeniš status (npr. Slobodna → Održavanje)',
-          'Klikni + Nova soba da dodaš sobu — unesi broj sobe, sprat i tip',
-          'Filtriraj prikaz po statusu pomoću tabova iznad grida',
-        ],
-      },
-      {
-        icon: '🪑',
-        title: 'Tipovi soba',
-        steps: [
-          'Idi na Tipovi soba da definišeš kategorije smještaja (Standard, Deluxe, Suite...)',
-          'Za svaki tip unesi naziv, opis, maksimalnu popunjenost i osnovnu cijenu',
-          'Dodaj amenities (WiFi, AC, Minibar, Balkon...) klikom na tagove',
-          'Sobe se dodjeljuju tipu pri kreiranju — tip određuje cijenu i karakteristike',
+          'Idi na Tipovi soba da definišeš kategorije (Standard, Deluxe, Suite...)',
+          'Za svaki tip unesi naziv, opis, max popunjenost, osnovnu cijenu i amenities',
+          'Idi na Sobe da vidiš grid svih soba — statusi: Slobodna, Zauzeta, Čišćenje, Održavanje, Blokirana',
+          'Klikni na sobu da promijeniš status ili je urediš',
         ],
       },
       {
         icon: '📅',
         title: 'Rezervacije',
         steps: [
-          'Lista svih rezervacija sa statusom i filterima (sve, potvrđene, prisutne, odavljene...)',
-          'Klikni + Nova rezervacija i popuni: gost, tip sobe, soba, datumi, cijena',
-          'Sistem automatski računa ukupan iznos na osnovu broja noći × cijena po noći',
-          'Status rezervacije: Upit → Potvrđena → Prisutna → Odjavljena',
-          'Izvor rezervacije bilježi odakle dolazi (direktno, Booking.com, Airbnb, walk-in...)',
-          'Posebni zahtjevi gosta i interne napomene čuvaju se odvojeno',
+          'Klikni + Nova rezervacija: gost, tip sobe, soba, datumi, cijena',
+          'Sistem automatski računa iznos: broj noći × cijena po noći',
+          'Status: Upit → Potvrđena → Prisutna → Odjavljena',
+          'Kalendar dostupnosti prikazuje 14 dana u Gantt prikazu — klikni na slobodan period za novu rezervaciju',
         ],
       },
       {
-        icon: '📆',
-        title: 'Kalendar dostupnosti',
+        icon: '🔗',
+        title: 'Online booking',
         steps: [
-          'Gantt prikaz prikazuje 14 dana — svaki red je jedna soba, kolone su dani',
-          'Rezervacije su prikazane kao obojene trake: plava=potvrđena, zelena=prisutna, siva=odjavljena, žuta=upit',
-          'Navigiraj naprijed/nazad po sedmici dugmadima ‹ › ili po dvije sedmice «»',
-          'Klikni Danas da se vratiš na trenutnu sedmicu',
-          'Klikni na praznu ćeliju da otvoriš formu za novu rezervaciju',
-          'Klikni na rezervaciju (traku) da otvoriš detalje te rezervacije',
-          'Vikendi i danas su vizuelno istaknuti',
+          'Gosti mogu rezervisati direktno na rest.by.me/slug/book',
+          'Stranica prikazuje dostupne tipove soba, cijene i formu za booking',
+          'Email potvrda se šalje automatski pri rezervaciji',
+          'Link na booking dostupan je i na javnoj hotelskoj stranici (/hotel) i Guest App-u',
         ],
       },
       {
         icon: '🛎️',
         title: 'Front Desk — Check-in',
         steps: [
-          'Front Desk tab Check-in danas prikazuje sve potvrđene rezervacije s check-in datumom danas',
-          'Klikni Detalji da vidiš podatke gosta i napomene prije check-ina',
-          'Klikni Check-in ✓ da prijaviš gosta — sistem automatski:',
-          '• Mijenja status rezervacije u Prisutna',
-          '• Mijenja status sobe u Zauzeta',
-          '• Kreira otvoreni folio za gosta (evidenciju troškova)',
+          'Tab Check-in danas prikazuje sve potvrđene rezervacije za danas',
+          'Klikni Check-in ✓ — sistem mijenja status rezervacije u Prisutna, sobu u Zauzeta i kreira otvoreni folio',
         ],
       },
       {
         icon: '🛎️',
         title: 'Front Desk — Check-out',
         steps: [
-          'Tab Check-out prikazuje sve prisutne goste koji trebaju napustiti objekat',
-          'Klikni Folio da pregledate sve troškove gosta przed odjave',
-          'Klikni Check-out ✓ da odjava gosta — sistem automatski:',
-          '• Mijenja status rezervacije u Odjavljena',
-          '• Mijenja status sobe u Čišćenje',
-          '• Zatvara folio gosta',
+          'Tab Check-out prikazuje sve prisutne goste koji trebaju otići',
+          'Pregledaj folio prije odjave',
+          'Klikni Check-out ✓ — status rezervacije → Odjavljena, soba → Čišćenje, folio → zatvoren',
         ],
       },
       {
         icon: '📋',
         title: 'Folio sistem',
         steps: [
-          'Folio je evidencija svih troškova gosta tokom boravka',
-          'Otvara se automatski pri check-inu i prikazuje naknadu za sobu',
-          'Idi na Folio putem dugmeta u Front Desku ili na stranici rezervacije',
-          'Na foliju vidiš: datum, tip (soba/restoran/minibar/spa/ostalo), opis i iznos',
-          'Klikni + Dodaj stavku za ručno dodavanje troška (minibar, parking, spa...)',
-          'Stavke dodane iz restorana (putem Naplati na sobu) automatski se pojavljuju ovdje',
-          'Zatvori folio na kraju boravka — ovo označava da je plaćanje završeno',
+          'Folio se otvara automatski pri check-inu',
+          'Prikazuje sve troškove: soba, restoran narudžbe, minibar, spa, ostalo',
+          'Klikni + Dodaj stavku za ručno dodavanje troška',
+          'Restoranske narudžbe "Naplati na sobu" automatski se dodaju na folio',
+          'Spa tretmani sa plaćanjem putem folija automatski se dodaju',
+          'Zatvori folio pri odjavi — označava završeno plaćanje',
+        ],
+      },
+      {
+        icon: '🧹',
+        title: 'Housekeeping',
+        steps: [
+          'Housekeeping zadaci se kreiraju automatski pri svakom check-outu (soba → Čišćenje)',
+          'Sobarice vide zadatke u Staff portalu (/slug/staff) sa rolom Sobarica',
+          'Admin prati status svih soba u Housekeeping dashboardu',
+          'Sobarica označava sobu kao Čistu → status se automatski mijenja u Slobodna',
+        ],
+      },
+      {
+        icon: '🔑',
+        title: 'Guest App za hotelske goste',
+        steps: [
+          'Gosti pristupaju Guest App-u na rest.by.me/slug/guest',
+          'Login: email + 8-karakterni rezervacijski kod iz email potvrde',
+          'Guest App prikazuje: detalje boravka, folio troškove, zahtjevi sobi (housekeeping, room service...) i spa booking',
+          'Zahtjevi sobi se pojavljuju u realnom vremenu na Front Desk tabu Zahtjevi',
         ],
       },
       {
         icon: '🍽️',
         title: 'Integracija s restoranom',
         steps: [
-          'Kada je narudžba servisirana u restoranu, konobar može naplatiti je na hotelsku sobu',
-          'Na kartici narudžbe (status: Servirano) klikni 🏨 Naplati na sobu',
-          'Unesi broj sobe (npr. 101) i klikni Potvrdi',
-          'Sistem provjerava: postoji li soba → je li gost prijavljen → postoji li otvoreni folio',
-          'Ako sve prođe, iznos narudžbe se dodaje na folio gosta i narudžba se zatvara',
-          'Greška se prikazuje ako soba ne postoji ili gost nije prijavljen',
+          'Konobar može naplatiti narudžbu na hotelsku sobu — klikni Naplati na sobu na serviranoj narudžbi',
+          'Unesi broj sobe — sistem provjerava da li gost ima otvoreni folio',
+          'Iznos se automatski dodaje na folio gosta',
+        ],
+      },
+      {
+        icon: '💹',
+        title: 'Upravljanje prihodima',
+        steps: [
+          'Dashboard prikazuje ADR (prosječna cijena sobe), RevPAR i Occupancy Rate',
+          'Grafovi trendova po sedmicama i mjesecima',
+          'Cjenovni planovi: unesi sezonske ili weekday/weekend cijene po tipu sobe',
+          'Export analitike u PDF/Excel',
         ],
       },
     ],
     tips: [
       'Kalendar dostupnosti je najbrži način da vidiš popunjenost — koristi ga svakodnevno',
       'Folio se kreira automatski pri check-inu — ne trebaš ga ručno kreirati',
-      'Integracija s restoranom radi samo za sobe s prijavljenim gostima (status: Prisutna)',
-      'Ako gost naruči iz restorana i identifikuje se brojem sobe, trošak ide na folio umjesto direktne naplate',
-      'Tipovi soba definišu karakteristike (amenities, cijena) — sobe nasljeđuju te karakteristike',
-      'Soba ostaje u statusu Čišćenje dok je ručno ne prebacite na Slobodna',
+      'Housekeeping zadaci se kreiraju automatski — sobarice ih vide samo u Staff portalu',
+      'Guest App link šalje se automatski u email potvrdi rezervacije',
+      'Hotelska javna web stranica (rest.by.me/slug/hotel) uređuje se u Hotel → Sajt hotela',
     ],
   },
 
-  settings: {
-    title: 'Postavke — uputstvo',
-    intro: 'Opšte postavke restorana, logo, vizualni predlošci i upravljanje funkcijama.',
+  // ─────────────────────────────────────────────
+  spa: {
+    title: 'Spa & Wellness — uputstvo',
+    intro: 'Kompletno upravljanje spa centrom: katalog tretmana, terapeuti, kabine, booking, kalendar i analitika.',
     sections: [
       {
-        icon: '🎨',
-        title: 'Predlošci',
+        icon: '💆',
+        title: 'Tretmani (katalog)',
         steps: [
-          'Odaberi vizualni stil guest menija od 11 dostupnih predložaka',
-          'Svaki predložak mijenja boje, tipografiju i stil prikaza',
-          'Promjena je trenutna — gosti odmah vide novi izgled',
-          'Pregled predloška vidljiv je desno od liste',
+          'Idi na Tretmani da definišeš katalog usluga (masaže, facial, wellness...)',
+          'Za svaki tretman unesi: naziv, kategoriju, trajanje, buffer između termina i cijenu',
+          'Označi koji tipovi kabina mogu primiti ovaj tretman (treatment room, wet facility...)',
+          'Tretmani sa requires_consultation zahtijevaju prethodnu konzultaciju pri bookingu',
         ],
       },
       {
+        icon: '👤',
+        title: 'Terapeuti',
+        steps: [
+          'Idi na Terapeuti da upravljaš profilima — terapeut mora biti kreiran kao zaposlenik u HR modulu',
+          'Dodaj specijalizacije (deep tissue, hot stone, facial...) i jezike',
+          'Poveži terapeuta s tretmanima koje može raditi',
+          'Isključi terapeuta iz dostupnosti jednim klikom (npr. bolovanie ili slobodan dan)',
+        ],
+      },
+      {
+        icon: '🚪',
+        title: 'Kabine',
+        steps: [
+          'Idi na Kabine da definišeš prostorije (Kabina 1, Sauna, Hammam, Bazen...)',
+          'Svaka kabina ima tip (treatment_room, wet_facility, group...) i kapacitet',
+          'Tretmani se automatski mapiraju na kompatibilne kabine',
+        ],
+      },
+      {
+        icon: '📅',
+        title: 'Kalendar i termini',
+        steps: [
+          'Spa Calendar prikazuje Gantt po terapeutima — svaki red je terapeut, kolone su vremenski slotovi',
+          'Zauzeti termini su prikazani kao obojene trake',
+          'Idi na Termini za listu svih termina sa filterima po datumu i statusu',
+          'Klikni na termin da vidiš detalje, napomene ili označi no-show',
+        ],
+      },
+      {
+        icon: '🌐',
+        title: 'Javni booking',
+        steps: [
+          'Gosti rezerviraju tretmane na rest.by.me/slug/spa',
+          'Tok: odabir tretmana → terapeut (opciono) → datum i slobodan termin → plaćanje (folio za hotelske goste, kartica za vanjske)',
+          'Hotelski gosti mogu bookirati i direktno iz Guest App-a (tab Spa)',
+          'Email potvrda i podsjetnik šalju se automatski',
+        ],
+      },
+      {
+        icon: '📊',
+        title: 'Spa analitika',
+        steps: [
+          'Pregled prihoda po tretmanu, utilization rate po terapeutu i no-show stope',
+          'Omjer hotelski gosti vs. vanjski gosti',
+          'Export u CSV format',
+        ],
+      },
+      {
+        icon: '🎁',
+        title: 'Paketi',
+        steps: [
+          'Idi na Paketi da kreirašu kombinirane ponude (npr. Romantic getaway: 2 noći + 2 tretmana)',
+          'Paket može uključivati: tip sobe, spa tretmane i opis što je uključeno',
+          'Gosti odabiru paket na javnoj spa stranici',
+        ],
+      },
+    ],
+    tips: [
+      'Buffer između termina (npr. 15 min) obezbjeđuje da terapeut i kabina budu slobodni za pripremu',
+      'Folio integracija: spa tretman hotelskog gosta automatski se dodaje na folio',
+      'Vidljivost spa linka u guest meniju podešava se u Postavke menija → Vidljivost',
+      'Terapeut mora biti zaposlenik u HR modulu da bi se pojavio u listi terapeuta',
+      'Javna spa stranica vidljiva je svima — nema potrebe za hotel rezervacijom',
+    ],
+  },
+
+  // ─────────────────────────────────────────────
+  settings: {
+    title: 'Postavke — uputstvo',
+    intro: 'Osnovni podaci o objektu, logo i upravljanje pretplatom.',
+    sections: [
+      {
         icon: '🖼️',
-        title: 'Logo restorana',
+        title: 'Logo',
         steps: [
           'Uploadaj logo u JPG, PNG ili WebP formatu (max 2MB)',
           'Logo se prikazuje u guest meniju, admin panelu i email notifikacijama',
           'Preporučen format: kvadratni (1:1), min 200×200px',
-          'Bijela ili providna pozadina izgleda najbolje',
+          'Bijela ili providna pozadina izgleda najbolje na svim pozadinama',
         ],
       },
       {
-        icon: '⚙️',
-        title: 'Opšte postavke',
+        icon: '📋',
+        title: 'Osnovni podaci',
         steps: [
-          'Naziv, lokacija, telefon i radno vrijeme vidljivi su gostima u meniju',
-          'Opis restorana prikazuje se ispod naziva u guest meniju',
-          'Digitalno naručivanje — uključi/isključi naručivanje putem menija',
-          'Online rezervacije — uključi/isključi formu za rezervaciju stola',
+          'Unesi naziv objekta, lokaciju, telefon, radno vrijeme i opis',
+          'Ovi podaci se prikazuju gostima u guest meniju ispod naziva restorana',
+          'Promjene su vidljive gostima odmah po čuvanju',
         ],
       },
       {
         icon: '💳',
         title: 'Pretplata',
         steps: [
-          'Pregled trenutnog plana i aktivnih funkcija',
+          'Pregled trenutnog plana i aktivnih addon modula',
           'Upravljanje pretplatom i naplatom',
+          'Addon moduli (Hotel, Spa) aktiviraju se ovdje',
         ],
       },
     ],
     tips: [
-      'Sve promjene su odmah vidljive gostima na guest meniju',
-      'Online rezervacije su korisne samo ako imaš definirane stolove u modulu Stolovi',
-      'Logo i predložak zajedno grade vizualni identitet tvog restorana',
+      'Postavke vizuelnog izgleda menija (predlošci, boje) nalaze se u Digitalni meni → Postavke menija → Predlošci',
+      'Vidljivost funkcija u guest meniju podešava se u Digitalni meni → Postavke menija → Vidljivost',
+      'Sajt restorana uređuje se u Digitalni meni → Sajt restorana',
+      'Sajt hotela uređuje se u Hotel → Sajt hotela',
     ],
   },
 }
