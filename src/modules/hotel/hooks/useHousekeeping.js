@@ -44,6 +44,17 @@ export function useHousekeeping(restaurantId, date) {
 
   useEffect(() => { load() }, [load])
 
+  useEffect(() => {
+    if (!restaurantId) return
+    const ch = supabase.channel(`hk-rt-${restaurantId}`)
+      .on('postgres_changes', { event: '*', schema: 'public', table: 'housekeeping_tasks',
+        filter: `restaurant_id=eq.${restaurantId}` }, load)
+      .on('postgres_changes', { event: '*', schema: 'public', table: 'maintenance_requests',
+        filter: `restaurant_id=eq.${restaurantId}` }, load)
+      .subscribe()
+    return () => supabase.removeChannel(ch)
+  }, [restaurantId, load])
+
   const updateTaskStatus = async (taskId, status) => {
     const patch = { status }
     if (status === 'in_progress') patch.started_at = new Date().toISOString()
