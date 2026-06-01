@@ -96,7 +96,10 @@ export default function HousekeepingPage() {
   const inProgress = tasks.filter(t => t.status === 'in_progress').length
   const done       = tasks.filter(t => t.status === 'done').length
   const verified   = tasks.filter(t => t.status === 'verified').length
-  const maintOpen = maintenance.filter(m => !['resolved', 'verified'].includes(m.status)).length
+  const maintOpen       = maintenance.filter(m => m.status === 'open').length
+  const maintInProgress = maintenance.filter(m => m.status === 'in_progress').length
+  const maintDone       = maintenance.filter(m => m.status === 'done').length
+  const maintVerified   = maintenance.filter(m => m.status === 'verified').length
 
   const filteredMaintenance = maintenance.filter(m => {
     const matchStatus = maintStatusFilter === 'all' || m.status === maintStatusFilter
@@ -206,34 +209,60 @@ export default function HousekeepingPage() {
               📱 Portal
             </a>
           )}
+          <button className={styles.btnSecondary}
+            onClick={() => { setTab('maintenance'); setShowMaintForm(true); setShowTaskForm(false) }}>
+            + Novi zahtjev
+          </button>
           <button className={styles.btnPrimary}
-            onClick={() => { setShowTaskForm(true); setShowMaintForm(false) }}>
+            onClick={() => { setTab('tasks'); setShowTaskForm(true); setShowMaintForm(false) }}>
             + Novi zadatak
           </button>
         </div>
       </div>
 
       {/* Stats */}
-      <div className={hk.stats}>
-        <div className={hk.stat}>
-          <div className={hk.statVal} style={{ color: '#e67e22' }}>{pending}</div>
-          <div className={hk.statLabel}>Na čekanju</div>
+      <div className={hk.statsGroup}>
+        <div className={hk.statsSection}>
+          <div className={hk.statsSectionLabel}>🧹 Čišćenje</div>
+          <div className={hk.stats}>
+            <div className={hk.stat}>
+              <div className={hk.statVal} style={{ color: '#e67e22' }}>{pending}</div>
+              <div className={hk.statLabel}>Na čekanju</div>
+            </div>
+            <div className={hk.stat}>
+              <div className={hk.statVal} style={{ color: '#2563eb' }}>{inProgress}</div>
+              <div className={hk.statLabel}>U toku</div>
+            </div>
+            <div className={hk.stat}>
+              <div className={hk.statVal} style={{ color: '#0d7a52' }}>{done}</div>
+              <div className={hk.statLabel}>Završeno</div>
+            </div>
+            <div className={hk.stat}>
+              <div className={hk.statVal} style={{ color: '#7c3aed' }}>{verified}</div>
+              <div className={hk.statLabel}>Verifikovano</div>
+            </div>
+          </div>
         </div>
-        <div className={hk.stat}>
-          <div className={hk.statVal} style={{ color: '#2563eb' }}>{inProgress}</div>
-          <div className={hk.statLabel}>U toku</div>
-        </div>
-        <div className={hk.stat}>
-          <div className={hk.statVal} style={{ color: '#0d7a52' }}>{done}</div>
-          <div className={hk.statLabel}>Završeno</div>
-        </div>
-        <div className={hk.stat}>
-          <div className={hk.statVal} style={{ color: '#7c3aed' }}>{verified}</div>
-          <div className={hk.statLabel}>Verifikovano</div>
-        </div>
-        <div className={hk.stat}>
-          <div className={hk.statVal} style={{ color: '#c0392b' }}>{maintOpen}</div>
-          <div className={hk.statLabel}>Održavanje aktivno</div>
+        <div className={hk.statsSection}>
+          <div className={hk.statsSectionLabel}>🔧 Održavanje</div>
+          <div className={hk.stats}>
+            <div className={hk.stat}>
+              <div className={hk.statVal} style={{ color: '#e67e22' }}>{maintOpen}</div>
+              <div className={hk.statLabel}>Otvoreno</div>
+            </div>
+            <div className={hk.stat}>
+              <div className={hk.statVal} style={{ color: '#2563eb' }}>{maintInProgress}</div>
+              <div className={hk.statLabel}>U toku</div>
+            </div>
+            <div className={hk.stat}>
+              <div className={hk.statVal} style={{ color: '#0d7a52' }}>{maintDone}</div>
+              <div className={hk.statLabel}>Završeno</div>
+            </div>
+            <div className={hk.stat}>
+              <div className={hk.statVal} style={{ color: '#7c3aed' }}>{maintVerified}</div>
+              <div className={hk.statLabel}>Verifikovano</div>
+            </div>
+          </div>
         </div>
       </div>
 
@@ -415,13 +444,6 @@ export default function HousekeepingPage() {
       {/* ── MAINTENANCE TAB ── */}
       {!loading && tab === 'maintenance' && (
         <>
-          <div style={{ display: 'flex', justifyContent: 'flex-end', marginBottom: 14 }}>
-            <button className={styles.btnPrimary}
-              onClick={() => { setShowMaintForm(true); setShowTaskForm(false) }}>
-              + Novi zahtjev
-            </button>
-          </div>
-
           {/* Status filter chips */}
           <div className={hk.statusFilter} style={{ marginBottom: 14 }}>
             <button
