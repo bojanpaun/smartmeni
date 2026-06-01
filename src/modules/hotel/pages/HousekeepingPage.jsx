@@ -29,7 +29,7 @@ const STATUS_MAP = {
   pending:     { label: 'Na čekanju',    icon: '⏳', color: '#e67e22' },
   in_progress: { label: 'U toku',        icon: '🔄', color: '#2563eb' },
   done:        { label: 'Završeno',      icon: '✅', color: '#0d7a52' },
-  verified:    { label: 'Verificirano',  icon: '⭐', color: '#7c3aed' },
+  verified:    { label: 'Verifikovano',  icon: '⭐', color: '#7c3aed' },
 }
 
 const MAINT_CATS = [
@@ -75,10 +75,11 @@ export default function HousekeepingPage() {
   if (!restaurant) return <LoadingSpinner fullPage />
 
   // Stats
-  const pending     = tasks.filter(t => t.status === 'pending').length
-  const inProgress  = tasks.filter(t => t.status === 'in_progress').length
-  const done        = tasks.filter(t => t.status === 'done' || t.status === 'verified').length
-  const maintOpen   = maintenance.filter(m => m.status === 'open').length
+  const pending    = tasks.filter(t => t.status === 'pending').length
+  const inProgress = tasks.filter(t => t.status === 'in_progress').length
+  const done       = tasks.filter(t => t.status === 'done').length
+  const verified   = tasks.filter(t => t.status === 'verified').length
+  const maintOpen  = maintenance.filter(m => m.status === 'open').length
 
   const filteredTasks = statusFilter === 'all'
     ? tasks
@@ -186,6 +187,10 @@ export default function HousekeepingPage() {
           <div className={hk.statLabel}>Završeno</div>
         </div>
         <div className={hk.stat}>
+          <div className={hk.statVal} style={{ color: '#7c3aed' }}>{verified}</div>
+          <div className={hk.statLabel}>Verifikovano</div>
+        </div>
+        <div className={hk.stat}>
           <div className={hk.statVal} style={{ color: '#c0392b' }}>{maintOpen}</div>
           <div className={hk.statLabel}>Maintenance otvoreni</div>
         </div>
@@ -268,7 +273,7 @@ export default function HousekeepingPage() {
 
           {/* Status filter */}
           <div className={hk.statusFilter}>
-            {['all', 'pending', 'in_progress', 'done'].map(s => (
+            {['all', 'pending', 'in_progress', 'done', 'verified'].map(s => (
               <button
                 key={s}
                 className={`${hk.filterChip} ${statusFilter === s ? hk.filterChipActive : ''}`}
@@ -339,11 +344,11 @@ export default function HousekeepingPage() {
                         {task.status === 'done' && (
                           <button className={hk.btnVerify}
                             onClick={() => handleTaskStatusChange(task, 'verified')}>
-                            ⭐ Verificiraj
+                            ⭐ Verifikuj
                           </button>
                         )}
                         {task.status === 'verified' && (
-                          <span className={hk.verifiedLabel}>Verificirano ✓</span>
+                          <span className={hk.verifiedLabel}>Verifikovano ✓</span>
                         )}
                       </div>
                     </div>
