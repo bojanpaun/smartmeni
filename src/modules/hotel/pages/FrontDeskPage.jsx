@@ -84,6 +84,12 @@ export default function FrontDeskPage() {
   }
 
   const handleCheckIn = async (res) => {
+    if (res.guest_id) {
+      const { data: g } = await supabase.from('guests').select('status, first_name, last_name').eq('id', res.guest_id).single()
+      if (g?.status === 'blacklist') {
+        if (!window.confirm(`⚠️ UPOZORENJE: ${g.first_name} ${g.last_name} je na CRNOJ LISTI!\n\nNastavi sa check-inom?`)) return
+      }
+    }
     const { error } = await supabase.from('hotel_reservations').update({
       status: 'checked_in',
       actual_check_in: new Date().toISOString(),
@@ -222,7 +228,16 @@ export default function FrontDeskPage() {
             </div>
             {ciSort.sort(filteredArrivals).map(res => (
               <div key={res.id} className={styles.tableRow} style={{ gridTemplateColumns: '2.5fr 1fr 1fr 60px 2fr 160px', cursor: 'default' }}>
-                <span className={styles.bold}>{res.guest_name}</span>
+                <span className={styles.bold} style={{ display: 'flex', alignItems: 'center', gap: 6 }}>
+                  {res.guest_name}
+                  {res.guest_id && (
+                    <button
+                      className={styles.guestProfileBtn}
+                      title="Profil gosta"
+                      onClick={e => { e.stopPropagation(); navigate(`/admin/guests/${res.guest_id}`) }}
+                    >👤</button>
+                  )}
+                </span>
                 <span>
                   <div>{res.rooms?.room_number ? `Soba ${res.rooms.room_number}` : 'Nije dodijeljena'}</div>
                   {res.room_types?.name && <div style={{ fontSize: 11, color: 'var(--c-text-muted)' }}>{res.room_types.name}</div>}
@@ -257,7 +272,16 @@ export default function FrontDeskPage() {
             </div>
             {coSort.sort(filteredDepartures).map(res => (
               <div key={res.id} className={styles.tableRow} style={{ gridTemplateColumns: '2fr 1fr 1fr 80px 140px', cursor: 'default' }}>
-                <span className={styles.bold}>{res.guest_name}</span>
+                <span className={styles.bold} style={{ display: 'flex', alignItems: 'center', gap: 6 }}>
+                  {res.guest_name}
+                  {res.guest_id && (
+                    <button
+                      className={styles.guestProfileBtn}
+                      title="Profil gosta"
+                      onClick={e => { e.stopPropagation(); navigate(`/admin/guests/${res.guest_id}`) }}
+                    >👤</button>
+                  )}
+                </span>
                 <span>{res.rooms?.room_number ? `Soba ${res.rooms.room_number}` : '—'}</span>
                 <span>{new Date(res.check_in_date).toLocaleDateString('sr-Latn')}</span>
                 <span style={{ fontWeight: 600 }}>{res.total_amount ? `€${Number(res.total_amount).toFixed(2)}` : '—'}</span>
