@@ -1,6 +1,6 @@
 # rest.by.me — HospitalityOS Produkt roadmap
 
-> **Verzija:** 3.2 *(dopunjeno — Housekeeping/Maintenance workflow fiksovi, FrontDesk period navigacija, preview scroll fix — 2026-06-01)*
+> **Verzija:** 4.0 *(dopunjeno — Booking Engine v2, Rate Plans v2, Pay on Arrival, Guest CRM, Guest Profile hub — 2026-06-01)*
 > **Kontekst:** Evolucija rest.by.me (bivši SmartMeni) SaaS platforme prema punom hospitality management sistemu
 > **Tim:** 1 developer + Claude Code AI asistent
 > **Branch:** `main` → direktno na produkciju (Vercel auto-deploy)
@@ -160,7 +160,7 @@ Svi ključni dijelovi hotel core modula su implementirani.
 - ✅ `FrontDeskPage` — tri taba: Check-in danas, Check-out, Zahtjevi gostiju
 - ✅ `FolioPage` — pregled i upravljanje foliom
 - ✅ `FolioPrint` — print-ready PDF folio
-- ✅ `RatePlansPage` — upravljanje cjenovnim planovima
+- ✅ `RatePlansPage` — upravljanje cjenovnim planovima (v2: paket/sezonski, room_type_id, multiplikator)
 - ✅ `BookingSettings` — podešavanja booking engina
 - ✅ `HousekeepingPage` — housekeeping dashboard
 - ✅ `RevenueManagementPage` — ADR, RevPAR, trendovi
@@ -169,6 +169,8 @@ Svi ključni dijelovi hotel core modula su implementirani.
 - ✅ Check-in automatski kreira folio
 - ✅ Check-out automatski zatvara folio i postavlja sobu na "cleaning"
 - ✅ WaiterDashboard — "Naplati na sobu" dodaje narudžbu na folio
+- ✅ FrontDeskPage — blacklist provjera pri check-inu (upozorenje ako gost na crnoj listi)
+- ✅ FrontDeskPage — 👤 link na guest profil uz svako ime gosta
 
 ---
 
@@ -178,12 +180,25 @@ Svi ključni dijelovi hotel core modula su implementirani.
 - ✅ `BookingPage` (`/:slug/book`) — kompletna javna booking stranica
   - Odabir datuma, tip sobe, podaci gosta, plaćanje
   - i18n (MNE/EN)
-  - Stripe Payment Element integracija
+  - PayPal plaćanje (online) + Pay on Arrival opcija
 - ✅ `send-booking-email` Edge Function (Resend)
   - Tipovi: confirmed, cancelled, checkin, checkout
   - HTML email sa brandingom hotela
   - Link na Guest App + kod gosta u emailu
 - ✅ `RatePlansPage` + `BookingSettings` admin UI
+
+### Što je urađeno (Booking Engine v2 — 2026-06-01):
+- ✅ `room_availability` tabela + trigeri za ažuriranje pri rezervacijama
+- ✅ `get_available_rooms()` RPC (BIGINT fix, base_price, has_packages flag)
+- ✅ `rate_plans` v2 — dva tipa: **Package** (fiksna cijena po tipu sobe) i **Seasonal** (hotel-wide multiplikator)
+  - `room_type_id` FK, `plan_type`, `multiplier`, `applies_from/until`, `payment_type`
+  - Validacija preklapanja sezonskih planova (frontend, toast upozorenje)
+- ✅ `get_room_packages()` RPC — paketi za odabranu sobu sa sezonskim multiplikatorom
+- ✅ `BookingPage` — inline package picker (soba → paket → gost → plaćanje)
+  - `has_packages` flag: sobe bez paketa idu direktno na guest info
+- ✅ **Pay on Arrival** — `payment_type: 'on_arrival'` na paketu → skip PayPal → `create_booking_direct` RPC
+  - Rezervacija se kreira direktno, `payment_status = 'pending'`, plaćanje na recepciji
+  - Tamno dugme "Rezerviši — plati na recepciji" umjesto PayPal-a
 
 ### Preostalo:
 
@@ -280,6 +295,47 @@ Edge Function: kreira hotel_reservation, smanjuje room_availability, šalje emai
 - ✅ `RevenueManagementPage` — ADR, RevPAR, Occupancy Rate, grafovi
 - ⬜ Price suggestion algoritam (prijedlog cijene na osnovu popunjenosti)
 - ⬜ Export analitike u PDF/Excel
+
+---
+
+## ✅ Faza 3e — Guest CRM (ZAVRŠENA — 2026-06-01)
+
+### Motivacija
+
+Hotel treba da zna ko su mu gosti — historijat boravaka, spa tretmani, preferencije, VIP status. Ova faza uspostavlja jedinstven profil gosta koji objedinjuje restoran, hotel i spa aktivnosti.
+
+### Baza podataka:
+- ✅ `guests` tabela — proširena sa: `name`, `nationality`, `document_number`, `vip_status`, `last_visit_at`
+- ✅ `guests` RLS politike — vlasnik i osoblje
+- ✅ `rate_plans.payment_type` TEXT (online | on_arrival)
+- ✅ `hotel_reservations.package_name` TEXT
+- ✅ `create_booking_direct()` RPC — kreira rezervaciju direktno (pay on arrival), dekrement availability
+- ✅ Trigger `trg_hotel_reservation_auto_guest` (BEFORE INSERT na `hotel_reservations`):
+  - Traži gosta po emailu (`lower(email)` match)
+  - Ako ne postoji → kreira novog (split `guest_name` → `first_name`/`last_name`)
+  - Linkuje `hotel_reservations.guest_id` automatski
+  - Radi za SVE rezervacije: PayPal online, Pay on Arrival, i ručne
+
+### Admin UI:
+- ✅ `HotelGuestsPage` (`/admin/hotel/guests`) — hotel-specifična lista gostiju
+  - Kartični prikaz, search po imenu/emailu
+  - VIP badge, broj hotelskih boravaka, zadnji boravak
+  - Inline edit: ime, telefon, nacionalnost, datum рођења, broj dokumenta, napomene, VIP status
+- ✅ `HotelDashboard` — dodati "Gosti 👤" quick link
+
+### Unified Guest Profile (`/admin/guests/:id`):
+- ✅ **Hotel tab** — svi hotelski boravci: datumi, tip sobe, paket, status, iznos; noći automatski računate
+- ✅ **Spa tab** — svi spa tretmani: datum, tretman, terapeut, cijena, status
+- ✅ **Stats row** proširen: rest. posjete + hotel boravaka + spa tretmana + ukupno potrošeno (restoran + hotel)
+- ✅ **Edit forma** — dodano: `Nacionalnost` i `Broj dokumenta (pasoš/LK)`
+- ✅ Tabs: Posjete (N) · Hotel (N) · Spa (N) · Napomene · Nalog
+
+### Kako gosti teku u sistem:
+```
+Online booking (PayPal)  → booking-order-capture Edge Function → hotel_reservation INSERT → TRIGGER → guest kreiran/nađen
+Pay on arrival           → create_booking_direct RPC           → hotel_reservation INSERT → TRIGGER → guest kreiran/nađen
+Ručna rezervacija        → ReservationForm                     → hotel_reservation INSERT → TRIGGER → guest kreiran/nađen
+```
 
 ---
 
@@ -1712,7 +1768,7 @@ RLS politike se proširuju da provjeravaju `portfolio_access.scope` — regional
 | PAYPAL_WEBHOOK_ID env var | 🟡 Srednji | Dodati `PAYPAL_WEBHOOK_ID` u Supabase Edge Function secrets (PayPal Dashboard → Webhooks → ID) | 1 |
 | SITE_URL env var u Supabase | 🟡 Srednji | Dodati `SITE_URL=https://smartmeni.vercel.app` u Supabase Edge Function secrets; koristi se u email linkovima | Odmah |
 | Stripe addon purchase flow | 🟡 Srednji | "Aktiviraj modul" dugme treba kreirati Stripe Checkout Session i redirectovati korisnika; webhook ažurira subscription.addons | 1 dopuna |
-| `room_availability` tabela + `get_available_rooms()` | 🟡 Srednji | Booking engine prikazuje sobe bez prave provjere zauzetosti — vidjeti detalje u Faza 3 Preostalo | 3 dopuna |
+| ~~`room_availability` + `get_available_rooms()`~~ | ✅ Riješeno | Tabela + trigeri + RPC implementirani, BookingPage integrisan, pay on arrival dodan | 3d/3e |
 | Housekeeping auto-trigger | 🟡 Srednji | DB trigger `create_checkout_cleaning_task()` koji kreira task i mijenja status sobe na 'cleaning' pri check-outu | 4 |
 | Folio PDF server-side | 🟢 Nizak | `FolioPrint` postoji kao print-friendly stranica, ali nema server-side PDF generisanja; razmotriti `@react-pdf/renderer` ili Puppeteer Edge Function | 2 dopuna |
 | ~~Upload slika u editoru~~ | ✅ Riješeno | `ImageUpload` komponenta implementirana, oba editora ažurirana | Y.1 |
@@ -1916,6 +1972,36 @@ RLS politike se proširuju da provjeravaju `portfolio_access.scope` — regional
 | 10 | brand_templates + template_assignments tabele | ⬜ | |
 | 10 | Primjena šablona na objekte + notifikacije | ⬜ | |
 | 10 | Regional manager RBAC + RLS proširenje | ⬜ | |
+| 3d | get_available_rooms() — INT→BIGINT fix za p_adults | ✅ | 2026-06-01 |
+| 3d | get_available_rooms() — price_per_night ambiguous column fix | ✅ | 2026-06-01 |
+| 3d | get_available_rooms() — koristiti base_price iz room_types (rate_plans join bio broken) | ✅ | 2026-06-01 |
+| 3d | rate_plans v2 — room_type_id FK, plan_type, multiplier, applies_from/until | ✅ | 2026-06-01 |
+| 3d | rate_plans — price_per_night DROP NOT NULL (seasonal planovi nemaju cijenu) | ✅ | 2026-06-01 |
+| 3d | get_available_rooms() v2 — has_packages flag, seasonal multiplier, pkg_summary CTE | ✅ | 2026-06-01 |
+| 3d | get_room_packages() RPC — paketi za sobu sa sezonskim multiplikatorom, payment_type | ✅ | 2026-06-01 |
+| 3d | BookingPage — inline package picker (step 1: soba, step 1.5: paket, step 2: gost) | ✅ | 2026-06-01 |
+| 3d | RatePlansPage v2 — Package vs Seasonal toggle, room_type_id selector, multiplier UI | ✅ | 2026-06-01 |
+| 3d | RatePlansPage — validacija preklapanja sezonskih multiplikatora (toast ⚠️) | ✅ | 2026-06-01 |
+| 3e | rate_plans.payment_type (online \| on_arrival) | ✅ | 2026-06-01 |
+| 3e | create_booking_direct() RPC — direktna rezervacija, dekrement availability | ✅ | 2026-06-01 |
+| 3e | BookingPage — pay on arrival flow (skip PayPal, dark button, direktan confirm) | ✅ | 2026-06-01 |
+| 3e | guests tabela — name, nationality, document_number, vip_status, last_visit_at | ✅ | 2026-06-01 |
+| 3e | guests RLS politike (owner + staff) | ✅ | 2026-06-01 |
+| 3e | hotel_reservations.package_name kolona | ✅ | 2026-06-01 |
+| 3e | Trigger trg_hotel_reservation_auto_guest — auto-kreira/linkuje gosta na INSERT | ✅ | 2026-06-01 |
+| 3e | HotelGuestsPage (/admin/hotel/guests) — kartični prikaz, search, inline edit | ✅ | 2026-06-01 |
+| 3e | useGuests hook — search po imenu/emailu, hotel_reservations eager load | ✅ | 2026-06-01 |
+| 3e | GuestProfilePage — Hotel tab (boravci: datumi, soba, paket, status, iznos) | ✅ | 2026-06-01 |
+| 3e | GuestProfilePage — Spa tab (tretmani: datum, usluga, terapeut, cijena, status) | ✅ | 2026-06-01 |
+| 3e | GuestProfilePage — Stats: rest. posjete, hotel boravaka, spa tretmana, ukupno | ✅ | 2026-06-01 |
+| 3e | GuestProfilePage — Edit forma: nationality + document_number polja | ✅ | 2026-06-01 |
+| 3e | FrontDeskPage — blacklist provjera pri check-inu (window.confirm upozorenje) | ✅ | 2026-06-01 |
+| 3e | FrontDeskPage — 👤 profil link uz ime gosta (check-in + check-out) | ✅ | 2026-06-01 |
+| fix | ControlPanel — orders.total_amount → orders.total (ispravno ime kolone) | ✅ | 2026-06-01 |
+| fix | guests trigger — first_name NOT NULL; split guest_name → first_name/last_name | ✅ | 2026-06-01 |
+| fix | guests.last_name DROP NOT NULL | ✅ | 2026-06-01 |
+| fix | RoomTypesPage textarea — dodati .input klasu za usklađen stil | ✅ | 2026-06-01 |
+| fix | RatePlansPage — toast prikazuje error.message umjesto generic poruke | ✅ | 2026-06-01 |
 
 ---
 
@@ -1968,7 +2054,16 @@ RLS politike se proširuju da provjeravaju `portfolio_access.scope` — regional
 │                            FrontDesk period navigacija (Juče/Danas/Sutra/Period)
 │                            Preview scroll fix (RestaurantLandingEditor)
 │
-│              ← OVDJE SMO (2026-06-01)
+│              ✅ Faza 3d/3e — Booking Engine v2 + Guest CRM
+│                            Rate Plans v2 (Package/Seasonal, room_type_id, multiplikator)
+│                            BookingPage: inline package picker, soba→paket→gost→plaćanje
+│                            Pay on Arrival: create_booking_direct RPC, skip PayPal
+│                            guests tabela proširena (nationality, doc, vip_status)
+│                            Auto-create guest trigger na hotel_reservations
+│                            HotelGuestsPage + unified GuestProfilePage (Hotel + Spa tabovi)
+│                            FrontDesk: blacklist warning + 👤 guest profile link
+│
+│              ← OVDJE SMO (2026-06-01, večer)
 │
 │              🔄 HITNO: RESEND_API_KEY regeneracija + SITE_URL env var
 │
@@ -1999,4 +2094,4 @@ RLS politike se proširuju da provjeravaju `portfolio_access.scope` — regional
 
 ---
 
-*Roadmap ažuriran: 2026-06-01 (v3.2 — Housekeeping/Maintenance 4-step workflow sa automatskim statusom sobe; FrontDesk period navigacija; preview scroll fix; Verifikovano chip + split stats) | Branch: main | Deployment: Vercel auto-deploy*
+*Roadmap ažuriran: 2026-06-01 (v4.0 — Booking Engine v2: Rate Plans v2 Package/Seasonal, BookingPage package picker, Pay on Arrival; Guest CRM: auto-create guest trigger, HotelGuestsPage, unified GuestProfilePage Hotel+Spa tabovi, FrontDesk blacklist warning; Bugfiksovi: orders.total, guests.first_name trigger, textarea stil) | Branch: main | Deployment: Vercel auto-deploy*
