@@ -46,6 +46,25 @@ export function useRooms(restaurantId) {
         })
       }
     }
+
+    if (status === 'maintenance') {
+      const { count } = await supabase
+        .from('maintenance_requests')
+        .select('id', { count: 'exact', head: true })
+        .eq('room_id', roomId)
+        .not('status', 'in', '("verified","resolved")')
+
+      if (!count) {
+        await supabase.from('maintenance_requests').insert({
+          restaurant_id: restaurantId,
+          room_id: roomId,
+          category: 'other',
+          priority: 'normal',
+          status: 'open',
+          description: 'Na servis — postavljeno ručno',
+        })
+      }
+    }
   }
 
   return { rooms, roomTypes, loading, refetch: load, updateRoomStatus }
