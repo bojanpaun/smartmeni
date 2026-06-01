@@ -4,7 +4,8 @@
 .editorShell {
   display: flex;
   align-items: stretch;
-  min-height: calc(100vh - 60px);
+  height: calc(100vh - 60px);
+  overflow: hidden;
 }
 
 .formPanel {
@@ -51,9 +52,6 @@
 /* ── Preview panel ── */
 .previewPanel {
   flex: 1;
-  position: sticky;
-  top: 0;
-  height: calc(100vh - 60px);
   overflow-y: auto;
   display: flex;
   flex-direction: column;
@@ -61,8 +59,8 @@
 }
 
 @media (max-width: 1100px) {
-  .editorShell { display: block; min-height: auto; }
-  .formPanel { width: 100% !important; max-width: 760px; border-right: none; padding: 24px; }
+  .editorShell { display: block; height: auto; overflow: visible; }
+  .formPanel { width: 100% !important; max-width: 760px; border-right: none; padding: 24px; overflow-y: visible; }
   .previewPanel, .panelDivider { display: none; }
 }
 
