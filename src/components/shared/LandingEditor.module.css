@@ -3,7 +3,8 @@
 /* ── Split shell ── */
 .editorShell {
   display: flex;
-  align-items: flex-start;
+  align-items: stretch;
+  min-height: calc(100vh - 60px);
 }
 
 .formPanel {
@@ -11,28 +12,41 @@
   padding: 24px 20px 40px;
   border-right: 1px solid var(--c-border);
   box-sizing: border-box;
-  min-height: calc(100vh - 60px);
   overflow-y: auto;
 }
 
 /* ── Resizable divider ── */
 .panelDivider {
-  width: 5px;
+  width: 6px;
   flex-shrink: 0;
   background: var(--c-border);
   cursor: col-resize;
   position: relative;
   transition: background 0.15s;
   user-select: none;
+  display: flex;
+  align-items: center;
+  justify-content: center;
 }
 
+/* Grip dots */
+.panelDivider::before {
+  content: '⋮';
+  font-size: 14px;
+  color: var(--c-text-muted);
+  line-height: 1;
+  pointer-events: none;
+}
+
+/* Wider click zone */
 .panelDivider::after {
   content: '';
   position: absolute;
-  inset: 0 -5px;
+  inset: 0 -6px;
 }
 
 .panelDivider:hover { background: var(--c-primary-medium); }
+.panelDivider:hover::before { color: #fff; }
 
 /* ── Preview panel ── */
 .previewPanel {
@@ -47,8 +61,8 @@
 }
 
 @media (max-width: 1100px) {
-  .editorShell { display: block; }
-  .formPanel { width: 100% !important; max-width: 760px; border-right: none; padding: 24px; min-height: auto; }
+  .editorShell { display: block; min-height: auto; }
+  .formPanel { width: 100% !important; max-width: 760px; border-right: none; padding: 24px; }
   .previewPanel, .panelDivider { display: none; }
 }
 
