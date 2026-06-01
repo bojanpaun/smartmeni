@@ -71,6 +71,27 @@
   transition: all 0.1s;
 }
 .filterChip:hover { background: var(--c-bg-subtle); }
+
+.chipCount {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  min-width: 18px;
+  height: 18px;
+  padding: 0 5px;
+  margin-left: 5px;
+  border-radius: 10px;
+  background: var(--c-bg-subtle);
+  color: var(--c-text-muted);
+  font-size: 11px;
+  font-weight: 600;
+  line-height: 1;
+}
+.filterChipActive .chipCount {
+  background: var(--c-primary-medium);
+  color: var(--c-primary);
+}
+
 .filterChipActive {
   background: var(--c-primary-light);
   border-color: var(--c-primary);

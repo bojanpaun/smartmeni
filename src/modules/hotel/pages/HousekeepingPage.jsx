@@ -210,12 +210,12 @@ export default function HousekeepingPage() {
             </a>
           )}
           <button className={styles.btnSecondary}
-            onClick={() => { setTab('maintenance'); setShowMaintForm(true); setShowTaskForm(false) }}>
-            + Novi zahtjev
-          </button>
-          <button className={styles.btnPrimary}
             onClick={() => { setTab('tasks'); setShowTaskForm(true); setShowMaintForm(false) }}>
-            + Novi zadatak
+            + Novo čišćenje
+          </button>
+          <button className={styles.btnSecondary}
+            onClick={() => { setTab('maintenance'); setShowMaintForm(true); setShowTaskForm(false) }}>
+            + Novo održavanje
           </button>
         </div>
       </div>
@@ -354,13 +354,19 @@ export default function HousekeepingPage() {
 
           {/* Status filter */}
           <div className={hk.statusFilter}>
-            {['all', 'pending', 'in_progress', 'done', 'verified'].map(s => (
-              <button
-                key={s}
-                className={`${hk.filterChip} ${statusFilter === s ? hk.filterChipActive : ''}`}
-                onClick={() => setStatusFilter(s)}
+            {[
+              { key: 'all',         label: 'Svi',   count: tasks.length },
+              { key: 'pending',     ...STATUS_MAP.pending,     count: pending },
+              { key: 'in_progress', ...STATUS_MAP.in_progress, count: inProgress },
+              { key: 'done',        ...STATUS_MAP.done,        count: done },
+              { key: 'verified',    ...STATUS_MAP.verified,    count: verified },
+            ].map(s => (
+              <button key={s.key}
+                className={`${hk.filterChip} ${statusFilter === s.key ? hk.filterChipActive : ''}`}
+                onClick={() => setStatusFilter(s.key)}
               >
-                {s === 'all' ? 'Svi' : STATUS_MAP[s]?.icon + ' ' + STATUS_MAP[s]?.label}
+                {s.icon ? `${s.icon} ${s.label}` : s.label}
+                <span className={hk.chipCount}>{s.count}</span>
               </button>
             ))}
           </div>
@@ -371,68 +377,52 @@ export default function HousekeepingPage() {
               <p>{statusFilter === 'all' ? 'Nema zadataka za odabrani period.' : 'Nema zadataka u ovom statusu.'}</p>
             </div>
           ) : (
-            <div className={hk.taskList}>
+            <div className={styles.table} style={{ overflowX: 'auto' }}>
+              <div className={styles.tableHead} style={{ gridTemplateColumns: '2fr 1fr 90px 1.5fr 90px 120px 180px' }}>
+                <span>Soba</span>
+                <span>Tip</span>
+                <span>Datum</span>
+                <span>Dodijeljeno</span>
+                <span>Prioritet</span>
+                <span>Status</span>
+                <span></span>
+              </div>
               {filteredTasks.map(task => {
                 const typeInfo = TASK_TYPES.find(t => t.value === task.type) || TASK_TYPES[0]
-                const assignedStaff = staff.find(s => s.id === task.assigned_to)
                 return (
-                  <div key={task.id} className={`${hk.taskCard} ${task.status === 'done' || task.status === 'verified' ? hk.taskCardDone : ''}`}>
-                    <div className={hk.taskCardLeft}>
-                      <div className={hk.taskRoomBig}>
-                        <span className={hk.taskRoomIcon}>{typeInfo.icon}</span>
-                        <div>
-                          <div className={hk.taskRoomNum}>Soba {task.rooms?.room_number ?? '—'}</div>
-                          <div className={hk.taskRoomType}>{task.rooms?.room_types?.name}</div>
-                        </div>
-                      </div>
-                      <div className={hk.taskType}>{typeInfo.label}</div>
-                      {task.notes && <div className={hk.taskNotes}>{task.notes}</div>}
-                      <div className={hk.taskMeta}>
-                        <PriorityBadge priority={task.priority} />
-                        <StatusBadge status={task.status} />
-                        {task.completed_at && (
-                          <span className={hk.taskTime}>
-                            Završeno: {new Date(task.completed_at).toLocaleTimeString('sr-Latn', { hour: '2-digit', minute: '2-digit' })}
-                          </span>
-                        )}
-                      </div>
-                    </div>
-                    <div className={hk.taskCardRight}>
-                      {/* Assign */}
-                      <select
-                        className={hk.assignSelect}
+                  <div key={task.id} className={styles.tableRow}
+                    style={{ gridTemplateColumns: '2fr 1fr 90px 1.5fr 90px 120px 180px', opacity: task.status === 'verified' ? 0.65 : 1 }}>
+                    <span>
+                      <span className={styles.bold}>{typeInfo.icon} Soba {task.rooms?.room_number ?? '—'}</span>
+                      {task.rooms?.room_types?.name && <span style={{ color: 'var(--c-text-muted)', fontSize: 12, display: 'block' }}>{task.rooms.room_types.name}</span>}
+                      {task.notes && <span style={{ color: 'var(--c-text-muted)', fontSize: 12, display: 'block', fontStyle: 'italic' }}>{task.notes}</span>}
+                    </span>
+                    <span>{typeInfo.label}</span>
+                    <span style={{ fontSize: 13 }}>{new Date(task.scheduled_for).toLocaleDateString('sr-Latn', { day: '2-digit', month: '2-digit' })}</span>
+                    <span>
+                      <select style={{ width: '100%', fontSize: 12, padding: '3px 6px', borderRadius: 6, border: '1px solid var(--c-border)', background: 'var(--c-surface)', color: 'var(--c-text)' }}
                         value={task.assigned_to || ''}
-                        onChange={e => handleAssign(task.id, e.target.value)}
-                      >
+                        onChange={e => handleAssign(task.id, e.target.value)}>
                         <option value="">Nedodijeljeno</option>
                         {staff.map(s => <option key={s.id} value={s.id}>{s.first_name} {s.last_name}</option>)}
                       </select>
-
-                      {/* Status actions */}
-                      <div className={hk.taskActions}>
-                        {task.status === 'pending' && (
-                          <button className={hk.btnStart}
-                            onClick={() => handleTaskStatusChange(task, 'in_progress')}>
-                            ▶ Počni
-                          </button>
-                        )}
-                        {task.status === 'in_progress' && (
-                          <button className={hk.btnDone}
-                            onClick={() => handleTaskStatusChange(task, 'done')}>
-                            ✓ Završi
-                          </button>
-                        )}
-                        {task.status === 'done' && (
-                          <button className={hk.btnVerify}
-                            onClick={() => handleTaskStatusChange(task, 'verified')}>
-                            ⭐ Verifikuj
-                          </button>
-                        )}
-                        {task.status === 'verified' && (
-                          <span className={hk.verifiedLabel}>Verifikovano ✓</span>
-                        )}
-                      </div>
-                    </div>
+                    </span>
+                    <span><PriorityBadge priority={task.priority} /></span>
+                    <span><StatusBadge status={task.status} /></span>
+                    <span style={{ display: 'flex', gap: 6, justifyContent: 'flex-end' }}>
+                      {task.status === 'pending' && (
+                        <button className={hk.btnStart} onClick={() => handleTaskStatusChange(task, 'in_progress')}>▶ Počni</button>
+                      )}
+                      {task.status === 'in_progress' && (
+                        <button className={hk.btnDone} onClick={() => handleTaskStatusChange(task, 'done')}>✓ Završi</button>
+                      )}
+                      {task.status === 'done' && (
+                        <button className={hk.btnVerify} onClick={() => handleTaskStatusChange(task, 'verified')}>⭐ Verifikuj</button>
+                      )}
+                      {task.status === 'verified' && (
+                        <span className={hk.verifiedLabel}>Verifikovano ✓</span>
+                      )}
+                    </span>
                   </div>
                 )
               })}
@@ -446,19 +436,19 @@ export default function HousekeepingPage() {
         <>
           {/* Status filter chips */}
           <div className={hk.statusFilter} style={{ marginBottom: 14 }}>
-            <button
-              className={`${hk.filterChip} ${maintStatusFilter === 'all' ? hk.filterChipActive : ''}`}
-              onClick={() => setMaintStatusFilter('all')}
-            >
-              Svi ({maintenance.length})
-            </button>
-            {Object.entries(MAINT_STATUS_MAP).filter(([k]) => k !== 'resolved').map(([key, s]) => (
-              <button
-                key={key}
-                className={`${hk.filterChip} ${maintStatusFilter === key ? hk.filterChipActive : ''}`}
-                onClick={() => setMaintStatusFilter(key)}
+            {[
+              { key: 'all',         label: 'Svi',   icon: null,  count: maintenance.length },
+              { key: 'open',        ...MAINT_STATUS_MAP.open,        count: maintOpen },
+              { key: 'in_progress', ...MAINT_STATUS_MAP.in_progress, count: maintInProgress },
+              { key: 'done',        ...MAINT_STATUS_MAP.done,        count: maintDone },
+              { key: 'verified',    ...MAINT_STATUS_MAP.verified,    count: maintVerified },
+            ].map(s => (
+              <button key={s.key}
+                className={`${hk.filterChip} ${maintStatusFilter === s.key ? hk.filterChipActive : ''}`}
+                onClick={() => setMaintStatusFilter(s.key)}
               >
-                {s.icon} {s.label}
+                {s.icon ? `${s.icon} ${s.label}` : s.label}
+                <span className={hk.chipCount}>{s.count}</span>
               </button>
             ))}
           </div>
@@ -512,42 +502,47 @@ export default function HousekeepingPage() {
               <p>{maintStatusFilter === 'all' ? 'Nema zahtjeva za održavanje.' : `Nema zahtjeva u statusu "${MAINT_STATUS_MAP[maintStatusFilter]?.label}".`}</p>
             </div>
           ) : (
-            <div className={hk.maintList}>
+            <div className={styles.table} style={{ overflowX: 'auto' }}>
+              <div className={styles.tableHead} style={{ gridTemplateColumns: '3fr 80px 1fr 90px 130px 180px' }}>
+                <span>Opis</span>
+                <span>Soba</span>
+                <span>Kategorija</span>
+                <span>Prioritet</span>
+                <span>Status</span>
+                <span></span>
+              </div>
               {filteredMaintenance.map(m => {
                 const cat = MAINT_CATS.find(c => c.value === m.category) || MAINT_CATS[5]
                 return (
-                  <div key={m.id} className={hk.maintCard}>
-                    <div className={hk.maintIcon}>{cat.icon}</div>
-                    <div className={hk.maintBody}>
-                      <div className={hk.maintTitle}>{m.description}</div>
-                      <div className={hk.maintMeta}>
-                        {m.rooms?.room_number && <span>Soba {m.rooms.room_number}</span>}
-                        <span>{cat.label}</span>
-                        <PriorityBadge priority={m.priority} />
-                        <span className={hk.maintDate}>
-                          {new Date(m.created_at).toLocaleDateString('sr-Latn')}
-                        </span>
-                        {m.staff && <span>{m.staff.first_name} {m.staff.last_name}</span>}
-                      </div>
-                    </div>
-                    <div className={hk.maintActions}>
+                  <div key={m.id} className={styles.tableRow}
+                    style={{ gridTemplateColumns: '3fr 80px 1fr 90px 130px 180px', opacity: m.status === 'verified' ? 0.65 : 1 }}>
+                    <span>
+                      <span className={styles.bold}>{m.description}</span>
+                      <span style={{ color: 'var(--c-text-muted)', fontSize: 12, display: 'block' }}>
+                        {new Date(m.created_at).toLocaleDateString('sr-Latn')}
+                        {m.staff && ` · ${m.staff.first_name} ${m.staff.last_name}`}
+                      </span>
+                    </span>
+                    <span style={{ fontSize: 13 }}>
+                      {m.rooms?.room_number ? `Soba ${m.rooms.room_number}` : <span style={{ color: 'var(--c-text-muted)' }}>Opšti</span>}
+                    </span>
+                    <span style={{ fontSize: 13 }}>{cat.icon} {cat.label}</span>
+                    <span><PriorityBadge priority={m.priority} /></span>
+                    <span><MaintStatusBadge status={m.status} /></span>
+                    <span style={{ display: 'flex', gap: 6, justifyContent: 'flex-end' }}>
                       {m.status === 'open' && (
-                        <button className={hk.btnStart}
-                          onClick={() => handleMaintStatus(m.id, 'in_progress')}>▶ U rad</button>
+                        <button className={hk.btnStart} onClick={() => handleMaintStatus(m.id, 'in_progress')}>▶ U rad</button>
                       )}
                       {m.status === 'in_progress' && (
-                        <button className={hk.btnDone}
-                          onClick={() => handleMaintStatus(m.id, 'done')}>✓ Završi</button>
+                        <button className={hk.btnDone} onClick={() => handleMaintStatus(m.id, 'done')}>✓ Završi</button>
                       )}
                       {m.status === 'done' && (
-                        <button className={hk.btnVerify}
-                          onClick={() => handleMaintStatus(m.id, 'verified')}>⭐ Verifikuj</button>
+                        <button className={hk.btnVerify} onClick={() => handleMaintStatus(m.id, 'verified')}>⭐ Verifikuj</button>
                       )}
                       {m.status === 'verified' && (
                         <span className={hk.verifiedLabel}>Verifikovano ✓</span>
                       )}
-                      <MaintStatusBadge status={m.status} />
-                    </div>
+                    </span>
                   </div>
                 )
               })}
