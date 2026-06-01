@@ -49,7 +49,7 @@ export default function RoomCard({ room, onStatusChange }) {
             <button
               key={a}
               className={`${styles.btn} ${styles[`btn_${a}`]}`}
-              onClick={() => onStatusChange(room.id, a)}
+              onClick={() => onStatusChange(room.id, a, room.status)}
             >
               {ACTION_LABELS[a]}
             </button>

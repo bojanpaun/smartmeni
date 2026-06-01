@@ -22,8 +22,8 @@ export default function RoomsPage() {
   const { rooms, roomTypes, loading, updateRoomStatus } = useRooms(restaurant?.id)
   const [filter, setFilter] = useState('')
 
-  const handleStatusChange = async (roomId, status) => {
-    await updateRoomStatus(roomId, status)
+  const handleStatusChange = async (roomId, status, prevStatus) => {
+    await updateRoomStatus(roomId, status, prevStatus)
     toast.success('Status sobe ažuriran')
   }
 
