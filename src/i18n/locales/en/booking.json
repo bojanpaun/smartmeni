@@ -75,7 +75,8 @@
     "total": "Total",
     "secureNote": "Payment is secure and protected through PayPal.",
     "paying": "Preparing payment...",
-    "payNow": "💳  Pay with PayPal"
+    "payNow": "💳  Pay with PayPal",
+    "payOnArrival": "🏨  Book — pay at the hotel"
   },
 
   "confirm": {

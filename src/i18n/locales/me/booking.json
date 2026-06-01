@@ -77,7 +77,8 @@
     "total": "Ukupno",
     "secureNote": "Plaćanje je sigurno i zaštićeno putem PayPal-a.",
     "paying": "Priprema plaćanja...",
-    "payNow": "💳  Plati putem PayPal-a"
+    "payNow": "💳  Plati putem PayPal-a",
+    "payOnArrival": "🏨  Rezerviši — plati na recepciji"
   },
 
   "confirm": {

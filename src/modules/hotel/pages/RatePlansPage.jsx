@@ -25,6 +25,7 @@ const BLANK_PLAN = {
   max_stay: '',
   cancellation_policy: 'flexible',
   advance_booking_days: '',
+  payment_type: 'online',
   // seasonal fields
   multiplier: '1.0',
   applies_from: '',
@@ -74,6 +75,7 @@ export default function RatePlansPage() {
       applies_from: plan.applies_from ?? '',
       applies_until: plan.applies_until ?? '',
       is_active: plan.is_active,
+      payment_type: plan.payment_type ?? 'online',
     })
     setShowForm(true)
   }
@@ -86,6 +88,24 @@ export default function RatePlansPage() {
     }
     if (form.plan_type === 'seasonal') {
       if (!form.multiplier || isNaN(parseFloat(form.multiplier))) return toast.error('Multiplikator je obavezan')
+
+      const { data: existing } = await supabase
+        .from('rate_plans')
+        .select('id, name, applies_from, applies_until')
+        .eq('restaurant_id', restaurant.id)
+        .eq('plan_type', 'seasonal')
+        .eq('is_active', true)
+
+      const others = (existing ?? []).filter(p => p.id !== editing?.id)
+      const nf = form.applies_from || null
+      const nu = form.applies_until || null
+
+      const conflict = others.find(p => {
+        const ef = p.applies_from, eu = p.applies_until
+        return (eu === null || nf === null || nf <= eu) &&
+               (nu === null || ef === null || ef <= nu)
+      })
+      if (conflict) toast(`Upozorenje: Preklapanje sa "${conflict.name}". Primjenjivaće se viši multiplikator.`, { icon: '⚠️', duration: 5000 })
     }
 
     setSaving(true)
@@ -105,6 +125,7 @@ export default function RatePlansPage() {
           max_stay: form.max_stay ? parseInt(form.max_stay) : null,
           cancellation_policy: form.cancellation_policy,
           advance_booking_days: form.advance_booking_days ? parseInt(form.advance_booking_days) : null,
+          payment_type: form.payment_type,
           multiplier: 1.0,
           applies_from: null,
           applies_until: null,
@@ -253,6 +274,13 @@ export default function RatePlansPage() {
                 <label>Politika otkazivanja</label>
                 <select value={form.cancellation_policy} onChange={e => f('cancellation_policy', e.target.value)}>
                   {CANCEL_OPTIONS.map(o => <option key={o.value} value={o.value}>{o.label}</option>)}
+                </select>
+              </div>
+              <div className={rp.field}>
+                <label>Način plaćanja</label>
+                <select value={form.payment_type} onChange={e => f('payment_type', e.target.value)}>
+                  <option value="online">Online (PayPal)</option>
+                  <option value="on_arrival">Na recepciji</option>
                 </select>
               </div>
               <div className={rp.field}>

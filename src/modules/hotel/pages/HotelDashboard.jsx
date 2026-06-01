@@ -42,6 +42,7 @@ export default function HotelDashboard() {
           { label: 'Rezervacije',  icon: '📅', path: '/admin/hotel/reservations' },
           { label: 'Front Desk',   icon: '🛎️', path: '/admin/hotel/frontdesk' },
           { label: 'Tipovi soba',  icon: '🪑', path: '/admin/hotel/room-types' },
+          { label: 'Gosti',        icon: '👤', path: '/admin/hotel/guests' },
         ].map(item => (
           <button key={item.path} className={styles.quickBtn} onClick={() => navigate(item.path)}>
             <span className={styles.quickIcon}>{item.icon}</span>

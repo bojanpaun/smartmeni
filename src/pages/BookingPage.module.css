@@ -495,6 +495,22 @@
 }
 .notFoundIcon { font-size: 48px; margin-bottom: 12px; }
 
+.btnOnArrival {
+  width: 100%;
+  padding: 14px;
+  background: var(--ink, #0e1a14);
+  color: #fff;
+  border: none;
+  border-radius: 12px;
+  font-size: 15px;
+  font-weight: 600;
+  cursor: pointer;
+  font-family: inherit;
+  transition: background 0.15s;
+}
+.btnOnArrival:hover { background: #2a3a32; }
+.btnOnArrival:disabled { opacity: 0.6; cursor: not-allowed; }
+
 /* Footer */
 .footer {
   text-align: center;

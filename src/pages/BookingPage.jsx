@@ -192,6 +192,31 @@ export default function BookingPage() {
     }
   }
 
+  const handlePayOnArrival = async () => {
+    setPayLoading(true)
+    setPayError('')
+    const { data, error } = await supabase.rpc('create_booking_direct', {
+      p_restaurant_id:   restaurant.id,
+      p_room_type_id:    selectedRoom.room_type_id,
+      p_rate_plan_id:    selectedPackage?.rate_plan_id ?? null,
+      p_package_name:    selectedPackage?.plan_name ?? null,
+      p_check_in:        checkIn,
+      p_check_out:       checkOut,
+      p_adults:          adults,
+      p_children:        children,
+      p_guest_name:      guestName,
+      p_guest_email:     guestEmail,
+      p_guest_phone:     guestPhone,
+      p_special_requests: specialRequests,
+      p_price_per_night: activePricePerNight,
+      p_total_amount:    totalAmount,
+    })
+    setPayLoading(false)
+    if (error) return setPayError(error.message ?? t('date.errSearch'))
+    setConfirmation(data)
+    setStep(4)
+  }
+
   const captureOrder = async (orderId, pending) => {
     try {
       const res = await fetch(
@@ -531,9 +556,15 @@ export default function BookingPage() {
 
             <p className={styles.paypalNote}>{t('payment.secureNote')}</p>
             {payError && <p className={styles.error}>{payError}</p>}
-            <button className={styles.btnPaypal} onClick={handlePay} disabled={payLoading}>
-              {payLoading ? t('payment.paying') : t('payment.payNow')}
-            </button>
+            {selectedPackage?.payment_type === 'on_arrival' ? (
+              <button className={styles.btnOnArrival} onClick={handlePayOnArrival} disabled={payLoading}>
+                {payLoading ? t('payment.paying') : t('payment.payOnArrival')}
+              </button>
+            ) : (
+              <button className={styles.btnPaypal} onClick={handlePay} disabled={payLoading}>
+                {payLoading ? t('payment.paying') : t('payment.payNow')}
+              </button>
+            )}
           </div>
         )}
 

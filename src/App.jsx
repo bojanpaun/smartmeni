@@ -53,6 +53,7 @@ const CalendarPage         = lazy(() => import('./modules/hotel/pages/CalendarPa
 const FolioPage            = lazy(() => import('./modules/hotel/pages/FolioPage'))
 const FolioPrint           = lazy(() => import('./modules/hotel/pages/FolioPrint'))
 const RatePlansPage        = lazy(() => import('./modules/hotel/pages/RatePlansPage'))
+const HotelGuestsPage      = lazy(() => import('./modules/hotel/pages/GuestsPage'))
 const BookingSettings      = lazy(() => import('./modules/hotel/pages/BookingSettings'))
 const HousekeepingPage     = lazy(() => import('./modules/hotel/pages/HousekeepingPage'))
 const HousekeepingPortalPage = lazy(() => import('./modules/hotel/pages/HousekeepingPortalPage'))
@@ -233,6 +234,7 @@ function AppRoutes() {
         <Route path="/admin/hotel/housekeeping" element={<AdminRoute><AddonGuard addonId="hotel_core" name="Hotel Core" description="Upravljanje sobama, rezervacijama, front desk i folio sistemom." price={299} category="hotel"><HousekeepingPage /></AddonGuard></AdminRoute>} />
         <Route path="/admin/hotel/revenue" element={<AdminRoute><AddonGuard addonId="hotel_core" name="Hotel Core" description="Upravljanje sobama, rezervacijama, front desk i folio sistemom." price={299} category="hotel"><RevenueManagementPage /></AddonGuard></AdminRoute>} />
         <Route path="/admin/hotel/landing" element={<AdminRoute><AddonGuard addonId="hotel_core" name="Hotel Core" description="Upravljanje sobama, rezervacijama, front desk i folio sistemom." price={299} category="hotel"><HotelLandingEditor /></AddonGuard></AdminRoute>} />
+        <Route path="/admin/hotel/guests" element={<AdminRoute><AddonGuard addonId="hotel_core" name="Hotel Core" description="Upravljanje sobama, rezervacijama, front desk i folio sistemom." price={299} category="hotel"><HotelGuestsPage /></AddonGuard></AdminRoute>} />
         <Route path="/admin/hotel/help" element={<AdminRoute><ModuleHelp moduleKey="hotel" /></AdminRoute>} />
 
         {/* Spa & Wellness modul — vlastita sekcija */}
