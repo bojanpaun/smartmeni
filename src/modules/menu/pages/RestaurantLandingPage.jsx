@@ -60,13 +60,18 @@ export default function RestaurantLandingPage() {
   // Preview mode: listen for postMessage from editor
   useEffect(() => {
     if (!isPreview) return
+    // Spriječiti vlastiti scrollbar iframe-a — visina se podešava via PREVIEW_HEIGHT
+    document.body.style.overflow = 'hidden'
     const handler = (e) => {
       if (e.origin !== window.location.origin) return
       if (e.data?.type !== 'PREVIEW_UPDATE') return
       setBlocks(e.data.blocks.filter(b => b.enabled))
     }
     window.addEventListener('message', handler)
-    return () => window.removeEventListener('message', handler)
+    return () => {
+      document.body.style.overflow = ''
+      window.removeEventListener('message', handler)
+    }
   }, [])
 
   // Send full content height to editor iframe parent

@@ -9,6 +9,23 @@ import styles from './Hotel.module.css'
 
 const TODAY = new Date().toISOString().slice(0, 10)
 
+function toDateStr(d) { return d.toISOString().slice(0, 10) }
+
+const PERIOD_OPTIONS = [
+  { key: 'yesterday', label: 'Juče' },
+  { key: 'today',     label: 'Danas' },
+  { key: 'tomorrow',  label: 'Sutra' },
+  { key: 'custom',    label: 'Period' },
+]
+
+function getPeriodDate(key, customDate) {
+  const now = new Date()
+  if (key === 'today')     return TODAY
+  if (key === 'yesterday') { const d = new Date(now); d.setDate(d.getDate() - 1); return toDateStr(d) }
+  if (key === 'tomorrow')  { const d = new Date(now); d.setDate(d.getDate() + 1); return toDateStr(d) }
+  return customDate || TODAY
+}
+
 const REQ_STATUS = {
   pending:     { label: 'Primljeno',  color: '#e67e22', bg: '#fff7ed' },
   in_progress: { label: 'U toku',     color: '#2563eb', bg: '#eff6ff' },
@@ -24,12 +41,16 @@ export default function FrontDeskPage() {
   const { restaurant } = usePlatform()
   const navigate = useNavigate()
   const [tab, setTab] = useState('checkin')
+  const [period, setPeriod] = useState('today')
+  const [customDate, setCustomDate] = useState(TODAY)
+
+  const selectedDate = getPeriodDate(period, customDate)
 
   const { reservations: arrivals, loading: loadingArrivals, refetch: refetchArrivals } = useReservations(restaurant?.id, {
-    status: 'confirmed', dateFrom: TODAY, dateTo: TODAY,
+    status: 'confirmed', checkInDate: selectedDate,
   })
   const { reservations: departures, loading: loadingDep, refetch: refetchDep } = useReservations(restaurant?.id, {
-    status: 'checked_in', dateTo: TODAY,
+    status: 'checked_in', checkOutDate: selectedDate,
   })
 
   const [requests, setRequests] = useState([])
@@ -139,7 +160,7 @@ export default function FrontDeskPage() {
 
       <div className={styles.filterBar}>
         <button className={`${styles.filterBtn} ${tab === 'checkin' ? styles.filterBtnActive : ''}`} onClick={() => setTab('checkin')}>
-          Check-in danas <span className={styles.filterCount}>{arrivals.length}</span>
+          Check-in <span className={styles.filterCount}>{arrivals.length}</span>
         </button>
         <button className={`${styles.filterBtn} ${tab === 'checkout' ? styles.filterBtnActive : ''}`} onClick={() => setTab('checkout')}>
           Check-out <span className={styles.filterCount}>{departures.length}</span>
@@ -149,6 +170,28 @@ export default function FrontDeskPage() {
           {pendingCount > 0 && <span className={`${styles.filterCount} ${styles.filterCountAlert}`}>{pendingCount}</span>}
         </button>
       </div>
+
+      {tab !== 'requests' && (
+        <div className={styles.filterBar} style={{ gap: 6, marginTop: -8, marginBottom: 8 }}>
+          {PERIOD_OPTIONS.map(p => (
+            <button
+              key={p.key}
+              className={`${styles.filterBtn} ${period === p.key ? styles.filterBtnActive : ''}`}
+              onClick={() => setPeriod(p.key)}
+            >
+              {p.label}
+            </button>
+          ))}
+          {period === 'custom' && (
+            <input
+              type="date"
+              value={customDate}
+              onChange={e => setCustomDate(e.target.value)}
+              style={{ padding: '4px 8px', borderRadius: 6, border: '1px solid var(--c-border)', fontSize: 13, background: 'var(--c-surface)', color: 'var(--c-text)' }}
+            />
+          )}
+        </div>
+      )}
 
       {/* ── Check-in tab ── */}
       {tab === 'checkin' && (

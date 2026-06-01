@@ -11,7 +11,7 @@ export default function LandingPreview({ src, blocks, onClose }) {
   const iframeRef = useRef()
   const [device, setDevice] = useState('desktop')
   const [ready, setReady] = useState(false)
-  const [iframeHeight, setIframeHeight] = useState(800)
+  const [iframeHeight, setIframeHeight] = useState(1500)
 
   // Send blocks to iframe on change
   useEffect(() => {

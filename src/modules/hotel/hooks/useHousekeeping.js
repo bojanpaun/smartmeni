@@ -49,7 +49,15 @@ export function useHousekeeping(restaurantId, date) {
     if (status === 'in_progress') patch.started_at = new Date().toISOString()
     if (status === 'done')        patch.completed_at = new Date().toISOString()
     const { error } = await supabase.from('housekeeping_tasks').update(patch).eq('id', taskId)
-    if (!error) setTasks(prev => prev.map(t => t.id === taskId ? { ...t, ...patch } : t))
+    if (!error) {
+      setTasks(prev => prev.map(t => t.id === taskId ? { ...t, ...patch } : t))
+      if (status === 'verified') {
+        const task = tasks.find(t => t.id === taskId)
+        if (task?.room_id) {
+          await supabase.from('rooms').update({ status: 'available' }).eq('id', task.room_id)
+        }
+      }
+    }
     return error
   }
 
