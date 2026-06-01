@@ -6,8 +6,9 @@ import { MODULES } from '../../layouts/AdminLayout'
 import OnboardingWizard from './OnboardingWizard'
 import styles from './ControlPanel.module.css'
 
-const RESTAURANT_KEYS = ['menu', 'tables', 'inventory', 'hr', 'guests', 'analytics']
-const HOTEL_KEYS      = ['hotel', 'spa']
+const RESTAURANT_KEYS  = ['menu', 'tables']
+const HOTEL_KEYS       = ['hotel', 'spa']
+const UPRAVLJANJE_KEYS = ['hr', 'inventory', 'guests', 'analytics']
 
 function useDashboardData(restaurant, hasHotel, hasSpa) {
   const [kpi, setKpi]       = useState({ ordersToday: null, revenueToday: null, checkinsToday: null, spaToday: null })
@@ -99,9 +100,10 @@ export default function ControlPanel() {
     return `€${Math.round(v)}`
   }
 
-  const restaurantMods = MODULES.filter(m => RESTAURANT_KEYS.includes(m.key) && canSee(m.perm))
-  const hotelMods      = MODULES.filter(m => HOTEL_KEYS.includes(m.key))
-  const adminMods      = MODULES.filter(m => m.adminOnly)
+  const restaurantMods  = MODULES.filter(m => RESTAURANT_KEYS.includes(m.key)  && canSee(m.perm))
+  const hotelMods       = MODULES.filter(m => HOTEL_KEYS.includes(m.key))
+  const upravljanjeMods = MODULES.filter(m => UPRAVLJANJE_KEYS.includes(m.key) && canSee(m.perm))
+  const adminMods       = MODULES.filter(m => m.adminOnly)
 
   const QUICK = [
     { label: 'Narudžbe', icon: '🧾', path: '/admin/orders',  badge: badges.waiter,    perm: 'view_orders' },
@@ -202,7 +204,7 @@ export default function ControlPanel() {
           <span className={styles.verticalEmoji}>🍽️</span>
           <div>
             <div className={styles.verticalTitle}>Restoran</div>
-            <div className={styles.verticalSub}>Meni, stolovi, osoblje i analitika</div>
+            <div className={styles.verticalSub}>Digitalni meni i stolovi</div>
           </div>
         </div>
         <div className={styles.grid}>{restaurantMods.map(renderCard)}</div>
@@ -215,10 +217,24 @@ export default function ControlPanel() {
             <span className={styles.verticalEmoji}>🏨</span>
             <div>
               <div className={styles.verticalTitle}>Hotel</div>
-              <div className={styles.verticalSub}>Sobe, rezervacije, spa i gosti</div>
+              <div className={styles.verticalSub}>Sobe, rezervacije i spa</div>
             </div>
           </div>
           <div className={styles.grid}>{hotelMods.map(renderCard)}</div>
+        </div>
+      )}
+
+      {/* ── Upravljanje (dijeljeni moduli) ── */}
+      {upravljanjeMods.length > 0 && (
+        <div className={styles.section}>
+          <div className={styles.verticalHead}>
+            <span className={styles.verticalEmoji}>📋</span>
+            <div>
+              <div className={styles.verticalTitle}>Upravljanje</div>
+              <div className={styles.verticalSub}>HR, zalihe, gosti i analitika — zajednički za restoran i hotel</div>
+            </div>
+          </div>
+          <div className={styles.grid}>{upravljanjeMods.map(renderCard)}</div>
         </div>
       )}
 
