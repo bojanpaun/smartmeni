@@ -358,18 +358,12 @@ export default function ReservationsPage() {
                 </>
               )}
 
-              {/* Period i Sve — poslije pickera, prije navigacije */}
+              {/* Period — poslije pickera, prije navigacije */}
               <button
                 className={`${dnStyles.btn} ${calGranularity === 'period' ? dnStyles.active : ''}`}
                 onClick={() => handleGranularityChange('period')}
               >
                 Period
-              </button>
-              <button
-                className={dnStyles.btn}
-                onClick={() => handleGranularityChange('all')}
-              >
-                Sve
               </button>
 
               {/* Navigacija — samo za day/week/month */}
