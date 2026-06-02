@@ -25,7 +25,7 @@ export default function RoomCard({ room, isCheckedIn, onStatusChange }) {
   // Zauzeta + ostalo  → jedina akcija je čišćenje
   // Slobodna/ostalo   → standardne akcije po statusu
   const visibleActions = isCheckedIn
-    ? (room.status === 'cleaning' ? [] : ['cleaning'])
+    ? (room.status === 'cleaning' ? ['maintenance'] : ['cleaning', 'maintenance'])
     : actions
 
   // Primarni badge — dostupnost
