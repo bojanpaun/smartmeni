@@ -1,9 +1,6 @@
 import { useNavigate } from 'react-router-dom'
-import RoomStatusBadge from './RoomStatusBadge'
 import styles from './RoomCard.module.css'
 
-// Check-in je uklonjen sa ove stranice — vrši se na Front Desku ili u rezervaciji.
-// Dugme 'occupied' (Check-in) više nije dostupno ovdje.
 const STATUS_ACTIONS = {
   available:   ['cleaning', 'maintenance', 'blocked'],
   occupied:    ['cleaning'],
@@ -22,7 +19,6 @@ const ACTION_LABELS = {
 export default function RoomCard({ room, isCheckedIn, onStatusChange }) {
   const navigate = useNavigate()
 
-  // Akcije se baziraju na rooms.status (za cleaning/maintenance/blocked workflow)
   const actions = STATUS_ACTIONS[room.status] ?? []
 
   // Zauzeta + cleaning → zadatak već postoji, nema dugmadi
@@ -31,6 +27,20 @@ export default function RoomCard({ room, isCheckedIn, onStatusChange }) {
   const visibleActions = isCheckedIn
     ? (room.status === 'cleaning' ? [] : ['cleaning'])
     : actions
+
+  // Primarni badge — dostupnost
+  const primaryBadge = isCheckedIn
+    ? <span className={styles.badgeOccupied}>Zauzeta</span>
+    : room.status === 'blocked'
+    ? <span className={styles.badgeBlocked}>Blokirana</span>
+    : <span className={styles.badgeAvailable}>Slobodna</span>
+
+  // Sekundarni badge — aktivna operacija (samo kad postoji)
+  const secondaryBadge = room.status === 'cleaning'
+    ? <span className={styles.badgeCleaning}>🧹 Čišćenje u toku</span>
+    : room.status === 'maintenance'
+    ? <span className={styles.badgeMaintenance}>🔧 Servis u toku</span>
+    : null
 
   return (
     <div className={`${styles.card} ${isCheckedIn ? styles.occupied : styles[room.status]}`}>
@@ -42,14 +52,11 @@ export default function RoomCard({ room, isCheckedIn, onStatusChange }) {
         >
           {room.room_number}
         </span>
-        {isCheckedIn
-          ? <span className={styles.badgeOccupied}>Zauzeta</span>
-          : <RoomStatusBadge status={room.status} />
-        }
+        <div className={styles.badges}>
+          {primaryBadge}
+          {secondaryBadge}
+        </div>
       </div>
-      {isCheckedIn && room.status === 'cleaning' && (
-        <div className={styles.cleaningIndicator}>🧹 Čišćenje u toku</div>
-      )}
 
       {room.room_types && (
         <div className={styles.type}>{room.room_types.name}</div>

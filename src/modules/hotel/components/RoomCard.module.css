@@ -64,25 +64,42 @@
 .btn_maintenance { border-color: var(--c-danger);     color: var(--c-danger); }
 .btn_blocked     { border-color: var(--c-text-muted); color: var(--c-text-muted); }
 
-/* Indikator čišćenja na zauzetoj sobi */
-.cleaningIndicator {
-  font-size: 11px;
-  font-weight: 600;
-  color: var(--c-warning);
-  background: var(--c-warning-bg);
-  border: 1px solid var(--c-warning);
-  border-radius: 20px;
-  padding: 2px 10px;
-  display: inline-block;
-  align-self: flex-start;
+/* Badge kontejner — može imati dva badge-a */
+.badges {
+  display: flex;
+  align-items: center;
+  gap: 5px;
+  flex-wrap: wrap;
+  justify-content: flex-end;
 }
 
-/* Badge za sobu zauzetu prema rezervaciji (checked_in) */
+/* Primarni badge — dostupnost */
 .badgeOccupied {
-  font-size: 11px;
-  font-weight: 600;
-  padding: 3px 10px;
-  border-radius: 20px;
-  background: #1a2e26;
-  color: #fff;
+  font-size: 11px; font-weight: 600;
+  padding: 3px 10px; border-radius: 20px;
+  background: #1a2e26; color: #fff;
+}
+.badgeAvailable {
+  font-size: 11px; font-weight: 600;
+  padding: 3px 10px; border-radius: 20px;
+  background: var(--c-primary-light); color: var(--c-primary);
+}
+.badgeBlocked {
+  font-size: 11px; font-weight: 600;
+  padding: 3px 10px; border-radius: 20px;
+  background: var(--c-bg-subtle); color: var(--c-text-muted);
+}
+
+/* Sekundarni badge — aktivna operacija */
+.badgeCleaning {
+  font-size: 10px; font-weight: 600;
+  padding: 2px 8px; border-radius: 20px;
+  background: var(--c-warning-bg); color: var(--c-warning);
+  border: 1px solid var(--c-warning);
+}
+.badgeMaintenance {
+  font-size: 10px; font-weight: 600;
+  padding: 2px 8px; border-radius: 20px;
+  background: var(--c-danger-bg); color: var(--c-danger);
+  border: 1px solid var(--c-danger-border);
 }
