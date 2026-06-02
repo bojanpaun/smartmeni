@@ -24,6 +24,7 @@ export default function ReservationForm() {
   const [form, setForm] = useState(EMPTY)
   const [loading, setLoading] = useState(!!id)
   const [saving, setSaving] = useState(false)
+  const [reservedRoomIds, setReservedRoomIds] = useState(new Set())
 
   useEffect(() => {
     if (!id || !restaurant) return
@@ -45,6 +46,31 @@ export default function ReservationForm() {
     })
   }, [id, restaurant])
 
+  // Fetch soba zauzete rezervacijom za odabrane datume
+  useEffect(() => {
+    if (!form.check_in_date || !form.check_out_date || !restaurant?.id) {
+      setReservedRoomIds(new Set())
+      return
+    }
+    supabase
+      .from('hotel_reservations')
+      .select('id, room_id')
+      .eq('restaurant_id', restaurant.id)
+      .not('room_id', 'is', null)
+      .not('status', 'in', '("cancelled","no_show")')
+      .lt('check_in_date', form.check_out_date)
+      .gt('check_out_date', form.check_in_date)
+      .then(({ data }) => {
+        // Ako editujemo, ne blokiraj sobu trenutne rezervacije
+        const ids = new Set(
+          (data ?? [])
+            .filter(r => r.id !== id)
+            .map(r => r.room_id)
+        )
+        setReservedRoomIds(ids)
+      })
+  }, [form.check_in_date, form.check_out_date, restaurant?.id, id])
+
   const set = (k, v) => setForm(f => ({ ...f, [k]: v }))
 
   const nights = form.check_in_date && form.check_out_date
@@ -52,14 +78,28 @@ export default function ReservationForm() {
     : 0
   const total = nights * (parseFloat(form.rate_per_night) || 0)
 
-  const roomsForType = form.room_type_id ? rooms.filter(r => r.room_type_id === form.room_type_id && r.status === 'available') : rooms.filter(r => r.status === 'available')
+  // Slobodne sobe: odgovarajući tip, nije maintenance/blocked, nema rezervacije za ove datume
+  const roomsForType = rooms.filter(r => {
+    if (form.room_type_id && r.room_type_id !== form.room_type_id) return false
+    if (r.status === 'maintenance' || r.status === 'blocked') return false
+    if (reservedRoomIds.has(r.id)) return false
+    return true
+  })
 
   const handleSave = async () => {
     if (!form.guest_name.trim()) return toast.error('Ime gosta je obavezno')
     if (!form.check_in_date || !form.check_out_date) return toast.error('Datumi su obavezni')
     if (new Date(form.check_out_date) <= new Date(form.check_in_date)) return toast.error('Check-out mora biti poslije check-in datuma')
     setSaving(true)
-    const payload = { ...form, restaurant_id: restaurant.id, total_amount: total || null, rate_per_night: parseFloat(form.rate_per_night) || null, room_type_id: form.room_type_id || null, room_id: form.room_id || null }
+
+    // Auto-dodjela sobe: ako nije ručno odabrana, uzmi prvu slobodnu
+    let autoRoomId = form.room_id || null
+    if (!autoRoomId && form.room_type_id && roomsForType.length > 0) {
+      autoRoomId = roomsForType[0].id
+      toast(`Soba ${roomsForType[0].room_number} automatski dodijeljena`, { icon: '🛏️' })
+    }
+
+    const payload = { ...form, restaurant_id: restaurant.id, total_amount: total || null, rate_per_night: parseFloat(form.rate_per_night) || null, room_type_id: form.room_type_id || null, room_id: autoRoomId }
     const { error } = id
       ? await supabase.from('hotel_reservations').update(payload).eq('id', id)
       : await supabase.from('hotel_reservations').insert(payload)
