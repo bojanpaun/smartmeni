@@ -32,6 +32,27 @@
 .filterCount { composes: pillCount from '../../../styles/nav.module.css'; }
 .filterCountAlert { background: #c0392b; color: #fff; }
 
+/* Search input */
+.searchInput {
+  padding: 8px 12px; border: 1.5px solid var(--c-border-input);
+  border-radius: 9px; font-size: 13px; font-family: var(--c-font-sans);
+  outline: none; background: var(--c-surface); color: var(--c-text);
+  min-width: 200px; flex: 1;
+}
+.searchInput:focus { border-color: var(--c-primary); }
+
+/* Search + filter row */
+.searchRow {
+  display: flex; gap: 10px; margin-bottom: 12px;
+  align-items: center; flex-wrap: wrap;
+}
+
+/* Calendar nav row */
+.calNavRow {
+  display: flex; gap: 8px; margin-bottom: 12px;
+  align-items: center; flex-wrap: wrap;
+}
+
 /* Room grid */
 .roomGrid {
   display: grid;
