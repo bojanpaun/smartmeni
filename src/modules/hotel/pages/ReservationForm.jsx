@@ -28,7 +28,14 @@ export default function ReservationForm() {
   useEffect(() => {
     if (!id || !restaurant) return
     supabase.from('hotel_reservations').select('*').eq('id', id).single().then(({ data }) => {
-      if (data) setForm({ ...EMPTY, ...data })
+      if (data) setForm({
+          ...EMPTY, ...data,
+          special_requests: data.special_requests ?? '',
+          internal_notes:   data.internal_notes   ?? '',
+          guest_phone:      data.guest_phone       ?? '',
+          guest_email:      data.guest_email       ?? '',
+          guest_name:       data.guest_name        ?? '',
+        })
       setLoading(false)
     })
   }, [id, restaurant])
