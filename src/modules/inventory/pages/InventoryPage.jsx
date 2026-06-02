@@ -4,6 +4,8 @@ import { useState, useEffect } from 'react'
 import { useNavigate } from 'react-router-dom'
 import { supabase } from '../../../lib/supabase'
 import { usePlatform } from '../../../context/PlatformContext'
+import { useSortable } from '../../../hooks/useSortable'
+import SortableHead from '../../../components/shared/SortableHead'
 import styles from './InventoryPage.module.css'
 import gsStyles from '../../menu/pages/GeneralSettings.module.css'
 
@@ -135,6 +137,7 @@ export default function InventoryPage() {
   }
 
   // Filtriranje
+  const sort = useSortable('name', 'asc')
   const lowItems = items.filter(i => parseFloat(i.quantity) <= parseFloat(i.min_quantity) && parseFloat(i.min_quantity) > 0)
 
   const filtered = items.filter(i => {
@@ -206,14 +209,14 @@ export default function InventoryPage() {
       ) : (
         <div className={styles.table}>
           <div className={styles.tableHeader}>
-            <span>Naziv</span>
-            <span>Kategorija</span>
-            <span>Količina</span>
-            <span>Minimum</span>
-            <span>Cijena/jed.</span>
+            <span><SortableHead col="name"          label="Naziv"       sortBy={sort.sortBy} sortDir={sort.sortDir} onSort={sort.onSort} /></span>
+            <span><SortableHead col="category"      label="Kategorija"  sortBy={sort.sortBy} sortDir={sort.sortDir} onSort={sort.onSort} /></span>
+            <span><SortableHead col="quantity"      label="Količina"    sortBy={sort.sortBy} sortDir={sort.sortDir} onSort={sort.onSort} /></span>
+            <span><SortableHead col="min_quantity"  label="Minimum"     sortBy={sort.sortBy} sortDir={sort.sortDir} onSort={sort.onSort} /></span>
+            <span><SortableHead col="cost_per_unit" label="Cijena/jed." sortBy={sort.sortBy} sortDir={sort.sortDir} onSort={sort.onSort} /></span>
             <span></span>
           </div>
-          {filtered.map(item => (
+          {sort.sort(filtered).map(item => (
             <div key={item.id} className={`${styles.tableRow} ${isLow(item) ? styles.tableRowLow : ''}`}>
               <div className={styles.itemName}>
                 {isLow(item) && <span className={styles.lowDot} title="Ispod minimuma" />}

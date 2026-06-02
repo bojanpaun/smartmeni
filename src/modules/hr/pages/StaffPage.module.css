@@ -12,7 +12,9 @@
 .sectionLabel { font-size: 11px; font-weight: 600; color: var(--c-text-muted); letter-spacing: 0.6px; margin-bottom: 8px; }
 
 /* --- Table --- */
-.tableWrap { background: var(--c-surface); border: 1px solid var(--c-border); border-radius: 14px; overflow: hidden; }
+.tableWrap { background: var(--c-surface); border: 1px solid var(--c-border); border-radius: 14px; overflow: hidden; overflow-x: auto; }
+
+.mobileInfo { display: none; margin-top: 4px; gap: 5px; flex-wrap: wrap; }
 .table { width: 100%; border-collapse: collapse; font-family: var(--c-font-sans); font-size: 13px; }
 .table thead th { text-align: left; font-size: 11px; font-weight: 600; color: var(--c-text-muted); padding: 10px 14px; border-bottom: 1px solid var(--c-border); background: var(--c-bg); letter-spacing: 0.3px; }
 .table thead th:last-child { text-align: right; }
@@ -72,11 +74,17 @@
 .success { color: var(--c-primary); font-size: 12px; background: var(--c-primary-light); padding: 8px 12px; border-radius: 8px; margin-bottom: 8px; }
 
 /* --- Mobile --- */
-@media (max-width: 600px) {
-  .page { padding: 14px; }
-  .table thead { display: none; }
-  .table tbody td { display: block; padding: 6px 14px; border-bottom: none; }
-  .tableRow { display: block; border-bottom: 1px solid var(--c-border); padding: 10px 0; }
-  .actions { justify-content: flex-start; padding: 0 14px 6px; }
-  .wageCell::before { content: 'Plata: '; color: var(--c-text-muted); font-size: 11px; }
+@media (max-width: 640px) {
+  /* Sakrij kolone Rola, Danas, Status — ostaju Zaposlenik + Akcije */
+  .table thead th:nth-child(n+2):nth-child(-n+4),
+  .table tbody td:nth-child(n+2):nth-child(-n+4) { display: none; }
+
+  /* Rola + Na poslu badge prikazani inline ispod imena */
+  .mobileInfo { display: flex; }
+
+  /* Akcije: kompaktna dugmad, Ukloni skriveno na mobilnom */
+  .actions { gap: 4px; flex-wrap: wrap; }
+  .btnEdit   { padding: 4px 8px; font-size: 11px; }
+  .btnAction { padding: 4px 8px; font-size: 11px; }
+  .btnDanger { display: none; }
 }

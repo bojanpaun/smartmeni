@@ -65,8 +65,10 @@
 /* ── Tabela ── */
 .tableWrap {
   background: var(--c-surface); border: 1px solid var(--c-border);
-  border-radius: 14px; overflow: hidden;
+  border-radius: 14px; overflow: hidden; overflow-x: auto;
 }
+
+.mobileInfo { display: none; }
 .table { width: 100%; border-collapse: collapse; font-size: 13px; }
 .table th {
   text-align: left; padding: 10px 14px;
@@ -305,8 +307,23 @@
 }
 
 /* ── Responsive ── */
-@media (max-width: 700px) {
+@media (max-width: 640px) {
+  .wrap { padding: 14px; }
   .editGrid { grid-template-columns: 1fr; }
   .stats    { grid-template-columns: repeat(2, 1fr); }
   .addonCategories { grid-template-columns: 1fr; }
+
+  /* Sakrij kolone Plan, Status, Registrovan — ostaju Restoran + Akcije */
+  .table thead th:nth-child(n+2):nth-child(-n+4),
+  .table tbody td:nth-child(n+2):nth-child(-n+4) { display: none; }
+
+  /* Plan + Status badge prikazani inline ispod naziva */
+  .mobileInfo {
+    display: flex; align-items: center; gap: 6px;
+    margin-top: 6px; flex-wrap: wrap;
+  }
+
+  /* Akcije: stack vertikalno, kompaktna dugmad */
+  .actionBtns { flex-direction: column; gap: 4px; }
+  .btnEdit, .btnSuspend { font-size: 11px; padding: 4px 8px; white-space: nowrap; }
 }

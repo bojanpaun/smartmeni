@@ -2,6 +2,8 @@ import { useState, useEffect } from 'react'
 import { supabase } from '../../lib/supabase'
 import { usePlatform } from '../../context/PlatformContext'
 import { planStatus } from '../../lib/planUtils'
+import { useSortable } from '../../hooks/useSortable'
+import SortableHead from '../../components/shared/SortableHead'
 import styles from './SuperAdminPanel.module.css'
 
 const ADMIN_THEMES = [
@@ -37,6 +39,7 @@ export default function SuperAdminPanel() {
   })
   const [saving, setSaving] = useState(false)
   const [saveMsg, setSaveMsg] = useState('')
+  const sort = useSortable('name', 'asc')
 
   useEffect(() => {
     loadRestaurants()
@@ -153,7 +156,10 @@ export default function SuperAdminPanel() {
     setRestaurants(rs => rs.map(r => r.id === rest.id ? { ...r, ...payload } : r))
   }
 
-  const filtered = restaurants.filter(r => {
+  const PAID_PLANS = ['restaurant', 'hotel', 'hotel_pro', 'enterprise', 'pro']
+
+  const withStatus = restaurants.map(r => ({ ...r, _status: planStatus(r) }))
+  const filtered = withStatus.filter(r => {
     const matchSearch =
       r.name.toLowerCase().includes(search.toLowerCase()) ||
       r.slug.toLowerCase().includes(search.toLowerCase())
@@ -165,8 +171,6 @@ export default function SuperAdminPanel() {
     if (filterPlan === 'suspended') return !!r.suspended_at
     return true
   })
-
-  const PAID_PLANS = ['restaurant', 'hotel', 'hotel_pro', 'enterprise', 'pro']
   const stats = {
     total: restaurants.length,
     pro: restaurants.filter(r => PAID_PLANS.includes(r.plan) && !r.is_complimentary).length,
@@ -252,10 +256,10 @@ export default function SuperAdminPanel() {
         <table className={styles.table}>
           <thead>
             <tr>
-              <th>Restoran</th>
-              <th>Plan</th>
-              <th>Status</th>
-              <th>Registrovan</th>
+              <th><SortableHead col="name"       label="Restoran"    sortBy={sort.sortBy} sortDir={sort.sortDir} onSort={sort.onSort} /></th>
+              <th><SortableHead col="plan"       label="Plan"        sortBy={sort.sortBy} sortDir={sort.sortDir} onSort={sort.onSort} /></th>
+              <th><SortableHead col="_status"    label="Status"      sortBy={sort.sortBy} sortDir={sort.sortDir} onSort={sort.onSort} /></th>
+              <th><SortableHead col="created_at" label="Registrovan" sortBy={sort.sortBy} sortDir={sort.sortDir} onSort={sort.onSort} /></th>
               <th>Akcije</th>
             </tr>
           </thead>
@@ -265,17 +269,19 @@ export default function SuperAdminPanel() {
                 <td colSpan={5} className={styles.emptyRow}>Nema rezultata.</td>
               </tr>
             )}
-            {filtered.map(rest => {
-              const status = planStatus(rest)
-              return (
+            {sort.sort(filtered).map(rest => (
                 <tr key={rest.id} className={editingId === rest.id ? styles.rowEditing : ''}>
                   <td>
                     <div className={styles.restName}>{rest.name}</div>
                     <div className={styles.restSlug}>rest.by.me/{rest.slug}</div>
                     <ThemeDot theme={rest.admin_theme} />
+                    <div className={styles.mobileInfo}>
+                      <PlanBadge rest={rest} />
+                      <StatusBadge status={rest._status} />
+                    </div>
                   </td>
                   <td><PlanBadge rest={rest} /></td>
-                  <td><StatusBadge status={status} /></td>
+                  <td><StatusBadge status={rest._status} /></td>
                   <td className={styles.dateCell}>
                     {new Date(rest.created_at).toLocaleDateString('sr-Latn', {
                       day: '2-digit', month: '2-digit', year: 'numeric'
@@ -299,7 +305,7 @@ export default function SuperAdminPanel() {
                   </td>
                 </tr>
               )
-            })}
+            ))}
           </tbody>
         </table>
       </div>

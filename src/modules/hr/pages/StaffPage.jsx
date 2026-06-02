@@ -4,6 +4,8 @@ import { useState, useEffect } from 'react'
 import { useNavigate } from 'react-router-dom'
 import { supabase } from '../../../lib/supabase'
 import { usePlatform } from '../../../context/PlatformContext'
+import { useSortable } from '../../../hooks/useSortable'
+import SortableHead from '../../../components/shared/SortableHead'
 import styles from './StaffPage.module.css'
 import gsStyles from '../../menu/pages/GeneralSettings.module.css'
 
@@ -165,26 +167,30 @@ export default function StaffPage() {
 }
 
 function StaffTable({ staff, onEdit, onToggle, onRemove }) {
+  const sort = useSortable('_displayName', 'asc')
+  const staffWithNames = staff.map(s => ({
+    ...s,
+    _displayName: s.first_name && s.last_name ? `${s.first_name} ${s.last_name}` : s.email,
+  }))
+
   return (
     <div className={styles.tableWrap}>
       <table className={styles.table}>
         <thead>
           <tr>
-            <th>Zaposlenik</th>
-            <th>Rola</th>
+            <th><SortableHead col="_displayName" label="Zaposlenik" sortBy={sort.sortBy} sortDir={sort.sortDir} onSort={sort.onSort} /></th>
+            <th><SortableHead col="role.name"    label="Rola"       sortBy={sort.sortBy} sortDir={sort.sortDir} onSort={sort.onSort} /></th>
             <th>Danas</th>
-            <th>Status</th>
+            <th><SortableHead col="is_active"    label="Status"     sortBy={sort.sortBy} sortDir={sort.sortDir} onSort={sort.onSort} /></th>
             <th style={{ textAlign: 'right' }}>Akcije</th>
           </tr>
         </thead>
         <tbody>
-          {staff.map(s => {
+          {sort.sort(staffWithNames).map(s => {
             const initials = s.first_name && s.last_name
               ? `${s.first_name[0]}${s.last_name[0]}`.toUpperCase()
               : s.email[0].toUpperCase()
-            const displayName = s.first_name && s.last_name
-              ? `${s.first_name} ${s.last_name}`
-              : s.email
+            const displayName = s._displayName
             const wage = s.wage_amount > 0
               ? `€${parseFloat(s.wage_amount).toFixed(0)}/${s.wage_type === 'hourly' ? 'h' : s.wage_type === 'weekly' ? 'sed.' : 'mj.'}`
               : '—'
@@ -197,6 +203,10 @@ function StaffTable({ staff, onEdit, onToggle, onRemove }) {
                     <div>
                       <div className={styles.staffName}>{displayName}</div>
                       {s.first_name && <div className={styles.staffEmail}>{s.email}</div>}
+                      <div className={styles.mobileInfo}>
+                        {s.role?.name && <span className={styles.roleBadge}>{s.role.name}</span>}
+                        {s._present && <span className={styles.connectedBadge}>Na poslu</span>}
+                      </div>
                     </div>
                   </div>
                 </td>
