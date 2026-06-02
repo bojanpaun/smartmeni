@@ -312,8 +312,8 @@ export default function ReservationsPage() {
           {/* Kontrolna traka — isti stil kao DateNav na listi */}
           <div className={dnStyles.nav}>
             <div className={dnStyles.left}>
-              {/* Granularnost: Dan | Sedmica | Miesec | Period */}
-              {GRANULARITIES.map(g => (
+              {/* Granularnost: Dan | Sedmica | Miesec (bez Period i Sve ovdje) */}
+              {GRANULARITIES.filter(g => g.key !== 'period').map(g => (
                 <button
                   key={g.key}
                   className={`${dnStyles.btn} ${calGranularity === g.key ? dnStyles.active : ''}`}
@@ -322,13 +322,6 @@ export default function ReservationsPage() {
                   {g.label}
                 </button>
               ))}
-              {/* Sve — reset na tekuću sedmicu */}
-              <button
-                className={dnStyles.btn}
-                onClick={() => handleGranularityChange('all')}
-              >
-                Sve
-              </button>
 
               {/* Picker za Miesec */}
               {calGranularity === 'month' && (
@@ -364,6 +357,20 @@ export default function ReservationsPage() {
                   />
                 </>
               )}
+
+              {/* Period i Sve — poslije pickera, prije navigacije */}
+              <button
+                className={`${dnStyles.btn} ${calGranularity === 'period' ? dnStyles.active : ''}`}
+                onClick={() => handleGranularityChange('period')}
+              >
+                Period
+              </button>
+              <button
+                className={dnStyles.btn}
+                onClick={() => handleGranularityChange('all')}
+              >
+                Sve
+              </button>
 
               {/* Navigacija — samo za day/week/month */}
               {calGranularity !== 'period' && (
