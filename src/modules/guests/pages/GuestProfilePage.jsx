@@ -45,6 +45,7 @@ export default function GuestProfilePage() {
 
   const [guest, setGuest] = useState(null)
   const [visits, setVisits] = useState([])
+  const [orders, setOrders] = useState([])
   const [hotelStays, setHotelStays] = useState([])
   const [spaAppts, setSpaAppts] = useState([])
   const [loading, setLoading] = useState(true)
@@ -64,9 +65,14 @@ export default function GuestProfilePage() {
 
   const loadData = async () => {
     setLoading(true)
-    const [{ data: g }, { data: v }, { data: h }, { data: s }] = await Promise.all([
+    const [{ data: g }, { data: v }, { data: o }, { data: h }, { data: s }] = await Promise.all([
       supabase.from('guests').select('*').eq('id', id).single(),
       supabase.from('guest_visits').select('*').eq('guest_id', id).order('visit_date', { ascending: false }),
+      supabase.from('orders')
+        .select('id, created_at, table_number, total, status, note, kitchen_status, bar_status')
+        .eq('guest_id', id)
+        .not('status', 'in', '(cancelled)')
+        .order('created_at', { ascending: false }),
       supabase.from('hotel_reservations')
         .select('id, check_in_date, check_out_date, room_types(name), rate_per_night, total_amount, status, package_name, source')
         .eq('guest_id', id)
@@ -78,6 +84,7 @@ export default function GuestProfilePage() {
     ])
     if (g) { setGuest(g); setForm(g) }
     setVisits(v || [])
+    setOrders(o || [])
     setHotelStays(h || [])
     setSpaAppts(s || [])
     setLoading(false)
@@ -153,6 +160,7 @@ export default function GuestProfilePage() {
   const initials = `${guest.first_name?.[0] || ''}${guest.last_name?.[0] || ''}`.toUpperCase()
   const avgSpent = guest.total_visits > 0 ? (parseFloat(guest.total_spent) / guest.total_visits).toFixed(2) : '0.00'
   const hotelTotal = hotelStays.reduce((s, h) => s + (Number(h.total_amount) || 0), 0)
+  const ordersTotal = orders.reduce((s, o) => s + (Number(o.total) || 0), 0)
 
   return (
     <div className={styles.page}>
@@ -237,7 +245,7 @@ export default function GuestProfilePage() {
         {/* Stats */}
         <div className={styles.statsRow}>
           <div className={styles.statBox}>
-            <div className={styles.statVal}>{guest.total_visits || 0}</div>
+            <div className={styles.statVal}>{(guest.total_visits || 0) + orders.length}</div>
             <div className={styles.statLbl}>Rest. posjeta</div>
           </div>
           <div className={styles.statBox}>
@@ -250,7 +258,7 @@ export default function GuestProfilePage() {
           </div>
           <div className={styles.statBox}>
             <div className={styles.statVal} style={{ color: '#0d7a52' }}>
-              €{(parseFloat(guest.total_spent || 0) + hotelTotal).toFixed(2)}
+              €{(parseFloat(guest.total_spent || 0) + hotelTotal + ordersTotal).toFixed(2)}
             </div>
             <div className={styles.statLbl}>Ukupno potrošeno</div>
           </div>
@@ -263,7 +271,7 @@ export default function GuestProfilePage() {
         {/* Tabs */}
         <div className={styles.tabs}>
           {[
-            ['visits', 'Posjete'],
+            ['visits', `Restoran (${(guest.total_visits || 0) + orders.length})`],
             ['hotel',  `Hotel (${hotelStays.length})`],
             ['spa',    `Spa (${spaAppts.length})`],
             ['notes',  'Napomene'],
@@ -273,7 +281,7 @@ export default function GuestProfilePage() {
           ))}
         </div>
 
-        {/* Posjete */}
+        {/* Restoran */}
         {activeTab === 'visits' && (
           <div className={styles.tabContent}>
             <div className={styles.tabHeader}>
@@ -314,6 +322,7 @@ export default function GuestProfilePage() {
               </form>
             )}
 
+            {/* Manualne posjete */}
             {visits.length === 0 ? (
               <div className={styles.empty}>Nema evidentiranih posjeta</div>
             ) : (
@@ -333,6 +342,46 @@ export default function GuestProfilePage() {
                     <button className={styles.delBtn} onClick={() => deleteVisit(v.id)}>✕</button>
                   </div>
                 ))}
+              </div>
+            )}
+
+            {/* Narudžbe iz sistema */}
+            <div className={styles.tabHeader} style={{ marginTop: 24 }}>
+              <div className={styles.tabTitle}>Narudžbe u sistemu</div>
+            </div>
+            {orders.length === 0 ? (
+              <div className={styles.empty} style={{ padding: '12px 0' }}>
+                Nema narudžbi linkovanих za ovog gosta.
+                <div style={{ fontSize: 11, color: '#aaa', marginTop: 4 }}>Narudžbe se automatski vežu kada gost plati na sobu (folio).</div>
+              </div>
+            ) : (
+              <div className={styles.visitList}>
+                {orders.map(o => {
+                  const done = ['served', 'closed'].includes(o.status)
+                  return (
+                    <div key={o.id} className={styles.visitItem}>
+                      <div className={styles.visitDate}>
+                        {new Date(o.created_at).toLocaleDateString('sr-Latn', { day: '2-digit', month: 'short', year: 'numeric' })}
+                        <span style={{ fontSize: 11, color: '#8a9e96', marginLeft: 6 }}>
+                          {new Date(o.created_at).toLocaleTimeString('sr-Latn', { hour: '2-digit', minute: '2-digit' })}
+                        </span>
+                      </div>
+                      <div className={styles.visitInfo}>
+                        {o.table_number ? `Sto ${o.table_number}` : 'Restoran'}
+                        {o.note && <span style={{ color: '#8a9e96', marginLeft: 6 }}>· {o.note}</span>}
+                      </div>
+                      <span className={styles.visitBadge} style={{
+                        background: done ? '#E1F5EE' : '#fff7ed',
+                        color: done ? '#085041' : '#92400e',
+                      }}>
+                        {o.status === 'closed' ? 'Zatvorena' : o.status === 'served' ? 'Servirana' : o.status === 'pending' ? 'Na čekanju' : o.status}
+                      </span>
+                      <div className={styles.visitAmount} style={{ color: '#0d7a52' }}>
+                        {o.total ? `€${Number(o.total).toFixed(2)}` : '—'}
+                      </div>
+                    </div>
+                  )
+                })}
               </div>
             )}
           </div>
