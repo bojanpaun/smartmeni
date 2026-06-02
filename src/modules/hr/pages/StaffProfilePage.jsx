@@ -147,14 +147,22 @@ export default function StaffProfilePage() {
     setAbsences(prev => prev.filter(a => a.id !== id))
   }
 
-  const toggleAbsenceApproval = async (id, currentApproved) => {
-    const { data } = await supabase
-      .from('staff_absences')
-      .update({ approved: !currentApproved })
-      .eq('id', id)
-      .select()
-      .single()
-    if (data) setAbsences(prev => prev.map(a => a.id === id ? { ...a, approved: data.approved } : a))
+  const approveAbsence = async (absence) => {
+    await supabase.from('staff_absences').update({ approved: true }).eq('id', absence.id)
+    // Ako je godišnji odmor, ažurirati vacation_days_used
+    if (absence.absence_type === 'vacation') {
+      const current = parseFloat(staff.vacation_days_used || 0)
+      const newUsed = current + (absence.days || 0)
+      await supabase.from('staff').update({ vacation_days_used: newUsed }).eq('id', staffId)
+      setStaff(s => ({ ...s, vacation_days_used: newUsed }))
+      setFinanceForm(f => ({ ...f, vacation_days_used: newUsed }))
+    }
+    setAbsences(prev => prev.map(a => a.id === absence.id ? { ...a, approved: true } : a))
+  }
+
+  const rejectAbsence = async (id) => {
+    await supabase.from('staff_absences').update({ approved: false }).eq('id', id)
+    setAbsences(prev => prev.map(a => a.id === id ? { ...a, approved: false } : a))
   }
 
   if (loading) return <div className={styles.loading}>Učitavanje profila...</div>
@@ -569,18 +577,17 @@ ${deductions.length > 0 ? `
                       <span className={styles.absenceDays}> · {a.days} {a.days===1?'dan':'dana'}</span>
                     </div>
                     <div className={styles.absenceActions}>
-                      {a.approved
-                        ? <span className={styles.approvedBadge}>✓ Odobreno</span>
-                        : <span className={styles.pendingBadge}>Na čekanju</span>
-                      }
-                      {!a.approved && (
-                        <button className={styles.btnApprove} onClick={() => toggleAbsenceApproval(a.id, a.approved)}>Odobri</button>
+                      {a.approved === true  && <span className={styles.approvedBadge}>✓ Odobreno</span>}
+                      {a.approved === null  && <span className={styles.pendingBadge}>Na čekanju</span>}
+                      {a.approved === false && <span className={styles.rejectedBadge}>✗ Odbijeno</span>}
+                      {a.approved === null && (
+                        <button className={styles.btnApprove} onClick={() => approveAbsence(a)}>Odobri</button>
                       )}
-                      {a.approved && (
-                        <button className={styles.btnReject} onClick={() => toggleAbsenceApproval(a.id, a.approved)}>Poništi</button>
+                      {a.approved === null && (
+                        <button className={styles.btnReject} onClick={() => rejectAbsence(a.id)}>Odbij</button>
                       )}
-                      {!a.approved && (
-                        <button className={styles.btnReject} onClick={() => toggleAbsenceApproval(a.id, a.approved)}>Odbij</button>
+                      {a.approved === true && (
+                        <button className={styles.btnReject} onClick={() => rejectAbsence(a.id)}>Poništi</button>
                       )}
                       <button className={styles.delBtn} onClick={() => deleteAbsence(a.id)}>✕</button>
                     </div>

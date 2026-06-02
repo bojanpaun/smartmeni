@@ -26,13 +26,17 @@ export default function StaffPage() {
 
   const loadData = async () => {
     const todayStr = new Date().toISOString().slice(0, 10)
-    const [{ data: s }, { data: r }, { data: att }] = await Promise.all([
+    const [{ data: s }, { data: r }, { data: att }, { data: pendingAbs }] = await Promise.all([
       supabase.from('staff').select('*, role:roles(name)').eq('restaurant_id', restaurant.id).order('created_at'),
       supabase.from('roles').select('*').eq('restaurant_id', restaurant.id).order('name'),
       supabase.from('attendance_entries').select('staff_id, clock_in, clock_out').eq('restaurant_id', restaurant.id).eq('date', todayStr),
+      supabase.from('staff_absences').select('staff_id').eq('restaurant_id', restaurant.id).is('approved', null),
     ])
     const presentIds = new Set((att || []).filter(a => a.clock_in && !a.clock_out).map(a => a.staff_id))
-    setStaff((s || []).map(st => ({ ...st, _present: presentIds.has(st.id) })))
+    const pendingCounts = (pendingAbs || []).reduce((acc, a) => {
+      acc[a.staff_id] = (acc[a.staff_id] || 0) + 1; return acc
+    }, {})
+    setStaff((s || []).map(st => ({ ...st, _present: presentIds.has(st.id), _pendingAbsences: pendingCounts[st.id] || 0 })))
     setRoles(r || [])
     setLoading(false)
   }
@@ -208,7 +212,14 @@ function StaffTable({ staff, onEdit, onToggle, onRemove }) {
                   <div className={styles.nameCell}>
                     <div className={styles.avatar}>{s.avatar_url ? <img src={s.avatar_url} alt={displayName} /> : initials}</div>
                     <div>
-                      <div className={styles.staffName}>{displayName}</div>
+                      <div className={styles.staffName} style={{ display: 'flex', alignItems: 'center', gap: 6 }}>
+                        {displayName}
+                        {s._pendingAbsences > 0 && (
+                          <span style={{ background: '#fef3c7', color: '#92400e', fontSize: 10, fontWeight: 700, padding: '1px 6px', borderRadius: 20 }}>
+                            {s._pendingAbsences} zahtjev{s._pendingAbsences === 1 ? '' : 'a'}
+                          </span>
+                        )}
+                      </div>
                       {s.first_name && <div className={styles.staffEmail}>{s.email}</div>}
                       <div className={styles.mobileInfo}>
                         {s.role?.name && <span className={styles.roleBadge}>{s.role.name}</span>}

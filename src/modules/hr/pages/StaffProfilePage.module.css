@@ -105,6 +105,7 @@
 .absenceActions { display: flex; align-items: center; gap: 6px; flex-shrink: 0; }
 .approvedBadge { font-size: 11px; font-weight: 500; color: #0F6E56; background: var(--c-primary-light); padding: 3px 9px; border-radius: 20px; }
 .pendingBadge { font-size: 11px; font-weight: 500; color: #854F0B; background: var(--c-warning-bg); padding: 3px 9px; border-radius: 20px; }
+.rejectedBadge { font-size: 11px; font-weight: 500; color: #991b1b; background: #fef2f2; padding: 3px 9px; border-radius: 20px; }
 .btnApprove { font-size: 11px; padding: 4px 10px; border: 0.5px solid var(--c-primary-medium); border-radius: 6px; background: transparent; color: #0F6E56; cursor: pointer; font-family: var(--c-font-sans); }
 .btnApprove:hover { background: var(--c-primary-light); }
 .btnReject { font-size: 11px; padding: 4px 10px; border: 0.5px solid #F09595; border-radius: 6px; background: transparent; color: var(--c-danger); cursor: pointer; font-family: var(--c-font-sans); }

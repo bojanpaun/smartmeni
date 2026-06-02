@@ -37,6 +37,37 @@ export default function HrView({ staffId, activeTab }) {
     const d = new Date()
     return `${d.getFullYear()}-${String(d.getMonth()+1).padStart(2,'0')}`
   })
+  const [showAbsenceForm, setShowAbsenceForm] = useState(false)
+  const [absenceForm, setAbsenceForm] = useState({ absence_type: 'vacation', start_date: '', end_date: '', notes: '' })
+  const [absenceSaving, setAbsenceSaving] = useState(false)
+
+  const loadAbsences = async () => {
+    const { data } = await supabase.from('staff_absences').select('*')
+      .eq('staff_id', staffId).order('start_date', { ascending: false }).limit(20)
+    setAbsences(data ?? [])
+  }
+
+  const submitAbsence = async (e) => {
+    e.preventDefault()
+    if (!absenceForm.start_date || !absenceForm.end_date) return
+    setAbsenceSaving(true)
+    const days = Math.ceil((new Date(absenceForm.end_date) - new Date(absenceForm.start_date)) / 86400000) + 1
+    const { data: staffRow } = await supabase.from('staff').select('restaurant_id').eq('id', staffId).single()
+    await supabase.from('staff_absences').insert({
+      staff_id: staffId,
+      restaurant_id: staffRow?.restaurant_id,
+      absence_type: absenceForm.absence_type,
+      start_date: absenceForm.start_date,
+      end_date: absenceForm.end_date,
+      days,
+      notes: absenceForm.notes || null,
+      approved: null,
+    })
+    setAbsenceSaving(false)
+    setShowAbsenceForm(false)
+    setAbsenceForm({ absence_type: 'vacation', start_date: '', end_date: '', notes: '' })
+    loadAbsences()
+  }
 
   useEffect(() => {
     if (!staffId) return
@@ -179,7 +210,8 @@ export default function HrView({ staffId, activeTab }) {
   // ── Odsustva ─────────────────────────────────────────────────────
   if (activeTab === 'absences') {
     const year = new Date().getFullYear()
-    const vacUsed = absences.filter(a => a.absence_type === 'vacation' && a.approved && new Date(a.start_date).getFullYear() === year)
+    const vacUsed = absences
+      .filter(a => a.absence_type === 'vacation' && a.approved === true && new Date(a.start_date).getFullYear() === year)
       .reduce((t, a) => t + (a.days || 0), 0)
     const vacTotal = staffInfo?.vacation_days_total || 0
     return (
@@ -189,6 +221,47 @@ export default function HrView({ staffId, activeTab }) {
           <div className={s.vacCard}><div className={s.vacNum} style={{ color: '#ba7517' }}>{vacUsed}</div><div className={s.vacLabel}>Iskorišteno</div></div>
           <div className={s.vacCard}><div className={s.vacNum}>{Math.max(0, vacTotal - vacUsed)}</div><div className={s.vacLabel}>Preostalo</div></div>
         </div>
+
+        {/* Forma za novi zahtjev */}
+        {!showAbsenceForm ? (
+          <button className={s.btnAddAbsence} onClick={() => setShowAbsenceForm(true)}>
+            + Zatraži odsustvo
+          </button>
+        ) : (
+          <form className={s.absenceForm} onSubmit={submitAbsence}>
+            <div className={s.absenceFormTitle}>Novi zahtjev za odsustvo</div>
+            <div className={s.absenceFormField}>
+              <label>Tip odsustva</label>
+              <select value={absenceForm.absence_type} onChange={e => setAbsenceForm(f => ({ ...f, absence_type: e.target.value }))}>
+                {Object.entries(ABSENCE_TYPES).map(([k, v]) => <option key={k} value={k}>{v.label}</option>)}
+              </select>
+            </div>
+            <div className={s.absenceFormRow}>
+              <div className={s.absenceFormField}>
+                <label>Od</label>
+                <input type="date" required min={TODAY} value={absenceForm.start_date}
+                  onChange={e => setAbsenceForm(f => ({ ...f, start_date: e.target.value, end_date: f.end_date < e.target.value ? e.target.value : f.end_date }))} />
+              </div>
+              <div className={s.absenceFormField}>
+                <label>Do</label>
+                <input type="date" required min={absenceForm.start_date || TODAY} value={absenceForm.end_date}
+                  onChange={e => setAbsenceForm(f => ({ ...f, end_date: e.target.value }))} />
+              </div>
+            </div>
+            <div className={s.absenceFormField}>
+              <label>Napomena (opciono)</label>
+              <textarea rows={2} placeholder="Razlog, napomena..." value={absenceForm.notes}
+                onChange={e => setAbsenceForm(f => ({ ...f, notes: e.target.value }))} />
+            </div>
+            <div className={s.absenceFormActions}>
+              <button type="button" className={s.btnSecondary} onClick={() => setShowAbsenceForm(false)}>Odustani</button>
+              <button type="submit" className={s.btnPrimary} style={{ flex: 2 }} disabled={absenceSaving}>
+                {absenceSaving ? 'Slanje...' : 'Pošalji zahtjev'}
+              </button>
+            </div>
+          </form>
+        )}
+
         <div className={s.card}>
           <div className={s.cardTitle}>Evidencija odsustva</div>
           {absences.length === 0
@@ -202,10 +275,9 @@ export default function HrView({ staffId, activeTab }) {
                     {new Date(a.start_date).toLocaleDateString('sr-Latn')} – {new Date(a.end_date).toLocaleDateString('sr-Latn')}
                     <span style={{ color: '#9ca3af' }}> · {a.days} {a.days === 1 ? 'dan' : 'dana'}</span>
                   </div>
-                  {a.approved
-                    ? <span className={s.approvedBadge}>✓ Odobreno</span>
-                    : <span className={s.pendingBadge}>Na čekanju</span>
-                  }
+                  {a.approved === true  && <span className={s.approvedBadge}>✓ Odobreno</span>}
+                  {a.approved === null  && <span className={s.pendingBadge}>Na čekanju</span>}
+                  {a.approved === false && <span className={s.rejectedBadge}>✗ Odbijeno</span>}
                 </div>
               )
             })

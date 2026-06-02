@@ -2,6 +2,7 @@ import { useState, useEffect } from 'react'
 import { useParams } from 'react-router-dom'
 import { supabase } from '../../lib/supabase'
 import s from './StaffPortal.module.css'
+import HomeView from './views/HomeView'
 import HrView from './views/HrView'
 import HousekeepingView from './views/HousekeepingView'
 import WaiterView from './views/WaiterView'
@@ -20,12 +21,15 @@ function detectPortalType(roleName) {
   return 'hr'
 }
 
-// Merguje tabove više rola — operativni tabovi prvi, HR uvijek na kraju
+const HOME_TAB = { key: 'home', label: 'Početna', icon: '🏠' }
+
+// Merguje tabove više rola — home uvijek prvi, HR uvijek na kraju
 const HR_TABS = ['schedule', 'attendance', 'payroll', 'absences']
 function mergePortalTabs(roleNames) {
   const types = [...new Set(roleNames.map(detectPortalType))]
   const seen = new Set()
-  const tabs = []
+  const tabs = [HOME_TAB]
+  seen.add('home')
   // Operativni tabovi (non-HR)
   for (const type of types) {
     for (const tab of (PORTAL_TABS[type] || [])) {
@@ -209,7 +213,7 @@ export default function StaffPortal() {
   const staffName = [staff?.first_name, staff?.last_name].filter(Boolean).join(' ') || staff?.email || ''
 
   const renderView = () => {
-    // HR tabs (shared across all roles)
+    if (activeTab === 'home') return <HomeView staffId={staff.id} restaurantId={restaurant.id} staffInfo={staff} brand={brand} />
     if (['schedule', 'attendance', 'payroll', 'absences'].includes(activeTab)) {
       return <HrView staffId={staff.id} activeTab={activeTab} />
     }

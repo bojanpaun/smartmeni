@@ -1,20 +1,37 @@
 // src/modules/hr/pages/StaffPortalInfo.jsx
-import { useState } from 'react'
+import { useState, useRef } from 'react'
+import QRCode from 'react-qr-code'
 import { usePlatform } from '../../../context/PlatformContext'
 import gsStyles from '../../menu/pages/GeneralSettings.module.css'
 
 export default function StaffPortalInfo() {
   const { restaurant } = usePlatform()
   const [copied, setCopied] = useState(false)
+  const qrRef = useRef(null)
 
   if (!restaurant) return null
 
   const portalUrl = `${window.location.origin}/${restaurant.slug}/staff`
+  const brand = restaurant.color || '#0d7a52'
 
   const copy = () => {
     navigator.clipboard.writeText(portalUrl)
     setCopied(true)
     setTimeout(() => setCopied(false), 2000)
+  }
+
+  const printQR = () => {
+    const svg = qrRef.current?.querySelector('svg')
+    if (!svg) return
+    const svgStr = new XMLSerializer().serializeToString(svg)
+    const win = window.open('', '_blank')
+    win.document.write(`<!DOCTYPE html><html><head><title>QR — Portal zaposlenika</title>
+      <style>body{margin:0;display:flex;flex-direction:column;align-items:center;justify-content:center;min-height:100vh;font-family:sans-serif;gap:16px}
+      p{font-size:14px;color:#555;text-align:center}svg{width:200px;height:200px}@media print{button{display:none}}</style>
+      </head><body>${svgStr}<p>${portalUrl}</p><p style="font-size:12px;color:#999">Portal zaposlenika — ${restaurant.name}</p>
+      <button onclick="window.print()" style="margin-top:12px;padding:8px 20px;background:${brand};color:#fff;border:none;border-radius:8px;cursor:pointer;font-size:14px">Štampaj</button>
+      </body></html>`)
+    win.document.close()
   }
 
   return (
@@ -24,7 +41,7 @@ export default function StaffPortalInfo() {
         <p className={gsStyles.subtitle}>Jedan portal za sve zaposlenike — sadržaj se prilagođava ulozi (konobar, sobarica, recepcija, spa terapeut…)</p>
       </div>
 
-      {/* Link */}
+      {/* Link + QR */}
       <div style={{ background: '#fff', borderRadius: 16, border: '1px solid #e0ece6', padding: '20px 24px', marginBottom: 16 }}>
         <div style={{ fontSize: 13, fontWeight: 600, color: '#0e1a14', marginBottom: 10 }}>Link portala</div>
         <div style={{ display: 'flex', alignItems: 'center', gap: 10, background: '#f0f8f4', borderRadius: 10, padding: '10px 14px' }}>
@@ -40,11 +57,41 @@ export default function StaffPortalInfo() {
         </div>
         <div style={{ marginTop: 12, display: 'flex', gap: 10 }}>
           <a href={portalUrl} target="_blank" rel="noreferrer" style={{
-            padding: '9px 18px', borderRadius: 10, background: restaurant.color || '#0d7a52',
+            padding: '9px 18px', borderRadius: 10, background: brand,
             color: '#fff', fontSize: 13, fontWeight: 600, textDecoration: 'none',
           }}>
             Otvori portal →
           </a>
+        </div>
+      </div>
+
+      {/* QR kod */}
+      <div style={{ background: '#fff', borderRadius: 16, border: '1px solid #e0ece6', padding: '20px 24px', marginBottom: 16 }}>
+        <div style={{ fontSize: 13, fontWeight: 600, color: '#0e1a14', marginBottom: 4 }}>QR kod za zaposlenike</div>
+        <div style={{ fontSize: 12, color: '#8a9e96', marginBottom: 16 }}>Štampajte i zalijepite na vidljivo mjesto — konobarnica, kuhinja, recepcija.</div>
+        <div style={{ display: 'flex', alignItems: 'flex-start', gap: 24, flexWrap: 'wrap' }}>
+          <div ref={qrRef} style={{ padding: 12, background: '#fff', border: '1px solid #e0ece6', borderRadius: 12, display: 'inline-block' }}>
+            <QRCode
+              value={portalUrl}
+              size={160}
+              fgColor={brand}
+              bgColor="#ffffff"
+              level="M"
+            />
+          </div>
+          <div style={{ flex: 1, minWidth: 160 }}>
+            <div style={{ fontSize: 12, color: '#5a7a6a', lineHeight: 1.6, marginBottom: 14 }}>
+              Zaposlenik skenira QR kodom → otvara se login stranica portala → loguje se sa email/lozinkom.
+            </div>
+            <button onClick={printQR} style={{
+              padding: '9px 18px', borderRadius: 10, border: `1px solid ${brand}`,
+              background: '#fff', color: brand,
+              fontSize: 13, fontWeight: 600, cursor: 'pointer',
+              fontFamily: 'DM Sans, sans-serif',
+            }}>
+              🖨 Štampaj QR kod
+            </button>
+          </div>
         </div>
       </div>
 
