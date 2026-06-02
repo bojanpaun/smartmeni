@@ -80,8 +80,8 @@ export default function HousekeepingPage() {
   const [to, setTo] = useState(DATE_TODAY)
   const [search, setSearch] = useState('')
   const [tab, setTab] = useState('tasks')
-  const [statusFilter, setStatusFilter] = useState('all')
-  const [maintStatusFilter, setMaintStatusFilter] = useState('all')
+  const [statusFilter, setStatusFilter] = useState('pending')
+  const [maintStatusFilter, setMaintStatusFilter] = useState('open')
   const [showTaskForm, setShowTaskForm] = useState(false)
   const [showMaintForm, setShowMaintForm] = useState(false)
   const [taskForm, setTaskForm] = useState(BLANK_TASK)
@@ -361,11 +361,11 @@ export default function HousekeepingPage() {
           {/* Status filter */}
           <div className={hk.statusFilter}>
             {[
-              { key: 'all',         label: 'Svi',   count: tasks.length },
               { key: 'pending',     ...STATUS_MAP.pending,     count: pending },
               { key: 'in_progress', ...STATUS_MAP.in_progress, count: inProgress },
               { key: 'done',        ...STATUS_MAP.done,        count: done },
               { key: 'verified',    ...STATUS_MAP.verified,    count: verified },
+              { key: 'all',         label: 'Svi',   count: tasks.length },
             ].map(s => (
               <button key={s.key}
                 className={`${hk.filterChip} ${statusFilter === s.key ? hk.filterChipActive : ''}`}
@@ -443,11 +443,11 @@ export default function HousekeepingPage() {
           {/* Status filter chips */}
           <div className={hk.statusFilter} style={{ marginBottom: 14 }}>
             {[
-              { key: 'all',         label: 'Svi',   icon: null,  count: maintenance.length },
               { key: 'open',        ...MAINT_STATUS_MAP.open,        count: maintOpen },
               { key: 'in_progress', ...MAINT_STATUS_MAP.in_progress, count: maintInProgress },
               { key: 'done',        ...MAINT_STATUS_MAP.done,        count: maintDone },
               { key: 'verified',    ...MAINT_STATUS_MAP.verified,    count: maintVerified },
+              { key: 'all',         label: 'Svi',   icon: null,  count: maintenance.length },
             ].map(s => (
               <button key={s.key}
                 className={`${hk.filterChip} ${maintStatusFilter === s.key ? hk.filterChipActive : ''}`}

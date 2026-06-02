@@ -64,9 +64,13 @@ function alignStart(granularity) {
 }
 
 // ── Status mape ──────────────────────────────────────────────────
-const STATUS_COLORS = {
-  inquiry: '#8a9e96', confirmed: '#0d7a52', checked_in: '#1a2e26',
-  checked_out: '#5a7a6a', cancelled: '#a32d2d', no_show: '#ba7517',
+const STATUS_BADGE = {
+  inquiry:     { color: '#6366f1', bg: '#eef2ff' },
+  confirmed:   { color: '#0d7a52', bg: '#dcfce7' },
+  checked_in:  { color: '#0284c7', bg: '#e0f2fe' },
+  checked_out: { color: '#64748b', bg: '#f1f5f9' },
+  cancelled:   { color: '#dc2626', bg: '#fef2f2' },
+  no_show:     { color: '#ea580c', bg: '#fff7ed' },
 }
 const STATUS_LABELS = {
   inquiry: 'Upit', confirmed: 'Potvrđena', checked_in: 'Prisutna',
@@ -291,12 +295,14 @@ export default function ReservationsPage() {
                     <span>{nights}</span>
                     <span>{res.total_amount ? `€${Number(res.total_amount).toFixed(0)}` : '—'}</span>
                     <span>
-                      <span style={{
-                        color: STATUS_COLORS[res.status], fontSize: 12, fontWeight: 600,
-                        padding: '2px 8px', background: STATUS_COLORS[res.status] + '18', borderRadius: 20,
-                      }}>
-                        {STATUS_LABELS[res.status] ?? res.status}
-                      </span>
+                      {(() => { const b = STATUS_BADGE[res.status] ?? STATUS_BADGE.confirmed; return (
+                        <span style={{
+                          color: b.color, fontSize: 12, fontWeight: 600,
+                          padding: '2px 8px', background: b.bg, borderRadius: 20,
+                        }}>
+                          {STATUS_LABELS[res.status] ?? res.status}
+                        </span>
+                      )})()}
                     </span>
                   </div>
                 )
