@@ -52,24 +52,38 @@ export default function StaffPage() {
     if (staff.find(s => s.email.toLowerCase() === email)) {
       setAddError('Zaposlenik sa ovim emailom već postoji.'); setSaving(false); return
     }
-    if (addMethod === 'create') {
-      const { data, error } = await supabase.functions.invoke('create-staff-user', {
-        body: { email, password: form.password, restaurant_id: restaurant.id, role_id: form.role_id || null }
-      })
-      if (error || data?.error) {
-        let msg = data?.error
-        if (!msg && error) {
-          try { const b = await error.context?.json(); msg = b?.error } catch {}
-          msg = msg || error.message || 'Greška pri kreiranju.'
-        }
-        setAddError(msg); setSaving(false); return
+
+    // Oba metoda pozivaju edge funkciju — invite šalje email, create kreira sa lozinkom
+    const { data, error } = await supabase.functions.invoke('create-staff-user', {
+      body: {
+        email,
+        password: addMethod === 'create' ? form.password : undefined,
+        restaurant_id: restaurant.id,
+        role_id: form.role_id || null,
+        action: addMethod, // 'create' | 'invite'
       }
+    })
+    if (error || data?.error) {
+      let msg = data?.error
+      if (!msg && error) {
+        try { const b = await error.context?.json(); msg = b?.error } catch {}
+        msg = msg || error.message || 'Greška pri kreiranju.'
+      }
+      setAddError(msg); setSaving(false); return
     }
+
+    // Kreiraj staff zapis sa user_id koji je vratio edge function
     const { data: newStaff } = await supabase.from('staff').insert({
-      restaurant_id: restaurant.id, email, role_id: form.role_id || null,
-      wage_type: form.wage_type, wage_amount: parseFloat(form.wage_amount) || 0,
-      is_active: true, start_date: new Date().toISOString().split('T')[0],
+      restaurant_id: restaurant.id,
+      email,
+      user_id: data?.user_id || null,
+      role_id: form.role_id || null,
+      wage_type: form.wage_type,
+      wage_amount: parseFloat(form.wage_amount) || 0,
+      is_active: true,
+      start_date: new Date().toISOString().split('T')[0],
     }).select('*, role:roles(name)').single()
+
     if (newStaff) {
       setStaff(prev => [...prev, newStaff])
       await supabase.from('staff_history').insert({
@@ -78,7 +92,8 @@ export default function StaffPage() {
         event_date: new Date().toISOString().split('T')[0],
       })
     }
-    setSaving(false); setAddSuccess('Zaposlenik dodan!')
+    setSaving(false)
+    setAddSuccess(addMethod === 'invite' ? 'Pozivnica poslana!' : 'Zaposlenik dodan!')
     setTimeout(() => { setShowForm(false); setAddSuccess('') }, 1500)
   }
 

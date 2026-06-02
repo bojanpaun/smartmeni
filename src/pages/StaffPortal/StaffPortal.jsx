@@ -135,12 +135,32 @@ export default function StaffPortal() {
 
   const loadStaff = async (userId) => {
     if (!restaurant) return
-    const { data: staffData } = await supabase.from('staff')
+
+    // Primarno: traži po user_id
+    let { data: staffData } = await supabase.from('staff')
       .select('*, role:roles(name)')
       .eq('user_id', userId)
       .eq('restaurant_id', restaurant.id)
       .eq('is_active', true)
       .maybeSingle()
+
+    // Fallback: traži po emailu (za pozvanog zaposlenika koji još nema user_id vezan)
+    if (!staffData) {
+      const { data: { user } } = await supabase.auth.getUser()
+      if (user?.email) {
+        const { data: byEmail } = await supabase.from('staff')
+          .select('*, role:roles(name)')
+          .eq('email', user.email.toLowerCase())
+          .eq('restaurant_id', restaurant.id)
+          .eq('is_active', true)
+          .maybeSingle()
+        if (byEmail) {
+          // Automatski veži user_id
+          await supabase.from('staff').update({ user_id: userId }).eq('id', byEmail.id)
+          staffData = { ...byEmail, user_id: userId }
+        }
+      }
+    }
 
     if (!staffData) {
       setAuthError('Niste pronađeni kao osoblje ovog objekta.')
