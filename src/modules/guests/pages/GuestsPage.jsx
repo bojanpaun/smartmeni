@@ -4,6 +4,8 @@ import { useState, useEffect } from 'react'
 import { useNavigate } from 'react-router-dom'
 import { supabase } from '../../../lib/supabase'
 import { usePlatform } from '../../../context/PlatformContext'
+import { useSortable } from '../../../hooks/useSortable'
+import SortableHead from '../../../components/shared/SortableHead'
 import styles from './GuestsPage.module.css'
 
 const STATUS_LABELS = {
@@ -82,6 +84,7 @@ export default function GuestsPage() {
     return true
   })
 
+  const sort = useSortable('last_name', 'asc')
   const pendingCount = guests.filter(g => g.status === 'pending').length
   const initials = (g) => `${g.first_name?.[0] || ''}${g.last_name?.[0] || ''}`.toUpperCase()
   const fullName = (g) => `${g.first_name} ${g.last_name}`
@@ -136,16 +139,16 @@ export default function GuestsPage() {
           <table className={styles.table}>
             <thead>
               <tr>
-                <th>Gost</th>
-                <th>Status</th>
-                <th>Posjete</th>
-                <th>Potrošnja</th>
-                <th>Zadnja posjeta</th>
+                <th><SortableHead col="last_name"    label="Gost"           sortBy={sort.sortBy} sortDir={sort.sortDir} onSort={sort.onSort} /></th>
+                <th><SortableHead col="status"       label="Status"         sortBy={sort.sortBy} sortDir={sort.sortDir} onSort={sort.onSort} /></th>
+                <th><SortableHead col="total_visits" label="Posjete"        sortBy={sort.sortBy} sortDir={sort.sortDir} onSort={sort.onSort} /></th>
+                <th><SortableHead col="total_spent"  label="Potrošnja"      sortBy={sort.sortBy} sortDir={sort.sortDir} onSort={sort.onSort} /></th>
+                <th><SortableHead col="updated_at"   label="Zadnja posjeta" sortBy={sort.sortBy} sortDir={sort.sortDir} onSort={sort.onSort} /></th>
                 <th style={{ textAlign: 'right' }}>Akcije</th>
               </tr>
             </thead>
             <tbody>
-              {filtered.map(g => (
+              {sort.sort(filtered).map(g => (
                 <tr key={g.id} className={styles.tableRow} onClick={() => navigate(`/admin/guests/${g.id}`)}>
                   <td>
                     <div className={styles.nameCell}>
