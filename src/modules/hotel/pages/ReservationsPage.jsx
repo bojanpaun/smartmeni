@@ -10,6 +10,7 @@ import LoadingSpinner from '../../../components/shared/LoadingSpinner'
 import { useSortable } from '../../../hooks/useSortable'
 import styles from './Hotel.module.css'
 import navStyles from '../../../styles/nav.module.css'
+import dnStyles from '../../../components/shared/DateNav.module.css'
 
 // ── Helpers ──────────────────────────────────────────────────────
 const toDate   = (d) => new Date(d).toISOString().slice(0, 10)
@@ -285,33 +286,37 @@ export default function ReservationsPage() {
       {/* ══ CALENDAR VIEW ══════════════════════════════════════ */}
       {view === 'calendar' && (
         <>
-          {/* Kontrolna traka: granularnost + navigacija + pretraga */}
-          <div className={styles.calNavRow}>
-            {/* Granularnost: Dan | Sedmica | Mjesec */}
-            <div className={navStyles.toggleBar}>
+          {/* Kontrolna traka — isti stil kao DateNav na listi */}
+          <div className={dnStyles.nav}>
+            <div className={dnStyles.left}>
+              {/* Granularnost: Dan | Sedmica | Mjesec */}
               {GRANULARITIES.map(g => (
                 <button
                   key={g.key}
-                  className={`${navStyles.toggleBtn} ${calGranularity === g.key ? navStyles.toggleBtnActive : ''}`}
+                  className={`${dnStyles.btn} ${calGranularity === g.key ? dnStyles.active : ''}`}
                   onClick={() => handleGranularityChange(g.key)}
                 >
                   {g.label}
                 </button>
               ))}
+              {/* Navigacija */}
+              <button className={dnStyles.btn} onClick={() => handleCalShift(-1)}>‹ Nazad</button>
+              <button className={dnStyles.btn} onClick={goToday}>Danas</button>
+              <button className={dnStyles.btn} onClick={() => handleCalShift(1)}>Naprijed ›</button>
             </div>
-
-            {/* Navigacija */}
-            <button className={styles.btnSecondary} onClick={() => handleCalShift(-1)}>‹ Nazad</button>
-            <button className={styles.btnSecondary} onClick={goToday}>Danas</button>
-            <button className={styles.btnSecondary} onClick={() => handleCalShift(1)}>Naprijed ›</button>
-
-            {/* Pretraga */}
-            <input
-              className={styles.searchInput}
-              placeholder="Pretraži sobu..."
-              value={calSearch}
-              onChange={e => setCalSearch(e.target.value)}
-            />
+            <div className={dnStyles.right}>
+              <div className={dnStyles.searchWrap}>
+                <span className={dnStyles.searchIcon}>🔍</span>
+                <input
+                  type="text"
+                  className={dnStyles.searchInput}
+                  value={calSearch}
+                  onChange={e => setCalSearch(e.target.value)}
+                  placeholder="Pretraži sobu..."
+                />
+                {calSearch && <button className={dnStyles.clearBtn} onClick={() => setCalSearch('')}>✕</button>}
+              </div>
+            </div>
           </div>
 
           {calLoading || roomsLoading ? <LoadingSpinner /> : rooms.length === 0 ? (
