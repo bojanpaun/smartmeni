@@ -1,9 +1,10 @@
-import { useState, useEffect, useMemo } from 'react'
+import { useState, useEffect } from 'react'
 import { useNavigate } from 'react-router-dom'
 import { usePlatform } from '../../../context/PlatformContext'
 import { useReservations } from '../hooks/useReservations'
 import { useRooms } from '../hooks/useRooms'
 import { supabase } from '../../../lib/supabase'
+import DateNav, { DATE_TODAY } from '../../../components/shared/DateNav'
 import SortableHead from '../../../components/shared/SortableHead'
 import LoadingSpinner from '../../../components/shared/LoadingSpinner'
 import { useSortable } from '../../../hooks/useSortable'
@@ -12,7 +13,7 @@ import navStyles from '../../../styles/nav.module.css'
 
 // ── Helpers ────────────────────────────────────────────────────
 const toDate = (d) => new Date(d).toISOString().slice(0, 10)
-const TODAY   = toDate(new Date())
+const TODAY   = DATE_TODAY
 const addDays = (d, n) => { const nd = new Date(d); nd.setDate(nd.getDate() + n); return nd }
 const isToday   = (d) => toDate(d) === TODAY
 const isWeekend = (d) => new Date(d).getDay() === 0 || new Date(d).getDay() === 6
@@ -25,28 +26,6 @@ function getMondayOf(date) {
   return d
 }
 
-const PERIODS = [
-  { key: 'today', label: 'Danas'   },
-  { key: 'week',  label: 'Sedmica' },
-  { key: 'month', label: 'Mjesec'  },
-  { key: 'all',   label: 'Sve'     },
-]
-
-function getPeriodRange(period) {
-  const today = new Date()
-  const t = toDate(today)
-  switch (period) {
-    case 'today': return { from: t, to: t }
-    case 'week':  return { from: t, to: toDate(addDays(today, 6)) }
-    case 'month': {
-      const end = new Date(today)
-      end.setMonth(today.getMonth() + 1)
-      end.setDate(end.getDate() - 1)
-      return { from: t, to: toDate(end) }
-    }
-    default: return { from: null, to: null }  // 'all' = no date filter
-  }
-}
 
 // ── Status mape ────────────────────────────────────────────────
 const STATUS_COLORS = {
@@ -76,12 +55,11 @@ export default function ReservationsPage() {
   const [view, setView] = useState('list')
 
   // ── List state ─────────────────────────────────────────────
-  const [period, setPeriod] = useState('today')
+  const [from, setFrom] = useState(DATE_TODAY)
+  const [to, setTo]     = useState(DATE_TODAY)
   const [statusFilter, setStatusFilter] = useState('')
   const [search, setSearch] = useState('')
   const { sortBy, sortDir, onSort, sort } = useSortable('check_in_date')
-
-  const { from, to } = useMemo(() => getPeriodRange(period), [period])
 
   const { reservations, loading } = useReservations(restaurant?.id, {
     status:       statusFilter || undefined,
@@ -180,38 +158,30 @@ export default function ReservationsPage() {
       {/* ══ LIST VIEW ══ */}
       {view === 'list' && (
         <>
-          {/* Period preseti */}
+          {/* DateNav — Juče/Danas/Sutra/Mjesec/Period/Sve + pretraga */}
+          <DateNav
+            from={from}
+            to={to}
+            search={search}
+            onChange={(f, t) => { setFrom(f); setTo(t) }}
+            onSearch={setSearch}
+            showFuture={true}
+            showMonth={true}
+            allowAll={true}
+            placeholder="Pretraži gosta ili sobu..."
+          />
+
+          {/* Status filter */}
           <div className={styles.filterBar}>
-            {PERIODS.map(p => (
+            {STATUS_FILTERS.map(s => (
               <button
-                key={p.key}
-                className={`${styles.filterBtn} ${period === p.key ? styles.filterBtnActive : ''}`}
-                onClick={() => setPeriod(p.key)}
+                key={s}
+                className={`${styles.filterBtn} ${statusFilter === s ? styles.filterBtnActive : ''}`}
+                onClick={() => setStatusFilter(s)}
               >
-                {p.label}
+                {s ? STATUS_LABELS[s] : 'Svi statusi'}
               </button>
             ))}
-          </div>
-
-          {/* Pretraga + status filter */}
-          <div className={styles.searchRow}>
-            <input
-              className={styles.searchInput}
-              placeholder="Pretraži gosta ili sobu..."
-              value={search}
-              onChange={e => setSearch(e.target.value)}
-            />
-            <div className={styles.filterBar} style={{ marginBottom: 0 }}>
-              {STATUS_FILTERS.map(s => (
-                <button
-                  key={s}
-                  className={`${styles.filterBtn} ${statusFilter === s ? styles.filterBtnActive : ''}`}
-                  onClick={() => setStatusFilter(s)}
-                >
-                  {s ? STATUS_LABELS[s] : 'Svi statusi'}
-                </button>
-              ))}
-            </div>
           </div>
 
           {loading ? <LoadingSpinner /> : filteredReservations.length === 0 ? (
