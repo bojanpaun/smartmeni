@@ -27,7 +27,7 @@ export default function StaffPage() {
   const loadData = async () => {
     const todayStr = new Date().toISOString().slice(0, 10)
     const [{ data: s }, { data: r }, { data: att }, { data: pendingAbs }] = await Promise.all([
-      supabase.from('staff').select('*, role:roles(name)').eq('restaurant_id', restaurant.id).order('created_at'),
+      supabase.from('staff').select('*, role:roles!role_id(name)').eq('restaurant_id', restaurant.id).order('created_at'),
       supabase.from('roles').select('*').eq('restaurant_id', restaurant.id).order('name'),
       supabase.from('attendance_entries').select('staff_id, clock_in, clock_out').eq('restaurant_id', restaurant.id).eq('date', todayStr),
       supabase.from('staff_absences').select('staff_id').eq('restaurant_id', restaurant.id).is('approved', null),

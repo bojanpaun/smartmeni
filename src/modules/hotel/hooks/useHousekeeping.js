@@ -35,7 +35,7 @@ export function useHousekeeping(restaurantId, dateFrom, dateTo) {
       mq,
       supabase
         .from('staff')
-        .select('id, first_name, last_name, role:roles(name)')
+        .select('id, first_name, last_name, role:roles!role_id(name)')
         .eq('restaurant_id', restaurantId)
         .eq('is_active', true)
         .order('first_name'),

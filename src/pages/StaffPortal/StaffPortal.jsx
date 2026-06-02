@@ -138,7 +138,7 @@ export default function StaffPortal() {
 
     // Primarno: traži po user_id
     let { data: staffData } = await supabase.from('staff')
-      .select('*, role:roles(name)')
+      .select('*, role:roles!role_id(name)')
       .eq('user_id', userId)
       .eq('restaurant_id', restaurant.id)
       .eq('is_active', true)
@@ -149,7 +149,7 @@ export default function StaffPortal() {
       const { data: { user } } = await supabase.auth.getUser()
       if (user?.email) {
         const { data: byEmail } = await supabase.from('staff')
-          .select('*, role:roles(name)')
+          .select('*, role:roles!role_id(name)')
           .eq('email', user.email.toLowerCase())
           .eq('restaurant_id', restaurant.id)
           .eq('is_active', true)
@@ -170,7 +170,7 @@ export default function StaffPortal() {
     // Učitaj SVE role iz staff_roles junction tabele
     const { data: allRolesData } = await supabase
       .from('staff_roles')
-      .select('role:roles(name)')
+      .select('role:roles!role_id(name)')
       .eq('staff_id', staffData.id)
 
     const roleNames = [

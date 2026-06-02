@@ -79,7 +79,7 @@ export default function StaffProfilePage() {
 
   const loadAll = async () => {
     const [{ data: s }, { data: r }, { data: h }, { data: a }, { data: sr }] = await Promise.all([
-      supabase.from('staff').select('*, role:roles(name)').eq('id', staffId).single(),
+      supabase.from('staff').select('*, role:roles!role_id(name)').eq('id', staffId).single(),
       supabase.from('roles').select('*').eq('restaurant_id', restaurant.id).order('name'),
       supabase.from('staff_history').select('*').eq('staff_id', staffId).order('event_date', { ascending: false }),
       supabase.from('staff_absences').select('*').eq('staff_id', staffId).order('start_date', { ascending: false }),
@@ -100,7 +100,7 @@ export default function StaffProfilePage() {
     const cleaned = Object.fromEntries(
       Object.entries(updates).map(([k, v]) => [k, v === '' ? null : v])
     )
-    const { data, error } = await supabase.from('staff').update(cleaned).eq('id', staffId).select('*, role:roles(name)').single()
+    const { data, error } = await supabase.from('staff').update(cleaned).eq('id', staffId).select('*, role:roles!role_id(name)').single()
     if (error) {
       console.error('Staff update error:', error)
       setSaveError(error.message)
