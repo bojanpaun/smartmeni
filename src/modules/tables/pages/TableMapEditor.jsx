@@ -1,13 +1,13 @@
 // ▶ Novi fajl: src/modules/tables/pages/TableMapEditor.jsx
 
-import { useState, useEffect, useRef, useCallback } from 'react'
+import { useState, useEffect, useRef } from 'react'
 import { useNavigate } from 'react-router-dom'
 import { supabase } from '../../../lib/supabase'
 import { usePlatform } from '../../../context/PlatformContext'
 import styles from './TableMapEditor.module.css'
 
 const MIN_SIZE = 50
-const GRID = 10 // snap to grid
+const GRID = 10
 
 function snapToGrid(val) {
   return Math.round(val / GRID) * GRID
@@ -22,12 +22,17 @@ export default function TableMapEditor() {
   const [saving, setSaving] = useState(false)
   const [saveMsg, setSaveMsg] = useState('')
   const [selected, setSelected] = useState(null)
-  const [mode, setMode] = useState('select') // 'select' | 'add-rect' | 'add-circle'
+  const [mode, setMode] = useState('select')
   const [showQR, setShowQR] = useState(null)
+  const [editMode, setEditMode] = useState(null) // tableId u touch edit modu
 
   const canvasRef = useRef(null)
   const dragging = useRef(null)
   const resizing = useRef(null)
+  const lastTapRef = useRef(null)     // { id, time } za double-tap detekciju
+  const touchDragRef = useRef(null)   // aktivni touch drag
+  const touchResizeRef = useRef(null) // aktivni touch resize
+  const autoScrollRef = useRef(null)  // interval za auto-scroll
 
   useEffect(() => {
     if (restaurant) loadTables()
@@ -45,13 +50,13 @@ export default function TableMapEditor() {
 
   // ── Dodavanje stola ────────────────────────────────────────
   const handleCanvasClick = (e) => {
-    if (mode === 'select') {
-      setSelected(null)
-      return
-    }
-    const rect = canvasRef.current.getBoundingClientRect()
-    const x = snapToGrid(e.clientX - rect.left - 40)
-    const y = snapToGrid(e.clientY - rect.top - 40)
+    if (editMode) { setEditMode(null); return }
+    if (mode === 'select') { setSelected(null); return }
+    const canvas = canvasRef.current
+    const rect = canvas.getBoundingClientRect()
+    // scrollLeft/Top ispravlja poziciju kad je canvas scrollan
+    const x = snapToGrid(e.clientX - rect.left + canvas.scrollLeft - 40)
+    const y = snapToGrid(e.clientY - rect.top + canvas.scrollTop - 40)
     const maxNum = tables.length ? Math.max(...tables.map(t => t.number)) : 0
     const newTable = {
       id: `tmp-${Date.now()}`,
@@ -60,7 +65,7 @@ export default function TableMapEditor() {
       label: `Sto ${maxNum + 1}`,
       x, y,
       width: 80,
-      height: mode === 'add-circle' ? 80 : 80,
+      height: 80,
       shape: mode === 'add-circle' ? 'circle' : 'rect',
       seats: 4,
       status: 'free',
@@ -71,12 +76,11 @@ export default function TableMapEditor() {
     setMode('select')
   }
 
-  // ── Drag ──────────────────────────────────────────────────
+  // ── Mouse Drag ─────────────────────────────────────────────
   const startDrag = (e, tableId) => {
     if (mode !== 'select') return
     e.stopPropagation()
     const table = tables.find(t => t.id === tableId)
-    const rect = canvasRef.current.getBoundingClientRect()
     dragging.current = {
       id: tableId,
       startX: e.clientX,
@@ -105,7 +109,7 @@ export default function TableMapEditor() {
     window.addEventListener('mouseup', onUp)
   }
 
-  // ── Resize ────────────────────────────────────────────────
+  // ── Mouse Resize ───────────────────────────────────────────
   const startResize = (e, tableId) => {
     e.stopPropagation()
     const table = tables.find(t => t.id === tableId)
@@ -139,6 +143,125 @@ export default function TableMapEditor() {
     window.addEventListener('mouseup', onUp)
   }
 
+  // ── Touch: single tap = select, double tap = edit mode ────
+  const handleTableTouchStart = (e, tableId) => {
+    if (mode !== 'select') return
+
+    if (editMode === tableId) {
+      // Već u edit modu — pokreni touch drag
+      e.stopPropagation()
+      e.preventDefault()
+      const canvas = canvasRef.current
+      const rect = canvas.getBoundingClientRect()
+      const touch = e.touches[0]
+      const table = tables.find(t => t.id === tableId)
+      // Offset = gdje je prst unutar stola (u canvas koordinatama)
+      const canvasX = touch.clientX - rect.left + canvas.scrollLeft
+      const canvasY = touch.clientY - rect.top + canvas.scrollTop
+      touchDragRef.current = {
+        id: tableId,
+        offsetX: canvasX - table.x,
+        offsetY: canvasY - table.y,
+      }
+      setSelected(tableId)
+
+      const onMove = (ev) => {
+        ev.preventDefault()
+        const d = touchDragRef.current
+        if (!d) return
+        const t = ev.touches[0]
+        const c = canvasRef.current
+        const r = c.getBoundingClientRect()
+        const newX = snapToGrid(Math.max(0, t.clientX - r.left + c.scrollLeft - d.offsetX))
+        const newY = snapToGrid(Math.max(0, t.clientY - r.top + c.scrollTop - d.offsetY))
+        setTables(prev => prev.map(tb => tb.id === d.id ? { ...tb, x: newX, y: newY } : tb))
+
+        // Auto-scroll kad je prst blizu ivice canvasa
+        const EDGE = 50, SPEED = 6
+        clearInterval(autoScrollRef.current)
+        let sx = 0, sy = 0
+        const rx = t.clientX - r.left
+        const ry = t.clientY - r.top
+        if (rx < EDGE) sx = -SPEED
+        else if (rx > r.width - EDGE) sx = SPEED
+        if (ry < EDGE) sy = -SPEED
+        else if (ry > r.height - EDGE) sy = SPEED
+        if (sx !== 0 || sy !== 0) {
+          const tx = t.clientX, ty = t.clientY
+          autoScrollRef.current = setInterval(() => {
+            const c2 = canvasRef.current
+            if (!c2) return
+            c2.scrollLeft += sx
+            c2.scrollTop += sy
+            const d2 = touchDragRef.current
+            if (!d2) { clearInterval(autoScrollRef.current); return }
+            const r2 = c2.getBoundingClientRect()
+            const nx = snapToGrid(Math.max(0, tx - r2.left + c2.scrollLeft - d2.offsetX))
+            const ny = snapToGrid(Math.max(0, ty - r2.top + c2.scrollTop - d2.offsetY))
+            setTables(prev => prev.map(tb => tb.id === d2.id ? { ...tb, x: nx, y: ny } : tb))
+          }, 16)
+        }
+      }
+
+      const onEnd = () => {
+        clearInterval(autoScrollRef.current)
+        touchDragRef.current = null
+        document.removeEventListener('touchmove', onMove)
+        document.removeEventListener('touchend', onEnd)
+      }
+      document.addEventListener('touchmove', onMove, { passive: false })
+      document.addEventListener('touchend', onEnd)
+      return
+    }
+
+    // Nije u edit modu — single / double tap
+    e.stopPropagation()
+    const now = Date.now()
+    const last = lastTapRef.current
+    if (last && last.id === tableId && now - last.time < 300) {
+      // Double tap → edit mode
+      setEditMode(tableId)
+      setSelected(tableId)
+      lastTapRef.current = null
+    } else {
+      lastTapRef.current = { id: tableId, time: now }
+      setSelected(tableId)
+    }
+  }
+
+  // ── Touch Resize ───────────────────────────────────────────
+  const startResizeTouch = (e, tableId) => {
+    e.stopPropagation()
+    e.preventDefault()
+    const table = tables.find(t => t.id === tableId)
+    const touch = e.touches[0]
+    touchResizeRef.current = {
+      id: tableId,
+      startX: touch.clientX,
+      startY: touch.clientY,
+      origW: table.width,
+      origH: table.height,
+    }
+    const onMove = (ev) => {
+      ev.preventDefault()
+      const r = touchResizeRef.current
+      if (!r) return
+      const t = ev.touches[0]
+      setTables(prev => prev.map(tb => tb.id === tableId ? {
+        ...tb,
+        width: snapToGrid(Math.max(MIN_SIZE, r.origW + t.clientX - r.startX)),
+        height: snapToGrid(Math.max(MIN_SIZE, r.origH + t.clientY - r.startY)),
+      } : tb))
+    }
+    const onEnd = () => {
+      touchResizeRef.current = null
+      document.removeEventListener('touchmove', onMove)
+      document.removeEventListener('touchend', onEnd)
+    }
+    document.addEventListener('touchmove', onMove, { passive: false })
+    document.addEventListener('touchend', onEnd)
+  }
+
   // ── Brisanje stola ────────────────────────────────────────
   const deleteTable = async (id) => {
     if (!confirm('Obrisati ovaj sto?')) return
@@ -147,6 +270,7 @@ export default function TableMapEditor() {
     }
     setTables(prev => prev.filter(t => t.id !== id))
     setSelected(null)
+    setEditMode(null)
   }
 
   // ── Izmjena labele / sjedišta ──────────────────────────────
@@ -241,6 +365,9 @@ export default function TableMapEditor() {
           {/* Grid pozadina */}
           <div className={styles.canvasGrid} />
 
+          {/* Minimalna veličina canvas sadržaja za scroll na mobilnom */}
+          <div className={styles.canvasSpacer} />
+
           {/* Hint za mode */}
           {mode !== 'select' && (
             <div className={styles.canvasHint}>
@@ -248,11 +375,23 @@ export default function TableMapEditor() {
             </div>
           )}
 
+          {/* Edit mode hint */}
+          {editMode && (
+            <div className={styles.editModeHint}>
+              Vuci sto · tapni van stola da izađeš
+            </div>
+          )}
+
           {/* Stolovi */}
           {tables.map(table => (
             <div
               key={table.id}
-              className={`${styles.tableEl} ${selected === table.id ? styles.tableElSelected : ''} ${styles[`status-${table.status}`]}`}
+              className={[
+                styles.tableEl,
+                selected === table.id ? styles.tableElSelected : '',
+                editMode === table.id ? styles.tableElEditMode : '',
+                styles[`status-${table.status}`] || '',
+              ].join(' ')}
               style={{
                 left: table.x,
                 top: table.y,
@@ -261,6 +400,7 @@ export default function TableMapEditor() {
                 borderRadius: table.shape === 'circle' ? '50%' : 8,
               }}
               onMouseDown={(e) => startDrag(e, table.id)}
+              onTouchStart={(e) => handleTableTouchStart(e, table.id)}
               onClick={(e) => { e.stopPropagation(); setSelected(table.id) }}
             >
               <div className={styles.tableLabel}>{table.label || `Sto ${table.number}`}</div>
@@ -271,6 +411,9 @@ export default function TableMapEditor() {
                 <div
                   className={styles.resizeHandle}
                   onMouseDown={(e) => startResize(e, table.id)}
+                  onTouchStart={editMode === table.id
+                    ? (e) => startResizeTouch(e, table.id)
+                    : undefined}
                 />
               )}
             </div>
