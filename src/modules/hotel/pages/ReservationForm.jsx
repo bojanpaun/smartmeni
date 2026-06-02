@@ -30,11 +30,16 @@ export default function ReservationForm() {
     supabase.from('hotel_reservations').select('*').eq('id', id).single().then(({ data }) => {
       if (data) setForm({
           ...EMPTY, ...data,
-          special_requests: data.special_requests ?? '',
-          internal_notes:   data.internal_notes   ?? '',
-          guest_phone:      data.guest_phone       ?? '',
-          guest_email:      data.guest_email       ?? '',
           guest_name:       data.guest_name        ?? '',
+          guest_email:      data.guest_email       ?? '',
+          guest_phone:      data.guest_phone       ?? '',
+          room_type_id:     data.room_type_id      ?? '',
+          room_id:          data.room_id           ?? '',
+          status:           data.status            ?? 'confirmed',
+          source:           data.source            ?? 'direct',
+          payment_status:   data.payment_status    ?? 'pending',
+          special_requests: data.special_requests  ?? '',
+          internal_notes:   data.internal_notes    ?? '',
         })
       setLoading(false)
     })
