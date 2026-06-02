@@ -37,10 +37,16 @@ function daysInMonth(date) {
 }
 
 // Broj dana i start alignment po granularnosti
-function calConfig(granularity, start) {
-  if (granularity === 'day')   return { days: 1 }
-  if (granularity === 'week')  return { days: 7 }
-  return { days: daysInMonth(start) } // 'month'
+function calConfig(granularity, start, periodFrom, periodTo) {
+  if (granularity === 'day')    return { days: 1 }
+  if (granularity === 'week')   return { days: 7 }
+  if (granularity === 'month')  return { days: daysInMonth(start) }
+  if (granularity === 'period') {
+    const d1 = new Date(periodFrom + 'T00:00:00')
+    const d2 = new Date(periodTo   + 'T00:00:00')
+    return { days: Math.max(1, Math.min(90, Math.ceil((d2 - d1) / 86400000) + 1)) }
+  }
+  return { days: 7 }
 }
 
 function shiftStart(granularity, start, dir) {
@@ -79,9 +85,10 @@ const CAL_LABELS = {
 }
 
 const GRANULARITIES = [
-  { key: 'day',   label: 'Dan'     },
-  { key: 'week',  label: 'Sedmica' },
-  { key: 'month', label: 'Mjesec'  },
+  { key: 'day',    label: 'Dan'     },
+  { key: 'week',   label: 'Sedmica' },
+  { key: 'month',  label: 'Mjesec'  },
+  { key: 'period', label: 'Period'  },
 ]
 
 // ── Komponenta ───────────────────────────────────────────────────
@@ -111,21 +118,29 @@ export default function ReservationsPage() {
   })
 
   // ── Calendar state ────────────────────────────────────────────
-  const [calGranularity, setCalGranularity] = useState('week')
-  const [calStart, setCalStart]             = useState(() => getMondayOf(new Date()))
-  const [calSearch, setCalSearch]           = useState('')
+  const [calGranularity, setCalGranularity]   = useState('week')
+  const [calStart, setCalStart]               = useState(() => getMondayOf(new Date()))
+  const [calPeriodFrom, setCalPeriodFrom]     = useState(DATE_TODAY)
+  const [calPeriodTo,   setCalPeriodTo]       = useState(DATE_TODAY)
+  const [calSearch, setCalSearch]             = useState('')
   const [calReservations, setCalReservations] = useState([])
-  const [calLoading, setCalLoading]         = useState(false)
-  const { rooms, loading: roomsLoading }    = useRooms(restaurant?.id)
+  const [calLoading, setCalLoading]           = useState(false)
+  const { rooms, loading: roomsLoading }      = useRooms(restaurant?.id)
 
   const { days: CAL_DAYS } = useMemo(
-    () => calConfig(calGranularity, calStart),
-    [calGranularity, calStart]
+    () => calConfig(calGranularity, calStart, calPeriodFrom, calPeriodTo),
+    [calGranularity, calStart, calPeriodFrom, calPeriodTo]
   )
 
-  const calDates      = useMemo(() => Array.from({ length: CAL_DAYS }, (_, i) => addDays(calStart, i)), [calStart, CAL_DAYS])
-  const calRangeStart = toDate(calStart)
-  const calRangeEnd   = toDate(addDays(calStart, CAL_DAYS - 1))
+  // Za period mode, start je calPeriodFrom; za ostale je calStart
+  const calEffectiveStart = useMemo(
+    () => calGranularity === 'period' ? new Date(calPeriodFrom + 'T00:00:00') : calStart,
+    [calGranularity, calStart, calPeriodFrom]
+  )
+
+  const calDates      = useMemo(() => Array.from({ length: CAL_DAYS }, (_, i) => addDays(calEffectiveStart, i)), [calEffectiveStart, CAL_DAYS])
+  const calRangeStart = toDate(calEffectiveStart)
+  const calRangeEnd   = toDate(addDays(calEffectiveStart, CAL_DAYS - 1))
 
   useEffect(() => {
     if (view !== 'calendar' || !restaurant?.id) return
@@ -148,7 +163,7 @@ export default function ReservationsPage() {
   const getResStyle = (res) => {
     const ci     = new Date(res.check_in_date  + 'T00:00:00')
     const co     = new Date(res.check_out_date + 'T00:00:00')
-    const origin = calStart.getTime()
+    const origin = calEffectiveStart.getTime()
     const startDay = Math.max(0,        (ci.getTime() - origin) / 86400000)
     const endDay   = Math.min(CAL_DAYS, (co.getTime() - origin) / 86400000)
     return {
@@ -158,13 +173,21 @@ export default function ReservationsPage() {
   }
 
   const handleGranularityChange = (g) => {
+    if (g === 'all') { setCalGranularity('week'); setCalStart(getMondayOf(new Date())); return }
     setCalGranularity(g)
-    setCalStart(alignStart(g))
+    if (g !== 'period') setCalStart(alignStart(g))
+    else { setCalPeriodFrom(DATE_TODAY); setCalPeriodTo(DATE_TODAY) }
   }
 
-  const handleCalShift = (dir) => setCalStart(s => shiftStart(calGranularity, s, dir))
+  const handleCalShift = (dir) => {
+    if (calGranularity === 'period') return
+    setCalStart(s => shiftStart(calGranularity, s, dir))
+  }
 
-  const goToday = () => setCalStart(alignStart(calGranularity))
+  const goToday = () => {
+    if (calGranularity === 'period') return
+    setCalStart(alignStart(calGranularity))
+  }
 
   const filteredRooms = rooms.filter(room => {
     if (!calSearch) return true
@@ -289,7 +312,7 @@ export default function ReservationsPage() {
           {/* Kontrolna traka — isti stil kao DateNav na listi */}
           <div className={dnStyles.nav}>
             <div className={dnStyles.left}>
-              {/* Granularnost: Dan | Sedmica | Mjesec */}
+              {/* Granularnost: Dan | Sedmica | Miesec | Period */}
               {GRANULARITIES.map(g => (
                 <button
                   key={g.key}
@@ -299,11 +322,59 @@ export default function ReservationsPage() {
                   {g.label}
                 </button>
               ))}
-              {/* Navigacija */}
-              <button className={dnStyles.btn} onClick={() => handleCalShift(-1)}>‹ Nazad</button>
-              <button className={dnStyles.btn} onClick={goToday}>Danas</button>
-              <button className={dnStyles.btn} onClick={() => handleCalShift(1)}>Naprijed ›</button>
+              {/* Sve — reset na tekuću sedmicu */}
+              <button
+                className={dnStyles.btn}
+                onClick={() => handleGranularityChange('all')}
+              >
+                Sve
+              </button>
+
+              {/* Picker za Miesec */}
+              {calGranularity === 'month' && (
+                <input
+                  type="month"
+                  className={dnStyles.dateInput}
+                  value={toDate(calStart).slice(0, 7)}
+                  onChange={e => {
+                    if (!e.target.value) return
+                    const [y, m] = e.target.value.split('-').map(Number)
+                    setCalStart(new Date(y, m - 1, 1))
+                  }}
+                />
+              )}
+
+              {/* Inputs za Period */}
+              {calGranularity === 'period' && (
+                <>
+                  <input
+                    type="date"
+                    className={dnStyles.dateInput}
+                    value={calPeriodFrom}
+                    max={calPeriodTo}
+                    onChange={e => setCalPeriodFrom(e.target.value)}
+                  />
+                  <span className={dnStyles.sep}>—</span>
+                  <input
+                    type="date"
+                    className={dnStyles.dateInput}
+                    value={calPeriodTo}
+                    min={calPeriodFrom}
+                    onChange={e => setCalPeriodTo(e.target.value)}
+                  />
+                </>
+              )}
+
+              {/* Navigacija — samo za day/week/month */}
+              {calGranularity !== 'period' && (
+                <>
+                  <button className={dnStyles.btn} onClick={() => handleCalShift(-1)}>‹ Nazad</button>
+                  <button className={dnStyles.btn} onClick={goToday}>Danas</button>
+                  <button className={dnStyles.btn} onClick={() => handleCalShift(1)}>Naprijed ›</button>
+                </>
+              )}
             </div>
+
             <div className={dnStyles.right}>
               <div className={dnStyles.searchWrap}>
                 <span className={dnStyles.searchIcon}>🔍</span>
