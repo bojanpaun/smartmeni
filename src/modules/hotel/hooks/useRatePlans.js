@@ -8,12 +8,25 @@ export function useRatePlans(restaurantId) {
   const load = useCallback(async () => {
     if (!restaurantId) return
     setLoading(true)
-    const { data } = await supabase
+
+    // Pokušaj s rate_plan_rooms; ako tabela još ne postoji (400) — fallback
+    const { data, error } = await supabase
       .from('rate_plans')
       .select('*, seasonal_rates(*), rate_plan_rooms(room_id)')
       .eq('restaurant_id', restaurantId)
       .order('sort_order')
-    setRatePlans(data ?? [])
+
+    if (error) {
+      const { data: fallback } = await supabase
+        .from('rate_plans')
+        .select('*, seasonal_rates(*)')
+        .eq('restaurant_id', restaurantId)
+        .order('sort_order')
+      setRatePlans((fallback ?? []).map(p => ({ ...p, rate_plan_rooms: [] })))
+    } else {
+      setRatePlans(data ?? [])
+    }
+
     setLoading(false)
   }, [restaurantId])
 
