@@ -1,4 +1,4 @@
-import { useState, useEffect } from 'react'
+import { useState, useEffect, useMemo } from 'react'
 import { useNavigate } from 'react-router-dom'
 import { usePlatform } from '../../../context/PlatformContext'
 import { useReservations } from '../hooks/useReservations'
@@ -11,13 +11,12 @@ import { useSortable } from '../../../hooks/useSortable'
 import styles from './Hotel.module.css'
 import navStyles from '../../../styles/nav.module.css'
 
-// ── Helpers ────────────────────────────────────────────────────
-const toDate = (d) => new Date(d).toISOString().slice(0, 10)
-const TODAY   = DATE_TODAY
-const addDays = (d, n) => { const nd = new Date(d); nd.setDate(nd.getDate() + n); return nd }
-const isToday   = (d) => toDate(d) === TODAY
+// ── Helpers ──────────────────────────────────────────────────────
+const toDate   = (d) => new Date(d).toISOString().slice(0, 10)
+const TODAY    = DATE_TODAY
+const addDays  = (d, n) => { const nd = new Date(d); nd.setDate(nd.getDate() + n); return nd }
+const isToday  = (d) => toDate(d) === TODAY
 const isWeekend = (d) => new Date(d).getDay() === 0 || new Date(d).getDay() === 6
-const DAYS = 14
 
 function getMondayOf(date) {
   const d = new Date(date); d.setHours(0, 0, 0, 0)
@@ -26,8 +25,38 @@ function getMondayOf(date) {
   return d
 }
 
+function getFirstOfMonth(date) {
+  const d = new Date(date)
+  return new Date(d.getFullYear(), d.getMonth(), 1)
+}
 
-// ── Status mape ────────────────────────────────────────────────
+function daysInMonth(date) {
+  const d = new Date(date)
+  return new Date(d.getFullYear(), d.getMonth() + 1, 0).getDate()
+}
+
+// Broj dana i start alignment po granularnosti
+function calConfig(granularity, start) {
+  if (granularity === 'day')   return { days: 1 }
+  if (granularity === 'week')  return { days: 7 }
+  return { days: daysInMonth(start) } // 'month'
+}
+
+function shiftStart(granularity, start, dir) {
+  if (granularity === 'day')  return addDays(start, dir)
+  if (granularity === 'week') return addDays(start, dir * 7)
+  // month
+  const d = new Date(start)
+  return new Date(d.getFullYear(), d.getMonth() + dir, 1)
+}
+
+function alignStart(granularity) {
+  if (granularity === 'day')   return new Date(TODAY + 'T00:00:00')
+  if (granularity === 'week')  return getMondayOf(new Date())
+  return getFirstOfMonth(new Date())
+}
+
+// ── Status mape ──────────────────────────────────────────────────
 const STATUS_COLORS = {
   inquiry: '#8a9e96', confirmed: '#0d7a52', checked_in: '#1a2e26',
   checked_out: '#5a7a6a', cancelled: '#a32d2d', no_show: '#ba7517',
@@ -48,23 +77,29 @@ const CAL_LABELS = {
   inquiry: 'Upit', confirmed: 'Potvrđena', checked_in: 'Prisutna', checked_out: 'Odjavljena',
 }
 
-// ── Komponenta ─────────────────────────────────────────────────
+const GRANULARITIES = [
+  { key: 'day',   label: 'Dan'     },
+  { key: 'week',  label: 'Sedmica' },
+  { key: 'month', label: 'Mjesec'  },
+]
+
+// ── Komponenta ───────────────────────────────────────────────────
 export default function ReservationsPage() {
   const { restaurant } = usePlatform()
-  const navigate = useNavigate()
+  const navigate       = useNavigate()
   const [view, setView] = useState('list')
 
-  // ── List state ─────────────────────────────────────────────
-  const [from, setFrom] = useState(DATE_TODAY)
-  const [to, setTo]     = useState(DATE_TODAY)
+  // ── List state ────────────────────────────────────────────────
+  const [from, setFrom]               = useState(DATE_TODAY)
+  const [to,   setTo]                 = useState(DATE_TODAY)
   const [statusFilter, setStatusFilter] = useState('')
-  const [search, setSearch] = useState('')
+  const [search, setSearch]           = useState('')
   const { sortBy, sortDir, onSort, sort } = useSortable('check_in_date')
 
   const { reservations, loading } = useReservations(restaurant?.id, {
-    status:       statusFilter || undefined,
-    checkInFrom:  from || undefined,
-    checkInTo:    to   || undefined,
+    status:      statusFilter || undefined,
+    checkInFrom: from || undefined,
+    checkInTo:   to   || undefined,
   })
 
   const filteredReservations = reservations.filter(res => {
@@ -74,16 +109,22 @@ export default function ReservationsPage() {
            String(res.rooms?.room_number || '').toLowerCase().includes(q)
   })
 
-  // ── Calendar state ─────────────────────────────────────────
-  const [calStart, setCalStart] = useState(() => getMondayOf(new Date()))
-  const [calSearch, setCalSearch] = useState('')
+  // ── Calendar state ────────────────────────────────────────────
+  const [calGranularity, setCalGranularity] = useState('week')
+  const [calStart, setCalStart]             = useState(() => getMondayOf(new Date()))
+  const [calSearch, setCalSearch]           = useState('')
   const [calReservations, setCalReservations] = useState([])
-  const [calLoading, setCalLoading] = useState(false)
-  const { rooms, loading: roomsLoading } = useRooms(restaurant?.id)
+  const [calLoading, setCalLoading]         = useState(false)
+  const { rooms, loading: roomsLoading }    = useRooms(restaurant?.id)
 
-  const calDates    = Array.from({ length: DAYS }, (_, i) => addDays(calStart, i))
+  const { days: CAL_DAYS } = useMemo(
+    () => calConfig(calGranularity, calStart),
+    [calGranularity, calStart]
+  )
+
+  const calDates      = useMemo(() => Array.from({ length: CAL_DAYS }, (_, i) => addDays(calStart, i)), [calStart, CAL_DAYS])
   const calRangeStart = toDate(calStart)
-  const calRangeEnd   = toDate(addDays(calStart, DAYS - 1))
+  const calRangeEnd   = toDate(addDays(calStart, CAL_DAYS - 1))
 
   useEffect(() => {
     if (view !== 'calendar' || !restaurant?.id) return
@@ -98,24 +139,31 @@ export default function ReservationsPage() {
       .then(({ data }) => { setCalReservations(data ?? []); setCalLoading(false) })
   }, [view, restaurant?.id, calRangeStart, calRangeEnd])
 
-  const resByRoom = calReservations.reduce((acc, r) => {
+  const resByRoom = useMemo(() => calReservations.reduce((acc, r) => {
     if (r.room_id) { if (!acc[r.room_id]) acc[r.room_id] = []; acc[r.room_id].push(r) }
     return acc
-  }, {})
+  }, {}), [calReservations])
 
   const getResStyle = (res) => {
     const ci     = new Date(res.check_in_date  + 'T00:00:00')
     const co     = new Date(res.check_out_date + 'T00:00:00')
     const origin = calStart.getTime()
-    const startDay = Math.max(0,    (ci.getTime() - origin) / 86400000)
-    const endDay   = Math.min(DAYS, (co.getTime() - origin) / 86400000)
+    const startDay = Math.max(0,        (ci.getTime() - origin) / 86400000)
+    const endDay   = Math.min(CAL_DAYS, (co.getTime() - origin) / 86400000)
     return {
-      left:  `calc(${(startDay / DAYS) * 100}% + 2px)`,
-      width: `calc(${((endDay - startDay) / DAYS) * 100}% - 4px)`,
+      left:  `calc(${(startDay / CAL_DAYS) * 100}% + 2px)`,
+      width: `calc(${((endDay - startDay) / CAL_DAYS) * 100}% - 4px)`,
     }
   }
 
-  const calShift = (n) => setCalStart(d => addDays(d, n * 7))
+  const handleGranularityChange = (g) => {
+    setCalGranularity(g)
+    setCalStart(alignStart(g))
+  }
+
+  const handleCalShift = (dir) => setCalStart(s => shiftStart(calGranularity, s, dir))
+
+  const goToday = () => setCalStart(alignStart(calGranularity))
 
   const filteredRooms = rooms.filter(room => {
     if (!calSearch) return true
@@ -124,28 +172,41 @@ export default function ReservationsPage() {
            (room.room_types?.name || '').toLowerCase().includes(q)
   })
 
-  // ── Render ─────────────────────────────────────────────────
+  // Subtitle za kalendar
+  const calSubtitle = useMemo(() => {
+    if (!calDates.length) return ''
+    const first = calDates[0]
+    const last  = calDates[CAL_DAYS - 1]
+    if (calGranularity === 'day') {
+      return new Date(first).toLocaleDateString('sr-Latn', { weekday: 'long', day: 'numeric', month: 'long', year: 'numeric' })
+    }
+    if (calGranularity === 'month') {
+      return new Date(first).toLocaleDateString('sr-Latn', { month: 'long', year: 'numeric' })
+    }
+    return `${new Date(first).toLocaleDateString('sr-Latn', { day: 'numeric', month: 'short' })} — ${new Date(last).toLocaleDateString('sr-Latn', { day: 'numeric', month: 'short', year: 'numeric' })}`
+  }, [calDates, calGranularity, CAL_DAYS])
+
+  // ── Render ────────────────────────────────────────────────────
   return (
     <div className={styles.page}>
 
-      {/* Header */}
+      {/* ── Header ─────────────────────────────────────────── */}
       <div className={styles.header}>
         <div>
           <h1 className={styles.title}>Rezervacije</h1>
           <p className={styles.subtitle}>
-            {view === 'list'
-              ? `${filteredReservations.length} rezervacija`
-              : `${calDates[0].toLocaleDateString('sr-Latn', { day: 'numeric', month: 'long' })} — ${calDates[DAYS - 1].toLocaleDateString('sr-Latn', { day: 'numeric', month: 'long', year: 'numeric' })}`}
+            {view === 'list' ? `${filteredReservations.length} rezervacija` : calSubtitle}
           </p>
         </div>
         <div className={styles.headerActions}>
+          {/* Toggle Lista / Kalendar — uvijek toggleBtn + opciono toggleBtnActive */}
           <div className={navStyles.toggleBar}>
             <button
-              className={view === 'list' ? navStyles.toggleBtnActive : navStyles.toggleBtn}
+              className={`${navStyles.toggleBtn} ${view === 'list'     ? navStyles.toggleBtnActive : ''}`}
               onClick={() => setView('list')}
             >☰ Lista</button>
             <button
-              className={view === 'calendar' ? navStyles.toggleBtnActive : navStyles.toggleBtn}
+              className={`${navStyles.toggleBtn} ${view === 'calendar' ? navStyles.toggleBtnActive : ''}`}
               onClick={() => setView('calendar')}
             >📆 Kalendar</button>
           </div>
@@ -155,10 +216,9 @@ export default function ReservationsPage() {
         </div>
       </div>
 
-      {/* ══ LIST VIEW ══ */}
+      {/* ══ LIST VIEW ══════════════════════════════════════════ */}
       {view === 'list' && (
         <>
-          {/* DateNav — Juče/Danas/Sutra/Mjesec/Period/Sve + pretraga */}
           <DateNav
             from={from}
             to={to}
@@ -171,7 +231,6 @@ export default function ReservationsPage() {
             placeholder="Pretraži gosta ili sobu..."
           />
 
-          {/* Status filter */}
           <div className={styles.filterBar}>
             {STATUS_FILTERS.map(s => (
               <button
@@ -189,13 +248,13 @@ export default function ReservationsPage() {
           ) : (
             <div className={styles.table}>
               <div className={styles.tableHead}>
-                <SortableHead col="guest_name"           label="Gost"      sortBy={sortBy} sortDir={sortDir} onSort={onSort} />
-                <SortableHead col="rooms.room_number"    label="Soba"      sortBy={sortBy} sortDir={sortDir} onSort={onSort} />
-                <SortableHead col="check_in_date"        label="Check-in"  sortBy={sortBy} sortDir={sortDir} onSort={onSort} />
-                <SortableHead col="check_out_date"       label="Check-out" sortBy={sortBy} sortDir={sortDir} onSort={onSort} />
+                <SortableHead col="guest_name"        label="Gost"      sortBy={sortBy} sortDir={sortDir} onSort={onSort} />
+                <SortableHead col="rooms.room_number" label="Soba"      sortBy={sortBy} sortDir={sortDir} onSort={onSort} />
+                <SortableHead col="check_in_date"     label="Check-in"  sortBy={sortBy} sortDir={sortDir} onSort={onSort} />
+                <SortableHead col="check_out_date"    label="Check-out" sortBy={sortBy} sortDir={sortDir} onSort={onSort} />
                 <span>Noći</span>
-                <SortableHead col="total_amount"         label="Iznos"     sortBy={sortBy} sortDir={sortDir} onSort={onSort} />
-                <SortableHead col="status"               label="Status"    sortBy={sortBy} sortDir={sortDir} onSort={onSort} />
+                <SortableHead col="total_amount"      label="Iznos"     sortBy={sortBy} sortDir={sortDir} onSort={onSort} />
+                <SortableHead col="status"            label="Status"    sortBy={sortBy} sortDir={sortDir} onSort={onSort} />
               </div>
               {sort(filteredReservations).map(res => {
                 const nights = Math.ceil((new Date(res.check_out_date) - new Date(res.check_in_date)) / 86400000)
@@ -209,11 +268,8 @@ export default function ReservationsPage() {
                     <span>{res.total_amount ? `€${Number(res.total_amount).toFixed(0)}` : '—'}</span>
                     <span>
                       <span style={{
-                        color: STATUS_COLORS[res.status],
-                        fontSize: 12, fontWeight: 600,
-                        padding: '2px 8px',
-                        background: STATUS_COLORS[res.status] + '18',
-                        borderRadius: 20,
+                        color: STATUS_COLORS[res.status], fontSize: 12, fontWeight: 600,
+                        padding: '2px 8px', background: STATUS_COLORS[res.status] + '18', borderRadius: 20,
                       }}>
                         {STATUS_LABELS[res.status] ?? res.status}
                       </span>
@@ -226,16 +282,30 @@ export default function ReservationsPage() {
         </>
       )}
 
-      {/* ══ CALENDAR VIEW ══ */}
+      {/* ══ CALENDAR VIEW ══════════════════════════════════════ */}
       {view === 'calendar' && (
         <>
-          {/* Kalendar navigacija */}
+          {/* Kontrolna traka: granularnost + navigacija + pretraga */}
           <div className={styles.calNavRow}>
-            <button className={styles.btnSecondary} onClick={() => calShift(-2)}>«</button>
-            <button className={styles.btnSecondary} onClick={() => calShift(-1)}>‹ Nazad</button>
-            <button className={styles.btnSecondary} onClick={() => { setCalStart(getMondayOf(new Date())) }}>Danas</button>
-            <button className={styles.btnSecondary} onClick={() => calShift(1)}>Naprijed ›</button>
-            <button className={styles.btnSecondary} onClick={() => calShift(2)}>»</button>
+            {/* Granularnost: Dan | Sedmica | Mjesec */}
+            <div className={navStyles.toggleBar}>
+              {GRANULARITIES.map(g => (
+                <button
+                  key={g.key}
+                  className={`${navStyles.toggleBtn} ${calGranularity === g.key ? navStyles.toggleBtnActive : ''}`}
+                  onClick={() => handleGranularityChange(g.key)}
+                >
+                  {g.label}
+                </button>
+              ))}
+            </div>
+
+            {/* Navigacija */}
+            <button className={styles.btnSecondary} onClick={() => handleCalShift(-1)}>‹ Nazad</button>
+            <button className={styles.btnSecondary} onClick={goToday}>Danas</button>
+            <button className={styles.btnSecondary} onClick={() => handleCalShift(1)}>Naprijed ›</button>
+
+            {/* Pretraga */}
             <input
               className={styles.searchInput}
               placeholder="Pretraži sobu..."
@@ -251,8 +321,11 @@ export default function ReservationsPage() {
             </div>
           ) : (
             <div className={styles.calendarWrap}>
-              {/* Header */}
-              <div className={styles.calendarHeader}>
+              {/* Header redak — dani */}
+              <div
+                className={styles.calendarHeader}
+                style={{ gridTemplateColumns: `100px repeat(${CAL_DAYS}, minmax(${calGranularity === 'month' ? 28 : calGranularity === 'day' ? 1 : 44}px, 1fr))` }}
+              >
                 <div className={styles.calendarRoomHeader}>Soba</div>
                 {calDates.map(d => (
                   <div
@@ -263,12 +336,17 @@ export default function ReservationsPage() {
                       isWeekend(d) ? styles.calendarDayHeaderWeekend : '',
                     ].join(' ')}
                   >
-                    <span className={styles.calendarDayName}>{new Date(d).toLocaleDateString('sr-Latn', { weekday: 'short' })}</span>
+                    {calGranularity !== 'day' && (
+                      <span className={styles.calendarDayName}>
+                        {new Date(d).toLocaleDateString('sr-Latn', { weekday: 'short' })}
+                      </span>
+                    )}
                     <span className={styles.calendarDayNum}>{new Date(d).getDate()}</span>
-                    <span className={styles.calendarMonthLabel}>
-                      {new Date(d).getDate() === 1 || d === calDates[0]
-                        ? new Date(d).toLocaleDateString('sr-Latn', { month: 'short' }) : ''}
-                    </span>
+                    {(calGranularity === 'month' || new Date(d).getDate() === 1 || d === calDates[0]) && (
+                      <span className={styles.calendarMonthLabel}>
+                        {new Date(d).toLocaleDateString('sr-Latn', { month: 'short' })}
+                      </span>
+                    )}
                   </div>
                 ))}
               </div>
