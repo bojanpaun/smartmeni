@@ -304,7 +304,6 @@ export default function SuperAdminPanel() {
                     </div>
                   </td>
                 </tr>
-              )
             ))}
           </tbody>
         </table>
