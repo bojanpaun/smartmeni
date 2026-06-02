@@ -96,7 +96,7 @@ export const MODULES = [
         { label: 'Analitika',         icon: '📊', path: '/admin/menu/analytics' },
         { label: 'Uređivanje menija', icon: '🍽️', path: '/admin/menu',           exact: true },
         { label: 'Postavke menija',   icon: '⚙️', path: '/admin/menu/settings' },
-        { label: 'Sajt restorana',    icon: '🌐', path: '/admin/settings/landing' },
+        { label: 'Sajt restorana',    icon: '🌐', path: '/admin/menu/landing' },
         { label: 'QR kod',            icon: '📱', path: '/admin/menu/qr' },
       ],
     },

@@ -63,9 +63,9 @@ export default function AppointmentsPage() {
         spa_rooms(id, name)
       `)
       .eq('restaurant_id', restaurant.id)
-      .gte('appointment_date', from)
-      .lte('appointment_date', to)
       .order('start_time')
+    if (from) q = q.gte('appointment_date', from)
+    if (to)   q = q.lte('appointment_date', to)
 
     if (statusFilter !== 'all') q = q.eq('status', statusFilter)
 
@@ -164,6 +164,8 @@ export default function AppointmentsPage() {
         onChange={(f, t) => { setFrom(f); setTo(t) }}
         onSearch={setSearch}
         showFuture={true}
+        showMonth={true}
+        allowAll={true}
         placeholder="Pretraži gosta, terapeuta..."
       />
 

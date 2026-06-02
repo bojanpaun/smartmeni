@@ -4,6 +4,7 @@ import { useState, useEffect } from 'react'
 import { supabase } from '../../../lib/supabase'
 import { usePlatform } from '../../../context/PlatformContext'
 import styles from './AnalyticsPage.module.css'
+import nav from '../../../styles/nav.module.css'
 
 const PERIODS = [
   { key: 'today',   label: 'Danas' },
@@ -515,10 +516,10 @@ export default function AnalyticsPage() {
       {/* Header */}
       <div className={styles.header}>
         <div className={styles.headerTitle}>Analitika</div>
-        <div className={styles.periodTabs}>
+        <div className={nav.pillBar}>
           {PERIODS.map(p => (
             <button key={p.key}
-              className={`${styles.periodTab} ${period === p.key ? styles.periodTabActive : ''}`}
+              className={`${nav.pillBtn} ${period === p.key ? nav.pillBtnActive : ''}`}
               onClick={() => setPeriod(p.key)}>{p.label}</button>
           ))}
         </div>
@@ -537,10 +538,10 @@ export default function AnalyticsPage() {
         </div>
       )}
 
-      <div className={styles.sectionTabs}>
+      <div className={nav.pillBar}>
         {SECTIONS.map(s => (
           <button key={s.key}
-            className={`${styles.sectionTab} ${activeSection === s.key ? styles.sectionTabActive : ''}`}
+            className={`${nav.pillBtn} ${activeSection === s.key ? nav.pillBtnActive : ''}`}
             onClick={() => setActiveSection(s.key)}>{s.label}</button>
         ))}
       </div>

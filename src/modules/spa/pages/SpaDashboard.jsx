@@ -77,6 +77,8 @@ export default function SpaDashboard() {
         onChange={(f, t) => { setFrom(f); setTo(t) }}
         onSearch={setSearch}
         showFuture={true}
+        showMonth={true}
+        allowAll={true}
         placeholder="Pretraži gosta ili uslugu..."
       />
 

@@ -72,7 +72,7 @@ const STATUS_LABELS = {
   inquiry: 'Upit', confirmed: 'Potvrđena', checked_in: 'Prisutna',
   checked_out: 'Odjavljena', cancelled: 'Otkazana', no_show: 'No-show',
 }
-const STATUS_FILTERS = ['', 'confirmed', 'checked_in', 'checked_out', 'cancelled']
+const STATUS_FILTERS = ['', 'inquiry', 'confirmed', 'checked_in', 'checked_out', 'cancelled']
 
 const CAL_STYLE = {
   inquiry:     { bg: '#fef9c3', color: '#854d0e', border: '#fde047' },

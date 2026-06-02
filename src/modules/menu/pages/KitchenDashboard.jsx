@@ -54,9 +54,9 @@ export default function KitchenDashboard({ mode = 'kitchen' }) {
     if (isDone) {
       query = query
         .in('status', ['served', 'closed'])
-        .gte('created_at', startOfDay(from))
-        .lte('created_at', endOfDay(to))
         .order('created_at', { ascending: false })
+      if (from) query = query.gte('created_at', startOfDay(from))
+      if (to)   query = query.lte('created_at', endOfDay(to))
     } else {
       const stationCol = isBar ? 'bar_status' : 'kitchen_status'
       const stationVal = statusFilter === 'active' ? 'preparing' : 'ready'
@@ -175,6 +175,8 @@ export default function KitchenDashboard({ mode = 'kitchen' }) {
           onChange={(f, t) => { setFrom(f); setTo(t) }}
           onSearch={setSearch}
           showFuture={false}
+          showMonth={true}
+          allowAll={true}
           placeholder="Pretraži sto ili stavku..."
         />
 

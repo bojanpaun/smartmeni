@@ -1,8 +1,6 @@
 import { useState, useEffect, useCallback } from 'react'
 import { supabase } from '../../../lib/supabase'
 
-const TODAY = new Date().toISOString().slice(0, 10)
-
 export function useHousekeeping(restaurantId, dateFrom, dateTo) {
   const [tasks, setTasks]     = useState([])
   const [maintenance, setMaintenance] = useState([])
@@ -13,27 +11,28 @@ export function useHousekeeping(restaurantId, dateFrom, dateTo) {
     if (!restaurantId) return
     setLoading(true)
 
-    const from = dateFrom || TODAY
-    const to   = dateTo   || TODAY
+    let tq = supabase
+      .from('housekeeping_tasks')
+      .select('*, rooms(room_number, floor, room_types(name)), staff!housekeeping_tasks_assigned_to_fkey(first_name, last_name)')
+      .eq('restaurant_id', restaurantId)
+      .order('priority', { ascending: false })
+      .order('created_at')
+    if (dateFrom) tq = tq.gte('scheduled_for', dateFrom)
+    if (dateTo)   tq = tq.lte('scheduled_for', dateTo)
+
+    let mq = supabase
+      .from('maintenance_requests')
+      .select('*, rooms(room_number, floor), staff!maintenance_requests_reported_by_fkey(first_name, last_name)')
+      .eq('restaurant_id', restaurantId)
+      .neq('status', 'resolved')
+      .order('priority', { ascending: false })
+      .order('created_at')
+    if (dateFrom) mq = mq.gte('created_at', `${dateFrom}T00:00:00Z`)
+    if (dateTo)   mq = mq.lte('created_at', `${dateTo}T23:59:59Z`)
 
     const [{ data: t }, { data: m }, { data: s }] = await Promise.all([
-      supabase
-        .from('housekeeping_tasks')
-        .select('*, rooms(room_number, floor, room_types(name)), staff!housekeeping_tasks_assigned_to_fkey(first_name, last_name)')
-        .eq('restaurant_id', restaurantId)
-        .gte('scheduled_for', from)
-        .lte('scheduled_for', to)
-        .order('priority', { ascending: false })
-        .order('created_at'),
-      supabase
-        .from('maintenance_requests')
-        .select('*, rooms(room_number, floor), staff!maintenance_requests_reported_by_fkey(first_name, last_name)')
-        .eq('restaurant_id', restaurantId)
-        .neq('status', 'resolved')
-        .gte('created_at', `${from}T00:00:00Z`)
-        .lte('created_at', `${to}T23:59:59Z`)
-        .order('priority', { ascending: false })
-        .order('created_at'),
+      tq,
+      mq,
       supabase
         .from('staff')
         .select('id, first_name, last_name, role:roles(name)')

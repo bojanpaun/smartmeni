@@ -1,6 +1,7 @@
 import { useState, useEffect } from 'react'
 import { supabase } from '../../../lib/supabase'
 import { usePlatform } from '../../../context/PlatformContext'
+import DateNav from '../../../components/shared/DateNav'
 import styles from './HRReportsPage.module.css'
 import gsStyles from '../../menu/pages/GeneralSettings.module.css'
 
@@ -176,21 +177,12 @@ export default function HRReportsPage() {
   const { restaurant } = usePlatform()
 
   const [loading, setLoading] = useState(true)
-  const [period, setPeriod] = useState('this_month')
-  const [dateFrom, setDateFrom] = useState('')
-  const [dateTo, setDateTo] = useState('')
+  const [dateFrom, setDateFrom] = useState(() => getPeriod('this_month')[0])
+  const [dateTo, setDateTo] = useState(() => getPeriod('this_month')[1])
   const [data, setData] = useState(null)
   const [selectedStaff, setSelectedStaff] = useState(null)
   const [allAttendance, setAllAttendance] = useState([])
   const [allSchedules, setAllSchedules] = useState([])
-
-  // Postavi datum pri promjeni perioda
-  useEffect(() => {
-    if (period !== 'custom') {
-      const [from, to] = getPeriod(period)
-      setDateFrom(from); setDateTo(to)
-    }
-  }, [period])
 
   useEffect(() => {
     if (restaurant && dateFrom && dateTo) loadData()
@@ -301,15 +293,6 @@ export default function HRReportsPage() {
     a.click()
   }
 
-  const PERIOD_OPTS = [
-    { key: 'last_7',     label: 'Zadnjih 7 dana' },
-    { key: 'this_week',  label: 'Ova sedmica' },
-    { key: 'this_month', label: 'Ovaj mjesec' },
-    { key: 'last_month', label: 'Prošli mjesec' },
-    { key: 'last_30',    label: 'Zadnjih 30 dana' },
-    { key: 'custom',     label: 'Prilagođeno' },
-  ]
-
   if (loading && !data) return <div className={styles.loading}>Učitavanje...</div>
 
   const maxHours = Math.max(...(data?.staffStats || []).map(s => s.hoursWorked), 1)
@@ -325,27 +308,15 @@ export default function HRReportsPage() {
         <button className={styles.btnExport} onClick={exportCSV}>↓ Export CSV</button>
       </div>
 
-      {/* Period filter */}
-      <div className={styles.periodBar}>
-        {PERIOD_OPTS.map(opt => (
-          <button
-            key={opt.key}
-            className={`${styles.periodBtn} ${period === opt.key ? styles.periodBtnActive : ''}`}
-            onClick={() => setPeriod(opt.key)}
-          >
-            {opt.label}
-          </button>
-        ))}
-      </div>
-
-      {period === 'custom' && (
-        <div className={styles.filters}>
-          <input type="date" className={styles.filterDate} value={dateFrom} onChange={e => setDateFrom(e.target.value)} />
-          <span className={styles.filterSep}>—</span>
-          <input type="date" className={styles.filterDate} value={dateTo} onChange={e => setDateTo(e.target.value)} />
-          {data && <span className={styles.filterInfo}>{data.days} dana</span>}
-        </div>
-      )}
+      <DateNav
+        from={dateFrom}
+        to={dateTo}
+        onChange={(f, t) => { setDateFrom(f); setDateTo(t) }}
+        onSearch={() => {}}
+        showFuture={false}
+        showMonth={true}
+        allowAll={false}
+      />
 
       {loading && <div className={styles.loadingInline}>Učitavanje...</div>}
 

@@ -268,6 +268,8 @@ function TablePicker({ tables, selectedId, reservations, date, onSelect }) {
   )
 }
 
+import DateNav, { DATE_TODAY } from '../../../components/shared/DateNav'
+
 // ── Glavna komponenta ─────────────────────────────────────────
 
 // ── Planner (timeline po stolovima) ──────────────────────────────
@@ -405,7 +407,9 @@ export default function ReservationsPage() {
   const [tables, setTables] = useState([])
   const [loading, setLoading] = useState(true)
   const [view, setView] = useState('list') // 'list' | 'calendar' | 'planner'
-  const [filterDate, setFilterDate] = useState(today())
+  const [from, setFrom] = useState(DATE_TODAY)
+  const [to, setTo] = useState(DATE_TODAY)
+  const [search, setSearch] = useState('')
   const [filterStatus, setFilterStatus] = useState('all')
   const [showForm, setShowForm] = useState(false)
   const [editRes, setEditRes] = useState(null)
@@ -460,7 +464,7 @@ export default function ReservationsPage() {
     } else {
       setForm({
         guest_id: null, guest_name: '', guest_phone: '', guest_email: '',
-        date: filterDate || today(), time: '19:00', guests_count: 2,
+        date: from || today(), time: '19:00', guests_count: 2,
         table_id: '', note: '', status: 'confirmed',
       })
       setEditRes(null)
@@ -509,10 +513,13 @@ export default function ReservationsPage() {
     setReservations(prev => prev.filter(r => r.id !== id))
   }
 
+  const q = search.toLowerCase()
   const filtered = reservations.filter(r => {
-    const matchDate = !filterDate || r.date === filterDate
+    const matchDate = (!from || r.date >= from) && (!to || r.date <= to)
     const matchStatus = filterStatus === 'all' || r.status === filterStatus
-    return matchDate && matchStatus
+    const matchSearch = !q || (r.guest_name || '').toLowerCase().includes(q) ||
+      (r.guest_phone || '').toLowerCase().includes(q)
+    return matchDate && matchStatus && matchSearch
   })
 
   const pendingOnline = reservations.filter(r => r.status === 'pending' && r.source === 'online')
@@ -580,8 +587,8 @@ export default function ReservationsPage() {
         <PlannerView
           reservations={reservations}
           tables={tables}
-          date={filterDate}
-          onDateChange={setFilterDate}
+          date={from || today()}
+          onDateChange={(d) => { setFrom(d); setTo(d) }}
         />
       )}
 
@@ -590,9 +597,9 @@ export default function ReservationsPage() {
         <div className={styles.calendarWrap}>
           <CalendarView
             reservations={reservations}
-            selectedDate={filterDate}
+            selectedDate={from}
             onDayClick={(date) => {
-              setFilterDate(date)
+              setFrom(date); setTo(date)
               setView('list')
             }}
           />
@@ -607,28 +614,27 @@ export default function ReservationsPage() {
       {/* Lista */}
       {view === 'list' && (
         <>
-          {/* Filteri */}
-          <div className={styles.filters}>
-            <input
-              type="date"
-              className={styles.filterDate}
-              value={filterDate}
-              onChange={e => setFilterDate(e.target.value)}
-            />
-            <button className={styles.filterClear} onClick={() => setFilterDate('')}>
-              Svi datumi
-            </button>
-            <div className={styles.filterStatus}>
-              {['all', 'pending', 'confirmed', 'cancelled', 'completed'].map(s => (
-                <button
-                  key={s}
-                  className={`${styles.filterBtn} ${filterStatus === s ? styles.filterBtnActive : ''}`}
-                  onClick={() => setFilterStatus(s)}
-                >
-                  {s === 'all' ? 'Sve' : STATUS_MAP[s]?.label}
-                </button>
-              ))}
-            </div>
+          <DateNav
+            from={from}
+            to={to}
+            search={search}
+            onChange={(f, t) => { setFrom(f); setTo(t) }}
+            onSearch={setSearch}
+            showFuture={true}
+            showMonth={true}
+            allowAll={true}
+            placeholder="Pretraži gosta ili telefon..."
+          />
+          <div className={styles.filterStatus} style={{ display: 'flex', gap: 8, marginBottom: 16, flexWrap: 'wrap' }}>
+            {['all', 'pending', 'confirmed', 'cancelled', 'completed'].map(s => (
+              <button
+                key={s}
+                className={`${styles.filterBtn} ${filterStatus === s ? styles.filterBtnActive : ''}`}
+                onClick={() => setFilterStatus(s)}
+              >
+                {s === 'all' ? 'Sve' : STATUS_MAP[s]?.label}
+              </button>
+            ))}
           </div>
 
           {/* Lista rezervacija */}

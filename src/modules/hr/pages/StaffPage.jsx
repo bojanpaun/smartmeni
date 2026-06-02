@@ -52,7 +52,14 @@ export default function StaffPage() {
       const { data, error } = await supabase.functions.invoke('create-staff-user', {
         body: { email, password: form.password, restaurant_id: restaurant.id, role_id: form.role_id || null }
       })
-      if (error || data?.error) { setAddError(data?.error || 'Greška pri kreiranju.'); setSaving(false); return }
+      if (error || data?.error) {
+        let msg = data?.error
+        if (!msg && error) {
+          try { const b = await error.context?.json(); msg = b?.error } catch {}
+          msg = msg || error.message || 'Greška pri kreiranju.'
+        }
+        setAddError(msg); setSaving(false); return
+      }
     }
     const { data: newStaff } = await supabase.from('staff').insert({
       restaurant_id: restaurant.id, email, role_id: form.role_id || null,

@@ -9,7 +9,7 @@ const TOMORROW  = (() => { const d = new Date(_t); d.setDate(d.getDate() + 1); r
 export { TODAY as DATE_TODAY, YESTERDAY as DATE_YESTERDAY, TOMORROW as DATE_TOMORROW }
 
 export default function DateNav({
-  from, to, search = '', onChange, onSearch,
+  from, to, search = '', onChange, onSearch = () => {},
   showFuture = true,
   hidePeriod = false,
   showMonth  = false,   // dugme Mjesec + month picker

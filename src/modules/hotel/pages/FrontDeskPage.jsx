@@ -195,6 +195,8 @@ export default function FrontDeskPage() {
           onChange={(f, t) => { setFrom(f); setTo(t) }}
           onSearch={setSearch}
           showFuture={true}
+          showMonth={true}
+          allowAll={true}
           placeholder="Pretraži gosta ili sobu..."
         />
       )}

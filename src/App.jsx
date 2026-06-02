@@ -165,6 +165,7 @@ function AppRoutes() {
         <Route path="/admin/menu/analytics" element={<AdminRoute><AdminMenuAnalytics /></AdminRoute>} />
         <Route path="/admin/menu/qr" element={<AdminRoute><AdminMenuQR /></AdminRoute>} />
         <Route path="/admin/menu/settings" element={<AdminRoute><AdminMenuSettings /></AdminRoute>} />
+        <Route path="/admin/menu/landing" element={<AdminRoute><RestaurantLandingEditor /></AdminRoute>} />
         <Route path="/admin/menu/help" element={<AdminRoute><ModuleHelp moduleKey="menu" /></AdminRoute>} />
         <Route path="/admin/menu/items" element={<Navigate to="/admin/menu" replace />} />
         <Route path="/admin/menu" element={<AdminRoute><AdminMenu /></AdminRoute>} />

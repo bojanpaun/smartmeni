@@ -35,14 +35,15 @@ export default function MovementsLog() {
   const loadAll = useCallback(async () => {
     if (!restaurant) return
     setLoading(true)
-    const { data: movs } = await supabase
+    let movQ = supabase
       .from('inventory_movements')
       .select('*, inventory_items(name, unit)')
       .eq('restaurant_id', restaurant.id)
-      .gte('created_at', from + 'T00:00:00Z')
-      .lte('created_at', to + 'T23:59:59Z')
       .order('created_at', { ascending: false })
       .limit(1000)
+    if (from) movQ = movQ.gte('created_at', from + 'T00:00:00Z')
+    if (to)   movQ = movQ.lte('created_at', to + 'T23:59:59Z')
+    const { data: movs } = await movQ
     setMovements(movs || [])
     setLoading(false)
   }, [restaurant, from, to])
@@ -79,6 +80,8 @@ export default function MovementsLog() {
         onChange={(f, t) => { setFrom(f); setTo(t) }}
         onSearch={setSearch}
         showFuture={false}
+        showMonth={true}
+        allowAll={true}
         placeholder="Pretraži stavku ili napomenu..."
       />
 

@@ -9,7 +9,7 @@ export function useSpaAppointments(restaurantId, dateFrom, dateTo) {
   const load = useCallback(async () => {
     if (!restaurantId) return
     setLoading(true)
-    const { data } = await supabase
+    let q = supabase
       .from('spa_appointments')
       .select(`
         *,
@@ -18,10 +18,11 @@ export function useSpaAppointments(restaurantId, dateFrom, dateTo) {
         spa_rooms(id, name)
       `)
       .eq('restaurant_id', restaurantId)
-      .gte('appointment_date', dateFrom)
-      .lte('appointment_date', dateTo)
       .not('status', 'in', '(cancelled,no_show)')
       .order('start_time')
+    if (dateFrom) q = q.gte('appointment_date', dateFrom)
+    if (dateTo)   q = q.lte('appointment_date', dateTo)
+    const { data } = await q
     setAppointments(data ?? [])
     setLoading(false)
   }, [restaurantId, dateFrom, dateTo])

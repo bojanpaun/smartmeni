@@ -290,6 +290,8 @@ export default function HousekeepingPage() {
         onChange={(f, t) => { setFrom(f); setTo(t) }}
         onSearch={setSearch}
         showFuture={true}
+        showMonth={true}
+        allowAll={true}
         placeholder="Pretraži sobu, osoblje..."
       />
 
