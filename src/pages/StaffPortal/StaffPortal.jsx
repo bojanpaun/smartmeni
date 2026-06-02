@@ -88,11 +88,24 @@ export default function StaffPortal() {
   const [loadingRest, setLoadingRest] = useState(true)
 
   // Auth
-  const [mode, setMode]       = useState('login')
-  const [email, setEmail]     = useState('')
+  const [mode, setMode]         = useState('login')
+  const [email, setEmail]       = useState('')
   const [password, setPassword] = useState('')
-  const [authError, setAuthError] = useState('')
+  const [authError, setAuthError]   = useState('')
   const [authLoading, setAuthLoading] = useState(false)
+
+  // Forgot password
+  const [forgotEmail, setForgotEmail]   = useState('')
+  const [forgotSent, setForgotSent]     = useState(false)
+  const [forgotError, setForgotError]   = useState('')
+  const [forgotLoading, setForgotLoading] = useState(false)
+
+  // Reset password
+  const [newPassword, setNewPassword]     = useState('')
+  const [newPasswordConfirm, setNewPasswordConfirm] = useState('')
+  const [resetError, setResetError]       = useState('')
+  const [resetLoading, setResetLoading]   = useState(false)
+  const [resetDone, setResetDone]         = useState(false)
 
   // Staff
   const [staff, setStaff]           = useState(null)
@@ -108,11 +121,16 @@ export default function StaffPortal() {
       .then(({ data }) => { setRestaurant(data); setLoadingRest(false) })
   }, [slug])
 
-  // Check existing session
+  // Check existing session + PASSWORD_RECOVERY event
   useEffect(() => {
     supabase.auth.getSession().then(({ data: { session } }) => {
       if (session && restaurant) loadStaff(session.user.id)
     })
+
+    const { data: { subscription } } = supabase.auth.onAuthStateChange((event) => {
+      if (event === 'PASSWORD_RECOVERY') setMode('reset')
+    })
+    return () => subscription.unsubscribe()
   }, [restaurant])
 
   const loadStaff = async (userId) => {
@@ -162,6 +180,34 @@ export default function StaffPortal() {
     setAuthLoading(false)
   }
 
+  const handleForgot = async (e) => {
+    e.preventDefault()
+    setForgotError('')
+    setForgotLoading(true)
+    const redirectTo = `${window.location.origin}/${slug}/staff`
+    const { error } = await supabase.auth.resetPasswordForEmail(forgotEmail.trim().toLowerCase(), { redirectTo })
+    setForgotLoading(false)
+    if (error) { setForgotError(error.message); return }
+    setForgotSent(true)
+  }
+
+  const handleReset = async (e) => {
+    e.preventDefault()
+    setResetError('')
+    if (newPassword !== newPasswordConfirm) { setResetError('Lozinke se ne poklapaju.'); return }
+    if (newPassword.length < 6) { setResetError('Lozinka mora imati najmanje 6 karaktera.'); return }
+    setResetLoading(true)
+    const { error } = await supabase.auth.updateUser({ password: newPassword })
+    setResetLoading(false)
+    if (error) { setResetError(error.message); return }
+    setResetDone(true)
+    // Nakon 2s učitaj portal normalno
+    setTimeout(async () => {
+      const { data: { session } } = await supabase.auth.getSession()
+      if (session) loadStaff(session.user.id)
+    }, 2000)
+  }
+
   const handleLogout = async () => {
     await supabase.auth.signOut()
     setStaff(null)
@@ -203,7 +249,90 @@ export default function StaffPortal() {
           <button type="submit" className={s.loginBtn} style={{ background: brand }} disabled={authLoading}>
             {authLoading ? 'Prijava...' : 'Prijavi se →'}
           </button>
+          <button type="button" className={s.loginForgotBtn} onClick={() => { setAuthError(''); setMode('forgot') }}>
+            Zaboravio/la sam lozinku
+          </button>
         </form>
+      </div>
+    </div>
+  )
+
+  // ── Zaboravljena lozinka ──────────────────────────────────────────
+  if (mode === 'forgot') return (
+    <div className={s.loginPage}>
+      <div className={s.loginCard}>
+        <div className={s.loginHeader} style={{ background: brand }}>
+          {restaurant.logo_url
+            ? <img src={restaurant.logo_url} alt={restaurant.name} className={s.loginLogo} />
+            : <div className={s.loginLogoPlaceholder}>{restaurant.name[0]}</div>
+          }
+          <div className={s.loginRestName}>{restaurant.name}</div>
+          <div className={s.loginSubtitle}>Resetuj lozinku</div>
+        </div>
+        {forgotSent ? (
+          <div className={s.loginForm}>
+            <div className={s.loginSuccess}>
+              ✓ Email je poslan! Provjeri inbox i klikni na link za resetovanje lozinke.
+            </div>
+            <button type="button" className={s.loginForgotBtn} onClick={() => { setForgotSent(false); setMode('login') }}>
+              ← Nazad na prijavu
+            </button>
+          </div>
+        ) : (
+          <form onSubmit={handleForgot} className={s.loginForm}>
+            <p className={s.loginHint}>Unesi svoj email — poslaćemo ti link za resetovanje lozinke.</p>
+            <div className={s.loginField}>
+              <label>Email</label>
+              <input type="email" value={forgotEmail} onChange={e => setForgotEmail(e.target.value)}
+                placeholder="vas@email.com" required autoComplete="email" />
+            </div>
+            {forgotError && <div className={s.loginError}>{forgotError}</div>}
+            <button type="submit" className={s.loginBtn} style={{ background: brand }} disabled={forgotLoading}>
+              {forgotLoading ? 'Slanje...' : 'Pošalji link →'}
+            </button>
+            <button type="button" className={s.loginForgotBtn} onClick={() => setMode('login')}>
+              ← Nazad na prijavu
+            </button>
+          </form>
+        )}
+      </div>
+    </div>
+  )
+
+  // ── Nova lozinka (recovery) ───────────────────────────────────────
+  if (mode === 'reset') return (
+    <div className={s.loginPage}>
+      <div className={s.loginCard}>
+        <div className={s.loginHeader} style={{ background: brand }}>
+          {restaurant.logo_url
+            ? <img src={restaurant.logo_url} alt={restaurant.name} className={s.loginLogo} />
+            : <div className={s.loginLogoPlaceholder}>{restaurant.name[0]}</div>
+          }
+          <div className={s.loginRestName}>{restaurant.name}</div>
+          <div className={s.loginSubtitle}>Nova lozinka</div>
+        </div>
+        {resetDone ? (
+          <div className={s.loginForm}>
+            <div className={s.loginSuccess}>✓ Lozinka je uspješno promijenjena! Prijavljivanje...</div>
+          </div>
+        ) : (
+          <form onSubmit={handleReset} className={s.loginForm}>
+            <div className={s.loginField}>
+              <label>Nova lozinka</label>
+              <input type="password" value={newPassword} onChange={e => setNewPassword(e.target.value)}
+                placeholder="najmanje 6 karaktera" required minLength={6} autoComplete="new-password" />
+            </div>
+            <div className={s.loginField}>
+              <label>Potvrdi lozinku</label>
+              <input type="password" value={newPasswordConfirm} onChange={e => setNewPasswordConfirm(e.target.value)}
+                placeholder="ponovi lozinku" required autoComplete="new-password" />
+            </div>
+            {resetError && <div className={s.loginError}>{resetError}</div>}
+            <button type="submit" className={s.loginBtn} style={{ background: brand }} disabled={resetLoading}>
+              {resetLoading ? 'Čuvanje...' : 'Postavi lozinku →'}
+            </button>
+          </form>
+        )}
       </div>
     </div>
   )
