@@ -481,8 +481,8 @@
     flex: none;
   }
 
-  /* Minimalni canvas prostor za scroll na mobilnom */
-  .canvasSpacer { width: 1200px; height: 800px; }
+  /* Minimalna visina za vertikalni scroll — širina prati sadržaj */
+  .canvasSpacer { height: 800px; }
 
   /* Sakrij globus emoji — štedi prostor na mobilnom */
   .panelEmptyIcon { display: none; }
