@@ -1,4 +1,4 @@
-import { useState, useEffect, useRef, useMemo } from 'react'
+import { useState, useEffect, useRef } from 'react'
 import { useParams, useNavigate } from 'react-router-dom'
 import { supabase } from '../../../lib/supabase'
 import { usePlatform } from '../../../context/PlatformContext'
@@ -185,7 +185,7 @@ export default function GuestProfilePage() {
     inRange(a.appointment_date) && matchSearch(`${a.spa_services?.name ?? ''} ${a.spa_therapists?.staff?.first_name ?? ''}`)
   )
 
-  const allActivities = useMemo(() => [
+  const allActivities = [
     ...filteredVisits.map(v => ({
       _key: `v-${v.id}`, _date: v.visit_date,
       _icon: '🍽️', _label: 'Posjeta', _labelBg: '#E1F5EE', _labelColor: '#085041',
@@ -217,7 +217,7 @@ export default function GuestProfilePage() {
       _amount: a.price ? Number(a.price) : null,
       _status: SPA_STATUS[a.status]?.label, _stBg: SPA_STATUS[a.status]?.bg, _stColor: SPA_STATUS[a.status]?.color,
     })),
-  ].sort((a, b) => (b._date ?? '').localeCompare(a._date ?? '')), [filteredVisits, filteredOrders, filteredHotel, filteredSpa])
+  ].sort((a, b) => (b._date ?? '').localeCompare(a._date ?? ''))
 
   return (
     <div className={styles.page}>
