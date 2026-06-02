@@ -128,7 +128,7 @@ Deno.serve(async (req) => {
         .from('staff')
         .update({ user_id: userId, role_id: role_id || null, is_active: true })
         .eq('id', existingStaff.id)
-        .select('*, role:roles(name)')
+        .select('*, role:roles!role_id(name)')
         .single()
       if (updateErr) {
         return new Response(JSON.stringify({ error: 'Greška pri ažuriranju staff zapisa: ' + updateErr.message }), {
@@ -149,7 +149,7 @@ Deno.serve(async (req) => {
           is_active: true,
           start_date: today,
         })
-        .select('*, role:roles(name)')
+        .select('*, role:roles!role_id(name)')
         .single()
       if (insertErr) {
         return new Response(JSON.stringify({ error: 'Greška pri kreiranju staff zapisa: ' + insertErr.message }), {
