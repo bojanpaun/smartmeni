@@ -5,7 +5,7 @@ import styles from './RoomCard.module.css'
 // Check-in je uklonjen sa ove stranice — vrši se na Front Desku ili u rezervaciji.
 // Dugme 'occupied' (Check-in) više nije dostupno ovdje.
 const STATUS_ACTIONS = {
-  available:   ['maintenance', 'blocked'],
+  available:   ['cleaning', 'maintenance', 'blocked'],
   occupied:    ['cleaning'],
   cleaning:    ['available', 'maintenance'],
   maintenance: ['available', 'blocked'],
@@ -25,8 +25,12 @@ export default function RoomCard({ room, isCheckedIn, onStatusChange }) {
   // Akcije se baziraju na rooms.status (za cleaning/maintenance/blocked workflow)
   const actions = STATUS_ACTIONS[room.status] ?? []
 
-  // Ako je soba zauzeta (aktivan check-in iz rezervacije), jedina akcija je čišćenje
-  const visibleActions = isCheckedIn ? ['cleaning'] : actions
+  // Zauzeta + cleaning → zadatak već postoji, nema dugmadi
+  // Zauzeta + ostalo  → jedina akcija je čišćenje
+  // Slobodna/ostalo   → standardne akcije po statusu
+  const visibleActions = isCheckedIn
+    ? (room.status === 'cleaning' ? [] : ['cleaning'])
+    : actions
 
   return (
     <div className={`${styles.card} ${isCheckedIn ? styles.occupied : styles[room.status]}`}>
@@ -38,12 +42,14 @@ export default function RoomCard({ room, isCheckedIn, onStatusChange }) {
         >
           {room.room_number}
         </span>
-        {/* Status iz rezervacija ima prednost nad rooms.status za prikaz */}
         {isCheckedIn
           ? <span className={styles.badgeOccupied}>Zauzeta</span>
           : <RoomStatusBadge status={room.status} />
         }
       </div>
+      {isCheckedIn && room.status === 'cleaning' && (
+        <div className={styles.cleaningIndicator}>🧹 Čišćenje u toku</div>
+      )}
 
       {room.room_types && (
         <div className={styles.type}>{room.room_types.name}</div>
