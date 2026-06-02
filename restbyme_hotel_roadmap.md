@@ -1,6 +1,6 @@
 # rest.by.me — HospitalityOS Produkt roadmap
 
-> **Verzija:** 4.3 *(dopunjeno — Hotel Rezervacije UI refaktor: nova lista+kalendar arhitektura, DateNav sistem, Guest Profile Pro, WaiterMapView mobile, Y.3 DoD završen — 2026-06-02)*
+> **Verzija:** 4.4 *(dopunjeno — integracija Hotel IS spec: Faza N nocni audit+split folio, Faza P PMS proširenja, GDPR UI, Inventory Pro v2, Faza M MICE, Faza 8.6 Marketing auto, Faza Z.2 HR Pro — 2026-06-02)*
 > **Kontekst:** Evolucija rest.by.me (bivši SmartMeni) SaaS platforme prema punom hospitality management sistemu
 > **Tim:** 1 developer + Claude Code AI asistent
 > **Branch:** `main` → direktno na produkciju (Vercel auto-deploy)
@@ -83,6 +83,8 @@ Trenutno `restaurants` tabla služi kao primarni tenant identifikator. Hotel bez
 | `analytics_pro` | Napredni izvještaji, export PDF/Excel | ✅ UI + billing guard |
 | `loyalty` | Loyalty bodovi, tier sistem, redemption | ⬜ Faza 8 |
 | `channel_manager` | Sync sa Booking.com, Airbnb, Expedia | ⬜ Faza 6 |
+| `mice` | Konferencije, sale, eventi, BEO, korporativni klijenti | ⬜ Faza M |
+| `marketing_auto` | Post-stay email, birthday trigger, re-engagement kampanje | ⬜ Faza 8.6 |
 | `multi_property` | Upravljanje više nekretnina jednim nalogom | ⬜ Faza 9 |
 | `portfolio_owner` | Portfolio dashboard, komparativna analitika | ⬜ Faza 9 |
 | `brand_mgmt` | Centralizovani sabloni, više brandova | ⬜ Faza 10 |
@@ -97,6 +99,8 @@ Trenutno `restaurants` tabla služi kao primarni tenant identifikator. Hotel bez
 | `housekeeping` | Housekeeping dashboard i taskovi | ✅ UI implementiran |
 | `revenue_mgmt` | Dinamičke cijene, yield management, RevPAR | ✅ UI + metrics |
 | `spa_wellness` | Booking spa tretmana, kapaciteta, terapeuti, folio integracija | ✅ Implementiran (admin UI, booking, analitika) |
+| `night_audit` | Nocni audit (EOD), split folio, doručak kontrola | ⬜ Faza N |
+| `pms_pro` | Room service, minibar, grupne rezervacije, waitlista | ⬜ Faza P |
 
 ---
 
@@ -897,6 +901,197 @@ Oba editora (`HotelLandingEditor`, `RestaurantLandingEditor`) ostaju odvojeni (s
 
 ---
 
+## ⬜ Faza N — Nocni audit + Split folio + Doručak kontrola
+
+> **Preduslov:** `hotel_core` aktivan.
+> **Trajanje:** 5–7 dana
+> **Addon:** `night_audit` (ili uključiti u `hotel_core`)
+> **Izvor:** Hotel IS Funkcionalna Specifikacija — Modul 1 (PMS) + Modul 3 (Finansije)
+
+### Motivacija
+
+Svaki hotel mora obaviti nocni audit svaki dan — bez njega financijski izvještaji su netačni, room charge stavke za narednu noć se ne dodaju na folio, a statusi soba se ne resetuju. Trenutno ne postoji ni dugme ni automatizacija za ovaj proces.
+
+### Nocni audit (Night Audit)
+
+Automatski EOD (End-of-Day) proces — pokreće se jednim klikom ili automatski u ponoć:
+
+- Prenosi dnevne troškove soba (room charge) na sve otvorene folije
+- Provjerava otvorene folije za check-out goste i signalizira ih
+- Generira dnevni financijski izvještaj: prihodi po kategoriji (soba/spa/F&B/ostalo), popunjenost, ADR
+- Resetuje housekeeping statuse (checked_out sobe → `cleaning`)
+- Opciono: datum lock prethodnog dana (prethodni unosi se ne mogu brisati)
+
+### Split folio
+
+Jedan gost, više folija po rezervaciji (ključno za poslovne goste):
+
+- Admin kreira sekundarni folio uz postojeći (npr. `Osobni troškovi` + `Firma d.o.o.`)
+- Svaka folio stavka se može dodijeliti na specifičan folio
+- Oba folija mogu imati različite načine plaćanja (kartica + gotovina, firma + gost)
+- Folio print generira zasebne izvještaje po foliju
+
+### Doručak kontrola
+
+Evidencija konzumiranja uključenih doručaka po sobi (sprječava zloupotrebe):
+
+- Sobe s uključenim doručkom imaju flag `breakfast_included` (iz `rate_plans`)
+- Recepcioner ili konobar potvrđuje doručak po sobi (scan sobe ili ručni unos)
+- Dnevni pregled: koliko soba ima uključen doručak, koliko iskorišteno
+- Neiskorišteni doručci vidljivi u F&B analitici
+
+### Definition of Done
+
+- [ ] Nocni audit — dugme u admin panelu + pg_cron automatski u ponoć
+- [ ] Nocni audit — room charge stavke dodaju se na sve otvorene folije
+- [ ] Nocni audit — dnevni financijski izvještaj (screen prikaz + CSV export)
+- [ ] Split folio — kreiranje sekundarnog folija uz rezervaciju
+- [ ] Split folio — dodjela stavki na specifičan folio
+- [ ] Split folio — zasebni print za svaki folio
+- [ ] `breakfast_included` flag na `rate_plans`
+- [ ] Doručak kontrola — dnevna evidencija konzumiranja po sobi
+- [ ] Doručak kontrola — dnevni izvještaj (planirano vs. iskorišteno)
+
+---
+
+## ⬜ Faza P — PMS proširenja (Room service, Minibar, Grupne rezervacije)
+
+> **Preduslov:** `hotel_core` + `booking_engine` aktivni.
+> **Trajanje:** 10–14 dana
+> **Addon:** `pms_pro`
+> **Izvor:** Hotel IS Funkcionalna Specifikacija — Modul 1 (PMS) + Modul 2 (F&B)
+
+### Room service
+
+Gost naručuje hranu/piće direktno iz sobe:
+
+- Guest App tab "Room service" — lista jela iz F&B menija (ili poseban room service meni)
+- Narudžba ide u kuhinjski/bar dashboard kao poseban tip (`source: room_service`)
+- Status praćenja: primljeno → u pripremi → isporučeno
+- Naplata: automatski na folio gosta, ili gotovina pri isporuci
+- Admin konfiguriše radno vrijeme room servicea i minimalni iznos narudžbe
+
+### Minibar
+
+Evidencija utroška minibar stavki po sobi:
+
+- Admin definira sadržaj minibar po tipu sobe (stavke, količine, cijene)
+- Pri check-out: recepcioner unosi šta je gost konzumirao (ili gost samo prijavi)
+- Minibar stavke automatski idu na folio pri check-out
+- Izvještaj: prosjek utroška po sobi, najpopularnije stavke
+
+### Grupne rezervacije
+
+Za hotele koji primaju grupe (vjenčanja, sportski timovi, korporativni incentivi):
+
+- Grupna rezervacija — blokiranje N soba određenog tipa za period
+- Rooming lista — dodjela konkretnih gostiju sobama unutar grupe
+- Pickup tracking — koliko od blokiranog je rezervisano/potvrđeno
+- Group master folio — jedinstven račun za cijelu grupu (plaća organizator)
+- Waitlista — pri otkazivanju, automatski email prvom na listi
+
+### Definition of Done
+
+- [ ] Room service tab u Guest App s listom stavki
+- [ ] Room service narudžbe vidljive u Kitchen/Bar dashboardu (`source: room_service`)
+- [ ] Room service stavke automatski na folio gosta
+- [ ] Minibar definicija po tipu sobe (admin)
+- [ ] Minibar — unos utroška pri check-out s kalkulacijom iznosa
+- [ ] Minibar stavke automatski na folio
+- [ ] Grupna rezervacija — kreiranje s brojem blokira soba
+- [ ] Rooming lista — dodjela gostiju sobama unutar grupe
+- [ ] Pickup tracking na admin UI (N blokirana, N potvrđena)
+- [ ] Group master folio — sve stavke grupe na jedan folio
+- [ ] `waitlist` tabela + automatski email pri oslobađanju sobe
+
+---
+
+## ⬜ GDPR Compliance UI
+
+> **Preduslov:** Nijedan — cross-cutting feature.
+> **Trajanje:** 3–4 dana
+> **Prioritet:** 🔴 Visok — zakonska obaveza (GDPR / Zakon o zaštiti ličnih podataka)
+> **Izvor:** Hotel IS Funkcionalna Specifikacija — Modul 14 (GDPR)
+
+### Funkcionalni zahtjevi
+
+**Pravo na brisanje (Right to be Forgotten)**
+- Admin može pokrenuti "Anonimizacija gosta" iz GuestProfilePage
+- Akcija zamjenjuje ime/email/tel/dokument placeholderima (`Anonymized`, `deleted@gdpr.local`, `—`)
+- Poslovni zapisi ostaju netaknuti (iznosi, folio, datumi) — samo lični podaci se brišu
+- Audit log bilježi: ko je, kada i koji `guest_id` anonimizirao
+
+**Export podataka (Right to Portability)**
+- Admin ili gost može zatražiti download profila u JSON formatu
+- Export uključuje: osnovni profil, historiju boravaka, spa tretmane, loyalty bodove, privole
+
+**Privola management**
+- `guests` tabela dobija kolone: `gdpr_consent_at`, `gdpr_consent_version`, `marketing_opt_in`
+- Eksplicitni checkbox na BookingPage i Guest App registraciji
+- Admin pregled: kada i na koji tekst privole je gost pristao
+
+**Data retention podsjetnik**
+- Admin konfiguriše period čuvanja (default: 3 godine od zadnjeg kontakta)
+- Periodični izvještaj gostiju čije podatke treba provjeriti ili obrisati
+
+### Definition of Done
+
+- [ ] "Anonimizacija gosta" dugme u GuestProfilePage + potvrda
+- [ ] Anonimizacija čuva poslovne zapise, briše lične podatke
+- [ ] Audit log anonimizacije (`staff_id`, `timestamp`, `guest_id`)
+- [ ] Export profila gosta u JSON (download link)
+- [ ] `gdpr_consent_at` + `marketing_opt_in` kolone u `guests` tabeli
+- [ ] Checkbox privole na BookingPage (online booking)
+- [ ] Checkbox privole na Guest App
+- [ ] Admin pregled privola po gostu u GuestProfilePage
+- [ ] Data retention konfiguracija + izvještaj "gosti za provjeru"
+
+---
+
+## ⬜ Inventory Pro v2 — Dobavljači, Narudžbenice, Inventura
+
+> **Preduslov:** `inventory_pro` addon aktivan.
+> **Trajanje:** 7–10 dana
+> **Addon:** Proširenje postojećeg `inventory_pro`
+> **Izvor:** Hotel IS Funkcionalna Specifikacija — Modul 9 (Nabavka i zalihe)
+
+### Registar dobavljača
+
+- Naziv, kontakt osoba, email, telefon, kategorija (F&B / Spa / Housekeeping / Tehničko)
+- Ugovorena cijena i uvjeti plaćanja (rokovi, popusti)
+- Ocjena dobavljača (admin rating 1–5)
+- Historija narudžbi i prosječno vrijeme isporuke
+- Nova tabela: `suppliers` (restaurant_id, name, contact, category, lead_days, rating)
+
+### Narudžbenica (Purchase Order)
+
+- Admin kreira PO s dobavljačem i stavkama iz `inventory_items`
+- Approval workflow: `draft` → `approved` → `sent` → `received`
+- Primka robe: evidentiranje primljene količine vs. naručene — razlike se bilježe
+- Auto-draft PO: kada `inventory_items.quantity` padne ispod `min_quantity`, sistem generiše draft PO
+- Nova tabela: `purchase_orders` + `purchase_order_items`
+
+### Inventura
+
+- Admin pokreće inventuru za odjel i datum
+- Unos stvarnog stanja po stavci; sistem prikazuje razliku vs. evidentiranog
+- Generisanje izvještaja razlika s vrijednosnim iskazom (razlika × nabavna cijena)
+- Inventura zaključuje period: prethodni unosi se više ne mogu mijenjati
+- Nova tabela: `stock_takes` + `stock_take_items`
+
+### Definition of Done
+
+- [ ] `suppliers` tabela + CRUD u `/admin/inventory`
+- [ ] Dobavljači vezani za `inventory_items` (svaka stavka ima preferirani dobavljač)
+- [ ] `purchase_orders` tabela + kreiranje PO s approval workflowom
+- [ ] Primka robe — unos stvarno primljene količine, ažuriranje stanja
+- [ ] Auto-draft PO pri dostizanju minimalnog nivoa
+- [ ] `stock_takes` tabela + UI za unos stvarnog stanja
+- [ ] Izvještaj razlika inventure s vrijednosnim iskazom
+- [ ] Period lock po inventuri
+
+---
+
 ## ⬜ Faza 6 — Channel Manager (`channel_manager`)
 
 > **Preduslov:** `hotel_core` + `booking_engine` s availability engineom.
@@ -1549,6 +1744,181 @@ GROUP BY a.restaurant_id, DATE_TRUNC('month', a.appointment_date), s.name;
 
 ---
 
+## ⬜ Faza M — MICE addon (Konferencije i eventi)
+
+> **Preduslov:** `hotel_core` aktivan. F&B modul preporučen.
+> **Trajanje:** 12–16 dana
+> **Addon ID:** `mice` (~149€/mj hotel-specifični addon)
+> **Izvor:** Hotel IS Funkcionalna Specifikacija — Modul 5 (MICE)
+
+### Motivacija
+
+Hoteli koji imaju konferencijsku salu propuštaju značajan prihod jer ne mogu efikasno upravljati rezervacijama sala i billingom po eventu. Bez ovog modula eventi se bilježe ručno (Excel), bez integracije s foliom, F&B-om ili korporativnim klijentima.
+
+### Baza podataka
+
+```sql
+CREATE TABLE conference_rooms (
+  id UUID PRIMARY KEY DEFAULT gen_random_uuid(),
+  restaurant_id UUID REFERENCES restaurants(id) ON DELETE CASCADE,
+  name TEXT NOT NULL,
+  capacity_theatre INT, capacity_classroom INT,
+  capacity_banquet INT, capacity_cocktail INT, capacity_u_shape INT,
+  area_m2 NUMERIC,
+  price_per_hour NUMERIC, price_per_day NUMERIC,
+  equipment JSONB DEFAULT '[]',  -- ['projector','screen','microphone','AC','wifi']
+  floor INT, is_active BOOLEAN DEFAULT true,
+  created_at TIMESTAMPTZ DEFAULT now()
+);
+
+CREATE TABLE corporate_clients (
+  id UUID PRIMARY KEY DEFAULT gen_random_uuid(),
+  restaurant_id UUID REFERENCES restaurants(id) ON DELETE CASCADE,
+  company_name TEXT NOT NULL,
+  contact_name TEXT, contact_email TEXT, contact_phone TEXT,
+  vat_number TEXT, address TEXT,
+  contract_discount NUMERIC DEFAULT 0,  -- % popusta na standardnu tarifu
+  created_at TIMESTAMPTZ DEFAULT now()
+);
+
+CREATE TABLE events (
+  id UUID PRIMARY KEY DEFAULT gen_random_uuid(),
+  restaurant_id UUID REFERENCES restaurants(id) ON DELETE CASCADE,
+  corporate_client_id UUID REFERENCES corporate_clients(id),
+  name TEXT NOT NULL,
+  event_type TEXT,  -- 'conference' | 'seminar' | 'wedding' | 'incentive' | 'other'
+  start_date DATE NOT NULL, end_date DATE NOT NULL,
+  attendees_count INT,
+  status TEXT DEFAULT 'inquiry',  -- inquiry | confirmed | completed | cancelled
+  total_amount NUMERIC DEFAULT 0,
+  deposit_amount NUMERIC DEFAULT 0, deposit_paid BOOLEAN DEFAULT false,
+  notes TEXT, created_at TIMESTAMPTZ DEFAULT now()
+);
+
+CREATE TABLE event_room_bookings (
+  id UUID PRIMARY KEY DEFAULT gen_random_uuid(),
+  event_id UUID REFERENCES events(id) ON DELETE CASCADE,
+  conference_room_id UUID REFERENCES conference_rooms(id),
+  date DATE NOT NULL, start_time TIME NOT NULL, end_time TIME NOT NULL,
+  setup TEXT,  -- 'theatre' | 'banquet' | 'u_shape' | 'cocktail'
+  price NUMERIC, notes TEXT
+);
+
+CREATE TABLE event_beo (
+  id UUID PRIMARY KEY DEFAULT gen_random_uuid(),
+  event_id UUID REFERENCES events(id) ON DELETE CASCADE,
+  content JSONB DEFAULT '{}',  -- raspored, osoblje, hrana, oprema
+  updated_at TIMESTAMPTZ DEFAULT now()
+);
+```
+
+### Admin UI (`/admin/hotel/mice/...`)
+
+| Ruta | Stranica |
+|------|---------|
+| `/admin/hotel/mice` | MICE Dashboard — eventi danas/sedmica, prihod, kapacitet |
+| `/admin/hotel/mice/calendar` | Vizualni kalendar zauzetosti svih sala |
+| `/admin/hotel/mice/events` | Lista i upravljanje eventima |
+| `/admin/hotel/mice/events/new` | Kreiranje eventa s BEO |
+| `/admin/hotel/mice/rooms` | Upravljanje salama |
+| `/admin/hotel/mice/clients` | Korporativni klijenti |
+
+### Ključne funkcionalnosti
+
+- Vizualni kalendar sala — zauzetost u realnom vremenu, bez vremenskog preklopa
+- BEO editor — detaljan nalog za event (raspored dana, hrana, osoblje, oprema)
+- Ponuda (PDF) — generisanje iz sistema s cijenama i uvjetima
+- Korporativni klijenti — firma s ugovorenom cijenom i historijom dogadjaja
+- Depoziti i plaćanje — praćenje uplata, ostatak duga
+- F&B integracija — katering za kafe-pauze i obroke automatski na event billing
+- Folio integracija — event charges na folio korporativnog klijenta ili direktna naplata
+
+### Definition of Done
+
+- [ ] `conference_rooms`, `events`, `event_room_bookings`, `event_beo`, `corporate_clients` tabele sa RLS
+- [ ] MICE Dashboard (eventi danas/sedmica, prihod, kapacitet %)
+- [ ] Vizualni kalendar zauzetosti sala
+- [ ] Event CRUD s lifecycle: inquiry → confirmed → completed → cancelled
+- [ ] Bez vremenskog preklopa — sala ne može biti rezervisana dva puta
+- [ ] BEO editor — print-ready prikaz
+- [ ] Korporativni klijenti CRUD s ugovorenom cijenom
+- [ ] PDF ponuda generisana iz sistema
+- [ ] Depoziti — praćenje uplata i ostatka
+- [ ] F&B integracija — katering stavke na event billing
+- [ ] Folio integracija — naplata korporativnog klijenta
+
+---
+
+## ⬜ Faza 8.6 — Marketing automation addon (`marketing_auto`)
+
+> **Preduslov:** `hotel_core` aktivan. Resend API konfigurisan.
+> **Trajanje:** 5–8 dana
+> **Addon ID:** `marketing_auto`
+> **Izvor:** Hotel IS Funkcionalna Specifikacija — Modul 4 (Prodaja i marketing)
+
+### Motivacija
+
+Imamo Resend infrastrukturu i transakcijske emailove (booking potvrda, check-in/out). Sljedeći korak je automatizacija post-stay komunikacije i targeted ponuda bez ručnog rada — nula manualnog rada za visok engagement.
+
+### Email triggeri
+
+| Trigger | Timing | Sadržaj |
+|---------|--------|---------|
+| Pre-arrival | 2 dana prije check-in | Info o hotelu, parking, spa, room service |
+| Post-stay | 24h nakon check-out | Zahvalnica + link za Google/TripAdvisor recenziju |
+| Birthday | X dana prije rodjendana | Personalizovana ponuda za boravak (ako imamo datum) |
+| Re-engagement | 6+ mj bez boravka | "Nedostajete nam" s aktuelnom ponudom |
+| Spa reminder | 2 dana boravka bez spa termina | Info o spa + link za booking |
+
+### Admin konfigurator (`/admin/marketing`)
+
+- Toggle aktivnih kampanja per tip
+- Per-kampanja: timing (dani), email template, ciljni segment (svi / loyalty / VIP)
+- Statistike: sent / opened / clicked per kampanja (Resend webhook)
+
+### Edge Functions
+
+- `marketing-scheduler` — pg_cron svakih sat, skenira triggere iz `hotel_reservations` i `guests`
+- `send-marketing-email` — šalje konkretan email sa templateom i unsubscribe linkovima
+
+### Nova tabela
+
+```sql
+CREATE TABLE marketing_emails (
+  id UUID PRIMARY KEY DEFAULT gen_random_uuid(),
+  restaurant_id UUID REFERENCES restaurants(id),
+  guest_id UUID REFERENCES guests(id),
+  campaign_type TEXT NOT NULL,
+  sent_at TIMESTAMPTZ,
+  opened_at TIMESTAMPTZ,
+  clicked_at TIMESTAMPTZ,
+  reservation_id UUID REFERENCES hotel_reservations(id)
+);
+
+CREATE TABLE marketing_campaigns (
+  id UUID PRIMARY KEY DEFAULT gen_random_uuid(),
+  restaurant_id UUID REFERENCES restaurants(id),
+  campaign_type TEXT NOT NULL,
+  is_active BOOLEAN DEFAULT false,
+  timing_days INT DEFAULT 1,  -- X dana prije/poslije triggera
+  segment TEXT DEFAULT 'all'  -- 'all' | 'loyalty' | 'vip'
+);
+```
+
+### Definition of Done
+
+- [ ] `marketing_emails` i `marketing_campaigns` tabele sa RLS
+- [ ] `marketing-scheduler` Edge Function + pg_cron hourly
+- [ ] Pre-arrival email (2 dana prije check-in)
+- [ ] Post-stay email (24h nakon check-out) s linkom za recenziju
+- [ ] Birthday email (ako `guests.date_of_birth` postoji)
+- [ ] Re-engagement email (6+ mj bez rezervacije)
+- [ ] Admin UI `/admin/marketing` — toggle kampanja, statistike
+- [ ] Resend webhook → ažuriranje `opened_at` / `clicked_at`
+- [ ] Gost može unsubscribeovati (`marketing_opt_in = false` u `guests`)
+
+---
+
 ## ⬜ Faza Z — Unified Staff Portal (`/:slug/staff`)
 
 > **Preduslov:** Nijedan — ova faza refaktoriše postojeće portale i ne zahtijeva novi addon.
@@ -1755,6 +2125,46 @@ CREATE TABLE staff_announcements (
 - [ ] `staff_announcements` tabela sa RLS
 - [ ] Admin forma za kreiranje obavijesti
 - [ ] Obavijesti prikazane u Home tabu portala (samo aktivne, neistekle)
+
+---
+
+## ⬜ Faza Z.2 — HR Pro proširenja (Obuke, Performanse, Dokumenti)
+
+> **Preduslov:** Faza Z + Z.1 završene, `hr_pro` addon aktivan.
+> **Trajanje:** 5–7 dana
+> **Addon:** Proširenje `hr_pro`
+> **Izvor:** Hotel IS Funkcionalna Specifikacija — Modul 7 (HR)
+
+### Plan obuke
+
+- Admin definira godišnji plan edukacije po zaposleniku ili poziciji
+- Svaka obuka: naziv, institucija, datum, trajanje, status, upload potvrde
+- Praćenje realizacije: planirano vs. obavljeno
+- Tabela `staff_trainings` (staff_id, naziv, institucija, datum, status, potvrda_url)
+
+### Performanse / Evaluacija
+
+- Godišnja ili polugodišnja evaluacija zaposlenika (manager → zaposlenik)
+- Manager unosi: period, ciljevi, ocjena (1–5), komentar
+- Zaposlenik vidi vlastite evaluacije u Staff portalu (Profil tab)
+- Historija svih evaluacija po zaposleniku u `StaffProfilePage`
+- Tabela `staff_evaluations` (staff_id, period, ocjena, ciljevi, komentar, created_by)
+
+### Dokumenti zaposlenika
+
+- Admin uploaduje ugovor, certifikate, licence u Supabase Storage
+- Upload u `StaffProfilePage` → novi tab "Dokumenti"
+- Zaposlenik vidi vlastite dokumente u Staff portalu (Profil tab)
+- Tabela `staff_documents` (staff_id, naziv, tip, file_url, uploaded_at, uploaded_by)
+
+### Definition of Done
+
+- [ ] `staff_trainings` tabela + CRUD u StaffProfilePage
+- [ ] Plan obuke — godišnji pregled sa statusima i upload potvrde
+- [ ] `staff_evaluations` tabela + forma za managera (ocjena, ciljevi, komentar)
+- [ ] Evaluacije vidljive zaposleniku u Staff portalu Profil tabu
+- [ ] `staff_documents` tabela + upload u Supabase Storage (`staff-docs` bucket)
+- [ ] Dokumenti vidljivi zaposleniku u Staff portalu Profil tabu
 
 ---
 
@@ -2161,6 +2571,35 @@ RLS politike se proširuju da provjeravaju `portfolio_access.scope` — regional
 | feat | Maintenance kreiranje s room_id → rooms.status = 'maintenance' automatski (soba blokirana za booking) | ✅ | 2026-06-01 |
 | feat | Maintenance verifikacija → rooms.status = 'available' automatski (soba oslobođena) | ✅ | 2026-06-01 |
 | feat | Maintenance stats sub-row + filter chipovi (Otvoreno/U toku/Završeno/Verifikovano) + MaintStatusBadge | ✅ | 2026-06-01 |
+| N | Nocni audit — dugme + pg_cron scheduler + room charge na folije | ⬜ | |
+| N | Nocni audit — dnevni financijski izvještaj (screen + CSV) | ⬜ | |
+| N | Split folio — kreiranje sekundarnog folija, dodjela stavki, zasebni print | ⬜ | |
+| N | Doručak kontrola — breakfast_included flag, dnevna evidencija, izvještaj | ⬜ | |
+| P | Room service — Guest App tab, Kitchen/Bar dashboard, folio | ⬜ | |
+| P | Minibar — definicija po sobi, unos utroška, folio pri check-out | ⬜ | |
+| P | Grupne rezervacije — blokiranje, rooming lista, pickup, group master folio | ⬜ | |
+| P | Waitlista — zapis + email pri oslobađanju | ⬜ | |
+| GDPR | Anonimizacija gosta (Right to be Forgotten) + audit log | ⬜ | |
+| GDPR | Export profila gosta u JSON | ⬜ | |
+| GDPR | gdpr_consent_at + marketing_opt_in kolone + checkbox na BookingPage | ⬜ | |
+| GDPR | Data retention konfiguracija + izvještaj gostiju za provjeru | ⬜ | |
+| inv2 | suppliers tabela + CRUD + veza na inventory_items | ⬜ | |
+| inv2 | purchase_orders — kreiranje, approval workflow, primka robe | ⬜ | |
+| inv2 | Auto-draft PO pri dostizanju min. nivoa zalihe | ⬜ | |
+| inv2 | stock_takes — inventura, stvarno stanje, izvještaj razlika, period lock | ⬜ | |
+| M | conference_rooms + events + event_room_bookings + corporate_clients tabele | ⬜ | |
+| M | MICE Dashboard (eventi, prihod, kapacitet %) | ⬜ | |
+| M | Vizualni kalendar zauzetosti sala + bez preklopa | ⬜ | |
+| M | Event CRUD s BEO editorom + PDF ponuda | ⬜ | |
+| M | Korporativni klijenti CRUD s ugovorenom cijenom | ⬜ | |
+| M | Depoziti + F&B integracija + folio integracija | ⬜ | |
+| 8.6 | marketing_emails + marketing_campaigns tabele | ⬜ | |
+| 8.6 | marketing-scheduler Edge Function + pg_cron hourly | ⬜ | |
+| 8.6 | Pre-arrival, post-stay, birthday, re-engagement, spa reminder emailovi | ⬜ | |
+| 8.6 | Admin UI /admin/marketing — toggle kampanja, statistike | ⬜ | |
+| Z.2 | staff_trainings tabela + CRUD + upload potvrde | ⬜ | |
+| Z.2 | staff_evaluations tabela + forma managera + prikaz u portalu | ⬜ | |
+| Z.2 | staff_documents tabela + upload + prikaz u portalu | ⬜ | |
 | Z.1 | Home tab (uvijek prvi) + HomeView.jsx — smjena, clock, godišnji | ⬜ | |
 | Z.1 | Clock in/out dugme u portalu (INSERT/UPDATE attendance_entries) | ⬜ | |
 | Z.1 | Live timer dok je zaposlenik na poslu (svake sekunde) | ⬜ | |
@@ -2342,9 +2781,23 @@ RLS politike se proširuju da provjeravaju `portfolio_access.scope` — regional
 ├── Jun–Jul    🔄 Faza 3d — Stripe payment za booking
 │                            Payment Intent flow, webhook, email potvrda
 │
+│              ⬜ Faza N  — Nocni audit + Split folio + Doručak kontrola
+│                            EOD automatizacija, room charge na folije, split billing
+│
+│              ⬜ GDPR    — Compliance UI (anonimizacija, export, privole)
+│
 ├── Jul        🔄 Faza 1d — Stripe addon purchase flow
 │
-├── Sep+       ⬜ Faza 6  — Channel Manager (Beds24 integracija)
+│              ⬜ Faza P  — PMS proširenja (Room service, Minibar, Grupne rezervacije)
+│
+│              ⬜ Inventory Pro v2 — Dobavljači, PO, Inventura
+│
+├── Sep+       ⬜ Faza M  — MICE addon (Sale, eventi, BEO, korporativni klijenti)
+│
+│              ⬜ Faza 8.6 — Marketing automation addon
+│                            Pre-arrival, post-stay, birthday, re-engagement emailovi
+│
+│              ⬜ Faza 6  — Channel Manager (Beds24 integracija)
 │
 2027
 │
@@ -2361,9 +2814,11 @@ RLS politike se proširuju da provjeravaju `portfolio_access.scope` — regional
 
 2028
 │
+│              ⬜ Faza Z.2 — HR Pro proširenja (Obuke, Performanse, Dokumenti)
+│
 └── TBD        ⬜ Faza Y.2 — Custom domain podrška (Vercel API, po potražnji)
 ```
 
 ---
 
-*Roadmap ažuriran: 2026-06-02 (v4.3 — Hotel Rezervacije UI refaktor: nova lista+kalendar arhitektura, DateNav sistem showMonth/allowAll, Guest Profile Pro: Sve tab+DateNav+narudžbe, WaiterMapView mobile: card grid+bottom sheet, Y.3 DoD checkboxevi završeni; v4.2 — Faza Z.1 Staff Portal platforma; v4.1 — Rate Plan Rooms) | Branch: main | Deployment: Vercel auto-deploy*
+*Roadmap ažuriran: 2026-06-02 (v4.4 — integracija Hotel IS Funkcionalne Spec: 7 novih faza/sekcija: N nocni audit+split folio, P PMS proširenja room service+minibar+grupne rez., GDPR compliance UI, Inventory Pro v2 dobavljači+PO+inventura, M MICE addon sale+eventi+BEO+korporativni, 8.6 marketing automation, Z.2 HR Pro obuke+performanse+dokumenti; 2 nova addona u katalogu; v4.3 — Hotel Rezervacije UI refaktor, Guest Profile Pro, WaiterMapView mobile) | Branch: main | Deployment: Vercel auto-deploy*
