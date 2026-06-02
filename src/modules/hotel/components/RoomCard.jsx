@@ -21,10 +21,16 @@ export default function RoomCard({ room, isCheckedIn, hasCleaning, hasMaintenanc
 
   const actions = STATUS_ACTIONS[room.status] ?? []
 
-  // Dugmad: ukloniti akcije koje su već aktivne
-  const visibleActions = isCheckedIn
-    ? actions.filter(a => !(a === 'cleaning' && hasCleaning) && !(a === 'maintenance' && hasMaintenance))
-    : actions
+  // Badge logika mora biti iznad visibleActions jer se koristi u filteru
+  const showCleaning    = hasCleaning    || room.status === 'cleaning'
+  const showMaintenance = hasMaintenance || room.status === 'maintenance'
+
+  // Zauzeta: fiksna baza cleaning+maintenance (rooms.status može biti 'available')
+  // Slobodna/ostalo: standardne akcije, minus već aktivne
+  const baseActions = isCheckedIn ? ['cleaning', 'maintenance'] : actions
+  const visibleActions = baseActions.filter(
+    a => !(a === 'cleaning' && showCleaning) && !(a === 'maintenance' && showMaintenance)
+  )
 
   // Primarni badge — dostupnost
   const primaryBadge = isCheckedIn
@@ -33,11 +39,13 @@ export default function RoomCard({ room, isCheckedIn, hasCleaning, hasMaintenanc
     ? <span className={styles.badgeBlocked}>Blokirana</span>
     : <span className={styles.badgeAvailable}>Slobodna</span>
 
-  // Sekundarni badge-ovi — task u bazi ILI rooms.status (fallback za ručno postavljene)
-  const showCleaning    = hasCleaning    || room.status === 'cleaning'
-  const showMaintenance = hasMaintenance || room.status === 'maintenance'
-  const cleaningBadge   = showCleaning    ? <span className={styles.badgeCleaning}>🧹 Čišćenje u toku</span>   : null
-  const maintBadge      = showMaintenance ? <span className={styles.badgeMaintenance}>🔧 Servis u toku</span>  : null
+  // Sekundarni badge-ovi — task u bazi ILI rooms.status
+  const cleaningBadge = showCleaning
+    ? <span className={styles.badgeCleaning}>🧹 Čišćenje u toku</span>
+    : null
+  const maintBadge = showMaintenance
+    ? <span className={styles.badgeMaintenance}>🔧 Servis u toku</span>
+    : null
 
   return (
     <div className={`${styles.card} ${isCheckedIn ? styles.occupied : styles[room.status]}`}>

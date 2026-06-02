@@ -28,32 +28,40 @@ export default function RoomsPage() {
   const [cleaningRoomIds,  setCleaningRoomIds]  = useState(new Set())
   const [maintRoomIds,     setMaintRoomIds]     = useState(new Set())
 
-  useEffect(() => {
-    if (!restaurant?.id) return
+  const loadTaskSets = (restaurantId) => {
+    const rid = restaurantId || restaurant?.id
+    if (!rid) return
     const today = new Date().toISOString().slice(0, 10)
     Promise.all([
-      supabase.from('hotel_reservations').select('room_id')
-        .eq('restaurant_id', restaurant.id).eq('status', 'checked_in')
-        .not('room_id', 'is', null),
       supabase.from('housekeeping_tasks').select('room_id')
-        .eq('restaurant_id', restaurant.id)
+        .eq('restaurant_id', rid)
         .in('status', ['pending', 'in_progress'])
         .eq('scheduled_for', today)
         .not('room_id', 'is', null),
       supabase.from('maintenance_requests').select('room_id')
-        .eq('restaurant_id', restaurant.id)
+        .eq('restaurant_id', rid)
         .not('status', 'in', '("verified","resolved")')
         .not('room_id', 'is', null),
-    ]).then(([{ data: res }, { data: tasks }, { data: maint }]) => {
-      setCheckedInIds(new Set((res   ?? []).map(r => r.room_id)))
+    ]).then(([{ data: tasks }, { data: maint }]) => {
       setCleaningRoomIds(new Set((tasks ?? []).map(r => r.room_id)))
       setMaintRoomIds(new Set((maint  ?? []).map(r => r.room_id)))
     })
+  }
+
+  useEffect(() => {
+    if (!restaurant?.id) return
+    supabase.from('hotel_reservations').select('room_id')
+      .eq('restaurant_id', restaurant.id).eq('status', 'checked_in')
+      .not('room_id', 'is', null)
+      .then(({ data }) => setCheckedInIds(new Set((data ?? []).map(r => r.room_id))))
+    loadTaskSets(restaurant.id)
   }, [restaurant?.id])
 
   const handleStatusChange = async (roomId, status, prevStatus) => {
     await updateRoomStatus(roomId, status, prevStatus)
     toast.success('Status sobe ažuriran')
+    // Reload taskova da badge-ovi budu tačni
+    loadTaskSets(restaurant?.id)
   }
 
   // "Zauzeta" u filteru = checked_in iz rezervacija; ostali statusi = rooms.status
