@@ -369,9 +369,9 @@ export default function ReservationsPage() {
               {/* Navigacija — samo za day/week/month */}
               {calGranularity !== 'period' && (
                 <>
-                  <button className={dnStyles.btn} onClick={() => handleCalShift(-1)}>‹ Nazad</button>
-                  <button className={dnStyles.btn} onClick={goToday}>Danas</button>
-                  <button className={dnStyles.btn} onClick={() => handleCalShift(1)}>Naprijed ›</button>
+                  <button className={dnStyles.btnNav} onClick={() => handleCalShift(-1)}>‹ Nazad</button>
+                  <button className={dnStyles.btnNav} onClick={goToday}>Danas</button>
+                  <button className={dnStyles.btnNav} onClick={() => handleCalShift(1)}>Naprijed ›</button>
                 </>
               )}
             </div>

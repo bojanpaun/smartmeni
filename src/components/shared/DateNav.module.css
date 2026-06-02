@@ -28,6 +28,19 @@
   border-color: var(--c-primary-medium);
 }
 
+/* Navigacijski gumbi (Nazad / Danas / Naprijed) — isti oblik, suptilno drugačija pozadina */
+.btnNav {
+  composes: btn;
+  background: var(--c-bg-subtle);
+  color: var(--c-text-medium);
+  border-color: var(--c-border);
+}
+.btnNav:hover {
+  background: var(--c-primary-light);
+  border-color: var(--c-primary-medium);
+  color: var(--c-primary);
+}
+
 .dateInput {
   padding: 6px 10px;
   border-radius: 8px;
