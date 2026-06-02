@@ -3,9 +3,9 @@ import styles from './RoomCard.module.css'
 
 const STATUS_ACTIONS = {
   available:   ['cleaning', 'maintenance', 'blocked'],
-  occupied:    ['cleaning'],
-  cleaning:    ['available', 'maintenance'],
-  maintenance: ['available', 'blocked'],
+  occupied:    ['cleaning', 'maintenance'],
+  cleaning:    ['maintenance'],
+  maintenance: ['blocked'],
   blocked:     ['available'],
 }
 
@@ -16,16 +16,14 @@ const ACTION_LABELS = {
   blocked:     'Blokiraj',
 }
 
-export default function RoomCard({ room, isCheckedIn, onStatusChange }) {
+export default function RoomCard({ room, isCheckedIn, hasCleaning, hasMaintenance, onStatusChange }) {
   const navigate = useNavigate()
 
   const actions = STATUS_ACTIONS[room.status] ?? []
 
-  // Zauzeta + cleaning → zadatak već postoji, nema dugmadi
-  // Zauzeta + ostalo  → jedina akcija je čišćenje
-  // Slobodna/ostalo   → standardne akcije po statusu
+  // Dugmad: ukloniti akcije koje su već aktivne
   const visibleActions = isCheckedIn
-    ? (room.status === 'cleaning' ? ['maintenance'] : ['cleaning', 'maintenance'])
+    ? actions.filter(a => !(a === 'cleaning' && hasCleaning) && !(a === 'maintenance' && hasMaintenance))
     : actions
 
   // Primarni badge — dostupnost
@@ -35,12 +33,9 @@ export default function RoomCard({ room, isCheckedIn, onStatusChange }) {
     ? <span className={styles.badgeBlocked}>Blokirana</span>
     : <span className={styles.badgeAvailable}>Slobodna</span>
 
-  // Sekundarni badge — aktivna operacija (samo kad postoji)
-  const secondaryBadge = room.status === 'cleaning'
-    ? <span className={styles.badgeCleaning}>🧹 Čišćenje u toku</span>
-    : room.status === 'maintenance'
-    ? <span className={styles.badgeMaintenance}>🔧 Servis u toku</span>
-    : null
+  // Sekundarni badge-ovi — prikazuju se na osnovu aktivnih taskova (mogu oba biti aktivna)
+  const cleaningBadge   = hasCleaning   ? <span className={styles.badgeCleaning}>🧹 Čišćenje u toku</span>   : null
+  const maintBadge      = hasMaintenance ? <span className={styles.badgeMaintenance}>🔧 Servis u toku</span> : null
 
   return (
     <div className={`${styles.card} ${isCheckedIn ? styles.occupied : styles[room.status]}`}>
@@ -54,7 +49,8 @@ export default function RoomCard({ room, isCheckedIn, onStatusChange }) {
         </span>
         <div className={styles.badges}>
           {primaryBadge}
-          {secondaryBadge}
+          {cleaningBadge}
+          {maintBadge}
         </div>
       </div>
 

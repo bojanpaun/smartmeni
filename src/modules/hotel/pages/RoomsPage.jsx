@@ -24,18 +24,31 @@ export default function RoomsPage() {
   const { rooms, roomTypes, loading, updateRoomStatus } = useRooms(restaurant?.id)
   const [filter, setFilter] = useState('')
 
-  // IDs soba koje trenutno imaju aktivan check-in (status = 'checked_in')
-  const [checkedInIds, setCheckedInIds] = useState(new Set())
+  const [checkedInIds,    setCheckedInIds]    = useState(new Set())
+  const [cleaningRoomIds,  setCleaningRoomIds]  = useState(new Set())
+  const [maintRoomIds,     setMaintRoomIds]     = useState(new Set())
 
   useEffect(() => {
     if (!restaurant?.id) return
-    supabase
-      .from('hotel_reservations')
-      .select('room_id')
-      .eq('restaurant_id', restaurant.id)
-      .eq('status', 'checked_in')
-      .not('room_id', 'is', null)
-      .then(({ data }) => setCheckedInIds(new Set((data ?? []).map(r => r.room_id))))
+    const today = new Date().toISOString().slice(0, 10)
+    Promise.all([
+      supabase.from('hotel_reservations').select('room_id')
+        .eq('restaurant_id', restaurant.id).eq('status', 'checked_in')
+        .not('room_id', 'is', null),
+      supabase.from('housekeeping_tasks').select('room_id')
+        .eq('restaurant_id', restaurant.id)
+        .in('status', ['pending', 'in_progress'])
+        .eq('scheduled_for', today)
+        .not('room_id', 'is', null),
+      supabase.from('maintenance_requests').select('room_id')
+        .eq('restaurant_id', restaurant.id)
+        .not('status', 'in', '("verified","resolved")')
+        .not('room_id', 'is', null),
+    ]).then(([{ data: res }, { data: tasks }, { data: maint }]) => {
+      setCheckedInIds(new Set((res   ?? []).map(r => r.room_id)))
+      setCleaningRoomIds(new Set((tasks ?? []).map(r => r.room_id)))
+      setMaintRoomIds(new Set((maint  ?? []).map(r => r.room_id)))
+    })
   }, [restaurant?.id])
 
   const handleStatusChange = async (roomId, status, prevStatus) => {
@@ -108,6 +121,8 @@ export default function RoomsPage() {
               key={room.id}
               room={room}
               isCheckedIn={checkedInIds.has(room.id)}
+              hasCleaning={cleaningRoomIds.has(room.id)}
+              hasMaintenance={maintRoomIds.has(room.id)}
               onStatusChange={handleStatusChange}
             />
           ))}
