@@ -4,7 +4,7 @@ import styles from './RoomCard.module.css'
 const STATUS_ACTIONS = {
   available:   ['cleaning', 'maintenance', 'blocked'],
   occupied:    ['cleaning', 'maintenance'],
-  cleaning:    ['maintenance'],
+  cleaning:    ['maintenance', 'blocked'],
   maintenance: ['blocked'],
   blocked:     ['available'],
 }
