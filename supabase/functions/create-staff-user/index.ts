@@ -14,7 +14,7 @@ Deno.serve(async (req) => {
     const authHeader = req.headers.get('Authorization')
     if (!authHeader) {
       return new Response(JSON.stringify({ error: 'Nije autorizovano' }), {
-        status: 401, headers: { ...corsHeaders, 'Content-Type': 'application/json' }
+        status: 401, headers: { ...corsHeaders, 'Content-Type': 'application/json' },
       })
     }
 
@@ -30,11 +30,11 @@ Deno.serve(async (req) => {
       { global: { headers: { Authorization: authHeader } } }
     )
 
-    // Provjeri da je korisnik vlasnik ili superadmin
+    // Provjeri ko poziva
     const { data: { user }, error: userError } = await supabaseUser.auth.getUser()
     if (userError || !user) {
       return new Response(JSON.stringify({ error: 'Nevalidan token' }), {
-        status: 401, headers: { ...corsHeaders, 'Content-Type': 'application/json' }
+        status: 401, headers: { ...corsHeaders, 'Content-Type': 'application/json' },
       })
     }
 
@@ -45,97 +45,137 @@ Deno.serve(async (req) => {
 
     if (!profile?.is_superadmin && !restaurant) {
       return new Response(JSON.stringify({ error: 'Nemate pravo kreiranja korisnika' }), {
-        status: 403, headers: { ...corsHeaders, 'Content-Type': 'application/json' }
+        status: 403, headers: { ...corsHeaders, 'Content-Type': 'application/json' },
       })
     }
 
-    const { email, password, restaurant_id, role_id, action } = await req.json()
+    const {
+      email, password, restaurant_id, role_id,
+      wage_type, wage_amount, action,
+    } = await req.json()
 
     if (!email) {
       return new Response(JSON.stringify({ error: 'Email je obavezan' }), {
-        status: 400, headers: { ...corsHeaders, 'Content-Type': 'application/json' }
+        status: 400, headers: { ...corsHeaders, 'Content-Type': 'application/json' },
       })
     }
 
     const emailLower = email.trim().toLowerCase()
     let userId: string
 
+    // ── 1. Kreiraj ili pronađi Auth korisnika ─────────────────────
     if (action === 'invite') {
-      // ── Pošalji pozivnicu ─────────────────────────────────────────
-      // Pronađi slug restorana za redirect URL
       const { data: rest } = await supabaseAdmin
         .from('restaurants').select('slug').eq('id', restaurant_id).single()
       const siteUrl = Deno.env.get('SITE_URL') ?? 'https://restbyme.vercel.app'
       const redirectTo = rest?.slug ? `${siteUrl}/${rest.slug}/staff` : siteUrl
 
-      const { data: inviteData, error: inviteError } = await supabaseAdmin.auth.admin.inviteUserByEmail(
-        emailLower, { redirectTo }
-      )
+      const { data: inviteData, error: inviteError } =
+        await supabaseAdmin.auth.admin.inviteUserByEmail(emailLower, { redirectTo })
 
       if (inviteError) {
-        // Korisnik već postoji — pronađi ga i veži
-        if (inviteError.message.includes('already been registered') || inviteError.status === 422) {
-          const existing = await findUserByEmail(supabaseAdmin, emailLower)
-          if (!existing) {
-            return new Response(JSON.stringify({ error: 'Korisnik postoji ali ga nije moguće pronaći.' }), {
-              status: 400, headers: { ...corsHeaders, 'Content-Type': 'application/json' }
-            })
-          }
-          userId = existing.id
-        } else {
-          throw inviteError
+        // Korisnik već postoji — samo ga pronađi
+        const existing = await findUserByEmail(supabaseAdmin, emailLower)
+        if (!existing) {
+          return new Response(JSON.stringify({ error: 'Greška pri slanju pozivnice: ' + inviteError.message }), {
+            status: 400, headers: { ...corsHeaders, 'Content-Type': 'application/json' },
+          })
         }
+        userId = existing.id
       } else {
         userId = inviteData.user.id
       }
-
     } else {
-      // ── Kreiraj nalog sa lozinkom ─────────────────────────────────
+      // action === 'create'
       if (!password || password.length < 6) {
         return new Response(JSON.stringify({ error: 'Lozinka mora imati najmanje 6 karaktera' }), {
-          status: 400, headers: { ...corsHeaders, 'Content-Type': 'application/json' }
+          status: 400, headers: { ...corsHeaders, 'Content-Type': 'application/json' },
         })
       }
 
-      const { data: newUser, error: createError } = await supabaseAdmin.auth.admin.createUser({
-        email: emailLower, password, email_confirm: true,
-      })
+      const { data: newUser, error: createError } =
+        await supabaseAdmin.auth.admin.createUser({
+          email: emailLower, password, email_confirm: true,
+        })
 
       if (createError) {
-        if (createError.message.includes('already been registered') || createError.status === 422) {
-          // Korisnik već postoji — pronađi ga i veži umjesto da vrati grešku
-          const existing = await findUserByEmail(supabaseAdmin, emailLower)
-          if (!existing) {
-            return new Response(JSON.stringify({ error: 'Korisnik postoji ali ga nije moguće pronaći.' }), {
-              status: 400, headers: { ...corsHeaders, 'Content-Type': 'application/json' }
-            })
-          }
-          userId = existing.id
-        } else {
-          throw createError
+        // Korisnik već postoji — pronađi ga i veži
+        const existing = await findUserByEmail(supabaseAdmin, emailLower)
+        if (!existing) {
+          return new Response(JSON.stringify({ error: 'Korisnik postoji ali ga nije moguće pronaći.' }), {
+            status: 400, headers: { ...corsHeaders, 'Content-Type': 'application/json' },
+          })
         }
+        userId = existing.id
       } else {
         userId = newUser.user.id
       }
     }
 
-    // Vrati user_id frontendu — staff insert radi frontend
+    // ── 2. Kreiraj ili ažuriraj staff zapis (service_role) ───────
+    const today = new Date().toISOString().split('T')[0]
+
+    const { data: existingStaff } = await supabaseAdmin
+      .from('staff').select('id')
+      .eq('restaurant_id', restaurant_id)
+      .eq('email', emailLower)
+      .maybeSingle()
+
+    let staffData
+
+    if (existingStaff) {
+      // Veži user_id ako ga nema
+      const { data } = await supabaseAdmin
+        .from('staff')
+        .update({ user_id: userId, role_id: role_id || null, is_active: true })
+        .eq('id', existingStaff.id)
+        .select('*, role:roles(name)')
+        .single()
+      staffData = data
+    } else {
+      const { data } = await supabaseAdmin
+        .from('staff')
+        .insert({
+          restaurant_id,
+          user_id: userId,
+          email: emailLower,
+          role_id: role_id || null,
+          wage_type: wage_type || 'monthly',
+          wage_amount: parseFloat(wage_amount) || 0,
+          is_active: true,
+          start_date: today,
+        })
+        .select('*, role:roles(name)')
+        .single()
+      staffData = data
+    }
+
+    // ── 3. Historija ─────────────────────────────────────────────
+    if (staffData) {
+      await supabaseAdmin.from('staff_history').insert({
+        staff_id: staffData.id,
+        restaurant_id,
+        event_type: 'hired',
+        description: action === 'invite' ? 'Pozivnica poslana' : 'Zaposlenik dodan u sistem',
+        event_date: today,
+      })
+    }
+
     const message = action === 'invite'
-      ? `Pozivnica poslana na ${emailLower}. Zaposlenik će dobiti email za postavljanje lozinke.`
+      ? `Pozivnica poslana na ${emailLower}.`
       : `Nalog kreiran za ${emailLower}. Zaposlenik se može odmah ulogovati.`
 
-    return new Response(JSON.stringify({ success: true, user_id: userId, message }), {
-      status: 200, headers: { ...corsHeaders, 'Content-Type': 'application/json' }
+    return new Response(JSON.stringify({ success: true, staff: staffData, message }), {
+      status: 200, headers: { ...corsHeaders, 'Content-Type': 'application/json' },
     })
 
   } catch (error) {
     return new Response(JSON.stringify({ error: error.message }), {
-      status: 500, headers: { ...corsHeaders, 'Content-Type': 'application/json' }
+      status: 500, headers: { ...corsHeaders, 'Content-Type': 'application/json' },
     })
   }
 })
 
-// Helper: pronađi Auth korisnika po emailu
 async function findUserByEmail(supabaseAdmin: any, email: string) {
   let page = 1
   while (true) {

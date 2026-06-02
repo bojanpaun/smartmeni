@@ -53,14 +53,16 @@ export default function StaffPage() {
       setAddError('Zaposlenik sa ovim emailom već postoji.'); setSaving(false); return
     }
 
-    // Oba metoda pozivaju edge funkciju — invite šalje email, create kreira sa lozinkom
+    // Edge funkcija kreira Auth nalog + staff zapis (service_role, bypassuje RLS)
     const { data, error } = await supabase.functions.invoke('create-staff-user', {
       body: {
         email,
         password: addMethod === 'create' ? form.password : undefined,
         restaurant_id: restaurant.id,
         role_id: form.role_id || null,
-        action: addMethod, // 'create' | 'invite'
+        wage_type: form.wage_type,
+        wage_amount: form.wage_amount,
+        action: addMethod,
       }
     })
     if (error || data?.error) {
@@ -72,25 +74,9 @@ export default function StaffPage() {
       setAddError(msg); setSaving(false); return
     }
 
-    // Kreiraj staff zapis sa user_id koji je vratio edge function
-    const { data: newStaff } = await supabase.from('staff').insert({
-      restaurant_id: restaurant.id,
-      email,
-      user_id: data?.user_id || null,
-      role_id: form.role_id || null,
-      wage_type: form.wage_type,
-      wage_amount: parseFloat(form.wage_amount) || 0,
-      is_active: true,
-      start_date: new Date().toISOString().split('T')[0],
-    }).select('*, role:roles(name)').single()
-
-    if (newStaff) {
-      setStaff(prev => [...prev, newStaff])
-      await supabase.from('staff_history').insert({
-        staff_id: newStaff.id, restaurant_id: restaurant.id,
-        event_type: 'hired', description: 'Zaposlenik dodan u sistem',
-        event_date: new Date().toISOString().split('T')[0],
-      })
+    // Edge funkcija vraća kreiran staff zapis — dodaj u lokalni state
+    if (data?.staff) {
+      setStaff(prev => [...prev, data.staff])
     }
     setSaving(false)
     setAddSuccess(addMethod === 'invite' ? 'Pozivnica poslana!' : 'Zaposlenik dodan!')
