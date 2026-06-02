@@ -29,23 +29,23 @@ const PRIORITY_MAP = {
 }
 
 const STATUS_MAP = {
-  pending:     { label: 'Na čekanju',    icon: '⏳', color: '#e67e22' },
-  in_progress: { label: 'U toku',        icon: '🔄', color: '#2563eb' },
-  done:        { label: 'Završeno',      icon: '✅', color: '#0d7a52' },
-  verified:    { label: 'Verifikovano',  icon: '⭐', color: '#7c3aed' },
+  pending:     { label: 'Na čekanju',   icon: '⏳', color: 'var(--c-danger)',  bg: 'var(--c-danger-bg)' },
+  in_progress: { label: 'U toku',       icon: '🔄', color: 'var(--c-warning)', bg: 'var(--c-warning-bg)' },
+  done:        { label: 'Završeno',     icon: '✅', color: 'var(--c-primary)', bg: 'var(--c-primary-light)' },
+  verified:    { label: 'Verifikovano', icon: '⭐', color: '#7c3aed',           bg: 'rgba(124,58,237,0.12)' },
 }
 
 const MAINT_STATUS_MAP = {
-  open:        { label: 'Otvoreno',     icon: '🔧', color: '#e67e22' },
-  in_progress: { label: 'U toku',       icon: '🔄', color: '#2563eb' },
-  done:        { label: 'Završeno',     icon: '✅', color: '#0d7a52' },
-  verified:    { label: 'Verifikovano', icon: '⭐', color: '#7c3aed' },
-  resolved:    { label: 'Riješeno',     icon: '✓',  color: '#8a9e96' },
+  open:        { label: 'Otvoreno',     icon: '🔧', color: 'var(--c-danger)',  bg: 'var(--c-danger-bg)' },
+  in_progress: { label: 'U toku',       icon: '🔄', color: 'var(--c-warning)', bg: 'var(--c-warning-bg)' },
+  done:        { label: 'Završeno',     icon: '✅', color: 'var(--c-primary)', bg: 'var(--c-primary-light)' },
+  verified:    { label: 'Verifikovano', icon: '⭐', color: '#7c3aed',           bg: 'rgba(124,58,237,0.12)' },
+  resolved:    { label: 'Riješeno',     icon: '✓',  color: 'var(--c-text-muted)', bg: 'var(--c-bg-subtle)' },
 }
 
 function MaintStatusBadge({ status }) {
   const s = MAINT_STATUS_MAP[status] || MAINT_STATUS_MAP.open
-  return <span className={hk.statusBadge} style={{ color: s.color }}>{s.icon} {s.label}</span>
+  return <span className={hk.statusBadge} style={{ color: s.color, background: s.bg }}>{s.icon} {s.label}</span>
 }
 
 const MAINT_CATS = [
@@ -62,7 +62,7 @@ const BLANK_MAINT = { room_id: '', category: 'other', priority: 'normal', descri
 
 function StatusBadge({ status }) {
   const s = STATUS_MAP[status] || STATUS_MAP.pending
-  return <span className={hk.statusBadge} style={{ color: s.color }}>{s.icon} {s.label}</span>
+  return <span className={hk.statusBadge} style={{ color: s.color, background: s.bg }}>{s.icon} {s.label}</span>
 }
 
 function PriorityBadge({ priority }) {
@@ -230,15 +230,15 @@ export default function HousekeepingPage() {
           <div className={hk.statsSectionLabel}>🧹 Čišćenje</div>
           <div className={hk.stats}>
             <div className={hk.stat}>
-              <div className={hk.statVal} style={{ color: '#e67e22' }}>{pending}</div>
+              <div className={hk.statVal} style={{ color: 'var(--c-danger)' }}>{pending}</div>
               <div className={hk.statLabel}>Na čekanju</div>
             </div>
             <div className={hk.stat}>
-              <div className={hk.statVal} style={{ color: '#2563eb' }}>{inProgress}</div>
+              <div className={hk.statVal} style={{ color: 'var(--c-warning)' }}>{inProgress}</div>
               <div className={hk.statLabel}>U toku</div>
             </div>
             <div className={hk.stat}>
-              <div className={hk.statVal} style={{ color: '#0d7a52' }}>{done}</div>
+              <div className={hk.statVal} style={{ color: 'var(--c-primary)' }}>{done}</div>
               <div className={hk.statLabel}>Završeno</div>
             </div>
             <div className={hk.stat}>
@@ -251,15 +251,15 @@ export default function HousekeepingPage() {
           <div className={hk.statsSectionLabel}>🔧 Održavanje</div>
           <div className={hk.stats}>
             <div className={hk.stat}>
-              <div className={hk.statVal} style={{ color: '#e67e22' }}>{maintOpen}</div>
+              <div className={hk.statVal} style={{ color: 'var(--c-danger)' }}>{maintOpen}</div>
               <div className={hk.statLabel}>Otvoreno</div>
             </div>
             <div className={hk.stat}>
-              <div className={hk.statVal} style={{ color: '#2563eb' }}>{maintInProgress}</div>
+              <div className={hk.statVal} style={{ color: 'var(--c-warning)' }}>{maintInProgress}</div>
               <div className={hk.statLabel}>U toku</div>
             </div>
             <div className={hk.stat}>
-              <div className={hk.statVal} style={{ color: '#0d7a52' }}>{maintDone}</div>
+              <div className={hk.statVal} style={{ color: 'var(--c-primary)' }}>{maintDone}</div>
               <div className={hk.statLabel}>Završeno</div>
             </div>
             <div className={hk.stat}>
