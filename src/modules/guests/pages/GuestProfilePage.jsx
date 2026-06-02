@@ -72,7 +72,7 @@ export default function GuestProfilePage() {
         .eq('guest_id', id)
         .order('check_in_date', { ascending: false }),
       supabase.from('spa_appointments')
-        .select('id, appointment_date, start_time, spa_services(name), spa_therapists(first_name, last_name), price, status')
+        .select('id, appointment_date, start_time, spa_services(name), spa_therapists(staff(first_name, last_name)), price, status')
         .eq('guest_id', id)
         .order('appointment_date', { ascending: false }),
     ])
@@ -387,8 +387,8 @@ export default function GuestProfilePage() {
               <div className={styles.visitList}>
                 {spaAppts.map(a => {
                   const st = SPA_STATUS[a.status] ?? SPA_STATUS.confirmed
-                  const therapist = a.spa_therapists
-                    ? `${a.spa_therapists.first_name} ${a.spa_therapists.last_name}`
+                  const therapist = a.spa_therapists?.staff
+                    ? `${a.spa_therapists.staff.first_name} ${a.spa_therapists.staff.last_name}`
                     : null
                   return (
                     <div key={a.id} className={styles.visitItem}>
