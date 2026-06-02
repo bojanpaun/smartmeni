@@ -1,6 +1,6 @@
 # rest.by.me — HospitalityOS Produkt roadmap
 
-> **Verzija:** 4.2 *(dopunjeno — Faza Z.1 Staff Portal platforma za zaposlene: home tab, clock in/out, zahtjevi za odsustvo, admin odobravanje — 2026-06-02)*
+> **Verzija:** 4.3 *(dopunjeno — Hotel Rezervacije UI refaktor: nova lista+kalendar arhitektura, DateNav sistem, Guest Profile Pro, WaiterMapView mobile, Y.3 DoD završen — 2026-06-02)*
 > **Kontekst:** Evolucija rest.by.me (bivši SmartMeni) SaaS platforme prema punom hospitality management sistemu
 > **Tim:** 1 developer + Claude Code AI asistent
 > **Branch:** `main` → direktno na produkciju (Vercel auto-deploy)
@@ -336,6 +336,56 @@ Online booking (PayPal)  → booking-order-capture Edge Function → hotel_reser
 Pay on arrival           → create_booking_direct RPC           → hotel_reservation INSERT → TRIGGER → guest kreiran/nađen
 Ručna rezervacija        → ReservationForm                     → hotel_reservation INSERT → TRIGGER → guest kreiran/nađen
 ```
+
+---
+
+## ✅ Guest Profile Pro + WaiterMapView Mobile (Jun 2026)
+
+Proširenja urađena organički uz Fazu 3e — nisu bila u originalnom planu ali su postala neophodna.
+
+### Guest Profile proširenja (`/admin/guests/:id`)
+
+- ✅ **Sve tab** — unified activity feed koji miješa restoran posjete, hotel boravke i spa tretmane u jedan kronološki timeline sa ikonama i statusima
+- ✅ **Pill navigacija** — refaktovana na standardne `pillBar/pillBtn` klase iz `nav.module.css`
+- ✅ **DateNav filtriranje** — `filterFrom`, `filterTo`, `search` na svim tabovima (visits, hotel, spa, sve)
+- ✅ **Restoran narudžbe** — u Visits tabu prikazane i ručne posjete i narudžbe iz `orders` tabele gdje je `guest_id` vezan; automatski se vezuju kad gost plati na sobu
+- ✅ **Sortabilni headeri + responsive tabela gostiju** — `/admin/hotel/guests` i `/admin/guests` imaju `SortableHead` i column-hiding na mobilnom
+
+### WaiterMapView Mobile (`/admin/tables/view`)
+
+- ✅ **Card grid prikaz** — na mobilnom (<640px) stolovi se prikazuju kao grid kartica umjesto mape (jer pinch-zoom na mapi nije upotrebljiv na telefonu)
+- ✅ **Bottom sheet** — detalji stola (narudžba, zahtjevi) slide-up iz dna ekrana
+- ✅ **Calling bar** — fiksna traka na vrhu s popisom stolova koji aktivno zovu konobara; pulse animacija na svakom pozivu
+
+---
+
+## ✅ Hotel Rezervacije UI refaktor + DateNav sistem (Jun 2026)
+
+Kompletna obnova UI-ja hotel rezervacija i unifikacija date filtera kroz cijelu platformu.
+
+### Hotel Rezervacije — nova arhitektura (`/admin/hotel/reservations`)
+
+- ✅ **Lista + Kalendar u jednoj stranici** — toggle Lista/Kalendar u headeru; Lista koristi DateNav, Kalendar ima vlastitu navigaciju
+- ✅ **Kalendar granularnost** — Dan / Sedmica / Miesec / Period (date range) sa odgovarajućim navigacijom (← Nazad / Danas / Naprijed →)
+- ✅ **ReservationForm** — auto-dodjela sobe (prvi slobodan u tipu), filter zauzetih soba po datumu (query sa preklapanjem check_in/check_out), isključene sobe na `maintenance` i `blocked`
+- ✅ **Status filter "Upit"** — `inquiry` dodan u horizontalni filter bar (bio prisutan u `STATUS_LABELS` ali nije bio u `STATUS_FILTERS`)
+- ✅ **Status badge boje** — novi `STATUS_BADGE` objekt s jasnim bojama (inquiry=indigo, confirmed=zelena, checked_in=plava, checked_out=siva, cancelled=crvena, no_show=narandžasta)
+- ✅ **Badge dark mode** — CSS klase u `Hotel.module.css` umjesto inline stilova; `:global([data-theme*="-dark"])` override za svaki status
+
+### DateNav sistem — unifikacija filtera
+
+- ✅ **`showMonth` prop** — dugme "Miesec" + `<input type="month">` u DateNav; postavljanje from/to na prvi/zadnji dan odabranog mjeseca
+- ✅ **`allowAll` prop** — dugme "Sve" koje briše date filter (from=null, to=null); hook-ovi (`useHousekeeping`, `useSpaAppointments`) ažurirani da rade s null datumima
+- ✅ **`onSearch` default** — dodan default `() => {}` da spriječi crash kad se DateNav koristi bez search-a
+- ✅ **Propagacija na 8 stranica** — FrontDesk, Housekeeping, Kitchen/Bar, SpaDashboard, Appointments, MovementsLog, HR Reports (DateNav zamijenio period picker), Tables Reservations (DateNav zamijenio custom input)
+
+### Razni UX fiksovi (uz commit 36f3944)
+
+- ✅ **AdminLayout sidebar** — "Sajt restorana" link ispravljen na `/admin/menu/landing`; dodata ruta u `App.jsx`
+- ✅ **AnalyticsPage** — horizontalni meni koristio vlastite CSS klase; zamijenjen standardnim `nav.pillBar/pillBtn/pillBtnActive`
+- ✅ **HRReportsPage** — custom period picker (6 dugmadi: this_week/last_month/...) zamijenjen DateNavom; inicijalizovan na tekući mjesec
+- ✅ **StaffPage** — `create-staff-user` 400 greška: dodan proper error parsing iz `FunctionsHttpError.context.json()`
+- ✅ **Housekeeping** — defaultni filter za zadatke = `pending` (bio `all`), za održavanje = `open` (bio `all`); "Svi" premješten na kraj liste
 
 ---
 
@@ -797,50 +847,53 @@ Oba editora (`HotelLandingEditor`, `RestaurantLandingEditor`) ostaju odvojeni (s
 
 ---
 
-### Definition of Done — Faza Y.3
+### Definition of Done — Faza Y.3 ✅ ZAVRŠENA
 
 **A — Live Preview:**
-- [ ] Editor se dijeli na lijevu (forme, 40%) i desnu (iframe, 60%) panel na desktopima
-- [ ] Na mobilnom prikazu editora: preview se skriva, prikazuje se samo forma
-- [ ] iframe prikazuje `/[slug]/hotel?preview=true` (ili `/home`) — isti origin
-- [ ] Promjene blokova se reflektuju u iframe-u u realnom vremenu (postMessage, debounce 300ms)
-- [ ] Device toggle: 📱 Mobile (375px) / 💻 Tablet (768px) / 🖥 Desktop (full)
-- [ ] Preview mod landing stranice ne prikazuje admin elemente (back dugmad, breadcrumbi)
-- [ ] "Vidi sajt" link i dalje radi (otvara stranicu u novom tabu, bez `?preview`)
+- [x] Editor se dijeli na lijevu (forme, 40%) i desnu (iframe, 60%) panel na desktopima
+- [x] Na mobilnom prikazu editora: preview se skriva, prikazuje se samo forma
+- [x] iframe prikazuje `/[slug]/hotel?preview=true` (ili `/home`) — isti origin
+- [x] Promjene blokova se reflektuju u iframe-u u realnom vremenu (postMessage, debounce 300ms)
+- [x] Device toggle: 📱 Mobile (375px) / 📓 Tablet (768px) / 🖥 Desktop (full)
+- [x] Preview mod landing stranice ne prikazuje admin elemente
+- [x] "Vidi sajt" link otvara stranicu u novom tabu bez `?preview`
+- [x] *(extra)* Collapse/expand blokova — svi blokovi startuju kolapsovani
+- [x] *(extra)* Preview panel: toggle aktivacija, resizable divider, full-height iframe
+- [x] *(extra)* PREVIEW_HEIGHT postMessage — iframe visina = puna visina landing stranice
 
 **B — Drag & Drop:**
-- [ ] `@dnd-kit` instaliran i konfigurisan
-- [ ] Hotel editor: drag & drop reorder blokova radi
-- [ ] Restoran editor: drag & drop reorder blokova radi
-- [ ] Drag handle (⠿) vidljiv na svakom bloku, cursor grab
-- [ ] ↑↓ dugmad uklonjena
-- [ ] `BlockSortable.jsx` shared komponenta kreirana
+- [x] `@dnd-kit` instaliran i konfigurisan
+- [x] Hotel editor: drag & drop reorder blokova radi
+- [x] Restoran editor: drag & drop reorder blokova radi
+- [x] Drag handle (⠿) vidljiv na svakom bloku, cursor grab
+- [x] ↑↓ dugmad uklonjena
+- [x] `BlockSortable.jsx` shared komponenta kreirana
 
 **C — Layout varijante:**
-- [ ] `BlockLayoutPicker.jsx` komponenta kreirana (radio + mini thumbnail prikaz)
-- [ ] Hotel — hero: 3 varijante renderuju se ispravno na javnoj stranici
-- [ ] Hotel — about: 3 varijante (image-right, image-left, text-only)
-- [ ] Hotel — gallery: 3 varijante (2-kolone, 3-kolone, masonry)
-- [ ] Hotel — amenities: 3 varijante (icons-row, list, cards)
-- [ ] Restoran — story: 4 varijante
-- [ ] Restoran — gallery: 3 varijante
-- [ ] Restoran — reservation_cta: 3 varijante (banner, card, minimal)
-- [ ] Layout se čuva u `data.layout` unutar postojećeg JSONB-a (nema DB migracija)
+- [x] `BlockLayoutPicker.jsx` komponenta kreirana (radio + mini thumbnail prikaz, 15 tipova)
+- [x] Hotel — hero: 3 varijante renderuju se ispravno
+- [x] Hotel — about: 3 varijante (image-right, image-left, text-only)
+- [x] Hotel — gallery: 3 varijante (2-kolone, 3-kolone, masonry)
+- [x] Hotel — amenities: 3 varijante (icons-row, list, cards)
+- [x] Restoran — story: 4 varijante
+- [x] Restoran — gallery: 3 varijante
+- [x] Restoran — reservation_cta: 3 varijante (banner, card, minimal)
+- [x] Layout se čuva u `data.layout` unutar postojećeg JSONB-a
 
 **D — Novi blokovi:**
-- [ ] `reviews` — Hotel: admin unos + javni prikaz sa zvjezdicama
-- [ ] `reviews` — Restoran: admin unos + javni prikaz
-- [ ] `video` — Hotel: URL → auto-convert → embed iframe
-- [ ] `video` — Restoran: isti
-- [ ] `cta_banner` — Hotel: naslov + dugme + link
-- [ ] `cta_banner` — Restoran: isti
-- [ ] `faq` — Hotel: accordion Q&A
-- [ ] `specials` — Restoran: 3 stavke sa slikom i cijenom
+- [x] `reviews` — Hotel: admin unos + javni prikaz sa zvjezdicama
+- [x] `reviews` — Restoran: admin unos + javni prikaz
+- [x] `video` — Hotel: URL → auto-convert → embed iframe
+- [x] `video` — Restoran: isti
+- [x] `cta_banner` — Hotel: naslov + dugme + link
+- [x] `cta_banner` — Restoran: isti
+- [x] `faq` — Hotel: accordion Q&A
+- [x] `specials` — Restoran: 3 stavke sa slikom i cijenom
 
 **E — Shared komponente:**
-- [ ] `LandingEditor.module.css` kreiran i importuje se u oba editora (RestaurantLandingEditor više ne importuje iz hotel modula)
-- [ ] `LandingPreview.jsx` kreirana i koristi se u oba editora
-- [ ] `BlockFieldRenderer.jsx` extrahovana, eliminiše duplikaciju u oba editora
+- [x] `LandingEditor.module.css` kreiran i importuje se u oba editora
+- [x] `LandingPreview.jsx` kreirana i koristi se u oba editora
+- [x] `BlockFieldRenderer.jsx` extrahovana, eliminiše duplikaciju u oba editora
 
 ---
 
@@ -2170,6 +2223,29 @@ RLS politike se proširuju da provjeravaju `portfolio_access.scope` — regional
 | ux | TableMapEditor mobile — touch drag po cijelom canvasu sa auto-scroll kad je prst blizu ivice | ✅ | 2026-06-02 |
 | ux | TableMapEditor mobile — touch resize handle (28px, narandžast, touchable) | ✅ | 2026-06-02 |
 | fix | TableMapEditor — canvasSpacer (1200×800px) aktivan samo na mobilnom; desktop nema horizontalni scroll | ✅ | 2026-06-02 |
+| ux | WaiterMapView mobile — card grid + bottom sheet + calling bar + pulse animacija | ✅ | 2026-06-02 |
+| ux | GuestProfilePage — Sve tab (unified activity feed: posjete+narudžbe+hotel+spa) | ✅ | 2026-06-02 |
+| ux | GuestProfilePage — pill nav + DateNav filtriranje (filterFrom/To/search) na svim tabovima | ✅ | 2026-06-02 |
+| ux | GuestProfilePage — restoran narudžbe: ručne posjete + orders iz sistema gdje je guest_id vezan | ✅ | 2026-06-02 |
+| ux | GuestPage (/admin/hotel/guests) — sortabilni headeri + responsive column-hiding | ✅ | 2026-06-02 |
+| ux | Hotel Rezervacije — kompletni refaktor: Lista + Kalendar u jednoj stranici (toggle u headeru) | ✅ | 2026-06-02 |
+| ux | Hotel Kalendar — Dan/Sedmica/Miesec/Period granularnost + Nazad/Danas/Naprijed navigacija | ✅ | 2026-06-02 |
+| fix | ReservationForm — auto-dodjela sobe (prvi slobodan u tipu) + filter zauzetih po datumu | ✅ | 2026-06-02 |
+| fix | ReservationForm — null→'' za sve select/input/textarea polja (React value warning) | ✅ | 2026-06-02 |
+| feat | DateNav — showMonth prop (Miesec dugme + month input) + allowAll prop (Sve dugme) | ✅ | 2026-06-02 |
+| feat | DateNav — onSearch default () => {} (sprječava crash bez search prop-a) | ✅ | 2026-06-02 |
+| feat | DateNav propagacija — showMonth+allowAll na: FrontDesk, Housekeeping, Kitchen/Bar, SpaDashboard, Appointments, MovementsLog | ✅ | 2026-06-02 |
+| feat | TablesReservationsPage — DateNav zamijenio custom date input + "Svi datumi" dugme | ✅ | 2026-06-02 |
+| feat | HRReportsPage — DateNav zamijenio period picker (this_week/last_month/...); default tekući mjesec | ✅ | 2026-06-02 |
+| feat | useHousekeeping + useSpaAppointments — null-safe datumi (allowAll ne crasha) | ✅ | 2026-06-02 |
+| feat | Hotel Rezervacije — "Upit" (inquiry) dodan u STATUS_FILTERS filter bar | ✅ | 2026-06-02 |
+| feat | Hotel Rezervacije — STATUS_BADGE: jasne boje po statusu (indigo/zelena/plava/siva/crvena/narandžasta) | ✅ | 2026-06-02 |
+| feat | Hotel Rezervacije — badge dark mode: CSS klase u Hotel.module.css sa :global([data-theme*="-dark"]) | ✅ | 2026-06-02 |
+| fix | AdminLayout sidebar — "Sajt restorana" path ispravljen na /admin/menu/landing | ✅ | 2026-06-02 |
+| fix | App.jsx — dodata ruta /admin/menu/landing → RestaurantLandingEditor | ✅ | 2026-06-02 |
+| fix | AnalyticsPage — horizontalni meni (periodi + sekcije) koristi nav.pillBar/pillBtn/pillBtnActive | ✅ | 2026-06-02 |
+| fix | StaffPage — create-staff-user 400 greška: proper parsing iz FunctionsHttpError.context.json() | ✅ | 2026-06-02 |
+| fix | HousekeepingPage — defaultni filter: zadaci=pending, održavanje=open; "Svi" na kraju | ✅ | 2026-06-02 |
 
 ---
 
@@ -2248,6 +2324,17 @@ RLS politike se proširuju da provjeravaju `portfolio_access.scope` — regional
 │                            TableMapEditor mobile: double-tap edit mode, touch drag,
 │                            auto-scroll, canvas spacer samo na mobilnom
 │
+│              ✅ Hotel Rezervacije UI refaktor + DateNav sistem
+│                            Nova lista+kalendar arhitektura (Dan/Sedmica/Miesec/Period),
+│                            ReservationForm auto-dodjela sobe, status badge boje + dark mode,
+│                            DateNav showMonth+allowAll propagiran na 8 stranica,
+│                            sidebar fix, analytics pill nav, HR reports DateNav
+│
+│              ✅ Guest Profile Pro + WaiterMapView Mobile
+│                            Sve tab (unified activity feed), DateNav filtriranje,
+│                            restoran narudžbe u profilu, responsive + sortabilni headeri,
+│                            WaiterMapView: card grid + bottom sheet + calling bar
+│
 │              ← OVDJE SMO (2026-06-02)
 │
 │              🔄 HITNO: RESEND_API_KEY regeneracija + SITE_URL env var
@@ -2279,4 +2366,4 @@ RLS politike se proširuju da provjeravaju `portfolio_access.scope` — regional
 
 ---
 
-*Roadmap ažuriran: 2026-06-02 (v4.2 — Faza Z.1 Staff Portal platforma za zaposlene: home tab, clock in/out, zahtjevi za odsustvo, admin odobravanje, profil edit, oglasna ploča; v4.1 — Rate Plan Rooms, responsive tabele + sortabilni headeri, TableMapEditor mobile) | Branch: main | Deployment: Vercel auto-deploy*
+*Roadmap ažuriran: 2026-06-02 (v4.3 — Hotel Rezervacije UI refaktor: nova lista+kalendar arhitektura, DateNav sistem showMonth/allowAll, Guest Profile Pro: Sve tab+DateNav+narudžbe, WaiterMapView mobile: card grid+bottom sheet, Y.3 DoD checkboxevi završeni; v4.2 — Faza Z.1 Staff Portal platforma; v4.1 — Rate Plan Rooms) | Branch: main | Deployment: Vercel auto-deploy*
