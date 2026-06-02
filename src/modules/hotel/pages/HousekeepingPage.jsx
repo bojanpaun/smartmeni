@@ -230,15 +230,15 @@ export default function HousekeepingPage() {
           <div className={hk.statsSectionLabel}>🧹 Čišćenje</div>
           <div className={hk.stats}>
             <div className={hk.stat}>
-              <div className={hk.statVal} style={{ color: 'var(--c-danger)' }}>{pending}</div>
+              <div className={hk.statVal} style={{ color: '#e67e22' }}>{pending}</div>
               <div className={hk.statLabel}>Na čekanju</div>
             </div>
             <div className={hk.stat}>
-              <div className={hk.statVal} style={{ color: 'var(--c-warning)' }}>{inProgress}</div>
+              <div className={hk.statVal} style={{ color: '#2563eb' }}>{inProgress}</div>
               <div className={hk.statLabel}>U toku</div>
             </div>
             <div className={hk.stat}>
-              <div className={hk.statVal} style={{ color: 'var(--c-primary)' }}>{done}</div>
+              <div className={hk.statVal} style={{ color: '#0d7a52' }}>{done}</div>
               <div className={hk.statLabel}>Završeno</div>
             </div>
             <div className={hk.stat}>
@@ -251,15 +251,15 @@ export default function HousekeepingPage() {
           <div className={hk.statsSectionLabel}>🔧 Održavanje</div>
           <div className={hk.stats}>
             <div className={hk.stat}>
-              <div className={hk.statVal} style={{ color: 'var(--c-danger)' }}>{maintOpen}</div>
+              <div className={hk.statVal} style={{ color: '#e67e22' }}>{maintOpen}</div>
               <div className={hk.statLabel}>Otvoreno</div>
             </div>
             <div className={hk.stat}>
-              <div className={hk.statVal} style={{ color: 'var(--c-warning)' }}>{maintInProgress}</div>
+              <div className={hk.statVal} style={{ color: '#2563eb' }}>{maintInProgress}</div>
               <div className={hk.statLabel}>U toku</div>
             </div>
             <div className={hk.stat}>
-              <div className={hk.statVal} style={{ color: 'var(--c-primary)' }}>{maintDone}</div>
+              <div className={hk.statVal} style={{ color: '#0d7a52' }}>{maintDone}</div>
               <div className={hk.statLabel}>Završeno</div>
             </div>
             <div className={hk.stat}>
