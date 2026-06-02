@@ -1,7 +1,8 @@
-import { useState, useEffect, useRef } from 'react'
+import { useState, useEffect, useRef, useMemo } from 'react'
 import { useParams, useNavigate } from 'react-router-dom'
 import { supabase } from '../../../lib/supabase'
 import { usePlatform } from '../../../context/PlatformContext'
+import DateNav, { DATE_TODAY } from '../../../components/shared/DateNav'
 import styles from './GuestProfilePage.module.css'
 
 const STATUS_LABELS = { regular: 'Regular', vip: 'VIP', blacklist: 'Blacklist', pending: 'Na čekanju' }
@@ -49,7 +50,10 @@ export default function GuestProfilePage() {
   const [hotelStays, setHotelStays] = useState([])
   const [spaAppts, setSpaAppts] = useState([])
   const [loading, setLoading] = useState(true)
-  const [activeTab, setActiveTab] = useState('visits')
+  const [activeTab, setActiveTab] = useState('all')
+  const [filterFrom, setFilterFrom] = useState('2020-01-01')
+  const [filterTo, setFilterTo] = useState(DATE_TODAY)
+  const [search, setSearch] = useState('')
   const [editMode, setEditMode] = useState(false)
   const [form, setForm] = useState({})
   const [saving, setSaving] = useState(false)
@@ -159,8 +163,61 @@ export default function GuestProfilePage() {
 
   const initials = `${guest.first_name?.[0] || ''}${guest.last_name?.[0] || ''}`.toUpperCase()
   const avgSpent = guest.total_visits > 0 ? (parseFloat(guest.total_spent) / guest.total_visits).toFixed(2) : '0.00'
-  const hotelTotal = hotelStays.reduce((s, h) => s + (Number(h.total_amount) || 0), 0)
+  const hotelTotal  = hotelStays.reduce((s, h) => s + (Number(h.total_amount) || 0), 0)
   const ordersTotal = orders.reduce((s, o) => s + (Number(o.total) || 0), 0)
+
+  const inRange = (dateStr) => {
+    if (!dateStr) return true
+    return dateStr >= filterFrom && dateStr <= filterTo
+  }
+  const matchSearch = (text) => !search || String(text ?? '').toLowerCase().includes(search.toLowerCase())
+
+  const filteredVisits  = visits.filter(v =>
+    inRange(v.visit_date) && matchSearch(`${v.table_number ?? ''} ${v.notes ?? ''} ${v.visit_type ?? ''}`)
+  )
+  const filteredOrders  = orders.filter(o =>
+    inRange(o.created_at?.slice(0, 10)) && matchSearch(`${o.table_number ?? ''} ${o.note ?? ''}`)
+  )
+  const filteredHotel   = hotelStays.filter(h =>
+    inRange(h.check_in_date) && matchSearch(`${h.room_types?.name ?? ''} ${h.package_name ?? ''}`)
+  )
+  const filteredSpa     = spaAppts.filter(a =>
+    inRange(a.appointment_date) && matchSearch(`${a.spa_services?.name ?? ''} ${a.spa_therapists?.staff?.first_name ?? ''}`)
+  )
+
+  const allActivities = useMemo(() => [
+    ...filteredVisits.map(v => ({
+      _key: `v-${v.id}`, _date: v.visit_date,
+      _icon: '🍽️', _label: 'Posjeta', _labelBg: '#E1F5EE', _labelColor: '#085041',
+      _title: [v.table_number && `Sto ${v.table_number}`, v.party_size && `${v.party_size} osoba`, v.visit_type === 'walk_in' ? 'Walk-in' : v.visit_type].filter(Boolean).join(' · '),
+      _amount: v.amount_spent > 0 ? Number(v.amount_spent) : null,
+      _status: VISIT_STATUS[v.status]?.label, _stBg: VISIT_STATUS[v.status]?.bg, _stColor: VISIT_STATUS[v.status]?.color,
+    })),
+    ...filteredOrders.map(o => ({
+      _key: `o-${o.id}`, _date: o.created_at?.slice(0, 10),
+      _icon: '📋', _label: 'Narudžba', _labelBg: '#d4f5e9', _labelColor: '#1a7a52',
+      _title: [o.table_number && `Sto ${o.table_number}`, o.note].filter(Boolean).join(' · ') || 'Restoran',
+      _amount: o.total ? Number(o.total) : null,
+      _status: o.status === 'closed' ? 'Zatvorena' : o.status === 'served' ? 'Servirana' : o.status,
+      _stBg: ['served','closed'].includes(o.status) ? '#E1F5EE' : '#fff7ed',
+      _stColor: ['served','closed'].includes(o.status) ? '#085041' : '#92400e',
+    })),
+    ...filteredHotel.map(h => ({
+      _key: `h-${h.id}`, _date: h.check_in_date,
+      _icon: '🏨', _label: 'Hotel', _labelBg: '#dbeafe', _labelColor: '#1a4ea0',
+      _title: [h.room_types?.name, h.package_name].filter(Boolean).join(' · ') || 'Hotel boravak',
+      _amount: h.total_amount ? Number(h.total_amount) : null,
+      _status: HOTEL_STATUS[h.status]?.label, _stBg: HOTEL_STATUS[h.status]?.bg, _stColor: HOTEL_STATUS[h.status]?.color,
+      _sub: `${fmtDate(h.check_in_date)} — ${fmtDate(h.check_out_date)}`,
+    })),
+    ...filteredSpa.map(a => ({
+      _key: `s-${a.id}`, _date: a.appointment_date,
+      _icon: '💆', _label: 'Spa', _labelBg: '#f3e8ff', _labelColor: '#6b21a8',
+      _title: [a.spa_services?.name, a.spa_therapists?.staff && `${a.spa_therapists.staff.first_name} ${a.spa_therapists.staff.last_name}`].filter(Boolean).join(' · '),
+      _amount: a.price ? Number(a.price) : null,
+      _status: SPA_STATUS[a.status]?.label, _stBg: SPA_STATUS[a.status]?.bg, _stColor: SPA_STATUS[a.status]?.color,
+    })),
+  ].sort((a, b) => (b._date ?? '').localeCompare(a._date ?? '')), [filteredVisits, filteredOrders, filteredHotel, filteredSpa])
 
   return (
     <div className={styles.page}>
@@ -269,17 +326,68 @@ export default function GuestProfilePage() {
         </div>
 
         {/* Tabs */}
-        <div className={styles.tabs}>
-          {[
-            ['visits', `Restoran (${(guest.total_visits || 0) + orders.length})`],
-            ['hotel',  `Hotel (${hotelStays.length})`],
-            ['spa',    `Spa (${spaAppts.length})`],
-            ['notes',  'Napomene'],
-            ['account','Nalog'],
-          ].map(([key, label]) => (
-            <button key={key} className={`${styles.tab} ${activeTab === key ? styles.tabActive : ''}`} onClick={() => setActiveTab(key)}>{label}</button>
-          ))}
+        <div className={styles.tabsWrap}>
+          <div className={styles.tabs}>
+            {[
+              ['all',    `Sve (${allActivities.length})`],
+              ['visits', `Restoran (${filteredVisits.length + filteredOrders.length})`],
+              ['hotel',  `Hotel (${filteredHotel.length})`],
+              ['spa',    `Spa (${filteredSpa.length})`],
+              ['notes',  'Napomene'],
+              ['account','Nalog'],
+            ].map(([key, label]) => (
+              <button key={key} className={`${styles.tab} ${activeTab === key ? styles.tabActive : ''}`} onClick={() => setActiveTab(key)}>{label}</button>
+            ))}
+          </div>
         </div>
+
+        {/* DateNav — prikazuje se za filterable tabove */}
+        {!['notes','account'].includes(activeTab) && (
+          <div className={styles.dateFilterSection}>
+            <DateNav
+              from={filterFrom}
+              to={filterTo}
+              search={search}
+              onChange={(f, t) => { setFilterFrom(f); setFilterTo(t) }}
+              onSearch={setSearch}
+              showFuture={false}
+              placeholder="Pretraži aktivnosti..."
+            />
+          </div>
+        )}
+
+        {/* Sve aktivnosti */}
+        {activeTab === 'all' && (
+          <div className={styles.tabContent}>
+            <div className={styles.tabHeader}>
+              <div className={styles.tabTitle}>Sve aktivnosti</div>
+            </div>
+            {allActivities.length === 0 ? (
+              <div className={styles.empty}>Nema aktivnosti za odabrani period</div>
+            ) : (
+              <div className={styles.visitList}>
+                {allActivities.map(a => (
+                  <div key={a._key} className={styles.visitItem}>
+                    <div className={styles.visitDate}>
+                      {fmtDate(a._date)}
+                      {a._sub && <div style={{ fontSize: 10, color: '#8a9e96' }}>{a._sub}</div>}
+                    </div>
+                    <span className={styles.typeBadge} style={{ background: a._labelBg, color: a._labelColor }}>
+                      {a._icon} {a._label}
+                    </span>
+                    <div className={styles.visitInfo}>{a._title}</div>
+                    <span className={styles.visitBadge} style={{ background: a._stBg, color: a._stColor }}>
+                      {a._status}
+                    </span>
+                    <div className={styles.visitAmount} style={{ color: '#0d7a52' }}>
+                      {a._amount != null ? `€${a._amount.toFixed(2)}` : '—'}
+                    </div>
+                  </div>
+                ))}
+              </div>
+            )}
+          </div>
+        )}
 
         {/* Restoran */}
         {activeTab === 'visits' && (
@@ -323,11 +431,11 @@ export default function GuestProfilePage() {
             )}
 
             {/* Manualne posjete */}
-            {visits.length === 0 ? (
+            {filteredVisits.length === 0 && filteredOrders.length === 0 && visits.length === 0 ? (
               <div className={styles.empty}>Nema evidentiranih posjeta</div>
             ) : (
               <div className={styles.visitList}>
-                {visits.map(v => (
+                {filteredVisits.map(v => (
                   <div key={v.id} className={styles.visitItem}>
                     <div className={styles.visitDate}>{fmtDate(v.visit_date)}</div>
                     <div className={styles.visitInfo}>
@@ -349,14 +457,14 @@ export default function GuestProfilePage() {
             <div className={styles.tabHeader} style={{ marginTop: 24 }}>
               <div className={styles.tabTitle}>Narudžbe u sistemu</div>
             </div>
-            {orders.length === 0 ? (
+            {filteredOrders.length === 0 ? (
               <div className={styles.empty} style={{ padding: '12px 0' }}>
                 Nema narudžbi linkovanих za ovog gosta.
                 <div style={{ fontSize: 11, color: '#aaa', marginTop: 4 }}>Narudžbe se automatski vežu kada gost plati na sobu (folio).</div>
               </div>
             ) : (
               <div className={styles.visitList}>
-                {orders.map(o => {
+                {filteredOrders.map(o => {
                   const done = ['served', 'closed'].includes(o.status)
                   return (
                     <div key={o.id} className={styles.visitItem}>
@@ -393,11 +501,11 @@ export default function GuestProfilePage() {
             <div className={styles.tabHeader}>
               <div className={styles.tabTitle}>Hotel boravci</div>
             </div>
-            {hotelStays.length === 0 ? (
-              <div className={styles.empty}>Gost nema hotelskih boravaka</div>
+            {filteredHotel.length === 0 ? (
+              <div className={styles.empty}>{hotelStays.length === 0 ? 'Gost nema hotelskih boravaka' : 'Nema boravaka za odabrani period'}</div>
             ) : (
               <div className={styles.visitList}>
-                {hotelStays.map(h => {
+                {filteredHotel.map(h => {
                   const st = HOTEL_STATUS[h.status] ?? HOTEL_STATUS.confirmed
                   const nights = h.check_in_date && h.check_out_date
                     ? Math.round((new Date(h.check_out_date) - new Date(h.check_in_date)) / 86400000)
@@ -430,11 +538,11 @@ export default function GuestProfilePage() {
             <div className={styles.tabHeader}>
               <div className={styles.tabTitle}>Spa tretmani</div>
             </div>
-            {spaAppts.length === 0 ? (
-              <div className={styles.empty}>Gost nema spa tretmana</div>
+            {filteredSpa.length === 0 ? (
+              <div className={styles.empty}>{spaAppts.length === 0 ? 'Gost nema spa tretmana' : 'Nema tretmana za odabrani period'}</div>
             ) : (
               <div className={styles.visitList}>
-                {spaAppts.map(a => {
+                {filteredSpa.map(a => {
                   const st = SPA_STATUS[a.status] ?? SPA_STATUS.confirmed
                   const therapist = a.spa_therapists?.staff
                     ? `${a.spa_therapists.staff.first_name} ${a.spa_therapists.staff.last_name}`

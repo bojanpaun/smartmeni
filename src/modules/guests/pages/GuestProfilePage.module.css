@@ -35,16 +35,27 @@
 .fieldRow { display: grid; grid-template-columns: 1fr 1fr; gap: 8px; }
 
 /* Stats */
-.statsRow { display: grid; grid-template-columns: repeat(4, 1fr); border-bottom: 1px solid var(--c-border); }
+.statsRow { display: grid; grid-template-columns: repeat(5, 1fr); border-bottom: 1px solid var(--c-border); }
 .statBox { padding: 14px 16px; border-right: 1px solid var(--c-border); }
 .statBox:last-child { border-right: none; }
 .statVal { font-size: 20px; font-weight: 600; color: var(--c-text); }
 .statLbl { font-size: 11px; color: var(--c-text-muted); margin-top: 3px; }
 
-/* Tabs */
-.tabs { composes: tabBar from '../../../styles/nav.module.css'; padding: 0 20px; }
-.tab { composes: tabBtn from '../../../styles/nav.module.css'; }
-.tabActive { composes: tabBtnActive from '../../../styles/nav.module.css'; }
+/* Tabs — pill stil (kao FrontDesk / Reservations) */
+.tabsWrap { padding: 14px 20px 0; border-bottom: 1px solid var(--c-border); }
+.tabs { composes: pillBar from '../../../styles/nav.module.css'; padding-bottom: 14px; margin-bottom: 0; overflow-x: auto; flex-wrap: nowrap; }
+.tab { composes: pillBtn from '../../../styles/nav.module.css'; }
+.tabActive { composes: pillBtnActive from '../../../styles/nav.module.css'; }
+
+/* Date filter bar (iznad tab sadržaja) */
+.dateFilterSection { padding: 12px 20px 0; border-bottom: 1px solid var(--c-border); }
+
+/* Type badge u Sve tabu */
+.typeBadge {
+  display: inline-flex; align-items: center; gap: 4px;
+  font-size: 10px; font-weight: 600; padding: 2px 7px;
+  border-radius: 20px; flex-shrink: 0;
+}
 
 /* Tab content */
 .tabContent { padding: 16px 20px; }
@@ -85,7 +96,10 @@
   .page { padding: 14px; }
   .statsRow { grid-template-columns: repeat(2, 1fr); }
   .statsRow .statBox:nth-child(2) { border-right: none; }
-  .statsRow .statBox:nth-child(3), .statsRow .statBox:nth-child(4) { border-top: 1px solid var(--c-border); }
+  .statsRow .statBox:nth-child(3),
+  .statsRow .statBox:nth-child(4) { border-top: 1px solid var(--c-border); }
+  .statsRow .statBox:nth-child(4) { border-right: none; }
+  .statsRow .statBox:nth-child(5) { border-top: 1px solid var(--c-border); grid-column: 1 / -1; border-right: none; }
   .profileHeader { flex-wrap: wrap; }
   .fieldRow { grid-template-columns: 1fr; }
 }
