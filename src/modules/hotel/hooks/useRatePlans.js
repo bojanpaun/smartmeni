@@ -10,7 +10,7 @@ export function useRatePlans(restaurantId) {
     setLoading(true)
     const { data } = await supabase
       .from('rate_plans')
-      .select('*, seasonal_rates(*)')
+      .select('*, seasonal_rates(*), rate_plan_rooms(room_id)')
       .eq('restaurant_id', restaurantId)
       .order('sort_order')
     setRatePlans(data ?? [])

@@ -222,6 +222,50 @@
   padding: 2px 8px;
 }
 
+/* Linked rooms badge on plan card */
+.planRooms {
+  background: #e8f5f0;
+  color: #0a5c3e;
+  border-radius: 6px;
+  font-size: 11px;
+  font-weight: 500;
+  padding: 2px 8px;
+}
+
+/* Room selection in form */
+.fieldFull { grid-column: 1 / -1; }
+.labelOptional { font-weight: 400; color: var(--c-text-muted); font-size: 12px; }
+.fieldHint { font-size: 11px; color: var(--c-text-muted); margin: 4px 0 8px; }
+
+.roomCheckboxes {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 8px;
+}
+
+.roomCheckbox {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  padding: 6px 12px;
+  border: 1.5px solid var(--c-border-input);
+  border-radius: 8px;
+  cursor: pointer;
+  font-size: 12px;
+  color: var(--c-text-medium);
+  background: var(--c-surface);
+  transition: border-color 0.12s, background 0.12s;
+  user-select: none;
+}
+.roomCheckbox:hover { border-color: var(--c-primary); background: var(--c-bg-subtle); }
+.roomCheckbox input { margin: 0; cursor: pointer; accent-color: var(--c-primary); }
+.roomCheckboxActive {
+  border-color: var(--c-primary);
+  background: var(--c-primary-light);
+  color: var(--c-primary);
+  font-weight: 500;
+}
+
 /* Multiplier color */
 .multUp   { color: #c0392b; }
 .multDown { color: #0d7a52; }

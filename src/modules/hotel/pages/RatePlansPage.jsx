@@ -18,7 +18,6 @@ const BLANK_PLAN = {
   plan_type: 'package',
   name: '',
   description: '',
-  // package fields
   room_type_id: '',
   price_per_night: '',
   min_stay: 1,
@@ -26,11 +25,11 @@ const BLANK_PLAN = {
   cancellation_policy: 'flexible',
   advance_booking_days: '',
   payment_type: 'online',
-  // seasonal fields
   multiplier: '1.0',
   applies_from: '',
   applies_until: '',
   is_active: true,
+  selected_rooms: [],
 }
 
 export default function RatePlansPage() {
@@ -38,6 +37,8 @@ export default function RatePlansPage() {
   const { ratePlans, loading, refetch } = useRatePlans(restaurant?.id)
 
   const [roomTypes, setRoomTypes] = useState([])
+  const [allRooms, setAllRooms] = useState([])       // sve sobe hotela (za prikaz na kartici)
+  const [roomsForType, setRoomsForType] = useState([]) // sobe za odabrani room_type u formi
   const [showForm, setShowForm] = useState(false)
   const [editing, setEditing] = useState(null)
   const [form, setForm] = useState(BLANK_PLAN)
@@ -45,6 +46,7 @@ export default function RatePlansPage() {
   const [expandedPlan, setExpandedPlan] = useState(null)
   const [seasonForm, setSeasonForm] = useState(null)
 
+  // Učitaj tipove soba i sve sobe
   useEffect(() => {
     if (!restaurant?.id) return
     supabase
@@ -54,11 +56,39 @@ export default function RatePlansPage() {
       .eq('is_active', true)
       .order('sort_order')
       .then(({ data }) => setRoomTypes(data ?? []))
+    supabase
+      .from('rooms')
+      .select('id, room_number, floor, room_type_id')
+      .eq('restaurant_id', restaurant.id)
+      .order('room_number')
+      .then(({ data }) => setAllRooms(data ?? []))
   }, [restaurant?.id])
+
+  // Učitaj sobe kad se promijeni room_type u formi
+  useEffect(() => {
+    if (!form.room_type_id || !restaurant?.id) { setRoomsForType([]); return }
+    supabase
+      .from('rooms')
+      .select('id, room_number, floor')
+      .eq('room_type_id', form.room_type_id)
+      .eq('restaurant_id', restaurant.id)
+      .order('room_number')
+      .then(({ data }) => setRoomsForType(data ?? []))
+  }, [form.room_type_id, restaurant?.id])
 
   const f = (key, val) => setForm(prev => ({ ...prev, [key]: val }))
 
+  const toggleRoom = (roomId) => {
+    setForm(prev => ({
+      ...prev,
+      selected_rooms: prev.selected_rooms.includes(roomId)
+        ? prev.selected_rooms.filter(id => id !== roomId)
+        : [...prev.selected_rooms, roomId],
+    }))
+  }
+
   const openNew = () => { setEditing(null); setForm(BLANK_PLAN); setShowForm(true) }
+
   const openEdit = (plan) => {
     setEditing(plan)
     setForm({
@@ -76,6 +106,7 @@ export default function RatePlansPage() {
       applies_until: plan.applies_until ?? '',
       is_active: plan.is_active,
       payment_type: plan.payment_type ?? 'online',
+      selected_rooms: plan.rate_plan_rooms?.map(r => r.room_id) ?? [],
     })
     setShowForm(true)
   }
@@ -88,18 +119,15 @@ export default function RatePlansPage() {
     }
     if (form.plan_type === 'seasonal') {
       if (!form.multiplier || isNaN(parseFloat(form.multiplier))) return toast.error('Multiplikator je obavezan')
-
       const { data: existing } = await supabase
         .from('rate_plans')
         .select('id, name, applies_from, applies_until')
         .eq('restaurant_id', restaurant.id)
         .eq('plan_type', 'seasonal')
         .eq('is_active', true)
-
       const others = (existing ?? []).filter(p => p.id !== editing?.id)
       const nf = form.applies_from || null
       const nu = form.applies_until || null
-
       const conflict = others.find(p => {
         const ef = p.applies_from, eu = p.applies_until
         return (eu === null || nf === null || nf <= eu) &&
@@ -143,11 +171,30 @@ export default function RatePlansPage() {
           applies_until: form.applies_until || null,
         }
 
-    const { error } = editing
-      ? await supabase.from('rate_plans').update(payload).eq('id', editing.id)
-      : await supabase.from('rate_plans').insert(payload)
+    let planId, saveError
+    if (editing) {
+      const res = await supabase.from('rate_plans').update(payload).eq('id', editing.id)
+      saveError = res.error
+      planId = editing.id
+    } else {
+      const res = await supabase.from('rate_plans').insert(payload).select('id').single()
+      saveError = res.error
+      planId = res.data?.id
+    }
+
     setSaving(false)
-    if (error) return toast.error(error.message ?? 'Greška pri čuvanju')
+    if (saveError) return toast.error(saveError.message ?? 'Greška pri čuvanju')
+
+    // Sinhronizuj rate_plan_rooms (samo za package planove)
+    if (form.plan_type === 'package' && planId) {
+      await supabase.from('rate_plan_rooms').delete().eq('rate_plan_id', planId)
+      if (form.selected_rooms.length > 0) {
+        await supabase.from('rate_plan_rooms').insert(
+          form.selected_rooms.map(roomId => ({ rate_plan_id: planId, room_id: roomId }))
+        )
+      }
+    }
+
     toast.success(editing ? 'Plan ažuriran' : 'Plan dodan')
     setShowForm(false)
     refetch()
@@ -250,7 +297,7 @@ export default function RatePlansPage() {
             {form.plan_type === 'package' && (<>
               <div className={rp.field}>
                 <label>Tip sobe *</label>
-                <select value={form.room_type_id} onChange={e => f('room_type_id', e.target.value)}>
+                <select value={form.room_type_id} onChange={e => { f('room_type_id', e.target.value); f('selected_rooms', []) }}>
                   <option value="">— Odaberi tip sobe —</option>
                   {roomTypes.map(rt => (
                     <option key={rt.id} value={rt.id}>{rt.name}</option>
@@ -262,6 +309,35 @@ export default function RatePlansPage() {
                 <input type="number" min="0" step="0.01" value={form.price_per_night}
                   onChange={e => f('price_per_night', e.target.value)} placeholder="0.00" />
               </div>
+
+              {/* Specifične sobe (opciono) */}
+              {form.room_type_id && roomsForType.length > 0 && (
+                <div className={rp.fieldFull}>
+                  <label>
+                    Ograniči na specifične sobe
+                    <span className={rp.labelOptional}> (opciono)</span>
+                  </label>
+                  <p className={rp.fieldHint}>
+                    Ako nijedna soba nije odabrana, plan važi za sve sobe tipa. Ako su odabrane sobe sve zauzete — plan se ne nudi na online bookingu.
+                  </p>
+                  <div className={rp.roomCheckboxes}>
+                    {roomsForType.map(room => (
+                      <label
+                        key={room.id}
+                        className={`${rp.roomCheckbox} ${form.selected_rooms.includes(room.id) ? rp.roomCheckboxActive : ''}`}
+                      >
+                        <input
+                          type="checkbox"
+                          checked={form.selected_rooms.includes(room.id)}
+                          onChange={() => toggleRoom(room.id)}
+                        />
+                        <span>Soba {room.room_number}{room.floor ? `, kat ${room.floor}` : ''}</span>
+                      </label>
+                    ))}
+                  </div>
+                </div>
+              )}
+
               <div className={rp.field}>
                 <label>Min. boravak (noći)</label>
                 <input type="number" min="1" value={form.min_stay} onChange={e => f('min_stay', e.target.value)} />
@@ -339,6 +415,9 @@ export default function RatePlansPage() {
         <div className={rp.planList}>
           {packages.map(plan => {
             const rtName = roomTypes.find(r => r.id === plan.room_type_id)?.name
+            const linkedRooms = plan.rate_plan_rooms?.length > 0
+              ? plan.rate_plan_rooms.map(r => allRooms.find(rm => rm.id === r.room_id)?.room_number ?? '?').join(', ')
+              : null
             return (
               <div key={plan.id} className={rp.planCard}>
                 <div className={rp.planCardHeader}>
@@ -351,6 +430,9 @@ export default function RatePlansPage() {
                     {plan.description && <div className={rp.planDesc}>{plan.description}</div>}
                     <div className={rp.planMeta}>
                       {rtName && <span className={rp.planRoomType}>{rtName}</span>}
+                      {linkedRooms && (
+                        <span className={rp.planRooms}>Sobe: {linkedRooms}</span>
+                      )}
                       <span className={rp.planPrice}>€{Number(plan.price_per_night).toFixed(2)}/noć</span>
                       <span className={rp.planDot}>·</span>
                       <span>Min. {plan.min_stay} {plan.min_stay === 1 ? 'noć' : 'noći'}</span>
