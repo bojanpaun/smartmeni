@@ -372,7 +372,7 @@ export default function HousekeepingPage() {
                 onClick={() => setStatusFilter(s.key)}
               >
                 {s.icon ? `${s.icon} ${s.label}` : s.label}
-                <span className={hk.chipCount}>{s.count}</span>
+                <span className={hk.chipCount} style={s.color ? { background: s.bg, color: s.color } : {}}>{s.count}</span>
               </button>
             ))}
           </div>
@@ -454,7 +454,7 @@ export default function HousekeepingPage() {
                 onClick={() => setMaintStatusFilter(s.key)}
               >
                 {s.icon ? `${s.icon} ${s.label}` : s.label}
-                <span className={hk.chipCount}>{s.count}</span>
+                <span className={hk.chipCount} style={s.color ? { background: s.bg, color: s.color } : {}}>{s.count}</span>
               </button>
             ))}
           </div>
