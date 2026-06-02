@@ -33,9 +33,11 @@ export default function RoomCard({ room, isCheckedIn, hasCleaning, hasMaintenanc
     ? <span className={styles.badgeBlocked}>Blokirana</span>
     : <span className={styles.badgeAvailable}>Slobodna</span>
 
-  // Sekundarni badge-ovi — prikazuju se na osnovu aktivnih taskova (mogu oba biti aktivna)
-  const cleaningBadge   = hasCleaning   ? <span className={styles.badgeCleaning}>🧹 Čišćenje u toku</span>   : null
-  const maintBadge      = hasMaintenance ? <span className={styles.badgeMaintenance}>🔧 Servis u toku</span> : null
+  // Sekundarni badge-ovi — task u bazi ILI rooms.status (fallback za ručno postavljene)
+  const showCleaning    = hasCleaning    || room.status === 'cleaning'
+  const showMaintenance = hasMaintenance || room.status === 'maintenance'
+  const cleaningBadge   = showCleaning    ? <span className={styles.badgeCleaning}>🧹 Čišćenje u toku</span>   : null
+  const maintBadge      = showMaintenance ? <span className={styles.badgeMaintenance}>🔧 Servis u toku</span>  : null
 
   return (
     <div className={`${styles.card} ${isCheckedIn ? styles.occupied : styles[room.status]}`}>
