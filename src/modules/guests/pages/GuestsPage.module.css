@@ -17,7 +17,7 @@
 .filterBtn { composes: pillBtn from '../../../styles/nav.module.css'; }
 .filterActive { composes: pillBtnActive from '../../../styles/nav.module.css'; }
 
-.tableWrap { background: var(--c-surface); border: 1px solid var(--c-border); border-radius: 14px; overflow: hidden; }
+.tableWrap { background: var(--c-surface); border: 1px solid var(--c-border); border-radius: 14px; overflow: hidden; overflow-x: auto; }
 .table { width: 100%; border-collapse: collapse; font-family: var(--c-font-sans); font-size: 13px; }
 .table thead th { text-align: left; font-size: 11px; font-weight: 600; color: var(--c-text-muted); padding: 10px 14px; border-bottom: 1px solid var(--c-border); background: var(--c-bg); letter-spacing: 0.3px; }
 .table thead th:last-child { text-align: right; }
@@ -30,6 +30,7 @@
 .avatar { width: 36px; height: 36px; border-radius: 50%; object-fit: cover; font-size: 13px; font-weight: 600; display: flex; align-items: center; justify-content: center; flex-shrink: 0; }
 .guestName { font-size: 13px; font-weight: 500; color: var(--c-text); }
 .guestSub { font-size: 11px; color: var(--c-text-muted); margin-top: 1px; }
+.guestMobileInfo { display: none; }
 .badge { display: inline-block; font-size: 11px; font-weight: 500; padding: 3px 9px; border-radius: 20px; }
 .numCell { font-size: 13px; font-weight: 500; }
 .spentCell { font-size: 13px; font-weight: 500; color: var(--c-primary); }
@@ -58,8 +59,33 @@
 .field input:focus, .field select:focus, .field textarea:focus { border-color: var(--c-primary); }
 .fieldRow { display: grid; grid-template-columns: 1fr 1fr; gap: 10px; }
 
-@media (max-width: 600px) {
+@media (max-width: 640px) {
   .page { padding: 14px; }
   .fieldRow { grid-template-columns: 1fr; }
   .search { width: 100%; }
+
+  /* Sakrij kolone 2–5 (Status, Posjete, Potrošnja, Zadnja posjeta) */
+  .table thead th:nth-child(n+2):nth-child(-n+5),
+  .table tbody td:nth-child(n+2):nth-child(-n+5) { display: none; }
+
+  /* Kolona gosta zauzima sav slobodan prostor */
+  .table tbody td:first-child { width: auto; }
+  .table tbody td:last-child { width: 70px; }
+
+  /* Prikaži status + stats ispod imenom */
+  .guestMobileInfo {
+    display: flex;
+    align-items: center;
+    gap: 6px;
+    margin-top: 5px;
+    flex-wrap: wrap;
+  }
+  .mobileInfoItem {
+    font-size: 11px;
+    color: var(--c-text-muted);
+  }
+  .mobileInfoItem + .mobileInfoItem::before {
+    content: '·';
+    margin-right: 4px;
+  }
 }

@@ -159,6 +159,11 @@ export default function GuestsPage() {
                       <div>
                         <div className={styles.guestName}>{fullName(g)}</div>
                         <div className={styles.guestSub}>{g.phone || g.email || '—'}</div>
+                        <div className={styles.guestMobileInfo}>
+                          <span className={styles.badge} style={STATUS_STYLES[g.status]}>{STATUS_LABELS[g.status]}</span>
+                          {g.total_visits > 0 && <span className={styles.mobileInfoItem}>{g.total_visits} posjeta</span>}
+                          {g.total_spent > 0 && <span className={styles.mobileInfoItem}>€{parseFloat(g.total_spent).toFixed(0)}</span>}
+                        </div>
                       </div>
                     </div>
                   </td>
