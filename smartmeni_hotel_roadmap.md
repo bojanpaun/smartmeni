@@ -1,6 +1,6 @@
 # rest.by.me — HospitalityOS Produkt roadmap
 
-> **Verzija:** 4.0 *(dopunjeno — Booking Engine v2, Rate Plans v2, Pay on Arrival, Guest CRM, Guest Profile hub — 2026-06-01)*
+> **Verzija:** 4.1 *(dopunjeno — Rate Plan Rooms, responsive tabele + sortabilni headeri, TableMapEditor mobile — 2026-06-02)*
 > **Kontekst:** Evolucija rest.by.me (bivši SmartMeni) SaaS platforme prema punom hospitality management sistemu
 > **Tim:** 1 developer + Claude Code AI asistent
 > **Branch:** `main` → direktno na produkciju (Vercel auto-deploy)
@@ -160,7 +160,7 @@ Svi ključni dijelovi hotel core modula su implementirani.
 - ✅ `FrontDeskPage` — tri taba: Check-in danas, Check-out, Zahtjevi gostiju
 - ✅ `FolioPage` — pregled i upravljanje foliom
 - ✅ `FolioPrint` — print-ready PDF folio
-- ✅ `RatePlansPage` — upravljanje cjenovnim planovima (v2: paket/sezonski, room_type_id, multiplikator)
+- ✅ `RatePlansPage` — upravljanje cjenovnim planovima (v2: paket/sezonski, room_type_id, multiplikator; v3: ograničavanje na specifične sobe putem `rate_plan_rooms`)
 - ✅ `BookingSettings` — podešavanja booking engina
 - ✅ `HousekeepingPage` — housekeeping dashboard
 - ✅ `RevenueManagementPage` — ADR, RevPAR, trendovi
@@ -2002,6 +2002,22 @@ RLS politike se proširuju da provjeravaju `portfolio_access.scope` — regional
 | fix | guests.last_name DROP NOT NULL | ✅ | 2026-06-01 |
 | fix | RoomTypesPage textarea — dodati .input klasu za usklađen stil | ✅ | 2026-06-01 |
 | fix | RatePlansPage — toast prikazuje error.message umjesto generic poruke | ✅ | 2026-06-01 |
+| fix | RatePlansPage — PAID_PLANS deklarisan prije filtered (bio ReferenceError za 'Plaćeni' filter) | ✅ | 2026-06-02 |
+| feat | rate_plan_rooms junction tabela — plan se može ograničiti na specifične sobe (many-to-many) | ✅ | 2026-06-02 |
+| feat | get_room_packages() — provjerava dostupnost specificnih soba; plan se ne nudi ako su sve vezane sobe zauzete | ✅ | 2026-06-02 |
+| feat | get_room_packages() — vraća payment_type (fix: online vs on_arrival nije radio jer polje nije bilo u return type-u) | ✅ | 2026-06-02 |
+| feat | RatePlansPage — room checkbox selector: odabir specificnih soba iz tipa; prikaz linkedovanih soba na kartici | ✅ | 2026-06-02 |
+| ux | SuperAdminPanel — responsive tabela (<640px): sakrij Plan/Status/Registrovan, prikaži inline; overflow bug fix | ✅ | 2026-06-02 |
+| ux | SuperAdminPanel — sortabilni headeri: Restoran, Plan, Status, Registrovan (useSortable + SortableHead) | ✅ | 2026-06-02 |
+| ux | StaffPage (/admin/hr/staff) — responsive tabela (<640px): column-hiding umjesto block-dump; Rola+Na poslu inline | ✅ | 2026-06-02 |
+| ux | StaffPage — sortabilni headeri: Zaposlenik, Rola, Status | ✅ | 2026-06-02 |
+| ux | InventoryPage — sortabilni headeri na CSS grid layout (Naziv, Kategorija, Količina, Minimum, Cijena/jed.) | ✅ | 2026-06-02 |
+| ux | TableMapEditor mobile — jedinstven vertikalni scroler (panel stolova nema vlastiti scroll) | ✅ | 2026-06-02 |
+| ux | TableMapEditor mobile — sakrij globus emoji (štedi prostor) | ✅ | 2026-06-02 |
+| ux | TableMapEditor mobile — double-tap edit mode: jedan tap = select, dva tapa = drag/resize mode | ✅ | 2026-06-02 |
+| ux | TableMapEditor mobile — touch drag po cijelom canvasu sa auto-scroll kad je prst blizu ivice | ✅ | 2026-06-02 |
+| ux | TableMapEditor mobile — touch resize handle (28px, narandžast, touchable) | ✅ | 2026-06-02 |
+| fix | TableMapEditor — canvasSpacer (1200×800px) aktivan samo na mobilnom; desktop nema horizontalni scroll | ✅ | 2026-06-02 |
 
 ---
 
@@ -2063,7 +2079,19 @@ RLS politike se proširuju da provjeravaju `portfolio_access.scope` — regional
 │                            HotelGuestsPage + unified GuestProfilePage (Hotel + Spa tabovi)
 │                            FrontDesk: blacklist warning + 👤 guest profile link
 │
-│              ← OVDJE SMO (2026-06-01, večer)
+│              ✅ Rate Plan Rooms — plan vezan za specifične sobe
+│                            rate_plan_rooms junction tabela, UI u RatePlansPage,
+│                            get_room_packages() provjerava datumsku dostupnost sobe,
+│                            payment_type bug fix (online vs on_arrival)
+│
+│              ✅ UX / Responsive poboljšanja
+│                            SuperAdminPanel: responsive + sortabilni headeri + overflow fix
+│                            StaffPage: column-hiding responsive + sortabilni headeri
+│                            InventoryPage: sortabilni headeri (CSS grid)
+│                            TableMapEditor mobile: double-tap edit mode, touch drag,
+│                            auto-scroll, canvas spacer samo na mobilnom
+│
+│              ← OVDJE SMO (2026-06-02)
 │
 │              🔄 HITNO: RESEND_API_KEY regeneracija + SITE_URL env var
 │
@@ -2094,4 +2122,4 @@ RLS politike se proširuju da provjeravaju `portfolio_access.scope` — regional
 
 ---
 
-*Roadmap ažuriran: 2026-06-01 (v4.0 — Booking Engine v2: Rate Plans v2 Package/Seasonal, BookingPage package picker, Pay on Arrival; Guest CRM: auto-create guest trigger, HotelGuestsPage, unified GuestProfilePage Hotel+Spa tabovi, FrontDesk blacklist warning; Bugfiksovi: orders.total, guests.first_name trigger, textarea stil) | Branch: main | Deployment: Vercel auto-deploy*
+*Roadmap ažuriran: 2026-06-02 (v4.1 — Rate Plan Rooms: junction tabela, UI checkbox selector, get_room_packages datumska dostupnost, payment_type fix; UX: SuperAdminPanel/StaffPage/InventoryPage responsive + sortabilni headeri; TableMapEditor mobile: double-tap edit, touch drag/resize, auto-scroll, canvas spacer fix) | Branch: main | Deployment: Vercel auto-deploy*
