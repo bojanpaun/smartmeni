@@ -124,16 +124,20 @@ Deno.serve(async (req) => {
     let staffData
 
     if (existingStaff) {
-      // Veži user_id ako ga nema
-      const { data } = await supabaseAdmin
+      const { data, error: updateErr } = await supabaseAdmin
         .from('staff')
         .update({ user_id: userId, role_id: role_id || null, is_active: true })
         .eq('id', existingStaff.id)
         .select('*, role:roles(name)')
         .single()
+      if (updateErr) {
+        return new Response(JSON.stringify({ error: 'Greška pri ažuriranju staff zapisa: ' + updateErr.message }), {
+          status: 500, headers: { ...corsHeaders, 'Content-Type': 'application/json' },
+        })
+      }
       staffData = data
     } else {
-      const { data } = await supabaseAdmin
+      const { data, error: insertErr } = await supabaseAdmin
         .from('staff')
         .insert({
           restaurant_id,
@@ -147,6 +151,11 @@ Deno.serve(async (req) => {
         })
         .select('*, role:roles(name)')
         .single()
+      if (insertErr) {
+        return new Response(JSON.stringify({ error: 'Greška pri kreiranju staff zapisa: ' + insertErr.message }), {
+          status: 500, headers: { ...corsHeaders, 'Content-Type': 'application/json' },
+        })
+      }
       staffData = data
     }
 
