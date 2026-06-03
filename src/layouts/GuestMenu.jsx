@@ -224,8 +224,9 @@ export default function Menu() {
   })()
 
   // Vidljivost opcija (novi sistem — fallback na stare bool toggleove)
-  const orderingVis = isDemo ? 'all' : !isQRAccess ? 'off' : (r?.ordering_visibility || (r?.digital_ordering === false ? 'off' : 'all'))
-  const waiterVis = isDemo ? 'all' : !isQRAccess ? 'off' : (r?.waiter_visibility || (waiterEnabled ? 'all' : 'off'))
+  // Eksplicitna admin postavka ima prednost nad QR restrikcijom — bez QR je 'off' samo ako admin nije ništa postavio
+  const orderingVis = isDemo ? 'all' : r?.ordering_visibility ? r.ordering_visibility : !isQRAccess ? 'off' : (r?.digital_ordering === false ? 'off' : 'all')
+  const waiterVis = isDemo ? 'all' : r?.waiter_visibility ? r.waiter_visibility : !isQRAccess ? 'off' : (waiterEnabled ? 'all' : 'off')
   const reservationVis = isDemo ? 'all' : (r?.reservation_visibility || (onlineReservations ? 'all' : 'off'))
   const registrationVis = isDemo ? 'all' : (r?.registration_visibility || (guestRegistration ? 'all' : 'off'))
   const hotelVis = isDemo ? 'off' : (r?.hotel_visibility || 'off')
