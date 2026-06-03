@@ -30,7 +30,7 @@ export default function useKitchenCounts(restaurantId) {
         .eq('restaurant_id', restaurantId).eq('is_resolved', false),
       supabase.from('housekeeping_tasks').select('id', { count: 'exact', head: true })
         .eq('restaurant_id', restaurantId)
-        .in('status', ['pending', 'in_progress'])
+        .in('status', ['pending', 'in_progress', 'done'])
         .eq('scheduled_for', today),
       supabase.from('maintenance_requests').select('id', { count: 'exact', head: true })
         .eq('restaurant_id', restaurantId)
