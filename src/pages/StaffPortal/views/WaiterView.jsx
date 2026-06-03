@@ -34,13 +34,24 @@ const DEFAULT_REJECT = [
 
 export default function WaiterView({ restaurant, rejectionMessages, activeTab, onRefresh }) {
   const restaurantId = restaurant?.id
-  const [orders, setOrders]     = useState([])
-  const [requests, setRequests] = useState([])
-  const [loading, setLoading]   = useState(true)
+  const [orders, setOrders]         = useState([])
+  const [requests, setRequests]     = useState([])
+  const [loading, setLoading]       = useState(true)
   const [rejectOpen, setRejectOpen] = useState(null)
+  const [fetchedRejectMsgs, setFetchedRejectMsgs] = useState(null)
   const barCatIdsRef = useRef(null)
 
-  const rejectMessages = rejectionMessages || restaurant?.rejection_messages || DEFAULT_REJECT
+  // Dohvati rejection_messages direktno via SECURITY DEFINER RPC —
+  // zaobilazi RLS koji blokira staff korisnike od čitanja restaurants tabele
+  useEffect(() => {
+    if (!restaurantId) return
+    supabase.rpc('get_restaurant_rejection_messages', { p_restaurant_id: restaurantId })
+      .then(({ data }) => {
+        if (Array.isArray(data) && data.length > 0) setFetchedRejectMsgs(data)
+      })
+  }, [restaurantId])
+
+  const rejectMessages = fetchedRejectMsgs || rejectionMessages || restaurant?.rejection_messages || DEFAULT_REJECT
 
   const getBarCatIds = useCallback(async () => {
     if (!barCatIdsRef.current) {
