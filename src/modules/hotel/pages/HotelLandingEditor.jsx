@@ -240,12 +240,22 @@ export default function HotelLandingEditor() {
           </div>
           <div className={styles.headerActions}>
             {previewSrc && (
-              <button
-                className={`${styles.previewToggleBtn} ${showPreview ? styles.previewToggleBtnOn : ''}`}
-                onClick={() => setShowPreview(v => !v)}
-              >
-                {showPreview ? '✕ Preview' : '👁 Preview'}
-              </button>
+              <>
+                <button
+                  className={`${styles.previewToggleBtn} ${showPreview ? styles.previewToggleBtnOn : ''}`}
+                  onClick={() => setShowPreview(v => !v)}
+                >
+                  {showPreview ? '✕ Preview' : '👁 Preview'}
+                </button>
+                <a
+                  href={previewSrc.replace('?preview=true', '')}
+                  target="_blank"
+                  rel="noreferrer"
+                  className={styles.mobilePreviewLink}
+                >
+                  👁 Vidi sajt
+                </a>
+              </>
             )}
             <button className={styles.saveBtn} onClick={handleSave} disabled={saving}>
               {saving ? 'Čuvanje...' : 'Sačuvaj'}
