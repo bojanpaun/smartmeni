@@ -1,6 +1,7 @@
 import { useState, useEffect, useMemo } from 'react'
 import { supabase } from '../../../lib/supabase'
 import { usePlatform } from '../../../context/PlatformContext'
+import { useAdminBadgeRefresh } from '../../../layouts/AdminLayout'
 import DateNav, { DATE_TODAY } from '../../../components/shared/DateNav'
 import styles from './KitchenDashboard.module.css'
 
@@ -22,6 +23,7 @@ export default function KitchenDashboard({ mode = 'kitchen' }) {
 
   const isDone = statusFilter === 'done'
   const isBar  = mode === 'bar'
+  const { refreshCounts } = useAdminBadgeRefresh()
 
   useEffect(() => {
     if (!restaurant) return
@@ -35,12 +37,13 @@ export default function KitchenDashboard({ mode = 'kitchen' }) {
     if (!restaurant) return
     loadOrders()
     if (isDone) return
+    const handleChange = () => { loadOrders(); refreshCounts() }
     const channel = supabase
       .channel(`kitchen-${mode}-${restaurant.id}`)
       .on('postgres_changes', {
         event: '*', schema: 'public', table: 'orders',
         filter: `restaurant_id=eq.${restaurant.id}`,
-      }, () => loadOrders())
+      }, handleChange)
       .subscribe()
     return () => supabase.removeChannel(channel)
   }, [restaurant, statusFilter, from, to])

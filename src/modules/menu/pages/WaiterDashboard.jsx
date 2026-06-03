@@ -2,6 +2,7 @@ import { useState, useEffect, useRef } from 'react'
 import { useLocation } from 'react-router-dom'
 import { supabase } from '../../../lib/supabase'
 import { usePlatform } from '../../../context/PlatformContext'
+import { useAdminBadgeRefresh } from '../../../layouts/AdminLayout'
 import styles from './WaiterDashboard.module.css'
 
 async function findOpenFolio(restaurantId, roomNum) {
@@ -43,6 +44,7 @@ const STATUS_CONFIG = {
 
 export default function WaiterDashboard() {
   const { restaurant, hasAddon } = usePlatform()
+  const { refreshCounts } = useAdminBadgeRefresh()
   const hotelEnabled = hasAddon('hotel_core')
   const barCatIdsRef = useRef(null)
 
@@ -71,16 +73,17 @@ export default function WaiterDashboard() {
     if (!restaurant) return
     loadData()
 
+    const handleChange = () => { loadData(); refreshCounts() }
     const channel = supabase
       .channel(`waiter-${restaurant.id}`)
       .on('postgres_changes', {
         event: '*', schema: 'public', table: 'orders',
         filter: `restaurant_id=eq.${restaurant.id}`,
-      }, () => loadData())
+      }, handleChange)
       .on('postgres_changes', {
         event: '*', schema: 'public', table: 'waiter_requests',
         filter: `restaurant_id=eq.${restaurant.id}`,
-      }, () => loadData())
+      }, handleChange)
       .subscribe()
 
     return () => supabase.removeChannel(channel)

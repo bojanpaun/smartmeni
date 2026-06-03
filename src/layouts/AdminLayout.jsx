@@ -1,6 +1,6 @@
 // ▶ Zamijeniti: src/layouts/AdminLayout.jsx
 
-import { useState, useEffect } from 'react'
+import { useState, useEffect, createContext, useContext } from 'react'
 import { Link, useLocation, useNavigate } from 'react-router-dom'
 import { usePlatform } from '../context/PlatformContext'
 import { supabase } from '../lib/supabase'
@@ -9,6 +9,10 @@ import TrialBanner from '../platform/admin/TrialBanner'
 import ThemeToggle from '../components/ThemeToggle'
 import LanguageSwitcher from '../i18n/LanguageSwitcher'
 import useKitchenCounts from '../hooks/useKitchenCounts'
+
+// Context za proslijeđivanje refresh funkcije dashboard komponentama
+export const AdminBadgeContext = createContext({ refreshCounts: () => {} })
+export const useAdminBadgeRefresh = () => useContext(AdminBadgeContext)
 
 export const MODULES = [
   {
@@ -259,9 +263,7 @@ export default function AdminLayout({ children }) {
       : null
   )
 
-  // Badges se prikazuju samo u menu i hotel modulu — ne pokretati queries na svim ostalim stranicama
-  const needsBadges = ['menu', 'hotel'].includes(activeModule?.key)
-  const { counts: kitchenCounts } = useKitchenCounts(needsBadges ? restaurant?.id : null)
+  const { counts: kitchenCounts, refresh: refreshCounts } = useKitchenCounts(restaurant?.id)
   const badges = {
     '/admin/orders':             kitchenCounts.waiter       || 0,
     '/admin/waiter':             kitchenCounts.waiterReq    || 0,
@@ -338,7 +340,11 @@ export default function AdminLayout({ children }) {
             <button className={styles.hubLogoutBtn} onClick={handleLogout}>Odjava</button>
           </div>
         </header>
-        <main className={styles.hubMain}>{children}</main>
+        <main className={styles.hubMain}>
+          <AdminBadgeContext.Provider value={{ refreshCounts }}>
+            {children}
+          </AdminBadgeContext.Provider>
+        </main>
         <footer className={styles.hubFooter}>
           <a href="/" className={styles.hubBrand}>rest.by<span className={styles.green}>.me</span></a>
         </footer>
@@ -470,7 +476,11 @@ export default function AdminLayout({ children }) {
           </div>
         </header>
         <TrialBanner />
-        <main className={styles.main}>{children}</main>
+        <main className={styles.main}>
+          <AdminBadgeContext.Provider value={{ refreshCounts }}>
+            {children}
+          </AdminBadgeContext.Provider>
+        </main>
         <footer className={styles.pageFooter}>
           <a href="/" className={styles.pageBrand}>rest.by<span className={styles.green}>.me</span></a>
         </footer>
