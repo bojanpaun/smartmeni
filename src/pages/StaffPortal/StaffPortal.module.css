@@ -765,6 +765,15 @@
   padding: 2px 8px; border-radius: 20px;
 }
 
+/* ── Station status (preparing info) ───────────────────────────── */
+.preparingInfo {
+  display: flex; gap: 8px; flex-wrap: wrap;
+  padding: 9px 12px; border-radius: 10px;
+  background: #f9fafb; border: 1px solid #e5e7eb;
+  font-size: 12.5px; color: #6b7280; font-family: inherit;
+}
+.stationDone { color: #0d7a52; font-weight: 600; }
+
 /* ── Reject messages (inline, isti stil kao admin/orders) ──────── */
 .rejectWrap {
   margin-top: 10px;

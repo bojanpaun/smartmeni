@@ -217,7 +217,14 @@ export default function WaiterView({ restaurant, activeTab, onRefresh }) {
             )}
 
             <div className={s.orderActionsCol}>
-              {action && (
+              {order.status === 'preparing' && (order.kitchen_status || order.bar_status) ? (
+                <div className={s.preparingInfo}>
+                  {order.kitchen_status === 'preparing' && <span>🧑‍🍳 Kuhinja priprema</span>}
+                  {order.bar_status     === 'preparing' && <span>🍷 Bar priprema</span>}
+                  {order.kitchen_status === 'ready'     && <span className={s.stationDone}>🧑‍🍳 Kuhinja gotova</span>}
+                  {order.bar_status     === 'ready'     && <span className={s.stationDone}>🍷 Bar gotov</span>}
+                </div>
+              ) : action && (
                 <button className={s[action.cls]} onClick={() => updateOrderStatus(order.id, action.next)}>
                   {action.label}
                 </button>
