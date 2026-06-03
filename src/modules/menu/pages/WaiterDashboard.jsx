@@ -362,7 +362,13 @@ export default function WaiterDashboard() {
             ) : waiterReqs.map(req => (
               <div key={req.id} className={`${styles.reqCard} ${!req.is_resolved ? styles.reqNew : ''}`}>
                 <div className={styles.reqHeader}>
-                  <div className={styles.reqTable}>Sto {req.table_number}</div>
+                  <div className={styles.reqMeta}>
+                    <div className={styles.reqTable}>
+                      <span className={styles.sourceIcon}>🔔</span>
+                      Sto {req.table_number}
+                    </div>
+                    <div className={styles.reqRef}>#{req.id.slice(-6).toUpperCase()}</div>
+                  </div>
                   <div className={styles.reqTime}>
                     {new Date(req.created_at).toLocaleTimeString('sr', { hour: '2-digit', minute: '2-digit' })}
                   </div>
@@ -376,7 +382,11 @@ export default function WaiterDashboard() {
                     </button>
                   ))}
                 </div>
-                <button className={styles.resolveBtn} onClick={() => resolveWaiterReq(req.id, null)}>
+                <button
+                  className={styles.resolveBtn}
+                  style={{ background: restaurant?.color || '#0d7a52' }}
+                  onClick={() => resolveWaiterReq(req.id, null)}
+                >
                   Završeno ✓
                 </button>
               </div>

@@ -84,24 +84,38 @@
   font-family: var(--c-font-sans);
 }
 
-.reqList { display: flex; flex-direction: column; gap: 10px; }
+.reqList {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(260px, 1fr));
+  gap: 12px;
+}
 .reqCard {
   background: var(--c-surface); border: 1px solid var(--c-border);
+  border-left: 3px solid #f59e0b;
   border-radius: 14px; padding: 14px;
 }
-.reqNew { border-color: var(--c-primary-medium); background: #f0fdf8; }
+.reqNew { border-left-color: #d97706; }
 .reqHeader {
-  display: flex; justify-content: space-between; align-items: center; margin-bottom: 6px;
+  display: flex; justify-content: space-between; align-items: flex-start;
+  margin-bottom: 10px; gap: 8px;
 }
-.reqTable { font-size: 15px; font-weight: 700; color: var(--c-text); }
-.reqTime { font-size: 12px; color: var(--c-text-muted); }
-.reqType { font-size: 14px; color: var(--c-text-medium); margin-bottom: 10px; }
+.reqMeta { display: flex; flex-direction: column; gap: 2px; }
+.reqTable {
+  font-size: 15px; font-weight: 700; color: var(--c-text);
+  display: flex; align-items: center; gap: 5px;
+}
+.reqRef { font-size: 11px; color: var(--c-text-muted); font-weight: 500; letter-spacing: 0.3px; }
+.reqTime { font-size: 12px; color: var(--c-text-muted); flex-shrink: 0; }
+.reqType {
+  font-size: 13.5px; color: var(--c-text); margin-bottom: 10px;
+  padding: 8px 10px; background: var(--c-bg-subtle); border-radius: 8px;
+  border: 1px solid var(--c-border);
+}
 .resolveBtn {
-  padding: 8px 16px; background: var(--c-primary-light); color: var(--c-primary);
-  border: none; border-radius: 8px; font-size: 13px; cursor: pointer;
-  font-family: var(--c-font-sans); font-weight: 500;
+  width: 100%; padding: 10px; color: rgba(255,255,255,0.95); border: none;
+  border-radius: 10px; font-size: 13px; font-weight: 500; cursor: pointer;
+  font-family: var(--c-font-sans);
 }
-.resolveBtn:hover { background: var(--c-primary-medium); color: var(--c-surface); }
 
 .empty { text-align: center; padding: 3rem; color: var(--c-text-muted); }
 .emptyIcon { font-size: 40px; margin-bottom: 10px; }
