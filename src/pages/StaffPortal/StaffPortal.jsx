@@ -1,6 +1,7 @@
 import { useState, useEffect } from 'react'
 import { useParams } from 'react-router-dom'
 import { supabase } from '../../lib/supabase'
+import { hasAddon } from '../../lib/planUtils'
 import useKitchenCounts from '../../hooks/useKitchenCounts'
 import s from './StaffPortal.module.css'
 import HomeView from './views/HomeView'
@@ -126,6 +127,7 @@ export default function StaffPortal() {
   const { slug } = useParams()
 
   const [restaurant, setRestaurant] = useState(null)
+  const [subscription, setSubscription] = useState(null)
   const [loadingRest, setLoadingRest] = useState(true)
 
   // Auth
@@ -161,13 +163,12 @@ export default function StaffPortal() {
       .maybeSingle()
       .then(async ({ data }) => {
         if (data?.id) {
-          // RPC SECURITY DEFINER — zaobilazi sve RLS/GRANT, injectuje rejection_messages
-          const { data: msgs } = await supabase.rpc('get_restaurant_rejection_messages', {
-            p_restaurant_id: data.id,
-          })
-          if (Array.isArray(msgs) && msgs.length > 0) {
-            data.rejection_messages = msgs
-          }
+          const [{ data: msgs }, { data: sub }] = await Promise.all([
+            supabase.rpc('get_restaurant_rejection_messages', { p_restaurant_id: data.id }),
+            supabase.from('subscriptions').select('plan, addons, addon_trials').eq('restaurant_id', data.id).maybeSingle(),
+          ])
+          if (Array.isArray(msgs) && msgs.length > 0) data.rejection_messages = msgs
+          setSubscription(sub ?? null)
         }
         setRestaurant(data)
         setLoadingRest(false)
@@ -442,7 +443,7 @@ export default function StaffPortal() {
     }
     if (activeTab === 'tasks') return <HousekeepingView staffId={staff.id} restaurantId={restaurant.id} onRefresh={refreshCounts} />
     if (activeTab === 'maintenance') return <MaintenanceView staffId={staff.id} restaurantId={restaurant.id} onRefresh={refreshCounts} />
-    if (activeTab === 'orders' || activeTab === 'requests') return <WaiterView restaurant={restaurant} activeTab={activeTab} onRefresh={refreshCounts} />
+    if (activeTab === 'orders' || activeTab === 'requests') return <WaiterView restaurant={restaurant} activeTab={activeTab} onRefresh={refreshCounts} hotelEnabled={hasAddon(subscription, 'hotel_core')} />
     if (activeTab === 'kitchen')    return <KitchenView restaurantId={restaurant.id} onRefresh={refreshCounts} />
     if (activeTab === 'bar_orders') return <BarView    restaurantId={restaurant.id} onRefresh={refreshCounts} />
     if (['checkin', 'checkout', 'rooms'].includes(activeTab)) return <ReceptionView restaurantId={restaurant.id} activeTab={activeTab} onRefresh={refreshCounts} />

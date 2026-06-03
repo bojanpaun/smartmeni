@@ -2,6 +2,22 @@ import { useState, useEffect, useCallback, useRef } from 'react'
 import { supabase } from '../../../lib/supabase'
 import s from '../StaffPortal.module.css'
 
+async function findOpenFolio(restaurantId, roomNum) {
+  const { data: room } = await supabase.from('rooms').select('id')
+    .eq('restaurant_id', restaurantId).ilike('room_number', roomNum.trim()).single()
+  if (!room) return { error: 'Soba nije pronađena.' }
+
+  const { data: res } = await supabase.from('hotel_reservations').select('id')
+    .eq('room_id', room.id).eq('status', 'checked_in').maybeSingle()
+  if (!res) return { error: 'Gost nije prijavljen u sobu.' }
+
+  const { data: folio } = await supabase.from('folios').select('id, total_amount')
+    .eq('reservation_id', res.id).eq('status', 'open').single()
+  if (!folio) return { error: 'Folio nije pronađen ili je zatvoren.' }
+
+  return { folio }
+}
+
 const NEXT_STATUS = {
   pending:   { next: 'received',  label: 'Prihvati',       cls: 'btnStart' },
   received:  { next: 'preparing', label: 'Počni pripremu', cls: 'btnStart' },
@@ -32,11 +48,12 @@ const DEFAULT_REJECT = [
   'Restoran se zatvara, narudžba nije moguća.',
 ]
 
-export default function WaiterView({ restaurant, activeTab, onRefresh }) {
+export default function WaiterView({ restaurant, activeTab, onRefresh, hotelEnabled }) {
   const restaurantId = restaurant?.id
   const [orders, setOrders]         = useState([])
   const [requests, setRequests]     = useState([])
   const [loading, setLoading]       = useState(true)
+  const [roomChargeMap, setRoomChargeMap] = useState({})
   const barCatIdsRef = useRef(null)
 
   // Isti pristup kao /admin/orders (WaiterDashboard) — direktno iz restaurant prop
@@ -102,6 +119,47 @@ export default function WaiterView({ restaurant, activeTab, onRefresh }) {
     } else {
       setOrders(prev => prev.map(o => o.id === orderId ? { ...o, ...update } : o))
     }
+  }
+
+  const openRoomCharge = (orderId) =>
+    setRoomChargeMap(p => ({ ...p, [orderId]: { roomNum: '', loading: false, error: '' } }))
+
+  const cancelRoomCharge = (orderId) =>
+    setRoomChargeMap(p => { const n = { ...p }; delete n[orderId]; return n })
+
+  const chargeToRoom = async (order) => {
+    const state = roomChargeMap[order.id]
+    if (!state?.roomNum?.trim()) return
+    setRoomChargeMap(p => ({ ...p, [order.id]: { ...p[order.id], loading: true, error: '' } }))
+
+    const { folio, error } = await findOpenFolio(restaurant.id, state.roomNum)
+    if (error) {
+      setRoomChargeMap(p => ({ ...p, [order.id]: { ...p[order.id], loading: false, error } }))
+      return
+    }
+
+    const amount = parseFloat(order.total) || 0
+    const desc = (order.order_items || []).map(i => `${i.quantity}× ${i.name}`).join(', ') || 'Restoran narudžba'
+
+    const { error: fiErr } = await supabase.from('folio_items').insert({
+      folio_id: folio.id, restaurant_id: restaurant.id,
+      type: 'restaurant', description: desc,
+      quantity: 1, unit_price: amount, total_price: amount,
+      date: new Date().toISOString().slice(0, 10), order_id: order.id,
+    })
+    if (fiErr) {
+      setRoomChargeMap(p => ({ ...p, [order.id]: { ...p[order.id], loading: false, error: 'Greška pri upisu na folio.' } }))
+      return
+    }
+
+    await supabase.from('folios').update({
+      total_amount: (parseFloat(folio.total_amount) || 0) + amount,
+      updated_at: new Date().toISOString(),
+    }).eq('id', folio.id)
+
+    await supabase.from('orders').update({ status: 'closed', folio_id: folio.id }).eq('id', order.id)
+    setOrders(p => p.filter(o => o.id !== order.id))
+    setRoomChargeMap(p => { const n = { ...p }; delete n[order.id]; return n })
   }
 
   const rejectOrder = async (orderId, message) => {
@@ -229,6 +287,11 @@ export default function WaiterView({ restaurant, activeTab, onRefresh }) {
                   {action.label}
                 </button>
               )}
+              {order.status === 'served' && hotelEnabled && !roomChargeMap[order.id] && (
+                <button className={s.roomChargeBtn} onClick={() => openRoomCharge(order.id)}>
+                  🏨 Naplati na sobu
+                </button>
+              )}
               {['pending', 'received'].includes(order.status) && (
                 <div className={s.rejectWrap}>
                   <div className={s.rejectLabel}>Odbij uz poruku:</div>
@@ -244,6 +307,34 @@ export default function WaiterView({ restaurant, activeTab, onRefresh }) {
               )}
             </div>
 
+            {order.status === 'served' && roomChargeMap[order.id] && (
+              <div className={s.roomChargePanel}>
+                <div className={s.roomChargePanelTitle}>🏨 Broj sobe:</div>
+                <div className={s.roomChargeRow}>
+                  <input
+                    className={s.roomChargeInput}
+                    placeholder="npr. 101"
+                    value={roomChargeMap[order.id].roomNum}
+                    onChange={e => setRoomChargeMap(p => ({ ...p, [order.id]: { ...p[order.id], roomNum: e.target.value } }))}
+                    onKeyDown={e => e.key === 'Enter' && chargeToRoom(order)}
+                    autoFocus
+                  />
+                  <button
+                    className={s.roomChargeConfirm}
+                    onClick={() => chargeToRoom(order)}
+                    disabled={roomChargeMap[order.id].loading}
+                  >
+                    {roomChargeMap[order.id].loading ? '...' : 'Potvrdi'}
+                  </button>
+                  <button className={s.roomChargeCancel} onClick={() => cancelRoomCharge(order.id)}>
+                    Odustani
+                  </button>
+                </div>
+                {roomChargeMap[order.id].error && (
+                  <div className={s.roomChargeError}>{roomChargeMap[order.id].error}</div>
+                )}
+              </div>
+            )}
           </div>
         )
       })}
