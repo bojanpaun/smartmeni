@@ -1,4 +1,4 @@
-import { useState, useEffect } from 'react'
+import { useState, useEffect, useCallback } from 'react'
 import { supabase } from '../../../lib/supabase'
 import toast from 'react-hot-toast'
 import s from '../StaffPortal.module.css'
@@ -19,10 +19,10 @@ export default function ReceptionView({ restaurantId, activeTab }) {
   const [rooms, setRooms]         = useState([])
   const [loading, setLoading]     = useState(true)
 
-  useEffect(() => {
+  const load = useCallback(async () => {
     if (!restaurantId) return
     setLoading(true)
-    Promise.all([
+    const [{ data: a }, { data: d }, { data: r }] = await Promise.all([
       supabase.from('hotel_reservations')
         .select('id, guest_name, room_id, check_in_date, check_out_date, status, rooms(room_number)')
         .eq('restaurant_id', restaurantId)
@@ -39,13 +39,25 @@ export default function ReceptionView({ restaurantId, activeTab }) {
         .select('id, room_number, status')
         .eq('restaurant_id', restaurantId)
         .order('room_number'),
-    ]).then(([{ data: a }, { data: d }, { data: r }]) => {
-      setArrivals(a ?? [])
-      setDepartures(d ?? [])
-      setRooms(r ?? [])
-      setLoading(false)
-    })
+    ])
+    setArrivals(a ?? [])
+    setDepartures(d ?? [])
+    setRooms(r ?? [])
+    setLoading(false)
   }, [restaurantId])
+
+  useEffect(() => { load() }, [load])
+
+  useEffect(() => {
+    if (!restaurantId) return
+    const ch = supabase.channel(`reception-portal-${restaurantId}`)
+      .on('postgres_changes', { event: '*', schema: 'public', table: 'hotel_reservations',
+        filter: `restaurant_id=eq.${restaurantId}` }, load)
+      .on('postgres_changes', { event: '*', schema: 'public', table: 'rooms',
+        filter: `restaurant_id=eq.${restaurantId}` }, load)
+      .subscribe()
+    return () => supabase.removeChannel(ch)
+  }, [restaurantId, load])
 
   const handleCheckin = async (res) => {
     const { error } = await supabase.from('hotel_reservations').update({

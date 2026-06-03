@@ -1,6 +1,7 @@
 import { useState, useEffect, useCallback } from 'react'
 import { useNavigate } from 'react-router-dom'
 import { usePlatform } from '../../../context/PlatformContext'
+import { useAdminBadgeRefresh } from '../../../layouts/AdminLayout'
 import { useReservations } from '../hooks/useReservations'
 import { supabase } from '../../../lib/supabase'
 import DateNav, { DATE_TODAY } from '../../../components/shared/DateNav'
@@ -23,6 +24,7 @@ const REQ_CAT_ICON = {
 
 export default function FrontDeskPage() {
   const { restaurant } = usePlatform()
+  const { refreshCounts } = useAdminBadgeRefresh()
   const navigate = useNavigate()
   const [tab, setTab] = useState('checkin')
   const [from, setFrom] = useState(DATE_TODAY)
@@ -60,19 +62,23 @@ export default function FrontDeskPage() {
     if (tab === 'requests') loadRequests()
   }, [tab, loadRequests])
 
-  // Real-time subscription za nove zahtjeve
+  // Real-time subscription — guest_requests + hotel_reservations promjene
   useEffect(() => {
     if (!restaurant?.id) return
-    const channel = supabase.channel('guest_req_fd')
+    const handleReqChange = () => { if (tab === 'requests') loadRequests(); refreshCounts() }
+    const handleResChange = () => { refreshCounts() }
+    const channel = supabase.channel(`fd-rt-${restaurant.id}`)
       .on('postgres_changes', {
-        event: 'INSERT', schema: 'public', table: 'guest_requests',
+        event: '*', schema: 'public', table: 'guest_requests',
         filter: `restaurant_id=eq.${restaurant.id}`,
-      }, () => {
-        if (tab === 'requests') loadRequests()
-      })
+      }, handleReqChange)
+      .on('postgres_changes', {
+        event: '*', schema: 'public', table: 'hotel_reservations',
+        filter: `restaurant_id=eq.${restaurant.id}`,
+      }, handleResChange)
       .subscribe()
     return () => { supabase.removeChannel(channel) }
-  }, [restaurant?.id, tab, loadRequests])
+  }, [restaurant?.id, tab, loadRequests, refreshCounts])
 
   const handleStatusChange = async (id, newStatus) => {
     setUpdatingId(id)

@@ -1,6 +1,7 @@
 import { useState, useEffect } from 'react'
 import { useNavigate } from 'react-router-dom'
 import { usePlatform } from '../../../context/PlatformContext'
+import { useAdminBadgeRefresh } from '../../../layouts/AdminLayout'
 import { useRooms } from '../hooks/useRooms'
 import { supabase } from '../../../lib/supabase'
 import RoomCard from '../components/RoomCard'
@@ -20,8 +21,9 @@ const STATUS_FILTERS = [
 
 export default function RoomsPage() {
   const { restaurant } = usePlatform()
+  const { refreshCounts } = useAdminBadgeRefresh()
   const navigate = useNavigate()
-  const { rooms, roomTypes, loading, updateRoomStatus } = useRooms(restaurant?.id)
+  const { rooms, roomTypes, loading, updateRoomStatus } = useRooms(restaurant?.id, refreshCounts)
   const [filter, setFilter] = useState('')
 
   const [checkedInIds,    setCheckedInIds]    = useState(new Set())

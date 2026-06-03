@@ -1,5 +1,6 @@
 import { useState } from 'react'
 import { usePlatform } from '../../../context/PlatformContext'
+import { useAdminBadgeRefresh } from '../../../layouts/AdminLayout'
 import { useHousekeeping } from '../hooks/useHousekeeping'
 import { useRooms } from '../hooks/useRooms'
 import { supabase } from '../../../lib/supabase'
@@ -76,6 +77,7 @@ function PriorityBadge({ priority }) {
 
 export default function HousekeepingPage() {
   const { restaurant } = usePlatform()
+  const { refreshCounts } = useAdminBadgeRefresh()
   const [from, setFrom] = useState(DATE_TODAY)
   const [to, setTo] = useState(DATE_TODAY)
   const [search, setSearch] = useState('')
@@ -88,7 +90,7 @@ export default function HousekeepingPage() {
   const [maintForm, setMaintForm] = useState(BLANK_MAINT)
   const [saving, setSaving] = useState(false)
 
-  const { tasks, maintenance, staff, loading, refetch, updateTaskStatus, assignTask } = useHousekeeping(restaurant?.id, from, to)
+  const { tasks, maintenance, staff, loading, refetch, updateTaskStatus, assignTask } = useHousekeeping(restaurant?.id, from, to, refreshCounts)
   const taskSort = useSortable('scheduled_for')
   const maintSort = useSortable('created_at', 'desc')
   const { rooms } = useRooms(restaurant?.id)

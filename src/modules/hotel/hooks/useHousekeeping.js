@@ -1,16 +1,17 @@
 import { useState, useEffect, useCallback } from 'react'
 import { supabase } from '../../../lib/supabase'
 
-export function useHousekeeping(restaurantId, dateFrom, dateTo) {
-  const [tasks, setTasks]     = useState([])
+export function useHousekeeping(restaurantId, dateFrom, dateTo, onRefresh) {
+  const [tasks, setTasks]           = useState([])
   const [maintenance, setMaintenance] = useState([])
-  const [staff, setStaff]     = useState([])
-  const [loading, setLoading] = useState(true)
+  const [staff, setStaff]           = useState([])
+  const [loading, setLoading]       = useState(true)
 
   const load = useCallback(async () => {
     if (!restaurantId) return
     setLoading(true)
 
+    // Zadaci čišćenja — filtriraju se po scheduled_for (datumski raspored)
     let tq = supabase
       .from('housekeeping_tasks')
       .select('*, rooms(room_number, floor, room_types(name)), staff!housekeeping_tasks_assigned_to_fkey(first_name, last_name)')
@@ -20,15 +21,15 @@ export function useHousekeeping(restaurantId, dateFrom, dateTo) {
     if (dateFrom) tq = tq.gte('scheduled_for', dateFrom)
     if (dateTo)   tq = tq.lte('scheduled_for', dateTo)
 
-    let mq = supabase
+    // Maintenance zahtjevi — BEZ datumskog filtera: otvoreni zahtjev
+    // od jučer je i dalje relevantan bez obzira na datum kreiranja
+    const mq = supabase
       .from('maintenance_requests')
       .select('*, rooms(room_number, floor), staff!maintenance_requests_reported_by_fkey(first_name, last_name)')
       .eq('restaurant_id', restaurantId)
       .neq('status', 'resolved')
       .order('priority', { ascending: false })
       .order('created_at')
-    if (dateFrom) mq = mq.gte('created_at', `${dateFrom}T00:00:00Z`)
-    if (dateTo)   mq = mq.lte('created_at', `${dateTo}T23:59:59Z`)
 
     const [{ data: t }, { data: m }, { data: s }] = await Promise.all([
       tq,
@@ -51,14 +52,15 @@ export function useHousekeeping(restaurantId, dateFrom, dateTo) {
 
   useEffect(() => {
     if (!restaurantId) return
+    const handleChange = () => { load(); onRefresh?.() }
     const ch = supabase.channel(`hk-rt-${restaurantId}`)
       .on('postgres_changes', { event: '*', schema: 'public', table: 'housekeeping_tasks',
-        filter: `restaurant_id=eq.${restaurantId}` }, load)
+        filter: `restaurant_id=eq.${restaurantId}` }, handleChange)
       .on('postgres_changes', { event: '*', schema: 'public', table: 'maintenance_requests',
-        filter: `restaurant_id=eq.${restaurantId}` }, load)
+        filter: `restaurant_id=eq.${restaurantId}` }, handleChange)
       .subscribe()
     return () => supabase.removeChannel(ch)
-  }, [restaurantId, load])
+  }, [restaurantId, load, onRefresh])
 
   const updateTaskStatus = async (taskId, status) => {
     const patch = { status }
