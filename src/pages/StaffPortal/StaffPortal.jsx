@@ -134,6 +134,10 @@ export default function StaffPortal() {
     return () => subscription.unsubscribe()
   }, [restaurant])
 
+  // Hook mora biti PRIJE svih early returns — Rules of Hooks
+  const needsCounts = mergedTabs.some(t => ['orders', 'requests', 'kitchen', 'tasks'].includes(t.key))
+  const counts = useKitchenCounts(needsCounts ? restaurant?.id : null)
+
   const loadStaff = async (userId) => {
     if (!restaurant) return
 
@@ -362,9 +366,6 @@ export default function StaffPortal() {
   const tabs = mergedTabs
   const staffName = [staff?.first_name, staff?.last_name].filter(Boolean).join(' ') || staff?.email || ''
 
-  // Badge counts — pokrenuti samo za role koje imaju operativne tabove
-  const needsCounts = tabs.some(t => ['orders', 'requests', 'kitchen', 'tasks'].includes(t.key))
-  const counts = useKitchenCounts(needsCounts ? restaurant?.id : null)
   const TAB_BADGES = {
     orders:   counts.waiter,
     requests: counts.waiterReq,
