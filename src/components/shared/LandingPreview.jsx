@@ -71,6 +71,7 @@ export default function LandingPreview({ src, blocks, onClose }) {
             className={styles.previewIframe}
             style={{ height: iframeHeight }}
             title="Preview"
+            loading="eager"
             onLoad={() => setReady(true)}
           />
         </div>

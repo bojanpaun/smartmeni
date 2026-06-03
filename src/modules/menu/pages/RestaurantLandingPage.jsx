@@ -187,7 +187,7 @@ export default function RestaurantLandingPage() {
         return (
           <section key={idx} className={styles.section}>
             <div className={gridClass}>
-              {imgs.map((url, i) => <img key={i} src={url} alt="" className={styles.galleryImg} loading="lazy" />)}
+              {imgs.map((url, i) => <img key={i} src={url} alt="" className={styles.galleryImg} />)}
             </div>
           </section>
         )
@@ -254,7 +254,7 @@ export default function RestaurantLandingPage() {
               {block.data.hours && <div className={styles.infoRow}><span className={styles.infoIcon}>⏰</span><span>{block.data.hours}</span></div>}
             </div>
             {layout !== 'card-only' && block.data.maps_embed_url && (
-              <iframe src={block.data.maps_embed_url} className={styles.mapsEmbed} allowFullScreen loading="lazy" referrerPolicy="no-referrer-when-downgrade" title="Lokacija" />
+              <iframe src={block.data.maps_embed_url} className={styles.mapsEmbed} allowFullScreen referrerPolicy="no-referrer-when-downgrade" title="Lokacija" />
             )}
           </section>
         )
