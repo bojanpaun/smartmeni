@@ -32,7 +32,7 @@ const DEFAULT_REJECT = [
   'Restoran se zatvara, narudžba nije moguća.',
 ]
 
-export default function WaiterView({ restaurant, activeTab }) {
+export default function WaiterView({ restaurant, activeTab, onRefresh }) {
   const restaurantId = restaurant?.id
   const [orders, setOrders]     = useState([])
   const [requests, setRequests] = useState([])
@@ -73,14 +73,15 @@ export default function WaiterView({ restaurant, activeTab }) {
 
   useEffect(() => {
     if (!restaurantId) return
+    const handleChange = () => { load(); onRefresh?.() }
     const ch = supabase.channel(`waiter-portal-${restaurantId}`)
       .on('postgres_changes', { event: '*', schema: 'public', table: 'orders',
-        filter: `restaurant_id=eq.${restaurantId}` }, load)
+        filter: `restaurant_id=eq.${restaurantId}` }, handleChange)
       .on('postgres_changes', { event: '*', schema: 'public', table: 'waiter_requests',
-        filter: `restaurant_id=eq.${restaurantId}` }, load)
+        filter: `restaurant_id=eq.${restaurantId}` }, handleChange)
       .subscribe()
     return () => supabase.removeChannel(ch)
-  }, [restaurantId, load])
+  }, [restaurantId, load, onRefresh])
 
   const updateOrderStatus = async (orderId, status) => {
     const update = { status }

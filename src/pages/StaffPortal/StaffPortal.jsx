@@ -169,9 +169,9 @@ export default function StaffPortal() {
     return () => subscription.unsubscribe()
   }, [restaurant])
 
-  // Hook mora biti PRIJE svih early returns — Rules of Hooks
-  const needsCounts = mergedTabs.some(t => ['orders', 'requests', 'kitchen', 'bar_orders', 'tasks'].includes(t.key))
-  const counts = useKitchenCounts(needsCounts ? restaurant?.id : null)
+  // Hook uvijek dobija restaurant?.id — ne čeka login/mergedTabs
+  // Subscription se uspostavlja čim se restaurant učita (rješava RLS realtime problem za staff)
+  const { counts, refresh: refreshCounts } = useKitchenCounts(restaurant?.id)
 
   const loadStaff = async (userId) => {
     if (!restaurant) return
@@ -423,9 +423,9 @@ export default function StaffPortal() {
       return <HrView staffId={staff.id} activeTab={activeTab} />
     }
     if (activeTab === 'tasks') return <HousekeepingView staffId={staff.id} restaurantId={restaurant.id} />
-    if (activeTab === 'orders' || activeTab === 'requests') return <WaiterView restaurant={restaurant} activeTab={activeTab} />
-    if (activeTab === 'kitchen')    return <KitchenView restaurantId={restaurant.id} />
-    if (activeTab === 'bar_orders') return <BarView    restaurantId={restaurant.id} />
+    if (activeTab === 'orders' || activeTab === 'requests') return <WaiterView restaurant={restaurant} activeTab={activeTab} onRefresh={refreshCounts} />
+    if (activeTab === 'kitchen')    return <KitchenView restaurantId={restaurant.id} onRefresh={refreshCounts} />
+    if (activeTab === 'bar_orders') return <BarView    restaurantId={restaurant.id} onRefresh={refreshCounts} />
     if (['checkin', 'checkout', 'rooms'].includes(activeTab)) return <ReceptionView restaurantId={restaurant.id} activeTab={activeTab} />
     if (activeTab === 'appointments') return <SpaView staffId={staff.id} restaurantId={restaurant.id} />
     return null

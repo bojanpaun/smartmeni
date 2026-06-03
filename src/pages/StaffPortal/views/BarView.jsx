@@ -6,7 +6,7 @@ function ageMin(createdAt) {
   return Math.floor((Date.now() - new Date(createdAt).getTime()) / 60000)
 }
 
-export default function BarView({ restaurantId }) {
+export default function BarView({ restaurantId, onRefresh }) {
   const [orders, setOrders]   = useState([])
   const [barCatIds, setBarCatIds] = useState(new Set())
   const [loading, setLoading] = useState(true)
@@ -34,12 +34,13 @@ export default function BarView({ restaurantId }) {
 
   useEffect(() => {
     if (!restaurantId) return
+    const handleChange = () => { load(); onRefresh?.() }
     const ch = supabase.channel(`bar-portal-${restaurantId}`)
       .on('postgres_changes', { event: '*', schema: 'public', table: 'orders',
-        filter: `restaurant_id=eq.${restaurantId}` }, load)
+        filter: `restaurant_id=eq.${restaurantId}` }, handleChange)
       .subscribe()
     return () => supabase.removeChannel(ch)
-  }, [restaurantId, load])
+  }, [restaurantId, load, onRefresh])
 
   const markReady = async (orderId) => {
     await supabase.from('orders').update({ bar_status: 'ready' }).eq('id', orderId)

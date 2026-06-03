@@ -261,7 +261,7 @@ export default function AdminLayout({ children }) {
 
   // Badges se prikazuju samo u menu i hotel modulu — ne pokretati queries na svim ostalim stranicama
   const needsBadges = ['menu', 'hotel'].includes(activeModule?.key)
-  const kitchenCounts = useKitchenCounts(needsBadges ? restaurant?.id : null)
+  const { counts: kitchenCounts } = useKitchenCounts(needsBadges ? restaurant?.id : null)
   const badges = {
     '/admin/orders':             kitchenCounts.waiter       || 0,
     '/admin/waiter':             kitchenCounts.waiterReq    || 0,
