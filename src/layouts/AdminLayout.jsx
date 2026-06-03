@@ -265,11 +265,13 @@ export default function AdminLayout({ children }) {
 
   const { counts: kitchenCounts, refresh: refreshCounts } = useKitchenCounts(restaurant?.id)
   const badges = {
-    '/admin/orders':             kitchenCounts.waiter       || 0,
-    '/admin/waiter':             kitchenCounts.waiterReq    || 0,
-    '/admin/kitchen':            kitchenCounts.kitchen      || 0,
-    '/admin/bar':                kitchenCounts.bar          || 0,
-    '/admin/hotel/housekeeping': (kitchenCounts.housekeeping || 0) + (kitchenCounts.maintOpen || 0),
+    '/admin/orders':              kitchenCounts.waiter        || 0,
+    '/admin/waiter':              kitchenCounts.waiterReq     || 0,
+    '/admin/kitchen':             kitchenCounts.kitchen       || 0,
+    '/admin/bar':                 kitchenCounts.bar           || 0,
+    '/admin/hotel/housekeeping':  (kitchenCounts.housekeeping || 0) + (kitchenCounts.maintOpen || 0),
+    '/admin/hotel/reservations':  kitchenCounts.hotelInquiry  || 0,
+    '/admin/hotel/frontdesk':     kitchenCounts.hotelFrontDesk || 0,
   }
 
   const handleLogout = async () => { await logout(); navigate('/') }

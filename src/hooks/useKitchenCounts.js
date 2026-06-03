@@ -5,6 +5,7 @@ export default function useKitchenCounts(restaurantId) {
   const [counts, setCounts] = useState({
     waiter: 0, kitchen: 0, bar: 0,
     waiterReq: 0, housekeeping: 0, maintOpen: 0,
+    hotelInquiry: 0, hotelFrontDesk: 0,
   })
 
   const loadCounts = useCallback(async () => {
@@ -17,6 +18,9 @@ export default function useKitchenCounts(restaurantId) {
       { count: waiterReq },
       { count: housekeeping },
       { count: maintOpen },
+      { count: hotelInquiry },
+      { count: arrivalsToday },
+      { count: departuresToday },
     ] = await Promise.all([
       supabase.from('orders').select('id', { count: 'exact', head: true })
         .eq('restaurant_id', restaurantId).in('status', ['pending', 'received', 'ready']),
@@ -35,14 +39,31 @@ export default function useKitchenCounts(restaurantId) {
       supabase.from('maintenance_requests').select('id', { count: 'exact', head: true })
         .eq('restaurant_id', restaurantId)
         .not('status', 'in', '("verified","resolved")'),
+      // Rezervacije koje čekaju potvrdu admina (inquiry, ne istekle)
+      supabase.from('hotel_reservations').select('id', { count: 'exact', head: true })
+        .eq('restaurant_id', restaurantId)
+        .eq('status', 'inquiry')
+        .gte('check_out_date', today),
+      // Front Desk: dolasci danas (confirmed, check_in = today)
+      supabase.from('hotel_reservations').select('id', { count: 'exact', head: true })
+        .eq('restaurant_id', restaurantId)
+        .eq('status', 'confirmed')
+        .eq('check_in_date', today),
+      // Front Desk: odlasci danas (checked_in, check_out = today)
+      supabase.from('hotel_reservations').select('id', { count: 'exact', head: true })
+        .eq('restaurant_id', restaurantId)
+        .eq('status', 'checked_in')
+        .eq('check_out_date', today),
     ])
     setCounts({
-      waiter:       waiter       || 0,
-      kitchen:      kitchen      || 0,
-      bar:          bar          || 0,
-      waiterReq:    waiterReq    || 0,
-      housekeeping: housekeeping || 0,
-      maintOpen:    maintOpen    || 0,
+      waiter:          waiter          || 0,
+      kitchen:         kitchen         || 0,
+      bar:             bar             || 0,
+      waiterReq:       waiterReq       || 0,
+      housekeeping:    housekeeping    || 0,
+      maintOpen:       maintOpen       || 0,
+      hotelInquiry:    hotelInquiry    || 0,
+      hotelFrontDesk:  (arrivalsToday  || 0) + (departuresToday || 0),
     })
   }, [restaurantId])
 
@@ -59,6 +80,8 @@ export default function useKitchenCounts(restaurantId) {
       .on('postgres_changes', { event: '*', schema: 'public', table: 'housekeeping_tasks',
         filter: `restaurant_id=eq.${restaurantId}` }, loadCounts)
       .on('postgres_changes', { event: '*', schema: 'public', table: 'maintenance_requests',
+        filter: `restaurant_id=eq.${restaurantId}` }, loadCounts)
+      .on('postgres_changes', { event: '*', schema: 'public', table: 'hotel_reservations',
         filter: `restaurant_id=eq.${restaurantId}` }, loadCounts)
       .subscribe()
 

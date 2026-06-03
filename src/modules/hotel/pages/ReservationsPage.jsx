@@ -2,6 +2,7 @@ import { useState, useEffect, useMemo } from 'react'
 import { useNavigate } from 'react-router-dom'
 import { usePlatform } from '../../../context/PlatformContext'
 import { useReservations } from '../hooks/useReservations'
+import { useReservationCounts } from '../hooks/useReservationCounts'
 import { useRooms } from '../hooks/useRooms'
 import { supabase } from '../../../lib/supabase'
 import DateNav, { DATE_TODAY } from '../../../components/shared/DateNav'
@@ -110,6 +111,11 @@ export default function ReservationsPage() {
 
   const { reservations, loading } = useReservations(restaurant?.id, {
     status:      statusFilter || undefined,
+    checkInFrom: from || undefined,
+    checkInTo:   to   || undefined,
+  })
+
+  const statusCounts = useReservationCounts(restaurant?.id, {
     checkInFrom: from || undefined,
     checkInTo:   to   || undefined,
   })
@@ -267,6 +273,9 @@ export default function ReservationsPage() {
                 onClick={() => setStatusFilter(s)}
               >
                 {s ? STATUS_LABELS[s] : 'Svi statusi'}
+                {statusCounts[s] > 0 && (
+                  <span className={styles.filterCount}>{statusCounts[s]}</span>
+                )}
               </button>
             ))}
           </div>
