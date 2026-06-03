@@ -41,20 +41,17 @@ export default function WaiterView({ restaurant, rejectionMessages, activeTab, o
   const [fetchedRejectMsgs, setFetchedRejectMsgs] = useState(null)
   const barCatIdsRef = useRef(null)
 
-  // Eksplicitni fetch pri svakom mountu — osigurava svježe poruke
-  useEffect(() => {
-    if (!restaurantId) return
-    supabase.from('restaurants')
+  const rejectMessages = fetchedRejectMsgs || rejectionMessages || restaurant?.rejection_messages || DEFAULT_REJECT
+
+  const handleRejectOpen = async (orderId) => {
+    // Svaki put kad se panel otvori — svjež fetch, garantovano admin poruke
+    const { data } = await supabase.from('restaurants')
       .select('rejection_messages')
       .eq('id', restaurantId)
-      .then(({ data }) => {
-        // data je array — uzimamo prvi element (bez maybeSingle)
-        const msgs = data?.[0]?.rejection_messages
-        if (Array.isArray(msgs) && msgs.length > 0) setFetchedRejectMsgs(msgs)
-      })
-  }, [restaurantId])
-
-  const rejectMessages = fetchedRejectMsgs || rejectionMessages || restaurant?.rejection_messages || DEFAULT_REJECT
+    const msgs = data?.[0]?.rejection_messages
+    if (Array.isArray(msgs) && msgs.length > 0) setFetchedRejectMsgs(msgs)
+    setRejectOpen(orderId)
+  }
 
   const getBarCatIds = useCallback(async () => {
     if (!barCatIdsRef.current) {
@@ -255,7 +252,7 @@ export default function WaiterView({ restaurant, rejectionMessages, activeTab, o
                 </button>
               )}
               {['pending', 'received'].includes(order.status) && rejectOpen !== order.id && (
-                <button className={s.rejectToggleBtn} onClick={() => setRejectOpen(order.id)}>
+                <button className={s.rejectToggleBtn} onClick={() => handleRejectOpen(order.id)}>
                   ✕ Odbij narudžbu
                 </button>
               )}
