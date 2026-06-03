@@ -1,4 +1,4 @@
-# rest.by.me — HospitalityOS Produkt roadmap
+﻿# rest.by.me — HospitalityOS Produkt roadmap
 
 > **Verzija:** 4.4 *(dopunjeno — integracija Hotel IS spec: Faza N nocni audit+split folio, Faza P PMS proširenja, GDPR UI, Inventory Pro v2, Faza M MICE, Faza 8.6 Marketing auto, Faza Z.2 HR Pro — 2026-06-02)*
 > **Kontekst:** Evolucija rest.by.me (bivši SmartMeni) SaaS platforme prema punom hospitality management sistemu
@@ -62,6 +62,101 @@ Trenutno `restaurants` tabla služi kao primarni tenant identifikator. Hotel bez
 
 ---
 
+## Pravila razvoja (Development Standards)
+
+> Ova pravila su obavezna za sve buduće izmjene i nove faze. Cilj: konzistentnost arhitekture, predvidljivost koda i zaštita kritičnih funkcionalnosti (rezervacije, digitalni meni, gosti).
+
+---
+
+### 1. Multi-tenancy i sigurnost
+
+- **Svaka nova tabela mora imati `restaurant_id`** — bez iznimke. Ovo je primarni tenant identifikator dok se ne izvrši migracija na `tenants` tabelu.
+- **RLS politika je obavezna** na svakoj novoj tabeli — kreirati uz migraciju, ne naknadno. Minimum: `USING (restaurant_id IN (SELECT id FROM restaurants WHERE user_id = auth.uid()))`.
+- **Svaki Supabase upit u komponentama** koji čita/mijenja podatke mora eksplicitno imati `.eq('restaurant_id', restaurant.id)` — čak i kad RLS štiti na DB nivou. Konzistentnost je odbrana u dubinu.
+- **`SECURITY DEFINER` RPCs** koristiti samo za anon pristup (booking stranica, Guest App) — ne kao shortcut u autentifikovanim dijelovima.
+- **Foreign key constraints** obavezni za sve veze između tabela. Bez slobodnih UUID referenci.
+
+---
+
+### 2. Billing i addon sistem
+
+- **Svaka feature zaštićena addonom** mora imati `<AddonGuard addonId="...">` wrapper ili `if (!hasAddon('...')) return <UpgradePrompt />` provjeru.
+- **`hasAddon('addon_id')`** je jedini način provjere — nikad direktno čitati `subscriptions` tabelu u komponentama.
+- **Novi addon ID** mora biti registrovan i u `addon_catalog` tabeli (migracija) i u `planUtils.js` (helperi) — oboje, ne samo jedno.
+- **Billing guard nije opcionalan** — modul bez guarda je sigurnosni propust, ne tehnički dug za kasnije.
+
+---
+
+### 3. Baza podataka i migracije
+
+- **Migracije su nepromjenjive** — fajl koji je jednom pushovan/primijenjen se nikad ne edituje. Greška se ispravlja novom migracijom.
+- **Imenovanje migracija:** `YYYYMMDDHHMMSS_kratki_opis_snake_case.sql` — datum mora biti stvarni datum kreiranja.
+- **DB triggeri:** svaki trigger mora imati komentar koji objašnjava ZAŠTO postoji i koji invariant štiti (ne samo šta radi).
+- **`select('*')` zabranjen u production hookovima** koji se pozivaju učestalo — uvijek specificirati kolone. Iznimka: one-time admin query na sporednim stranicama.
+- **PostgreSQL funkcije** za kompleksnu logiku (dostupnost, folio kalkulacije) — ne reimplementirati tu logiku u JS/React hookovima.
+
+---
+
+### 4. Frontend struktura i komponente
+
+- **Modul struktura je obavezna:** `src/modules/{modul}/pages/` + `src/modules/{modul}/components/` + `src/modules/{modul}/hooks/`. Nijedna stranica ne ide direktno u `src/pages/` ako pripada modulu.
+- **Shared komponente** idu u `src/components/shared/` — nikad kopirati komponentu između modula. Ako se ista stvar pojavi na dva mjesta, izvuci je u shared.
+- **CSS cross-import zabranjen** — modul uvozi samo vlastiti CSS modul ili `shared/` CSS. `spa/` ne uvozi iz `hotel/`, `menu/` ne uvozi iz `hotel/`.
+- **Hookovi** (`use{Naziv}.js`) enkapsuliraju sve Supabase upite za jednu domenu — komponente ne pišu inline upit ako postoji hook za to.
+- **Lazy loading** za sve stranice — `React.lazy()` + Suspense je uspostavljen standard, svaka nova stranica mora ga pratiti.
+
+---
+
+### 5. CSS, dizajn i dark mode
+
+- **Sve boje kroz CSS varijable** — nikad hardcoded hex u inline `style={{}}`. Jedina iznimka: dinamička boja brenda restorana (`restaurant.color`) s fallbackom na `var(--c-brand)`.
+- **Status boje** (rezervacije, narudžbe, housekeeping...) definisati kao `STATUS_BADGE` objekt na vrhu fajla — ne inline stilizovanje po statusu unutar JSX-a.
+- **Dark mode se testira pri svakoj izmjeni UI** — koristiti `[data-theme*="-dark"]` override u CSS modulima. Ako komponenta ima hardcoded boju, dark mode je vjerovatno slomljen.
+- **Responsive je standard, ne bonus** — sve nove stranice moraju biti upotrebljive na 375px (mobilni), 768px (tablet) i desktop. Mobile-first CSS gdje je moguće.
+- **Shared CSS patterne** koristiti konzistentno: `nav.module.css` za tab/pill navigaciju, `LandingEditor.module.css` za block editore.
+
+---
+
+### 6. i18n i višejezičnost
+
+- **Javne stranice** (BookingPage, GuestApp, HotelLanding, RestaurantLanding, SpaBooking) — sav user-facing tekst mora ići kroz `t('ključ')`. Bez hardcoded stringova u JSX-u.
+- **Admin panel** — prevodi nisu obavezni (niska prioriteta). Prihvatljivo je hardcoded BS/HR tekst.
+- **Dodavanje novog jezika** = novi JSON fajl u `locales/` — bez izmjena komponenti. Ako dodavanje jezika zahtijeva izmjenu komponente, i18n je pogrešno implementiran.
+- **`sm_lang` localStorage key** je standard za čuvanje odabranog jezika — ne uvodi drugi mehanizam.
+
+---
+
+### 7. Realtime, performanse i cleanup
+
+- **Svaki Supabase Realtime channel** mora imati cleanup u `useEffect` return:
+  ```js
+  useEffect(() => {
+    const ch = supabase.channel(...).on(...).subscribe()
+    return () => supabase.removeChannel(ch)
+  }, [dep])
+  ```
+- **`setInterval` / `setTimeout`** u komponentama — uvijek clearInterval/clearTimeout u useEffect cleanup.
+- **Channel ref pattern** za channels koji se kreiraju izvan useEffect-a (event handleri): koristiti `useRef` za čuvanje reference i cleanup pri unmount.
+- **Supabase realtime** ne koristiti za podatke koji se ne mijenjaju učestalo — polling ili refetch pri korisničkoj akciji je prihvatljiviji od stalnog otvorenog channela.
+
+---
+
+### 8. Kritične funkcionalnosti — ne narušavati
+
+Sljedeće funkcionalnosti su stabilne i testovane end-to-end. Svaka izmjena mora biti pažljivo izolirana:
+
+| Oblast | Kritični dijelovi | Zašto je osjetljivo |
+|--------|------------------|---------------------|
+| **Rezervacije** | Provjera preklapanja datuma, overbooking prevencija, room status pri check-in/out | Finansijska i operativna šteta pri greški |
+| **Folio sistem** | Automatsko kreiranje folija pri check-in, folio items iz narudžbi/spa, zaključavanje folija | Računovodstvena ispravnost |
+| **Digitalni meni** | `order` flow, narudžba na sobu, košarica u sessionStorage | Direktno vidljivo gostima |
+| **Booking engine** | `get_available_rooms()`, `create_booking_direct()`, PayPal webhook | Plaćanje i dostupnost |
+| **Guest trigger** | `trg_hotel_reservation_auto_guest` — auto-kreiranje/linkovanje gosta | Integritet baze gostiju |
+| **RLS politike** | Na svim tabelama — svaka izmjena šeme može pokvariti RLS | Sigurnost i multi-tenancy |
+
+> **Pravilo:** Izmjena koja dira kritičnu oblast mora biti praćena ručnim testom end-to-end scenarija, ne samo compile checkom.
+
+---
 ## Arhitektura naplate (Billing model)
 
 ### Vertikalne pretplate (šta kupac bira)
@@ -118,6 +213,88 @@ Restoran SaaS stabilizovan i spreman za korisnike:
 
 ---
 
+## ⬜ Faza 0.1 — Tehnički dug cleanup
+
+> **Preduslov:** Nijedan — cross-cutting refaktor koji se ne tiče funkcionalnosti.
+> **Prioritet:** Raditi postepeno, po jedan item između funkcionalnih faza — ne sve odjednom.
+> **Zašto sada:** Svaka nova faza produbljuje ove dugove. Plan mora biti definisan prije nego nastave faze 2+.
+
+---
+
+### B1 — SPA modul: CSS cross-import (🟡 Visok prioritet)
+
+**Problem:** Svih 9 stranica `src/modules/spa/pages/` uvozi stilove iz `../../hotel/pages/Hotel.module.css`. Spa modul ovisi o hotel modulu na CSS nivou — promjena Hotel.module.css može neočekivano pokvariti spa UI.
+
+**Rješenje:**
+- Kreirati `src/modules/spa/pages/Spa.module.css` koji sadrži spa-specifične stilove
+- Za zajedničke patterne koristiti `src/components/shared/` CSS
+- Ažurirati svih 9 fajlova: `TherapistsPage`, `SpaSettingsPage`, `SpaRoomsPage`, `SpaDashboard`, `SpaCalendarPage`, `PackagesPage`, `AppointmentsPage`, `SpaAnalyticsPage`, `ServicesPage`
+
+**Trajanje:** 2–3 sata
+
+**Definition of Done:**
+- [ ] `Spa.module.css` kreiran sa svim potrebnim klasama
+- [ ] Nijedan spa fajl ne uvozi iz `hotel/pages/Hotel.module.css`
+- [ ] UI spa modula vizuelno identičan prije i poslije (test u light i dark modu)
+
+---
+
+### B2 — GuestProfilePage: hardcoded boje → CSS klase (🟡 Visok prioritet)
+
+**Problem:** `src/modules/guests/pages/GuestProfilePage.jsx` ima 19+ mjesta sa hardcoded hex bojama u `STATUS_STYLES`, `VISIT_STATUS`, `HOTEL_STATUS`, `SPA_STATUS` objektima i inline `style={{}}` props-ima. Dark mode radi loše na ovoj stranici.
+
+**Rješenje:**
+- Hardcoded boje iz STATUS objekta prebaciti u CSS klase u `GuestProfilePage.module.css`
+- Koristiti `data-status` atribute za stilizovanje umjesto inline objekata
+- Pattern koji se već koristi na `ReservationsPage` (Hotel.module.css `STATUS_BADGE`)
+
+**Trajanje:** 1–2 sata
+
+**Definition of Done:**
+- [ ] Nema inline `style={{ background: '#...', color: '#...' }}` za status badge-ove
+- [ ] Dark mode na `/admin/guests/:id` vizuelno ispravan
+- [ ] `STATUS_STYLES`, `VISIT_STATUS`, `HOTEL_STATUS`, `SPA_STATUS` konvertovani u CSS klase
+
+---
+
+### B3 — `select('*')` audit u kritičnim hookovima (🔵 Srednji prioritet)
+
+**Problem:** 41 fajl koristi `.select('*')`. U hookovima koji se pozivaju pri svakom renderu ili realtime updateu, ovo je nepotreban bandwidth overhead.
+
+**Rješenje — prioritizovati hookove:**
+- `src/modules/hotel/hooks/useRooms.js` — specificirati kolone (status, floor, notes, room_type_id...)
+- `src/layouts/GuestMenu.jsx` (linija 158) — `restaurants` select
+- `src/modules/guests/pages/GuestProfilePage.jsx` — `guests` select
+
+**Trajanje:** 2–3 sata
+
+**Definition of Done:**
+- [ ] Hookovi koji se pozivaju pri svakom mount/realtime updateu nemaju `select('*')`
+- [ ] Sporadični admin query-ji mogu zadržati `select('*')` ako je kompleksnost visoka
+
+---
+
+### B4 — `restaurants` → `tenants`: definisanje plana migracije (🔵 Dokumentacija)
+
+**Problem:** `restaurants` tabela služi kao primarni tenant identifikator za hotele koji nemaju restoran — konceptualno netačno. Svaka nova tabela s `restaurant_id` produbljuje ovaj dug.
+
+**Ovo NIJE implementacijski task** — implementacija ide u Fazu 9+ kad se dodaje `multi_property`. Cilj ove stavke je **definisati šta migracija podrazumijeva** da bi budući development bio svjestan opsega.
+
+**Plan migracije (za buduću referencu):**
+1. Nova tabela `tenants` (neutralan naziv) — kopija strukture `restaurants`, bez F&B-specifičnih polja
+2. Dodati `tenant_id UUID REFERENCES tenants(id)` na sve tabele (uz zadržavanje `restaurant_id` za backwards compat)
+3. RLS politike prebaciti na `tenant_id`
+4. `restaurant_id` postaje alias — zadržati do potpune migracije
+5. Finalno brisanje `restaurant_id` kolona u Fazi 10+
+
+**Pravilo do tada:** Svaki novi modul koristi `restaurant_id` konzistentno — ne uvodi novi naming konvenciju. Migracija se radi odjednom, ne postepeno po modulu.
+
+**Definition of Done:**
+- [ ] Ovaj plan dokumentovan (✅ ovdje)
+- [ ] Svi novi moduli svjesni da `restaurant_id` = tenant identifikator do daljnjeg
+- [ ] Nijedan novi modul ne uvodi `property_id` ili `tenant_id` do formalnog odlučivanja
+
+---
 ## ✅ Faza 1 — Billing infrastruktura (ZAVRŠENA — osnova)
 
 **Napomena:** PayPal implementiran za base plan. Stripe za addonе dolazi u kasnijoj fazi.

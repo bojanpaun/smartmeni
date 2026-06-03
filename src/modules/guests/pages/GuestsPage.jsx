@@ -63,14 +63,14 @@ export default function GuestsPage() {
     e.stopPropagation()
     const { data } = await supabase
       .from('guests').update({ status: 'regular', approved_at: new Date().toISOString() })
-      .eq('id', id).select().single()
+      .eq('id', id).eq('restaurant_id', restaurant.id).select().single()
     if (data) setGuests(prev => prev.map(g => g.id === id ? data : g))
   }
 
   const rejectGuest = async (e, id) => {
     e.stopPropagation()
     if (!confirm('Odbiti zahtjev gosta?')) return
-    await supabase.from('guests').delete().eq('id', id)
+    await supabase.from('guests').delete().eq('id', id).eq('restaurant_id', restaurant.id)
     setGuests(prev => prev.filter(g => g.id !== id))
   }
 

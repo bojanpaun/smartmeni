@@ -1,4 +1,4 @@
-import { useState, useEffect } from 'react'
+import { useState, useEffect, useRef } from 'react'
 import { useParams, useNavigate } from 'react-router-dom'
 import { supabase } from '../lib/supabase'
 import { getTemplate } from '../lib/templates'
@@ -97,6 +97,7 @@ export default function Menu() {
   const [orderSending, setOrderSending] = useState(false)
   const [showConfirm, setShowConfirm] = useState(false)
   const [guestSession, setGuestSession] = useState(null)
+  const waiterChannelRef = useRef(null)
   const [loginForm, setLoginForm] = useState({ name: '', contact: '' })
   const [loginError, setLoginError] = useState('')
   const [loginLoading, setLoginLoading] = useState(false)
@@ -252,6 +253,7 @@ export default function Menu() {
         setWaiterResolved(false)
         try { sessionStorage.setItem(WAITER_KEY(slug), req.id) } catch {}
         // Realtime — prati kad konobar označi kao riješeno
+        if (waiterChannelRef.current) supabase.removeChannel(waiterChannelRef.current)
         const ch = supabase
           .channel(`waiter-req-${req.id}`)
           .on('postgres_changes', {
@@ -265,11 +267,17 @@ export default function Menu() {
             }
           })
           .subscribe()
+        waiterChannelRef.current = ch
       }
     }
     setWaiterSent(true)
     setShowWaiter(false)
   }
+
+  // Cleanup waiter realtime channel pri unmount
+  useEffect(() => {
+    return () => { if (waiterChannelRef.current) supabase.removeChannel(waiterChannelRef.current) }
+  }, [])
 
   // Čuvaj košaricu u sessionStorage pri svakoj promjeni
   useEffect(() => {

@@ -70,7 +70,7 @@ export default function GuestProfilePage() {
   const loadData = async () => {
     setLoading(true)
     const [{ data: g }, { data: v }, { data: o }, { data: h }, { data: s }] = await Promise.all([
-      supabase.from('guests').select('*').eq('id', id).single(),
+      supabase.from('guests').select('*').eq('id', id).eq('restaurant_id', restaurant.id).single(),
       supabase.from('guest_visits').select('*').eq('guest_id', id).order('visit_date', { ascending: false }),
       supabase.from('orders')
         .select('id, created_at, table_number, total, status, note, kitchen_status, bar_status')
@@ -108,7 +108,7 @@ export default function GuestProfilePage() {
       notes:           form.notes           || null,
       blacklist_reason: form.blacklist_reason || null,
     }
-    const { data } = await supabase.from('guests').update(updates).eq('id', id).select().single()
+    const { data } = await supabase.from('guests').update(updates).eq('id', id).eq('restaurant_id', restaurant.id).select().single()
     if (data) setGuest(data)
     setSaving(false); setEditMode(false)
   }
@@ -121,13 +121,13 @@ export default function GuestProfilePage() {
     const path = `${restaurant.id}/${id}.${ext}`
     await supabase.storage.from('guest-avatars').upload(path, file, { upsert: true })
     const { data: { publicUrl } } = supabase.storage.from('guest-avatars').getPublicUrl(path)
-    const { data } = await supabase.from('guests').update({ avatar_url: publicUrl }).eq('id', id).select().single()
+    const { data } = await supabase.from('guests').update({ avatar_url: publicUrl }).eq('id', id).eq('restaurant_id', restaurant.id).select().single()
     if (data) setGuest(data)
     setUploadingAvatar(false)
   }
 
   const removeAvatar = async () => {
-    await supabase.from('guests').update({ avatar_url: null }).eq('id', id)
+    await supabase.from('guests').update({ avatar_url: null }).eq('id', id).eq('restaurant_id', restaurant.id)
     setGuest(g => ({ ...g, avatar_url: null }))
   }
 
@@ -143,7 +143,7 @@ export default function GuestProfilePage() {
     const { data } = await supabase.from('guest_visits').insert(payload).select().single()
     if (data) {
       setVisits(prev => [data, ...prev])
-      const { data: g } = await supabase.from('guests').select('*').eq('id', id).single()
+      const { data: g } = await supabase.from('guests').select('*').eq('id', id).eq('restaurant_id', restaurant.id).single()
       if (g) setGuest(g)
     }
     setShowVisitForm(false)
@@ -154,7 +154,7 @@ export default function GuestProfilePage() {
     if (!confirm('Obrisati posjetu?')) return
     await supabase.from('guest_visits').delete().eq('id', visitId)
     setVisits(prev => prev.filter(v => v.id !== visitId))
-    const { data: g } = await supabase.from('guests').select('*').eq('id', id).single()
+    const { data: g } = await supabase.from('guests').select('*').eq('id', id).eq('restaurant_id', restaurant.id).single()
     if (g) setGuest(g)
   }
 
