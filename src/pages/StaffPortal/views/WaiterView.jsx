@@ -1,4 +1,4 @@
-import { useState, useEffect, useCallback } from 'react'
+import { useState, useEffect, useCallback, useRef } from 'react'
 import { supabase } from '../../../lib/supabase'
 import s from '../StaffPortal.module.css'
 
@@ -25,24 +25,37 @@ const QUICK_RESPONSES = [
   'Primljeno, hvala!',
 ]
 
-const REJECT_LABELS = [
-  'Artikal nije dostupan',
-  'Kuhinja je zauzeta',
-  'Narudžba greškom',
-  'Restoran se zatvara',
+const DEFAULT_REJECT = [
+  'Žao nam je, ovaj artikal trenutno nije dostupan.',
+  'Kuhinja je zauzeta, molimo pokušajte malo kasnije.',
+  'Narudžba je primljena greškom, molimo naručite ponovo.',
+  'Restoran se zatvara, narudžba nije moguća.',
 ]
 
-export default function WaiterView({ restaurantId, activeTab }) {
+export default function WaiterView({ restaurant, activeTab }) {
+  const restaurantId = restaurant?.id
   const [orders, setOrders]     = useState([])
   const [requests, setRequests] = useState([])
   const [loading, setLoading]   = useState(true)
   const [rejectOpen, setRejectOpen] = useState(null)
+  const barCatIdsRef = useRef(null)
+
+  const rejectMessages = restaurant?.rejection_messages || DEFAULT_REJECT
+
+  const getBarCatIds = useCallback(async () => {
+    if (!barCatIdsRef.current) {
+      const { data } = await supabase.from('categories')
+        .select('id').eq('restaurant_id', restaurantId).eq('is_bar', true)
+      barCatIdsRef.current = new Set((data || []).map(c => c.id))
+    }
+    return barCatIdsRef.current
+  }, [restaurantId])
 
   const load = useCallback(async () => {
     if (!restaurantId) return
     setLoading(true)
     const [{ data: o }, { data: r }] = await Promise.all([
-      supabase.from('orders').select('*, order_items(name, quantity, price)')
+      supabase.from('orders').select('*, order_items(name, quantity, price, category_id)')
         .eq('restaurant_id', restaurantId)
         .not('status', 'in', '(closed,rejected)')
         .order('created_at', { ascending: false }),
@@ -70,11 +83,23 @@ export default function WaiterView({ restaurantId, activeTab }) {
   }, [restaurantId, load])
 
   const updateOrderStatus = async (orderId, status) => {
-    await supabase.from('orders').update({ status }).eq('id', orderId)
+    const update = { status }
+
+    if (status === 'preparing') {
+      const order = orders.find(o => o.id === orderId)
+      const items = order?.order_items || []
+      const barIds = await getBarCatIds()
+      const hasKitchen = items.some(i => !barIds.has(i.category_id))
+      const hasBar     = items.some(i =>  barIds.has(i.category_id))
+      if (hasKitchen) update.kitchen_status = 'preparing'
+      if (hasBar)     update.bar_status     = 'preparing'
+    }
+
+    await supabase.from('orders').update(update).eq('id', orderId)
     if (status === 'closed') {
       setOrders(prev => prev.filter(o => o.id !== orderId))
     } else {
-      setOrders(prev => prev.map(o => o.id === orderId ? { ...o, status } : o))
+      setOrders(prev => prev.map(o => o.id === orderId ? { ...o, ...update } : o))
     }
   }
 
@@ -195,7 +220,7 @@ export default function WaiterView({ restaurantId, activeTab }) {
               <div className={s.rejectPanel}>
                 <div className={s.rejectPanelLabel}>Razlog odbijanja:</div>
                 <div className={s.rejectList}>
-                  {REJECT_LABELS.map(msg => (
+                  {rejectMessages.map(msg => (
                     <button key={msg} className={s.rejectListBtn}
                       onClick={() => rejectOrder(order.id, msg)}>
                       {msg}
