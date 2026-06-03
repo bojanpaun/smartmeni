@@ -18,14 +18,21 @@ const PRIORITY_COLOR = {
   low:    '#9ca3af',
 }
 
-export default function MaintenanceView({ staffId, restaurantId }) {
-  const [items, setItems]       = useState([])
-  const [rooms, setRooms]       = useState([])
-  const [loading, setLoading]   = useState(true)
-  const [showForm, setShowForm] = useState(false)
-  const [form, setForm]         = useState({ room_id: '', category: 'other', description: '' })
-  const [saving, setSaving]     = useState(false)
-  const [saved, setSaved]       = useState(false)
+const FILTERS = [
+  { key: 'open',        label: 'Otvoreno', color: '#c0392b' },
+  { key: 'in_progress', label: 'U toku',   color: '#e67e22' },
+  { key: 'done',        label: 'Završeno', color: '#0d7a52' },
+]
+
+export default function MaintenanceView({ staffId, restaurantId, onRefresh }) {
+  const [items, setItems]         = useState([])
+  const [rooms, setRooms]         = useState([])
+  const [loading, setLoading]     = useState(true)
+  const [filterStatus, setFilterStatus] = useState(null)
+  const [showForm, setShowForm]   = useState(false)
+  const [form, setForm]           = useState({ room_id: '', category: 'other', description: '' })
+  const [saving, setSaving]       = useState(false)
+  const [saved, setSaved]         = useState(false)
 
   const load = useCallback(async () => {
     if (!restaurantId) return
@@ -56,14 +63,15 @@ export default function MaintenanceView({ staffId, restaurantId }) {
     if (!restaurantId) return
     const ch = supabase.channel(`maint-portal-${restaurantId}`)
       .on('postgres_changes', { event: '*', schema: 'public', table: 'maintenance_requests',
-        filter: `restaurant_id=eq.${restaurantId}` }, load)
+        filter: `restaurant_id=eq.${restaurantId}` }, () => { load(); onRefresh?.() })
       .subscribe()
     return () => supabase.removeChannel(ch)
-  }, [restaurantId, load])
+  }, [restaurantId, load, onRefresh])
 
   const updateStatus = async (id, status) => {
     await supabase.from('maintenance_requests').update({ status }).eq('id', id)
     setItems(prev => prev.map(m => m.id === id ? { ...m, status } : m))
+    onRefresh?.()
   }
 
   const handleSubmit = async (e) => {
@@ -83,29 +91,46 @@ export default function MaintenanceView({ staffId, restaurantId }) {
     setForm({ room_id: '', category: 'other', description: '' })
     setTimeout(() => { setSaved(false); setShowForm(false) }, 2000)
     load()
+    onRefresh?.()
   }
 
   if (loading) return <div className={s.loadingInline}>Učitavanje zahtjeva...</div>
 
-  const open       = items.filter(m => m.status === 'open').length
-  const inProgress = items.filter(m => m.status === 'in_progress').length
-  const done       = items.filter(m => m.status === 'done').length
+  const counts = {
+    open:        items.filter(m => m.status === 'open').length,
+    in_progress: items.filter(m => m.status === 'in_progress').length,
+    done:        items.filter(m => m.status === 'done').length,
+  }
+
+  const visibleItems = filterStatus
+    ? items.filter(m => m.status === filterStatus)
+    : items
 
   return (
     <div>
       <div className={s.statsRow}>
-        <div className={s.statCard}>
-          <div className={s.statNum} style={{ color: '#c0392b' }}>{open}</div>
-          <div className={s.statLabel}>Otvoreno</div>
-        </div>
-        <div className={s.statCard}>
-          <div className={s.statNum} style={{ color: '#e67e22' }}>{inProgress}</div>
-          <div className={s.statLabel}>U toku</div>
-        </div>
-        <div className={s.statCard}>
-          <div className={s.statNum} style={{ color: '#0d7a52' }}>{done}</div>
-          <div className={s.statLabel}>Završeno</div>
-        </div>
+        {FILTERS.map(f => {
+          const active = filterStatus === f.key
+          return (
+            <button
+              key={f.key}
+              className={s.statCard}
+              onClick={() => setFilterStatus(active ? null : f.key)}
+              style={{
+                cursor: 'pointer',
+                border: 'none',
+                fontFamily: 'inherit',
+                boxShadow: active
+                  ? `0 0 0 2px ${f.color}`
+                  : '0 1px 4px rgba(0,0,0,0.05)',
+                background: active ? `${f.color}14` : '#fff',
+              }}
+            >
+              <div className={s.statNum} style={{ color: f.color }}>{counts[f.key]}</div>
+              <div className={s.statLabel}>{f.label}</div>
+            </button>
+          )
+        })}
       </div>
 
       {!showForm ? (
@@ -145,14 +170,19 @@ export default function MaintenanceView({ staffId, restaurantId }) {
         </form>
       )}
 
-      {items.length === 0 ? (
+      {visibleItems.length === 0 ? (
         <div className={s.empty} style={{ marginTop: 16 }}>
           <div className={s.emptyIcon}>✅</div>
-          <div className={s.emptyText}>Nema aktivnih zahtjeva za održavanje.</div>
+          <div className={s.emptyText}>
+            {filterStatus
+              ? `Nema zahtjeva u statusu "${FILTERS.find(f => f.key === filterStatus)?.label}".`
+              : 'Nema aktivnih zahtjeva za održavanje.'
+            }
+          </div>
         </div>
       ) : (
         <div style={{ marginTop: 12 }}>
-          {items.map(m => {
+          {visibleItems.map(m => {
             const cat = MAINT_CATS.find(c => c.value === m.category) || MAINT_CATS[5]
             const isDone = m.status === 'done'
             const reporter = m.staff

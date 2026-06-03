@@ -1,4 +1,4 @@
-import { useState, useEffect } from 'react'
+import { useState, useEffect, useCallback } from 'react'
 import { supabase } from '../../../lib/supabase'
 import s from '../StaffPortal.module.css'
 
@@ -12,27 +12,33 @@ const TASK_TYPES = {
 }
 const PRIORITY_COLOR = { urgent: '#c0392b', high: '#e67e22', normal: '#0d7a52', low: '#9ca3af' }
 const MAINT_CATS = [
-  { value: 'plumbing', label: 'Vodoinstalacije', icon: '🔧' },
-  { value: 'electrical', label: 'Elektrika', icon: '⚡' },
-  { value: 'ac', label: 'Klima', icon: '❄️' },
-  { value: 'furniture', label: 'Namještaj', icon: '🪑' },
-  { value: 'internet', label: 'Internet / TV', icon: '📡' },
-  { value: 'other', label: 'Ostalo', icon: '🔩' },
+  { value: 'plumbing',   label: 'Vodoinstalacije', icon: '🔧' },
+  { value: 'electrical', label: 'Elektrika',        icon: '⚡' },
+  { value: 'ac',         label: 'Klima',            icon: '❄️' },
+  { value: 'furniture',  label: 'Namještaj',        icon: '🪑' },
+  { value: 'internet',   label: 'Internet / TV',    icon: '📡' },
+  { value: 'other',      label: 'Ostalo',           icon: '🔩' },
 ]
 
-export default function HousekeepingView({ staffId, restaurantId }) {
-  const [tasks, setTasks]       = useState([])
-  const [rooms, setRooms]       = useState([])
-  const [loading, setLoading]   = useState(true)
+const FILTERS = [
+  { key: 'pending',     label: 'Čeka',     color: '#e67e22' },
+  { key: 'in_progress', label: 'U toku',   color: '#2563eb' },
+  { key: 'done',        label: 'Završeno', color: '#0d7a52' },
+]
+
+export default function HousekeepingView({ staffId, restaurantId, onRefresh }) {
+  const [tasks, setTasks]         = useState([])
+  const [rooms, setRooms]         = useState([])
+  const [loading, setLoading]     = useState(true)
+  const [filterStatus, setFilterStatus] = useState(null)
   const [showMaint, setShowMaint]   = useState(false)
   const [maintForm, setMaintForm]   = useState({ room_id: '', category: 'other', description: '' })
   const [maintSaving, setMaintSaving] = useState(false)
   const [maintDone, setMaintDone]   = useState(false)
 
-  useEffect(() => {
-    if (!staffId || !restaurantId) return
-    setLoading(true)
-    Promise.all([
+  const load = useCallback(async () => {
+    if (!restaurantId) return
+    const [{ data: t }, { data: r }] = await Promise.all([
       supabase.from('housekeeping_tasks')
         .select('*, rooms(id, room_number, room_types(name))')
         .eq('restaurant_id', restaurantId)
@@ -40,12 +46,26 @@ export default function HousekeepingView({ staffId, restaurantId }) {
         .order('priority', { ascending: false }),
       supabase.from('rooms').select('id, room_number')
         .eq('restaurant_id', restaurantId).order('room_number'),
-    ]).then(([{ data: t }, { data: r }]) => {
-      setTasks(t ?? [])
-      setRooms(r ?? [])
-      setLoading(false)
-    })
-  }, [staffId, restaurantId])
+    ])
+    setTasks(t ?? [])
+    setRooms(r ?? [])
+    setLoading(false)
+  }, [restaurantId])
+
+  useEffect(() => {
+    if (!staffId || !restaurantId) return
+    setLoading(true)
+    load()
+  }, [staffId, restaurantId, load])
+
+  useEffect(() => {
+    if (!restaurantId) return
+    const ch = supabase.channel(`hk-portal-${restaurantId}`)
+      .on('postgres_changes', { event: '*', schema: 'public', table: 'housekeeping_tasks',
+        filter: `restaurant_id=eq.${restaurantId}` }, () => { load(); onRefresh?.() })
+      .subscribe()
+    return () => supabase.removeChannel(ch)
+  }, [restaurantId, load, onRefresh])
 
   const updateStatus = async (taskId, newStatus) => {
     const patch = { status: newStatus }
@@ -53,6 +73,7 @@ export default function HousekeepingView({ staffId, restaurantId }) {
     if (newStatus === 'done')        patch.completed_at = new Date().toISOString()
     await supabase.from('housekeeping_tasks').update(patch).eq('id', taskId)
     setTasks(prev => prev.map(t => t.id === taskId ? { ...t, ...patch } : t))
+    onRefresh?.()
   }
 
   const handleMaintSubmit = async (e) => {
@@ -75,25 +96,57 @@ export default function HousekeepingView({ staffId, restaurantId }) {
 
   if (loading) return <div className={s.loadingInline}>Učitavanje zadataka...</div>
 
-  const pending    = tasks.filter(t => t.status === 'pending').length
-  const inProgress = tasks.filter(t => t.status === 'in_progress').length
-  const done       = tasks.filter(t => t.status === 'done' || t.status === 'verified').length
+  const counts = {
+    pending:     tasks.filter(t => t.status === 'pending').length,
+    in_progress: tasks.filter(t => t.status === 'in_progress').length,
+    done:        tasks.filter(t => t.status === 'done' || t.status === 'verified').length,
+  }
+
+  const visibleTasks = filterStatus
+    ? tasks.filter(t => filterStatus === 'done'
+        ? (t.status === 'done' || t.status === 'verified')
+        : t.status === filterStatus)
+    : tasks
 
   return (
     <div>
       <div className={s.statsRow}>
-        <div className={s.statCard}><div className={s.statNum} style={{ color: '#e67e22' }}>{pending}</div><div className={s.statLabel}>Čeka</div></div>
-        <div className={s.statCard}><div className={s.statNum} style={{ color: '#2563eb' }}>{inProgress}</div><div className={s.statLabel}>U toku</div></div>
-        <div className={s.statCard}><div className={s.statNum} style={{ color: '#0d7a52' }}>{done}</div><div className={s.statLabel}>Završeno</div></div>
+        {FILTERS.map(f => {
+          const active = filterStatus === f.key
+          return (
+            <button
+              key={f.key}
+              className={s.statCard}
+              onClick={() => setFilterStatus(active ? null : f.key)}
+              style={{
+                cursor: 'pointer',
+                border: 'none',
+                fontFamily: 'inherit',
+                boxShadow: active
+                  ? `0 0 0 2px ${f.color}`
+                  : '0 1px 4px rgba(0,0,0,0.05)',
+                background: active ? `${f.color}14` : '#fff',
+              }}
+            >
+              <div className={s.statNum} style={{ color: f.color }}>{counts[f.key]}</div>
+              <div className={s.statLabel}>{f.label}</div>
+            </button>
+          )
+        })}
       </div>
 
-      {tasks.length === 0 ? (
+      {visibleTasks.length === 0 ? (
         <div className={s.empty}>
           <div className={s.emptyIcon}>✅</div>
-          <div className={s.emptyText}>Nemate zadataka za danas.</div>
+          <div className={s.emptyText}>
+            {filterStatus
+              ? `Nema zadataka u statusu "${FILTERS.find(f => f.key === filterStatus)?.label}".`
+              : 'Nema zadataka za danas.'
+            }
+          </div>
         </div>
       ) : (
-        tasks.map(task => {
+        visibleTasks.map(task => {
           const typeInfo = TASK_TYPES[task.type] || TASK_TYPES.stayover_clean
           const isDone = task.status === 'done' || task.status === 'verified'
           return (

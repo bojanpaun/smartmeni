@@ -428,8 +428,8 @@ export default function StaffPortal() {
     if (['schedule', 'attendance', 'payroll', 'absences'].includes(activeTab)) {
       return <HrView staffId={staff.id} activeTab={activeTab} />
     }
-    if (activeTab === 'tasks') return <HousekeepingView staffId={staff.id} restaurantId={restaurant.id} />
-    if (activeTab === 'maintenance') return <MaintenanceView staffId={staff.id} restaurantId={restaurant.id} />
+    if (activeTab === 'tasks') return <HousekeepingView staffId={staff.id} restaurantId={restaurant.id} onRefresh={refreshCounts} />
+    if (activeTab === 'maintenance') return <MaintenanceView staffId={staff.id} restaurantId={restaurant.id} onRefresh={refreshCounts} />
     if (activeTab === 'orders' || activeTab === 'requests') return <WaiterView restaurant={restaurant} activeTab={activeTab} onRefresh={refreshCounts} />
     if (activeTab === 'kitchen')    return <KitchenView restaurantId={restaurant.id} onRefresh={refreshCounts} />
     if (activeTab === 'bar_orders') return <BarView    restaurantId={restaurant.id} onRefresh={refreshCounts} />
