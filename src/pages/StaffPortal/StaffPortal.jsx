@@ -33,7 +33,6 @@ function mergePortalTabs(roleNames) {
   const seen = new Set()
   const tabs = [HOME_TAB]
   seen.add('home')
-  // Operativni tabovi (non-HR)
   for (const type of types) {
     for (const tab of (PORTAL_TABS[type] || [])) {
       if (!seen.has(tab.key) && !HR_TABS.includes(tab.key)) {
@@ -42,12 +41,42 @@ function mergePortalTabs(roleNames) {
       }
     }
   }
-  // HR tabovi uvijek na kraju
   for (const tab of PORTAL_TABS.hr) {
-    if (!seen.has(tab.key)) {
-      seen.add(tab.key)
-      tabs.push(tab)
+    if (!seen.has(tab.key)) { seen.add(tab.key); tabs.push(tab) }
+  }
+  return tabs
+}
+
+// Mapiranje permisije → operativni tabovi koje ta permisija otvara
+const PERM_TO_TABS = [
+  { perm: 'view_orders',        tabs: [
+      { key: 'orders',       label: 'Narudžbe',  icon: '🍽️' },
+      { key: 'requests',     label: 'Zahtjevi',  icon: '🔔' },
+  ]},
+  { perm: 'view_kitchen_orders', tabs: [{ key: 'kitchen',      label: 'Kuhinja',  icon: '🍳' }] },
+  { perm: 'view_bar_orders',     tabs: [{ key: 'bar_orders',   label: 'Bar',      icon: '🍷' }] },
+  { perm: 'view_housekeeping',   tabs: [{ key: 'tasks',        label: 'Zadaci',   icon: '🧹' }] },
+  { perm: 'checkin_checkout',    tabs: [
+      { key: 'checkin',      label: 'Check-in',  icon: '↓' },
+      { key: 'checkout',     label: 'Check-out', icon: '↑' },
+      { key: 'rooms',        label: 'Sobe',      icon: '🛏️' },
+  ]},
+  { perm: 'view_appointments',   tabs: [{ key: 'appointments', label: 'Termini',  icon: '💆' }] },
+]
+
+// Gradi tabove na osnovu stvarnih permisija — radi za svaku rolu, uključujući menadžere
+function tabsFromPermissions(allPermissions) {
+  const seen = new Set(['home'])
+  const tabs = [HOME_TAB]
+  for (const { perm, tabs: permTabs } of PERM_TO_TABS) {
+    if (allPermissions.includes(perm)) {
+      for (const tab of permTabs) {
+        if (!seen.has(tab.key)) { seen.add(tab.key); tabs.push(tab) }
+      }
     }
+  }
+  for (const tab of PORTAL_TABS.hr) {
+    if (!seen.has(tab.key)) { seen.add(tab.key); tabs.push(tab) }
   }
   return tabs
 }
@@ -149,7 +178,7 @@ export default function StaffPortal() {
 
     // Primarno: traži po user_id
     let { data: staffData } = await supabase.from('staff')
-      .select('*, role:roles!role_id(name)')
+      .select('*, role:roles!role_id(name, permissions)')
       .eq('user_id', userId)
       .eq('restaurant_id', restaurant.id)
       .eq('is_active', true)
@@ -160,13 +189,12 @@ export default function StaffPortal() {
       const { data: { user } } = await supabase.auth.getUser()
       if (user?.email) {
         const { data: byEmail } = await supabase.from('staff')
-          .select('*, role:roles!role_id(name)')
+          .select('*, role:roles!role_id(name, permissions)')
           .eq('email', user.email.toLowerCase())
           .eq('restaurant_id', restaurant.id)
           .eq('is_active', true)
           .maybeSingle()
         if (byEmail) {
-          // Automatski veži user_id
           await supabase.from('staff').update({ user_id: userId }).eq('id', byEmail.id)
           staffData = { ...byEmail, user_id: userId }
         }
@@ -178,18 +206,27 @@ export default function StaffPortal() {
       return
     }
 
-    // Učitaj SVE role iz staff_roles junction tabele
+    // Učitaj SVE role iz staff_roles junction tabele (sa permisijama)
     const { data: allRolesData } = await supabase
       .from('staff_roles')
-      .select('role:roles!role_id(name)')
+      .select('role:roles!role_id(name, permissions)')
       .eq('staff_id', staffData.id)
 
     const roleNames = [
       ...(allRolesData?.map(r => r.role?.name).filter(Boolean) || []),
-      staffData.role?.name, // primarna rola kao fallback
+      staffData.role?.name,
     ].filter(Boolean)
 
-    const tabs = mergePortalTabs(roleNames.length > 0 ? roleNames : ['hr'])
+    // Spoji sve permisije iz svih rola
+    const allPermissions = [...new Set([
+      ...(allRolesData?.flatMap(r => r.role?.permissions || []) || []),
+      ...(staffData.role?.permissions || []),
+    ])]
+
+    // Tabs: permission-based (ispravno za menadžere) s fallbackom na name detection
+    const tabs = allPermissions.length > 0
+      ? tabsFromPermissions(allPermissions)
+      : mergePortalTabs(roleNames.length > 0 ? roleNames : ['hr'])
     setStaff(staffData)
     setPortalType(detectPortalType(roleNames[0] || ''))
     setActiveTab(tabs[0].key)
