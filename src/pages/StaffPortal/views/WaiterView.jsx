@@ -32,7 +32,7 @@ const DEFAULT_REJECT = [
   'Restoran se zatvara, narudžba nije moguća.',
 ]
 
-export default function WaiterView({ restaurant, activeTab, onRefresh }) {
+export default function WaiterView({ restaurant, rejectionMessages, activeTab, onRefresh }) {
   const restaurantId = restaurant?.id
   const [orders, setOrders]     = useState([])
   const [requests, setRequests] = useState([])
@@ -40,7 +40,7 @@ export default function WaiterView({ restaurant, activeTab, onRefresh }) {
   const [rejectOpen, setRejectOpen] = useState(null)
   const barCatIdsRef = useRef(null)
 
-  const rejectMessages = restaurant?.rejection_messages || DEFAULT_REJECT
+  const rejectMessages = rejectionMessages || restaurant?.rejection_messages || DEFAULT_REJECT
 
   const getBarCatIds = useCallback(async () => {
     if (!barCatIdsRef.current) {

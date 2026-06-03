@@ -149,10 +149,11 @@ export default function StaffPortal() {
   const [resetDone, setResetDone]         = useState(false)
 
   // Staff
-  const [staff, setStaff]           = useState(null)
-  const [portalType, setPortalType] = useState('hr')
-  const [activeTab, setActiveTab]   = useState(null)
-  const [mergedTabs, setMergedTabs] = useState(PORTAL_TABS.hr)
+  const [staff, setStaff]                   = useState(null)
+  const [portalType, setPortalType]         = useState('hr')
+  const [activeTab, setActiveTab]           = useState(null)
+  const [mergedTabs, setMergedTabs]         = useState(PORTAL_TABS.hr)
+  const [rejectionMessages, setRejectionMessages] = useState(null)
 
   useEffect(() => {
     supabase.from('restaurants')
@@ -232,12 +233,13 @@ export default function StaffPortal() {
     const tabs = allPermissions.length > 0
       ? tabsFromPermissions(allPermissions)
       : mergePortalTabs(roleNames.length > 0 ? roleNames : ['hr'])
-    // Dohvati kolone koje anon fetch ne može pročitati (RLS ograničenje)
+    // Dohvati kolone koje anon fetch ne može pročitati (ne mijenjamo restaurant
+    // state jer bi to pokrenulo useEffect [restaurant] → beskonačna petlja)
     const { data: restPrivate } = await supabase.from('restaurants')
       .select('rejection_messages')
       .eq('id', restaurant.id)
       .maybeSingle()
-    if (restPrivate) setRestaurant(prev => ({ ...prev, ...restPrivate }))
+    if (restPrivate?.rejection_messages) setRejectionMessages(restPrivate.rejection_messages)
 
     setStaff(staffData)
     setPortalType(detectPortalType(roleNames[0] || ''))
@@ -437,7 +439,7 @@ export default function StaffPortal() {
     }
     if (activeTab === 'tasks') return <HousekeepingView staffId={staff.id} restaurantId={restaurant.id} onRefresh={refreshCounts} />
     if (activeTab === 'maintenance') return <MaintenanceView staffId={staff.id} restaurantId={restaurant.id} onRefresh={refreshCounts} />
-    if (activeTab === 'orders' || activeTab === 'requests') return <WaiterView restaurant={restaurant} activeTab={activeTab} onRefresh={refreshCounts} />
+    if (activeTab === 'orders' || activeTab === 'requests') return <WaiterView restaurant={restaurant} rejectionMessages={rejectionMessages} activeTab={activeTab} onRefresh={refreshCounts} />
     if (activeTab === 'kitchen')    return <KitchenView restaurantId={restaurant.id} onRefresh={refreshCounts} />
     if (activeTab === 'bar_orders') return <BarView    restaurantId={restaurant.id} onRefresh={refreshCounts} />
     if (['checkin', 'checkout', 'rooms'].includes(activeTab)) return <ReceptionView restaurantId={restaurant.id} activeTab={activeTab} onRefresh={refreshCounts} />
