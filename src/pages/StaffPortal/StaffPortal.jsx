@@ -159,7 +159,19 @@ export default function StaffPortal() {
       .select('id, name, slug, logo_url, color, template, rejection_messages')
       .ilike('slug', slug)
       .maybeSingle()
-      .then(({ data }) => { setRestaurant(data); setLoadingRest(false) })
+      .then(async ({ data }) => {
+        if (data?.id) {
+          // RPC SECURITY DEFINER — zaobilazi sve RLS/GRANT, injectuje rejection_messages
+          const { data: msgs } = await supabase.rpc('get_restaurant_rejection_messages', {
+            p_restaurant_id: data.id,
+          })
+          if (Array.isArray(msgs) && msgs.length > 0) {
+            data.rejection_messages = msgs
+          }
+        }
+        setRestaurant(data)
+        setLoadingRest(false)
+      })
   }, [slug])
 
   // Check existing session + PASSWORD_RECOVERY event
