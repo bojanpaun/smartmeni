@@ -119,6 +119,7 @@ export default function FrontDeskPage() {
       body: { reservation_id: res.id, type: 'checkin' },
     }).catch(() => {})
     refetchArrivals()
+    refreshCounts()
   }
 
   const handleCheckOut = async (res) => {
@@ -140,6 +141,7 @@ export default function FrontDeskPage() {
       body: { reservation_id: res.id, type: 'checkout' },
     }).catch(() => {})
     refetchDep()
+    refreshCounts()
   }
 
   const loading = loadingArrivals || loadingDep
