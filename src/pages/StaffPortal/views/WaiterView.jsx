@@ -88,17 +88,21 @@ export default function WaiterView({ restaurant, activeTab, onRefresh, hotelEnab
 
   useEffect(() => { load() }, [load])
 
+  const loadRef = useRef(load)
+  const onRefreshRef = useRef(onRefresh)
+  useEffect(() => { loadRef.current = load }, [load])
+  useEffect(() => { onRefreshRef.current = onRefresh }, [onRefresh])
+
   useEffect(() => {
     if (!restaurantId) return
-    const handleChange = () => { load(); onRefresh?.() }
     const ch = supabase.channel(`waiter-portal-${restaurantId}`)
       .on('postgres_changes', { event: '*', schema: 'public', table: 'orders',
-        filter: `restaurant_id=eq.${restaurantId}` }, handleChange)
+        filter: `restaurant_id=eq.${restaurantId}` }, () => { loadRef.current(); onRefreshRef.current?.() })
       .on('postgres_changes', { event: '*', schema: 'public', table: 'waiter_requests',
-        filter: `restaurant_id=eq.${restaurantId}` }, handleChange)
+        filter: `restaurant_id=eq.${restaurantId}` }, () => { loadRef.current(); onRefreshRef.current?.() })
       .subscribe()
     return () => supabase.removeChannel(ch)
-  }, [restaurantId, load, onRefresh])
+  }, [restaurantId])
 
   const updateOrderStatus = async (orderId, status) => {
     const update = { status }

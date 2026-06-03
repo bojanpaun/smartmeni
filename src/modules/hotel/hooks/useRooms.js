@@ -1,4 +1,4 @@
-import { useState, useEffect, useCallback } from 'react'
+import { useState, useEffect, useCallback, useRef } from 'react'
 import { supabase } from '../../../lib/supabase'
 
 export function useRooms(restaurantId, onRefresh) {
@@ -20,15 +20,19 @@ export function useRooms(restaurantId, onRefresh) {
 
   useEffect(() => { load() }, [load])
 
+  const loadRef = useRef(load)
+  const onRefreshRef = useRef(onRefresh)
+  useEffect(() => { loadRef.current = load }, [load])
+  useEffect(() => { onRefreshRef.current = onRefresh }, [onRefresh])
+
   useEffect(() => {
     if (!restaurantId) return
-    const handleChange = () => { load(); onRefresh?.() }
     const ch = supabase.channel(`rooms-rt-${restaurantId}`)
       .on('postgres_changes', { event: '*', schema: 'public', table: 'rooms',
-        filter: `restaurant_id=eq.${restaurantId}` }, handleChange)
+        filter: `restaurant_id=eq.${restaurantId}` }, () => { loadRef.current(); onRefreshRef.current?.() })
       .subscribe()
     return () => supabase.removeChannel(ch)
-  }, [restaurantId, load, onRefresh])
+  }, [restaurantId])
 
   const updateRoomStatus = async (roomId, status, prevStatus) => {
     setRooms(prev => prev.map(r => r.id === roomId ? { ...r, status } : r))

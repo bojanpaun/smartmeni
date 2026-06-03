@@ -48,7 +48,7 @@ export default function WaiterMapView() {
   }
 
   const subscribeRealtime = () => {
-    const channel = supabase.channel('waiter-map')
+    const channel = supabase.channel(`waiter-map-${restaurant.id}`)
       .on('postgres_changes', { event: '*', schema: 'public', table: 'orders',          filter: `restaurant_id=eq.${restaurant.id}` }, () => loadAll())
       .on('postgres_changes', { event: '*', schema: 'public', table: 'waiter_requests', filter: `restaurant_id=eq.${restaurant.id}` }, () => loadAll())
       .on('postgres_changes', { event: '*', schema: 'public', table: 'tables',          filter: `restaurant_id=eq.${restaurant.id}` }, () => loadAll())

@@ -1,4 +1,4 @@
-import { useState, useEffect, useCallback } from 'react'
+import { useState, useEffect, useCallback, useRef } from 'react'
 import { supabase } from '../../../lib/supabase'
 import s from '../StaffPortal.module.css'
 
@@ -32,15 +32,19 @@ export default function BarView({ restaurantId, onRefresh }) {
 
   useEffect(() => { load() }, [load])
 
+  const loadRef = useRef(load)
+  const onRefreshRef = useRef(onRefresh)
+  useEffect(() => { loadRef.current = load }, [load])
+  useEffect(() => { onRefreshRef.current = onRefresh }, [onRefresh])
+
   useEffect(() => {
     if (!restaurantId) return
-    const handleChange = () => { load(); onRefresh?.() }
     const ch = supabase.channel(`bar-portal-${restaurantId}`)
       .on('postgres_changes', { event: '*', schema: 'public', table: 'orders',
-        filter: `restaurant_id=eq.${restaurantId}` }, handleChange)
+        filter: `restaurant_id=eq.${restaurantId}` }, () => { loadRef.current(); onRefreshRef.current?.() })
       .subscribe()
     return () => supabase.removeChannel(ch)
-  }, [restaurantId, load, onRefresh])
+  }, [restaurantId])
 
   const markReady = async (orderId) => {
     await supabase.from('orders').update({ bar_status: 'ready' }).eq('id', orderId)
