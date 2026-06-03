@@ -187,9 +187,8 @@ export default function StaffPortal() {
     return () => subscription.unsubscribe()
   }, [restaurant])
 
-  // Hook uvijek dobija restaurant?.id — ne čeka login/mergedTabs
-  // Subscription se uspostavlja čim se restaurant učita (rješava RLS realtime problem za staff)
-  const { counts, refresh: refreshCounts } = useKitchenCounts(restaurant?.id)
+  // Kanal se kreira tek nakon logina — anon sesija ne može primati realtime evente
+  const { counts, refresh: refreshCounts } = useKitchenCounts(mode === 'portal' ? restaurant?.id : null)
 
   const loadStaff = async (userId) => {
     if (!restaurant) return
@@ -250,8 +249,6 @@ export default function StaffPortal() {
     setActiveTab(tabs[0].key)
     setMergedTabs(tabs)
     setMode('portal')
-    // Re-fetch badge counts with authenticated session (prije logina RLS vraća 0)
-    refreshCounts()
   }
 
   const handleLogin = async (e) => {
