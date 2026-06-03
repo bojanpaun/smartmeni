@@ -41,28 +41,6 @@ export default function WaiterView({ restaurant, rejectionMessages, activeTab, o
   const [fetchedRejectMsgs, setFetchedRejectMsgs] = useState(null)
   const barCatIdsRef = useRef(null)
 
-  // Direktni select — GRANT SELECT(rejection_messages) na restaurants dodan
-  // za anon i authenticated role. Fallback na RPC ako direktni select vrati null.
-  useEffect(() => {
-    if (!restaurantId) return
-    supabase.from('restaurants')
-      .select('rejection_messages')
-      .eq('id', restaurantId)
-      .maybeSingle()
-      .then(({ data }) => {
-        const msgs = data?.rejection_messages
-        if (Array.isArray(msgs) && msgs.length > 0) {
-          setFetchedRejectMsgs(msgs)
-          return
-        }
-        // Fallback: RPC (SECURITY DEFINER, zaobilazi RLS)
-        supabase.rpc('get_restaurant_rejection_messages', { p_restaurant_id: restaurantId })
-          .then(({ data: rpcData }) => {
-            if (Array.isArray(rpcData) && rpcData.length > 0) setFetchedRejectMsgs(rpcData)
-          })
-      })
-  }, [restaurantId])
-
   const rejectMessages = fetchedRejectMsgs || rejectionMessages || restaurant?.rejection_messages || DEFAULT_REJECT
 
   const getBarCatIds = useCallback(async () => {
@@ -77,7 +55,7 @@ export default function WaiterView({ restaurant, rejectionMessages, activeTab, o
   const load = useCallback(async () => {
     if (!restaurantId) return
     setLoading(true)
-    const [{ data: o }, { data: r }] = await Promise.all([
+    const [{ data: o }, { data: r }, { data: restData }] = await Promise.all([
       supabase.from('orders').select('*, order_items(name, quantity, price, category_id)')
         .eq('restaurant_id', restaurantId)
         .not('status', 'in', '(closed,rejected)')
@@ -86,9 +64,16 @@ export default function WaiterView({ restaurant, rejectionMessages, activeTab, o
         .eq('restaurant_id', restaurantId)
         .eq('is_resolved', false)
         .order('created_at', { ascending: false }),
+      supabase.from('restaurants')
+        .select('rejection_messages')
+        .eq('id', restaurantId)
+        .maybeSingle(),
     ])
     setOrders(o ?? [])
     setRequests(r ?? [])
+    if (Array.isArray(restData?.rejection_messages) && restData.rejection_messages.length > 0) {
+      setFetchedRejectMsgs(restData.rejection_messages)
+    }
     setLoading(false)
   }, [restaurantId])
 
