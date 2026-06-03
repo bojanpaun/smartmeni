@@ -87,6 +87,8 @@
     "retry": "Pokušajte ponovo",
     "title": "Rezervacija potvrđena!",
     "sub": "Hvala, <strong>{{name}}</strong>! Potvrda je poslana na <strong>{{email}}</strong>.",
+    "titleReceived": "Zahtjev primljen!",
+    "subReceived": "Hvala, <strong>{{name}}</strong>! Vaš zahtjev je primljen. Hotel će ga potvrditi uskoro — obavijest šaljemo na <strong>{{email}}</strong>.",
     "refNum": "Br. rezervacije",
     "accommodation": "Smještaj",
     "checkIn": "Dolazak",

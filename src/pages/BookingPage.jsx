@@ -57,7 +57,7 @@ export default function BookingPage() {
   useEffect(() => {
     supabase
       .from('restaurants')
-      .select('id, name, slug, logo_url')
+      .select('id, name, slug, logo_url, booking_mode')
       .eq('slug', slug)
       .single()
       .then(({ data }) => {
@@ -195,25 +195,39 @@ export default function BookingPage() {
   const handlePayOnArrival = async () => {
     setPayLoading(true)
     setPayError('')
+    const bookingMode = restaurant?.booking_mode ?? 'immediate'
     const { data, error } = await supabase.rpc('create_booking_direct', {
-      p_restaurant_id:   restaurant.id,
-      p_room_type_id:    selectedRoom.room_type_id,
-      p_rate_plan_id:    selectedPackage?.rate_plan_id ?? null,
-      p_package_name:    selectedPackage?.plan_name ?? null,
-      p_check_in:        checkIn,
-      p_check_out:       checkOut,
-      p_adults:          adults,
-      p_children:        children,
-      p_guest_name:      guestName,
-      p_guest_email:     guestEmail,
-      p_guest_phone:     guestPhone,
+      p_restaurant_id:    restaurant.id,
+      p_room_type_id:     selectedRoom.room_type_id,
+      p_rate_plan_id:     selectedPackage?.rate_plan_id ?? null,
+      p_package_name:     selectedPackage?.plan_name ?? null,
+      p_check_in:         checkIn,
+      p_check_out:        checkOut,
+      p_adults:           adults,
+      p_children:         children,
+      p_guest_name:       guestName,
+      p_guest_email:      guestEmail,
+      p_guest_phone:      guestPhone,
       p_special_requests: specialRequests,
-      p_price_per_night: activePricePerNight,
-      p_total_amount:    totalAmount,
+      p_price_per_night:  activePricePerNight,
+      p_total_amount:     totalAmount,
+      p_status:           bookingMode === 'manual' ? 'inquiry' : 'confirmed',
     })
     setPayLoading(false)
     if (error) return setPayError(error.message ?? t('date.errSearch'))
-    setConfirmation(data)
+
+    // Pošalji email gostu (fire-and-forget)
+    const emailType = bookingMode === 'manual' ? 'received' : 'confirmed'
+    fetch(`${import.meta.env.VITE_SUPABASE_URL}/functions/v1/send-booking-email`, {
+      method: 'POST',
+      headers: {
+        'Content-Type': 'application/json',
+        'apikey': import.meta.env.VITE_SUPABASE_KEY,
+      },
+      body: JSON.stringify({ reservation_id: data.reservation_id, type: emailType }),
+    }).catch(() => {})
+
+    setConfirmation({ ...data, booking_mode: bookingMode })
     setStep(4)
   }
 
@@ -227,7 +241,11 @@ export default function BookingPage() {
             'Content-Type': 'application/json',
             'apikey': import.meta.env.VITE_SUPABASE_KEY,
           },
-          body: JSON.stringify({ paypal_order_id: orderId, ...pending }),
+          body: JSON.stringify({
+            paypal_order_id: orderId,
+            booking_mode: restaurant?.booking_mode ?? 'immediate',
+            ...pending,
+          }),
         }
       )
       const data = await res.json()
@@ -591,11 +609,13 @@ export default function BookingPage() {
             )}
             {confirmation && (
               <div className={styles.confirmBlock}>
-                <div className={styles.confirmIcon}>✅</div>
-                <h2 className={styles.confirmTitle}>{t('confirm.title')}</h2>
+                <div className={styles.confirmIcon}>{confirmation.booking_mode === 'manual' ? '📋' : '✅'}</div>
+                <h2 className={styles.confirmTitle}>
+                  {confirmation.booking_mode === 'manual' ? t('confirm.titleReceived') : t('confirm.title')}
+                </h2>
                 <p className={styles.confirmSub}>
                   <Trans
-                    i18nKey="confirm.sub"
+                    i18nKey={confirmation.booking_mode === 'manual' ? 'confirm.subReceived' : 'confirm.sub'}
                     ns="booking"
                     values={{ name: confirmation.guest_name, email: confirmation.guest_email }}
                     components={{ strong: <strong /> }}

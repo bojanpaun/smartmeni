@@ -30,6 +30,7 @@ function buildHtml(data: {
     cancelled: '#c0392b',
     checkin:   '#2563eb',
     checkout:  '#7c3aed',
+    received:  '#e67e22',
   }
 
   const bannerText: Record<string, string> = {
@@ -37,6 +38,7 @@ function buildHtml(data: {
     cancelled: '❌ Rezervacija otkazana',
     checkin:   '🏨 Check-in potvrđen',
     checkout:  '👋 Check-out — Hvala!',
+    received:  '📋 Zahtjev za rezervaciju primljen',
   }
 
   const bodyText: Record<string, string> = {
@@ -44,6 +46,7 @@ function buildHtml(data: {
     cancelled: `Dragi/a ${guestName},<br><br>Vaša rezervacija je otkazana. Ako imate pitanja, kontaktirajte nas.`,
     checkin:   `Dragi/a ${guestName},<br><br>Dobrodošli! Check-in je uspješno obavljen. Osoblje je dostupno na recepciji.`,
     checkout:  `Dragi/a ${guestName},<br><br>Hvala što ste boravili kod nas. Radujemo se Vašem ponovnom dolasku!`,
+    received:  `Dragi/a ${guestName},<br><br>Primili smo Vaš zahtjev za rezervaciju. Hotel će ga pregledati i potvrditi u najkraćem roku — dobit ćete email potvrde čim bude odobreno.`,
   }
 
   const fmt = (d: string) =>
@@ -116,6 +119,10 @@ function buildHtml(data: {
     ${type === 'confirmed' ? `
     <div style="background:#ecfdf5;border-left:3px solid #0d7a52;padding:12px 16px;border-radius:0 6px 6px 0;margin-bottom:16px;">
       <p style="margin:0;font-size:13px;color:#065f46;">📋 Pri dolasku ponesите ovaj email i važeći identifikacioni dokument.</p>
+    </div>` : ''}
+    ${type === 'received' ? `
+    <div style="background:#fff7ed;border-left:3px solid #e67e22;padding:12px 16px;border-radius:0 6px 6px 0;margin-bottom:16px;">
+      <p style="margin:0;font-size:13px;color:#92400e;">⏳ Vaš zahtjev je na čekanju. Dobit ćete email potvrde čim hotel odobri rezervaciju.</p>
     </div>` : ''}
 
     ${(type === 'confirmed' || type === 'checkin') && guestAppUrl ? `
@@ -212,6 +219,7 @@ serve(async (req) => {
       cancelled: `❌ Otkazana rezervacija — ${hotelName}`,
       checkin:   `🏨 Check-in potvrđen — ${hotelName}`,
       checkout:  `👋 Hvala na posjeti — ${hotelName}`,
+      received:  `📋 Zahtjev primljen — ${hotelName}`,
     }
 
     const html = buildHtml({

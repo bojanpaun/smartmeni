@@ -17,6 +17,7 @@ export default function BookingSettings() {
     booking_checkin_time:  restaurant.booking_checkin_time ?? '14:00',
     booking_checkout_time: restaurant.booking_checkout_time ?? '11:00',
     booking_custom_domain: restaurant.booking_custom_domain ?? '',
+    booking_mode:          restaurant.booking_mode          ?? 'immediate',
   } : null)
   const [saving, setSaving] = useState(false)
   const [copied, setCopied] = useState(false)
@@ -145,6 +146,38 @@ export default function BookingSettings() {
                 <input type="time" value={form.booking_checkout_time}
                   onChange={e => setForm(f => ({ ...f, booking_checkout_time: e.target.value }))} />
               </div>
+            </div>
+          </div>
+
+          {/* Mod potvrde rezervacije */}
+          <div className={bs.section}>
+            <div className={bs.sectionTitle}>Mod potvrde rezervacije</div>
+            <div className={bs.modeCards}>
+              {[
+                {
+                  value: 'immediate',
+                  icon: '✅',
+                  label: 'Automatska potvrda',
+                  desc: 'Rezervacija se potvrđuje odmah pri slanju. Gost dobija email potvrde instantno.',
+                },
+                {
+                  value: 'manual',
+                  icon: '📋',
+                  label: 'Ručno odobravanje',
+                  desc: 'Rezervacija ide na čekanje. Vi je ručno odobravate iz admin panela, gost dobija potvrdu tek tada.',
+                },
+              ].map(opt => (
+                <button
+                  key={opt.value}
+                  type="button"
+                  className={`${bs.modeCard} ${form.booking_mode === opt.value ? bs.modeCardActive : ''}`}
+                  onClick={() => setForm(f => ({ ...f, booking_mode: opt.value }))}
+                >
+                  <span className={bs.modeIcon}>{opt.icon}</span>
+                  <span className={bs.modeLabel}>{opt.label}</span>
+                  <span className={bs.modeDesc}>{opt.desc}</span>
+                </button>
+              ))}
             </div>
           </div>
 

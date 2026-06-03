@@ -99,13 +99,32 @@ export default function ReservationForm() {
       toast(`Soba ${roomsForType[0].room_number} automatski dodijeljena`, { icon: '🛏️' })
     }
 
+    // Provjeri prethodni status PRIJE update-a (za inquiry→confirmed email logiku)
+    let prevStatus = null
+    if (id && form.status === 'confirmed' && form.source === 'online') {
+      const { data: prev } = await supabase
+        .from('hotel_reservations').select('status').eq('id', id).single()
+      prevStatus = prev?.status ?? null
+    }
+
     const payload = { ...form, restaurant_id: restaurant.id, total_amount: total || null, rate_per_night: parseFloat(form.rate_per_night) || null, room_type_id: form.room_type_id || null, room_id: autoRoomId }
     const { error } = id
       ? await supabase.from('hotel_reservations').update(payload).eq('id', id)
       : await supabase.from('hotel_reservations').insert(payload)
     setSaving(false)
     if (error) return toast.error('Greška pri čuvanju: ' + error.message)
-    toast.success(id ? 'Rezervacija ažurirana' : 'Rezervacija kreirana')
+
+    // Pošalji email potvrde gostu kada admin potvrdi online inquiry
+    if (prevStatus === 'inquiry' && form.guest_email) {
+      fetch(`${import.meta.env.VITE_SUPABASE_URL}/functions/v1/send-booking-email`, {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json', 'apikey': import.meta.env.VITE_SUPABASE_KEY },
+        body: JSON.stringify({ reservation_id: id, type: 'confirmed' }),
+      }).catch(() => {})
+      toast.success('Rezervacija potvrđena — email potvrde je poslan gostu')
+    } else {
+      toast.success(id ? 'Rezervacija ažurirana' : 'Rezervacija kreirana')
+    }
     navigate('/admin/hotel/reservations')
   }
 

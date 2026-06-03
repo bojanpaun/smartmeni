@@ -85,6 +85,8 @@
     "retry": "Try again",
     "title": "Booking confirmed!",
     "sub": "Thank you, <strong>{{name}}</strong>! Confirmation sent to <strong>{{email}}</strong>.",
+    "titleReceived": "Request received!",
+    "subReceived": "Thank you, <strong>{{name}}</strong>! Your request has been received. The hotel will confirm it shortly — we'll notify you at <strong>{{email}}</strong>.",
     "refNum": "Booking ref.",
     "accommodation": "Accommodation",
     "checkIn": "Check-in",

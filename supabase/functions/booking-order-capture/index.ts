@@ -35,7 +35,12 @@ serve(async (req) => {
       guest_name, guest_email, guest_phone,
       special_requests,
       price_per_night, total_amount,
+      booking_mode = 'immediate',
     } = body
+
+    const isManual = booking_mode === 'manual'
+    const reservationStatus = isManual ? 'inquiry' : 'confirmed'
+    const emailType = isManual ? 'received' : 'confirmed'
 
     if (!paypal_order_id || !restaurant_id || !room_type_id) {
       return new Response(JSON.stringify({ error: 'Nedostaju obavezna polja' }), {
@@ -77,7 +82,7 @@ serve(async (req) => {
       .eq('id', room_type_id)
       .single()
 
-    // Create confirmed hotel reservation
+    // Kreirati rezervaciju — status zavisi od booking_mode
     const { data: reservation, error: resError } = await supabase
       .from('hotel_reservations')
       .insert({
@@ -94,7 +99,7 @@ serve(async (req) => {
         total_amount,
         paid_amount: total_amount,
         payment_status: 'paid',
-        status: 'confirmed',
+        status: reservationStatus,
         source: 'online',
         special_requests: special_requests || null,
       })
@@ -120,14 +125,14 @@ serve(async (req) => {
       payload: capture,
     })
 
-    // Pošalji email potvrde (fire-and-forget — ne blokiramo odgovor)
+    // Pošalji email (fire-and-forget) — tip zavisi od booking_mode
     fetch(`${Deno.env.get('SUPABASE_URL')}/functions/v1/send-booking-email`, {
       method: 'POST',
       headers: {
         Authorization: `Bearer ${Deno.env.get('SUPABASE_SERVICE_ROLE_KEY')}`,
         'Content-Type': 'application/json',
       },
-      body: JSON.stringify({ reservation_id: reservation.id, type: 'confirmed' }),
+      body: JSON.stringify({ reservation_id: reservation.id, type: emailType }),
     }).catch(e => console.warn('Email send failed (non-critical):', e))
 
     return new Response(JSON.stringify({
