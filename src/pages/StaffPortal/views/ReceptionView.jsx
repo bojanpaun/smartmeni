@@ -13,7 +13,7 @@ const ROOM_STATUS_COLORS = {
   blocked:     { bg: '#f3f4f6', color: '#6b7280', label: 'Blokirano' },
 }
 
-export default function ReceptionView({ restaurantId, activeTab }) {
+export default function ReceptionView({ restaurantId, activeTab, onRefresh }) {
   const [arrivals, setArrivals]   = useState([])
   const [departures, setDepartures] = useState([])
   const [rooms, setRooms]         = useState([])
@@ -50,14 +50,15 @@ export default function ReceptionView({ restaurantId, activeTab }) {
 
   useEffect(() => {
     if (!restaurantId) return
+    const handleChange = () => { load(); onRefresh?.() }
     const ch = supabase.channel(`reception-portal-${restaurantId}`)
       .on('postgres_changes', { event: '*', schema: 'public', table: 'hotel_reservations',
-        filter: `restaurant_id=eq.${restaurantId}` }, load)
+        filter: `restaurant_id=eq.${restaurantId}` }, handleChange)
       .on('postgres_changes', { event: '*', schema: 'public', table: 'rooms',
-        filter: `restaurant_id=eq.${restaurantId}` }, load)
+        filter: `restaurant_id=eq.${restaurantId}` }, handleChange)
       .subscribe()
     return () => supabase.removeChannel(ch)
-  }, [restaurantId, load])
+  }, [restaurantId, load, onRefresh])
 
   const handleCheckin = async (res) => {
     const { error } = await supabase.from('hotel_reservations').update({
@@ -67,6 +68,7 @@ export default function ReceptionView({ restaurantId, activeTab }) {
     if (error) { toast.error('Greška pri check-inu'); return }
     if (res.room_id) await supabase.from('rooms').update({ status: 'occupied' }).eq('id', res.room_id)
     setArrivals(prev => prev.filter(r => r.id !== res.id))
+    onRefresh?.()
     toast.success(`${res.guest_name} — check-in uspješan`)
   }
 
@@ -78,6 +80,7 @@ export default function ReceptionView({ restaurantId, activeTab }) {
     if (error) { toast.error('Greška pri check-outu'); return }
     if (res.room_id) await supabase.from('rooms').update({ status: 'cleaning' }).eq('id', res.room_id)
     setDepartures(prev => prev.filter(r => r.id !== res.id))
+    onRefresh?.()
     toast.success(`${res.guest_name} — check-out. Soba na čišćenje.`)
   }
 
