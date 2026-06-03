@@ -11,6 +11,7 @@ import KitchenView from './views/KitchenView'
 import BarView from './views/BarView'
 import ReceptionView from './views/ReceptionView'
 import SpaView from './views/SpaView'
+import MaintenanceView from './views/MaintenanceView'
 
 // Mapira naziv role na tip portala
 function detectPortalType(roleName) {
@@ -55,7 +56,10 @@ const PERM_TO_TABS = [
   ]},
   { perm: 'view_kitchen_orders', tabs: [{ key: 'kitchen',      label: 'Kuhinja',  icon: '🍳' }] },
   { perm: 'view_bar_orders',     tabs: [{ key: 'bar_orders',   label: 'Bar',      icon: '🍷' }] },
-  { perm: 'view_housekeeping',   tabs: [{ key: 'tasks',        label: 'Zadaci',   icon: '🧹' }] },
+  { perm: 'view_housekeeping',   tabs: [
+      { key: 'tasks',       label: 'Zadaci',     icon: '🧹' },
+      { key: 'maintenance', label: 'Održavanje', icon: '🔧' },
+  ]},
   { perm: 'checkin_checkout',    tabs: [
       { key: 'checkin',      label: 'Check-in',  icon: '↓' },
       { key: 'checkout',     label: 'Check-out', icon: '↑' },
@@ -83,8 +87,9 @@ function tabsFromPermissions(allPermissions) {
 
 const PORTAL_TABS = {
   housekeeping: [
-    { key: 'tasks',    label: 'Zadaci',   icon: '🧹' },
-    { key: 'schedule', label: 'Raspored', icon: '📅' },
+    { key: 'tasks',       label: 'Zadaci',     icon: '🧹' },
+    { key: 'maintenance', label: 'Održavanje', icon: '🔧' },
+    { key: 'schedule',    label: 'Raspored',   icon: '📅' },
   ],
   waiter: [
     { key: 'orders',   label: 'Narudžbe', icon: '🍽️' },
@@ -410,11 +415,12 @@ export default function StaffPortal() {
   const staffName = [staff?.first_name, staff?.last_name].filter(Boolean).join(' ') || staff?.email || ''
 
   const TAB_BADGES = {
-    orders:     counts.waiter,
-    requests:   counts.waiterReq,
-    kitchen:    counts.kitchen,
-    bar_orders: counts.bar,
-    tasks:      counts.housekeeping,
+    orders:      counts.waiter,
+    requests:    counts.waiterReq,
+    kitchen:     counts.kitchen,
+    bar_orders:  counts.bar,
+    tasks:       counts.housekeeping,
+    maintenance: counts.maintOpen,
   }
 
   const renderView = () => {
@@ -423,6 +429,7 @@ export default function StaffPortal() {
       return <HrView staffId={staff.id} activeTab={activeTab} />
     }
     if (activeTab === 'tasks') return <HousekeepingView staffId={staff.id} restaurantId={restaurant.id} />
+    if (activeTab === 'maintenance') return <MaintenanceView staffId={staff.id} restaurantId={restaurant.id} />
     if (activeTab === 'orders' || activeTab === 'requests') return <WaiterView restaurant={restaurant} activeTab={activeTab} onRefresh={refreshCounts} />
     if (activeTab === 'kitchen')    return <KitchenView restaurantId={restaurant.id} onRefresh={refreshCounts} />
     if (activeTab === 'bar_orders') return <BarView    restaurantId={restaurant.id} onRefresh={refreshCounts} />
