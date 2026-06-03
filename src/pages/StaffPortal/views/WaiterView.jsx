@@ -41,13 +41,25 @@ export default function WaiterView({ restaurant, rejectionMessages, activeTab, o
   const [fetchedRejectMsgs, setFetchedRejectMsgs] = useState(null)
   const barCatIdsRef = useRef(null)
 
-  // Dohvati rejection_messages direktno via SECURITY DEFINER RPC —
-  // zaobilazi RLS koji blokira staff korisnike od čitanja restaurants tabele
+  // Direktni select — GRANT SELECT(rejection_messages) na restaurants dodan
+  // za anon i authenticated role. Fallback na RPC ako direktni select vrati null.
   useEffect(() => {
     if (!restaurantId) return
-    supabase.rpc('get_restaurant_rejection_messages', { p_restaurant_id: restaurantId })
+    supabase.from('restaurants')
+      .select('rejection_messages')
+      .eq('id', restaurantId)
+      .maybeSingle()
       .then(({ data }) => {
-        if (Array.isArray(data) && data.length > 0) setFetchedRejectMsgs(data)
+        const msgs = data?.rejection_messages
+        if (Array.isArray(msgs) && msgs.length > 0) {
+          setFetchedRejectMsgs(msgs)
+          return
+        }
+        // Fallback: RPC (SECURITY DEFINER, zaobilazi RLS)
+        supabase.rpc('get_restaurant_rejection_messages', { p_restaurant_id: restaurantId })
+          .then(({ data: rpcData }) => {
+            if (Array.isArray(rpcData) && rpcData.length > 0) setFetchedRejectMsgs(rpcData)
+          })
       })
   }, [restaurantId])
 
