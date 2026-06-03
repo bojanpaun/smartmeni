@@ -36,7 +36,6 @@ export default function HousekeepingView({ staffId, restaurantId }) {
       supabase.from('housekeeping_tasks')
         .select('*, rooms(id, room_number, room_types(name))')
         .eq('restaurant_id', restaurantId)
-        .eq('assigned_to', staffId)
         .eq('scheduled_for', TODAY)
         .order('priority', { ascending: false }),
       supabase.from('rooms').select('id, room_number')
