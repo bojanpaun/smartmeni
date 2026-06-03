@@ -191,6 +191,7 @@ export default function HousekeepingPage() {
     const labels = { in_progress: 'U toku', done: 'Završeno', verified: 'Verifikovano — soba dostupna' }
     toast.success(labels[status] || 'Status ažuriran')
     refetch()
+    refreshCounts()
   }
 
   const roomOptions = rooms.filter(r => r.status !== 'available' || tab === 'tasks')
