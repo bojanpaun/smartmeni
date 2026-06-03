@@ -1,4 +1,4 @@
-import { useState, useEffect, useCallback } from 'react'
+import { useState, useEffect, useCallback, useRef } from 'react'
 import { supabase } from '../../../lib/supabase'
 
 export function useHousekeeping(restaurantId, dateFrom, dateTo, onRefresh) {
@@ -50,9 +50,14 @@ export function useHousekeeping(restaurantId, dateFrom, dateTo, onRefresh) {
 
   useEffect(() => { load() }, [load])
 
+  const loadRef = useRef(load)
+  const onRefreshRef = useRef(onRefresh)
+  useEffect(() => { loadRef.current = load }, [load])
+  useEffect(() => { onRefreshRef.current = onRefresh }, [onRefresh])
+
   useEffect(() => {
     if (!restaurantId) return
-    const handleChange = () => { load(); onRefresh?.() }
+    const handleChange = () => { loadRef.current(); onRefreshRef.current?.() }
     const ch = supabase.channel(`hk-rt-${restaurantId}`)
       .on('postgres_changes', { event: '*', schema: 'public', table: 'housekeeping_tasks',
         filter: `restaurant_id=eq.${restaurantId}` }, handleChange)
@@ -60,7 +65,7 @@ export function useHousekeeping(restaurantId, dateFrom, dateTo, onRefresh) {
         filter: `restaurant_id=eq.${restaurantId}` }, handleChange)
       .subscribe()
     return () => supabase.removeChannel(ch)
-  }, [restaurantId, load, onRefresh])
+  }, [restaurantId])
 
   const updateTaskStatus = async (taskId, status) => {
     const patch = { status }
