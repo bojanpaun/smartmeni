@@ -436,55 +436,66 @@ export default function RevenueManagementPage() {
                 <span>✅</span>
                 <p>Nema prijedloga — cijene su optimalne za narednih 14 dana, ili nema dovoljno podataka.</p>
               </div>
-            ) : (
-              <div className={rv.sugTable}>
-                <div className={rv.sugTableHead}>
-                  <span>Datum</span>
-                  <span>Popunjenost</span>
-                  <span>Rezervisano</span>
-                  <span>Osnovna cijena</span>
-                  <span>Preporučena cijena</span>
-                  <span>Razlika</span>
-                  <span></span>
+            ) : (<>
+              {/* Desktop */}
+              <div className={rv.sugDesktopTable}>
+                <div className={rv.sugTable}>
+                  <div className={rv.sugTableHead}>
+                    <span>Datum</span>
+                    <span>Popunjenost</span>
+                    <span>Rezervisano</span>
+                    <span>Osnovna cijena</span>
+                    <span>Preporučena cijena</span>
+                    <span>Razlika</span>
+                    <span></span>
+                  </div>
+                  {suggestions.map(sug => {
+                    const diff = sug.suggested - sug.basePrice
+                    const isApplying = applyingDate === sug.date
+                    return (
+                      <div key={sug.date} className={rv.sugRow}>
+                        <span className={rv.sugDate}>{new Date(sug.date).toLocaleDateString('sr-Latn', { weekday: 'short', day: 'numeric', month: 'short' })}</span>
+                        <span>
+                          <div className={rv.occBar}><div className={rv.occFill} style={{ width: `${sug.occupancy}%`, background: sug.occupancy > 70 ? '#0d7a52' : sug.occupancy > 40 ? '#e67e22' : '#c0392b' }} /></div>
+                          <span className={rv.occLabel}>{sug.occupancy}%</span>
+                        </span>
+                        <span className={rv.sugNum}>{sug.booked} / {sug.totalRooms}</span>
+                        <span className={rv.sugNum}>€{sug.basePrice}</span>
+                        <span className={rv.sugPrice}>€{sug.suggested}</span>
+                        <span className={`${rv.sugDiff} ${diff > 0 ? rv.sugDiffUp : rv.sugDiffDown}`}>{diff > 0 ? '+' : ''}€{diff}</span>
+                        <button className={rv.btnApply} onClick={() => handleApplySuggestion(sug)} disabled={!!applyingDate}>{isApplying ? '...' : 'Primijeni'}</button>
+                      </div>
+                    )
+                  })}
                 </div>
+              </div>
+              {/* Mobile */}
+              <div className={rv.sugMobileList}>
                 {suggestions.map(sug => {
                   const diff = sug.suggested - sug.basePrice
                   const isApplying = applyingDate === sug.date
+                  const occColor = sug.occupancy > 70 ? '#0d7a52' : sug.occupancy > 40 ? '#e67e22' : '#c0392b'
                   return (
-                    <div key={sug.date} className={rv.sugRow}>
-                      <span className={rv.sugDate}>
-                        {new Date(sug.date).toLocaleDateString('sr-Latn', { weekday: 'short', day: 'numeric', month: 'short' })}
-                      </span>
-                      <span>
-                        <div className={rv.occBar}>
-                          <div
-                            className={rv.occFill}
-                            style={{
-                              width: `${sug.occupancy}%`,
-                              background: sug.occupancy > 70 ? '#0d7a52' : sug.occupancy > 40 ? '#e67e22' : '#c0392b',
-                            }}
-                          />
-                        </div>
-                        <span className={rv.occLabel}>{sug.occupancy}%</span>
-                      </span>
-                      <span className={rv.sugNum}>{sug.booked} / {sug.totalRooms}</span>
-                      <span className={rv.sugNum}>€{sug.basePrice}</span>
-                      <span className={rv.sugPrice}>€{sug.suggested}</span>
-                      <span className={`${rv.sugDiff} ${diff > 0 ? rv.sugDiffUp : rv.sugDiffDown}`}>
-                        {diff > 0 ? '+' : ''}€{diff}
-                      </span>
-                      <button
-                        className={rv.btnApply}
-                        onClick={() => handleApplySuggestion(sug)}
-                        disabled={!!applyingDate}
-                      >
-                        {isApplying ? '...' : 'Primijeni'}
-                      </button>
+                    <div key={sug.date} className={rv.sugCard}>
+                      <div className={rv.sugCardTop}>
+                        <div className={rv.sugCardDate}>{new Date(sug.date).toLocaleDateString('sr-Latn', { weekday: 'short', day: 'numeric', month: 'short' })}</div>
+                        <span className={`${rv.sugCardDiff} ${diff > 0 ? rv.sugDiffUp : rv.sugDiffDown}`}>{diff > 0 ? '+' : ''}€{diff}</span>
+                      </div>
+                      <div>
+                        <div className={rv.occBar}><div className={rv.occFill} style={{ width: `${sug.occupancy}%`, background: occColor }} /></div>
+                        <span className={rv.occLabel} style={{ color: occColor }}>{sug.occupancy}% popunjeno · {sug.booked}/{sug.totalRooms} soba</span>
+                      </div>
+                      <div className={rv.sugCardPrices}>
+                        <div><div className={rv.sugCardPriceLabel}>Osnovna</div><div className={rv.sugCardPriceVal}>€{sug.basePrice}</div></div>
+                        <div><div className={rv.sugCardPriceLabel}>Preporučena</div><div className={`${rv.sugCardPriceVal} ${rv.sugCardPriceValHigh}`}>€{sug.suggested}</div></div>
+                        <div><div className={rv.sugCardPriceLabel}>Rezervisano</div><div className={rv.sugCardPriceVal}>{sug.booked}/{sug.totalRooms}</div></div>
+                      </div>
+                      <button className={rv.btnApply} style={{ width: '100%' }} onClick={() => handleApplySuggestion(sug)} disabled={!!applyingDate}>{isApplying ? '...' : 'Primijeni cijenu'}</button>
                     </div>
                   )
                 })}
               </div>
-            )}
+            </>)}
           </div>
         </>
       )}

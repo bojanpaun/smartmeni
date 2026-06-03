@@ -385,58 +385,85 @@ export default function HousekeepingPage() {
               <div className={hk.emptyIcon}>🧹</div>
               <p>{statusFilter === 'all' ? 'Nema zadataka za odabrani period.' : 'Nema zadataka u ovom statusu.'}</p>
             </div>
-          ) : (
-            <div className={styles.table} style={{ overflowX: 'auto' }}>
-              <div className={styles.tableHead} style={{ gridTemplateColumns: '2fr 1fr 90px 1.5fr 90px 120px 180px' }}>
-                <SortableHead col="rooms.room_number" label="Soba"      sortBy={taskSort.sortBy} sortDir={taskSort.sortDir} onSort={taskSort.onSort} />
-                <SortableHead col="type"              label="Tip"       sortBy={taskSort.sortBy} sortDir={taskSort.sortDir} onSort={taskSort.onSort} />
-                <SortableHead col="scheduled_for"     label="Datum"     sortBy={taskSort.sortBy} sortDir={taskSort.sortDir} onSort={taskSort.onSort} />
-                <span>Dodijeljeno</span>
-                <SortableHead col="priority"          label="Prioritet" sortBy={taskSort.sortBy} sortDir={taskSort.sortDir} onSort={taskSort.onSort} />
-                <SortableHead col="status"            label="Status"    sortBy={taskSort.sortBy} sortDir={taskSort.sortDir} onSort={taskSort.onSort} />
-                <span></span>
+          ) : (<>
+            {/* Desktop */}
+            <div className={styles.fdDesktopTable}>
+              <div className={styles.table} style={{ overflowX: 'auto' }}>
+                <div className={styles.tableHead} style={{ gridTemplateColumns: '2fr 1fr 90px 1.5fr 90px 120px 180px' }}>
+                  <SortableHead col="rooms.room_number" label="Soba"      sortBy={taskSort.sortBy} sortDir={taskSort.sortDir} onSort={taskSort.onSort} />
+                  <SortableHead col="type"              label="Tip"       sortBy={taskSort.sortBy} sortDir={taskSort.sortDir} onSort={taskSort.onSort} />
+                  <SortableHead col="scheduled_for"     label="Datum"     sortBy={taskSort.sortBy} sortDir={taskSort.sortDir} onSort={taskSort.onSort} />
+                  <span>Dodijeljeno</span>
+                  <SortableHead col="priority"          label="Prioritet" sortBy={taskSort.sortBy} sortDir={taskSort.sortDir} onSort={taskSort.onSort} />
+                  <SortableHead col="status"            label="Status"    sortBy={taskSort.sortBy} sortDir={taskSort.sortDir} onSort={taskSort.onSort} />
+                  <span></span>
+                </div>
+                {taskSort.sort(filteredTasks).map(task => {
+                  const typeInfo = TASK_TYPES.find(t => t.value === task.type) || TASK_TYPES[0]
+                  return (
+                    <div key={task.id} className={styles.tableRow}
+                      style={{ gridTemplateColumns: '2fr 1fr 90px 1.5fr 90px 120px 180px', opacity: task.status === 'verified' ? 0.65 : 1 }}>
+                      <span>
+                        <span className={styles.bold}>{typeInfo.icon} Soba {task.rooms?.room_number ?? '—'}</span>
+                        {task.rooms?.room_types?.name && <span style={{ color: 'var(--c-text-muted)', fontSize: 12, display: 'block' }}>{task.rooms.room_types.name}</span>}
+                        {task.notes && <span style={{ color: 'var(--c-text-muted)', fontSize: 12, display: 'block', fontStyle: 'italic' }}>{task.notes}</span>}
+                      </span>
+                      <span>{typeInfo.label}</span>
+                      <span style={{ fontSize: 13 }}>{new Date(task.scheduled_for).toLocaleDateString('sr-Latn', { day: '2-digit', month: '2-digit' })}</span>
+                      <span>
+                        <select style={{ width: '100%', fontSize: 12, padding: '3px 6px', borderRadius: 6, border: '1px solid var(--c-border)', background: 'var(--c-surface)', color: 'var(--c-text)' }}
+                          value={task.assigned_to || ''} onChange={e => handleAssign(task.id, e.target.value)}>
+                          <option value="">Nedodijeljeno</option>
+                          {staff.map(s => <option key={s.id} value={s.id}>{s.first_name} {s.last_name}</option>)}
+                        </select>
+                      </span>
+                      <span><PriorityBadge priority={task.priority} /></span>
+                      <span><StatusBadge status={task.status} /></span>
+                      <span style={{ display: 'flex', gap: 6, justifyContent: 'flex-end' }}>
+                        {task.status === 'pending'     && <button className={hk.btnStart}  onClick={() => handleTaskStatusChange(task, 'in_progress')}>▶ Počni</button>}
+                        {task.status === 'in_progress' && <button className={hk.btnDone}   onClick={() => handleTaskStatusChange(task, 'done')}>✓ Završi</button>}
+                        {task.status === 'done'        && <button className={hk.btnVerify} onClick={() => handleTaskStatusChange(task, 'verified')}>⭐ Verifikuj</button>}
+                        {task.status === 'verified'    && <span className={hk.verifiedLabel}>Verifikovano ✓</span>}
+                      </span>
+                    </div>
+                  )
+                })}
               </div>
+            </div>
+            {/* Mobile */}
+            <div className={styles.fdMobileList}>
               {taskSort.sort(filteredTasks).map(task => {
                 const typeInfo = TASK_TYPES.find(t => t.value === task.type) || TASK_TYPES[0]
+                const p = PRIORITY_MAP[task.priority] || PRIORITY_MAP.normal
+                const st = STATUS_MAP[task.status] || STATUS_MAP.pending
                 return (
-                  <div key={task.id} className={styles.tableRow}
-                    style={{ gridTemplateColumns: '2fr 1fr 90px 1.5fr 90px 120px 180px', opacity: task.status === 'verified' ? 0.65 : 1 }}>
-                    <span>
-                      <span className={styles.bold}>{typeInfo.icon} Soba {task.rooms?.room_number ?? '—'}</span>
-                      {task.rooms?.room_types?.name && <span style={{ color: 'var(--c-text-muted)', fontSize: 12, display: 'block' }}>{task.rooms.room_types.name}</span>}
-                      {task.notes && <span style={{ color: 'var(--c-text-muted)', fontSize: 12, display: 'block', fontStyle: 'italic' }}>{task.notes}</span>}
-                    </span>
-                    <span>{typeInfo.label}</span>
-                    <span style={{ fontSize: 13 }}>{new Date(task.scheduled_for).toLocaleDateString('sr-Latn', { day: '2-digit', month: '2-digit' })}</span>
-                    <span>
-                      <select style={{ width: '100%', fontSize: 12, padding: '3px 6px', borderRadius: 6, border: '1px solid var(--c-border)', background: 'var(--c-surface)', color: 'var(--c-text)' }}
-                        value={task.assigned_to || ''}
-                        onChange={e => handleAssign(task.id, e.target.value)}>
-                        <option value="">Nedodijeljeno</option>
-                        {staff.map(s => <option key={s.id} value={s.id}>{s.first_name} {s.last_name}</option>)}
-                      </select>
-                    </span>
-                    <span><PriorityBadge priority={task.priority} /></span>
-                    <span><StatusBadge status={task.status} /></span>
-                    <span style={{ display: 'flex', gap: 6, justifyContent: 'flex-end' }}>
-                      {task.status === 'pending' && (
-                        <button className={hk.btnStart} onClick={() => handleTaskStatusChange(task, 'in_progress')}>▶ Počni</button>
-                      )}
-                      {task.status === 'in_progress' && (
-                        <button className={hk.btnDone} onClick={() => handleTaskStatusChange(task, 'done')}>✓ Završi</button>
-                      )}
-                      {task.status === 'done' && (
-                        <button className={hk.btnVerify} onClick={() => handleTaskStatusChange(task, 'verified')}>⭐ Verifikuj</button>
-                      )}
-                      {task.status === 'verified' && (
-                        <span className={hk.verifiedLabel}>Verifikovano ✓</span>
-                      )}
-                    </span>
+                  <div key={task.id} className={styles.fdCard} style={{ opacity: task.status === 'verified' ? 0.65 : 1 }}>
+                    <div className={styles.fdCardTop}>
+                      <div className={styles.fdCardGuest}>{typeInfo.icon} Soba {task.rooms?.room_number ?? '—'}</div>
+                      <span className={styles.fdCardStatus} style={{ background: p.bg, color: p.color }}>{p.label}</span>
+                    </div>
+                    <div className={styles.fdCardMeta}>
+                      <span>{typeInfo.label}</span>
+                      <span>{new Date(task.scheduled_for).toLocaleDateString('sr-Latn', { day: '2-digit', month: '2-digit' })}</span>
+                      <span className={styles.fdCardStatus} style={{ background: st.bg, color: st.color }}>{st.icon} {st.label}</span>
+                    </div>
+                    {task.notes && <div className={styles.fdCardMsg}>{task.notes}</div>}
+                    <select style={{ fontSize: 12, padding: '6px 10px', borderRadius: 8, border: '1px solid var(--c-border)', background: 'var(--c-surface)', color: 'var(--c-text)', width: '100%' }}
+                      value={task.assigned_to || ''} onChange={e => handleAssign(task.id, e.target.value)}>
+                      <option value="">Nedodijeljeno</option>
+                      {staff.map(s => <option key={s.id} value={s.id}>{s.first_name} {s.last_name}</option>)}
+                    </select>
+                    <div className={styles.fdCardActions}>
+                      {task.status === 'pending'     && <button className={hk.btnStart}  onClick={() => handleTaskStatusChange(task, 'in_progress')}>▶ Počni</button>}
+                      {task.status === 'in_progress' && <button className={hk.btnDone}   onClick={() => handleTaskStatusChange(task, 'done')}>✓ Završi</button>}
+                      {task.status === 'done'        && <button className={hk.btnVerify} onClick={() => handleTaskStatusChange(task, 'verified')}>⭐ Verifikuj</button>}
+                      {task.status === 'verified'    && <span className={hk.verifiedLabel}>⭐ Verifikovano</span>}
+                    </div>
                   </div>
                 )
               })}
             </div>
-          )}
+          </>)}
         </>
       )}
 
@@ -510,53 +537,74 @@ export default function HousekeepingPage() {
               <div className={hk.emptyIcon}>🔧</div>
               <p>{maintStatusFilter === 'all' ? 'Nema zahtjeva za održavanje.' : `Nema zahtjeva u statusu "${MAINT_STATUS_MAP[maintStatusFilter]?.label}".`}</p>
             </div>
-          ) : (
-            <div className={styles.table} style={{ overflowX: 'auto' }}>
-              <div className={styles.tableHead} style={{ gridTemplateColumns: '3fr 80px 1fr 90px 130px 180px' }}>
-                <SortableHead col="description"    label="Opis"       sortBy={maintSort.sortBy} sortDir={maintSort.sortDir} onSort={maintSort.onSort} />
-                <SortableHead col="rooms.room_number" label="Soba"    sortBy={maintSort.sortBy} sortDir={maintSort.sortDir} onSort={maintSort.onSort} />
-                <SortableHead col="category"       label="Kategorija" sortBy={maintSort.sortBy} sortDir={maintSort.sortDir} onSort={maintSort.onSort} />
-                <SortableHead col="priority"       label="Prioritet"  sortBy={maintSort.sortBy} sortDir={maintSort.sortDir} onSort={maintSort.onSort} />
-                <SortableHead col="status"         label="Status"     sortBy={maintSort.sortBy} sortDir={maintSort.sortDir} onSort={maintSort.onSort} />
-                <span></span>
+          ) : (<>
+            {/* Desktop */}
+            <div className={styles.fdDesktopTable}>
+              <div className={styles.table} style={{ overflowX: 'auto' }}>
+                <div className={styles.tableHead} style={{ gridTemplateColumns: '3fr 80px 1fr 90px 130px 180px' }}>
+                  <SortableHead col="description"       label="Opis"       sortBy={maintSort.sortBy} sortDir={maintSort.sortDir} onSort={maintSort.onSort} />
+                  <SortableHead col="rooms.room_number" label="Soba"       sortBy={maintSort.sortBy} sortDir={maintSort.sortDir} onSort={maintSort.onSort} />
+                  <SortableHead col="category"          label="Kategorija" sortBy={maintSort.sortBy} sortDir={maintSort.sortDir} onSort={maintSort.onSort} />
+                  <SortableHead col="priority"          label="Prioritet"  sortBy={maintSort.sortBy} sortDir={maintSort.sortDir} onSort={maintSort.onSort} />
+                  <SortableHead col="status"            label="Status"     sortBy={maintSort.sortBy} sortDir={maintSort.sortDir} onSort={maintSort.onSort} />
+                  <span></span>
+                </div>
+                {maintSort.sort(filteredMaintenance).map(m => {
+                  const cat = MAINT_CATS.find(c => c.value === m.category) || MAINT_CATS[5]
+                  return (
+                    <div key={m.id} className={styles.tableRow}
+                      style={{ gridTemplateColumns: '3fr 80px 1fr 90px 130px 180px', opacity: m.status === 'verified' ? 0.65 : 1 }}>
+                      <span>
+                        <span className={styles.bold}>{m.description}</span>
+                        <span style={{ color: 'var(--c-text-muted)', fontSize: 12, display: 'block' }}>
+                          {new Date(m.created_at).toLocaleDateString('sr-Latn')}
+                          {m.staff && ` · ${m.staff.first_name} ${m.staff.last_name}`}
+                        </span>
+                      </span>
+                      <span style={{ fontSize: 13 }}>{m.rooms?.room_number ? `Soba ${m.rooms.room_number}` : <span style={{ color: 'var(--c-text-muted)' }}>Opšti</span>}</span>
+                      <span style={{ fontSize: 13 }}>{cat.icon} {cat.label}</span>
+                      <span><PriorityBadge priority={m.priority} /></span>
+                      <span><MaintStatusBadge status={m.status} /></span>
+                      <span style={{ display: 'flex', gap: 6, justifyContent: 'flex-end' }}>
+                        {m.status === 'open'        && <button className={hk.btnStart}  onClick={() => handleMaintStatus(m.id, 'in_progress')}>▶ U rad</button>}
+                        {m.status === 'in_progress' && <button className={hk.btnDone}   onClick={() => handleMaintStatus(m.id, 'done')}>✓ Završi</button>}
+                        {m.status === 'done'        && <button className={hk.btnVerify} onClick={() => handleMaintStatus(m.id, 'verified')}>⭐ Verifikuj</button>}
+                        {m.status === 'verified'    && <span className={hk.verifiedLabel}>Verifikovano ✓</span>}
+                      </span>
+                    </div>
+                  )
+                })}
               </div>
+            </div>
+            {/* Mobile */}
+            <div className={styles.fdMobileList}>
               {maintSort.sort(filteredMaintenance).map(m => {
                 const cat = MAINT_CATS.find(c => c.value === m.category) || MAINT_CATS[5]
+                const p = PRIORITY_MAP[m.priority] || PRIORITY_MAP.normal
+                const st = MAINT_STATUS_MAP[m.status] || MAINT_STATUS_MAP.open
                 return (
-                  <div key={m.id} className={styles.tableRow}
-                    style={{ gridTemplateColumns: '3fr 80px 1fr 90px 130px 180px', opacity: m.status === 'verified' ? 0.65 : 1 }}>
-                    <span>
-                      <span className={styles.bold}>{m.description}</span>
-                      <span style={{ color: 'var(--c-text-muted)', fontSize: 12, display: 'block' }}>
-                        {new Date(m.created_at).toLocaleDateString('sr-Latn')}
-                        {m.staff && ` · ${m.staff.first_name} ${m.staff.last_name}`}
-                      </span>
-                    </span>
-                    <span style={{ fontSize: 13 }}>
-                      {m.rooms?.room_number ? `Soba ${m.rooms.room_number}` : <span style={{ color: 'var(--c-text-muted)' }}>Opšti</span>}
-                    </span>
-                    <span style={{ fontSize: 13 }}>{cat.icon} {cat.label}</span>
-                    <span><PriorityBadge priority={m.priority} /></span>
-                    <span><MaintStatusBadge status={m.status} /></span>
-                    <span style={{ display: 'flex', gap: 6, justifyContent: 'flex-end' }}>
-                      {m.status === 'open' && (
-                        <button className={hk.btnStart} onClick={() => handleMaintStatus(m.id, 'in_progress')}>▶ U rad</button>
-                      )}
-                      {m.status === 'in_progress' && (
-                        <button className={hk.btnDone} onClick={() => handleMaintStatus(m.id, 'done')}>✓ Završi</button>
-                      )}
-                      {m.status === 'done' && (
-                        <button className={hk.btnVerify} onClick={() => handleMaintStatus(m.id, 'verified')}>⭐ Verifikuj</button>
-                      )}
-                      {m.status === 'verified' && (
-                        <span className={hk.verifiedLabel}>Verifikovano ✓</span>
-                      )}
-                    </span>
+                  <div key={m.id} className={styles.fdCard} style={{ opacity: m.status === 'verified' ? 0.65 : 1 }}>
+                    <div className={styles.fdCardTop}>
+                      <div className={styles.fdCardGuest}>{cat.icon} {m.description}</div>
+                      <span className={styles.fdCardStatus} style={{ background: st.bg, color: st.color }}>{st.icon} {st.label}</span>
+                    </div>
+                    <div className={styles.fdCardMeta}>
+                      <span>{m.rooms?.room_number ? `Soba ${m.rooms.room_number}` : 'Opšti prostor'}</span>
+                      <span className={styles.fdCardStatus} style={{ background: p.bg, color: p.color }}>{p.label}</span>
+                      <span>{new Date(m.created_at).toLocaleDateString('sr-Latn')}</span>
+                    </div>
+                    {m.staff && <div className={styles.fdCardMsg}>Prijavio/la: {m.staff.first_name} {m.staff.last_name}</div>}
+                    <div className={styles.fdCardActions}>
+                      {m.status === 'open'        && <button className={hk.btnStart}  onClick={() => handleMaintStatus(m.id, 'in_progress')}>▶ U rad</button>}
+                      {m.status === 'in_progress' && <button className={hk.btnDone}   onClick={() => handleMaintStatus(m.id, 'done')}>✓ Završi</button>}
+                      {m.status === 'done'        && <button className={hk.btnVerify} onClick={() => handleMaintStatus(m.id, 'verified')}>⭐ Verifikuj</button>}
+                      {m.status === 'verified'    && <span className={hk.verifiedLabel}>⭐ Verifikovano</span>}
+                    </div>
                   </div>
                 )
               })}
             </div>
-          )}
+          </>)}
         </>
       )}
     </div>

@@ -282,37 +282,61 @@ export default function ReservationsPage() {
 
           {loading ? <LoadingSpinner /> : filteredReservations.length === 0 ? (
             <div className={styles.empty}><p>Nema rezervacija za odabrani period.</p></div>
-          ) : (
-            <div className={styles.table}>
-              <div className={styles.tableHead}>
-                <SortableHead col="guest_name"        label="Gost"      sortBy={sortBy} sortDir={sortDir} onSort={onSort} />
-                <SortableHead col="rooms.room_number" label="Soba"      sortBy={sortBy} sortDir={sortDir} onSort={onSort} />
-                <SortableHead col="check_in_date"     label="Check-in"  sortBy={sortBy} sortDir={sortDir} onSort={onSort} />
-                <SortableHead col="check_out_date"    label="Check-out" sortBy={sortBy} sortDir={sortDir} onSort={onSort} />
-                <span>Noći</span>
-                <SortableHead col="total_amount"      label="Iznos"     sortBy={sortBy} sortDir={sortDir} onSort={onSort} />
-                <SortableHead col="status"            label="Status"    sortBy={sortBy} sortDir={sortDir} onSort={onSort} />
+          ) : (<>
+            {/* Desktop */}
+            <div className={styles.fdDesktopTable}>
+              <div className={styles.table}>
+                <div className={styles.tableHead}>
+                  <SortableHead col="guest_name"        label="Gost"      sortBy={sortBy} sortDir={sortDir} onSort={onSort} />
+                  <SortableHead col="rooms.room_number" label="Soba"      sortBy={sortBy} sortDir={sortDir} onSort={onSort} />
+                  <SortableHead col="check_in_date"     label="Check-in"  sortBy={sortBy} sortDir={sortDir} onSort={onSort} />
+                  <SortableHead col="check_out_date"    label="Check-out" sortBy={sortBy} sortDir={sortDir} onSort={onSort} />
+                  <span>Noći</span>
+                  <SortableHead col="total_amount"      label="Iznos"     sortBy={sortBy} sortDir={sortDir} onSort={onSort} />
+                  <SortableHead col="status"            label="Status"    sortBy={sortBy} sortDir={sortDir} onSort={onSort} />
+                </div>
+                {sort(filteredReservations).map(res => {
+                  const nights = Math.ceil((new Date(res.check_out_date) - new Date(res.check_in_date)) / 86400000)
+                  return (
+                    <div key={res.id} className={styles.tableRow} onClick={() => navigate(`/admin/hotel/reservations/${res.id}`)}>
+                      <span className={styles.bold}>{res.guest_name}</span>
+                      <span>{res.rooms?.room_number ?? res.room_types?.name ?? '—'}</span>
+                      <span>{new Date(res.check_in_date).toLocaleDateString('sr-Latn')}</span>
+                      <span>{new Date(res.check_out_date).toLocaleDateString('sr-Latn')}</span>
+                      <span>{nights}</span>
+                      <span>{res.total_amount ? `€${Number(res.total_amount).toFixed(0)}` : '—'}</span>
+                      <span><span className={`${styles.sBadge} ${styles[STATUS_CLASS[res.status] ?? 'sBadgeConfirmed']}`}>{STATUS_LABELS[res.status] ?? res.status}</span></span>
+                    </div>
+                  )
+                })}
               </div>
+            </div>
+            {/* Mobile */}
+            <div className={styles.fdMobileList}>
               {sort(filteredReservations).map(res => {
                 const nights = Math.ceil((new Date(res.check_out_date) - new Date(res.check_in_date)) / 86400000)
                 return (
-                  <div key={res.id} className={styles.tableRow} onClick={() => navigate(`/admin/hotel/reservations/${res.id}`)}>
-                    <span className={styles.bold}>{res.guest_name}</span>
-                    <span>{res.rooms?.room_number ?? res.room_types?.name ?? '—'}</span>
-                    <span>{new Date(res.check_in_date).toLocaleDateString('sr-Latn')}</span>
-                    <span>{new Date(res.check_out_date).toLocaleDateString('sr-Latn')}</span>
-                    <span>{nights}</span>
-                    <span>{res.total_amount ? `€${Number(res.total_amount).toFixed(0)}` : '—'}</span>
-                    <span>
-                      <span className={`${styles.sBadge} ${styles[STATUS_CLASS[res.status] ?? 'sBadgeConfirmed']}`}>
-                        {STATUS_LABELS[res.status] ?? res.status}
-                      </span>
-                    </span>
+                  <div key={res.id} className={styles.fdCard} onClick={() => navigate(`/admin/hotel/reservations/${res.id}`)} style={{ cursor: 'pointer' }}>
+                    <div className={styles.fdCardTop}>
+                      <div className={styles.fdCardGuest}>{res.guest_name}</div>
+                      <span className={`${styles.sBadge} ${styles[STATUS_CLASS[res.status] ?? 'sBadgeConfirmed']}`}>{STATUS_LABELS[res.status] ?? res.status}</span>
+                    </div>
+                    {(res.rooms?.room_number || res.room_types?.name) && (
+                      <div className={styles.fdCardRoom} style={{ alignSelf: 'flex-start' }}>
+                        {res.rooms?.room_number ? `Soba ${res.rooms.room_number}` : res.room_types?.name}
+                      </div>
+                    )}
+                    <div className={styles.fdCardMeta}>
+                      <span>↓ {new Date(res.check_in_date).toLocaleDateString('sr-Latn')}</span>
+                      <span>↑ {new Date(res.check_out_date).toLocaleDateString('sr-Latn')}</span>
+                      <span>{nights} noći</span>
+                      {res.total_amount && <span style={{ fontWeight: 600, color: 'var(--c-text)' }}>€{Number(res.total_amount).toFixed(0)}</span>}
+                    </div>
                   </div>
                 )
               })}
             </div>
-          )}
+          </>)}
         </>
       )}
 

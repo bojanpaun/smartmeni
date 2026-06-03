@@ -241,10 +241,11 @@
 .fdCardActions button { flex: 1; }
 
 @media (max-width: 640px) {
-  .fdDesktopTable { display: none; }
-  .fdMobileList   { display: flex; }
-  .header         { flex-wrap: wrap; gap: 10px; }
-  .header button  { width: 100%; }
+  .fdDesktopTable  { display: none; }
+  .fdMobileList    { display: flex; }
+  .header          { flex-wrap: wrap; gap: 10px; }
+  .header > button { width: 100%; }
+  .headerActions   { width: 100%; justify-content: flex-end; }
 }
 
 .resBadgeClosed { background: #f1f5f9; color: #64748b; }

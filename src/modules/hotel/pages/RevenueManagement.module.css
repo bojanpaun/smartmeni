@@ -320,6 +320,45 @@
 .btnApply:hover { opacity: 0.85; }
 .btnApply:disabled { opacity: 0.5; cursor: not-allowed; }
 
+/* ── Mobile ─────────────────────────────────────────────────────── */
+.sugDesktopTable { display: block; }
+.sugMobileList   { display: none; flex-direction: column; gap: 10px; }
+
+.sugCard {
+  background: var(--c-surface);
+  border: 1px solid var(--c-border);
+  border-radius: 12px;
+  padding: 14px 16px;
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+}
+.sugCardTop {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+}
+.sugCardDate  { font-weight: 700; font-size: 15px; color: var(--c-text); }
+.sugCardDiff  { font-size: 13px; font-weight: 700; padding: 3px 10px; border-radius: 20px; background: var(--c-bg-subtle); }
+.sugCardPrices {
+  display: grid;
+  grid-template-columns: 1fr 1fr 1fr;
+  gap: 6px;
+  font-size: 12px;
+  text-align: center;
+}
+.sugCardPriceLabel { color: var(--c-text-muted); font-size: 10px; text-transform: uppercase; letter-spacing: 0.4px; margin-bottom: 2px; }
+.sugCardPriceVal   { font-weight: 600; font-size: 14px; color: var(--c-text); }
+.sugCardPriceValHigh { color: var(--c-primary); }
+
+@media (max-width: 640px) {
+  .sugDesktopTable { display: none; }
+  .sugMobileList   { display: flex; }
+  .periodBar       { flex-wrap: wrap; justify-content: center; }
+  .exportBar       { justify-content: flex-end; }
+  .chartCard       { padding: 14px; }
+}
+
 /* Export */
 .exportBar {
   display: flex;
