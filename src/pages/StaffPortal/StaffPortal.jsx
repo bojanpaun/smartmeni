@@ -232,6 +232,13 @@ export default function StaffPortal() {
     const tabs = allPermissions.length > 0
       ? tabsFromPermissions(allPermissions)
       : mergePortalTabs(roleNames.length > 0 ? roleNames : ['hr'])
+    // Dohvati kolone koje anon fetch ne može pročitati (RLS ograničenje)
+    const { data: restPrivate } = await supabase.from('restaurants')
+      .select('rejection_messages')
+      .eq('id', restaurant.id)
+      .maybeSingle()
+    if (restPrivate) setRestaurant(prev => ({ ...prev, ...restPrivate }))
+
     setStaff(staffData)
     setPortalType(detectPortalType(roleNames[0] || ''))
     setActiveTab(tabs[0].key)
