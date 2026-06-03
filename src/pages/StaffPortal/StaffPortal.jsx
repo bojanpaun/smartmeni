@@ -1,6 +1,7 @@
 import { useState, useEffect } from 'react'
 import { useParams } from 'react-router-dom'
 import { supabase } from '../../lib/supabase'
+import useKitchenCounts from '../../hooks/useKitchenCounts'
 import s from './StaffPortal.module.css'
 import HomeView from './views/HomeView'
 import HrView from './views/HrView'
@@ -361,6 +362,16 @@ export default function StaffPortal() {
   const tabs = mergedTabs
   const staffName = [staff?.first_name, staff?.last_name].filter(Boolean).join(' ') || staff?.email || ''
 
+  // Badge counts — pokrenuti samo za role koje imaju operativne tabove
+  const needsCounts = tabs.some(t => ['orders', 'requests', 'kitchen', 'tasks'].includes(t.key))
+  const counts = useKitchenCounts(needsCounts ? restaurant?.id : null)
+  const TAB_BADGES = {
+    orders:   counts.waiter,
+    requests: counts.waiterReq,
+    kitchen:  counts.kitchen,
+    tasks:    counts.housekeeping,
+  }
+
   const renderView = () => {
     if (activeTab === 'home') return <HomeView staffId={staff.id} restaurantId={restaurant.id} staffInfo={staff} brand={brand} />
     if (['schedule', 'attendance', 'payroll', 'absences'].includes(activeTab)) {
@@ -388,26 +399,30 @@ export default function StaffPortal() {
         <button className={s.portalLogout} onClick={handleLogout}>Odjava</button>
       </div>
 
+      {/* Pill navigacija */}
+      <nav className={s.pillNav}>
+        {tabs.map(tab => {
+          const badge = TAB_BADGES[tab.key] || 0
+          return (
+            <button
+              key={tab.key}
+              className={`${s.pillTab} ${activeTab === tab.key ? s.pillTabActive : ''}`}
+              onClick={() => setActiveTab(tab.key)}
+              style={activeTab === tab.key ? { background: brand, borderColor: brand } : {}}
+            >
+              <span className={s.pillTabIcon}>{tab.icon}</span>
+              <span>{tab.label}</span>
+              {badge > 0 && <span className={s.navBadge}>{badge}</span>}
+            </button>
+          )
+        })}
+      </nav>
+
       {/* Content */}
       <div className={s.content}>
         {renderView()}
         <div className={s.portalFooter}>Powered by <strong>RestByMe</strong></div>
       </div>
-
-      {/* Bottom navigation */}
-      <nav className={s.bottomNav}>
-        {tabs.map(tab => (
-          <button
-            key={tab.key}
-            className={`${s.bottomNavItem} ${activeTab === tab.key ? s.active : ''}`}
-            onClick={() => setActiveTab(tab.key)}
-            style={activeTab === tab.key ? { color: brand } : {}}
-          >
-            <span className={s.bottomNavIcon}>{tab.icon}</span>
-            <span className={s.bottomNavLabel}>{tab.label}</span>
-          </button>
-        ))}
-      </nav>
     </div>
   )
 }
