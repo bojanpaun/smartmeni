@@ -290,9 +290,9 @@ Restoran SaaS stabilizovan i spreman za korisnike:
 **Pravilo do tada:** Svaki novi modul koristi `restaurant_id` konzistentno — ne uvodi novi naming konvenciju. Migracija se radi odjednom, ne postepeno po modulu.
 
 **Definition of Done:**
-- [ ] Ovaj plan dokumentovan (✅ ovdje)
-- [ ] Svi novi moduli svjesni da `restaurant_id` = tenant identifikator do daljnjeg
-- [ ] Nijedan novi modul ne uvodi `property_id` ili `tenant_id` do formalnog odlučivanja
+- [x] Ovaj plan dokumentovan (✅ ovdje)
+- [x] Svi novi moduli svjesni da `restaurant_id` = tenant identifikator do daljnjeg
+- [x] Nijedan novi modul ne uvodi `property_id` ili `tenant_id` do formalnog odlučivanja
 
 ---
 ## ✅ Faza 1 — Billing infrastruktura (ZAVRŠENA — osnova)
@@ -457,7 +457,15 @@ Edge Function: kreira hotel_reservation, smanjuje room_availability, šalje emai
 - ⬜ `room_availability` se vraća na prethodni nivo
 
 #### Ostalo:
-- ⬜ Resend domen verifikacija (trenutno `onboarding@resend.dev`)
+- ✅ **Pay on Arrival email fix** — `send-booking-email` poziva se iz `BookingPage.jsx` nakon `create_booking_direct` RPC
+- ✅ **Booking mod (immediate / manual)** — admin bira u BookingSettings:
+  - `restaurants.booking_mode` TEXT DEFAULT `immediate`
+  - `create_booking_direct` RPC prima `p_status` (confirmed | inquiry); availability se smanjuje samo za confirmed
+  - `send-booking-email` novi `received` tip — narandžasta, "čeka odobrenje hotela"
+  - BookingSettings card UI za odabir moda
+  - `booking-order-capture` Edge Function poštuje `booking_mode`
+  - `ReservationForm` šalje email potvrde gostu kad admin promijeni inquiry → confirmed
+- ⬜ Resend domen verifikacija (trenutno `onboarding@resend.dev`) — **preduslov za produkciju emailova**
 
 ---
 
@@ -465,6 +473,9 @@ Edge Function: kreira hotel_reservation, smanjuje room_availability, šalje emai
 
 - ✅ `housekeeping_tasks` tabela sa RLS
 - ✅ `HousekeepingPage` admin UI — taskovi, statusi, dodjela
+- ✅ `useHousekeeping` hook — realtime subscription za taskove i maintenance
+- ✅ Bug fix: maintenance bez datumskog filtera (badge 2 / prazna stranica nekonzistentnost)
+- ✅ Bug fix: housekeeping badge ostaje do `verified` kao maintenance (konzistentno sa `rooms.status = available`)
 - ⬜ Auto-task kreiranje pri check-outu (DB trigger)
 - ⬜ Mobile-optimizovani prikaz za sobarice
 
@@ -1078,6 +1089,44 @@ Oba editora (`HotelLandingEditor`, `RestaurantLandingEditor`) ostaju odvojeni (s
 
 ---
 
+## ✅ Sistemske popravke i poboljšanja — Jun 2026
+
+> Urađeno organički tokom razvoja — stabilizacija, realtime infrastruktura, staff portal proširenja.
+
+### Bugfixevi
+
+- ✅ **GuestMenu.jsx — memory leak** — waiter Realtime channel bez cleanup; dodan `useRef` + `removeChannel` pri unmount
+- ✅ **GuestProfilePage + GuestsPage** — svi `guests` upiti dobili `.eq('restaurant_id', restaurant.id)` filter
+- ✅ **WaiterView — kitchen/bar trigger** — `updateOrderStatus` sada ispravno postavlja `kitchen_status`/`bar_status = 'preparing'` i fetchuje `category_id` za razlikovanje bar/kuhinja stavki
+- ✅ **WaiterView — poruke odbijanja** — usklađene sa admin orders (restaurant.rejection_messages umjesto hardcoded)
+- ✅ **Waiter/Ordering visibility** — eksplicitna admin postavka ima prednost nad QR restrikcijom (fix: poziv konobara vidljiv bez QR ako admin postavi `waiter_visibility = 'all'`)
+- ✅ **Housekeeping badge** — maintenance zahtjevi bez datumskog filtera (badge 2 / prazna stranica bug)
+- ✅ **Housekeeping badge workflow** — badge ostaje do `verified` za oba tipa (zadaci i održavanje), konzistentno sa sobom koja postaje `available` tek pri `verified`
+
+### Realtime infrastruktura (AdminBadgeContext + belt-and-suspenders)
+
+Problem: Supabase `postgres_changes` sa filterom ne isporučuje UPDATE evente pouzdano za ne-owner korisnike (REPLICA IDENTITY DEFAULT).
+
+Rješenje: dva sloja — vlastiti `kc-channel` subscription + piggyback na view component subscriptione.
+
+- ✅ **`useKitchenCounts` shared hook** — izvučen iz AdminLayout u `src/hooks/useKitchenCounts.js`, vraća `{ counts, refresh }`
+- ✅ **`AdminBadgeContext`** — exportovan iz AdminLayout, proslijeđen kao Provider u oba `{children}` mjesta
+- ✅ **Admin pages** — `WaiterDashboard`, `KitchenDashboard`, `FrontDeskPage`, `RoomsPage`, `HousekeepingPage` konzumiraju context i pozivaju `refreshCounts` uz vlastiti realtime
+- ✅ **`useRooms` hook** — dodan realtime subscription za `rooms` tabelu + `onRefresh` callback
+- ✅ **`useHousekeeping` hook** — `onRefresh` callback, `updateTaskStatus` poziva refresh direktno (UPDATE eventi ne stižu pouzdano)
+- ✅ **Staff portal badges** — `useKitchenCounts(restaurant?.id)` uvijek aktivan (ne čeka `mergedTabs`); view komponente (WaiterView, KitchenView, BarView) primaju `onRefresh` prop
+- ✅ **Permission-based tab detekcija** — `tabsFromPermissions()` umjesto samo `detectPortalType()` name-detection; `staff_roles` query dohvata i `permissions` kolonu
+
+### Permissions i bar stanica
+
+- ✅ **`view_kitchen_orders` + `view_bar_orders`** — nove granularne permisije u `PERMISSIONS.menu`
+- ✅ **ROLE_TEMPLATES** — `kuhinja` dobija `view_kitchen_orders`, `sank` dobija `view_bar_orders`
+- ✅ **AdminLayout** — `/admin/kitchen` i `/admin/bar` sidebar linkovi koriste granularne permisije
+- ✅ **`detectPortalType`** — `šank/sank/barman/bartender/barista` odvojen u vlastiti `bar` tip (bio u `waiter`)
+- ✅ **`BarView.jsx`** — nova staff portal komponenta: filtrira `bar_status = 'preparing'`, prikazuje samo barske stavke, ljubičasti top border
+- ✅ **`KitchenView.jsx`** — ispravka: filter `kitchen_status = 'preparing'` umjesto `status IN (received, preparing)`; `markReady` postavlja `kitchen_status = 'ready'` i provjerava oba statusa → `status = 'ready'`
+
+---
 ## ⬜ Faza N — Nocni audit + Split folio + Doručak kontrola
 
 > **Preduslov:** `hotel_core` aktivan.
@@ -2158,6 +2207,16 @@ Razlog: Restoran gost skenira QR za 10 sekundi — login ekran bi ga odbio. Hote
 - [x] `StaffProfilePage` — multi-role checkbox UI u employment tabu
 - [x] `permissions.js` — hotel/spa permisije + 5 novih predložaka rola
 - [x] Role UI — horizontalni tabovi po modulu + Odaberi sve / Obriši sve
+
+### Proširenja Staff portala — Jun 2026
+
+- [x] **Pill navigacija** — bottom nav zamijenjen pill tabovima ispod headera (flex-wrap, prelazi u novi red po potrebi)
+- [x] **Badge counti realtime** — `useKitchenCounts` shared hook + `AdminBadgeContext` + belt-and-suspenders piggyback na view subscriptione
+- [x] **Permission-based tab detekcija** — tabovi se određuju prema stvarnim permisijama role iz baze (ne samo naziv); menadžer vidi sve operativne tabove
+- [x] **Bar stanica** — `BarView` komponenta, `view_bar_orders` / `view_kitchen_orders` granularne permisije, `sank` odvojen od `waiter` u detectPortalType
+- [x] **WaiterView usklađivanje** — iste poruke odbijanja kao admin, kitchen/bar trigger ispravljen, `order.note` prikaz, `category_id` u query
+- [x] **ReceptionView realtime** — subscription za `hotel_reservations` i `rooms` promjene (check-in/out vidljiv bez refresha)
+- [x] **Hotel admin realtime** — `FrontDeskPage`, `RoomsPage`, `HousekeepingPage` + `useRooms`/`useHousekeeping` onRefresh callback
 
 ---
 
