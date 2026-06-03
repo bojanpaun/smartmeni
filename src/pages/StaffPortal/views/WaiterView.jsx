@@ -37,7 +37,6 @@ export default function WaiterView({ restaurant, activeTab, onRefresh }) {
   const [orders, setOrders]         = useState([])
   const [requests, setRequests]     = useState([])
   const [loading, setLoading]       = useState(true)
-  const [rejectOpen, setRejectOpen] = useState(null)
   const barCatIdsRef = useRef(null)
 
   // Isti pristup kao /admin/orders (WaiterDashboard) — direktno iz restaurant prop
@@ -108,7 +107,6 @@ export default function WaiterView({ restaurant, activeTab, onRefresh }) {
   const rejectOrder = async (orderId, message) => {
     await supabase.from('orders').update({ status: 'rejected', rejection_message: message }).eq('id', orderId)
     setOrders(prev => prev.filter(o => o.id !== orderId))
-    setRejectOpen(null)
   }
 
   const resolveRequest = async (reqId, response = null) => {
@@ -217,34 +215,24 @@ export default function WaiterView({ restaurant, activeTab, onRefresh }) {
               </div>
             )}
 
-            {/* Reject panel */}
-            {rejectOpen === order.id && (
-              <div className={s.rejectPanel}>
-                <div className={s.rejectPanelLabel}>Razlog odbijanja:</div>
-                <div className={s.rejectList}>
-                  {rejectMessages.map(msg => (
-                    <button key={msg} className={s.rejectListBtn}
-                      onClick={() => rejectOrder(order.id, msg)}>
-                      {msg}
-                    </button>
-                  ))}
-                  <button className={s.rejectCancelBtn} onClick={() => setRejectOpen(null)}>
-                    Odustani
-                  </button>
-                </div>
-              </div>
-            )}
-
             <div className={s.orderActionsCol}>
               {action && (
                 <button className={s[action.cls]} onClick={() => updateOrderStatus(order.id, action.next)}>
                   {action.label}
                 </button>
               )}
-              {['pending', 'received'].includes(order.status) && rejectOpen !== order.id && (
-                <button className={s.rejectToggleBtn} onClick={() => setRejectOpen(order.id)}>
-                  ✕ Odbij narudžbu
-                </button>
+              {['pending', 'received'].includes(order.status) && (
+                <div className={s.rejectWrap}>
+                  <div className={s.rejectLabel}>Odbij uz poruku:</div>
+                  <div className={s.rejectMessages}>
+                    {rejectMessages.map(msg => (
+                      <button key={msg} className={s.rejectMsgBtn}
+                        onClick={() => rejectOrder(order.id, msg)}>
+                        {msg}
+                      </button>
+                    ))}
+                  </div>
+                </div>
               )}
             </div>
 
