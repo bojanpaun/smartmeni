@@ -105,8 +105,9 @@ export default function WaiterView({ restaurant, activeTab, onRefresh }) {
   }
 
   const rejectOrder = async (orderId, message) => {
-    await supabase.from('orders').update({ status: 'rejected', rejection_message: message }).eq('id', orderId)
+    await supabase.from('orders').update({ status: 'closed', rejection_message: message }).eq('id', orderId)
     setOrders(prev => prev.filter(o => o.id !== orderId))
+    onRefresh?.()
   }
 
   const resolveRequest = async (reqId, response = null) => {
