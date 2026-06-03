@@ -156,7 +156,7 @@ export default function StaffPortal() {
 
   useEffect(() => {
     supabase.from('restaurants')
-      .select('id, name, slug, logo_url, color, template')
+      .select('id, name, slug, logo_url, color, template, rejection_messages')
       .ilike('slug', slug)
       .maybeSingle()
       .then(({ data }) => { setRestaurant(data); setLoadingRest(false) })
