@@ -41,6 +41,19 @@ export default function WaiterView({ restaurant, rejectionMessages, activeTab, o
   const [fetchedRejectMsgs, setFetchedRejectMsgs] = useState(null)
   const barCatIdsRef = useRef(null)
 
+  // Eksplicitni fetch pri svakom mountu — osigurava svježe poruke
+  useEffect(() => {
+    if (!restaurantId) return
+    supabase.from('restaurants')
+      .select('rejection_messages')
+      .eq('id', restaurantId)
+      .then(({ data }) => {
+        // data je array — uzimamo prvi element (bez maybeSingle)
+        const msgs = data?.[0]?.rejection_messages
+        if (Array.isArray(msgs) && msgs.length > 0) setFetchedRejectMsgs(msgs)
+      })
+  }, [restaurantId])
+
   const rejectMessages = fetchedRejectMsgs || rejectionMessages || restaurant?.rejection_messages || DEFAULT_REJECT
 
   const getBarCatIds = useCallback(async () => {
@@ -55,7 +68,7 @@ export default function WaiterView({ restaurant, rejectionMessages, activeTab, o
   const load = useCallback(async () => {
     if (!restaurantId) return
     setLoading(true)
-    const [{ data: o }, { data: r }, { data: restData }] = await Promise.all([
+    const [{ data: o }, { data: r }] = await Promise.all([
       supabase.from('orders').select('*, order_items(name, quantity, price, category_id)')
         .eq('restaurant_id', restaurantId)
         .not('status', 'in', '(closed,rejected)')
@@ -64,16 +77,9 @@ export default function WaiterView({ restaurant, rejectionMessages, activeTab, o
         .eq('restaurant_id', restaurantId)
         .eq('is_resolved', false)
         .order('created_at', { ascending: false }),
-      supabase.from('restaurants')
-        .select('rejection_messages')
-        .eq('id', restaurantId)
-        .maybeSingle(),
     ])
     setOrders(o ?? [])
     setRequests(r ?? [])
-    if (Array.isArray(restData?.rejection_messages) && restData.rejection_messages.length > 0) {
-      setFetchedRejectMsgs(restData.rejection_messages)
-    }
     setLoading(false)
   }, [restaurantId])
 
