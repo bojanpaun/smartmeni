@@ -82,12 +82,28 @@ serve(async (req) => {
       .eq('id', room_type_id)
       .single()
 
+    // Auto-assign soba — sprečava duplo bukiranje
+    const { data: autoRoom } = await supabase
+      .rpc('fn_auto_assign_room', {
+        p_restaurant_id: restaurant_id,
+        p_room_type_id:  room_type_id,
+        p_check_in:      check_in,
+        p_check_out:     check_out,
+      })
+
+    if (!autoRoom) {
+      // Race condition: PayPal naplata prošla ali nema slobodnih soba
+      // Log upozorenje — admin mora ručno dodijeliti sobu
+      console.warn('WARN: auto_assign_room vratio null — nema slobodnih soba, room_id ostaje null')
+    }
+
     // Kreirati rezervaciju — status zavisi od booking_mode
     const { data: reservation, error: resError } = await supabase
       .from('hotel_reservations')
       .insert({
         restaurant_id,
         room_type_id,
+        room_id: autoRoom ?? null,
         guest_name,
         guest_email,
         guest_phone: guest_phone || null,
