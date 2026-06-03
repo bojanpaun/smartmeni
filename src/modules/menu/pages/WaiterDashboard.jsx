@@ -229,18 +229,28 @@ export default function WaiterDashboard() {
                 <div className={styles.emptyIcon}>🍽️</div>
                 <div>Nema aktivnih narudžbi</div>
               </div>
-            ) : orders.map(order => (
-              <div key={order.id} className={styles.orderCard}>
+            ) : orders.map(order => {
+              const isOnline = order.table_number === 'Online' || !order.table_number
+              const statusCfg = STATUS_CONFIG[order.status] || {}
+              return (
+              <div
+                key={order.id}
+                className={styles.orderCard}
+                style={{ borderLeftColor: statusCfg.color }}
+              >
                 <div className={styles.orderCardHeader}>
-                  <div className={styles.tableNum}>Sto {order.table_number}</div>
+                  <div className={styles.orderMeta}>
+                    <div className={styles.tableNum}>
+                      <span className={styles.sourceIcon}>{isOnline ? '🌐' : '🪑'}</span>
+                      {isOnline ? 'Online' : `Sto ${order.table_number}`}
+                    </div>
+                    <div className={styles.orderRef}>#{order.id.slice(-6).toUpperCase()}</div>
+                  </div>
                   <span
                     className={styles.statusPill}
-                    style={{
-                      background: STATUS_CONFIG[order.status]?.bg,
-                      color: STATUS_CONFIG[order.status]?.color
-                    }}
+                    style={{ background: statusCfg.bg, color: statusCfg.color }}
                   >
-                    {STATUS_CONFIG[order.status]?.label}
+                    {statusCfg.label}
                   </span>
                 </div>
 
@@ -253,6 +263,13 @@ export default function WaiterDashboard() {
                     </div>
                   ))}
                 </div>
+
+                {order.note && (
+                  <div className={styles.guestNote}>
+                    <span className={styles.guestNoteIcon}>💬</span>
+                    {order.note}
+                  </div>
+                )}
 
                 <div className={styles.orderFooter}>
                   <span className={styles.orderTotal}>€{parseFloat(order.total).toFixed(2)}</span>
@@ -327,7 +344,7 @@ export default function WaiterDashboard() {
                   </div>
                 )}
               </div>
-            ))}
+            )})}
           </div>
         )}
 
