@@ -75,6 +75,7 @@ export function useHousekeeping(restaurantId, dateFrom, dateTo, onRefresh) {
           await supabase.from('rooms').update({ status: 'available' }).eq('id', task.room_id)
         }
       }
+      onRefresh?.()
     }
     return error
   }
