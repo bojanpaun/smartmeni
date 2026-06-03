@@ -136,10 +136,17 @@ export default function ControlPanel() {
   const renderCard = (mod) => {
     const accessible = canSee(mod.perm)
     const active     = addonOn(mod)
+    const isSys      = !!mod.adminOnly
     return (
       <button
         key={mod.key}
-        className={`${styles.card} ${mod.active ? styles.cardActive : styles.cardSoon} ${!accessible ? styles.cardLocked : ''} ${!active ? styles.cardAddon : ''}`}
+        className={[
+          styles.card,
+          isSys ? styles.cardSys : '',
+          mod.active ? styles.cardActive : styles.cardSoon,
+          !accessible ? styles.cardLocked : '',
+          !active ? styles.cardAddon : '',
+        ].filter(Boolean).join(' ')}
         onClick={() => handleMod(mod)}
         disabled={!mod.active || !accessible}
       >
@@ -148,12 +155,14 @@ export default function ControlPanel() {
           <div className={styles.cardName}>{mod.label}</div>
           <div className={styles.cardDesc}>{mod.desc}</div>
         </div>
-        <div className={styles.cardStatus}>
-          {!accessible ? <span className={`${styles.badge} ${styles.badgeLocked}`}>Nema pristup</span>
-            : !active  ? <span className={`${styles.badge} ${styles.badgeAddon}`}>Addon →</span>
-            : mod.active ? <span className={`${styles.badge} ${styles.badgeActive}`}>Aktivan</span>
-            : <span className={`${styles.badge} ${styles.badgeSoon}`}>Uskoro</span>}
-        </div>
+        {!isSys && (
+          <div className={styles.cardStatus}>
+            {!accessible ? <span className={`${styles.badge} ${styles.badgeLocked}`}>Nema pristup</span>
+              : !active  ? <span className={`${styles.badge} ${styles.badgeAddon}`}>Addon →</span>
+              : mod.active ? <span className={`${styles.badge} ${styles.badgeActive}`}>Aktivan</span>
+              : <span className={`${styles.badge} ${styles.badgeSoon}`}>Uskoro</span>}
+          </div>
+        )}
       </button>
     )
   }
