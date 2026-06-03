@@ -19,9 +19,10 @@ const PRIORITY_COLOR = {
 }
 
 const FILTERS = [
-  { key: 'open',        label: 'Otvoreno', color: '#c0392b' },
-  { key: 'in_progress', label: 'U toku',   color: '#e67e22' },
-  { key: 'done',        label: 'Završeno', color: '#0d7a52' },
+  { key: 'open',        label: 'Otvoreno',     color: '#c0392b' },
+  { key: 'in_progress', label: 'U toku',        color: '#e67e22' },
+  { key: 'done',        label: 'Završeno',      color: '#0d7a52' },
+  { key: 'verified',    label: 'Verifikovano',  color: '#7c3aed' },
 ]
 
 export default function MaintenanceView({ staffId, restaurantId, onRefresh }) {
@@ -40,7 +41,7 @@ export default function MaintenanceView({ staffId, restaurantId, onRefresh }) {
       supabase.from('maintenance_requests')
         .select('*, rooms(room_number, floor), staff!maintenance_requests_reported_by_fkey(first_name, last_name)')
         .eq('restaurant_id', restaurantId)
-        .not('status', 'in', '("verified","resolved")')
+        .neq('status', 'resolved')
         .order('priority', { ascending: false })
         .order('created_at'),
       supabase.from('rooms')
@@ -69,8 +70,19 @@ export default function MaintenanceView({ staffId, restaurantId, onRefresh }) {
   }, [restaurantId, load, onRefresh])
 
   const updateStatus = async (id, status) => {
-    await supabase.from('maintenance_requests').update({ status }).eq('id', id)
-    setItems(prev => prev.map(m => m.id === id ? { ...m, status } : m))
+    const patch = { status }
+    if (status === 'verified') patch.resolved_at = new Date().toISOString()
+    await supabase.from('maintenance_requests').update(patch).eq('id', id)
+    if (status === 'verified') {
+      const item = items.find(m => m.id === id)
+      if (item?.rooms?.room_number) {
+        const { data: roomRow } = await supabase
+          .from('rooms').select('id').eq('restaurant_id', restaurantId)
+          .eq('room_number', item.rooms.room_number).maybeSingle()
+        if (roomRow) await supabase.from('rooms').update({ status: 'available' }).eq('id', roomRow.id)
+      }
+    }
+    setItems(prev => prev.map(m => m.id === id ? { ...m, ...patch } : m))
     onRefresh?.()
   }
 
@@ -100,6 +112,7 @@ export default function MaintenanceView({ staffId, restaurantId, onRefresh }) {
     open:        items.filter(m => m.status === 'open').length,
     in_progress: items.filter(m => m.status === 'in_progress').length,
     done:        items.filter(m => m.status === 'done').length,
+    verified:    items.filter(m => m.status === 'verified').length,
   }
 
   const visibleItems = filterStatus
@@ -184,12 +197,13 @@ export default function MaintenanceView({ staffId, restaurantId, onRefresh }) {
         <div style={{ marginTop: 12 }}>
           {visibleItems.map(m => {
             const cat = MAINT_CATS.find(c => c.value === m.category) || MAINT_CATS[5]
-            const isDone = m.status === 'done'
+            const isVerified = m.status === 'verified'
+            const isDimmed = m.status === 'done' || isVerified
             const reporter = m.staff
               ? `${m.staff.first_name || ''} ${m.staff.last_name || ''}`.trim()
               : null
             return (
-              <div key={m.id} className={`${s.taskCard} ${isDone ? s.done : ''}`}>
+              <div key={m.id} className={`${s.taskCard} ${isDimmed ? s.done : ''}`}>
                 <div className={s.priorityStrip}
                   style={{ background: PRIORITY_COLOR[m.priority] || PRIORITY_COLOR.normal }} />
                 <div className={s.taskBody}>
@@ -209,17 +223,10 @@ export default function MaintenanceView({ staffId, restaurantId, onRefresh }) {
                     <div className={s.taskTypeLabel}>Prijavio/la: {reporter}</div>
                   )}
                   <div className={s.taskActionRow}>
-                    {m.status === 'open' && (
-                      <button className={s.btnStart} onClick={() => updateStatus(m.id, 'in_progress')}>
-                        ▶ U rad
-                      </button>
-                    )}
-                    {m.status === 'in_progress' && (
-                      <button className={s.btnDone} onClick={() => updateStatus(m.id, 'done')}>
-                        ✓ Završi
-                      </button>
-                    )}
-                    {isDone && <span className={s.doneLabel}>✅ Završeno</span>}
+                    {m.status === 'open'        && <button className={s.btnStart}  onClick={() => updateStatus(m.id, 'in_progress')}>▶ U rad</button>}
+                    {m.status === 'in_progress' && <button className={s.btnDone}   onClick={() => updateStatus(m.id, 'done')}>✓ Završi</button>}
+                    {m.status === 'done'        && <button className={s.btnVerify} onClick={() => updateStatus(m.id, 'verified')}>⭐ Verifikuj</button>}
+                    {isVerified                 && <span   className={s.verifiedLabel}>⭐ Verifikovano</span>}
                   </div>
                 </div>
               </div>

@@ -21,9 +21,10 @@ const MAINT_CATS = [
 ]
 
 const FILTERS = [
-  { key: 'pending',     label: 'Čeka',     color: '#e67e22' },
-  { key: 'in_progress', label: 'U toku',   color: '#2563eb' },
-  { key: 'done',        label: 'Završeno', color: '#0d7a52' },
+  { key: 'pending',     label: 'Čeka',         color: '#e67e22' },
+  { key: 'in_progress', label: 'U toku',        color: '#2563eb' },
+  { key: 'done',        label: 'Završeno',      color: '#0d7a52' },
+  { key: 'verified',    label: 'Verifikovano',  color: '#7c3aed' },
 ]
 
 export default function HousekeepingView({ staffId, restaurantId, onRefresh }) {
@@ -71,7 +72,14 @@ export default function HousekeepingView({ staffId, restaurantId, onRefresh }) {
     const patch = { status: newStatus }
     if (newStatus === 'in_progress') patch.started_at = new Date().toISOString()
     if (newStatus === 'done')        patch.completed_at = new Date().toISOString()
+    if (newStatus === 'verified')    patch.verified_at = new Date().toISOString()
     await supabase.from('housekeeping_tasks').update(patch).eq('id', taskId)
+    if (newStatus === 'verified') {
+      const task = tasks.find(t => t.id === taskId)
+      if (task?.rooms?.id) {
+        await supabase.from('rooms').update({ status: 'available' }).eq('id', task.rooms.id)
+      }
+    }
     setTasks(prev => prev.map(t => t.id === taskId ? { ...t, ...patch } : t))
     onRefresh?.()
   }
@@ -99,13 +107,12 @@ export default function HousekeepingView({ staffId, restaurantId, onRefresh }) {
   const counts = {
     pending:     tasks.filter(t => t.status === 'pending').length,
     in_progress: tasks.filter(t => t.status === 'in_progress').length,
-    done:        tasks.filter(t => t.status === 'done' || t.status === 'verified').length,
+    done:        tasks.filter(t => t.status === 'done').length,
+    verified:    tasks.filter(t => t.status === 'verified').length,
   }
 
   const visibleTasks = filterStatus
-    ? tasks.filter(t => filterStatus === 'done'
-        ? (t.status === 'done' || t.status === 'verified')
-        : t.status === filterStatus)
+    ? tasks.filter(t => t.status === filterStatus)
     : tasks
 
   return (
@@ -148,9 +155,10 @@ export default function HousekeepingView({ staffId, restaurantId, onRefresh }) {
       ) : (
         visibleTasks.map(task => {
           const typeInfo = TASK_TYPES[task.type] || TASK_TYPES.stayover_clean
-          const isDone = task.status === 'done' || task.status === 'verified'
+          const isVerified = task.status === 'verified'
+          const isDimmed = task.status === 'done' || isVerified
           return (
-            <div key={task.id} className={`${s.taskCard} ${isDone ? s.done : ''}`}>
+            <div key={task.id} className={`${s.taskCard} ${isDimmed ? s.done : ''}`}>
               <div className={s.priorityStrip} style={{ background: PRIORITY_COLOR[task.priority] || PRIORITY_COLOR.normal }} />
               <div className={s.taskBody}>
                 <div className={s.taskRoom}>
@@ -164,9 +172,10 @@ export default function HousekeepingView({ staffId, restaurantId, onRefresh }) {
                 <div className={s.taskTypeLabel}>{typeInfo.label}</div>
                 {task.notes && <div className={s.taskNotes}>{task.notes}</div>}
                 <div className={s.taskActionRow}>
-                  {task.status === 'pending' && <button className={s.btnStart} onClick={() => updateStatus(task.id, 'in_progress')}>▶ Počni</button>}
-                  {task.status === 'in_progress' && <button className={s.btnDone} onClick={() => updateStatus(task.id, 'done')}>✓ Završi</button>}
-                  {isDone && <span className={s.doneLabel}>✅ Završeno</span>}
+                  {task.status === 'pending'     && <button className={s.btnStart}  onClick={() => updateStatus(task.id, 'in_progress')}>▶ Počni</button>}
+                  {task.status === 'in_progress' && <button className={s.btnDone}   onClick={() => updateStatus(task.id, 'done')}>✓ Završi</button>}
+                  {task.status === 'done'        && <button className={s.btnVerify} onClick={() => updateStatus(task.id, 'verified')}>⭐ Verifikuj</button>}
+                  {isVerified                    && <span   className={s.verifiedLabel}>⭐ Verifikovano</span>}
                 </div>
               </div>
             </div>
