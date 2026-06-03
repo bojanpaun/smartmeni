@@ -242,6 +242,5 @@
 }
 
 @media (max-width: 440px) {
-  .grid { grid-template-columns: 1fr; }
   .kpiRow { display: grid; grid-template-columns: 1fr 1fr; }
 }
