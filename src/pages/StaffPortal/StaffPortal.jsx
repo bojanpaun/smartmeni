@@ -250,6 +250,8 @@ export default function StaffPortal() {
     setActiveTab(tabs[0].key)
     setMergedTabs(tabs)
     setMode('portal')
+    // Re-fetch badge counts with authenticated session (prije logina RLS vraća 0)
+    refreshCounts()
   }
 
   const handleLogin = async (e) => {
