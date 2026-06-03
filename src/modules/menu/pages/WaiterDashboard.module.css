@@ -108,12 +108,13 @@
 
 .orderActions {
   display: flex;
+  flex-direction: column;
   gap: 8px;
   margin-top: 10px;
 }
 
 .orderActions .actionBtn {
-  flex: 1;
+  width: 100%;
   margin-top: 0;
 }
 
@@ -163,14 +164,22 @@
 }
 .quickRespBtn:hover { background: var(--c-primary-light); }
 
-.rejectWrap { margin-top: 8px; }
-.rejectLabel { font-size: 11px; color: var(--c-text-muted); font-weight: 500; margin-bottom: 5px; }
-.rejectMessages { display: flex; flex-wrap: wrap; gap: 5px; }
-.rejectMsgBtn {
-  padding: 5px 9px; border-radius: 7px; font-size: 11px; font-weight: 500;
-  border: 1px solid var(--c-danger-border); background: var(--c-danger-bg); color: var(--c-danger);
-  cursor: pointer; font-family: inherit; transition: filter 0.15s; text-align: left;
+.rejectWrap {
+  border-top: 1px solid var(--c-border);
+  padding-top: 8px;
 }
+.rejectLabel {
+  font-size: 11px; color: var(--c-text-muted); font-weight: 500;
+  text-transform: uppercase; letter-spacing: 0.4px; margin-bottom: 6px;
+}
+.rejectMessages { display: flex; flex-direction: column; gap: 4px; }
+.rejectMsgBtn {
+  display: flex; align-items: center; gap: 7px;
+  padding: 7px 10px; border-radius: 8px; font-size: 12.5px; font-weight: 500;
+  border: 1px solid var(--c-danger-border); background: var(--c-danger-bg); color: var(--c-danger);
+  cursor: pointer; font-family: inherit; transition: filter 0.15s; text-align: left; width: 100%;
+}
+.rejectMsgBtn::before { content: '×'; font-size: 14px; font-weight: 700; flex-shrink: 0; opacity: 0.7; }
 .rejectMsgBtn:hover { filter: brightness(0.95); }
 
 /* ── Room charge ── */
