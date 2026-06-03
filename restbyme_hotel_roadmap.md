@@ -1235,7 +1235,7 @@ Tri uzastopna buga pronađena i riješena pri testiranju admin ↔ staff portal 
 
 ---
 
-## ⚠️ Bug registar — Realtime konzistentnost (otvoreni zadaci)
+## ✅ Bug registar — Realtime konzistentnost (RIJEŠENO 2026-06-04)
 
 > Pronađeno pri testiranju housekeeping realtime (Jun 2026). Svi bugovi su iste klase: **stari subscription pattern ili nepotvrđena DB konfiguracija**. Ne blokiraju produkciju ali su tehnički dug koji treba riješiti sustavno.
 
@@ -1256,11 +1256,11 @@ Tri uzastopna buga pronađena i riješena pri testiranju admin ↔ staff portal 
 
 ```
 Definition of Done:
-- [ ] BarView.jsx — ref pattern
-- [ ] KitchenView.jsx — ref pattern
-- [ ] WaiterView.jsx — ref pattern
-- [ ] SpaView.jsx — ref pattern
-- [ ] ReceptionView.jsx — ref pattern
+- [x] BarView.jsx — ref pattern ✅
+- [x] KitchenView.jsx — ref pattern ✅
+- [x] WaiterView.jsx — ref pattern ✅
+- [x] SpaView.jsx — ref pattern ✅
+- [x] ReceptionView.jsx — ref pattern ✅
 ```
 
 ---
@@ -1275,7 +1275,7 @@ Definition of Done:
 
 ```
 Definition of Done:
-- [ ] useRooms.js — ref pattern za subscription effect
+- [x] useRooms.js — ref pattern za subscription effect ✅
 ```
 
 ---
@@ -1295,7 +1295,7 @@ const channel = supabase.channel('waiter-map') // ❌ nije multi-tenant safe
 
 ```
 Definition of Done:
-- [ ] WaiterMapView.jsx — channel name uključuje restaurantId
+- [x] WaiterMapView.jsx — channel name uključuje restaurantId ✅
 ```
 
 ---
@@ -1327,8 +1327,8 @@ ALTER TABLE hotel_reservations REPLICA IDENTITY FULL;
 
 ```
 Definition of Done:
-- [ ] Provjeriti koje tabele su u supabase_realtime publikaciji
-- [ ] Kreirati migraciju za sve tabele koje nedostaju
+- [x] Provjeriti koje tabele su u supabase_realtime publikaciji ✅
+- [x] Migracija 20260604000002 — hotel_reservations, rooms, spa_appointments, guest_requests ✅
 - [ ] Testirati realtime u ReceptionView (check-in/out u realnom vremenu)
 - [ ] Testirati realtime u SpaView (termini u realnom vremenu)
 ```
