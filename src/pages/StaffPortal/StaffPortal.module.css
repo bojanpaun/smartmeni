@@ -417,44 +417,145 @@
   font-weight: 600; padding: 10px;
 }
 
-/* ── Waiter View ────────────────────────────────────────────────── */
+/* ── Shared source icon (Sto / Online) ──────────────────────────── */
+.sourceIcon { font-size: 13px; }
+
+/* ── Waiter View — Narudžbe ─────────────────────────────────────── */
 .orderCard {
   background: #fff; border-radius: 14px;
   margin-bottom: 10px; padding: 14px;
   box-shadow: 0 1px 4px rgba(0,0,0,0.06);
-  border-left: 4px solid transparent;
+  border-left: 3px solid transparent;
 }
-.orderCardNew { border-left-color: #2563eb; }
-.orderCardPreparing { border-left-color: #f59e0b; }
-.orderCardReady { border-left-color: #16a34a; }
-.orderHeader { display: flex; align-items: center; gap: 8px; margin-bottom: 8px; }
-.orderTable { font-size: 15px; font-weight: 700; color: #111827; }
-.orderTime { font-size: 11px; color: #9ca3af; margin-left: auto; }
-.orderItems { font-size: 13px; color: #374151; margin-bottom: 10px; line-height: 1.6; }
-.orderItemRow { display: flex; gap: 6px; }
-.orderItemQty { font-weight: 700; color: var(--sp-brand); min-width: 20px; }
-.orderActions { display: flex; gap: 8px; flex-wrap: wrap; }
+.orderHeader {
+  display: flex; align-items: flex-start;
+  justify-content: space-between; gap: 8px; margin-bottom: 10px;
+}
+.orderMeta { display: flex; flex-direction: column; gap: 2px; }
+.orderTable {
+  font-size: 15px; font-weight: 700; color: #111827;
+  display: flex; align-items: center; gap: 5px;
+}
+.orderRef { font-size: 11px; color: #9ca3af; font-weight: 500; letter-spacing: 0.3px; }
+.orderTime { font-size: 11px; color: #9ca3af; }
 .statusBadge {
   padding: 3px 10px; border-radius: 20px;
-  font-size: 11px; font-weight: 700;
+  font-size: 11px; font-weight: 700; flex-shrink: 0;
+}
+.orderItems {
+  font-size: 13px; color: #374151;
+  margin-bottom: 10px;
+  border-top: 1px solid #f3f4f6; padding-top: 8px;
+}
+.orderItemRow { display: flex; gap: 6px; align-items: baseline; padding: 3px 0; }
+.orderItemRow:not(:last-child) { border-bottom: 1px solid #f9fafb; }
+.orderItemQty { font-weight: 700; color: var(--sp-brand); min-width: 20px; }
+.orderItemName { flex: 1; }
+.orderItemPrice { font-size: 12px; color: #9ca3af; }
+.orderTotalRow {
+  display: flex; justify-content: space-between;
+  border-top: 1px solid #e5e7eb; margin-top: 6px; padding-top: 6px;
+  font-weight: 700; font-size: 13px; color: #111827;
+}
+.orderNote {
+  display: flex; align-items: flex-start; gap: 6px;
+  margin-bottom: 10px; padding: 7px 10px;
+  background: #f9fafb; border-radius: 8px;
+  font-size: 12.5px; color: #6b7280; font-style: italic;
+  border: 1px solid #e5e7eb;
+}
+.orderNoteIcon { flex-shrink: 0; font-style: normal; }
+
+/* Actions — column layout, primarna akcija prva */
+.orderActionsCol {
+  display: flex; flex-direction: column; gap: 6px; margin-top: 10px;
+}
+.orderActionsCol .btnStart,
+.orderActionsCol .btnDone { width: 100%; padding: 9px 16px; }
+.rejectToggleBtn {
+  width: 100%; padding: 8px 16px;
+  background: #fef2f2; color: #b91c1c;
+  border: 1.5px solid #fecaca; border-radius: 8px;
+  font-size: 13px; font-weight: 600;
+  cursor: pointer; font-family: inherit;
+  transition: filter 0.15s;
+}
+.rejectToggleBtn:hover { filter: brightness(0.96); }
+
+/* Reject panel */
+.rejectPanel {
+  background: #fef2f2; border: 1px solid #fecaca;
+  border-radius: 10px; padding: 10px 12px; margin-bottom: 8px;
+}
+.rejectPanelLabel {
+  font-size: 11px; font-weight: 600; color: #991b1b;
+  text-transform: uppercase; letter-spacing: 0.4px; margin-bottom: 8px;
+}
+.rejectList { display: flex; flex-direction: column; gap: 5px; }
+.rejectListBtn {
+  display: flex; align-items: center; gap: 7px;
+  width: 100%; padding: 7px 10px; border-radius: 8px;
+  background: #fff; color: #b91c1c;
+  border: 1px solid #fecaca;
+  font-size: 12.5px; font-weight: 500;
+  cursor: pointer; font-family: inherit; text-align: left;
+  transition: filter 0.15s;
+}
+.rejectListBtn::before { content: '×'; font-size: 14px; font-weight: 700; opacity: 0.7; flex-shrink: 0; }
+.rejectListBtn:hover { filter: brightness(0.96); }
+.rejectCancelBtn {
+  width: 100%; padding: 7px 10px; border-radius: 8px;
+  background: #f3f4f6; color: #6b7280;
+  border: 1px solid #e5e7eb;
+  font-size: 12.5px; cursor: pointer; font-family: inherit;
+  margin-top: 2px;
 }
 
-/* ── Waiter requests ────────────────────────────────────────────── */
+/* ── Waiter View — Zahtjevi ─────────────────────────────────────── */
 .reqCard {
-  background: #fff; border-radius: 12px;
-  padding: 13px; margin-bottom: 8px;
+  background: #fff; border-radius: 14px;
+  padding: 14px; margin-bottom: 10px;
   box-shadow: 0 1px 4px rgba(0,0,0,0.06);
-  display: flex; align-items: center; gap: 12px;
+  border-left: 3px solid #f59e0b;
 }
-.reqTable { font-size: 14px; font-weight: 700; color: #111827; }
-.reqType { font-size: 13px; color: #374151; flex: 1; }
-.reqTime { font-size: 11px; color: #9ca3af; }
-.reqResolveBtn {
-  background: #f0fdf4; color: #16a34a;
-  border: 1.5px solid #bbf7d0; border-radius: 8px;
-  padding: 5px 12px; font-size: 12px; font-weight: 600;
+.reqCardHeader {
+  display: flex; justify-content: space-between;
+  align-items: flex-start; gap: 8px; margin-bottom: 8px;
+}
+.reqCardMeta { display: flex; flex-direction: column; gap: 2px; }
+.reqSource {
+  font-size: 15px; font-weight: 700; color: #111827;
+  display: flex; align-items: center; gap: 5px;
+}
+.reqRef { font-size: 11px; color: #9ca3af; font-weight: 500; letter-spacing: 0.3px; }
+.reqTimeStamp { font-size: 11px; color: #9ca3af; flex-shrink: 0; }
+.reqTypeText {
+  font-size: 14px; color: #374151; font-weight: 500;
+  margin-bottom: 10px; padding: 8px 10px;
+  background: #fffbeb; border-radius: 8px;
+  border: 1px solid #fde68a;
+}
+.quickRespRow {
+  display: flex; flex-wrap: wrap; gap: 6px; margin-bottom: 8px;
+}
+.quickRespBtn {
+  padding: 6px 12px; border-radius: 8px;
+  background: #f0fdf4; color: #15803d;
+  border: 1.5px solid #bbf7d0;
+  font-size: 12px; font-weight: 600;
   cursor: pointer; font-family: inherit;
+  transition: filter 0.15s;
 }
+.quickRespBtn:hover { filter: brightness(0.96); }
+.reqResolveBtn {
+  width: 100%; padding: 9px;
+  background: #f0fdf4; color: #16a34a;
+  border: 1.5px solid #bbf7d0; border-radius: 10px;
+  font-size: 13px; font-weight: 600;
+  cursor: pointer; font-family: inherit;
+  transition: filter 0.15s;
+}
+.reqResolveBtn:hover { filter: brightness(0.96); }
 
 /* ── Kitchen View ───────────────────────────────────────────────── */
 .kitchenGrid { display: grid; grid-template-columns: 1fr; gap: 10px; }
