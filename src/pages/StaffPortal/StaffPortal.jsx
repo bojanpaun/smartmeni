@@ -153,7 +153,6 @@ export default function StaffPortal() {
   const [portalType, setPortalType]         = useState('hr')
   const [activeTab, setActiveTab]           = useState(null)
   const [mergedTabs, setMergedTabs]         = useState(PORTAL_TABS.hr)
-  const [rejectionMessages, setRejectionMessages] = useState(null)
 
   useEffect(() => {
     supabase.from('restaurants')
@@ -233,13 +232,6 @@ export default function StaffPortal() {
     const tabs = allPermissions.length > 0
       ? tabsFromPermissions(allPermissions)
       : mergePortalTabs(roleNames.length > 0 ? roleNames : ['hr'])
-    // SECURITY DEFINER RPC — zaobilazi RLS, staff korisnik ne može direktno
-    // čitati restaurants tabelu (owner-only RLS), pa koristimo RPC funkciju
-    const { data: msgs } = await supabase.rpc('get_restaurant_rejection_messages', {
-      p_restaurant_id: restaurant.id,
-    })
-    if (Array.isArray(msgs) && msgs.length > 0) setRejectionMessages(msgs)
-
     setStaff(staffData)
     setPortalType(detectPortalType(roleNames[0] || ''))
     setActiveTab(tabs[0].key)
@@ -438,7 +430,7 @@ export default function StaffPortal() {
     }
     if (activeTab === 'tasks') return <HousekeepingView staffId={staff.id} restaurantId={restaurant.id} onRefresh={refreshCounts} />
     if (activeTab === 'maintenance') return <MaintenanceView staffId={staff.id} restaurantId={restaurant.id} onRefresh={refreshCounts} />
-    if (activeTab === 'orders' || activeTab === 'requests') return <WaiterView restaurant={restaurant} rejectionMessages={rejectionMessages} activeTab={activeTab} onRefresh={refreshCounts} />
+    if (activeTab === 'orders' || activeTab === 'requests') return <WaiterView restaurant={restaurant} activeTab={activeTab} onRefresh={refreshCounts} />
     if (activeTab === 'kitchen')    return <KitchenView restaurantId={restaurant.id} onRefresh={refreshCounts} />
     if (activeTab === 'bar_orders') return <BarView    restaurantId={restaurant.id} onRefresh={refreshCounts} />
     if (['checkin', 'checkout', 'rooms'].includes(activeTab)) return <ReceptionView restaurantId={restaurant.id} activeTab={activeTab} onRefresh={refreshCounts} />

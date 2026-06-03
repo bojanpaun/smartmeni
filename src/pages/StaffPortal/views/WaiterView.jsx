@@ -1,4 +1,4 @@
-import { useState, useEffect, useCallback, useRef } from 'react'
+import { useState, useCallback, useRef } from 'react'
 import { supabase } from '../../../lib/supabase'
 import s from '../StaffPortal.module.css'
 
@@ -32,26 +32,16 @@ const DEFAULT_REJECT = [
   'Restoran se zatvara, narudžba nije moguća.',
 ]
 
-export default function WaiterView({ restaurant, rejectionMessages, activeTab, onRefresh }) {
+export default function WaiterView({ restaurant, activeTab, onRefresh }) {
   const restaurantId = restaurant?.id
   const [orders, setOrders]         = useState([])
   const [requests, setRequests]     = useState([])
   const [loading, setLoading]       = useState(true)
   const [rejectOpen, setRejectOpen] = useState(null)
-  const [fetchedRejectMsgs, setFetchedRejectMsgs] = useState(null)
   const barCatIdsRef = useRef(null)
 
-  const rejectMessages = fetchedRejectMsgs || rejectionMessages || restaurant?.rejection_messages || DEFAULT_REJECT
-
-  const handleRejectOpen = async (orderId) => {
-    // Svaki put kad se panel otvori — svjež fetch, garantovano admin poruke
-    const { data } = await supabase.from('restaurants')
-      .select('rejection_messages')
-      .eq('id', restaurantId)
-    const msgs = data?.[0]?.rejection_messages
-    if (Array.isArray(msgs) && msgs.length > 0) setFetchedRejectMsgs(msgs)
-    setRejectOpen(orderId)
-  }
+  // Isti pristup kao /admin/orders (WaiterDashboard) — direktno iz restaurant prop
+  const rejectMessages = restaurant?.rejection_messages || DEFAULT_REJECT
 
   const getBarCatIds = useCallback(async () => {
     if (!barCatIdsRef.current) {
@@ -252,7 +242,7 @@ export default function WaiterView({ restaurant, rejectionMessages, activeTab, o
                 </button>
               )}
               {['pending', 'received'].includes(order.status) && rejectOpen !== order.id && (
-                <button className={s.rejectToggleBtn} onClick={() => handleRejectOpen(order.id)}>
+                <button className={s.rejectToggleBtn} onClick={() => setRejectOpen(order.id)}>
                   ✕ Odbij narudžbu
                 </button>
               )}
