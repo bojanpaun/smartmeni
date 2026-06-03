@@ -26,6 +26,7 @@ const HELP_CONTENT = {
           'Svaka narudžba ima status po stanici: kuhinja i bar se prate odvojeno',
           'Status narudžbe: Primljeno → u pripremi (kuhinja/bar) → Gotovo → Servirano',
           'Konobar vidi status svake stavke — ne mora zvati kuhinju da pita',
+          'Staff portal konobara (/slug/staff) prikazuje station statuse u realnom vremenu — 🧑‍🍳 Kuhinja priprema/gotova, 🍷 Bar priprema/gotov — identično admin prikazu',
         ],
       },
       {
@@ -86,6 +87,7 @@ const HELP_CONTENT = {
       'QR po stolu (modul Stolovi) je preporučen za svakodnevno korišćenje jer prati s kojeg stola dolazi narudžba',
       'Vidljivost naručivanja možeš isključiti za goste bez registracije — korisno za VIP prikaze ili demo mode',
       'Sajt restorana i guest meni su odvojeni: meni je za narudžbe za stolom, sajt je javna web stranica',
+      'Konobar može naplatiti narudžbu na sobu direktno iz Staff portala (ne samo iz admina) — vidljivo kad je Hotel modul aktivan',
     ],
   },
 
@@ -119,7 +121,9 @@ const HELP_CONTENT = {
         title: 'Staff portal (/slug/staff)',
         steps: [
           'Zaposleni pristupaju operativnom prikazu na rest.by.me/vas-slug/staff',
-          'Svaka rola vidi drugačiji prikaz: konobar (narudžbe), kuhinja (kitchen display), sobarica (housekeeping zadaci), recepcija (check-in/out), spa terapeut (dnevni termini)',
+          'Konobar vidi narudžbe sa station statusima (🧑‍🍳 Kuhinja priprema/gotova, 🍷 Bar priprema/gotov) i može naplatiti narudžbu na hotelsku sobu (kad je Hotel modul aktivan)',
+          'Sobarica vidi housekeeping zadatke i zahtjeve održavanja u realnom vremenu — promjene statusa (Počni → Završi → Verifikuj) odmah se reflektuju i na admin dashboardu',
+          'Recepcija može raditi check-in/check-out sa mobilnog uređaja — Front Desk stranica je mobilno prilagođena',
           'Bez potrebe za admin nalogom — zaposleni se prijavljuju sa vlastitim kredencijalima',
         ],
       },
@@ -432,6 +436,7 @@ const HELP_CONTENT = {
           'Za svaki tip unesi naziv, opis, max popunjenost, osnovnu cijenu i amenities',
           'Idi na Sobe da vidiš grid svih soba — statusi: Slobodna, Zauzeta, Čišćenje, Održavanje, Blokirana',
           'Klikni na sobu da promijeniš status ili je urediš',
+          'Odabirom statusa "Čišćenje" automatski se kreira housekeeping zadatak vidljiv u realnom vremenu u Housekeeping dashboardu i Staff portalu',
         ],
       },
       {
@@ -460,6 +465,7 @@ const HELP_CONTENT = {
         steps: [
           'Tab Check-in danas prikazuje sve potvrđene rezervacije za danas',
           'Klikni Check-in ✓ — sistem mijenja status rezervacije u Prisutna, sobu u Zauzeta i kreira otvoreni folio',
+          'Front Desk stranica je prilagođena za mobilne uređaje — kartice umjesto tabele na mobilnom',
         ],
       },
       {
@@ -469,6 +475,7 @@ const HELP_CONTENT = {
           'Tab Check-out prikazuje sve prisutne goste koji trebaju otići',
           'Pregledaj folio prije odjave',
           'Klikni Check-out ✓ — status rezervacije → Odjavljena, soba → Čišćenje, folio → zatvoren',
+          'Front Desk stranica je prilagođena za mobilne uređaje — recepcija može raditi check-in/check-out sa telefona',
         ],
       },
       {
@@ -487,8 +494,8 @@ const HELP_CONTENT = {
         icon: '🧹',
         title: 'Housekeeping',
         steps: [
-          'Housekeeping zadaci se kreiraju automatski pri svakom check-outu (soba → Čišćenje)',
-          'Sobarice vide zadatke u Staff portalu (/slug/staff) sa rolom Sobarica',
+          'Housekeeping zadaci se kreiraju automatski pri svakom check-outu (soba → Čišćenje); mogu se kreirati i ručno iz admin dashboarda',
+          'Sobarice vide zadatke u Staff portalu (/slug/staff) u realnom vremenu — promjene statusa (Počni → Završi → Verifikuj) odmah se reflektuju i na admin dashboardu bez potrebe za osvježavanjem stranice',
           'Admin prati status svih soba u Housekeeping dashboardu',
           'Sobarica označava sobu kao Čistu → status se automatski mijenja u Slobodna',
         ],
@@ -510,6 +517,7 @@ const HELP_CONTENT = {
           'Konobar može naplatiti narudžbu na hotelsku sobu — klikni Naplati na sobu na serviranoj narudžbi',
           'Unesi broj sobe — sistem provjerava da li gost ima otvoreni folio',
           'Iznos se automatski dodaje na folio gosta',
+          '"Naplati na sobu" dugme postoji i u Staff portalu (konobar modul) — ne samo u admin panelu',
         ],
       },
       {
@@ -529,6 +537,7 @@ const HELP_CONTENT = {
       'Housekeeping zadaci se kreiraju automatski — sobarice ih vide samo u Staff portalu',
       'Guest App link šalje se automatski u email potvrdi rezervacije',
       'Hotelska javna web stranica (rest.by.me/slug/hotel) uređuje se u Hotel → Sajt hotela',
+      'Rezervacije, Housekeeping i Upravljanje prihodima stranice su mobilno prilagođene — kartice umjesto tabela na mobilnim uređajima',
     ],
   },
 

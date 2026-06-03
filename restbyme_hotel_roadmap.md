@@ -1,6 +1,6 @@
 ﻿# rest.by.me — HospitalityOS Produkt roadmap
 
-> **Verzija:** 4.5 *(dopunjeno — staff portal proširenja: station statusi + naplati na sobu; realtime infrastruktura housekeeping; pravila realtime konzistentnosti; audit bug registar — 2026-06-04)*
+> **Verzija:** 4.6 *(dopunjeno — mobile responsive admin hotel stranice; admin dashboard poboljšanja; landing page i editor fiksevi — 2026-06-04)*
 > **Kontekst:** Evolucija rest.by.me (bivši SmartMeni) SaaS platforme prema punom hospitality management sistemu
 > **Tim:** 1 developer + Claude Code AI asistent
 > **Branch:** `main` → direktno na produkciju (Vercel auto-deploy)
@@ -560,7 +560,8 @@ Edge Function: kreira hotel_reservation, smanjuje room_availability, šalje emai
 - ✅ Realtime fix: `REPLICA IDENTITY FULL` na obje tabele (`20260603000003`)
 - ✅ Realtime fix: `useHousekeeping` ref pattern — subscription stabilan bez gubitka eventa
 - ✅ Badge fix: `useKitchenCounts` prima `null` pre-login — kanal se kreira tek s autentifikovanom sesijom
-- ⬜ Mobile-optimizovani prikaz za sobarice (staff portal je funkcionalan ali nije dizajniran za uski ekran)
+- ✅ Housekeeping, Reservations, Revenue, FrontDesk stranice mobile responsive (Jun 2026)
+- ⬜ Mobile-optimizovani prikaz za sobarice u Staff portalu (staff portal je funkcionalan ali nije dizajniran za uski ekran)
 
 ---
 
@@ -1232,6 +1233,26 @@ Tri uzastopna buga pronađena i riješena pri testiranju admin ↔ staff portal 
 - ✅ **`detectPortalType`** — `šank/sank/barman/bartender/barista` odvojen u vlastiti `bar` tip (bio u `waiter`)
 - ✅ **`BarView.jsx`** — nova staff portal komponenta: filtrira `bar_status = 'preparing'`, prikazuje samo barske stavke, ljubičasti top border
 - ✅ **`KitchenView.jsx`** — ispravka: filter `kitchen_status = 'preparing'` umjesto `status IN (received, preparing)`; `markReady` postavlja `kitchen_status = 'ready'` i provjerava oba statusa → `status = 'ready'`
+
+### Mobile responsive — admin hotel stranice (Jun 2026)
+
+- ✅ **FrontDeskPage** (/admin/hotel/frontdesk) — kartice na mobilnom za sve tri sekcije: Check-in, Check-out, Zahtjevi gostiju
+- ✅ **ReservationsPage** (/admin/hotel/reservations) — lista rezervacija kao kartice na mobilnom; kalendar ostaje horizontalno skrolabilan
+- ✅ **HousekeepingPage** (/admin/hotel/housekeeping) — zadaci čišćenja i održavanja kao kartice na mobilnom
+- ✅ **RevenueManagementPage** (/admin/hotel/revenue) — prijedlozi cijena kao kartice na mobilnom; KPI i grafovi već su bili responzivni
+- Pattern: desktop tabela skrivena na < 640px, mobilne kartice vidljive — isti pristup kao WaiterMapView
+
+### Admin dashboard poboljšanja (Jun 2026)
+
+- ✅ **2 nova KPI-a**: Popunjenost % (checked_in / ukupno soba × 100, real-time) i Slobodne sobe (rooms.status = available) — prikazuju se samo kad je hotel_core aktivan
+- ✅ **KPI grid 2×2 na mobilnom** — umjesto jednog ispod drugog
+- ✅ **Modul kartice 2 kolone na mobilnom** — uklonjen 1-kolona override na < 440px
+- ✅ **Sistem kartice konzistentnost** — adminOnly moduli (Postavke) sada imaju isti stil kao "Role i permisije" i "Super admin panel" (cardSys klasa, bez "Aktivan" badge-a)
+
+### Landing page i editor fiksevi (Jun 2026)
+
+- ✅ **Lazy loading fix** — uklonjen `loading="lazy"` sa gallery slika i Google Maps iframea u oba landing fajla (hotel i restoran); eliminisan browser `[Intervention]` koji je zamjenjivao slike placeholderima u preview iframeu
+- ✅ **Landing editor mobile preview** — na mobilnom (< 1100px) preview toggle dugme se zamjenjuje "Vidi sajt" linkom koji otvara sajt u novom tabu; primijenjeno na oba editora (HotelLandingEditor i RestaurantLandingEditor)
 
 ---
 
