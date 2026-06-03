@@ -1,6 +1,6 @@
 ﻿# rest.by.me — HospitalityOS Produkt roadmap
 
-> **Verzija:** 4.4 *(dopunjeno — integracija Hotel IS spec: Faza N nocni audit+split folio, Faza P PMS proširenja, GDPR UI, Inventory Pro v2, Faza M MICE, Faza 8.6 Marketing auto, Faza Z.2 HR Pro — 2026-06-02)*
+> **Verzija:** 4.5 *(dopunjeno — staff portal proširenja: station statusi + naplati na sobu; realtime infrastruktura housekeeping; pravila realtime konzistentnosti; audit bug registar — 2026-06-04)*
 > **Kontekst:** Evolucija rest.by.me (bivši SmartMeni) SaaS platforme prema punom hospitality management sistemu
 > **Tim:** 1 developer + Claude Code AI asistent
 > **Branch:** `main` → direktno na produkciju (Vercel auto-deploy)
@@ -128,6 +128,8 @@ Trenutno `restaurants` tabla služi kao primarni tenant identifikator. Hotel bez
 
 ### 7. Realtime, performanse i cleanup
 
+#### 7.1 Osnovna pravila (channels i cleanup)
+
 - **Svaki Supabase Realtime channel** mora imati cleanup u `useEffect` return:
   ```js
   useEffect(() => {
@@ -138,6 +140,82 @@ Trenutno `restaurants` tabla služi kao primarni tenant identifikator. Hotel bez
 - **`setInterval` / `setTimeout`** u komponentama — uvijek clearInterval/clearTimeout u useEffect cleanup.
 - **Channel ref pattern** za channels koji se kreiraju izvan useEffect-a (event handleri): koristiti `useRef` za čuvanje reference i cleanup pri unmount.
 - **Supabase realtime** ne koristiti za podatke koji se ne mijenjaju učestalo — polling ili refetch pri korisničkoj akciji je prihvatljiviji od stalnog otvorenog channela.
+
+#### 7.2 Channel dependency array — ref pattern (OBAVEZNO)
+
+Subscription `useEffect` koji prima `load` ili `onRefresh` funkcije **NE smije** ih stavljati u dependency array direktno. Promjena referenci uzrokuje tear-down + re-subscribe kanala, što kratkoročno gubi evente.
+
+**Zabranjeno (nestabilan subscription):**
+```js
+useEffect(() => {
+  const ch = supabase.channel(`xyz-${restaurantId}`)
+    .on('postgres_changes', ..., () => { load(); onRefresh?.() })
+    .subscribe()
+  return () => supabase.removeChannel(ch)
+}, [restaurantId, load, onRefresh]) // ❌ load i onRefresh uzrokuju re-subscribe
+```
+
+**Obavezno (stabilan subscription — ref pattern):**
+```js
+const loadRef = useRef(load)
+const onRefreshRef = useRef(onRefresh)
+useEffect(() => { loadRef.current = load }, [load])
+useEffect(() => { onRefreshRef.current = onRefresh }, [onRefresh])
+
+useEffect(() => {
+  if (!restaurantId) return
+  const ch = supabase.channel(`xyz-${restaurantId}`)
+    .on('postgres_changes', ..., () => { loadRef.current(); onRefreshRef.current?.() })
+    .subscribe()
+  return () => supabase.removeChannel(ch)
+}, [restaurantId]) // ✅ samo restaurantId — kanal živi cijeli mount ciklus
+```
+
+Ovaj pattern je implementiran u: `useHousekeeping.js`, `HousekeepingView.jsx`, `MaintenanceView.jsx`.
+Treba se primijeniti na: `BarView`, `KitchenView`, `WaiterView`, `SpaView`, `ReceptionView`, `useRooms` (vidi bug registar §B-RT).
+
+#### 7.3 Channel imenovanje
+
+- **Channel name mora uključivati `restaurantId`** — bez toga dolazi do konflikata na shared Supabase klijentu ako je isti korisnik otvorio više tabova ili ako se hook instancira na više mjesta.
+- **Format:** `{kontekst}-{scope}-{restaurantId}` — npr. `hk-portal-${restaurantId}`, `kc-${restaurantId}`, `rooms-rt-${restaurantId}`.
+- **Iznimka:** Admin singleton stranice sa jednim mountom i kratkim životnim vijekom (npr. `WaiterMapView`) — ali i tu se preporučuje uključiti `restaurantId`.
+
+#### 7.4 Supabase publikacija i REPLICA IDENTITY (DB preduslov)
+
+Da bi `postgres_changes` subscription primao evente, moraju biti ispunjena **oba** uslova:
+
+| Uslov | Komanda | Kada je potrebno |
+|-------|---------|-----------------|
+| Tabela u `supabase_realtime` publikaciji | `ALTER PUBLICATION supabase_realtime ADD TABLE tabela;` | Svaka nova tabela koja se koristi u realtime subscription |
+| `REPLICA IDENTITY FULL` | `ALTER TABLE tabela REPLICA IDENTITY FULL;` | Tabele na kojima staff (ne-owner) vrši UPDATE — bez ovoga filter u subscription može propustiti UPDATE evente |
+
+Tabele koje su potvrđeno konfigurisane:
+
+| Tabela | Publikacija | REPLICA IDENTITY | Migracija |
+|--------|-------------|------------------|-----------|
+| `orders` | ✅ | ✅ (pretpostavka — orders rade) | staro |
+| `waiter_requests` | ✅ | ✅ | staro |
+| `housekeeping_tasks` | ✅ | ✅ FULL | `20260603000003` + `20260604000001` |
+| `maintenance_requests` | ✅ | ✅ FULL | `20260603000003` + `20260604000001` |
+| `hotel_reservations` | ❓ | ❓ | nije provjereno |
+| `spa_appointments` | ❓ | ❓ | nije provjereno |
+| `rooms` | ❓ | ❓ | nije provjereno |
+| `guest_requests` | ❓ | ❓ | nije provjereno |
+
+**Pravilo:** Svaka nova tabela koja se koristi u `postgres_changes` subscription mora imati migraciju koja je eksplicitno dodaje u publikaciju i postavlja REPLICA IDENTITY FULL.
+
+#### 7.5 Staff portal — useKitchenCounts inicijalizacija
+
+`useKitchenCounts` u staff portalu (`StaffPortal.jsx`) **mora** dobijati `null` dok korisnik nije autentifikovan. Razlog: Supabase realtime kanal kreiran pre-login (anonimnom sesijom) ne rekonektor se automatski s novim auth tokenom — ostaje u broken stanju i ne prima evente.
+
+```js
+// ✅ Ispravno — null pre-login, pravi ID tek kad je mode === 'portal'
+const { counts, refresh: refreshCounts } = useKitchenCounts(
+  mode === 'portal' ? restaurant?.id : null
+)
+```
+
+Ovo je jedini kontekst gdje se `useKitchenCounts` poziva u neautentifikovanom kontekstu. U admin layoutu nema ovog problema jer se admin layout renderuje samo za autentifikovane korisnike.
 
 ---
 
@@ -476,8 +554,13 @@ Edge Function: kreira hotel_reservation, smanjuje room_availability, šalje emai
 - ✅ `useHousekeeping` hook — realtime subscription za taskove i maintenance
 - ✅ Bug fix: maintenance bez datumskog filtera (badge 2 / prazna stranica nekonzistentnost)
 - ✅ Bug fix: housekeeping badge ostaje do `verified` kao maintenance (konzistentno sa `rooms.status = available`)
-- ⬜ Auto-task kreiranje pri check-outu (DB trigger)
-- ⬜ Mobile-optimizovani prikaz za sobarice
+- ✅ `HousekeepingView` (staff portal) — zadaci čišćenja s real-time updateom (ref pattern)
+- ✅ `MaintenanceView` (staff portal) — zahtjevi za održavanje s real-time updateom (ref pattern)
+- ✅ Realtime fix: `housekeeping_tasks` + `maintenance_requests` u `supabase_realtime` publikaciji (`20260604000001`)
+- ✅ Realtime fix: `REPLICA IDENTITY FULL` na obje tabele (`20260603000003`)
+- ✅ Realtime fix: `useHousekeeping` ref pattern — subscription stabilan bez gubitka eventa
+- ✅ Badge fix: `useKitchenCounts` prima `null` pre-login — kanal se kreira tek s autentifikovanom sesijom
+- ⬜ Mobile-optimizovani prikaz za sobarice (staff portal je funkcionalan ali nije dizajniran za uski ekran)
 
 ---
 
@@ -1117,6 +1200,30 @@ Rješenje: dva sloja — vlastiti `kc-channel` subscription + piggyback na view 
 - ✅ **Staff portal badges** — `useKitchenCounts(restaurant?.id)` uvijek aktivan (ne čeka `mergedTabs`); view komponente (WaiterView, KitchenView, BarView) primaju `onRefresh` prop
 - ✅ **Permission-based tab detekcija** — `tabsFromPermissions()` umjesto samo `detectPortalType()` name-detection; `staff_roles` query dohvata i `permissions` kolonu
 
+### Staff portal proširenja (Jun 2026 — narudžbe)
+
+- ✅ **Station statusi na narudžbi** — `WaiterView` prikazuje iste poruke kao admin/orders: `🧑‍🍳 Kuhinja priprema`, `🍷 Bar priprema`, `🧑‍🍳 Kuhinja gotova`, `🍷 Bar gotov` — inline u kartici narudžbe umjesto samo "Gotovo"
+- ✅ **"Naplati na sobu" u staff portalu** — `WaiterView` identičan flow kao `WaiterDashboard`: panel za unos broja sobe, provjera open folija, INSERT u `folio_items`, update `folios.total_amount`, vidljiv samo kad je `hotel_core` addon aktivan (`hotelEnabled` prop iz StaffPortal koji čita subscription)
+- ✅ **Subscription fetch u StaffPortal** — pri učitavanju restorana paralelno se dohvata i `subscriptions` red; `hasAddon(subscription, 'hotel_core')` proslijeđen kao `hotelEnabled` u WaiterView
+
+### Housekeeping realtime fiksevi (Jun 2026)
+
+Tri uzastopna buga pronađena i riješena pri testiranju admin ↔ staff portal realtime:
+
+**Bug 1 — Tabele nisu bile u Supabase realtime publikaciji**
+- Uzrok: `housekeeping_tasks` i `maintenance_requests` nisu bile u `supabase_realtime` PostgreSQL publikaciji — nijedan klijent nije primao postgres_changes evente, bez obzira na kod
+- Fix: migracija `20260604000001_realtime_housekeeping.sql` — `ALTER PUBLICATION supabase_realtime ADD TABLE housekeeping_tasks; ... maintenance_requests;`
+- Efekat: admin ↔ staff portal realtime počeo raditi u oba smjera
+
+**Bug 2 — Nestabilni subscription dependency array (ref pattern)**
+- Uzrok: `useHousekeeping`, `HousekeepingView`, `MaintenanceView` su imali `[restaurantId, load, onRefresh]` kao deps za subscription effect — svaka promjena funkcijske reference rušila kanal i eventualno gubila evente
+- Fix: ref pattern u sva tri fajla — subscription ovisi samo o `restaurantId`; `load` i `onRefresh` se drže u `useRef`-ovima
+
+**Bug 3 — useKitchenCounts inicijaliziran pre-login (broken kanal)**
+- Uzrok: `useKitchenCounts(restaurant?.id)` pozivao se čim se restoran učita, PRIJE logina. Supabase WebSocket kanal kreiran s anonimnom sesijom **ne rekonektor se automatski** s novim JWT-om nakon logina — ostaje u neispravnom stanju i ne prima INSERT/UPDATE evente
+- Manifestacija: badgevi na staff portalu prikazivali 0 za housekeeping/maintenance, čak i kad postoje taskovi; promjene iz admin panela (npr. `RoomsPage` → "pošalji na čišćenje") nisu se odražavale na staff portalu bez refresha
+- Fix: `useKitchenCounts(mode === 'portal' ? restaurant?.id : null)` — kanal se kreira tek kad staff član bude autentifikovan
+
 ### Permissions i bar stanica
 
 - ✅ **`view_kitchen_orders` + `view_bar_orders`** — nove granularne permisije u `PERMISSIONS.menu`
@@ -1127,6 +1234,119 @@ Rješenje: dva sloja — vlastiti `kc-channel` subscription + piggyback na view 
 - ✅ **`KitchenView.jsx`** — ispravka: filter `kitchen_status = 'preparing'` umjesto `status IN (received, preparing)`; `markReady` postavlja `kitchen_status = 'ready'` i provjerava oba statusa → `status = 'ready'`
 
 ---
+
+## ⚠️ Bug registar — Realtime konzistentnost (otvoreni zadaci)
+
+> Pronađeno pri testiranju housekeeping realtime (Jun 2026). Svi bugovi su iste klase: **stari subscription pattern ili nepotvrđena DB konfiguracija**. Ne blokiraju produkciju ali su tehnički dug koji treba riješiti sustavno.
+
+---
+
+### B-RT-1 — Staff portal views: stari subscription pattern (🟡 Srednji prioritet)
+
+**Fajlovi:** `BarView.jsx`, `KitchenView.jsx`, `WaiterView.jsx`, `SpaView.jsx`, `ReceptionView.jsx`
+
+**Problem:** Svi koriste stari pattern s `[restaurantId, load, onRefresh]` u subscription useEffect dependency arrayu:
+```js
+}, [restaurantId, load, onRefresh]) // ❌ onRefresh može promijeniti referencu
+```
+
+**Rizik:** Ako `onRefresh` (= `refreshCounts` iz `useKitchenCounts`) promijeni referencu, kanal se gaši i ponovo otvara. Za kratko vrijeme eventi se gube. U praksi `refreshCounts` je `useCallback` s `[restaurantId]` deps i rijetko se mijenja — bug je latentni, ne stalni.
+
+**Fix:** Primijeniti ref pattern iz §7.2 na svih 5 fajlova. Trajanje: ~30 min.
+
+```
+Definition of Done:
+- [ ] BarView.jsx — ref pattern
+- [ ] KitchenView.jsx — ref pattern
+- [ ] WaiterView.jsx — ref pattern
+- [ ] SpaView.jsx — ref pattern
+- [ ] ReceptionView.jsx — ref pattern
+```
+
+---
+
+### B-RT-2 — useRooms hook: stari subscription pattern (🟡 Srednji prioritet)
+
+**Fajl:** `src/modules/hotel/hooks/useRooms.js`
+
+**Problem:** Subscription dependency array `[restaurantId, load, onRefresh]` — isti problem kao B-RT-1.
+
+**Napomena:** `useRooms` se koristi u admin kontekstu (authenticated owner) pa je rizik manji nego za staff portal. Ali konzistentnost nalaže fix.
+
+```
+Definition of Done:
+- [ ] useRooms.js — ref pattern za subscription effect
+```
+
+---
+
+### B-RT-3 — WaiterMapView: channel bez restaurantId (🔵 Nizak prioritet)
+
+**Fajl:** `src/modules/tables/pages/WaiterMapView.jsx`
+
+**Problem:** Channel name je hardcoded `'waiter-map'` bez `restaurantId`:
+```js
+const channel = supabase.channel('waiter-map') // ❌ nije multi-tenant safe
+```
+
+**Rizik:** Ako isti browser ima dva taba sa različitim tenantima otvorenim, ili ako se komponenta instancira dva puta, Supabase bi mogao imati konflikt sa istoimenim kanalom.
+
+**Fix:** Promijeniti u `supabase.channel(\`waiter-map-${restaurant.id}\`)`.
+
+```
+Definition of Done:
+- [ ] WaiterMapView.jsx — channel name uključuje restaurantId
+```
+
+---
+
+### B-RT-4 — Nepotvrđena DB konfiguracija za ostale realtime tabele (🔴 Visok prioritet — provjeriti)
+
+**Problem:** Sljedeće tabele se koriste u `postgres_changes` subscriptionima ali nije potvrđeno jesu li u `supabase_realtime` publikaciji i imaju li REPLICA IDENTITY FULL:
+
+| Tabela | Gdje se koristi | Status |
+|--------|----------------|--------|
+| `hotel_reservations` | `ReceptionView`, `useReservationCounts`, `FrontDeskPage` | ❓ nepotvrđeno |
+| `spa_appointments` | `SpaView`, `SpaDashboard` | ❓ nepotvrđeno |
+| `rooms` | `useRooms`, `RoomsPage` | ❓ nepotvrđeno |
+| `guest_requests` | `FrontDeskPage`, `GuestAppPage` | ❓ nepotvrđeno |
+
+**Ako ove tabele NISU u publikaciji:** realtime u ReceptionView, SpaView i sličnim ne funkcioniše (korisnici moraju refreshovati stranicu da vide promjene) — isti simptom koji smo vidjeli kod housekeepinga.
+
+**Akcija:** Pokrenuti SQL upit na Supabase dashboardu:
+```sql
+SELECT tablename FROM pg_publication_tables WHERE pubname = 'supabase_realtime';
+```
+
+Ako neka tabela nedostaje, kreirati migraciju:
+```sql
+ALTER PUBLICATION supabase_realtime ADD TABLE hotel_reservations;
+ALTER TABLE hotel_reservations REPLICA IDENTITY FULL;
+-- ponavljati za svaku tabelu koja nedostaje
+```
+
+```
+Definition of Done:
+- [ ] Provjeriti koje tabele su u supabase_realtime publikaciji
+- [ ] Kreirati migraciju za sve tabele koje nedostaju
+- [ ] Testirati realtime u ReceptionView (check-in/out u realnom vremenu)
+- [ ] Testirati realtime u SpaView (termini u realnom vremenu)
+```
+
+---
+
+### B-RT-5 — spa_appointments nije testiran za realtime (🟡 Srednji prioritet)
+
+**Fajl:** `src/pages/StaffPortal/views/SpaView.jsx`
+
+**Problem:** `SpaView` subscribuje na `spa_appointments` ali:
+1. Nije poznato je li tabela u `supabase_realtime` publikaciji (vidi B-RT-4)
+2. `SpaView` koristi stari subscription pattern (vidi B-RT-1)
+
+**Rizik:** Terapeut na staff portalu ne vidi nove termine dok ne refreshuje stranicu.
+
+---
+
 ## ⬜ Faza N — Nocni audit + Split folio + Doručak kontrola
 
 > **Preduslov:** `hotel_core` aktivan.
