@@ -233,13 +233,12 @@ export default function StaffPortal() {
     const tabs = allPermissions.length > 0
       ? tabsFromPermissions(allPermissions)
       : mergePortalTabs(roleNames.length > 0 ? roleNames : ['hr'])
-    // Dohvati kolone koje anon fetch ne može pročitati (ne mijenjamo restaurant
-    // state jer bi to pokrenulo useEffect [restaurant] → beskonačna petlja)
-    const { data: restPrivate } = await supabase.from('restaurants')
-      .select('rejection_messages')
-      .eq('id', restaurant.id)
-      .maybeSingle()
-    if (restPrivate?.rejection_messages) setRejectionMessages(restPrivate.rejection_messages)
+    // SECURITY DEFINER RPC — zaobilazi RLS, staff korisnik ne može direktno
+    // čitati restaurants tabelu (owner-only RLS), pa koristimo RPC funkciju
+    const { data: msgs } = await supabase.rpc('get_restaurant_rejection_messages', {
+      p_restaurant_id: restaurant.id,
+    })
+    if (Array.isArray(msgs) && msgs.length > 0) setRejectionMessages(msgs)
 
     setStaff(staffData)
     setPortalType(detectPortalType(roleNames[0] || ''))
