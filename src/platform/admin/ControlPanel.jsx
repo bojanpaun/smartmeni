@@ -11,7 +11,7 @@ const HOTEL_KEYS       = ['hotel', 'spa']
 const UPRAVLJANJE_KEYS = ['hr', 'inventory', 'guests', 'analytics']
 
 function useDashboardData(restaurant, hasHotel, hasSpa) {
-  const [kpi, setKpi]       = useState({ ordersToday: null, revenueToday: null, checkinsToday: null, spaToday: null })
+  const [kpi, setKpi]       = useState({ ordersToday: null, revenueToday: null, checkinsToday: null, spaToday: null, occupancy: null, freeRooms: null })
   const [badges, setBadges] = useState({ waiter: 0, kitchen: 0, bar: 0, waiterReq: 0 })
 
   useEffect(() => {
@@ -39,7 +39,13 @@ function useDashboardData(restaurant, hasHotel, hasSpa) {
       ]
       if (hasHotel) base.push(
         supabase.from('hotel_reservations').select('id', { count: 'exact', head: true })
-          .eq('restaurant_id', rid).eq('check_in_date', today).in('status', ['confirmed', 'checked_in'])
+          .eq('restaurant_id', rid).eq('check_in_date', today).in('status', ['confirmed', 'checked_in']),
+        supabase.from('hotel_reservations').select('id', { count: 'exact', head: true })
+          .eq('restaurant_id', rid).eq('status', 'checked_in'),
+        supabase.from('rooms').select('id', { count: 'exact', head: true })
+          .eq('restaurant_id', rid),
+        supabase.from('rooms').select('id', { count: 'exact', head: true })
+          .eq('restaurant_id', rid).eq('status', 'available'),
       )
       if (hasSpa) base.push(
         supabase.from('spa_appointments').select('id', { count: 'exact', head: true })
@@ -49,11 +55,24 @@ function useDashboardData(restaurant, hasHotel, hasSpa) {
 
       const [ordersR, revenueR, waiterR, kitchenR, barR, waiterReqR, ...rest] = await Promise.all(base)
 
+      let hotelIdx = 0
+      const checkinsToday = hasHotel ? (rest[hotelIdx++]?.count ?? 0) : null
+      const checkedInNow  = hasHotel ? (rest[hotelIdx++]?.count ?? 0) : null
+      const totalRooms    = hasHotel ? (rest[hotelIdx++]?.count ?? 0) : null
+      const freeRooms     = hasHotel ? (rest[hotelIdx++]?.count ?? 0) : null
+      const spaToday      = hasSpa   ? (rest[hotelIdx]?.count  ?? 0) : null
+
+      const occupancy = (hasHotel && totalRooms > 0)
+        ? Math.round((checkedInNow / totalRooms) * 100)
+        : null
+
       setKpi({
         ordersToday:   ordersR.count ?? 0,
         revenueToday:  (revenueR.data || []).reduce((s, o) => s + (Number(o.total) || 0), 0),
-        checkinsToday: hasHotel ? (rest[0]?.count ?? 0) : null,
-        spaToday:      hasSpa   ? (rest[hasHotel ? 1 : 0]?.count ?? 0) : null,
+        checkinsToday,
+        spaToday,
+        occupancy,
+        freeRooms,
       })
       setBadges({
         waiter:    waiterR.count    || 0,
@@ -173,6 +192,24 @@ export default function ControlPanel() {
             <div>
               <div className={styles.kpiValue}>{kpi.checkinsToday ?? '—'}</div>
               <div className={styles.kpiLabel}>Check-in danas</div>
+            </div>
+          </div>
+        )}
+        {hasHotel && (
+          <div className={styles.kpiCard}>
+            <div className={styles.kpiIcon}>📊</div>
+            <div>
+              <div className={styles.kpiValue}>{kpi.occupancy !== null ? `${kpi.occupancy}%` : '—'}</div>
+              <div className={styles.kpiLabel}>Popunjenost</div>
+            </div>
+          </div>
+        )}
+        {hasHotel && (
+          <div className={styles.kpiCard}>
+            <div className={styles.kpiIcon}>🛏️</div>
+            <div>
+              <div className={styles.kpiValue}>{kpi.freeRooms ?? '—'}</div>
+              <div className={styles.kpiLabel}>Slobodne sobe</div>
             </div>
           </div>
         )}
