@@ -212,6 +212,41 @@
 .folioBalanceDue   { color: #c05a00; }
 .folioBalancePaid  { color: var(--c-primary); }
 
+/* ── Front Desk — mobile cards ──────────────────────────────────── */
+.fdDesktopTable { display: block; }
+.fdMobileList   { display: none; flex-direction: column; gap: 10px; }
+
+.fdCard {
+  background: var(--c-surface);
+  border: 1px solid var(--c-border);
+  border-radius: 12px;
+  padding: 14px 16px;
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+}
+.fdCardTop {
+  display: flex;
+  align-items: flex-start;
+  justify-content: space-between;
+  gap: 8px;
+}
+.fdCardGuest    { font-weight: 700; font-size: 15px; color: var(--c-text); display: flex; align-items: center; gap: 5px; }
+.fdCardRoom     { font-size: 12px; font-weight: 600; color: var(--c-primary); background: var(--c-primary-light); padding: 3px 9px; border-radius: 20px; white-space: nowrap; }
+.fdCardMeta     { display: flex; flex-wrap: wrap; gap: 10px; font-size: 12px; color: var(--c-text-muted); }
+.fdCardNote     { font-size: 12px; color: var(--c-warning); background: #fff7ed; border-radius: 6px; padding: 5px 8px; }
+.fdCardMsg      { font-size: 12px; color: var(--c-text-muted); line-height: 1.4; }
+.fdCardStatus   { font-size: 11px; font-weight: 700; padding: 3px 9px; border-radius: 20px; }
+.fdCardActions  { display: flex; gap: 8px; margin-top: 2px; }
+.fdCardActions button { flex: 1; }
+
+@media (max-width: 640px) {
+  .fdDesktopTable { display: none; }
+  .fdMobileList   { display: flex; }
+  .header         { flex-wrap: wrap; gap: 10px; }
+  .header button  { width: 100%; }
+}
+
 .resBadgeClosed { background: #f1f5f9; color: #64748b; }
 
 .folioHead {

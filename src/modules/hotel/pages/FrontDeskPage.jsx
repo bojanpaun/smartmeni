@@ -226,83 +226,121 @@ export default function FrontDeskPage() {
       {tab === 'checkin' && (
         loading ? <LoadingSpinner /> : filteredArrivals.length === 0 ? (
           <div className={styles.empty}><p>Nema dolazaka za odabrani period.</p></div>
-        ) : (
-          <div className={styles.table}>
-            <div className={styles.tableHead} style={{ gridTemplateColumns: '2.5fr 1fr 1fr 60px 2fr 160px' }}>
-              <SortableHead col="guest_name"     label="Gost"          sortBy={ciSort.sortBy} sortDir={ciSort.sortDir} onSort={ciSort.onSort} />
-              <SortableHead col="rooms.room_number" label="Soba / Tip" sortBy={ciSort.sortBy} sortDir={ciSort.sortDir} onSort={ciSort.onSort} />
-              <SortableHead col="check_out_date" label="Check-out"     sortBy={ciSort.sortBy} sortDir={ciSort.sortDir} onSort={ciSort.onSort} />
-              <SortableHead col="adults"         label="Gosti"         sortBy={ciSort.sortBy} sortDir={ciSort.sortDir} onSort={ciSort.onSort} />
-              <span>Spec. zahtjevi</span>
-              <span></span>
+        ) : (<>
+          {/* Desktop */}
+          <div className={styles.fdDesktopTable}>
+            <div className={styles.table}>
+              <div className={styles.tableHead} style={{ gridTemplateColumns: '2.5fr 1fr 1fr 60px 2fr 160px' }}>
+                <SortableHead col="guest_name"     label="Gost"          sortBy={ciSort.sortBy} sortDir={ciSort.sortDir} onSort={ciSort.onSort} />
+                <SortableHead col="rooms.room_number" label="Soba / Tip" sortBy={ciSort.sortBy} sortDir={ciSort.sortDir} onSort={ciSort.onSort} />
+                <SortableHead col="check_out_date" label="Check-out"     sortBy={ciSort.sortBy} sortDir={ciSort.sortDir} onSort={ciSort.onSort} />
+                <SortableHead col="adults"         label="Gosti"         sortBy={ciSort.sortBy} sortDir={ciSort.sortDir} onSort={ciSort.onSort} />
+                <span>Spec. zahtjevi</span>
+                <span></span>
+              </div>
+              {ciSort.sort(filteredArrivals).map(res => (
+                <div key={res.id} className={styles.tableRow} style={{ gridTemplateColumns: '2.5fr 1fr 1fr 60px 2fr 160px', cursor: 'default' }}>
+                  <span className={styles.bold} style={{ display: 'flex', alignItems: 'center', gap: 6 }}>
+                    {res.guest_name}
+                    {res.guest_id && <button className={styles.guestProfileBtn} title="Profil gosta" onClick={e => { e.stopPropagation(); navigate(`/admin/guests/${res.guest_id}`) }}>👤</button>}
+                  </span>
+                  <span>
+                    <div>{res.rooms?.room_number ? `Soba ${res.rooms.room_number}` : 'Nije dodijeljena'}</div>
+                    {res.room_types?.name && <div style={{ fontSize: 11, color: 'var(--c-text-muted)' }}>{res.room_types.name}</div>}
+                  </span>
+                  <span>{new Date(res.check_out_date).toLocaleDateString('sr-Latn')}</span>
+                  <span>{(res.adults || 1) + (res.children || 0)}</span>
+                  <span style={{ fontSize: 12, color: res.special_requests ? 'var(--c-warning)' : 'var(--c-text-muted)' }}>{res.special_requests || '—'}</span>
+                  <span style={{ display: 'flex', gap: 6, justifyContent: 'flex-end' }}>
+                    <button className={styles.btnSecondary} onClick={() => navigate(`/admin/hotel/reservations/${res.id}`)}>Detalji</button>
+                    <button className={styles.btnPrimary} onClick={() => handleCheckIn(res)}>Check-in ✓</button>
+                  </span>
+                </div>
+              ))}
             </div>
+          </div>
+          {/* Mobile */}
+          <div className={styles.fdMobileList}>
             {ciSort.sort(filteredArrivals).map(res => (
-              <div key={res.id} className={styles.tableRow} style={{ gridTemplateColumns: '2.5fr 1fr 1fr 60px 2fr 160px', cursor: 'default' }}>
-                <span className={styles.bold} style={{ display: 'flex', alignItems: 'center', gap: 6 }}>
-                  {res.guest_name}
-                  {res.guest_id && (
-                    <button
-                      className={styles.guestProfileBtn}
-                      title="Profil gosta"
-                      onClick={e => { e.stopPropagation(); navigate(`/admin/guests/${res.guest_id}`) }}
-                    >👤</button>
-                  )}
-                </span>
-                <span>
-                  <div>{res.rooms?.room_number ? `Soba ${res.rooms.room_number}` : 'Nije dodijeljena'}</div>
-                  {res.room_types?.name && <div style={{ fontSize: 11, color: 'var(--c-text-muted)' }}>{res.room_types.name}</div>}
-                </span>
-                <span>{new Date(res.check_out_date).toLocaleDateString('sr-Latn')}</span>
-                <span>{(res.adults || 1) + (res.children || 0)}</span>
-                <span style={{ fontSize: 12, color: res.special_requests ? 'var(--c-warning)' : 'var(--c-text-muted)' }}>
-                  {res.special_requests || '—'}
-                </span>
-                <span style={{ display: 'flex', gap: 6, justifyContent: 'flex-end' }}>
+              <div key={res.id} className={styles.fdCard}>
+                <div className={styles.fdCardTop}>
+                  <div className={styles.fdCardGuest}>
+                    {res.guest_name}
+                    {res.guest_id && <button className={styles.guestProfileBtn} title="Profil gosta" onClick={() => navigate(`/admin/guests/${res.guest_id}`)}>👤</button>}
+                  </div>
+                  <div className={styles.fdCardRoom}>{res.rooms?.room_number ? `Soba ${res.rooms.room_number}` : '—'}</div>
+                </div>
+                <div className={styles.fdCardMeta}>
+                  {res.room_types?.name && <span>{res.room_types.name}</span>}
+                  <span>Check-out: {new Date(res.check_out_date).toLocaleDateString('sr-Latn')}</span>
+                  <span>👥 {(res.adults || 1) + (res.children || 0)} gosta</span>
+                </div>
+                {res.special_requests && <div className={styles.fdCardNote}>💬 {res.special_requests}</div>}
+                <div className={styles.fdCardActions}>
                   <button className={styles.btnSecondary} onClick={() => navigate(`/admin/hotel/reservations/${res.id}`)}>Detalji</button>
                   <button className={styles.btnPrimary} onClick={() => handleCheckIn(res)}>Check-in ✓</button>
-                </span>
+                </div>
               </div>
             ))}
           </div>
-        )
+        </>)
       )}
 
       {/* ── Check-out tab ── */}
       {tab === 'checkout' && (
         loading ? <LoadingSpinner /> : filteredDepartures.length === 0 ? (
           <div className={styles.empty}><p>Nema odjava za odabrani period.</p></div>
-        ) : (
-          <div className={styles.table}>
-            <div className={styles.tableHead} style={{ gridTemplateColumns: '2fr 1fr 1fr 80px 140px' }}>
-              <SortableHead col="guest_name"      label="Gost"     sortBy={coSort.sortBy} sortDir={coSort.sortDir} onSort={coSort.onSort} />
-              <SortableHead col="rooms.room_number" label="Soba"   sortBy={coSort.sortBy} sortDir={coSort.sortDir} onSort={coSort.onSort} />
-              <SortableHead col="check_in_date"   label="Check-in" sortBy={coSort.sortBy} sortDir={coSort.sortDir} onSort={coSort.onSort} />
-              <SortableHead col="total_amount"    label="Iznos"    sortBy={coSort.sortBy} sortDir={coSort.sortDir} onSort={coSort.onSort} />
-              <span></span>
+        ) : (<>
+          {/* Desktop */}
+          <div className={styles.fdDesktopTable}>
+            <div className={styles.table}>
+              <div className={styles.tableHead} style={{ gridTemplateColumns: '2fr 1fr 1fr 80px 140px' }}>
+                <SortableHead col="guest_name"        label="Gost"     sortBy={coSort.sortBy} sortDir={coSort.sortDir} onSort={coSort.onSort} />
+                <SortableHead col="rooms.room_number" label="Soba"     sortBy={coSort.sortBy} sortDir={coSort.sortDir} onSort={coSort.onSort} />
+                <SortableHead col="check_in_date"     label="Check-in" sortBy={coSort.sortBy} sortDir={coSort.sortDir} onSort={coSort.onSort} />
+                <SortableHead col="total_amount"      label="Iznos"    sortBy={coSort.sortBy} sortDir={coSort.sortDir} onSort={coSort.onSort} />
+                <span></span>
+              </div>
+              {coSort.sort(filteredDepartures).map(res => (
+                <div key={res.id} className={styles.tableRow} style={{ gridTemplateColumns: '2fr 1fr 1fr 80px 140px', cursor: 'default' }}>
+                  <span className={styles.bold} style={{ display: 'flex', alignItems: 'center', gap: 6 }}>
+                    {res.guest_name}
+                    {res.guest_id && <button className={styles.guestProfileBtn} title="Profil gosta" onClick={e => { e.stopPropagation(); navigate(`/admin/guests/${res.guest_id}`) }}>👤</button>}
+                  </span>
+                  <span>{res.rooms?.room_number ? `Soba ${res.rooms.room_number}` : '—'}</span>
+                  <span>{new Date(res.check_in_date).toLocaleDateString('sr-Latn')}</span>
+                  <span style={{ fontWeight: 600 }}>{res.total_amount ? `€${Number(res.total_amount).toFixed(2)}` : '—'}</span>
+                  <span style={{ display: 'flex', gap: 6, justifyContent: 'flex-end' }}>
+                    <button className={styles.btnSecondary} onClick={() => navigate(`/admin/hotel/reservations/${res.id}/folio`)}>Folio</button>
+                    <button className={styles.btnPrimary} onClick={() => handleCheckOut(res)}>Check-out ✓</button>
+                  </span>
+                </div>
+              ))}
             </div>
+          </div>
+          {/* Mobile */}
+          <div className={styles.fdMobileList}>
             {coSort.sort(filteredDepartures).map(res => (
-              <div key={res.id} className={styles.tableRow} style={{ gridTemplateColumns: '2fr 1fr 1fr 80px 140px', cursor: 'default' }}>
-                <span className={styles.bold} style={{ display: 'flex', alignItems: 'center', gap: 6 }}>
-                  {res.guest_name}
-                  {res.guest_id && (
-                    <button
-                      className={styles.guestProfileBtn}
-                      title="Profil gosta"
-                      onClick={e => { e.stopPropagation(); navigate(`/admin/guests/${res.guest_id}`) }}
-                    >👤</button>
-                  )}
-                </span>
-                <span>{res.rooms?.room_number ? `Soba ${res.rooms.room_number}` : '—'}</span>
-                <span>{new Date(res.check_in_date).toLocaleDateString('sr-Latn')}</span>
-                <span style={{ fontWeight: 600 }}>{res.total_amount ? `€${Number(res.total_amount).toFixed(2)}` : '—'}</span>
-                <span style={{ display: 'flex', gap: 6, justifyContent: 'flex-end' }}>
+              <div key={res.id} className={styles.fdCard}>
+                <div className={styles.fdCardTop}>
+                  <div className={styles.fdCardGuest}>
+                    {res.guest_name}
+                    {res.guest_id && <button className={styles.guestProfileBtn} title="Profil gosta" onClick={() => navigate(`/admin/guests/${res.guest_id}`)}>👤</button>}
+                  </div>
+                  <div className={styles.fdCardRoom}>{res.rooms?.room_number ? `Soba ${res.rooms.room_number}` : '—'}</div>
+                </div>
+                <div className={styles.fdCardMeta}>
+                  <span>Check-in: {new Date(res.check_in_date).toLocaleDateString('sr-Latn')}</span>
+                  {res.total_amount && <span style={{ fontWeight: 600, color: 'var(--c-text)' }}>€{Number(res.total_amount).toFixed(2)}</span>}
+                </div>
+                <div className={styles.fdCardActions}>
                   <button className={styles.btnSecondary} onClick={() => navigate(`/admin/hotel/reservations/${res.id}/folio`)}>Folio</button>
                   <button className={styles.btnPrimary} onClick={() => handleCheckOut(res)}>Check-out ✓</button>
-                </span>
+                </div>
               </div>
             ))}
           </div>
-        )
+        </>)
       )}
 
       {/* ── Zahtjevi gostiju tab ── */}
@@ -324,56 +362,64 @@ export default function FrontDeskPage() {
           )}
           {loadingReq ? <LoadingSpinner /> : filteredRequests.length === 0 ? (
             <div className={styles.empty}><p>Nema aktivnih zahtjeva gostiju.</p></div>
-          ) : (
-            <div className={styles.table}>
-              <div className={styles.tableHead} style={{ gridTemplateColumns: '2fr 1fr 2fr 70px 100px 160px' }}>
-                <SortableHead col="hotel_reservations.guest_name" label="Gost"    sortBy={reqSort.sortBy} sortDir={reqSort.sortDir} onSort={reqSort.onSort} />
-                <SortableHead col="hotel_reservations.rooms.room_number" label="Soba" sortBy={reqSort.sortBy} sortDir={reqSort.sortDir} onSort={reqSort.onSort} />
-                <span>Poruka</span>
-                <SortableHead col="created_at" label="Vrijeme"                   sortBy={reqSort.sortBy} sortDir={reqSort.sortDir} onSort={reqSort.onSort} />
-                <SortableHead col="status"     label="Status"                    sortBy={reqSort.sortBy} sortDir={reqSort.sortDir} onSort={reqSort.onSort} />
-                <span></span>
+          ) : (<>
+            {/* Desktop */}
+            <div className={styles.fdDesktopTable}>
+              <div className={styles.table}>
+                <div className={styles.tableHead} style={{ gridTemplateColumns: '2fr 1fr 2fr 70px 100px 160px' }}>
+                  <SortableHead col="hotel_reservations.guest_name"        label="Gost"    sortBy={reqSort.sortBy} sortDir={reqSort.sortDir} onSort={reqSort.onSort} />
+                  <SortableHead col="hotel_reservations.rooms.room_number" label="Soba"    sortBy={reqSort.sortBy} sortDir={reqSort.sortDir} onSort={reqSort.onSort} />
+                  <span>Poruka</span>
+                  <SortableHead col="created_at" label="Vrijeme" sortBy={reqSort.sortBy} sortDir={reqSort.sortDir} onSort={reqSort.onSort} />
+                  <SortableHead col="status"     label="Status"  sortBy={reqSort.sortBy} sortDir={reqSort.sortDir} onSort={reqSort.onSort} />
+                  <span></span>
+                </div>
+                {reqSort.sort(filteredRequests).map(req => {
+                  const st = REQ_STATUS[req.status] ?? REQ_STATUS.pending
+                  const guestName = req.hotel_reservations?.guest_name ?? '—'
+                  const roomNum = req.hotel_reservations?.rooms?.room_number
+                  return (
+                    <div key={req.id} className={styles.tableRow} style={{ gridTemplateColumns: '2fr 1fr 2fr 70px 100px 160px', cursor: 'default' }}>
+                      <span><div style={{ fontWeight: 600 }}>{REQ_CAT_ICON[req.category] ?? '📋'} {guestName}</div></span>
+                      <span>{roomNum ? `Soba ${roomNum}` : '—'}</span>
+                      <span style={{ fontSize: 12, color: 'var(--c-text-muted)' }}>{req.message}</span>
+                      <span style={{ fontSize: 11, color: 'var(--c-text-muted)' }}>{new Date(req.created_at).toLocaleTimeString('sr-Latn', { hour: '2-digit', minute: '2-digit' })}</span>
+                      <span style={{ color: st.color, fontWeight: 600, fontSize: 12 }}>{st.label}</span>
+                      <span style={{ display: 'flex', gap: 6, justifyContent: 'flex-end' }}>
+                        {req.status === 'pending' && <button className={styles.btnSecondary} disabled={updatingId === req.id} onClick={() => handleStatusChange(req.id, 'in_progress')}>U toku</button>}
+                        {req.status !== 'resolved' && <button className={styles.btnPrimary} disabled={updatingId === req.id} onClick={() => handleStatusChange(req.id, 'resolved')}>Riješeno ✓</button>}
+                      </span>
+                    </div>
+                  )
+                })}
               </div>
+            </div>
+            {/* Mobile */}
+            <div className={styles.fdMobileList}>
               {reqSort.sort(filteredRequests).map(req => {
                 const st = REQ_STATUS[req.status] ?? REQ_STATUS.pending
                 const guestName = req.hotel_reservations?.guest_name ?? '—'
                 const roomNum = req.hotel_reservations?.rooms?.room_number
                 return (
-                  <div key={req.id} className={styles.tableRow} style={{ gridTemplateColumns: '2fr 1fr 2fr 70px 100px 160px', cursor: 'default' }}>
-                    <span>
-                      <div style={{ fontWeight: 600 }}>{REQ_CAT_ICON[req.category] ?? '📋'} {guestName}</div>
-                    </span>
-                    <span>{roomNum ? `Soba ${roomNum}` : '—'}</span>
-                    <span style={{ fontSize: 12, color: 'var(--c-text-muted)' }}>{req.message}</span>
-                    <span style={{ fontSize: 11, color: 'var(--c-text-muted)' }}>
-                      {new Date(req.created_at).toLocaleTimeString('sr-Latn', { hour: '2-digit', minute: '2-digit' })}
-                    </span>
-                    <span style={{ color: st.color, fontWeight: 600, fontSize: 12 }}>{st.label}</span>
-                    <span style={{ display: 'flex', gap: 6, justifyContent: 'flex-end' }}>
-                      {req.status === 'pending' && (
-                        <button
-                          className={styles.btnSecondary}
-                          disabled={updatingId === req.id}
-                          onClick={() => handleStatusChange(req.id, 'in_progress')}
-                        >
-                          U toku
-                        </button>
-                      )}
-                      {req.status !== 'resolved' && (
-                        <button
-                          className={styles.btnPrimary}
-                          disabled={updatingId === req.id}
-                          onClick={() => handleStatusChange(req.id, 'resolved')}
-                        >
-                          Riješeno ✓
-                        </button>
-                      )}
-                    </span>
+                  <div key={req.id} className={styles.fdCard}>
+                    <div className={styles.fdCardTop}>
+                      <div className={styles.fdCardGuest}>{REQ_CAT_ICON[req.category] ?? '📋'} {guestName}</div>
+                      {roomNum && <div className={styles.fdCardRoom}>Soba {roomNum}</div>}
+                    </div>
+                    <div className={styles.fdCardMsg}>{req.message}</div>
+                    <div className={styles.fdCardMeta}>
+                      <span>{new Date(req.created_at).toLocaleTimeString('sr-Latn', { hour: '2-digit', minute: '2-digit' })}</span>
+                      <span className={styles.fdCardStatus} style={{ background: st.bg, color: st.color }}>{st.label}</span>
+                    </div>
+                    <div className={styles.fdCardActions}>
+                      {req.status === 'pending' && <button className={styles.btnSecondary} disabled={updatingId === req.id} onClick={() => handleStatusChange(req.id, 'in_progress')}>U toku</button>}
+                      {req.status !== 'resolved' && <button className={styles.btnPrimary} disabled={updatingId === req.id} onClick={() => handleStatusChange(req.id, 'resolved')}>Riješeno ✓</button>}
+                    </div>
                   </div>
                 )
               })}
             </div>
-          )}
+          </>)}
         </>
       )}
     </div>
