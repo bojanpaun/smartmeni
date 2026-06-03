@@ -11,10 +11,12 @@ export const PERMISSIONS = {
       view_menu:          { label: 'Pregledaj meni',         desc: 'Može vidjeti stavke menija' },
       edit_menu:          { label: 'Uredi meni',             desc: 'Može dodavati i mijenjati stavke' },
       manage_categories:  { label: 'Upravljaj kategorijama', desc: 'Može kreirati i brisati kategorije' },
-      view_orders:        { label: 'Vidi narudžbe',          desc: 'Može vidjeti narudžbe gostiju' },
-      manage_orders:      { label: 'Upravljaj narudžbama',   desc: 'Može mijenjati status narudžbi' },
-      view_waiter_req:    { label: 'Vidi zahtjeve konobara', desc: 'Prima notifikacije sa stolova' },
-      manage_waiter_req:  { label: 'Upravljaj zahtjevima',   desc: 'Može zatvarati zahtjeve' },
+      view_orders:          { label: 'Vidi narudžbe',            desc: 'Može vidjeti narudžbe gostiju' },
+      manage_orders:        { label: 'Upravljaj narudžbama',   desc: 'Može mijenjati status narudžbi' },
+      view_kitchen_orders:  { label: 'Vidi narudžbe kuhinje',  desc: 'Pristup kuhinjskom displayu narudžbi' },
+      view_bar_orders:      { label: 'Vidi narudžbe bara',     desc: 'Pristup bar displayu narudžbi' },
+      view_waiter_req:      { label: 'Vidi zahtjeve konobara', desc: 'Prima notifikacije sa stolova' },
+      manage_waiter_req:    { label: 'Upravljaj zahtjevima',   desc: 'Može zatvarati zahtjeve' },
     }
   },
 
@@ -117,11 +119,11 @@ export const ROLE_TEMPLATES = {
   },
   kuhinja: {
     name: 'Kuhinja',
-    permissions: ['view_menu', 'view_orders', 'manage_orders', 'view_inventory']
+    permissions: ['view_menu', 'view_orders', 'view_kitchen_orders', 'manage_orders', 'view_inventory']
   },
   sank: {
     name: 'Šank',
-    permissions: ['view_menu', 'view_orders', 'manage_orders', 'view_waiter_req', 'manage_waiter_req']
+    permissions: ['view_menu', 'view_orders', 'view_bar_orders', 'manage_orders', 'view_waiter_req', 'manage_waiter_req']
   },
   menadzer_restoran: {
     name: 'Menadžer restorana',

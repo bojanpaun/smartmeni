@@ -568,6 +568,10 @@
   border-top: 4px solid #9ca3af;
 }
 .ticketNew { border-top-color: #2563eb; }
+.ticketNewBar { border-top-color: #7c3aed; }
+.ticketPreparing { border-top-color: #f59e0b; }
+.ticketUrgent { background: #fff8f0; }
+.ticketItemNote { font-size: 11px; color: #b45309; margin-top: 2px; }
 .ticketPreparing { border-top-color: #f59e0b; }
 .ticketHeader { display: flex; align-items: center; margin-bottom: 10px; }
 .ticketTable { font-size: 16px; font-weight: 800; color: #111827; }

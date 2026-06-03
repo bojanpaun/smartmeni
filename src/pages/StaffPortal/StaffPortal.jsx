@@ -8,6 +8,7 @@ import HrView from './views/HrView'
 import HousekeepingView from './views/HousekeepingView'
 import WaiterView from './views/WaiterView'
 import KitchenView from './views/KitchenView'
+import BarView from './views/BarView'
 import ReceptionView from './views/ReceptionView'
 import SpaView from './views/SpaView'
 
@@ -15,8 +16,9 @@ import SpaView from './views/SpaView'
 function detectPortalType(roleName) {
   const n = (roleName || '').toLowerCase()
   if (/sobaric|housekeep|čišćen|ciscen|domaćin|domacinst/.test(n)) return 'housekeeping'
-  if (/konobar|waiter|server|kelner|šank|sank/.test(n)) return 'waiter'
+  if (/konobar|waiter|server|kelner/.test(n)) return 'waiter'
   if (/kuhin|kuvar|cook|kitchen|chef|kuhinjsk/.test(n)) return 'kitchen'
+  if (/šank|sank|barman|bartender|barista/.test(n)) return 'bar'
   if (/recepci|front.?desk|portir/.test(n)) return 'reception'
   if (/terapeut|spa|masaž|masaz/.test(n)) return 'spa'
   return 'hr'
@@ -61,8 +63,12 @@ const PORTAL_TABS = {
     { key: 'schedule', label: 'Raspored', icon: '📅' },
   ],
   kitchen: [
-    { key: 'kitchen',  label: 'Kuhinja',  icon: '🍳' },
-    { key: 'schedule', label: 'Raspored', icon: '📅' },
+    { key: 'kitchen',    label: 'Kuhinja',  icon: '🍳' },
+    { key: 'schedule',   label: 'Raspored', icon: '📅' },
+  ],
+  bar: [
+    { key: 'bar_orders', label: 'Bar',      icon: '🍷' },
+    { key: 'schedule',   label: 'Raspored', icon: '📅' },
   ],
   reception: [
     { key: 'checkin',  label: 'Check-in',  icon: '↓' },
@@ -135,7 +141,7 @@ export default function StaffPortal() {
   }, [restaurant])
 
   // Hook mora biti PRIJE svih early returns — Rules of Hooks
-  const needsCounts = mergedTabs.some(t => ['orders', 'requests', 'kitchen', 'tasks'].includes(t.key))
+  const needsCounts = mergedTabs.some(t => ['orders', 'requests', 'kitchen', 'bar_orders', 'tasks'].includes(t.key))
   const counts = useKitchenCounts(needsCounts ? restaurant?.id : null)
 
   const loadStaff = async (userId) => {
@@ -367,10 +373,11 @@ export default function StaffPortal() {
   const staffName = [staff?.first_name, staff?.last_name].filter(Boolean).join(' ') || staff?.email || ''
 
   const TAB_BADGES = {
-    orders:   counts.waiter,
-    requests: counts.waiterReq,
-    kitchen:  counts.kitchen,
-    tasks:    counts.housekeeping,
+    orders:     counts.waiter,
+    requests:   counts.waiterReq,
+    kitchen:    counts.kitchen,
+    bar_orders: counts.bar,
+    tasks:      counts.housekeeping,
   }
 
   const renderView = () => {
@@ -380,7 +387,8 @@ export default function StaffPortal() {
     }
     if (activeTab === 'tasks') return <HousekeepingView staffId={staff.id} restaurantId={restaurant.id} />
     if (activeTab === 'orders' || activeTab === 'requests') return <WaiterView restaurant={restaurant} activeTab={activeTab} />
-    if (activeTab === 'kitchen') return <KitchenView restaurantId={restaurant.id} />
+    if (activeTab === 'kitchen')    return <KitchenView restaurantId={restaurant.id} />
+    if (activeTab === 'bar_orders') return <BarView    restaurantId={restaurant.id} />
     if (['checkin', 'checkout', 'rooms'].includes(activeTab)) return <ReceptionView restaurantId={restaurant.id} activeTab={activeTab} />
     if (activeTab === 'appointments') return <SpaView staffId={staff.id} restaurantId={restaurant.id} />
     return null

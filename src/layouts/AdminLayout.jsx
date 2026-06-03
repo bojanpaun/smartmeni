@@ -24,8 +24,8 @@ export const MODULES = [
       links: [
         { label: 'Narudžbe', icon: '🧾', path: '/admin/orders',  perm: 'view_orders' },
         { label: 'Zahtjevi', icon: '🔔', path: '/admin/waiter',  perm: 'view_waiter_req' },
-        { label: 'Kuhinja',  icon: '🧑‍🍳', path: '/admin/kitchen', perm: 'view_orders' },
-        { label: 'Bar',      icon: '🍷', path: '/admin/bar',     perm: 'view_orders' },
+        { label: 'Kuhinja',  icon: '🧑‍🍳', path: '/admin/kitchen', perm: 'view_kitchen_orders' },
+        { label: 'Bar',      icon: '🍷', path: '/admin/bar',     perm: 'view_bar_orders' },
       ],
     },
     admin: {
@@ -222,7 +222,7 @@ const BOTTOM_NAV = [
   { path: '/admin',          label: 'Početna',  icon: '⊞', exact: true },
   { path: '/admin/orders',   label: 'Narudžbe', icon: '🧾', perm: 'view_orders' },
   { path: '/admin/waiter',   label: 'Zahtjevi', icon: '🔔', perm: 'view_waiter_req' },
-  { path: '/admin/kitchen',  label: 'Kuhinja',  icon: '🧑‍🍳', perm: 'view_orders' },
+  { path: '/admin/kitchen',  label: 'Kuhinja',  icon: '🧑‍🍳', perm: 'view_kitchen_orders' },
   { path: '/admin/tables',   label: 'Stolovi',  icon: '🪑', perm: 'view_tables' },
   { path: '/admin/settings', label: 'Postavke', icon: '⚙️' },
 ]
