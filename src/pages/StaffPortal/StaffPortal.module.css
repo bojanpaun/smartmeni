@@ -765,6 +765,28 @@
   padding: 2px 8px; border-radius: 20px;
 }
 
+/* ── Reject messages (inline, isti stil kao admin/orders) ──────── */
+.rejectWrap {
+  margin-top: 10px;
+  border-top: 1px solid #e5e7eb;
+  padding-top: 10px;
+}
+.rejectLabel {
+  font-size: 11px; color: #9ca3af; font-weight: 600;
+  text-transform: uppercase; letter-spacing: 0.5px; margin-bottom: 8px;
+}
+.rejectMessages { display: flex; flex-direction: column; gap: 6px; }
+.rejectMsgBtn {
+  display: flex; align-items: center; gap: 8px;
+  padding: 9px 12px; border-radius: 10px; font-size: 13px; font-weight: 500;
+  border: 1.5px solid #fecaca; background: #fef2f2; color: #b91c1c;
+  cursor: pointer; font-family: inherit;
+  text-align: left; width: 100%;
+  transition: filter 0.15s;
+}
+.rejectMsgBtn::before { content: '×'; font-size: 15px; font-weight: 700; flex-shrink: 0; opacity: 0.6; }
+.rejectMsgBtn:hover { filter: brightness(0.96); }
+
 /* ── Footer ─────────────────────────────────────────────────────── */
 .portalFooter {
   text-align: center; font-size: 11px; color: #d1d5db;
