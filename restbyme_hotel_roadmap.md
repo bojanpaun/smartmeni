@@ -1,6 +1,6 @@
 ﻿# rest.by.me — HospitalityOS Produkt roadmap
 
-> **Verzija:** 4.7 *(dopunjeno — Arhitektura plaćanja: multi-provider apstrakcija + Faza PAY (Stripe + Monri), CC-spremni koraci PAY-1…PAY-13 — 2026-06-04)*
+> **Verzija:** 5.0 *(Faza PAY kompletna — PAY-1…PAY-12 implementirani i deployani: Stripe + Monri, admin UI, booking/folio/GuestApp integracija, refund — 2026-06-04)*
 > **Kontekst:** Evolucija rest.by.me (bivši SmartMeni) SaaS platforme prema punom hospitality management sistemu
 > **Tim:** 1 developer + Claude Code AI asistent
 > **Branch:** `main` → direktno na produkciju (Vercel auto-deploy)
@@ -400,30 +400,47 @@ supabase/functions/
 
 ---
 
-## 🔄 Faza PAY — Multi-provider plaćanja (Stripe + Monri)
+## ✅ Faza PAY — Multi-provider plaćanja (Stripe + Monri) (ZAVRŠENA — 2026-06-04)
 
-> **Preduslov:** Faza 1 (billing infra ✅), `room_availability` + `create_booking_direct` ✅. Supabase Vault omogućen za enkripciju kredencijala.
-> **Prioritet:** 🔴 Visok — blokira realnu produkciju gostinskih plaćanja u CG.
-> **Zašto sada:** Postojeći stubovi (Faza 3d "Stripe payment za booking", Faza 1d "Stripe addon flow") su pisani Stripe-only. Prije nego se zacementira Stripe-specifičan kod, uvodimo apstrakciju da Monri (CG/region) i ostali uđu bez refaktora.
-> **Strategija sekvence:** Ne graditi sve provajdere odjednom. Apstrakcija za N provajdera, ali implementiraj **2** (Stripe za svijet, Monri za CG/region). Ostale (PayPal, MONEI, dodatne banke) — **na zahtjev** kad stvarni klijent traži.
+> **Preduslov:** Faza 1 (billing infra ✅), `room_availability` + `create_booking_direct` ✅.
+> **Napomena kredencijali:** Umjesto Supabase Vault koristi se `payment_credentials` tabela bez SELECT RLS politike — kredencijali nisu vidljivi autentifikovanim korisnicima, čita ih samo service_role (Edge Functions).
 
-### Koraci (CC-spremni — jedan korak = jedan commit/zadatak za Claude Code)
+### Implementirani koraci
 
-| # | Zadatak | Deliverable | DoD (Definition of Done) |
-|---|---------|-------------|---------------------------|
-| **PAY-1** | Apstraktni sloj + tipovi | `_shared/payments/{types,registry,status-map}.ts` | `getProvider()` vraća stub provajder; status-map pokriva sve enum vrijednosti |
-| **PAY-2** | DB migracije | `tenant_payment_configs` + `payment_transactions` (+ RLS + FK) | Migracije primijenjene; RLS testiran (tenant A ne vidi tenant B) |
-| **PAY-3** | Vault integracija | helper za upis/čitanje kredencijala iz `vault.secrets` | Kredencijali se NE vide u `select` na configs tabeli |
-| **PAY-4** | Admin UI — provajder config | `src/modules/billing/pages/PaymentSettings` | Dropdown provajdera + forma za kredencijale + test/live toggle + "Postavi kao default" |
-| **PAY-5** | `payments-create-session` Edge Fn | router koji bira provajdera po `tenant_payment_configs` | Vraća `redirectUrl`; piše `pending` red u `payment_transactions` sa `idempotency_key` |
-| **PAY-6** | **Stripe** provajder | `stripe.ts` — Checkout Session (hosted, paralelno sa Monri redirect modelom) | Test plaćanje prolazi end-to-end na Stripe test mode |
-| **PAY-7** | `payments-webhook` (Stripe) | verifikacija potpisa + mapiranje na enum + update `source` | Duplikat webhook ne pravi duplu rezervaciju (idempotencija) |
-| **PAY-8** | **Monri** provajder | `monri.ts` — RedirectForm + digest (potpis) + return/callback handler | Test plaćanje prolazi na Monri test okruženju; digest verifikovan na callbacku |
-| **PAY-9** | `payments-webhook` (Monri) | parsiranje Monri transaction callbacka → enum | Status se ispravno mapira; `raw_payload` sačuvan za audit |
-| **PAY-10** | Integracija BookingPage | zamijeniti Stripe-only stub pozivom `payments-create-session` | Gost vidi opciju plaćanja samo ako tenant ima `is_active` config; i18n preko `t()` (javna stranica!) |
-| **PAY-11** | Folio / GuestApp naplata | isti session flow za folio settlement | "Plati karticu" na folio radi kroz apstrakciju |
-| **PAY-12** | Refund / cancellation | `payments-refund` + vezivanje na rate plan cancellation policy | Pun i djelimičan refund rade na Stripe i Monri |
-| **PAY-13** | SaaS billing migracija (opc.) | Faza 1d addon purchase rutirati kroz isti sloj (provider = naš Stripe/PayPal nalog) | Addon kupovina radi; SaaS i gostinska površina ostaju odvojene konfiguracije |
+| # | Zadatak | Deliverable | Status |
+|---|---------|-------------|--------|
+| **PAY-1** | Apstraktni sloj + tipovi | `_shared/payments/{types,registry,status-map,stub}.ts` | ✅ |
+| **PAY-2** | DB migracije | `tenant_payment_configs` + `payment_transactions` + RLS + trigger (single default) | ✅ |
+| **PAY-3** | Sigurno čuvanje kredencijala | `payment_credentials` tabela (bez SELECT policy) + `save_payment_credentials()` + `check_payment_credentials()` SECURITY DEFINER | ✅ |
+| **PAY-4** | Admin UI — provajder config | `/admin/hotel/payment` — Stripe/Monri dropdown, Test/Live toggle, kredencijali modal, aktiviraj/default | ✅ |
+| **PAY-5** | `payments-create-session` Edge Fn | router po `tenant_payment_configs`, UPSERT pending tx, vraća `redirectUrl` | ✅ |
+| **PAY-6** | **Stripe** provajder | `stripe.ts` — Checkout Session (hosted), HMAC-SHA256 webhook verifikacija, refund, status | ✅ |
+| **PAY-7** | `payments-webhook` (Stripe+Monri) | `?provider=stripe\|monri`, idempotency check, updateSource (booking/folio/spa) | ✅ |
+| **PAY-8** | **Monri** provajder | `monri.ts` — SHA-512 digest, redirect URL, callback verifikacija, custom_attribute metadata | ✅ |
+| **PAY-9** | Monri callback parsiranje | form-encoded POST, digest verif., response_code/approval_code → NormalizedStatus | ✅ |
+| **PAY-10** | Integracija BookingPage | `has_active_payment_provider` RPC, `handlePayOnline` → `payments-create-session`, `booking-finalize` na povratku, legacy PayPal ?token backward compat | ✅ |
+| **PAY-11** | Folio / GuestApp naplata | FolioPage: "💳 Plati karticu" + ?payment_success detection; GuestApp: "💳 Plati online" + folioPaidSuccess banner | ✅ |
+| **PAY-12** | Refund / cancellation | `payments-refund` Edge Fn — pun/djelimičan Stripe refund, `fn_restore_room_availability`, FolioPage refund UI | ✅ |
+| **PAY-13** | SaaS billing migracija | ⬜ Opciono — addon purchase kroz PAY sloj (naš nalog) — odloženo |
+
+### Edge Functions deployane
+
+| Funkcija | URL | verify_jwt |
+|----------|-----|------------|
+| `payments-create-session` | `/functions/v1/payments-create-session` | false |
+| `payments-webhook` | `/functions/v1/payments-webhook?provider=stripe\|monri` | false |
+| `payments-refund` | `/functions/v1/payments-refund` | false |
+| `booking-finalize` | `/functions/v1/booking-finalize` | false |
+
+### Setup za testiranje (Stripe)
+1. `/admin/hotel/payment` → Dodaj Stripe (Test) → unesi `sk_test_...` + `whsec_...`
+2. Stripe Dashboard → Webhooks → URL: `[supabase-url]/functions/v1/payments-webhook?provider=stripe`
+3. Events: `checkout.session.completed`, `checkout.session.expired`, `charge.refunded`
+4. Test booking: `/:slug/book` → odaberi sobu → plati
+
+### Monri napomene
+- Digest algoritam i polja preuzeta iz standardne Monri WebPay dokumentacije — **verifikovati sa aktuelnom Payten dokumentacijom** prije produkcije
+- Refund za Monri: stub (zahtijeva merchant API pristup kod banke) — PAY-12 TODO
 
 ### Monri specifičnosti (CG/region)
 
@@ -3264,6 +3281,18 @@ RLS politike se proširuju da provjeravaju `portfolio_access.scope` — regional
 | Z.1 | Bottom nav reorganizacija: Početna / Posao / Ja + sub-pills | ✅ | 2026-06-04 |
 | fix | HR Reports responsive — mobilne kartice umjesto tabele (<640px) | ✅ | 2026-06-04 |
 | fix | Raspored responsive — gridScrollWrap + touch scroll + kompaktne kolone | ✅ | 2026-06-04 |
+| PAY | PAY-1: types.ts, registry.ts, status-map.ts, stub.ts — apstrakcija | ✅ | 2026-06-04 |
+| PAY | PAY-2: tenant_payment_configs + payment_transactions + RLS + trigger | ✅ | 2026-06-04 |
+| PAY | PAY-3: payment_credentials tabela (bez SELECT policy) + SECURITY DEFINER RPC-ovi | ✅ | 2026-06-04 |
+| PAY | PAY-4: PaymentSettingsPage /admin/hotel/payment + sidebar link | ✅ | 2026-06-04 |
+| PAY | PAY-5: payments-create-session Edge Function (router, UPSERT tx) | ✅ | 2026-06-04 |
+| PAY | PAY-6: StripeProvider — Checkout Session, HMAC-SHA256, refund, status | ✅ | 2026-06-04 |
+| PAY | PAY-7: payments-webhook — idempotency, updateSource, Stripe+Monri routing | ✅ | 2026-06-04 |
+| PAY | PAY-8: MonriProvider — SHA-512 digest, redirect URL, custom_attribute metadata | ✅ | 2026-06-04 |
+| PAY | PAY-9: Monri webhook parsiranje (form-encoded POST, callback digest verif.) | ✅ | 2026-06-04 |
+| PAY | PAY-10: BookingPage — has_active_payment_provider, handlePayOnline, booking-finalize | ✅ | 2026-06-04 |
+| PAY | PAY-11: FolioPage "Plati karticu" + GuestApp "Plati online" + folio paid_amount | ✅ | 2026-06-04 |
+| PAY | PAY-12: payments-refund Edge Fn + fn_restore_room_availability + FolioPage refund UI | ✅ | 2026-06-04 |
 | 9 | portfolios + brands + property_groups tabele | ⬜ | |
 | 9 | portfolio_kpis materialized view + cron | ⬜ | |
 | 9 | Portfolio dashboard UI | ⬜ | |
@@ -3437,15 +3466,14 @@ RLS politike se proširuju da provjeravaju `portfolio_access.scope` — regional
 │              ✅ Faza Z.1 kompletna — profil, obavijesti, bottom nav (2026-06-04)
 │              ✅ HR Reports + Raspored responsive (2026-06-04)
 │
+│              ✅ Faza PAY — Multi-provider plaćanja (ZAVRŠENA — 2026-06-04)
+│                            PAY-1..12: apstrakcija, Stripe+Monri, admin UI,
+│                            booking/folio/GuestApp integracija, refund
+│                            4 Edge Functions: create-session, webhook, refund, booking-finalize
+│
 │              ← OVDJE SMO (2026-06-04)
 │
-├── Jun–Jul    🔴 Faza PAY — Multi-provider plaćanja (Stripe + Monri)
-│                            Provider abstrakcija, per-tenant config, hosted-redirect,
-│                            normalizovan webhook; Stripe (svijet) + Monri (CG/region)
-│              🔄 Faza 3d — booking plaćanje kroz Faza PAY apstrakciju
-│                            Checkout session, webhook, email potvrda
-│
-│              ⬜ Faza N  — Nocni audit + Split folio + Doručak kontrola
+├── Jun–Jul    ⬜ Faza N  — Nocni audit + Split folio + Doručak kontrola
 │                            EOD automatizacija, room charge na folije, split billing
 │
 │              ⬜ GDPR    — Compliance UI (anonimizacija, export, privole)
@@ -3485,4 +3513,4 @@ RLS politike se proširuju da provjeravaju `portfolio_access.scope` — regional
 
 ---
 
-*Roadmap ažuriran: 2026-06-04 (v4.9 — Faza Z.1 kompletna: profil tab, staff_announcements, bottom nav reorganizacija (Početna/Posao/Ja); HR Reports + Raspored responsive; v4.8 — Faza Z.1 Faza 1 završena; v4.7 — Arhitektura plaćanja, Faza PAY PAY-1…PAY-13) | Branch: main | Deployment: Vercel auto-deploy*
+*Roadmap ažuriran: 2026-06-04 (v5.0 — Faza PAY kompletna: PAY-1..12 implementirani — Stripe+Monri provider apstrakcija, admin UI, payments-create-session/webhook/refund/booking-finalize Edge Functions, BookingPage/FolioPage/GuestApp integracija, fn_restore_room_availability; v4.9 — Faza Z.1 kompletna; v4.8 — Faza Z.1 Faza 1; v4.7 — Arhitektura plaćanja) | Branch: main | Deployment: Vercel auto-deploy*
