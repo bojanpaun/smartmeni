@@ -1,6 +1,6 @@
 import type { PaymentProvider, TenantPaymentConfig } from './types.ts'
 import { StripeProvider } from './stripe.ts'
-// PAY-8: import { MonriProvider } from './monri.ts'
+import { MonriProvider }  from './monri.ts'
 
 export function getProvider(
   config: TenantPaymentConfig,
@@ -10,8 +10,7 @@ export function getProvider(
     case 'stripe':
       return new StripeProvider(credentials, config.mode)
     case 'monri':
-      // PAY-8: return new MonriProvider(credentials, config.mode, config.public_config)
-      throw new Error('Monri provajder još nije implementiran (PAY-8)')
+      return new MonriProvider(credentials, config.mode, config.public_config)
     default:
       throw new Error(`Payment provajder '${config.provider}' nije implementiran`)
   }

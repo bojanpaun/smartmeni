@@ -24,14 +24,24 @@ serve(async (req) => {
   const provider = url.searchParams.get('provider') ?? 'stripe'
 
   try {
-    // Pre-parse — izvuci restaurant_id iz metadata (Stripe ga stavlja u metadata)
+    // Pre-parse — izvuci restaurant_id
+    // Stripe: JSON metadata.restaurant_id
+    // Monri:  form-encoded custom_attribute_1
     let restaurantId: string | null = null
     let providerRefFromBody: string | null = null
     try {
-      const preEvent = JSON.parse(rawBody)
-      restaurantId      = preEvent.data?.object?.metadata?.restaurant_id ?? null
-      providerRefFromBody = preEvent.data?.object?.id ?? null
-    } catch { /* rawBody nije valid JSON — obradi niže */ }
+      if (provider === 'monri') {
+        // Monri šalje form-encoded POST
+        const p = new URLSearchParams(rawBody)
+        restaurantId        = p.get('custom_attribute_1')
+        providerRefFromBody = p.get('order_number')
+      } else {
+        // Stripe šalje JSON
+        const preEvent      = JSON.parse(rawBody)
+        restaurantId        = preEvent.data?.object?.metadata?.restaurant_id ?? null
+        providerRefFromBody = preEvent.data?.object?.id ?? null
+      }
+    } catch { /* obradi niže */ }
 
     if (!restaurantId) {
       console.warn('[webhook] Nema restaurant_id u metadata, ignorišemo event')
