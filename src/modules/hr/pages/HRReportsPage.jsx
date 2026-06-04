@@ -349,69 +349,113 @@ export default function HRReportsPage() {
           {/* Detaljna tabela */}
           <div className={styles.section}>
             <div className={styles.sectionTitle}>Pregled po zaposleniku</div>
-            <div className={styles.tableWrap}>
-              <table className={styles.table}>
-                <thead>
-                  <tr>
-                    <th>Zaposlenik</th>
-                    <th>Sati</th>
-                    <th>Dana</th>
-                    <th>Izostanaka</th>
-                    <th>Kašnjenja</th>
-                    <th>Prisustvo</th>
-                    <th>Ukupno €</th>
-                    <th></th>
-                  </tr>
-                </thead>
-                <tbody>
-                  {data.staffStats.length === 0 && (
-                    <tr><td colSpan={8} className={styles.empty}>Nema podataka za odabrani period.</td></tr>
-                  )}
-                  {data.staffStats.map((s, i) => (
-                    <tr key={i} className={styles.tableRow}>
-                      <td className={styles.tableName}>{staffName(s)}</td>
-                      <td>{s.hoursWorked.toFixed(1)}h</td>
-                      <td>{s.daysWorked}/{s.daysScheduled}</td>
-                      <td>
-                        <span className={s.absentCount > 0 ? styles.badgeRed : styles.badgeGreen}>
-                          {s.absentCount}×
-                        </span>
-                      </td>
-                      <td>
-                        <span className={s.lateCount > 0 ? styles.badgeYellow : styles.badgeGreen}>
-                          {s.lateCount}×
-                        </span>
-                      </td>
-                      <td>
-                        <span className={s.attendanceRate !== null && s.attendanceRate < 70 ? styles.low : ''}>
-                          {s.attendanceRate !== null ? `${s.attendanceRate.toFixed(0)}%` : '—'}
-                        </span>
-                      </td>
-                      <td className={styles.tableTotal}>€{s.totalCost.toFixed(2)}</td>
-                      <td>
-                        <button
-                          className={styles.btnDetail}
-                          onClick={() => setSelectedStaff(s)}
-                        >
-                          Detalji →
-                        </button>
-                      </td>
+
+            {/* Desktop tabela */}
+            <div className={styles.hrDesktopTable}>
+              <div className={styles.tableWrap}>
+                <table className={styles.table}>
+                  <thead>
+                    <tr>
+                      <th>Zaposlenik</th>
+                      <th>Sati</th>
+                      <th>Dana</th>
+                      <th>Izostanaka</th>
+                      <th>Kašnjenja</th>
+                      <th>Prisustvo</th>
+                      <th>Ukupno €</th>
+                      <th></th>
                     </tr>
-                  ))}
-                </tbody>
-                <tfoot>
-                  <tr className={styles.tableFooter}>
-                    <td>Ukupno</td>
-                    <td>{data.totalHours.toFixed(1)}h</td>
-                    <td></td>
-                    <td></td>
-                    <td>{data.totalLate}×</td>
-                    <td>{data.avgAttendance.toFixed(0)}%</td>
-                    <td className={styles.tableTotal}>€{data.totalLaborCost.toFixed(2)}</td>
-                    <td></td>
-                  </tr>
-                </tfoot>
-              </table>
+                  </thead>
+                  <tbody>
+                    {data.staffStats.length === 0 && (
+                      <tr><td colSpan={8} className={styles.empty}>Nema podataka za odabrani period.</td></tr>
+                    )}
+                    {data.staffStats.map((s, i) => (
+                      <tr key={i} className={styles.tableRow}>
+                        <td className={styles.tableName}>{staffName(s)}</td>
+                        <td>{s.hoursWorked.toFixed(1)}h</td>
+                        <td>{s.daysWorked}/{s.daysScheduled}</td>
+                        <td>
+                          <span className={s.absentCount > 0 ? styles.badgeRed : styles.badgeGreen}>
+                            {s.absentCount}×
+                          </span>
+                        </td>
+                        <td>
+                          <span className={s.lateCount > 0 ? styles.badgeYellow : styles.badgeGreen}>
+                            {s.lateCount}×
+                          </span>
+                        </td>
+                        <td>
+                          <span className={s.attendanceRate !== null && s.attendanceRate < 70 ? styles.low : ''}>
+                            {s.attendanceRate !== null ? `${s.attendanceRate.toFixed(0)}%` : '—'}
+                          </span>
+                        </td>
+                        <td className={styles.tableTotal}>€{s.totalCost.toFixed(2)}</td>
+                        <td>
+                          <button
+                            className={styles.btnDetail}
+                            onClick={() => setSelectedStaff(s)}
+                          >
+                            Detalji →
+                          </button>
+                        </td>
+                      </tr>
+                    ))}
+                  </tbody>
+                  <tfoot>
+                    <tr className={styles.tableFooter}>
+                      <td>Ukupno</td>
+                      <td>{data.totalHours.toFixed(1)}h</td>
+                      <td></td>
+                      <td></td>
+                      <td>{data.totalLate}×</td>
+                      <td>{data.avgAttendance.toFixed(0)}%</td>
+                      <td className={styles.tableTotal}>€{data.totalLaborCost.toFixed(2)}</td>
+                      <td></td>
+                    </tr>
+                  </tfoot>
+                </table>
+              </div>
+            </div>
+
+            {/* Mobile kartice */}
+            <div className={styles.hrMobileList}>
+              {data.staffStats.length === 0 && (
+                <div className={styles.empty}>Nema podataka za odabrani period.</div>
+              )}
+              {data.staffStats.map((s, i) => (
+                <div key={i} className={styles.hrCard}>
+                  <div className={styles.hrCardTop}>
+                    <span className={styles.hrCardName}>{staffName(s)}</span>
+                    <span className={styles.hrCardTotal}>€{s.totalCost.toFixed(2)}</span>
+                  </div>
+                  <div className={styles.hrCardRow}>
+                    {s.hoursWorked.toFixed(1)}h · {s.daysWorked}/{s.daysScheduled} dana
+                  </div>
+                  <div className={styles.hrCardBadges}>
+                    <span className={s.absentCount > 0 ? styles.badgeRed : styles.badgeGreen}>
+                      {s.absentCount}× izost.
+                    </span>
+                    <span className={s.lateCount > 0 ? styles.badgeYellow : styles.badgeGreen}>
+                      {s.lateCount}× kasni
+                    </span>
+                    {s.attendanceRate !== null && (
+                      <span className={s.attendanceRate < 70 ? styles.badgeRed : styles.badgeGreen}>
+                        {s.attendanceRate.toFixed(0)}% prisutnost
+                      </span>
+                    )}
+                  </div>
+                  <button className={styles.btnDetailFull} onClick={() => setSelectedStaff(s)}>
+                    Detalji →
+                  </button>
+                </div>
+              ))}
+              {data.staffStats.length > 0 && (
+                <div className={styles.hrCardFooter}>
+                  <span>{data.totalHours.toFixed(1)}h · {data.totalLate}× kasni · {data.avgAttendance.toFixed(0)}%</span>
+                  <span className={styles.hrCardTotal}>€{data.totalLaborCost.toFixed(2)}</span>
+                </div>
+              )}
             </div>
           </div>
 

@@ -26,7 +26,7 @@
 .weekToday:hover { background: var(--c-primary-light); }
 
 /* Sedmični grid */
-.grid { background: var(--c-surface); border: 1px solid var(--c-border); border-radius: 14px; overflow: hidden; overflow-x: auto; }
+.grid { background: var(--c-surface); border: 1px solid var(--c-border); border-radius: 14px; overflow: hidden; overflow-x: auto; -webkit-overflow-scrolling: touch; }
 .gridHeader { display: grid; grid-template-columns: 160px repeat(7, 1fr); background: var(--c-bg); border-bottom: 1px solid var(--c-border); }
 .gridStaffCol { padding: 10px 14px; font-size: 11px; font-weight: 600; color: var(--c-text-muted); text-transform: uppercase; letter-spacing: 0.5px; }
 .gridDayCol { padding: 8px 6px; text-align: center; border-left: 1px solid var(--c-bg-subtle); }
@@ -103,10 +103,49 @@
 .fieldRow { display: grid; grid-template-columns: 1fr 1fr; gap: 12px; }
 .shiftDuration { font-size: 12px; color: var(--c-primary); background: var(--c-primary-light); border-radius: 8px; padding: 6px 12px; text-align: center; font-weight: 500; }
 
-@media (max-width: 700px) {
-  .grid { font-size: 11px; }
-  .gridHeader, .gridRow { grid-template-columns: 100px repeat(7, minmax(50px, 1fr)); }
-  .staffName { font-size: 11px; }
+/* ── Sedmični grid — scroll wrapper na mobilnom ── */
+.gridScrollWrap {
+  overflow-x: auto;
+  -webkit-overflow-scrolling: touch;
+  border-radius: 14px;
+  border: 1px solid var(--c-border);
+}
+.gridScrollWrap .grid {
+  border: none;
+  border-radius: 0;
+  min-width: 520px;
+}
+
+@media (max-width: 640px) {
   .wrap { padding: 12px; }
-  .tlStaffCol { width: 90px; }
+
+  /* Header */
+  .header { flex-direction: column; align-items: flex-start; gap: 8px; }
+  .headerActions { width: 100%; display: flex; flex-wrap: wrap; gap: 8px; }
+  .headerActions > * { flex: 1 1 auto; }
+  .viewToggle { flex: none; }
+  .btnSecondary { font-size: 12px; white-space: normal; text-align: center; }
+
+  /* Sedmični grid — kompaktnije kolone */
+  .grid { font-size: 11px; }
+  .gridHeader, .gridRow { grid-template-columns: 80px repeat(7, minmax(42px, 1fr)); }
+  .gridStaffCol { padding: 8px 8px; font-size: 10px; }
+  .gridStaffCell { padding: 6px 8px; gap: 6px; }
+  .staffName { font-size: 11px; }
+  .gridCell { padding: 3px; }
+  .shift { padding: 3px 5px; }
+  .shiftTime { font-size: 10px; }
+  .shiftNote { display: none; }
+  .gridDayName { font-size: 10px; }
+  .gridDayDate { font-size: 10px; }
+
+  /* Dnevni timeline */
+  .tlStaffCol { width: 80px; }
+  .tlStaffRow { padding: 0 8px; gap: 6px; }
+  .tlStaffName { font-size: 11px; }
+  .tlCoverageLabel { padding: 0 8px; font-size: 10px; }
+
+  /* Nav */
+  .weekNav { padding: 8px 12px; gap: 8px; }
+  .weekLabel { font-size: 13px; }
 }

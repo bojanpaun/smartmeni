@@ -194,46 +194,48 @@ export default function SchedulePage() {
         {staff.length === 0 ? (
           <div className={styles.empty}><div className={styles.emptyIcon}>👥</div><div>Nema aktivnog osoblja.</div></div>
         ) : (
-          <div className={styles.grid}>
-            <div className={styles.gridHeader}>
-              <div className={styles.gridStaffCol}>Zaposlenik</div>
-              {weekDates.map((date, i) => {
-                const isToday = fmt(date) === fmt(new Date())
-                return (
-                  <div key={i} className={`${styles.gridDayCol} ${isToday ? styles.gridDayToday : ''}`}>
-                    <div className={styles.gridDayName}>{DAYS[i]}</div>
-                    <div className={styles.gridDayDate}>{fmtDisplay(date)}</div>
-                  </div>
-                )
-              })}
-            </div>
-            {staff.map((member, memberIdx) => (
-              <div key={member.id} className={styles.gridRow}>
-                <div className={styles.gridStaffCell}>
-                  <div className={styles.staffDot} style={{ background: staffColor(memberIdx) }} />
-                  <span className={styles.staffName}>{staffName(member)}</span>
-                </div>
-                {weekDates.map((date, dayIdx) => {
-                  const dateStr = fmt(date)
-                  const isToday = dateStr === fmt(new Date())
-                  const shifts = getShifts(member.id, dateStr)
+          <div className={styles.gridScrollWrap}>
+            <div className={styles.grid}>
+              <div className={styles.gridHeader}>
+                <div className={styles.gridStaffCol}>Zaposlenik</div>
+                {weekDates.map((date, i) => {
+                  const isToday = fmt(date) === fmt(new Date())
                   return (
-                    <div key={dayIdx} className={`${styles.gridCell} ${isToday ? styles.gridCellToday : ''}`}>
-                      <div className={styles.cellShifts}>
-                        {shifts.map(sch => (
-                          <div key={sch.id} className={styles.shift} style={{ borderLeftColor: staffColor(memberIdx) }}
-                            onClick={() => isAdmin && openForm(member.id, dateStr, sch)}>
-                            <div className={styles.shiftTime}>{sch.start_time.slice(0, 5)}–{sch.end_time.slice(0, 5)}</div>
-                            {sch.note && <div className={styles.shiftNote}>{sch.note}</div>}
-                          </div>
-                        ))}
-                        {isAdmin && <div className={styles.cellEmpty} onClick={() => openForm(member.id, dateStr)}>+</div>}
-                      </div>
+                    <div key={i} className={`${styles.gridDayCol} ${isToday ? styles.gridDayToday : ''}`}>
+                      <div className={styles.gridDayName}>{DAYS[i]}</div>
+                      <div className={styles.gridDayDate}>{fmtDisplay(date)}</div>
                     </div>
                   )
                 })}
               </div>
-            ))}
+              {staff.map((member, memberIdx) => (
+                <div key={member.id} className={styles.gridRow}>
+                  <div className={styles.gridStaffCell}>
+                    <div className={styles.staffDot} style={{ background: staffColor(memberIdx) }} />
+                    <span className={styles.staffName}>{staffName(member)}</span>
+                  </div>
+                  {weekDates.map((date, dayIdx) => {
+                    const dateStr = fmt(date)
+                    const isToday = dateStr === fmt(new Date())
+                    const shifts = getShifts(member.id, dateStr)
+                    return (
+                      <div key={dayIdx} className={`${styles.gridCell} ${isToday ? styles.gridCellToday : ''}`}>
+                        <div className={styles.cellShifts}>
+                          {shifts.map(sch => (
+                            <div key={sch.id} className={styles.shift} style={{ borderLeftColor: staffColor(memberIdx) }}
+                              onClick={() => isAdmin && openForm(member.id, dateStr, sch)}>
+                              <div className={styles.shiftTime}>{sch.start_time.slice(0, 5)}–{sch.end_time.slice(0, 5)}</div>
+                              {sch.note && <div className={styles.shiftNote}>{sch.note}</div>}
+                            </div>
+                          ))}
+                          {isAdmin && <div className={styles.cellEmpty} onClick={() => openForm(member.id, dateStr)}>+</div>}
+                        </div>
+                      </div>
+                    )
+                  })}
+                </div>
+              ))}
+            </div>
           </div>
         )}
       </>)}
