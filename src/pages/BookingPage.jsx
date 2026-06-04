@@ -47,6 +47,7 @@ export default function BookingPage() {
 
   const [payLoading, setPayLoading] = useState(false)
   const [payError, setPayError] = useState('')
+  const [paymentProvider, setPaymentProvider] = useState(null) // null | true (ima aktivan provider)
 
   const [confirmation, setConfirmation] = useState(null)
 
@@ -66,17 +67,30 @@ export default function BookingPage() {
       })
   }, [slug])
 
+  // Provjeri ima li hotel konfigurisan payment provider
+  useEffect(() => {
+    if (!restaurant?.id) return
+    supabase.rpc('has_active_payment_provider', { p_restaurant_id: restaurant.id })
+      .then(({ data }) => setPaymentProvider(!!data))
+  }, [restaurant?.id])
+
+  // Na return iz payment gateway-a — detektuj session_id (Stripe) ili token (legacy PayPal)
   useEffect(() => {
     const params = new URLSearchParams(window.location.search)
-    const token = params.get('token')
-    if (!token) return
+    const sessionId = params.get('session_id')  // Stripe redirect
+    const token     = params.get('token')        // legacy PayPal redirect
 
     const stored = sessionStorage.getItem('booking_pending')
     if (!stored) return
-
     const pending = JSON.parse(stored)
-    setStep(4)
-    captureOrder(token, pending)
+
+    if (sessionId) {
+      setStep(4)
+      handleFinalize(sessionId, pending)
+    } else if (token) {
+      setStep(4)
+      captureOrder(token, pending)
+    }
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [])
 
@@ -144,30 +158,34 @@ export default function BookingPage() {
     setStep(3)
   }
 
-  const handlePay = async () => {
+  // Online plaćanje — Stripe ili Monri (zavisno od hotel konfiguracije)
+  const handlePayOnline = async () => {
     setPayLoading(true)
     setPayError('')
 
+    const idempotencyKey = `book-${restaurant.id}-${Date.now()}`
     const pending = {
-      restaurant_id:  restaurant.id,
-      room_type_id:   selectedRoom.room_type_id,
-      rate_plan_id:   selectedPackage?.rate_plan_id ?? null,
-      package_name:   selectedPackage?.plan_name ?? null,
-      check_in:       checkIn,
-      check_out:      checkOut,
+      restaurant_id:    restaurant.id,
+      room_type_id:     selectedRoom.room_type_id,
+      rate_plan_id:     selectedPackage?.rate_plan_id ?? null,
+      package_name:     selectedPackage?.plan_name ?? null,
+      check_in:         checkIn,
+      check_out:        checkOut,
       adults,
       children,
-      guest_name:     guestName,
-      guest_email:    guestEmail,
-      guest_phone:    guestPhone,
+      guest_name:       guestName,
+      guest_email:      guestEmail,
+      guest_phone:      guestPhone,
       special_requests: specialRequests,
-      price_per_night: activePricePerNight,
-      total_amount:   totalAmount,
+      price_per_night:  activePricePerNight,
+      total_amount:     totalAmount,
+      booking_mode:     restaurant?.booking_mode ?? 'immediate',
+      idempotency_key:  idempotencyKey,
     }
 
     try {
       const res = await fetch(
-        `${import.meta.env.VITE_SUPABASE_URL}/functions/v1/booking-order-create`,
+        `${import.meta.env.VITE_SUPABASE_URL}/functions/v1/payments-create-session`,
         {
           method: 'POST',
           headers: {
@@ -175,9 +193,19 @@ export default function BookingPage() {
             'apikey': import.meta.env.VITE_SUPABASE_KEY,
           },
           body: JSON.stringify({
-            ...pending,
-            return_url: `${window.location.origin}/${slug}/book`,
-            cancel_url:  `${window.location.origin}/${slug}/book`,
+            restaurantId:    restaurant.id,
+            sourceType:      'booking',
+            sourceId:        null,
+            amountMinor:     Math.round(totalAmount * 100), // EUR → centi
+            currency:        'EUR',
+            idempotencyKey,
+            successUrl:      `${window.location.origin}/${slug}/book`,
+            cancelUrl:       `${window.location.origin}/${slug}/book?cancelled=1`,
+            description:     `${selectedRoom.name} — ${nights} ${nights === 1 ? 'noć' : 'noći'}`,
+            metadata: {
+              guest_name:  guestName,
+              guest_email: guestEmail,
+            },
           }),
         }
       )
@@ -185,10 +213,33 @@ export default function BookingPage() {
       if (!res.ok) throw new Error(data.error ?? t('date.errSearch'))
 
       sessionStorage.setItem('booking_pending', JSON.stringify(pending))
-      window.location.href = data.approve_url
+      window.location.href = data.redirectUrl
     } catch (err) {
       setPayError(err.message)
       setPayLoading(false)
+    }
+  }
+
+  // Finalizacija na povratku iz Stripe gateway-a
+  const handleFinalize = async (sessionId, pending) => {
+    try {
+      const res = await fetch(
+        `${import.meta.env.VITE_SUPABASE_URL}/functions/v1/booking-finalize`,
+        {
+          method: 'POST',
+          headers: {
+            'Content-Type': 'application/json',
+            'apikey': import.meta.env.VITE_SUPABASE_KEY,
+          },
+          body: JSON.stringify({ session_id: sessionId, ...pending }),
+        }
+      )
+      const data = await res.json()
+      if (!res.ok) throw new Error(data.error ?? t('date.errSearch'))
+      setConfirmation(data)
+      sessionStorage.removeItem('booking_pending')
+    } catch (err) {
+      setPayError(err.message)
     }
   }
 
@@ -572,7 +623,7 @@ export default function BookingPage() {
               </div>
             </div>
 
-            {selectedPackage?.payment_type !== 'on_arrival' && (
+            {selectedPackage?.payment_type !== 'on_arrival' && paymentProvider && (
               <p className={styles.paypalNote}>{t('payment.secureNote')}</p>
             )}
             {payError && <p className={styles.error}>{payError}</p>}
@@ -580,10 +631,14 @@ export default function BookingPage() {
               <button className={styles.btnOnArrival} onClick={handlePayOnArrival} disabled={payLoading}>
                 {payLoading ? t('payment.paying') : t('payment.payOnArrival')}
               </button>
-            ) : (
-              <button className={styles.btnPaypal} onClick={handlePay} disabled={payLoading}>
+            ) : paymentProvider ? (
+              <button className={styles.btnPaypal} onClick={handlePayOnline} disabled={payLoading}>
                 {payLoading ? t('payment.paying') : t('payment.payNow')}
               </button>
+            ) : (
+              <div className={styles.noPaymentNote}>
+                {t('payment.noOnlinePayment', 'Online plaćanje nije dostupno za ovaj objekat. Odaberite plaćanje na recepciji ili kontaktirajte hotel direktno.')}
+              </div>
             )}
           </div>
         )}

@@ -14,3 +14,8 @@ verify_jwt = false
 [functions.payments-create-session]
 enabled = true
 verify_jwt = false
+
+# Na povratku iz gateway-a — verifikacija plaćanja i kreiranje rezervacije
+[functions.booking-finalize]
+enabled = true
+verify_jwt = false
