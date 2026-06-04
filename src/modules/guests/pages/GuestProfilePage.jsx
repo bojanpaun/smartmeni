@@ -393,7 +393,7 @@ export default function GuestProfilePage() {
         {activeTab === 'visits' && (
           <div className={styles.tabContent}>
             <div className={styles.tabHeader}>
-              <div className={styles.tabTitle}>Historija posjeta</div>
+              <div className={styles.tabTitle}>Istorija posjeta</div>
               <button className={styles.btnPrimary} onClick={() => setShowVisitForm(v => !v)}>+ Dodaj posjetu</button>
             </div>
 

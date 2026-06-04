@@ -69,7 +69,7 @@ export default function MovementsLog() {
       <div className={styles.header}>
         <div>
           <h1 className={gsStyles.title}>Promjene zaliha</h1>
-          <p className={gsStyles.subtitle}>Historija ulaza, izlaza i korekcija inventara.</p>
+          <p className={gsStyles.subtitle}>Istorija ulaza, izlaza i korekcija inventara.</p>
         </div>
       </div>
 

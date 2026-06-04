@@ -114,7 +114,7 @@ export const MODULES = [
     key: 'guests',
     label: 'Gosti',
     icon: '🎟️',
-    desc: 'Evidencija gostiju, VIP lista, historija posjeta i potrošnja',
+    desc: 'Evidencija gostiju, VIP lista, istorija posjeta i potrošnja',
     path: '/admin/guests',
     active: true,
     perm: 'view_analytics',

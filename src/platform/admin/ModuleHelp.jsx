@@ -275,7 +275,7 @@ const HELP_CONTENT = {
         steps: [
           'Dodaj zaposlenika putem email adrese — kreiraj nalog odmah ili pošalji link za registraciju',
           'Unesi podatke o plati (po satu, sedmično ili mjesečno)',
-          'Profil zaposlenika ima tabove: Osnovne info, Zaposlenje, Finansije, Odsustva, Historija',
+          'Profil zaposlenika ima tabove: Osnovne info, Zaposlenje, Finansije, Odsustva, Istorija',
           'Rola se dodjeljuje u tabu Zaposlenje — zaposlenik može imati više rola',
         ],
       },
@@ -336,7 +336,7 @@ const HELP_CONTENT = {
   // ─────────────────────────────────────────────
   guests: {
     title: 'Gosti — uputstvo',
-    intro: 'Evidencija gostiju koji su se registrirali putem guest menija, historija posjeta i troškova.',
+    intro: 'Evidencija gostiju koji su se registrirali putem guest menija, istorija posjeta i troškova.',
     sections: [
       {
         icon: '👤',

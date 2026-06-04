@@ -355,7 +355,7 @@ ${deductions.length > 0 ? `
 
   const TABS = [
     { key:'basic', label:'Osnovne info' }, { key:'employ', label:'Zaposlenje' },
-    { key:'finance', label:'Finansije' }, { key:'absence', label:'Odsustva' }, { key:'history', label:'Historija' }, { key:'payroll', label:'Zarade' },
+    { key:'finance', label:'Finansije' }, { key:'absence', label:'Odsustva' }, { key:'history', label:'Istorija' }, { key:'payroll', label:'Zarade' },
   ]
 
   return (
@@ -727,7 +727,7 @@ ${deductions.length > 0 ? `
         {activeTab === 'history' && (
           <div className={styles.card}>
             <div className={styles.cardHeader}>
-              <div className={styles.cardTitle}>Historija zaposlenja</div>
+              <div className={styles.cardTitle}>Istorija zaposlenja</div>
               <button className={styles.btnPrimary} onClick={() => setShowHistoryForm(v=>!v)}>+ Dodaj zapis</button>
             </div>
             {showHistoryForm && (

@@ -68,6 +68,26 @@ Trenutno `restaurants` tabla služi kao primarni tenant identifikator. Hotel bez
 
 ---
 
+### 0. Jezik aplikacije — Crnogorski (obavezno)
+
+Aplikacija je na **crnogorskom jeziku** kao primarnom. Ovo pravilo važi za sav UI tekst, uputstva, poruke i notifikacije.
+
+**Konkretne razlike crnogorski vs. hrvatski koje se često miješaju:**
+
+| ❌ Hrvatski | ✅ Crnogorski |
+|------------|--------------|
+| historija  | **istorija** |
+| kat (sprat) | **sprat** |
+| tjedan / tjedno | **sedmica / sedmično** |
+| plaća | **plata / zarada** |
+| zaposlenici | **zaposleni** |
+| bolovanie (typo) | **bolovanje** |
+| povijest | **istorija** |
+
+**Pravilo:** Nikad ne mijenjati nazive ruta, varijabli, CSS klasa, database kolona — samo korisnički vidljiv tekst (labele, opisi, toast poruke, modalni tekstovi, uputstva).
+
+---
+
 ### 1. Multi-tenancy i sigurnost
 
 - **Svaka nova tabela mora imati `restaurant_id`** — bez iznimke. Ovo je primarni tenant identifikator dok se ne izvrši migracija na `tenants` tabelu.

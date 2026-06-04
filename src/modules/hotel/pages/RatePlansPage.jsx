@@ -331,7 +331,7 @@ export default function RatePlansPage() {
                           checked={form.selected_rooms.includes(room.id)}
                           onChange={() => toggleRoom(room.id)}
                         />
-                        <span>Soba {room.room_number}{room.floor ? `, kat ${room.floor}` : ''}</span>
+                        <span>Soba {room.room_number}{room.floor ? `, sprat ${room.floor}` : ''}</span>
                       </label>
                     ))}
                   </div>
