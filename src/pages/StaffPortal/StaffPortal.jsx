@@ -427,7 +427,7 @@ export default function StaffPortal() {
   )
 
   // ── Portal ────────────────────────────────────────────────────────
-  const tabs = mergedTabs
+  const tabs     = mergedTabs
   const staffName = [staff?.first_name, staff?.last_name].filter(Boolean).join(' ') || staff?.email || ''
 
   const TAB_BADGES = {
@@ -439,19 +439,41 @@ export default function StaffPortal() {
     maintenance: counts.maintOpen,
   }
 
+  // Podjela tabova u sekcije
+  const WORK_KEYS     = new Set(['orders','requests','kitchen','bar_orders','tasks','maintenance','checkin','checkout','rooms','appointments'])
+  const PERSONAL_KEYS = new Set(['schedule','attendance','payroll','absences','profile'])
+
+  const workTabs     = tabs.filter(t => WORK_KEYS.has(t.key))
+  const personalTabs = tabs.filter(t => PERSONAL_KEYS.has(t.key))
+  const hasWork      = workTabs.length > 0
+
+  const activeSection = activeTab === 'home'          ? 'home'
+                      : WORK_KEYS.has(activeTab)      ? 'work'
+                      : 'personal'
+
+  const subTabs   = activeSection === 'work'     ? workTabs
+                  : activeSection === 'personal' ? personalTabs
+                  : []
+
+  const workBadge = workTabs.reduce((sum, t) => sum + (TAB_BADGES[t.key] || 0), 0)
+
+  const goHome     = () => setActiveTab('home')
+  const goWork     = () => workTabs[0] && setActiveTab(workTabs[0].key)
+  const goPersonal = () => personalTabs[0] && setActiveTab(personalTabs[0].key)
+
   const renderView = () => {
     if (activeTab === 'home') return <HomeView staffId={staff.id} restaurantId={restaurant.id} staffInfo={staff} brand={brand} />
     if (['schedule', 'attendance', 'payroll', 'absences'].includes(activeTab)) {
       return <HrView staffId={staff.id} activeTab={activeTab} />
     }
-    if (activeTab === 'tasks') return <HousekeepingView staffId={staff.id} restaurantId={restaurant.id} onRefresh={refreshCounts} />
-    if (activeTab === 'maintenance') return <MaintenanceView staffId={staff.id} restaurantId={restaurant.id} onRefresh={refreshCounts} />
+    if (activeTab === 'tasks')       return <HousekeepingView staffId={staff.id} restaurantId={restaurant.id} onRefresh={refreshCounts} />
+    if (activeTab === 'maintenance') return <MaintenanceView  staffId={staff.id} restaurantId={restaurant.id} onRefresh={refreshCounts} />
     if (activeTab === 'orders' || activeTab === 'requests') return <WaiterView restaurant={restaurant} activeTab={activeTab} onRefresh={refreshCounts} hotelEnabled={hasAddon(subscription, 'hotel_core')} />
-    if (activeTab === 'kitchen')    return <KitchenView restaurantId={restaurant.id} onRefresh={refreshCounts} />
-    if (activeTab === 'bar_orders') return <BarView    restaurantId={restaurant.id} onRefresh={refreshCounts} />
+    if (activeTab === 'kitchen')     return <KitchenView    restaurantId={restaurant.id} onRefresh={refreshCounts} />
+    if (activeTab === 'bar_orders')  return <BarView        restaurantId={restaurant.id} onRefresh={refreshCounts} />
     if (['checkin', 'checkout', 'rooms'].includes(activeTab)) return <ReceptionView restaurantId={restaurant.id} activeTab={activeTab} onRefresh={refreshCounts} />
-    if (activeTab === 'appointments') return <SpaView staffId={staff.id} restaurantId={restaurant.id} onRefresh={refreshCounts} />
-    if (activeTab === 'profile') return <ProfileView staffId={staff.id} staff={staff} brand={brand} />
+    if (activeTab === 'appointments') return <SpaView     staffId={staff.id} restaurantId={restaurant.id} onRefresh={refreshCounts} />
+    if (activeTab === 'profile')      return <ProfileView staffId={staff.id} staff={staff} brand={brand} />
     return null
   }
 
@@ -469,30 +491,65 @@ export default function StaffPortal() {
         <button className={s.portalLogout} onClick={handleLogout}>Odjava</button>
       </div>
 
-      {/* Pill navigacija */}
-      <nav className={s.pillNav}>
-        {tabs.map(tab => {
-          const badge = TAB_BADGES[tab.key] || 0
-          return (
-            <button
-              key={tab.key}
-              className={`${s.pillTab} ${activeTab === tab.key ? s.pillTabActive : ''}`}
-              onClick={() => setActiveTab(tab.key)}
-              style={activeTab === tab.key ? { background: brand, borderColor: brand } : {}}
-            >
-              <span className={s.pillTabIcon}>{tab.icon}</span>
-              <span>{tab.label}</span>
-              {badge > 0 && <span className={s.navBadge}>{badge}</span>}
-            </button>
-          )
-        })}
-      </nav>
+      {/* Sub-pills — samo kad sekcija ima više od 1 taba */}
+      {subTabs.length > 1 && (
+        <nav className={s.subPillNav}>
+          {subTabs.map(tab => {
+            const badge = TAB_BADGES[tab.key] || 0
+            return (
+              <button
+                key={tab.key}
+                className={`${s.subPill} ${activeTab === tab.key ? s.subPillActive : ''}`}
+                onClick={() => setActiveTab(tab.key)}
+                style={activeTab === tab.key ? { background: brand, borderColor: brand } : {}}
+              >
+                <span>{tab.icon}</span>
+                <span>{tab.label}</span>
+                {badge > 0 && <span className={s.navBadge}>{badge}</span>}
+              </button>
+            )
+          })}
+        </nav>
+      )}
 
       {/* Content */}
       <div className={s.content}>
         {renderView()}
         <div className={s.portalFooter}>Powered by <strong>RestByMe</strong></div>
       </div>
+
+      {/* Bottom bar */}
+      <nav className={s.bottomBar}>
+        <button
+          className={`${s.bottomBtn} ${activeSection === 'home' ? s.bottomBtnActive : ''}`}
+          onClick={goHome}
+          style={activeSection === 'home' ? { color: brand } : {}}
+        >
+          <span className={s.bottomIcon}>🏠</span>
+          <span className={s.bottomLabel}>Početna</span>
+        </button>
+
+        {hasWork && (
+          <button
+            className={`${s.bottomBtn} ${activeSection === 'work' ? s.bottomBtnActive : ''}`}
+            onClick={goWork}
+            style={activeSection === 'work' ? { color: brand } : {}}
+          >
+            <span className={s.bottomIcon}>⚡</span>
+            <span className={s.bottomLabel}>Posao</span>
+            {workBadge > 0 && <span className={s.bottomBadge}>{workBadge}</span>}
+          </button>
+        )}
+
+        <button
+          className={`${s.bottomBtn} ${activeSection === 'personal' ? s.bottomBtnActive : ''}`}
+          onClick={goPersonal}
+          style={activeSection === 'personal' ? { color: brand } : {}}
+        >
+          <span className={s.bottomIcon}>👤</span>
+          <span className={s.bottomLabel}>Ja</span>
+        </button>
+      </nav>
     </div>
   )
 }
