@@ -5,6 +5,7 @@ import { hasAddon } from '../../lib/planUtils'
 import useKitchenCounts from '../../hooks/useKitchenCounts'
 import s from './StaffPortal.module.css'
 import HomeView from './views/HomeView'
+import ProfileView from './views/ProfileView'
 import HrView from './views/HrView'
 import HousekeepingView from './views/HousekeepingView'
 import WaiterView from './views/WaiterView'
@@ -26,9 +27,10 @@ function detectPortalType(roleName) {
   return 'hr'
 }
 
-const HOME_TAB = { key: 'home', label: 'Početna', icon: '🏠' }
+const HOME_TAB    = { key: 'home',    label: 'Početna', icon: '🏠' }
+const PROFILE_TAB = { key: 'profile', label: 'Profil',   icon: '👤' }
 
-// Merguje tabove više rola — home uvijek prvi, HR uvijek na kraju
+// Merguje tabove više rola — home uvijek prvi, profile uvijek posljednji
 const HR_TABS = ['schedule', 'attendance', 'payroll', 'absences']
 function mergePortalTabs(roleNames) {
   const types = [...new Set(roleNames.map(detectPortalType))]
@@ -46,6 +48,7 @@ function mergePortalTabs(roleNames) {
   for (const tab of PORTAL_TABS.hr) {
     if (!seen.has(tab.key)) { seen.add(tab.key); tabs.push(tab) }
   }
+  tabs.push(PROFILE_TAB)
   return tabs
 }
 
@@ -83,6 +86,7 @@ function tabsFromPermissions(allPermissions) {
   for (const tab of PORTAL_TABS.hr) {
     if (!seen.has(tab.key)) { seen.add(tab.key); tabs.push(tab) }
   }
+  tabs.push(PROFILE_TAB)
   return tabs
 }
 
@@ -447,6 +451,7 @@ export default function StaffPortal() {
     if (activeTab === 'bar_orders') return <BarView    restaurantId={restaurant.id} onRefresh={refreshCounts} />
     if (['checkin', 'checkout', 'rooms'].includes(activeTab)) return <ReceptionView restaurantId={restaurant.id} activeTab={activeTab} onRefresh={refreshCounts} />
     if (activeTab === 'appointments') return <SpaView staffId={staff.id} restaurantId={restaurant.id} onRefresh={refreshCounts} />
+    if (activeTab === 'profile') return <ProfileView staffId={staff.id} staff={staff} brand={brand} />
     return null
   }
 

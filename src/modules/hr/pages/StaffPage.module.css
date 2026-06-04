@@ -73,6 +73,43 @@
 .error { color: var(--c-danger); font-size: 12px; background: var(--c-danger-bg); padding: 8px 12px; border-radius: 8px; margin-bottom: 8px; }
 .success { color: var(--c-primary); font-size: 12px; background: var(--c-primary-light); padding: 8px 12px; border-radius: 8px; margin-bottom: 8px; }
 
+/* --- Announcements --- */
+.annForm {
+  background: var(--c-bg-subtle); border: 1px solid var(--c-border);
+  border-radius: 12px; padding: 16px; margin-bottom: 14px;
+}
+.annForm .field textarea {
+  padding: 9px 11px; border: 1px solid var(--c-border-input); border-radius: 9px;
+  font-size: 13px; font-family: var(--c-font-sans); outline: none;
+  width: 100%; box-sizing: border-box; resize: vertical;
+}
+.annForm .field textarea:focus { border-color: var(--c-primary); }
+.annForm .field input[type="datetime-local"] {
+  padding: 9px 11px; border: 1px solid var(--c-border-input); border-radius: 9px;
+  font-size: 13px; font-family: var(--c-font-sans); outline: none;
+  width: 100%; box-sizing: border-box;
+}
+
+.annEmpty {
+  font-size: 13px; color: var(--c-text-muted); padding: 12px 0;
+}
+.annCard {
+  display: flex; align-items: flex-start; gap: 10px;
+  background: var(--c-surface); border: 1px solid var(--c-border);
+  border-radius: 12px; padding: 14px 16px; margin-bottom: 8px;
+}
+.annExpired { opacity: 0.5; }
+.annCardBody { flex: 1; }
+.annCardTitle { font-size: 14px; font-weight: 600; color: var(--c-text); margin-bottom: 4px; }
+.annCardText  { font-size: 13px; color: var(--c-text-medium); line-height: 1.5; margin-bottom: 6px; }
+.annCardMeta  { font-size: 11px; color: var(--c-text-muted); }
+.annDeleteBtn {
+  flex-shrink: 0; background: none; border: none;
+  color: var(--c-text-muted); font-size: 15px; cursor: pointer;
+  padding: 2px 6px; border-radius: 6px;
+}
+.annDeleteBtn:hover { background: var(--c-danger-bg); color: var(--c-danger); }
+
 /* --- Mobile --- */
 @media (max-width: 640px) {
   /* Sakrij kolone Rola, Danas, Status — ostaju Zaposlenik + Akcije */

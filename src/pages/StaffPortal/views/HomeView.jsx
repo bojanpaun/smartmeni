@@ -5,14 +5,15 @@ import s from '../StaffPortal.module.css'
 const TODAY = new Date().toISOString().slice(0, 10)
 
 export default function HomeView({ staffId, restaurantId, staffInfo, brand }) {
-  const [schedule, setSchedule]       = useState(null)
-  const [clockEntry, setClockEntry]   = useState(null)
-  const [pendingCount, setPendingCount] = useState(0)
-  const [vacTotal, setVacTotal]       = useState(0)
-  const [vacUsed, setVacUsed]         = useState(0)
-  const [loading, setLoading]         = useState(true)
-  const [clocking, setClocking]       = useState(false)
-  const [elapsed, setElapsed]         = useState(null)
+  const [schedule, setSchedule]           = useState(null)
+  const [clockEntry, setClockEntry]       = useState(null)
+  const [pendingCount, setPendingCount]   = useState(0)
+  const [vacTotal, setVacTotal]           = useState(0)
+  const [vacUsed, setVacUsed]             = useState(0)
+  const [announcements, setAnnouncements] = useState([])
+  const [loading, setLoading]             = useState(true)
+  const [clocking, setClocking]           = useState(false)
+  const [elapsed, setElapsed]             = useState(null)
   const timerRef = useRef(null)
 
   useEffect(() => { if (staffId) load() }, [staffId])
@@ -20,12 +21,14 @@ export default function HomeView({ staffId, restaurantId, staffInfo, brand }) {
   const load = async () => {
     setLoading(true)
     const year = new Date().getFullYear()
+    const now  = new Date().toISOString()
     const [
       { data: shifts },
       { data: entries },
       { data: vacAbsences },
       { data: staffData },
       { count: pending },
+      { data: anns },
     ] = await Promise.all([
       supabase.from('work_schedules').select('*')
         .eq('staff_id', staffId).eq('date', TODAY).order('start_time'),
@@ -37,6 +40,10 @@ export default function HomeView({ staffId, restaurantId, staffInfo, brand }) {
       supabase.from('staff').select('vacation_days_total').eq('id', staffId).single(),
       supabase.from('staff_absences').select('id', { count: 'exact', head: true })
         .eq('staff_id', staffId).is('approved', null),
+      supabase.from('staff_announcements').select('*')
+        .eq('restaurant_id', restaurantId)
+        .or(`expires_at.is.null,expires_at.gt.${now}`)
+        .order('created_at', { ascending: false }),
     ])
 
     setSchedule(shifts?.[0] || null)
@@ -44,6 +51,7 @@ export default function HomeView({ staffId, restaurantId, staffInfo, brand }) {
     setVacTotal(staffData?.vacation_days_total || 0)
     setVacUsed((vacAbsences || []).reduce((s, a) => s + (a.days || 0), 0))
     setPendingCount(pending || 0)
+    setAnnouncements(anns || [])
     setLoading(false)
   }
 
@@ -101,6 +109,17 @@ export default function HomeView({ staffId, restaurantId, staffInfo, brand }) {
 
   return (
     <div>
+      {/* Obavijesti */}
+      {announcements.map(ann => (
+        <div key={ann.id} className={s.announcementCard}>
+          <div className={s.announcementTitle}>📢 {ann.title}</div>
+          {ann.body && <div className={s.announcementBody}>{ann.body}</div>}
+          <div className={s.announcementDate}>
+            {new Date(ann.created_at).toLocaleDateString('sr-Latn', { day: 'numeric', month: 'long' })}
+          </div>
+        </div>
+      ))}
+
       {/* Pozdrav */}
       <div className={s.homeGreeting}>
         <div className={s.homeGreetText}>Dobro jutro{name ? `, ${name}` : ''}!</div>

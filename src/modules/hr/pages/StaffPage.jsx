@@ -22,15 +22,22 @@ export default function StaffPage() {
   const [addSuccess, setAddSuccess] = useState('')
   const [form, setForm] = useState({ email: '', role_id: '', wage_type: 'monthly', wage_amount: '', password: '' })
 
+  // Obavijesti
+  const [announcements, setAnnouncements] = useState([])
+  const [showAnnForm, setShowAnnForm]     = useState(false)
+  const [annForm, setAnnForm]             = useState({ title: '', body: '', expires_at: '' })
+  const [annSaving, setAnnSaving]         = useState(false)
+
   useEffect(() => { if (restaurant) loadData() }, [restaurant])
 
   const loadData = async () => {
     const todayStr = new Date().toISOString().slice(0, 10)
-    const [{ data: s }, { data: r }, { data: att }, { data: pendingAbs }] = await Promise.all([
+    const [{ data: s }, { data: r }, { data: att }, { data: pendingAbs }, { data: anns }] = await Promise.all([
       supabase.from('staff').select('*, role:roles!role_id(name)').eq('restaurant_id', restaurant.id).order('created_at'),
       supabase.from('roles').select('*').eq('restaurant_id', restaurant.id).order('name'),
       supabase.from('attendance_entries').select('staff_id, clock_in, clock_out').eq('restaurant_id', restaurant.id).eq('date', todayStr),
       supabase.from('staff_absences').select('staff_id').eq('restaurant_id', restaurant.id).is('approved', null),
+      supabase.from('staff_announcements').select('*').eq('restaurant_id', restaurant.id).order('created_at', { ascending: false }),
     ])
     const presentIds = new Set((att || []).filter(a => a.clock_in && !a.clock_out).map(a => a.staff_id))
     const pendingCounts = (pendingAbs || []).reduce((acc, a) => {
@@ -38,7 +45,28 @@ export default function StaffPage() {
     }, {})
     setStaff((s || []).map(st => ({ ...st, _present: presentIds.has(st.id), _pendingAbsences: pendingCounts[st.id] || 0 })))
     setRoles(r || [])
+    setAnnouncements(anns || [])
     setLoading(false)
+  }
+
+  const saveAnnouncement = async (e) => {
+    e.preventDefault()
+    setAnnSaving(true)
+    const { data } = await supabase.from('staff_announcements').insert({
+      restaurant_id: restaurant.id,
+      title: annForm.title,
+      body:  annForm.body || null,
+      expires_at: annForm.expires_at || null,
+    }).select().single()
+    if (data) setAnnouncements(prev => [data, ...prev])
+    setAnnForm({ title: '', body: '', expires_at: '' })
+    setShowAnnForm(false)
+    setAnnSaving(false)
+  }
+
+  const deleteAnnouncement = async (id) => {
+    await supabase.from('staff_announcements').delete().eq('id', id)
+    setAnnouncements(prev => prev.filter(a => a.id !== id))
   }
 
   const openForm = () => {
@@ -144,6 +172,63 @@ export default function StaffPage() {
           )}
         </div>
       )}
+
+      {/* Obavijesti za osoblje */}
+      <div className={styles.section} style={{ marginTop: 24 }}>
+        <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: 12 }}>
+          <div className={styles.sectionLabel}>OBAVIJESTI ZA OSOBLJE ({announcements.length})</div>
+          <button className={styles.btnSecondary} onClick={() => setShowAnnForm(v => !v)}>
+            {showAnnForm ? 'Otkaži' : '+ Nova obavijest'}
+          </button>
+        </div>
+
+        {showAnnForm && (
+          <form onSubmit={saveAnnouncement} className={styles.annForm}>
+            <div className={styles.field}>
+              <label>Naslov *</label>
+              <input value={annForm.title} onChange={e => setAnnForm(f => ({ ...f, title: e.target.value }))}
+                placeholder="Npr. Promjena rasporeda u subotu" required />
+            </div>
+            <div className={styles.field}>
+              <label>Tekst obavijesti</label>
+              <textarea value={annForm.body} onChange={e => setAnnForm(f => ({ ...f, body: e.target.value }))}
+                placeholder="Detaljniji opis (opcionalno)..." rows={3} />
+            </div>
+            <div className={styles.field}>
+              <label>Istječe (opcionalno)</label>
+              <input type="datetime-local" value={annForm.expires_at}
+                onChange={e => setAnnForm(f => ({ ...f, expires_at: e.target.value }))} />
+            </div>
+            <div className={styles.modalActions}>
+              <button type="button" className={styles.btnSecondary} onClick={() => setShowAnnForm(false)}>Otkaži</button>
+              <button type="submit" className={styles.btnPrimary} disabled={annSaving}>
+                {annSaving ? 'Slanje...' : 'Objavi obavijest'}
+              </button>
+            </div>
+          </form>
+        )}
+
+        {announcements.length === 0 && !showAnnForm && (
+          <div className={styles.annEmpty}>Nema aktivnih obavijesti. Dodaj obavijest da je osoblje vidi na Početnoj stranici portala.</div>
+        )}
+        {announcements.map(ann => {
+          const isExpired = ann.expires_at && new Date(ann.expires_at) < new Date()
+          return (
+            <div key={ann.id} className={`${styles.annCard} ${isExpired ? styles.annExpired : ''}`}>
+              <div className={styles.annCardBody}>
+                <div className={styles.annCardTitle}>{ann.title}</div>
+                {ann.body && <div className={styles.annCardText}>{ann.body}</div>}
+                <div className={styles.annCardMeta}>
+                  Objavljeno {new Date(ann.created_at).toLocaleDateString('sr-Latn', { day: 'numeric', month: 'short', year: 'numeric' })}
+                  {ann.expires_at && ` · istječe ${new Date(ann.expires_at).toLocaleDateString('sr-Latn', { day: 'numeric', month: 'short' })}`}
+                  {isExpired && ' · ⚠ Isteklo'}
+                </div>
+              </div>
+              <button className={styles.annDeleteBtn} onClick={() => deleteAnnouncement(ann.id)} title="Obriši">✕</button>
+            </div>
+          )
+        })}
+      </div>
 
       {showForm && (
         <div className={styles.overlay} onClick={() => setShowForm(false)}>
