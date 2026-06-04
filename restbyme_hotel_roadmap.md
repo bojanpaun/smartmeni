@@ -1,6 +1,6 @@
 ﻿# rest.by.me — HospitalityOS Produkt roadmap
 
-> **Verzija:** 4.6 *(dopunjeno — mobile responsive admin hotel stranice; admin dashboard poboljšanja; landing page i editor fiksevi — 2026-06-04)*
+> **Verzija:** 4.7 *(dopunjeno — Arhitektura plaćanja: multi-provider apstrakcija + Faza PAY (Stripe + Monri), CC-spremni koraci PAY-1…PAY-13 — 2026-06-04)*
 > **Kontekst:** Evolucija rest.by.me (bivši SmartMeni) SaaS platforme prema punom hospitality management sistemu
 > **Tim:** 1 developer + Claude Code AI asistent
 > **Branch:** `main` → direktno na produkciju (Vercel auto-deploy)
@@ -294,6 +294,155 @@ Sljedeće funkcionalnosti su stabilne i testovane end-to-end. Svaka izmjena mora
 | `spa_wellness` | Booking spa tretmana, kapaciteta, terapeuti, folio integracija | ✅ Implementiran (admin UI, booking, analitika) |
 | `night_audit` | Nocni audit (EOD), split folio, doručak kontrola | ⬜ Faza N |
 | `pms_pro` | Room service, minibar, grupne rezervacije, waitlista | ⬜ Faza P |
+
+---
+
+## 💳 Arhitektura plaćanja (Payment provider abstrakcija)
+
+> **Status:** Dizajn usvojen 2026-06-04. Implementacija = **Faza PAY** (vidi niže).
+> **Razlog:** rest.by.me je namijenjen svjetskom tržištu, a online plaćanja se razlikuju po zemljama. U Crnoj Gori **ne postoje ni Stripe ni PayPal kao realne gostinske opcije** — koristi se Monri (preko Payten/banke) ili e-commerce gateway lokalne banke. Zato platni sloj mora biti **provajder-agnostičan**, a admin (tenant) bira i konfiguriše koji mehanizam koristi.
+
+### Princip 0 — dvije odvojene platne površine (NE miješati)
+
+| Površina | Ko je merchant | Gdje ide novac | Provajder bira |
+|----------|----------------|----------------|----------------|
+| **SaaS pretplata / addoni** | **mi (rest.by.me)** | nama | mi (1–2 provajdera, npr. Stripe + PayPal) |
+| **Gostinska plaćanja** (booking depozit, folio, narudžba) | **tenant (hotel/restoran)** | tenantu na njegov merchant nalog | **admin tenanta** (Stripe / Monri / ...) |
+
+> ⚠️ Ove dvije površine imaju različite zahtjeve i **ne smiju dijeliti istu konfiguraciju**. "Admin bira provajdera" važi **samo** za gostinska plaćanja. SaaS naplatu kontrolišemo mi (postojeća Faza 1 / 1d).
+
+### Princip 1 — hosted-redirect kao najmanji zajednički djelilac
+
+Stripe ume embedded (PaymentIntent + client secret), ali Monri i bankovni gateway-i rade primarno preko **redirecta na hostovanu stranicu** provajdera. Da apstrakcija pokrije oba, ugovor se gradi oko:
+
+```
+createCheckoutSession() → { redirectUrl }  → gost plati na strani provajdera
+                                            → webhook/return callback → normalizovan status
+```
+
+Bonus: redirect drži karticu izvan našeg koda → **drastično smanjen PCI scope** (ostajemo u SAQ-A).
+
+### Princip 2 — normalizovan status enum (nikad provajder-specifičnost u app sloju)
+
+```
+pending | requires_action | authorized | paid | failed | refunded | partially_refunded | cancelled
+```
+
+Svaki provajder mapira SVOJE statuse na ovaj enum. Ostatak aplikacije (BookingPage, Folio, GuestApp) **nikad ne vidi** `payment_intent.succeeded` ili Monri `approval_code` — vidi samo normalizovan status.
+
+### Princip 3 — "tenant donosi svoj merchant nalog"
+
+Lokalni gateway-i (Monri, banke) **nemaju marketplace/Connect model** — svaki tenant koristi svoj merchant nalog kod svoje banke. Stripe ima Connect, ali da bi model bio univerzalan, baza je: **tenant konfiguriše vlastite kredencijale**. Stripe Connect je opciona nadogradnja samo za Stripe rutu (kasnije).
+
+### Interfejs provajdera (ugovor)
+
+```ts
+// supabase/functions/_shared/payments/types.ts
+interface PaymentProvider {
+  id: 'stripe' | 'monri' | 'paypal'
+  createCheckoutSession(ctx: SessionCtx): Promise<{ redirectUrl?: string; clientSecret?: string; providerRef: string }>
+  verifyAndParseWebhook(rawBody: string, headers: Headers): NormalizedEvent  // verifikuj potpis/digest OVDJE
+  getStatus(providerRef: string): Promise<NormalizedStatus>
+  refund(providerRef: string, amountMinor?: number): Promise<RefundResult>
+}
+// registry.ts → getProvider(tenantConfig) vraća odgovarajuću implementaciju
+```
+
+### DB shema (uz dev standarde: `restaurant_id` + RLS na svakoj tabeli)
+
+```sql
+-- migracija: YYYYMMDDHHMMSS_payment_provider_configs.sql
+create table tenant_payment_configs (
+  id uuid primary key default gen_random_uuid(),
+  restaurant_id uuid not null references restaurants(id) on delete cascade,
+  provider text not null,                 -- 'stripe' | 'monri' | 'paypal'
+  mode text not null default 'test',      -- 'test' | 'live'
+  is_active boolean not null default false,
+  is_default boolean not null default false,
+  -- kredencijali NIKAD u plain tekstu → Supabase Vault (vault.secrets), ovdje samo referenca:
+  credentials_secret_id uuid,             -- FK na vault secret
+  public_config jsonb default '{}',       -- ne-tajni dio (npr. Monri merchant authenticity_token, brand)
+  created_at timestamptz default now(),
+  updated_at timestamptz default now()
+);
+-- RLS: USING (restaurant_id IN (SELECT id FROM restaurants WHERE user_id = auth.uid()))
+
+-- migracija: YYYYMMDDHHMMSS_payment_transactions.sql
+create table payment_transactions (
+  id uuid primary key default gen_random_uuid(),
+  restaurant_id uuid not null references restaurants(id) on delete cascade,
+  provider text not null,
+  provider_ref text not null,             -- ID transakcije kod provajdera
+  idempotency_key text not null,          -- spriječi duple naplate (unique per restaurant_id)
+  source_type text not null,              -- 'booking' | 'folio' | 'order' | 'spa'
+  source_id uuid,                         -- FK na hotel_reservations / folios / orders ...
+  amount_minor bigint not null,           -- u centima
+  currency text not null default 'EUR',
+  status text not null default 'pending', -- normalizovan enum
+  raw_payload jsonb,                      -- sirovi webhook/callback za audit
+  created_at timestamptz default now(),
+  updated_at timestamptz default now(),
+  unique (restaurant_id, idempotency_key)
+);
+-- RLS obavezan; FK constraints obavezni (dev standard 1 i 3)
+```
+
+### Edge Functions (Supabase / Deno)
+
+```
+supabase/functions/
+  payments-create-session/    # router → getProvider(config).createCheckoutSession()
+  payments-webhook/           # ?provider=stripe|monri → verifyAndParseWebhook() → update payment_transactions + source
+  payments-refund/            # admin/cancellation → getProvider().refund()
+  _shared/payments/
+    types.ts  registry.ts  stripe.ts  monri.ts  status-map.ts
+```
+
+---
+
+## 🔄 Faza PAY — Multi-provider plaćanja (Stripe + Monri)
+
+> **Preduslov:** Faza 1 (billing infra ✅), `room_availability` + `create_booking_direct` ✅. Supabase Vault omogućen za enkripciju kredencijala.
+> **Prioritet:** 🔴 Visok — blokira realnu produkciju gostinskih plaćanja u CG.
+> **Zašto sada:** Postojeći stubovi (Faza 3d "Stripe payment za booking", Faza 1d "Stripe addon flow") su pisani Stripe-only. Prije nego se zacementira Stripe-specifičan kod, uvodimo apstrakciju da Monri (CG/region) i ostali uđu bez refaktora.
+> **Strategija sekvence:** Ne graditi sve provajdere odjednom. Apstrakcija za N provajdera, ali implementiraj **2** (Stripe za svijet, Monri za CG/region). Ostale (PayPal, MONEI, dodatne banke) — **na zahtjev** kad stvarni klijent traži.
+
+### Koraci (CC-spremni — jedan korak = jedan commit/zadatak za Claude Code)
+
+| # | Zadatak | Deliverable | DoD (Definition of Done) |
+|---|---------|-------------|---------------------------|
+| **PAY-1** | Apstraktni sloj + tipovi | `_shared/payments/{types,registry,status-map}.ts` | `getProvider()` vraća stub provajder; status-map pokriva sve enum vrijednosti |
+| **PAY-2** | DB migracije | `tenant_payment_configs` + `payment_transactions` (+ RLS + FK) | Migracije primijenjene; RLS testiran (tenant A ne vidi tenant B) |
+| **PAY-3** | Vault integracija | helper za upis/čitanje kredencijala iz `vault.secrets` | Kredencijali se NE vide u `select` na configs tabeli |
+| **PAY-4** | Admin UI — provajder config | `src/modules/billing/pages/PaymentSettings` | Dropdown provajdera + forma za kredencijale + test/live toggle + "Postavi kao default" |
+| **PAY-5** | `payments-create-session` Edge Fn | router koji bira provajdera po `tenant_payment_configs` | Vraća `redirectUrl`; piše `pending` red u `payment_transactions` sa `idempotency_key` |
+| **PAY-6** | **Stripe** provajder | `stripe.ts` — Checkout Session (hosted, paralelno sa Monri redirect modelom) | Test plaćanje prolazi end-to-end na Stripe test mode |
+| **PAY-7** | `payments-webhook` (Stripe) | verifikacija potpisa + mapiranje na enum + update `source` | Duplikat webhook ne pravi duplu rezervaciju (idempotencija) |
+| **PAY-8** | **Monri** provajder | `monri.ts` — RedirectForm + digest (potpis) + return/callback handler | Test plaćanje prolazi na Monri test okruženju; digest verifikovan na callbacku |
+| **PAY-9** | `payments-webhook` (Monri) | parsiranje Monri transaction callbacka → enum | Status se ispravno mapira; `raw_payload` sačuvan za audit |
+| **PAY-10** | Integracija BookingPage | zamijeniti Stripe-only stub pozivom `payments-create-session` | Gost vidi opciju plaćanja samo ako tenant ima `is_active` config; i18n preko `t()` (javna stranica!) |
+| **PAY-11** | Folio / GuestApp naplata | isti session flow za folio settlement | "Plati karticu" na folio radi kroz apstrakciju |
+| **PAY-12** | Refund / cancellation | `payments-refund` + vezivanje na rate plan cancellation policy | Pun i djelimičan refund rade na Stripe i Monri |
+| **PAY-13** | SaaS billing migracija (opc.) | Faza 1d addon purchase rutirati kroz isti sloj (provider = naš Stripe/PayPal nalog) | Addon kupovina radi; SaaS i gostinska površina ostaju odvojene konfiguracije |
+
+### Monri specifičnosti (CG/region)
+
+- Model: **RedirectForm** — server gradi potpisani zahtjev (digest, tipično SHA-512 nad merchant ključem + parametrima narudžbe), gost se prebaci na Monri hostovanu stranicu, Monri vraća na success/cancel URL i šalje transaction callback. *Tačna polja i algoritam digesta uzeti iz aktuelne Monri/Payten integracijske dokumentacije — ne hardkodirati pretpostavke.*
+- Merchant nalog: tenant ga otvara kod svoje banke (CKB, Hipotekarna, NLB, Erste...) ili direktno preko Payten/Monri; mjesečna naknada reda ~25€ ako se ne dostigne promet.
+- Test okruženje: koristiti Monri test merchant prije produkcije.
+
+### Stripe specifičnosti
+
+- Za **paritet sa Monri redirect modelom** koristiti **Checkout Session** (hosted) → `redirectUrl`. Time apstrakcija ostaje jednostavna.
+- `PaymentIntent` (embedded) ostaviti kao kasniju opciju ako se želi in-page UX — interfejs to već dozvoljava preko `clientSecret`.
+- Webhook: verifikacija potpisa obavezna; `payment_intent.succeeded` / `checkout.session.completed` → `paid`.
+
+### Sigurnosni invarianti (obavezno)
+
+- **Idempotencija** na svakoj naplati (`idempotency_key` unique per `restaurant_id`) — spriječava duple rezervacije/naplate pri retry-u webhooka.
+- **Potpis/digest se verifikuje u Edge Function** prije ikakvog upisa — nikad vjerovati sirovom callbacku.
+- **Kredencijali samo u Vaultu** — nikad u `public_config`, nikad u frontendu, nikad u logovima.
+- **`source` update i `payment_transactions` update u istoj transakciji** (PostgreSQL funkcija) — bez polovičnih stanja.
 
 ---
 
@@ -2481,11 +2630,11 @@ Razlog: Restoran gost skenira QR za 10 sekundi — login ekran bi ga odbio. Hote
 
 ---
 
-## ⬜ Faza Z.1 — Staff Portal: Platforma za zaposlene
+## ✅ Faza Z.1 — Staff Portal: Platforma za zaposlene (Faza 1 ZAVRŠENA)
 
 > **Preduslov:** Faza Z završena (`/:slug/staff` portal radi, role-based tabovi postoje).
-> **Trajanje:** 3–5 dana
 > **Ne zahtijeva DB migracije** — sve potrebne tabele već postoje (`attendance_entries`, `staff_absences`, `work_schedules`, `staff`).
+> **Faza 1:** ✅ Kompletna | **Faza 2 (profil tab + oglasna ploča):** ⬜ nije urađena
 
 ### Motivacija
 
@@ -2603,20 +2752,20 @@ CREATE TABLE staff_announcements (
 
 ### Definition of Done — Faza Z.1
 
-**Faza 1:**
-- [ ] `home` tab (uvijek prvi) dodan u `PORTAL_TABS` za sve role
-- [ ] `HomeView.jsx` — tekuća smjena danas prikazana prominentno
-- [ ] Clock in/out dugme radi (INSERT/UPDATE `attendance_entries`)
-- [ ] Live timer aktivan dok je zaposlenik "na poslu" (svake sekunde)
-- [ ] Mini godišnji pregled (iskorišteno/preostalo)
-- [ ] Pending odsustva badge u Home tabu
-- [ ] Forma za zahtjev odsustva u portalu (Odsustva tab)
-- [ ] INSERT u `staff_absences` sa `approved = false` po submittu
-- [ ] Odobri/Odbij dugmad u `StaffProfilePage` → tab Odsustva
-- [ ] Auto-update `vacation_days_used` pri odobravanju godišnjeg
-- [ ] Badge br. pending zahtjeva na listi zaposlenih u adminu
+**Faza 1:** ✅ KOMPLETNA
+- [x] `home` tab (uvijek prvi) dodan u `PORTAL_TABS` za sve role
+- [x] `HomeView.jsx` — tekuća smjena danas prikazana prominentno
+- [x] Clock in/out dugme radi (INSERT/UPDATE `attendance_entries`)
+- [x] Live timer aktivan dok je zaposlenik "na poslu" (svake sekunde)
+- [x] Mini godišnji pregled (iskorišteno/preostalo)
+- [x] Pending odsustva badge u Home tabu
+- [x] Forma za zahtjev odsustva u portalu (Odsustva tab)
+- [x] INSERT u `staff_absences` sa `approved = null` po submittu
+- [x] Odobri/Odbij dugmad u `StaffProfilePage` → tab Odsustva
+- [x] Auto-update `vacation_days_used` pri odobravanju godišnjeg
+- [x] Badge br. pending zahtjeva na listi zaposlenih u adminu
 
-**Faza 2:**
+**Faza 2:** ⬜ nije urađena
 - [ ] `profile` tab u portalu — pregled + edit (telefon, adresa, emergency)
 - [ ] Promjena lozinke iz portala
 - [ ] `staff_announcements` tabela sa RLS
@@ -2868,9 +3017,10 @@ RLS politike se proširuju da provjeravaju `portfolio_access.scope` — regional
 | Stavka | Prioritet | Šta konkretno treba | Faza |
 |--------|-----------|---------------------|------|
 | Resend domen verifikacija | 🔴 Visok | Verifikovati vlastiti domen na resend.com, zamijeniti `onboarding@resend.dev` u Edge Function env varijablama | Y.1 |
-| RESEND_API_KEY regeneracija | 🔴 Visok | Generisati novi API key na resend.com → ažurirati u Supabase Edge Function secrets | Odmah |
+| ~~RESEND_API_KEY regeneracija~~ | ✅ Riješeno | Novi API key generisan i ažuriran u Supabase Edge Function secrets | Odmah |
 | PAYPAL_WEBHOOK_ID env var | 🟡 Srednji | Dodati `PAYPAL_WEBHOOK_ID` u Supabase Edge Function secrets (PayPal Dashboard → Webhooks → ID) | 1 |
-| SITE_URL env var u Supabase | 🟡 Srednji | Dodati `SITE_URL=https://smartmeni.vercel.app` u Supabase Edge Function secrets; koristi se u email linkovima | Odmah |
+| ~~SITE_URL env var u Supabase~~ | ✅ Riješeno | `SITE_URL` postavljen u Supabase Edge Function secrets (2026-06-02) | Odmah |
+| Supabase Vault za payment kredencijale | 🔴 Visok | Omogućiti Vault; `tenant_payment_configs.credentials_secret_id` referenca umjesto plain kredencijala | PAY |
 | Stripe addon purchase flow | 🟡 Srednji | "Aktiviraj modul" dugme treba kreirati Stripe Checkout Session i redirectovati korisnika; webhook ažurira subscription.addons | 1 dopuna |
 | ~~`room_availability` + `get_available_rooms()`~~ | ✅ Riješeno | Tabela + trigeri + RPC implementirani, BookingPage integrisan, pay on arrival dodan | 3d/3e |
 | Housekeeping auto-trigger | 🟡 Srednji | DB trigger `create_checkout_cleaning_task()` koji kreira task i mijenja status sobe na 'cleaning' pri check-outu | 4 |
@@ -3097,12 +3247,12 @@ RLS politike se proširuju da provjeravaju `portfolio_access.scope` — regional
 | Z.2 | staff_trainings tabela + CRUD + upload potvrde | ⬜ | |
 | Z.2 | staff_evaluations tabela + forma managera + prikaz u portalu | ⬜ | |
 | Z.2 | staff_documents tabela + upload + prikaz u portalu | ⬜ | |
-| Z.1 | Home tab (uvijek prvi) + HomeView.jsx — smjena, clock, godišnji | ⬜ | |
-| Z.1 | Clock in/out dugme u portalu (INSERT/UPDATE attendance_entries) | ⬜ | |
-| Z.1 | Live timer dok je zaposlenik na poslu (svake sekunde) | ⬜ | |
-| Z.1 | Forma za zahtjev odsustva iz portala (staff_absences, approved=false) | ⬜ | |
-| Z.1 | Admin: Odobri/Odbij odsustva u StaffProfilePage + auto vacation_days_used | ⬜ | |
-| Z.1 | Admin: badge br. pending zahtjeva na StaffPage listi | ⬜ | |
+| Z.1 | Home tab (uvijek prvi) + HomeView.jsx — smjena, clock, godišnji | ✅ | 2026-06-04 |
+| Z.1 | Clock in/out dugme u portalu (INSERT/UPDATE attendance_entries) | ✅ | 2026-06-04 |
+| Z.1 | Live timer dok je zaposlenik na poslu (svake sekunde) | ✅ | 2026-06-04 |
+| Z.1 | Forma za zahtjev odsustva iz portala (staff_absences, approved=null) | ✅ | 2026-06-04 |
+| Z.1 | Admin: Odobri/Odbij odsustva u StaffProfilePage + auto vacation_days_used | ✅ | 2026-06-04 |
+| Z.1 | Admin: badge br. pending zahtjeva na StaffPage listi | ✅ | 2026-06-04 |
 | Z.1 | Profil tab u portalu — edit telefon/adresa/emergency + promjena lozinke | ⬜ | |
 | Z.1 | staff_announcements tabela + admin forma + prikaz u Home tabu | ⬜ | |
 | 9 | portfolios + brands + property_groups tabele | ⬜ | |
@@ -3210,10 +3360,11 @@ RLS politike se proširuju da provjeravaju `portfolio_access.scope` — regional
 │                            /:slug/staff, 5 role viewova, staff_roles junction,
 │                            permissions hotel/spa, role UI tabovi
 │
-│              ⬜ Faza Z.1 — Staff Portal: Platforma za zaposlene
+│              ✅ Faza Z.1 — Staff Portal: Platforma za zaposlene (Faza 1)
 │                            Home tab (smjena+clock+godišnji), clock in/out iz portala,
-│                            zahtjevi za odsustvo, admin odobravanje, profil edit,
-│                            oglasna ploča (staff_announcements)
+│                            zahtjevi za odsustvo, admin odobravanje (Odobri/Odbij),
+│                            badge pending zahtjeva na listi zaposlenih
+│                            ⬜ Faza 2 (profil tab + oglasna ploča) — nije urađena
 │
 │              ✅ Faza 8 dopuna — Guest App spa tab (ZAVRŠENA)
 │                            Katalog, termini, folio booking direktno iz /:slug/guest
@@ -3271,19 +3422,23 @@ RLS politike se proširuju da provjeravaju `portfolio_access.scope` — regional
 │                            restoran narudžbe u profilu, responsive + sortabilni headeri,
 │                            WaiterMapView: card grid + bottom sheet + calling bar
 │
-│              ← OVDJE SMO (2026-06-02)
+│              ← OVDJE SMO (2026-06-04)
 │
-│              🔄 HITNO: RESEND_API_KEY regeneracija + SITE_URL env var
+│              ✅ RESEND_API_KEY regenerisan (2026-06-04)
+│              ✅ SITE_URL env var postavljen (2026-06-02)
 │
-├── Jun–Jul    🔄 Faza 3d — Stripe payment za booking
-│                            Payment Intent flow, webhook, email potvrda
+├── Jun–Jul    🔴 Faza PAY — Multi-provider plaćanja (Stripe + Monri)
+│                            Provider abstrakcija, per-tenant config, hosted-redirect,
+│                            normalizovan webhook; Stripe (svijet) + Monri (CG/region)
+│              🔄 Faza 3d — booking plaćanje kroz Faza PAY apstrakciju
+│                            Checkout session, webhook, email potvrda
 │
 │              ⬜ Faza N  — Nocni audit + Split folio + Doručak kontrola
 │                            EOD automatizacija, room charge na folije, split billing
 │
 │              ⬜ GDPR    — Compliance UI (anonimizacija, export, privole)
 │
-├── Jul        🔄 Faza 1d — Stripe addon purchase flow
+├── Jul        🔄 Faza 1d — addon purchase kroz Faza PAY apstrakciju (naš Stripe/PayPal nalog)
 │
 │              ⬜ Faza P  — PMS proširenja (Room service, Minibar, Grupne rezervacije)
 │
@@ -3318,4 +3473,4 @@ RLS politike se proširuju da provjeravaju `portfolio_access.scope` — regional
 
 ---
 
-*Roadmap ažuriran: 2026-06-02 (v4.4 — integracija Hotel IS Funkcionalne Spec: 7 novih faza/sekcija: N nocni audit+split folio, P PMS proširenja room service+minibar+grupne rez., GDPR compliance UI, Inventory Pro v2 dobavljači+PO+inventura, M MICE addon sale+eventi+BEO+korporativni, 8.6 marketing automation, Z.2 HR Pro obuke+performanse+dokumenti; 2 nova addona u katalogu; v4.3 — Hotel Rezervacije UI refaktor, Guest Profile Pro, WaiterMapView mobile) | Branch: main | Deployment: Vercel auto-deploy*
+*Roadmap ažuriran: 2026-06-04 (v4.8 — Faza Z.1 Faza 1 označena završenom: HomeView, clock in/out, zahtjevi za odsustvo, admin odobravanje; RESEND_API_KEY + SITE_URL env var označeni riješenim; HR Reports + Raspored responsive mobilni prikaz; v4.7 — Arhitektura plaćanja: dvije platne površine, provider abstrakcija (hosted-redirect, normalizovan status, per-tenant config), Faza PAY sa koracima PAY-1…PAY-13 za Stripe + Monri, Vault za kredencijale) | Branch: main | Deployment: Vercel auto-deploy*
