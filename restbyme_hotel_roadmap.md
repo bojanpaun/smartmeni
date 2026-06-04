@@ -3281,6 +3281,7 @@ RLS politike se proširuju da provjeravaju `portfolio_access.scope` — regional
 | Z.1 | Bottom nav reorganizacija: Početna / Posao / Ja + sub-pills | ✅ | 2026-06-04 |
 | fix | HR Reports responsive — mobilne kartice umjesto tabele (<640px) | ✅ | 2026-06-04 |
 | fix | Raspored responsive — gridScrollWrap + touch scroll + kompaktne kolone | ✅ | 2026-06-04 |
+| fix | Staff portal sub-pills — wrap u content (sve vidljive bez h-scroll) | ✅ | 2026-06-04 |
 | PAY | PAY-1: types.ts, registry.ts, status-map.ts, stub.ts — apstrakcija | ✅ | 2026-06-04 |
 | PAY | PAY-2: tenant_payment_configs + payment_transactions + RLS + trigger | ✅ | 2026-06-04 |
 | PAY | PAY-3: payment_credentials tabela (bez SELECT policy) + SECURITY DEFINER RPC-ovi | ✅ | 2026-06-04 |
@@ -3471,7 +3472,9 @@ RLS politike se proširuju da provjeravaju `portfolio_access.scope` — regional
 │                            booking/folio/GuestApp integracija, refund
 │                            4 Edge Functions: create-session, webhook, refund, booking-finalize
 │
-│              ← OVDJE SMO (2026-06-04)
+│              ✅ Staff portal sub-pills — wrap layout (sve vidljive bez h-scroll)
+│
+│              ← OVDJE SMO (2026-06-04) — PAUZA
 │
 ├── Jun–Jul    ⬜ Faza N  — Nocni audit + Split folio + Doručak kontrola
 │                            EOD automatizacija, room charge na folije, split billing
@@ -3513,4 +3516,4 @@ RLS politike se proširuju da provjeravaju `portfolio_access.scope` — regional
 
 ---
 
-*Roadmap ažuriran: 2026-06-04 (v5.0 — Faza PAY kompletna: PAY-1..12 implementirani — Stripe+Monri provider apstrakcija, admin UI, payments-create-session/webhook/refund/booking-finalize Edge Functions, BookingPage/FolioPage/GuestApp integracija, fn_restore_room_availability; v4.9 — Faza Z.1 kompletna; v4.8 — Faza Z.1 Faza 1; v4.7 — Arhitektura plaćanja) | Branch: main | Deployment: Vercel auto-deploy*
+*Roadmap ažuriran: 2026-06-04 (v5.1 — Staff portal sub-pills wrap layout (sve pills vidljive bez horizontalnog scrolla, wrappaju se u više redova); v5.0 — Faza PAY kompletna PAY-1..12; v4.9 — Faza Z.1 kompletna) | Branch: main | Deployment: Vercel auto-deploy*
