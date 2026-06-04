@@ -225,17 +225,14 @@
   color: #fff;
 }
 
-/* ── Sub-pills (sekcioni tabovi ispod headera) ──────────────────── */
+/* ── Sub-pills (unutar content areala — sve vidljive, wrappaju se) ─ */
 .subPillNav {
   display: flex;
-  flex-wrap: nowrap;
+  flex-wrap: wrap;
   gap: 6px;
-  padding: 8px 14px;
-  background: #fff;
+  padding-bottom: 14px;
+  margin-bottom: 2px;
   border-bottom: 1px solid #e5e7eb;
-  flex-shrink: 0;
-  overflow-x: auto;
-  -webkit-overflow-scrolling: touch;
 }
 .subPill {
   display: inline-flex;

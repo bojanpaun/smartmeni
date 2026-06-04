@@ -491,29 +491,27 @@ export default function StaffPortal() {
         <button className={s.portalLogout} onClick={handleLogout}>Odjava</button>
       </div>
 
-      {/* Sub-pills — samo kad sekcija ima više od 1 taba */}
-      {subTabs.length > 1 && (
-        <nav className={s.subPillNav}>
-          {subTabs.map(tab => {
-            const badge = TAB_BADGES[tab.key] || 0
-            return (
-              <button
-                key={tab.key}
-                className={`${s.subPill} ${activeTab === tab.key ? s.subPillActive : ''}`}
-                onClick={() => setActiveTab(tab.key)}
-                style={activeTab === tab.key ? { background: brand, borderColor: brand } : {}}
-              >
-                <span>{tab.icon}</span>
-                <span>{tab.label}</span>
-                {badge > 0 && <span className={s.navBadge}>{badge}</span>}
-              </button>
-            )
-          })}
-        </nav>
-      )}
-
-      {/* Content */}
+      {/* Content — sub-pills su unutar scroll areala, wrappaju se u više redova */}
       <div className={s.content}>
+        {subTabs.length > 1 && (
+          <nav className={s.subPillNav}>
+            {subTabs.map(tab => {
+              const badge = TAB_BADGES[tab.key] || 0
+              return (
+                <button
+                  key={tab.key}
+                  className={`${s.subPill} ${activeTab === tab.key ? s.subPillActive : ''}`}
+                  onClick={() => setActiveTab(tab.key)}
+                  style={activeTab === tab.key ? { background: brand, borderColor: brand } : {}}
+                >
+                  <span>{tab.icon}</span>
+                  <span>{tab.label}</span>
+                  {badge > 0 && <span className={s.navBadge}>{badge}</span>}
+                </button>
+              )
+            })}
+          </nav>
+        )}
         {renderView()}
         <div className={s.portalFooter}>Powered by <strong>RestByMe</strong></div>
       </div>
