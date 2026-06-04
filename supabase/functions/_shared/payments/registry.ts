@@ -44,16 +44,22 @@ export async function getActiveTenantConfig(
   return data ?? null
 }
 
-// Čita kredencijale iz Supabase Vault (PAY-3 dopuna)
+// Čita kredencijale iz payment_credentials tabele (service_role — bypass RLS)
+// Poziva se SAMO iz Edge Functions koje imaju SUPABASE_SERVICE_ROLE_KEY
 // deno-lint-ignore no-explicit-any
 export async function getCredentials(
   supabase: any,
-  secretId: string,
+  configId: string,
 ): Promise<Record<string, string>> {
-  const { data, error } = await supabase.rpc('vault_get_secret', { secret_id: secretId })
-  if (error || !data) {
-    console.error('[registry] vault read error:', error)
+  const { data, error } = await supabase
+    .from('payment_credentials')
+    .select('credentials')
+    .eq('config_id', configId)
+    .maybeSingle()
+
+  if (error) {
+    console.error('[registry] getCredentials error:', error.message)
     return {}
   }
-  try { return JSON.parse(data) } catch { return {} }
+  return (data?.credentials as Record<string, string>) ?? {}
 }

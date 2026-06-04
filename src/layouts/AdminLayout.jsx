@@ -168,6 +168,7 @@ export const MODULES = [
         { label: 'Tipovi soba',           icon: '🪑', path: '/admin/hotel/room-types' },
         { label: 'Cjenovni planovi',      icon: '🏷️', path: '/admin/hotel/rate-plans' },
         { label: 'Online booking',        icon: '🔗', path: '/admin/hotel/booking-settings' },
+        { label: 'Plaćanja',              icon: '💳', path: '/admin/hotel/payment' },
         { label: 'Sajt hotela',           icon: '🌐', path: '/admin/hotel/landing' },
       ],
     },
