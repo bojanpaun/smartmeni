@@ -2765,12 +2765,18 @@ CREATE TABLE staff_announcements (
 - [x] Auto-update `vacation_days_used` pri odobravanju godišnjeg
 - [x] Badge br. pending zahtjeva na listi zaposlenih u adminu
 
-**Faza 2:** ⬜ nije urađena
-- [ ] `profile` tab u portalu — pregled + edit (telefon, adresa, emergency)
-- [ ] Promjena lozinke iz portala
-- [ ] `staff_announcements` tabela sa RLS
-- [ ] Admin forma za kreiranje obavijesti
-- [ ] Obavijesti prikazane u Home tabu portala (samo aktivne, neistekle)
+**Faza 2:** ✅ KOMPLETNA
+- [x] `profile` tab u portalu — pregled + edit (telefon, adresa, emergency)
+- [x] Promjena lozinke iz portala
+- [x] `staff_announcements` tabela sa RLS
+- [x] Admin forma za kreiranje obavijesti (`/admin/hr/staff` — sekcija ispod liste)
+- [x] Obavijesti prikazane u Home tabu portala (samo aktivne, neistekle)
+
+### Bonus — Reorganizacija navigacije (2026-06-04)
+- [x] Bottom nav bar: 🏠 Početna · ⚡ Posao · 👤 Ja
+- [x] "Posao" se ne prikazuje ako rola nema operativnih tabova
+- [x] Sub-pills ispod headera za aktivnu sekciju (samo kad > 1 tab)
+- [x] Ukupni badge na "Posao" sekciji
 
 ---
 
@@ -3253,8 +3259,11 @@ RLS politike se proširuju da provjeravaju `portfolio_access.scope` — regional
 | Z.1 | Forma za zahtjev odsustva iz portala (staff_absences, approved=null) | ✅ | 2026-06-04 |
 | Z.1 | Admin: Odobri/Odbij odsustva u StaffProfilePage + auto vacation_days_used | ✅ | 2026-06-04 |
 | Z.1 | Admin: badge br. pending zahtjeva na StaffPage listi | ✅ | 2026-06-04 |
-| Z.1 | Profil tab u portalu — edit telefon/adresa/emergency + promjena lozinke | ⬜ | |
-| Z.1 | staff_announcements tabela + admin forma + prikaz u Home tabu | ⬜ | |
+| Z.1 | Profil tab u portalu — edit telefon/adresa/emergency + promjena lozinke | ✅ | 2026-06-04 |
+| Z.1 | staff_announcements tabela + admin forma + prikaz u Home tabu | ✅ | 2026-06-04 |
+| Z.1 | Bottom nav reorganizacija: Početna / Posao / Ja + sub-pills | ✅ | 2026-06-04 |
+| fix | HR Reports responsive — mobilne kartice umjesto tabele (<640px) | ✅ | 2026-06-04 |
+| fix | Raspored responsive — gridScrollWrap + touch scroll + kompaktne kolone | ✅ | 2026-06-04 |
 | 9 | portfolios + brands + property_groups tabele | ⬜ | |
 | 9 | portfolio_kpis materialized view + cron | ⬜ | |
 | 9 | Portfolio dashboard UI | ⬜ | |
@@ -3360,11 +3369,12 @@ RLS politike se proširuju da provjeravaju `portfolio_access.scope` — regional
 │                            /:slug/staff, 5 role viewova, staff_roles junction,
 │                            permissions hotel/spa, role UI tabovi
 │
-│              ✅ Faza Z.1 — Staff Portal: Platforma za zaposlene (Faza 1)
-│                            Home tab (smjena+clock+godišnji), clock in/out iz portala,
-│                            zahtjevi za odsustvo, admin odobravanje (Odobri/Odbij),
-│                            badge pending zahtjeva na listi zaposlenih
-│                            ⬜ Faza 2 (profil tab + oglasna ploča) — nije urađena
+│              ✅ Faza Z.1 — Staff Portal: Platforma za zaposlene (KOMPLETNA)
+│                            Faza 1: Home tab, clock in/out, zahtjevi za odsustvo,
+│                            admin Odobri/Odbij, badge pending zahtjeva
+│                            Faza 2: Profil tab (kontakt+lozinka), staff_announcements
+│                            tabela+admin forma+prikaz u portalu
+│                            Bonus: Bottom nav (Početna/Posao/Ja), sub-pills
 │
 │              ✅ Faza 8 dopuna — Guest App spa tab (ZAVRŠENA)
 │                            Katalog, termini, folio booking direktno iz /:slug/guest
@@ -3422,10 +3432,12 @@ RLS politike se proširuju da provjeravaju `portfolio_access.scope` — regional
 │                            restoran narudžbe u profilu, responsive + sortabilni headeri,
 │                            WaiterMapView: card grid + bottom sheet + calling bar
 │
-│              ← OVDJE SMO (2026-06-04)
-│
 │              ✅ RESEND_API_KEY regenerisan (2026-06-04)
 │              ✅ SITE_URL env var postavljen (2026-06-02)
+│              ✅ Faza Z.1 kompletna — profil, obavijesti, bottom nav (2026-06-04)
+│              ✅ HR Reports + Raspored responsive (2026-06-04)
+│
+│              ← OVDJE SMO (2026-06-04)
 │
 ├── Jun–Jul    🔴 Faza PAY — Multi-provider plaćanja (Stripe + Monri)
 │                            Provider abstrakcija, per-tenant config, hosted-redirect,
@@ -3473,4 +3485,4 @@ RLS politike se proširuju da provjeravaju `portfolio_access.scope` — regional
 
 ---
 
-*Roadmap ažuriran: 2026-06-04 (v4.8 — Faza Z.1 Faza 1 označena završenom: HomeView, clock in/out, zahtjevi za odsustvo, admin odobravanje; RESEND_API_KEY + SITE_URL env var označeni riješenim; HR Reports + Raspored responsive mobilni prikaz; v4.7 — Arhitektura plaćanja: dvije platne površine, provider abstrakcija (hosted-redirect, normalizovan status, per-tenant config), Faza PAY sa koracima PAY-1…PAY-13 za Stripe + Monri, Vault za kredencijale) | Branch: main | Deployment: Vercel auto-deploy*
+*Roadmap ažuriran: 2026-06-04 (v4.9 — Faza Z.1 kompletna: profil tab, staff_announcements, bottom nav reorganizacija (Početna/Posao/Ja); HR Reports + Raspored responsive; v4.8 — Faza Z.1 Faza 1 završena; v4.7 — Arhitektura plaćanja, Faza PAY PAY-1…PAY-13) | Branch: main | Deployment: Vercel auto-deploy*
