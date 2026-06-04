@@ -1,26 +1,17 @@
 import type { PaymentProvider, TenantPaymentConfig } from './types.ts'
-import { StubProvider } from './stub.ts'
-
-// Lazy import Stripe/Monri — importuju se tek kad su implementirani (PAY-6 / PAY-8)
-// Da bi se dodao novi provajder: importuj klasu i dodaj case u getProvider()
+import { StripeProvider } from './stripe.ts'
+// PAY-8: import { MonriProvider } from './monri.ts'
 
 export function getProvider(
   config: TenantPaymentConfig,
   credentials: Record<string, string>,
 ): PaymentProvider {
   switch (config.provider) {
-    case 'stripe': {
-      // PAY-6: zamijeniti StubProvider sa StripeProvider
-      // import { StripeProvider } from './stripe.ts'
-      // return new StripeProvider(credentials, config.mode)
-      return new StubProvider()
-    }
-    case 'monri': {
-      // PAY-8: zamijeniti StubProvider sa MonriProvider
-      // import { MonriProvider } from './monri.ts'
-      // return new MonriProvider(credentials, config.mode, config.public_config)
-      return new StubProvider()
-    }
+    case 'stripe':
+      return new StripeProvider(credentials, config.mode)
+    case 'monri':
+      // PAY-8: return new MonriProvider(credentials, config.mode, config.public_config)
+      throw new Error('Monri provajder još nije implementiran (PAY-8)')
     default:
       throw new Error(`Payment provajder '${config.provider}' nije implementiran`)
   }
