@@ -520,6 +520,35 @@
   line-height: 1.5;
 }
 
+.folioPayBtn {
+  width: 100%;
+  padding: 14px;
+  border: none;
+  border-radius: 12px;
+  background: #0d7a52;
+  color: #fff;
+  font-size: 15px;
+  font-weight: 700;
+  cursor: pointer;
+  font-family: inherit;
+  margin-bottom: 12px;
+  transition: opacity 0.15s;
+}
+.folioPayBtn:hover { opacity: 0.9; }
+.folioPayBtn:disabled { opacity: 0.6; cursor: not-allowed; }
+
+.folioPaidBanner {
+  background: #f0fdf4;
+  border: 1px solid #bbf7d0;
+  border-radius: 12px;
+  padding: 12px 16px;
+  font-size: 13px;
+  font-weight: 600;
+  color: #166534;
+  text-align: center;
+  margin-bottom: 12px;
+}
+
 /* ── Shared buttons ── */
 .btnPrimary {
   width: 100%;

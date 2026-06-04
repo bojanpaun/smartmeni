@@ -58,6 +58,9 @@ export default function GuestAppPage() {
   // Folio
   const [folio, setFolio] = useState(null)
   const [folioLoading, setFolioLoading] = useState(false)
+  const [paymentProvider, setPaymentProvider] = useState(false)
+  const [folioPayLoading, setFolioPayLoading] = useState(false)
+  const [folioPaidSuccess, setFolioPaidSuccess] = useState(false)
 
   // Requests
   const [requests, setRequests] = useState([])
@@ -67,7 +70,7 @@ export default function GuestAppPage() {
   const [submitting, setSubmitting] = useState(false)
   const [submitted, setSubmitted] = useState(false)
 
-  // Load restaurant
+  // Load restaurant + provjeri payment provider
   useEffect(() => {
     supabase.from('restaurants').select('*')
       .ilike('slug', slug).single()
@@ -75,16 +78,27 @@ export default function GuestAppPage() {
         if (error) console.error('Restaurant load error:', error.message)
         setRestaurant(data)
         setLoadingRest(false)
+        if (data?.id) {
+          supabase.rpc('has_active_payment_provider', { p_restaurant_id: data.id })
+            .then(({ data: hasProvider }) => setPaymentProvider(!!hasProvider))
+        }
       })
   }, [slug])
 
-  // Restore session
+  // Restore session + detektuj povratak iz payment gateway-a
   useEffect(() => {
     if (!slug) return
     try {
       const saved = sessionStorage.getItem(SESSION_KEY(slug))
       if (saved) setSession(JSON.parse(saved))
     } catch {}
+
+    const params = new URLSearchParams(window.location.search)
+    if (params.get('folio_paid') === '1') {
+      setFolioPaidSuccess(true)
+      setTab('folio')
+      window.history.replaceState({}, '', window.location.pathname)
+    }
   }, [slug])
 
   // Load folio when tab changes
@@ -129,6 +143,36 @@ export default function GuestAppPage() {
     const { data } = await supabase.rpc('get_guest_folio', { p_reservation_id: session.id })
     setFolio(data ?? [])
     setFolioLoading(false)
+  }
+
+  const handleFolioPayment = async () => {
+    const folioTotal = Number(folio?.[0]?.folio_total || 0)
+    const folioId    = folio?.[0]?.folio_id
+    if (!folioId || folioTotal <= 0 || !restaurant?.id) return
+    setFolioPayLoading(true)
+    const idempotencyKey = `folio-${folioId}-${Date.now()}`
+    const successUrl = `${window.location.origin}/${slug}/guest?folio_paid=1`
+    const cancelUrl  = `${window.location.origin}/${slug}/guest`
+    const { data, error } = await supabase.functions.invoke('payments-create-session', {
+      body: {
+        restaurantId:    restaurant.id,
+        sourceType:      'folio',
+        sourceId:        folioId,
+        amountMinor:     Math.round(folioTotal * 100),
+        currency:        'EUR',
+        idempotencyKey,
+        successUrl,
+        cancelUrl,
+        description:     isEn ? 'Folio settlement' : 'Folio plaćanje',
+        metadata: { guest_name: session?.guest_name ?? '' },
+      },
+    })
+    setFolioPayLoading(false)
+    if (error || !data?.redirectUrl) {
+      alert(isEn ? 'Payment error. Please contact reception.' : 'Greška pri plaćanju. Obratite se recepciji.')
+      return
+    }
+    window.location.href = data.redirectUrl
   }
 
   const loadRequests = async () => {
@@ -516,6 +560,24 @@ export default function GuestAppPage() {
                   <span>{isEn ? 'Total' : 'Ukupno'}</span>
                   <span>€{Number(folio[0]?.folio_total || 0).toFixed(2)}</span>
                 </div>
+
+                {folioPaidSuccess && (
+                  <div className={styles.folioPaidBanner}>
+                    ✅ {isEn ? 'Payment received! Your folio has been updated.' : 'Plaćanje primljeno! Folio je ažuriran.'}
+                  </div>
+                )}
+
+                {!folioPaidSuccess && paymentProvider && folio[0]?.folio_status === 'open' && Number(folio[0]?.folio_total) > 0 && (
+                  <button
+                    className={styles.folioPayBtn}
+                    onClick={handleFolioPayment}
+                    disabled={folioPayLoading}
+                  >
+                    {folioPayLoading
+                      ? (isEn ? 'Redirecting...' : 'Preusmjeravanje...')
+                      : (isEn ? '💳 Pay online' : '💳 Plati online')}
+                  </button>
+                )}
 
                 <p className={styles.folioNote}>
                   {isEn

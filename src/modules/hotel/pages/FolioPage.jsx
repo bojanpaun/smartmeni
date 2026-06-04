@@ -24,8 +24,28 @@ export default function FolioPage() {
   const [addingItem, setAddingItem] = useState(false)
   const [newItem, setNewItem] = useState(EMPTY_ITEM)
   const [saving, setSaving] = useState(false)
+  const [paymentProvider, setPaymentProvider] = useState(false)
+  const [payLoading, setPayLoading] = useState(false)
 
   useEffect(() => { load() }, [id])
+
+  // Provjeri ima li hotel aktivan payment provider
+  useEffect(() => {
+    if (!restaurant?.id) return
+    supabase.rpc('has_active_payment_provider', { p_restaurant_id: restaurant.id })
+      .then(({ data }) => setPaymentProvider(!!data))
+  }, [restaurant?.id])
+
+  // Detektuj povratak nakon uspješnog online plaćanja
+  useEffect(() => {
+    const params = new URLSearchParams(window.location.search)
+    if (params.get('payment_success') === '1') {
+      toast.success('Plaćanje primljeno! Folio je ažuriran.')
+      window.history.replaceState({}, '', window.location.pathname)
+      load()
+    }
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [])
 
   const load = async () => {
     setLoading(true)
@@ -104,6 +124,40 @@ export default function FolioPage() {
     toast.success('Folio ponovo otvoren')
   }
 
+  const handleFolioPayment = async () => {
+    if (balance <= 0) return toast.error('Nema neplaćenog iznosa.')
+    setPayLoading(true)
+    const idempotencyKey = `folio-${folio.id}-${Date.now()}`
+    const successUrl = `${window.location.origin}/admin/hotel/reservations/${id}/folio?payment_success=1`
+    const cancelUrl  = `${window.location.origin}/admin/hotel/reservations/${id}/folio?payment_cancelled=1`
+    try {
+      const res = await fetch(
+        `${import.meta.env.VITE_SUPABASE_URL}/functions/v1/payments-create-session`,
+        {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json', 'apikey': import.meta.env.VITE_SUPABASE_KEY },
+          body: JSON.stringify({
+            restaurantId:    restaurant.id,
+            sourceType:      'folio',
+            sourceId:        folio.id,
+            amountMinor:     Math.round(balance * 100),
+            currency:        'EUR',
+            idempotencyKey,
+            successUrl,
+            cancelUrl,
+            description:     `Folio — ${reservation?.guest_name ?? ''}`,
+          }),
+        }
+      )
+      const data = await res.json()
+      if (!res.ok) throw new Error(data.error ?? 'Greška pri pokretanju plaćanja')
+      window.location.href = data.redirectUrl
+    } catch (err) {
+      toast.error(err.message)
+      setPayLoading(false)
+    }
+  }
+
   if (loading) return <LoadingSpinner fullPage />
 
   if (!folio) {
@@ -160,6 +214,17 @@ export default function FolioPage() {
             €{balance.toFixed(2)}
           </span>
         </div>
+        {folio.status === 'open' && balance > 0 && paymentProvider && (
+          <div className={styles.folioSummaryItem}>
+            <button
+              className={styles.btnPrimary}
+              onClick={handleFolioPayment}
+              disabled={payLoading}
+            >
+              {payLoading ? 'Preusmjeravanje...' : '💳 Plati karticu (€' + balance.toFixed(2) + ')'}
+            </button>
+          </div>
+        )}
       </div>
 
       {/* Items */}

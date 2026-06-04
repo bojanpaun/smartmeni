@@ -133,7 +133,7 @@ serve(async (req) => {
       ((event.rawPayload as Record<string, unknown>)?.data?.object?.metadata?.source_id as string | undefined)
 
     if (sourceType && sourceId && event.status === 'paid') {
-      await updateSource(supabase, sourceType, sourceId)
+      await updateSource(supabase, sourceType, sourceId, event.amountMinor)
     }
 
     return new Response(
@@ -159,7 +159,7 @@ serve(async (req) => {
 
 // ── Source update helper ────────────────────────────────────────────────
 // deno-lint-ignore no-explicit-any
-async function updateSource(supabase: any, sourceType: string, sourceId: string) {
+async function updateSource(supabase: any, sourceType: string, sourceId: string, amountMinor?: number) {
   try {
     if (sourceType === 'booking') {
       // Potvrdi rezervaciju — ne mijenjaj ako je već checked_in/out
@@ -169,9 +169,13 @@ async function updateSource(supabase: any, sourceType: string, sourceId: string)
         .eq('id', sourceId)
         .in('status', ['pending', 'inquiry', 'pending_payment'])
     } else if (sourceType === 'folio') {
+      const paidEur = amountMinor != null ? amountMinor / 100 : undefined
       await supabase
         .from('folios')
-        .update({ status: 'paid' })
+        .update({
+          ...(paidEur != null ? { paid_amount: paidEur } : {}),
+          updated_at: new Date().toISOString(),
+        })
         .eq('id', sourceId)
     } else if (sourceType === 'spa') {
       await supabase
