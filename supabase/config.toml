@@ -19,3 +19,8 @@ verify_jwt = false
 [functions.booking-finalize]
 enabled = true
 verify_jwt = false
+
+# Refund plaćene transakcije — poziva se iz admin panela (autentifikovani admin)
+[functions.payments-refund]
+enabled = true
+verify_jwt = false

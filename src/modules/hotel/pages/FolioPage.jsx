@@ -27,6 +27,12 @@ export default function FolioPage() {
   const [paymentProvider, setPaymentProvider] = useState(false)
   const [payLoading, setPayLoading] = useState(false)
 
+  // Refund
+  const [paymentTx, setPaymentTx] = useState(null)      // paid transakcija za ovaj folio
+  const [showRefund, setShowRefund] = useState(false)
+  const [refundAmount, setRefundAmount] = useState('')   // u EUR
+  const [refundLoading, setRefundLoading] = useState(false)
+
   useEffect(() => { load() }, [id])
 
   // Provjeri ima li hotel aktivan payment provider
@@ -58,12 +64,15 @@ export default function FolioPage() {
     setReservation(res)
     if (f) {
       setFolio(f)
-      const { data: fi } = await supabase
-        .from('folio_items')
-        .select('*')
-        .eq('folio_id', f.id)
-        .order('created_at', { ascending: true })
+      const [{ data: fi }, { data: tx }] = await Promise.all([
+        supabase.from('folio_items').select('*').eq('folio_id', f.id)
+          .order('created_at', { ascending: true }),
+        supabase.from('payment_transactions').select('*')
+          .eq('source_type', 'folio').eq('source_id', f.id)
+          .eq('status', 'paid').maybeSingle(),
+      ])
       setItems(fi ?? [])
+      setPaymentTx(tx ?? null)
     }
     setLoading(false)
   }
@@ -122,6 +131,42 @@ export default function FolioPage() {
     await supabase.from('folios').update({ status: 'open', updated_at: new Date().toISOString() }).eq('id', folio.id)
     setFolio(f => ({ ...f, status: 'open' }))
     toast.success('Folio ponovo otvoren')
+  }
+
+  const handleRefund = async () => {
+    if (!paymentTx) return
+    const paidEur = paymentTx.amount_minor / 100
+    const inputEur = parseFloat(refundAmount) || paidEur
+    if (inputEur <= 0 || inputEur > paidEur) {
+      return toast.error(`Iznos mora biti između €0.01 i €${paidEur.toFixed(2)}`)
+    }
+    if (!confirm(`Refundovati €${inputEur.toFixed(2)}? Ovo je nepovratna akcija.`)) return
+
+    setRefundLoading(true)
+    try {
+      const res = await fetch(
+        `${import.meta.env.VITE_SUPABASE_URL}/functions/v1/payments-refund`,
+        {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json', 'apikey': import.meta.env.VITE_SUPABASE_KEY },
+          body: JSON.stringify({
+            restaurantId: restaurant.id,
+            transactionId: paymentTx.id,
+            amountMinor: Math.round(inputEur * 100),
+          }),
+        }
+      )
+      const data = await res.json()
+      if (!res.ok) throw new Error(data.error ?? 'Refund nije uspio')
+      toast.success(`Refund €${data.refundedEur} uspješno pokrenuto`)
+      setShowRefund(false)
+      setRefundAmount('')
+      load()
+    } catch (err) {
+      toast.error(err.message)
+    } finally {
+      setRefundLoading(false)
+    }
   }
 
   const handleFolioPayment = async () => {
@@ -226,6 +271,62 @@ export default function FolioPage() {
           </div>
         )}
       </div>
+
+      {/* Refund sekcija — prikazuje se kad postoji plaćena online transakcija */}
+      {paymentTx && (
+        <div className={styles.section} style={{ background: '#fffbeb', borderColor: '#fde68a' }}>
+          <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
+            <div>
+              <div className={styles.sectionTitle} style={{ color: '#92400e', margin: 0 }}>
+                💳 Online plaćanje evidentirano
+              </div>
+              <div style={{ fontSize: 13, color: '#78350f', marginTop: 4 }}>
+                €{(paymentTx.amount_minor / 100).toFixed(2)} via {paymentTx.provider} · {new Date(paymentTx.created_at).toLocaleDateString('sr-Latn')}
+              </div>
+            </div>
+            {!showRefund && (
+              <button className={styles.btnSecondary} onClick={() => { setShowRefund(true); setRefundAmount((paymentTx.amount_minor / 100).toFixed(2)) }}>
+                ↩ Refund
+              </button>
+            )}
+          </div>
+
+          {showRefund && (
+            <div style={{ marginTop: 14, padding: '14px 16px', background: '#fff', borderRadius: 10, border: '1px solid #fde68a' }}>
+              <div style={{ fontSize: 13, fontWeight: 600, marginBottom: 10, color: '#374151' }}>
+                Refund iznos (max €{(paymentTx.amount_minor / 100).toFixed(2)})
+              </div>
+              <div style={{ display: 'flex', gap: 8, alignItems: 'center', marginBottom: 8 }}>
+                <span style={{ fontSize: 15, fontWeight: 700 }}>€</span>
+                <input
+                  className={styles.input}
+                  type="number"
+                  step="0.01"
+                  min="0.01"
+                  max={(paymentTx.amount_minor / 100).toFixed(2)}
+                  value={refundAmount}
+                  onChange={e => setRefundAmount(e.target.value)}
+                  style={{ maxWidth: 120 }}
+                />
+                <button
+                  className={styles.btnSecondary}
+                  onClick={() => setRefundAmount((paymentTx.amount_minor / 100).toFixed(2))}
+                  style={{ fontSize: 12 }}
+                >
+                  Puni iznos
+                </button>
+              </div>
+              <div style={{ display: 'flex', gap: 8 }}>
+                <button className={styles.btnSecondary} onClick={() => setShowRefund(false)}>Odustani</button>
+                <button className={styles.btnPrimary} onClick={handleRefund} disabled={refundLoading}
+                  style={{ background: '#b91c1c' }}>
+                  {refundLoading ? 'Obrađuje se...' : `↩ Refunduj €${parseFloat(refundAmount || 0).toFixed(2)}`}
+                </button>
+              </div>
+            </div>
+          )}
+        </div>
+      )}
 
       {/* Items */}
       <div className={styles.section}>
