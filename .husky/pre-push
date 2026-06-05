@@ -1,0 +1,16 @@
+echo "→ pre-push: brzi testovi prije guranja na main"
+
+npm run test:unit || {
+  echo "✗ unit testovi pali — push prekinut"; exit 1;
+}
+
+# Edge (Deno) samo ako je Deno instaliran; ako nije, CI ga ionako pokriva.
+if command -v deno >/dev/null 2>&1; then
+  npm run test:edge || {
+    echo "✗ edge testovi pali — push prekinut"; exit 1;
+  }
+else
+  echo "  (Deno nije instaliran — preskačem test:edge, CI će ga pokriti)"
+fi
+
+echo "✓ brzi testovi prošli"

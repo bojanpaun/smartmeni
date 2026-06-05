@@ -3,6 +3,13 @@ import react from '@vitejs/plugin-react'
 import { VitePWA } from 'vite-plugin-pwa'
 
 export default defineConfig({
+  // Vitest: unit testovi su SAMO čiste JS funkcije u src/. Deno edge testovi
+  // (supabase/functions/**, jsr: importi) i Playwright e2e (e2e/**) se NE pokreću
+  // ovdje — njih vrte `npm run test:edge` (Deno) i `npm run test:e2e` (Playwright).
+  test: {
+    include: ['src/**/*.{test,spec}.{js,jsx}'],
+    exclude: ['node_modules/**', 'e2e/**', 'supabase/**', 'dist/**'],
+  },
   plugins: [
     react(),
     VitePWA({

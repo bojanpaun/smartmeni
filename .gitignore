@@ -2,3 +2,13 @@ node_modules/
 dist/
 .env
 slike gresaka/
+
+# Lokalni prod schema dump (sadrži service_role JWT) — regeneriši: supabase db dump --linked --schema public
+supabase/_remote_schema_snapshot.sql
+
+# Supabase CLI interni temp / lokalno stanje
+supabase/.temp/
+supabase/.branches/
+
+# Lokalna Claude Code podešavanja (per-mašina)
+.claude/settings.local.json
