@@ -122,10 +122,19 @@ export default function SuperAdminPanel() {
       payload.suspended_at = null
     }
 
-    const { error } = await supabase
+    const { data: updated, error } = await supabase
       .from('restaurants')
       .update(payload)
       .eq('id', editingId)
+      .select('id')
+
+    if (!error && (!updated || updated.length === 0)) {
+      // RLS je propustio UPDATE bez greške ali bez pogođenih redova —
+      // ne tvrdi da je sačuvano, jer u bazi nema promjene.
+      setSaveMsg('Greška: izmjena nije sačuvana (nedovoljna prava).')
+      setSaving(false)
+      return
+    }
 
     if (!error) {
       await supabase
