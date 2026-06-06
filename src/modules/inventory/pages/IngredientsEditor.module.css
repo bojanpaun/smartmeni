@@ -56,6 +56,13 @@
 
 /* ── Receptura panel ── */
 .recipePanel { background: var(--c-surface); border: 1px solid var(--c-border); border-radius: 14px; padding: 20px; }
+.mobileBack {
+  display: none; /* samo na mobilnom */
+  align-items: center; gap: 6px; margin-bottom: 14px;
+  background: var(--c-bg-subtle); border: 1px solid var(--c-border); border-radius: 8px;
+  padding: 8px 12px; font-size: 13px; font-weight: 600; color: var(--c-text-medium);
+  cursor: pointer; font-family: var(--c-font-sans);
+}
 
 .recipeEmpty { display: flex; flex-direction: column; align-items: center; justify-content: center; min-height: 200px; gap: 12px; color: var(--c-text-muted); font-size: 14px; }
 .recipeEmpty div:first-child { font-size: 36px; }
@@ -102,8 +109,14 @@
 @media (max-width: 700px) {
   .layout { grid-template-columns: 1fr; gap: 16px; }
   .divider { display: none; }
-  .menuList { max-height: 280px; }
+  .menuList { max-height: none; }
   .wrap { padding: 14px; }
   .addFormRow { flex-wrap: wrap; }
   .addSelect { width: 100%; }
+
+  /* Master-detail: prikaži ili listu ili recepturu, ne oboje. */
+  .recipePanel { display: none; }            /* dok stavka nije izabrana → samo lista */
+  .detailOpen .menuList { display: none; }    /* izabrana stavka → sakrij listu */
+  .detailOpen .recipePanel { display: block; }
+  .mobileBack { display: inline-flex; }
 }

@@ -171,7 +171,11 @@ export default function IngredientsEditor() {
         Definiši koje namirnice se troše za svaku stavku menija. Kad se narudžba primi, zalihe se automatski odbijaju.
       </div>
 
-      <div className={styles.layout} ref={layoutRef} style={{ '--left-w': `${leftWidth}px` }}>
+      <div
+        className={`${styles.layout} ${selectedMenu ? styles.detailOpen : ''}`}
+        ref={layoutRef}
+        style={{ '--left-w': `${leftWidth}px` }}
+      >
 
         {/* Lijevo — lista stavki menija (grupisano po kategorijama) */}
         <div className={styles.menuList}>
@@ -239,6 +243,9 @@ export default function IngredientsEditor() {
             </div>
           ) : (
             <>
+              <button className={styles.mobileBack} onClick={() => setSelectedMenu(null)}>
+                ← Nazad na listu
+              </button>
               <div className={styles.recipeHeader}>
                 <span className={styles.recipeEmoji}>{selectedMenu.emoji}</span>
                 <span className={styles.recipeName}>{selectedMenu.name}</span>
