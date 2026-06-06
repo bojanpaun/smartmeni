@@ -36,7 +36,7 @@ export default function AdminMenu() {
   const [saving, setSaving] = useState(false)
   const [saveMsg, setSaveMsg] = useState('')
   const [showLibrary, setShowLibrary] = useState(false)
-  const [catForm, setCatForm] = useState({ name: '', icon: '' })
+  const [catForm, setCatForm] = useState({ name: '', icon: '', description: '' })
   const [editingCat, setEditingCat] = useState(false)
 
   useEffect(() => {
@@ -146,14 +146,14 @@ export default function AdminMenu() {
   }
 
   const startEditCategory = (cat) => {
-    setCatForm({ name: cat.name, icon: cat.icon || '🍽️' })
+    setCatForm({ name: cat.name, icon: cat.icon || '🍽️', description: cat.description || '' })
     setEditingCat(true)
   }
 
   const saveCategoryEdit = async (cat) => {
     const name = catForm.name.trim()
     if (!name) return
-    const payload = { name, icon: catForm.icon || '🍽️' }
+    const payload = { name, icon: catForm.icon || '🍽️', description: catForm.description.trim() || null }
     await supabase.from('categories').update(payload).eq('id', cat.id).eq('restaurant_id', restaurant.id)
     setCategories(categories.map(c => c.id === cat.id ? { ...c, ...payload } : c))
     setEditingCat(false)
@@ -304,9 +304,9 @@ export default function AdminMenu() {
               }
               return (
                 <div className={styles.catSettings}>
-                  <div className={styles.catEditRow}>
-                    {editingCat ? (
-                      <>
+                  {editingCat ? (
+                    <div className={styles.catEditBox}>
+                      <div className={styles.catEditRow}>
                         <select
                           className={styles.catIconSelect}
                           value={catForm.icon}
@@ -324,13 +324,25 @@ export default function AdminMenu() {
                         />
                         <button className={styles.catSaveBtn} onClick={() => saveCategoryEdit(cat)}>Sačuvaj</button>
                         <button className={styles.catCancelBtn} onClick={() => setEditingCat(false)}>Odustani</button>
-                      </>
-                    ) : (
+                      </div>
+                      <textarea
+                        className={styles.catDescInput}
+                        value={catForm.description}
+                        onChange={e => setCatForm(f => ({ ...f, description: e.target.value }))}
+                        placeholder="Interna napomena (vidi samo osoblje, ne gost) — npr. uputstvo za bar/kuhinju"
+                        rows={2}
+                      />
+                    </div>
+                  ) : (
+                    <div className={styles.catEditRow}>
                       <button className={styles.catRenameBtn} onClick={() => startEditCategory(cat)}>
-                        ✏️ Preimenuj kategoriju
+                        ✏️ Uredi kategoriju
                       </button>
-                    )}
-                  </div>
+                      {cat.description && (
+                        <span className={styles.catNote}>📝 {cat.description}</span>
+                      )}
+                    </div>
+                  )}
                   <div className={styles.catSettingsRight}>
                     <label className={styles.catToggleLabel}>
                       <input type="checkbox" checked={!!cat.is_bar} onChange={toggleBar} />
