@@ -124,6 +124,7 @@ export default function RecipeLibraryPicker({ onClose, onImported, categories = 
           <button className={styles.close} onClick={onClose}>✕</button>
         </div>
 
+        <div className={styles.scroll}>
         <div className={styles.addonNote}>
           {hasInventory
             ? '✓ Imaš Inventar Pro — uz svaku stavku kreiraju se i namirnice + recept (zalihe se odbijaju automatski).'
@@ -195,6 +196,7 @@ export default function RecipeLibraryPicker({ onClose, onImported, categories = 
               </div>
             </>
           )}
+        </div>
         </div>
 
         <div className={styles.footer}>

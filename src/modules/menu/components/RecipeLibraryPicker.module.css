@@ -27,6 +27,15 @@
   justify-content: space-between;
   padding: 20px;
   border-bottom: 1px solid var(--c-border);
+  flex-shrink: 0;
+}
+
+/* Jedini scroll: header i footer fiksni, sve između (notes, izbor kategorije,
+   pills tabovi, lista) scrola zajedno. */
+.scroll {
+  flex: 1;
+  overflow-y: auto;
+  min-height: 0;
 }
 
 .title {
@@ -69,12 +78,13 @@
 }
 
 .targetRow {
-  display: flex; align-items: center; gap: 10px;
+  display: flex; align-items: center; gap: 10px; flex-wrap: wrap;
   padding: 12px 20px 0; font-size: 0.85rem; color: var(--c-text-medium);
 }
 .targetRow label { white-space: nowrap; font-weight: 600; }
 .targetRow select {
-  flex: 1; padding: 7px 10px; border: 1px solid var(--c-border-input);
+  flex: 1 1 200px; min-width: 0; max-width: 100%;
+  padding: 8px 10px; border: 1px solid var(--c-border-input);
   border-radius: 8px; font-size: 0.85rem; background: var(--c-surface); color: var(--c-text);
 }
 
@@ -105,8 +115,6 @@
 }
 
 .body {
-  flex: 1;
-  overflow-y: auto;
   padding: 12px 20px;
 }
 
@@ -196,6 +204,7 @@
   padding: 16px 20px;
   border-top: 1px solid var(--c-border);
   gap: 12px;
+  flex-shrink: 0;
 }
 
 .count {
