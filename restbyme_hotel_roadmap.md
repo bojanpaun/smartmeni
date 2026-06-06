@@ -1,6 +1,6 @@
 ﻿# rest.by.me — HospitalityOS Produkt roadmap
 
-> **Verzija:** 5.0 *(Faza PAY kompletna — PAY-1…PAY-12 implementirani i deployani: Stripe + Monri, admin UI, booking/folio/GuestApp integracija, refund — 2026-06-04)*
+> **Verzija:** 5.2 *(MENU-LIB — biblioteka preddefinisanih recepata: kafa + kokteli, import RPC, /admin/menu picker — 2026-06-06. Prethodno: Faza PAY kompletna — 2026-06-04)*
 > **Kontekst:** Evolucija rest.by.me (bivši SmartMeni) SaaS platforme prema punom hospitality management sistemu
 > **Tim:** 1 developer + Claude Code AI asistent
 > **Branch:** `main` → direktno na produkciju (Vercel auto-deploy)
@@ -397,6 +397,37 @@ supabase/functions/
   _shared/payments/
     types.ts  registry.ts  stripe.ts  monri.ts  status-map.ts
 ```
+
+---
+
+## ✅ MENU-LIB — Biblioteka preddefinisanih recepata (ZAVRŠENA — 2026-06-06)
+
+> **Cilj:** Ubrzati tenantima postavljanje menija — gotov katalog stavki koje se preuzimaju jednim klikom.
+> **Odluka (potvrđena 2026-06-06):** import je *full* (kreira stavku menija + namirnice + recept), prvi sadržaj = **kafa i kokteli**.
+
+### Zašto baš pića
+Recepti pića/kafe su standardizovani (Mojito je svuda isti) → najveća korist. Hrana je lokalna i bespoke po objektu → **odgođena** za kasniju fazu (mali balkanski + internacionalni set), kao i bezalkoholna pića.
+
+### Model (ključno)
+"Recept" u aplikaciji nije samostalan entitet — to je **menu_item + BOM veze na inventory_items** (`menu_item_ingredients`, količina po porciji → automatsko odbijanje zaliha). Zato biblioteka mora biti samostalna i na importu materijalizovati sva tri sloja.
+
+### Implementirani koraci
+
+| Korak | Šta | Fajl | Status |
+|-------|-----|------|--------|
+| **ML-1** | Globalni katalog (bez `restaurant_id`, kao `addon_catalog`) | `recipe_library` + `recipe_library_ingredients`, RLS (authenticated read, superadmin manage) — `20260606000004` | ✅ |
+| **ML-2** | Import RPC | `import_recipe_from_library()` SECURITY DEFINER — ručna autorizacija (vlasnik/superadmin), server-side `inventory_pro` (mirror `planUtils`), find-or-create kategorija/menu_item/namirnice + upsert BOM | ✅ |
+| **ML-3** | Seed sadržaj | ~18 kafa + ~28 koktela (nazivi crnogorski + `name_en`) — `20260606000005` | ✅ |
+| **ML-4** | Frontend | `RecipeLibraryPicker` modal + dugme "📚 Biblioteka" na `/admin/menu`, addon-svjestan (bez inventory_pro samo menu-stavke) | ✅ |
+| **ML-5** | Test | pgTAP `005_import_recipe_from_library` — happy path, idempotentnost, odbijanje neovlašćenog, starter bez inventara | ✅ (napisan; lokalni `supabase test db` čeka Docker) |
+
+### Podloga (isti dan, infra)
+- Popravka /superadmin: dodata superadmin write RLS politika na `restaurants` + uklonjena rekurzija `restaurants ↔ user_profiles` uvođenjem `public.is_superadmin()` (SECURITY DEFINER) — `20260606000001..0003`. Sve nove superadmin politike (uklj. recipe_library) koriste taj helper. Pravilo upisano u `CLAUDE.md`.
+
+### TODO (sljedeće faze)
+- Superadmin UI za uređivanje biblioteke (za sad se širi migracijom/seed-om).
+- Sadržaj: hrana (balkanski + internacionalni set) i bezalkoholna pića / sokovi.
+- Opciono: izbor ciljne kategorije pri importu (sad auto Kafa/Kokteli).
 
 ---
 
