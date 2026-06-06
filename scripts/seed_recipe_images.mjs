@@ -40,12 +40,17 @@ if (!PEXELS_KEY) {
 const sb = createClient(SUPABASE_URL, SERVICE_KEY, { auth: { persistSession: false } })
 const sleep = (ms) => new Promise(r => setTimeout(r, ms))
 
+const IMG_WIDTH = 600 // dovoljno za kartice/modal (uklj. retina), mali fajl
+
 async function searchPexels(query) {
   const url = `https://api.pexels.com/v1/search?query=${encodeURIComponent(query)}&per_page=1&orientation=landscape`
   const res = await fetch(url, { headers: { Authorization: PEXELS_KEY } })
   if (!res.ok) throw new Error(`Pexels ${res.status}`)
   const data = await res.json()
-  return data.photos?.[0]?.src?.large || data.photos?.[0]?.src?.original || null
+  const orig = data.photos?.[0]?.src?.original
+  // Pexels podržava resize/kompresiju kroz query params na original URL-u.
+  if (orig) return `${orig}?auto=compress&cs=tinysrgb&w=${IMG_WIDTH}`
+  return data.photos?.[0]?.src?.large || null
 }
 
 async function run() {
@@ -58,10 +63,18 @@ async function run() {
   let done = 0, skipped = 0, failed = 0
   for (const r of recipes) {
     if (ALLOWLIST && !ALLOWLIST.has(r.id)) { skipped++; continue }
+    // Nikad ne gazi ručno postavljene slike (superadmin UI dodaje ?v= u URL).
+    if (r.image_url && r.image_url.includes('?v=')) { skipped++; continue }
+    // Bez --force: samo popuni gdje fali. Sa --force: re-fetch (npr. smanjenje).
     if (r.image_url && !FORCE) { skipped++; continue }
 
     const subject = r.name_en || r.name
-    const query = r.category === 'coffee' ? `${subject} coffee drink` : `${subject} cocktail drink`
+    const suffix = {
+      coffee: 'coffee drink', cocktail: 'cocktail drink', soft: 'drink',
+      hot: 'hot drink', beverage: 'drink',
+      food: 'food dish', salad: 'food', breakfast: 'breakfast food', dessert: 'dessert',
+    }[r.category] || 'food'
+    const query = `${subject} ${suffix}`
     try {
       const photoUrl = await searchPexels(query)
       if (!photoUrl) { console.warn(`⊘ ${r.id}: nema rezultata za "${query}"`); failed++; continue }
