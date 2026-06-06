@@ -2,6 +2,7 @@ import { useState, useEffect } from 'react'
 import { useNavigate } from 'react-router-dom'
 import { supabase } from '../../../lib/supabase'
 import { usePlatform } from '../../../context/PlatformContext'
+import RecipeLibraryPicker from '../components/RecipeLibraryPicker'
 import styles from './AdminMenu.module.css'
 import gsStyles from './GeneralSettings.module.css'
 
@@ -26,6 +27,7 @@ export default function AdminMenu() {
   const [uploadingImage, setUploadingImage] = useState(false)
   const [saving, setSaving] = useState(false)
   const [saveMsg, setSaveMsg] = useState('')
+  const [showLibrary, setShowLibrary] = useState(false)
 
   useEffect(() => {
     if (user && (ctxRestaurant || restaurant)) {
@@ -146,6 +148,13 @@ export default function AdminMenu() {
   return (
     <div className={styles.moduleWrap}>
 
+      {showLibrary && (
+        <RecipeLibraryPicker
+          onClose={() => setShowLibrary(false)}
+          onImported={() => restaurant && loadData(restaurant.id)}
+        />
+      )}
+
       {/* Poruka o čuvanju */}
       {saveMsg && (
         <div className={styles.saveToast}>✓ {saveMsg}</div>
@@ -236,9 +245,14 @@ export default function AdminMenu() {
                 ))}
                 <button className={styles.catTabAdd} onClick={addCategory}>+ Kategorija</button>
               </div>
-              <button className={styles.addItemBtn} onClick={() => openItemForm()}>
-                + Dodaj jelo
-              </button>
+              <div className={styles.menuTopActions}>
+                <button className={styles.libraryBtn} onClick={() => setShowLibrary(true)}>
+                  📚 Biblioteka
+                </button>
+                <button className={styles.addItemBtn} onClick={() => openItemForm()}>
+                  + Dodaj jelo
+                </button>
+              </div>
             </div>
             {activeCategory && (() => {
               const cat = categories.find(c => c.id === activeCategory)

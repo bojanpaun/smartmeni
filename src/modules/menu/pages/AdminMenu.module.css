@@ -127,6 +127,13 @@
   border: none; border-radius: 10px; font-size: 13px; cursor: pointer;
   font-family: var(--c-font-sans); font-weight: 500;
 }
+.menuTopActions { display: flex; gap: 8px; flex-wrap: wrap; }
+.libraryBtn {
+  padding: 8px 16px; background: transparent; color: var(--c-primary);
+  border: 1px solid var(--c-primary-medium); border-radius: 10px; font-size: 13px;
+  cursor: pointer; font-family: var(--c-font-sans); font-weight: 500;
+}
+.libraryBtn:hover { background: var(--c-primary-light); }
 
 /* ── Empty state ── */
 .emptyState { text-align: center; padding: 3rem 1rem; }
