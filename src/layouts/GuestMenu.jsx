@@ -511,7 +511,7 @@ export default function Menu() {
           <div key={item.id} className={styles.item} onClick={() => setSelectedItem(item)}>
             <div className={styles.itemEmoji} style={{ background: item.bg || '#e0f5ec' }}>
               {item.image_url
-                ? <img src={item.image_url} alt={item.name} style={{width:'100%',height:'100%',objectFit:'cover',borderRadius:10}} />
+                ? <img src={item.image_url} alt={item.name} loading="lazy" decoding="async" style={{width:'100%',height:'100%',objectFit:'cover',borderRadius:10}} />
                 : item.emoji}
             </div>
             <div className={styles.itemBody}>
@@ -717,7 +717,7 @@ export default function Menu() {
           <div className={styles.sheet} onClick={e => e.stopPropagation()}>
             <button className={styles.sheetClose} onClick={() => setSelectedItem(null)}>✕</button>
             {selectedItem.image_url
-              ? <img src={selectedItem.image_url} alt={selectedItem.name} style={{width:'100%',height:160,objectFit:'cover',borderRadius:12,marginBottom:12}} />
+              ? <img src={selectedItem.image_url} alt={selectedItem.name} loading="lazy" decoding="async" style={{width:'100%',height:160,objectFit:'cover',borderRadius:12,marginBottom:12}} />
               : <div className={styles.sheetEmoji}>{selectedItem.emoji}</div>
             }
             <div className={styles.sheetName}>{isEn ? (selectedItem.name_en || selectedItem.nameEn || selectedItem.name) : selectedItem.name}</div>

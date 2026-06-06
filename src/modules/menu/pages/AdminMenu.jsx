@@ -384,7 +384,7 @@ export default function AdminMenu() {
                         <td>
                           <div className={styles.itemThumb}>
                             {item.image_url
-                              ? <img src={item.image_url} alt={item.name} />
+                              ? <img src={item.image_url} alt={item.name} loading="lazy" decoding="async" />
                               : <span>{item.emoji}</span>
                             }
                           </div>
