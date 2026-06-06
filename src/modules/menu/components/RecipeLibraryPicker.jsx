@@ -31,7 +31,7 @@ export default function RecipeLibraryPicker({ onClose, onImported }) {
     setLoading(true)
     const [{ data: recs }, { data: ings }] = await Promise.all([
       supabase.from('recipe_library')
-        .select('id, name, category, emoji, suggested_price')
+        .select('id, name, category, emoji, suggested_price, image_url')
         .eq('is_active', true)
         .order('sort_order'),
       supabase.from('recipe_library_ingredients')
@@ -147,7 +147,9 @@ export default function RecipeLibraryPicker({ onClose, onImported }) {
                       onClick={() => toggle(r.id)}
                     >
                       <input type="checkbox" checked={isSel} readOnly className={styles.check} />
-                      <span className={styles.emoji}>{r.emoji}</span>
+                      {r.image_url
+                        ? <img src={r.image_url} alt="" className={styles.thumb} loading="lazy" />
+                        : <span className={styles.emoji}>{r.emoji}</span>}
                       <div className={styles.info}>
                         <div className={styles.name}>{r.name}</div>
                         <div className={styles.ings}>

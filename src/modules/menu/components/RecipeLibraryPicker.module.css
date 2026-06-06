@@ -138,6 +138,14 @@
 
 .emoji { font-size: 1.4rem; }
 
+.thumb {
+  width: 44px;
+  height: 44px;
+  border-radius: 8px;
+  object-fit: cover;
+  flex-shrink: 0;
+}
+
 .info { flex: 1; min-width: 0; }
 
 .name {
