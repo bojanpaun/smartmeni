@@ -116,6 +116,10 @@ export default function RecipeLibraryPicker({ onClose, onImported, categories = 
             : 'ℹ️ Preuzimaju se stavke menija. Uz Inventar Pro automatski bi se kreirali i recepti/zalihe.'}
         </div>
 
+        <div className={styles.disclaimer}>
+          ⚠️ Kalorije su procjena, a alergeni polazna osnova — obavezno provjerite i dopunite po svojoj recepturi (uredite stavku nakon preuzimanja).
+        </div>
+
         <div className={styles.targetRow}>
           <label>Dodaj u kategoriju:</label>
           <select value={targetCategoryId} onChange={e => setTargetCategoryId(e.target.value)}>

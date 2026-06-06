@@ -1,6 +1,6 @@
 ﻿# rest.by.me — HospitalityOS Produkt roadmap
 
-> **Verzija:** 5.3 *(MENU-LIB prošireno — slike (Storage + Pexels), superadmin UI za slike, import u izabranu kategoriju, rename + interni opis kategorija — 2026-06-06. Prethodno: Faza PAY — 2026-06-04)*
+> **Verzija:** 5.4 *(MENU-LIB prošireno — slike, superadmin UI, import u izabranu kategoriju, alergeni/kalorije/prep_time iz sastojaka, upravljanje + preglednost kategorija/receptura — 2026-06-06. Prethodno: Faza PAY — 2026-06-04)*
 > **Kontekst:** Evolucija rest.by.me (bivši SmartMeni) SaaS platforme prema punom hospitality management sistemu
 > **Tim:** 1 developer + Claude Code AI asistent
 > **Branch:** `main` → direktno na produkciju (Vercel auto-deploy)
@@ -423,11 +423,15 @@ Recepti pića/kafe su standardizovani (Mojito je svuda isti) → najveća korist
 | **ML-6** | Slike biblioteke | `recipe_library.image_url` + javni Storage bucket `recipe-library`; RPC kopira sliku u `menu_items.image_url`; `scripts/seed_recipe_images.mjs` (Pexels → Storage, "kombinovano" allowlist) — `20260606000006`. Popunjeno 37 (kafa + prepoznatljivi kokteli) | ✅ |
 | **ML-7** | Superadmin UI za slike | `/superadmin/recipes` — grid po kategorijama, upload/zamjena/uklanjanje slike, toggle `is_active`; storage RLS za superadmin upis iz browsera — `20260606000007` | ✅ |
 | **ML-8** | Import dorade | RPC prima `p_category_id` (uvoz u izabrani tab, ne auto-Kafa/Kokteli) + popuna slike na već uvezenoj stavci bez slike (admin slika se ne gazi); picker bira ciljnu kategoriju — `20260606000008` | ✅ |
+| **ML-9** | Alergeni / kalorije / prep_time | Izvedeni iz sastojaka (ne vanjska baza): alergeni = unija EU-alergena (mapa sastojak→alergen), kalorije = Σ(količina×kcal/jed.), prep_time po kategoriji — `20260606000010`; RPC kopira + backfilluje prazna polja — `20260606000011`. Disclaimer u pickeru (procjena/provjeri) | ✅ |
 
 ### Upravljanje kategorijama (`/admin/menu`, 2026-06-06)
-- Tab (kategorija) sad ima **rename** (naziv + ikona) i **brisanje** (uz upozorenje — `menu_items.category_id` je ON DELETE CASCADE), pored ranijeg kreiranja.
+- Tab (kategorija) sad ima **rename** (naziv + ikona) i **brisanje** (uz upozorenje — `menu_items.category_id` je ON DELETE CASCADE; **zalihe ostaju** jer `inventory_items` ne zavise od menija, briše se samo BOM obrisanih stavki), pored ranijeg kreiranja.
 - **Interni opis kategorije** (`categories.description`, `20260606000009`) — napomena za bar/kuhinju, vidljiva samo u admin panelu, NE gostu.
 - Emoji ikona stavke: slobodan unos zamijenjen kuriranim pickerom.
+
+### Preglednost receptura (`/admin/inventory/recipes`, 2026-06-06)
+- Lijeva lista pokazuje broj sastojaka za SVE stavke (badge / „—" bez recepture), brojač „X/Y s recepturom" i filter „samo bez recepture" — pregled pokrivenosti bez klikanja.
 
 ### Podloga (isti dan, infra)
 - Popravka /superadmin: dodata superadmin write RLS politika na `restaurants` + uklonjena rekurzija `restaurants ↔ user_profiles` uvođenjem `public.is_superadmin()` (SECURITY DEFINER) — `20260606000001..0003`. Sve nove superadmin politike (uklj. recipe_library) koriste taj helper. Pravilo upisano u `CLAUDE.md`.

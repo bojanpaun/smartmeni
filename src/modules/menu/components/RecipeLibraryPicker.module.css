@@ -61,6 +61,13 @@
   line-height: 1.4;
 }
 
+.disclaimer {
+  font-size: 0.78rem;
+  color: var(--c-text-muted);
+  padding: 8px 20px 0;
+  line-height: 1.4;
+}
+
 .targetRow {
   display: flex; align-items: center; gap: 10px;
   padding: 12px 20px 0; font-size: 0.85rem; color: var(--c-text-medium);
