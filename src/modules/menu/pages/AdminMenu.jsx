@@ -6,6 +6,14 @@ import RecipeLibraryPicker from '../components/RecipeLibraryPicker'
 import styles from './AdminMenu.module.css'
 import gsStyles from './GeneralSettings.module.css'
 
+// Kurirani emoji izbor za ikonu stavke (umjesto slobodnog unosa teksta).
+const EMOJI_OPTIONS = [
+  '🍽️','🍕','🍔','🍟','🌭','🥪','🌮','🌯','🥙','🧆','🥗','🍝','🍜','🍲','🍛','🥘',
+  '🍣','🍱','🍳','🥩','🍗','🍖','🥓','🧀','🥖','🥐','🥨','🥞','🧇','🍰','🧁','🍮',
+  '🍩','🍪','🍦','🍨','🍧','🍫','🍿','🥜','🍅','🥑','🍋','🍓','🍑','🍉',
+  '☕','🍵','🧃','🥤','🧋','🍺','🍻','🍷','🥂','🍸','🍹','🍾','🥃','🍶','🧉','🥛',
+]
+
 export default function AdminMenu() {
   const navigate = useNavigate()
   const { user, restaurant: ctxRestaurant } = usePlatform()
@@ -133,6 +141,20 @@ export default function AdminMenu() {
     }).select().single()
     setCategories([...categories, data])
     setActiveCategory(data.id)
+  }
+
+  const deleteCategory = async (cat) => {
+    const itemCount = items.filter(i => i.category_id === cat.id).length
+    const msg = itemCount > 0
+      ? `Obrisati kategoriju "${cat.name}"? Time se briše i ${itemCount} ${itemCount === 1 ? 'stavka' : 'stavki'} u njoj. Ova radnja se ne može poništiti.`
+      : `Obrisati kategoriju "${cat.name}"?`
+    if (!confirm(msg)) return
+    // menu_items.category_id ima ON DELETE CASCADE — stavke u kategoriji se brišu zajedno.
+    await supabase.from('categories').delete().eq('id', cat.id).eq('restaurant_id', restaurant.id)
+    const remaining = categories.filter(c => c.id !== cat.id)
+    setCategories(remaining)
+    setItems(items.filter(i => i.category_id !== cat.id))
+    setActiveCategory(remaining[0]?.id || null)
   }
 
   const filteredItems = activeCategory
@@ -269,6 +291,9 @@ export default function AdminMenu() {
                     <span>🍷 Bar kategorija</span>
                     <span className={styles.catToggleHint}>Stavke iz ove kategorije idu na Bar dashboard, ne u Kuhinju</span>
                   </label>
+                  <button className={styles.catDeleteBtn} onClick={() => deleteCategory(cat)}>
+                    🗑 Obriši kategoriju
+                  </button>
                 </div>
               )
             })()}
@@ -420,9 +445,20 @@ export default function AdminMenu() {
                   <label>Cijena (€) *</label>
                   <input type="number" step="0.01" value={itemForm.price} onChange={e => setItemForm(f => ({...f, price: e.target.value}))} required />
                 </div>
-                <div className={styles.field}>
-                  <label>Emoji ikona</label>
-                  <input value={itemForm.emoji} onChange={e => setItemForm(f => ({...f, emoji: e.target.value}))} />
+                <div className={`${styles.field} ${styles.fullWidth}`}>
+                  <label>Ikona stavke <span className={styles.fieldHintInline}>(prikazuje se u meniju kad nema slike)</span></label>
+                  <div className={styles.emojiPicker}>
+                    {EMOJI_OPTIONS.map(em => (
+                      <button
+                        type="button"
+                        key={em}
+                        className={`${styles.emojiOpt} ${itemForm.emoji === em ? styles.emojiOptActive : ''}`}
+                        onClick={() => setItemForm(f => ({ ...f, emoji: em }))}
+                      >
+                        {em}
+                      </button>
+                    ))}
+                  </div>
                 </div>
                 <div className={styles.field}>
                   <label>Kategorija</label>
