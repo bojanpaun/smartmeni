@@ -237,33 +237,18 @@
 }
 
 /* ── Horizontalni tabovi ── */
+/* Pill stil — usklađeno s ostatkom projekta (nav.module.css) */
 .tabs {
-  display: flex;
-  border-bottom: 2px solid var(--c-border);
+  composes: pillBar from '../../../styles/nav.module.css';
   margin-bottom: 24px;
-  gap: 0;
 }
 
 .tab {
-  padding: 9px 20px;
-  font-size: 13px;
-  font-weight: 500;
-  color: var(--c-text-muted);
-  background: none;
-  border: none;
-  border-bottom: 2px solid transparent;
-  margin-bottom: -2px;
-  cursor: pointer;
-  transition: color 0.15s, border-color 0.15s;
-  font-family: var(--c-font-sans);
-  white-space: nowrap;
+  composes: pillBtn from '../../../styles/nav.module.css';
 }
 
-.tab:hover { color: var(--c-text); }
-
 .tabActive {
-  color: var(--c-primary);
-  border-bottom-color: var(--c-primary);
+  composes: pillBtnActive from '../../../styles/nav.module.css';
 }
 
 .fullWidth { grid-column: 1 / -1; }
