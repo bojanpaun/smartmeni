@@ -1,4 +1,5 @@
 import { useState, useEffect } from 'react'
+import { useNavigate } from 'react-router-dom'
 import { supabase } from '../../lib/supabase'
 import { usePlatform } from '../../context/PlatformContext'
 import { planStatus } from '../../lib/planUtils'
@@ -19,6 +20,7 @@ const CATEGORY_LABELS = {
 
 export default function SuperAdminPanel() {
   const { isSuperAdmin } = usePlatform()
+  const navigate = useNavigate()
 
   const [restaurants, setRestaurants] = useState([])
   const [addonCatalog, setAddonCatalog] = useState([])
@@ -213,7 +215,10 @@ export default function SuperAdminPanel() {
           <div className={styles.headerTitle}>Super admin panel</div>
           <div className={styles.headerSub}>Upravljanje restoranima i planovima</div>
         </div>
-        <button className={styles.btnRefresh} onClick={loadRestaurants}>↻ Osvježi</button>
+        <div style={{ display: 'flex', gap: 8 }}>
+          <button className={styles.btnRefresh} onClick={() => navigate('/superadmin/recipes')}>📚 Slike biblioteke</button>
+          <button className={styles.btnRefresh} onClick={loadRestaurants}>↻ Osvježi</button>
+        </div>
       </div>
 
       <div className={styles.stats}>
