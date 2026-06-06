@@ -1,4 +1,4 @@
-import { useState, useEffect } from 'react'
+import { useState, useEffect, useRef } from 'react'
 import { useNavigate } from 'react-router-dom'
 import { supabase } from '../../../lib/supabase'
 import { usePlatform } from '../../../context/PlatformContext'
@@ -9,6 +9,7 @@ export default function IngredientsEditor() {
   const navigate = useNavigate()
 
   const [menuItems, setMenuItems] = useState([])
+  const [categories, setCategories] = useState([])
   const [inventoryItems, setInventoryItems] = useState([])
   const [ingredients, setIngredients] = useState([]) // sve recepture
   const [selectedMenu, setSelectedMenu] = useState(null)
@@ -17,6 +18,11 @@ export default function IngredientsEditor() {
   const [search, setSearch] = useState('')
   const [recipeCounts, setRecipeCounts] = useState({}) // menu_item_id -> broj sastojaka
   const [onlyMissing, setOnlyMissing] = useState(false)
+  const [collapsed, setCollapsed] = useState(new Set()) // sklopljene kategorije
+  const [leftWidth, setLeftWidth] = useState(300) // širina lijevog panela (drag handle)
+
+  const layoutRef = useRef(null)
+  const dragging = useRef(false)
 
   // Forma za dodavanje sastojka
   const [addForm, setAddForm] = useState({ inventory_item_id: '', quantity: '' })
@@ -27,12 +33,14 @@ export default function IngredientsEditor() {
 
   const loadAll = async () => {
     setLoading(true)
-    const [{ data: mi }, { data: ii }] = await Promise.all([
-      supabase.from('menu_items').select('id, name, emoji').eq('restaurant_id', restaurant.id).eq('is_visible', true).order('name'),
+    const [{ data: mi }, { data: ii }, { data: cats }] = await Promise.all([
+      supabase.from('menu_items').select('id, name, emoji, category_id').eq('restaurant_id', restaurant.id).eq('is_visible', true).order('name'),
       supabase.from('inventory_items').select('id, name, unit').eq('restaurant_id', restaurant.id).order('name'),
+      supabase.from('categories').select('id, name, icon, sort_order').eq('restaurant_id', restaurant.id).order('sort_order'),
     ])
     setMenuItems(mi || [])
     setInventoryItems(ii || [])
+    setCategories(cats || [])
 
     // Pregled: koliko sastojaka ima svaka stavka (badge u listi, bez klikanja).
     const ids = (mi || []).map(m => m.id)
@@ -104,6 +112,44 @@ export default function IngredientsEditor() {
   })
   const withRecipe = menuItems.filter(i => (recipeCounts[i.id] || 0) > 0).length
 
+  // Grupisanje stavki po kategorijama menija (redoslijed kategorija + "Bez kategorije").
+  const groups = [
+    ...categories.map(c => ({ id: c.id, name: c.name, icon: c.icon || '🍽️',
+      items: filteredMenu.filter(i => i.category_id === c.id) })),
+    {
+      id: '__none__', name: 'Bez kategorije', icon: '📦',
+      items: filteredMenu.filter(i => !i.category_id || !categories.some(c => c.id === i.category_id)),
+    },
+  ].filter(g => g.items.length > 0)
+
+  const toggleCollapse = (id) => setCollapsed(prev => {
+    const next = new Set(prev)
+    next.has(id) ? next.delete(id) : next.add(id)
+    return next
+  })
+
+  // Drag handle — resize lijevog panela.
+  const onDragStart = (e) => {
+    e.preventDefault()
+    dragging.current = true
+    document.body.style.userSelect = 'none'
+    document.body.style.cursor = 'col-resize'
+    const onMove = (ev) => {
+      if (!dragging.current || !layoutRef.current) return
+      const left = layoutRef.current.getBoundingClientRect().left
+      setLeftWidth(Math.max(200, Math.min(520, ev.clientX - left)))
+    }
+    const onUp = () => {
+      dragging.current = false
+      document.body.style.userSelect = ''
+      document.body.style.cursor = ''
+      window.removeEventListener('mousemove', onMove)
+      window.removeEventListener('mouseup', onUp)
+    }
+    window.addEventListener('mousemove', onMove)
+    window.addEventListener('mouseup', onUp)
+  }
+
   // Stavke koje još nijesu u recepturi
   const availableItems = inventoryItems.filter(ii =>
     !ingredients.find(ing => ing.inventory_item_id === ii.id)
@@ -125,9 +171,9 @@ export default function IngredientsEditor() {
         Definiši koje namirnice se troše za svaku stavku menija. Kad se narudžba primi, zalihe se automatski odbijaju.
       </div>
 
-      <div className={styles.layout}>
+      <div className={styles.layout} ref={layoutRef} style={{ '--left-w': `${leftWidth}px` }}>
 
-        {/* Lijevo — lista stavki menija */}
+        {/* Lijevo — lista stavki menija (grupisano po kategorijama) */}
         <div className={styles.menuList}>
           <div className={styles.menuListHeader}>
             Stavke menija — <strong>{withRecipe}/{menuItems.length}</strong> s recepturom
@@ -142,30 +188,47 @@ export default function IngredientsEditor() {
             <input type="checkbox" checked={onlyMissing} onChange={e => setOnlyMissing(e.target.checked)} />
             Prikaži samo bez recepture
           </label>
-          {filteredMenu.length === 0 && (
+          {groups.length === 0 && (
             <div className={styles.menuEmpty}>
               {onlyMissing ? 'Sve stavke imaju recepturu. 🎉' : 'Nema stavki menija.'}
             </div>
           )}
           <div className={styles.menuScroll}>
-            {filteredMenu.map(item => {
-              const count = recipeCounts[item.id] || 0
+            {groups.map(group => {
+              const isCollapsed = collapsed.has(group.id)
+              const gWith = group.items.filter(i => (recipeCounts[i.id] || 0) > 0).length
               return (
-                <div
-                  key={item.id}
-                  className={`${styles.menuItem} ${selectedMenu?.id === item.id ? styles.menuItemActive : ''}`}
-                  onClick={() => selectMenuItem(item)}
-                >
-                  <span className={styles.menuItemEmoji}>{item.emoji}</span>
-                  <span className={styles.menuItemName}>{item.name}</span>
-                  {count > 0
-                    ? <span className={styles.menuItemBadge} title={`${count} sastojaka`}>{count}</span>
-                    : <span className={styles.menuItemNoRecipe} title="Bez recepture">—</span>}
+                <div key={group.id} className={styles.group}>
+                  <div className={styles.groupHeader} onClick={() => toggleCollapse(group.id)}>
+                    <span className={styles.groupCaret}>{isCollapsed ? '▸' : '▾'}</span>
+                    <span className={styles.groupIcon}>{group.icon}</span>
+                    <span className={styles.groupName}>{group.name}</span>
+                    <span className={styles.groupCount}>{gWith}/{group.items.length}</span>
+                  </div>
+                  {!isCollapsed && group.items.map(item => {
+                    const count = recipeCounts[item.id] || 0
+                    return (
+                      <div
+                        key={item.id}
+                        className={`${styles.menuItem} ${selectedMenu?.id === item.id ? styles.menuItemActive : ''}`}
+                        onClick={() => selectMenuItem(item)}
+                      >
+                        <span className={styles.menuItemEmoji}>{item.emoji}</span>
+                        <span className={styles.menuItemName}>{item.name}</span>
+                        {count > 0
+                          ? <span className={styles.menuItemBadge} title={`${count} sastojaka`}>{count}</span>
+                          : <span className={styles.menuItemNoRecipe} title="Bez recepture">—</span>}
+                      </div>
+                    )
+                  })}
                 </div>
               )
             })}
           </div>
         </div>
+
+        {/* Drag handle za promjenu širine */}
+        <div className={styles.divider} onMouseDown={onDragStart} title="Povuci za promjenu širine" />
 
         {/* Desno — receptura odabrane stavke */}
         <div className={styles.recipePanel}>
