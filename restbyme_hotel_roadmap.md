@@ -1,6 +1,6 @@
 ﻿# rest.by.me — HospitalityOS Produkt roadmap
 
-> **Verzija:** 5.5 *(MENU-LIB faza 2 — hrana + ostala pića (~106 stavki ukupno), slike za sve, opisi me/en, dinamički tabovi + responsivan picker. Faza 1: kafa/kokteli, slike, alergeni/kalorije, upravljanje kategorijama. — 2026-06-06. Prethodno: Faza PAY — 2026-06-04)*
+> **Verzija:** 5.6 *(PERF — optimizacija mobilnog učitavanja: bundle split, lazy + manje slike, manje round-tripova, size-limit + Lighthouse CI. Prethodno: MENU-LIB faza 2 — hrana + pića, ~106 stavki. — 2026-06-06)*
 > **Kontekst:** Evolucija rest.by.me (bivši SmartMeni) SaaS platforme prema punom hospitality management sistemu
 > **Tim:** 1 developer + Claude Code AI asistent
 > **Branch:** `main` → direktno na produkciju (Vercel auto-deploy)
@@ -451,6 +451,22 @@ Recepti pića/kafe su standardizovani (Mojito je svuda isti) → najveća korist
 - Opciono: interni opis kategorije prikazati i na Bar/Kuhinja dashboardu osoblju.
 - Opciono: superadmin UI za uređivanje recepata/sastojaka (sad samo slike); proširenje sadržaja po potrebi.
 - ✅ ~~Superadmin UI za slike~~ (ML-7) · ✅ ~~izbor ciljne kategorije~~ (ML-8) · ✅ ~~hrana + ostala pića~~ (ML-10..14) · ✅ ~~slike za sve~~ (ML-12) · ✅ ~~opisi me/en~~ (ML-13/14)
+
+---
+
+## ✅ PERF — Optimizacija mobilnog učitavanja (ZAVRŠENA — 2026-06-06)
+
+> **Povod:** stranice (admin i ostali portali) su se na mobilnom učitavale predugo. Analiza → fazne popravke + mjerenje u CI.
+
+| Faza | Šta | Efekat |
+|------|-----|--------|
+| **C — Bundle** | `vite` `manualChunks` (react/supabase/i18n/dnd/recharts) | Glavni chunk **461 KB → 56 KB**; `vendor-charts` (110 KB) i `vendor-dnd` se učitavaju samo gdje treba; vendor keširan između deployova |
+| **B — Podaci** | `PlatformContext`: subscription vlasnika u inicijalni `Promise.all` (embedded join `restaurants.user_id`) | −1 round-trip pri svakom učitavanju. `select('*')` zadržan na jednorednim context objektima (sužavanje rizično, ušteda zanemarljiva) |
+| **A — Slike (lazy)** | `loading="lazy"` + `decoding="async"` na slikama stavki menija (GuestMenu, AdminMenu) i landing sadržaju (galerija/sobe/story); hero/logo ostaju eager | Off-screen slike se ne učitavaju dok se ne skroluje |
+| **#1 — Slike (manje)** | `seed_recipe_images.mjs`: Pexels `?auto=compress&w=600` umjesto pune varijante; `--force` re-fetch, čuva ručne (`?v=`) | Slike biblioteke **150–300 KB → 14–49 KB** (prepis iste `{recipe_id}.jpg` putanje, bez izmjene baze) |
+| **D — Mjerenje** | `size-limit` (budžet 155 KB inicijalni / 120 KB charts; trenutno 123/92) + Lighthouse CI mobilni (`/login`, best-effort); novi `perf` job u `tests.yml` | Spречava buduće regresije bundla |
+
+**Preskočeno (svjesno):** puni `select('*')` → eksplicitne kolone sweep (79 mjesta) — rizik regresije > korist sada kad su slike riješene. Eventualno ciljano na 1–2 najveće liste kasnije.
 
 ---
 
