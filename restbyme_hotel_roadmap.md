@@ -1,6 +1,6 @@
 ﻿# rest.by.me — HospitalityOS Produkt roadmap
 
-> **Verzija:** 5.2 *(MENU-LIB — biblioteka preddefinisanih recepata: kafa + kokteli, import RPC, /admin/menu picker — 2026-06-06. Prethodno: Faza PAY kompletna — 2026-06-04)*
+> **Verzija:** 5.3 *(MENU-LIB prošireno — slike (Storage + Pexels), superadmin UI za slike, import u izabranu kategoriju, rename + interni opis kategorija — 2026-06-06. Prethodno: Faza PAY — 2026-06-04)*
 > **Kontekst:** Evolucija rest.by.me (bivši SmartMeni) SaaS platforme prema punom hospitality management sistemu
 > **Tim:** 1 developer + Claude Code AI asistent
 > **Branch:** `main` → direktno na produkciju (Vercel auto-deploy)
@@ -420,14 +420,23 @@ Recepti pića/kafe su standardizovani (Mojito je svuda isti) → najveća korist
 | **ML-3** | Seed sadržaj | ~18 kafa + ~28 koktela (nazivi crnogorski + `name_en`) — `20260606000005` | ✅ |
 | **ML-4** | Frontend | `RecipeLibraryPicker` modal + dugme "📚 Biblioteka" na `/admin/menu`, addon-svjestan (bez inventory_pro samo menu-stavke) | ✅ |
 | **ML-5** | Test | pgTAP `005_import_recipe_from_library` — happy path, idempotentnost, odbijanje neovlašćenog, starter bez inventara | ✅ (napisan; lokalni `supabase test db` čeka Docker) |
+| **ML-6** | Slike biblioteke | `recipe_library.image_url` + javni Storage bucket `recipe-library`; RPC kopira sliku u `menu_items.image_url`; `scripts/seed_recipe_images.mjs` (Pexels → Storage, "kombinovano" allowlist) — `20260606000006`. Popunjeno 37 (kafa + prepoznatljivi kokteli) | ✅ |
+| **ML-7** | Superadmin UI za slike | `/superadmin/recipes` — grid po kategorijama, upload/zamjena/uklanjanje slike, toggle `is_active`; storage RLS za superadmin upis iz browsera — `20260606000007` | ✅ |
+| **ML-8** | Import dorade | RPC prima `p_category_id` (uvoz u izabrani tab, ne auto-Kafa/Kokteli) + popuna slike na već uvezenoj stavci bez slike (admin slika se ne gazi); picker bira ciljnu kategoriju — `20260606000008` | ✅ |
+
+### Upravljanje kategorijama (`/admin/menu`, 2026-06-06)
+- Tab (kategorija) sad ima **rename** (naziv + ikona) i **brisanje** (uz upozorenje — `menu_items.category_id` je ON DELETE CASCADE), pored ranijeg kreiranja.
+- **Interni opis kategorije** (`categories.description`, `20260606000009`) — napomena za bar/kuhinju, vidljiva samo u admin panelu, NE gostu.
+- Emoji ikona stavke: slobodan unos zamijenjen kuriranim pickerom.
 
 ### Podloga (isti dan, infra)
 - Popravka /superadmin: dodata superadmin write RLS politika na `restaurants` + uklonjena rekurzija `restaurants ↔ user_profiles` uvođenjem `public.is_superadmin()` (SECURITY DEFINER) — `20260606000001..0003`. Sve nove superadmin politike (uklj. recipe_library) koriste taj helper. Pravilo upisano u `CLAUDE.md`.
 
 ### TODO (sljedeće faze)
-- Superadmin UI za uređivanje biblioteke (za sad se širi migracijom/seed-om).
 - Sadržaj: hrana (balkanski + internacionalni set) i bezalkoholna pića / sokovi.
-- Opciono: izbor ciljne kategorije pri importu (sad auto Kafa/Kokteli).
+- Proširiti allowlistu slika na preostalih ~9 koktela (van trenutne liste).
+- Opciono: interni opis kategorije prikazati i na Bar/Kuhinja dashboardu osoblju.
+- ✅ ~~Superadmin UI za biblioteku~~ (ML-7) · ✅ ~~izbor ciljne kategorije pri importu~~ (ML-8)
 
 ---
 
