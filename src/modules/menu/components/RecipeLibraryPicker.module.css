@@ -14,8 +14,8 @@
   border: 1px solid var(--c-border);
   border-radius: 16px;
   width: 100%;
-  max-width: 560px;
-  max-height: 90vh;
+  max-width: 600px;
+  height: min(85vh, 760px);
   display: flex;
   flex-direction: column;
   overflow: hidden;
@@ -80,19 +80,18 @@
 
 .tabs {
   display: flex;
+  flex-wrap: wrap;
   gap: 8px;
-  padding: 16px 20px 0;
-  overflow-x: auto;
-  scrollbar-width: thin;
+  padding: 16px 20px 4px;
 }
 
 .tab {
   background: var(--c-bg-subtle);
   border: 1px solid var(--c-border);
   color: var(--c-text-medium);
-  padding: 8px 16px;
+  padding: 6px 13px;
   border-radius: 999px;
-  font-size: 0.9rem;
+  font-size: 0.82rem;
   font-weight: 600;
   cursor: pointer;
   white-space: nowrap;
