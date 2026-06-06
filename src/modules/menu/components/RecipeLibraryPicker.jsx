@@ -141,7 +141,7 @@ export default function RecipeLibraryPicker({ onClose, onImported }) {
                   const isSel = selected.has(r.id)
                   const ings = ingredients[r.id] || []
                   return (
-                    <label
+                    <div
                       key={r.id}
                       className={`${styles.row} ${isSel ? styles.rowSel : ''}`}
                       onClick={() => toggle(r.id)}
@@ -157,7 +157,7 @@ export default function RecipeLibraryPicker({ onClose, onImported }) {
                       {r.suggested_price != null && (
                         <span className={styles.price}>€{Number(r.suggested_price).toFixed(2)}</span>
                       )}
-                    </label>
+                    </div>
                   )
                 })}
               </div>
