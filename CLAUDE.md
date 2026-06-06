@@ -64,6 +64,11 @@ PLATFORMA (Auth · Billing · Multi-tenancy · Onboarding · osnovno osoblje/gos
   `.eq('restaurant_id', restaurant.id)` — i kad RLS već štiti (defense in depth).
 - `SECURITY DEFINER` RPC samo za anon pristup (booking, Guest App) — ne kao shortcut u
   autentifikovanim dijelovima.
+- **Superadmin RLS politike koriste `public.is_superadmin()`** (SECURITY DEFINER helper) u
+  `USING`/`WITH CHECK` — NIKAD inline `EXISTS (SELECT 1 FROM user_profiles ...)`. Inline
+  varijanta pravi ciklus sa politikom `user_profiles → restaurants` i obara bazu na
+  `infinite recursion` (HTTP 500). Funkcija čita `user_profiles` zaobilazeći RLS pa prekida
+  ciklus. Šablon: `FOR ALL USING (public.is_superadmin()) WITH CHECK (public.is_superadmin())`.
 - Foreign key constraints obavezni za sve veze. Bez slobodnih UUID referenci.
 
 ### 2. Billing i addoni
