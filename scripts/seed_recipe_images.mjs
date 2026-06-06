@@ -24,17 +24,11 @@ const PEXELS_KEY   = process.env.PEXELS_API_KEY
 const FORCE        = process.argv.includes('--force')
 const BUCKET       = 'recipe-library'
 
-// Kombinovano: kafe (sve) + prepoznatljivi kokteli. null = svi recepti.
-const ALLOWLIST = new Set([
-  // kafa
-  'espresso','doppio','ristretto','lungo','macchiato','cortado','cappuccino',
-  'flat_white','caffe_latte','latte_macchiato','americano','mocha',
-  'caramel_macchiato','affogato','irish_coffee','vienna_coffee','cold_brew','iced_latte',
-  // prepoznatljivi kokteli
-  'mojito','margarita','daiquiri','negroni','old_fashioned','manhattan','cosmopolitan',
-  'mai_tai','pina_colada','whiskey_sour','aperol_spritz','gin_tonic','cuba_libre',
-  'bloody_mary','espresso_martini','moscow_mule','mimosa','tequila_sunrise','white_russian',
-])
+// null = svi recepti (kafa, kokteli, bezalkoholna, topli, hrana, salate, doručak,
+// deserti). Beverage stavke (pivo/vino/žestoko) Pexels obično ne pogađa dobro —
+// po potrebi ih ručno postavi kroz /superadmin/recipes. Postavi Set([...]) da
+// ograničiš na konkretne ID-eve.
+const ALLOWLIST = null
 
 if (!SUPABASE_URL || !SERVICE_KEY) {
   console.error('Nedostaje SUPABASE_URL ili SUPABASE_SERVICE_ROLE_KEY.'); process.exit(1)

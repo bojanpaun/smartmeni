@@ -4,10 +4,20 @@ import { supabase } from '../../../lib/supabase'
 import { usePlatform } from '../../../context/PlatformContext'
 import styles from './RecipeLibraryPicker.module.css'
 
-const TABS = [
-  { key: 'coffee',   label: '☕ Kafa' },
-  { key: 'cocktail', label: '🍸 Kokteli' },
-]
+// Meta po kategoriji: label + redoslijed taba. Nepoznata kategorija → fallback.
+const CAT_META = {
+  coffee:    { label: '☕ Kafa',            order: 1 },
+  cocktail:  { label: '🍸 Kokteli',         order: 2 },
+  soft:      { label: '🥤 Bezalkoholna',    order: 3 },
+  hot:       { label: '🍵 Topli napici',    order: 4 },
+  beverage:  { label: '🍺 Pivo/vino',       order: 5 },
+  food:      { label: '🍽️ Jela',            order: 6 },
+  salad:     { label: '🥗 Salate/predjela', order: 7 },
+  breakfast: { label: '🍳 Doručak',         order: 8 },
+  dessert:   { label: '🍰 Deserti',         order: 9 },
+}
+const catLabel = (key) => CAT_META[key]?.label || key
+const catOrder = (key) => CAT_META[key]?.order ?? 99
 
 // Modal: pregled biblioteke preddefinisanih recepata + preuzimanje u meni.
 // Preuzimanje ide kroz RPC import_recipe_from_library (kreira menu_item, a uz
@@ -16,7 +26,7 @@ export default function RecipeLibraryPicker({ onClose, onImported, categories = 
   const { restaurant, hasAddon } = usePlatform()
   const hasInventory = hasAddon('inventory_pro')
 
-  const [tab, setTab] = useState('coffee')
+  const [tab, setTab] = useState(null)
   const [recipes, setRecipes] = useState([])
   const [ingredients, setIngredients] = useState({}) // recipe_id -> [ing]
   const [selected, setSelected] = useState(new Set())
@@ -45,6 +55,9 @@ export default function RecipeLibraryPicker({ onClose, onImported, categories = 
     }
     setRecipes(recs || [])
     setIngredients(byRecipe)
+    // Prvi tab = kategorija s najmanjim order-om među prisutnima.
+    const cats = [...new Set((recs || []).map(r => r.category))].sort((a, b) => catOrder(a) - catOrder(b))
+    setTab(cats[0] || null)
     setLoading(false)
   }
 
@@ -56,6 +69,7 @@ export default function RecipeLibraryPicker({ onClose, onImported, categories = 
     })
   }
 
+  const tabs = [...new Set(recipes.map(r => r.category))].sort((a, b) => catOrder(a) - catOrder(b))
   const visible = recipes.filter(r => r.category === tab)
   const visibleSelectedCount = visible.filter(r => selected.has(r.id)).length
   const allVisibleSelected = visible.length > 0 && visibleSelectedCount === visible.length
@@ -131,13 +145,13 @@ export default function RecipeLibraryPicker({ onClose, onImported, categories = 
         </div>
 
         <div className={styles.tabs}>
-          {TABS.map(t => (
+          {tabs.map(key => (
             <button
-              key={t.key}
-              className={`${styles.tab} ${tab === t.key ? styles.tabActive : ''}`}
-              onClick={() => setTab(t.key)}
+              key={key}
+              className={`${styles.tab} ${tab === key ? styles.tabActive : ''}`}
+              onClick={() => setTab(key)}
             >
-              {t.label}
+              {catLabel(key)}
             </button>
           ))}
         </div>

@@ -82,6 +82,8 @@
   display: flex;
   gap: 8px;
   padding: 16px 20px 0;
+  overflow-x: auto;
+  scrollbar-width: thin;
 }
 
 .tab {
@@ -93,6 +95,8 @@
   font-size: 0.9rem;
   font-weight: 600;
   cursor: pointer;
+  white-space: nowrap;
+  flex-shrink: 0;
 }
 
 .tabActive {
