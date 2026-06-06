@@ -15,6 +15,8 @@ export default function IngredientsEditor() {
   const [loading, setLoading] = useState(true)
   const [saving, setSaving] = useState(false)
   const [search, setSearch] = useState('')
+  const [recipeCounts, setRecipeCounts] = useState({}) // menu_item_id -> broj sastojaka
+  const [onlyMissing, setOnlyMissing] = useState(false)
 
   // Forma za dodavanje sastojka
   const [addForm, setAddForm] = useState({ inventory_item_id: '', quantity: '' })
@@ -25,14 +27,24 @@ export default function IngredientsEditor() {
 
   const loadAll = async () => {
     setLoading(true)
-    const [{ data: mi }, { data: ii }, { data: ing }] = await Promise.all([
+    const [{ data: mi }, { data: ii }] = await Promise.all([
       supabase.from('menu_items').select('id, name, emoji').eq('restaurant_id', restaurant.id).eq('is_visible', true).order('name'),
       supabase.from('inventory_items').select('id, name, unit').eq('restaurant_id', restaurant.id).order('name'),
-      supabase.from('menu_item_ingredients').select('*, inventory_items(name, unit)')
-        .in('menu_item_id', []) // prazan početak, učitava se na select
     ])
     setMenuItems(mi || [])
     setInventoryItems(ii || [])
+
+    // Pregled: koliko sastojaka ima svaka stavka (badge u listi, bez klikanja).
+    const ids = (mi || []).map(m => m.id)
+    if (ids.length) {
+      const { data: links } = await supabase
+        .from('menu_item_ingredients').select('menu_item_id').in('menu_item_id', ids)
+      const counts = {}
+      for (const l of (links || [])) counts[l.menu_item_id] = (counts[l.menu_item_id] || 0) + 1
+      setRecipeCounts(counts)
+    } else {
+      setRecipeCounts({})
+    }
     setLoading(false)
   }
 
@@ -62,11 +74,12 @@ export default function IngredientsEditor() {
       .single()
 
     if (!error && data) {
-      setIngredients(prev => {
-        const exists = prev.find(i => i.inventory_item_id === addForm.inventory_item_id)
-        if (exists) return prev.map(i => i.inventory_item_id === addForm.inventory_item_id ? data : i)
-        return [...prev, data]
-      })
+      const exists = ingredients.find(i => i.inventory_item_id === addForm.inventory_item_id)
+      const next = exists
+        ? ingredients.map(i => i.inventory_item_id === addForm.inventory_item_id ? data : i)
+        : [...ingredients, data]
+      setIngredients(next)
+      setRecipeCounts(c => ({ ...c, [selectedMenu.id]: next.length }))
     }
     setAddForm({ inventory_item_id: '', quantity: '' })
     setSaving(false)
@@ -74,7 +87,9 @@ export default function IngredientsEditor() {
 
   const removeIngredient = async (id) => {
     await supabase.from('menu_item_ingredients').delete().eq('id', id)
-    setIngredients(prev => prev.filter(i => i.id !== id))
+    const next = ingredients.filter(i => i.id !== id)
+    setIngredients(next)
+    if (selectedMenu) setRecipeCounts(c => ({ ...c, [selectedMenu.id]: next.length }))
   }
 
   const updateQuantity = async (id, qty) => {
@@ -82,9 +97,12 @@ export default function IngredientsEditor() {
     setIngredients(prev => prev.map(i => i.id === id ? { ...i, quantity: parseFloat(qty) } : i))
   }
 
-  const filteredMenu = menuItems.filter(i =>
-    !search || i.name.toLowerCase().includes(search.toLowerCase())
-  )
+  const filteredMenu = menuItems.filter(i => {
+    if (search && !i.name.toLowerCase().includes(search.toLowerCase())) return false
+    if (onlyMissing && (recipeCounts[i.id] || 0) > 0) return false
+    return true
+  })
+  const withRecipe = menuItems.filter(i => (recipeCounts[i.id] || 0) > 0).length
 
   // Stavke koje još nijesu u recepturi
   const availableItems = inventoryItems.filter(ii =>
@@ -111,32 +129,42 @@ export default function IngredientsEditor() {
 
         {/* Lijevo — lista stavki menija */}
         <div className={styles.menuList}>
-          <div className={styles.menuListHeader}>Stavke menija</div>
+          <div className={styles.menuListHeader}>
+            Stavke menija — <strong>{withRecipe}/{menuItems.length}</strong> s recepturom
+          </div>
           <input
             className={styles.menuSearch}
             placeholder="Pretraži..."
             value={search}
             onChange={e => setSearch(e.target.value)}
           />
+          <label className={styles.listFilter}>
+            <input type="checkbox" checked={onlyMissing} onChange={e => setOnlyMissing(e.target.checked)} />
+            Prikaži samo bez recepture
+          </label>
           {filteredMenu.length === 0 && (
-            <div className={styles.menuEmpty}>Nema stavki menija.</div>
+            <div className={styles.menuEmpty}>
+              {onlyMissing ? 'Sve stavke imaju recepturu. 🎉' : 'Nema stavki menija.'}
+            </div>
           )}
-          {filteredMenu.map(item => {
-            const hasRecipe = ingredients.some(i => i.menu_item_id === item.id)
-            return (
-              <div
-                key={item.id}
-                className={`${styles.menuItem} ${selectedMenu?.id === item.id ? styles.menuItemActive : ''}`}
-                onClick={() => selectMenuItem(item)}
-              >
-                <span className={styles.menuItemEmoji}>{item.emoji}</span>
-                <span className={styles.menuItemName}>{item.name}</span>
-                {selectedMenu?.id === item.id && ingredients.length > 0 && (
-                  <span className={styles.menuItemBadge}>{ingredients.length}</span>
-                )}
-              </div>
-            )
-          })}
+          <div className={styles.menuScroll}>
+            {filteredMenu.map(item => {
+              const count = recipeCounts[item.id] || 0
+              return (
+                <div
+                  key={item.id}
+                  className={`${styles.menuItem} ${selectedMenu?.id === item.id ? styles.menuItemActive : ''}`}
+                  onClick={() => selectMenuItem(item)}
+                >
+                  <span className={styles.menuItemEmoji}>{item.emoji}</span>
+                  <span className={styles.menuItemName}>{item.name}</span>
+                  {count > 0
+                    ? <span className={styles.menuItemBadge} title={`${count} sastojaka`}>{count}</span>
+                    : <span className={styles.menuItemNoRecipe} title="Bez recepture">—</span>}
+                </div>
+              )
+            })}
+          </div>
         </div>
 
         {/* Desno — receptura odabrane stavke */}
