@@ -56,7 +56,7 @@ function DraggableList({ items, onReorder, children }) {
             dragIdx.current = null
             onReorder(next)
           }}
-          style={{ display: 'flex', gap: 8, alignItems: 'center', marginBottom: 8, cursor: 'grab' }}
+          style={{ display: 'flex', gap: 8, alignItems: 'center', marginBottom: 8, cursor: 'grab', flexWrap: 'wrap' }}
         >
           <span style={{ color: '#b0c0b8', fontSize: 16, flexShrink: 0, userSelect: 'none' }}>⠿</span>
           {children(item, i)}
@@ -99,9 +99,9 @@ function WaiterMessagesEditor({ restaurant, setRestaurant }) {
               {ICONS.map(ic => <option key={ic} value={ic}>{ic}</option>)}
             </select>
             <input value={m.sr} onChange={e => update(i, 'sr', e.target.value)} placeholder="Tekst (SR)"
-              style={{ flex: 1, padding: '8px 10px', border: '1px solid #d0e4dc', borderRadius: 8, fontSize: 13, fontFamily: 'DM Sans, sans-serif', outline: 'none' }} />
+              style={{ flex: 1, minWidth: 130, padding: '8px 10px', border: '1px solid #d0e4dc', borderRadius: 8, fontSize: 13, fontFamily: 'DM Sans, sans-serif', outline: 'none' }} />
             <input value={m.en} onChange={e => update(i, 'en', e.target.value)} placeholder="Text (EN)"
-              style={{ flex: 1, padding: '8px 10px', border: '1px solid #d0e4dc', borderRadius: 8, fontSize: 13, fontFamily: 'DM Sans, sans-serif', outline: 'none' }} />
+              style={{ flex: 1, minWidth: 130, padding: '8px 10px', border: '1px solid #d0e4dc', borderRadius: 8, fontSize: 13, fontFamily: 'DM Sans, sans-serif', outline: 'none' }} />
             <button onClick={() => remove(i)}
               style={{ padding: '7px 10px', background: 'transparent', border: '1px solid #f5b0b0', borderRadius: 8, color: '#c0392b', cursor: 'pointer', fontSize: 13 }}>✕</button>
           </>
