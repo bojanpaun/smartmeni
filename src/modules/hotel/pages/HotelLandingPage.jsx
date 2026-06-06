@@ -135,7 +135,7 @@ export default function HotelLandingPage() {
             const amens = amenitiesArr(rt.amenities).slice(0, 5)
             return (
               <div key={rt.id} className={styles.roomCard}>
-                {img ? <img src={img} alt={rt.name} className={styles.roomImg} /> : <div className={styles.roomImgPlaceholder}>🏨</div>}
+                {img ? <img src={img} alt={rt.name} loading="lazy" decoding="async" className={styles.roomImg} /> : <div className={styles.roomImgPlaceholder}>🏨</div>}
                 <div className={styles.roomBody}>
                   <div className={styles.roomHeader}>
                     <h3 className={styles.roomName}>{rt.name}</h3>
@@ -199,7 +199,7 @@ export default function HotelLandingPage() {
             <div className={styles.aboutWrap} data-layout={layout || 'image-right'}>
               <p className={styles.aboutText} style={{ flex: textFlex }}>{block.data.text}</p>
               {block.data.image_url && layout !== 'text-only' && (
-                <img src={block.data.image_url} alt="" className={styles.aboutImg} style={{ flex: imgFlex }} />
+                <img src={block.data.image_url} alt="" loading="lazy" decoding="async" className={styles.aboutImg} style={{ flex: imgFlex }} />
               )}
             </div>
           </section>
@@ -217,7 +217,7 @@ export default function HotelLandingPage() {
           <section key={idx} className={styles.section}>
             <h2 className={styles.sectionTitle}>{t.gallery}</h2>
             <div className={gridClass}>
-              {imgs.map((url, i) => <img key={i} src={url} alt="" className={styles.galleryImg} />)}
+              {imgs.map((url, i) => <img key={i} src={url} alt="" loading="lazy" decoding="async" className={styles.galleryImg} />)}
             </div>
           </section>
         )

@@ -130,10 +130,10 @@ export default function RestaurantLandingPage() {
             <div className={styles.storyWrap} data-layout={layout || 'image-right'}>
               <p className={styles.storyText} style={{ flex: textFlex }}>{block.data.text}</p>
               {block.data.image_url && layout !== 'text-only' && layout !== 'image-above' && (
-                <img src={block.data.image_url} alt="" className={styles.storyImg} style={{ flex: imgFlex }} />
+                <img src={block.data.image_url} alt="" loading="lazy" decoding="async" className={styles.storyImg} style={{ flex: imgFlex }} />
               )}
               {block.data.image_url && layout === 'image-above' && (
-                <img src={block.data.image_url} alt="" className={styles.storyImg} />
+                <img src={block.data.image_url} alt="" loading="lazy" decoding="async" className={styles.storyImg} />
               )}
             </div>
           </section>
@@ -165,7 +165,7 @@ export default function RestaurantLandingPage() {
             <div className={layout === 'list' ? styles.specialsList : styles.specialsGrid}>
               {items.map((item, i) => (
                 <div key={i} className={styles.specialCard}>
-                  {item.image_url && <img src={item.image_url} alt={item.name} className={styles.specialImg} />}
+                  {item.image_url && <img src={item.image_url} alt={item.name} loading="lazy" decoding="async" className={styles.specialImg} />}
                   <div className={styles.specialBody}>
                     <div className={styles.specialHeader}>
                       <span className={styles.specialName}>{item.name}</span>
@@ -187,7 +187,7 @@ export default function RestaurantLandingPage() {
         return (
           <section key={idx} className={styles.section}>
             <div className={gridClass}>
-              {imgs.map((url, i) => <img key={i} src={url} alt="" className={styles.galleryImg} />)}
+              {imgs.map((url, i) => <img key={i} src={url} alt="" loading="lazy" decoding="async" className={styles.galleryImg} />)}
             </div>
           </section>
         )
