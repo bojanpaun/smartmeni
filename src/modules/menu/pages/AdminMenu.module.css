@@ -223,6 +223,7 @@
 .itemName { font-weight: 500; color: var(--c-text); }
 .itemDesc { font-size: 11px; color: var(--c-text-muted); margin-top: 1px; }
 .itemPrice { font-weight: 600; color: var(--c-primary); }
+.mobileInfo { display: none; } /* prikazuje se samo na mobilnom (vidi @media) */
 
 .pill { font-size: 10px; padding: 3px 8px; border-radius: 20px; display: inline-block; }
 .pillActive { background: var(--c-primary-light); color: var(--c-primary); }
@@ -318,6 +319,25 @@
   .metrics { grid-template-columns: 1fr 1fr; }
   .modalGrid { grid-template-columns: 1fr; }
   .content { padding: 14px; }
+}
+
+@media (max-width: 640px) {
+  /* Dugmad iznad liste rastegnuta i lakša za tap */
+  .menuTopActions { width: 100%; }
+  .menuTopActions button { flex: 1; }
+
+  /* Tabela → kompaktni red: ostaju Naziv + Akcije; ostalo ispod naziva. */
+  .table thead { display: none; }
+  .table th:nth-child(1), .table td:nth-child(1),   /* sličica */
+  .table th:nth-child(3), .table td:nth-child(3),   /* cijena */
+  .table th:nth-child(4), .table td:nth-child(4),   /* status */
+  .table th:nth-child(5), .table td:nth-child(5) {  /* vidljivo */
+    display: none;
+  }
+  .itemDesc { display: none; }
+  .mobileInfo { display: flex; align-items: center; gap: 10px; margin-top: 6px; flex-wrap: wrap; }
+  .table td { padding: 12px 8px; }
+  .actionBtn { padding: 6px 10px; font-size: 12px; }
 }
 
 /* ── Page header (kao u GeneralSettings) ── */

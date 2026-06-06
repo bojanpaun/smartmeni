@@ -391,7 +391,19 @@ export default function AdminMenu() {
                         </td>
                         <td>
                           <div className={styles.itemName}>{item.name}</div>
-                          <div className={styles.itemDesc}>{item.description?.slice(0, 40)}...</div>
+                          {item.description && <div className={styles.itemDesc}>{item.description.slice(0, 40)}…</div>}
+                          {/* Mobilni: cijena + status + vidljivost ispod naziva (kolone skrivene) */}
+                          <div className={styles.mobileInfo}>
+                            <span className={styles.itemPrice}>€{parseFloat(item.price).toFixed(2)}</span>
+                            {item.is_special
+                              ? <span className={`${styles.pill} ${styles.pillSpecial}`}>Dnevna ponuda</span>
+                              : <span className={`${styles.pill} ${styles.pillActive}`}>Aktivno</span>}
+                            <button
+                              className={`${styles.toggle} ${item.is_visible ? styles.toggleOn : styles.toggleOff}`}
+                              onClick={() => toggleItemVisible(item)}
+                              title="Vidljivo gostima"
+                            />
+                          </div>
                         </td>
                         <td className={styles.itemPrice}>€{parseFloat(item.price).toFixed(2)}</td>
                         <td>
