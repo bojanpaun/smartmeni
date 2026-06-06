@@ -43,11 +43,13 @@ export function PlatformProvider({ children }) {
   }, [])
 
   const loadProfile = async (user) => {
-    // Sve tri query-je pokrenuti paralelno — eliminišemo waterfall od 3-5 round-tripova
-    const [{ data: profile }, { data: ownerRest }, { data: staff }] = await Promise.all([
+    // Sve query-je paralelno — uklj. subscription vlasnika (embedded join na
+    // restaurants.user_id), pa nema dodatnog round-tripa nakon prve grupe.
+    const [{ data: profile }, { data: ownerRest }, { data: staff }, { data: ownerSub }] = await Promise.all([
       supabase.from('user_profiles').select('*').eq('id', user.id).maybeSingle(),
       supabase.from('restaurants').select('*').eq('user_id', user.id).maybeSingle(),
       supabase.from('staff').select('*, role:roles(*)').eq('user_id', user.id).eq('is_active', true).maybeSingle(),
+      supabase.from('subscriptions').select('*, restaurants!inner(user_id)').eq('restaurants.user_id', user.id).maybeSingle(),
     ])
 
     if (profile?.is_superadmin) {
@@ -55,7 +57,7 @@ export function PlatformProvider({ children }) {
       setPermissions(['*'])
       if (ownerRest) {
         setRestaurant(ownerRest)
-        await loadSubscription(ownerRest.id)
+        setSubscription(ownerSub ?? null)
       }
       setLoading(false)
       return
@@ -64,7 +66,7 @@ export function PlatformProvider({ children }) {
     if (ownerRest) {
       setRestaurant(ownerRest)
       setPermissions(['*'])
-      await loadSubscription(ownerRest.id)
+      setSubscription(ownerSub ?? null)
       setLoading(false)
       return
     }
@@ -83,12 +85,6 @@ export function PlatformProvider({ children }) {
     }
 
     setLoading(false)
-  }
-
-  const loadSubscription = async (restaurantId) => {
-    const { data } = await supabase
-      .from('subscriptions').select('*').eq('restaurant_id', restaurantId).maybeSingle()
-    setSubscription(data ?? null)
   }
 
   const hasPermission = (perm) => {
