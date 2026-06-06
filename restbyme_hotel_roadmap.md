@@ -1,6 +1,6 @@
 ﻿# rest.by.me — HospitalityOS Produkt roadmap
 
-> **Verzija:** 5.4 *(MENU-LIB prošireno — slike, superadmin UI, import u izabranu kategoriju, alergeni/kalorije/prep_time iz sastojaka, upravljanje + preglednost kategorija/receptura — 2026-06-06. Prethodno: Faza PAY — 2026-06-04)*
+> **Verzija:** 5.5 *(MENU-LIB faza 2 — hrana + ostala pića (~106 stavki ukupno), slike za sve, opisi me/en, dinamički tabovi + responsivan picker. Faza 1: kafa/kokteli, slike, alergeni/kalorije, upravljanje kategorijama. — 2026-06-06. Prethodno: Faza PAY — 2026-06-04)*
 > **Kontekst:** Evolucija rest.by.me (bivši SmartMeni) SaaS platforme prema punom hospitality management sistemu
 > **Tim:** 1 developer + Claude Code AI asistent
 > **Branch:** `main` → direktno na produkciju (Vercel auto-deploy)
@@ -425,6 +425,16 @@ Recepti pića/kafe su standardizovani (Mojito je svuda isti) → najveća korist
 | **ML-8** | Import dorade | RPC prima `p_category_id` (uvoz u izabrani tab, ne auto-Kafa/Kokteli) + popuna slike na već uvezenoj stavci bez slike (admin slika se ne gazi); picker bira ciljnu kategoriju — `20260606000008` | ✅ |
 | **ML-9** | Alergeni / kalorije / prep_time | Izvedeni iz sastojaka (ne vanjska baza): alergeni = unija EU-alergena (mapa sastojak→alergen), kalorije = Σ(količina×kcal/jed.), prep_time po kategoriji — `20260606000010`; RPC kopira + backfilluje prazna polja — `20260606000011`. Disclaimer u pickeru (procjena/provjeri) | ✅ |
 
+#### Faza 2 — hrana + ostala pića (2026-06-06)
+
+| Korak | Šta | Fajl | Status |
+|-------|-----|------|--------|
+| **ML-10** | Sadržaj faza 2 (~60 stavki) | Bezalkoholna (limunade/sokovi/frape/smoothie), topli napici, pivo/vino/žestoko (stavke bez recepta), hrana (balkanska, pizza/pasta/burgeri, salate/predjela, doručak, deserti) — full recept + alergeni/kalorije iz sastojaka (mapa proširena: +Gluten, Mekušci…) — `20260606000012` | ✅ |
+| **ML-11** | Kategorije + tabovi | RPC mapira sve kategorije → ciljni tab + `is_bar` (hrana NIJE bar) — `20260606000013`; picker: dinamički tabovi po kategorijama, jedan scroll (header/footer fiksni), responsivan izbor kategorije | ✅ |
+| **ML-12** | Slike za sve | `seed_recipe_images.mjs` ALLOWLIST=null — popunjeno svih ~106 (kafa, kokteli, pića, hrana). Beverage stavke po potrebi ručno | ✅ |
+| **ML-13** | Opisi (me) | Kratki crnogorski opisi za svih 106 — `20260606000014`; RPC kopira + backfilluje | ✅ |
+| **ML-14** | Opisi (en) | `recipe_library.description_en` + EN opisi za svih 106 — `20260606000015`; RPC kopira + backfilluje (EN guest meni prikazuje opis) | ✅ |
+
 ### Upravljanje kategorijama (`/admin/menu`, 2026-06-06)
 - Tab (kategorija) sad ima **rename** (naziv + ikona) i **brisanje** (uz upozorenje — `menu_items.category_id` je ON DELETE CASCADE; **zalihe ostaju** jer `inventory_items` ne zavise od menija, briše se samo BOM obrisanih stavki), pored ranijeg kreiranja.
 - **Interni opis kategorije** (`categories.description`, `20260606000009`) — napomena za bar/kuhinju, vidljiva samo u admin panelu, NE gostu.
@@ -437,10 +447,10 @@ Recepti pića/kafe su standardizovani (Mojito je svuda isti) → najveća korist
 - Popravka /superadmin: dodata superadmin write RLS politika na `restaurants` + uklonjena rekurzija `restaurants ↔ user_profiles` uvođenjem `public.is_superadmin()` (SECURITY DEFINER) — `20260606000001..0003`. Sve nove superadmin politike (uklj. recipe_library) koriste taj helper. Pravilo upisano u `CLAUDE.md`.
 
 ### TODO (sljedeće faze)
-- Sadržaj: hrana (balkanski + internacionalni set) i bezalkoholna pića / sokovi.
-- Proširiti allowlistu slika na preostalih ~9 koktela (van trenutne liste).
+- Ručno provjeriti/zamijeniti slabije Pexels pogotke (balkanska jela, pivo/vino/žestoko) kroz `/superadmin/recipes`.
 - Opciono: interni opis kategorije prikazati i na Bar/Kuhinja dashboardu osoblju.
-- ✅ ~~Superadmin UI za biblioteku~~ (ML-7) · ✅ ~~izbor ciljne kategorije pri importu~~ (ML-8)
+- Opciono: superadmin UI za uređivanje recepata/sastojaka (sad samo slike); proširenje sadržaja po potrebi.
+- ✅ ~~Superadmin UI za slike~~ (ML-7) · ✅ ~~izbor ciljne kategorije~~ (ML-8) · ✅ ~~hrana + ostala pića~~ (ML-10..14) · ✅ ~~slike za sve~~ (ML-12) · ✅ ~~opisi me/en~~ (ML-13/14)
 
 ---
 
