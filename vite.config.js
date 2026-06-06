@@ -10,6 +10,21 @@ export default defineConfig({
     include: ['src/**/*.{test,spec}.{js,jsx}'],
     exclude: ['node_modules/**', 'e2e/**', 'supabase/**', 'dist/**'],
   },
+  build: {
+    rollupOptions: {
+      output: {
+        // Vendor split — stabilni libovi u zasebnim chunkovima radi boljeg
+        // keširanja (deploy aplikativnog koda ne ruši vendor keš na mobilnom).
+        manualChunks: {
+          'vendor-react':    ['react', 'react-dom', 'react-router-dom'],
+          'vendor-supabase': ['@supabase/supabase-js'],
+          'vendor-charts':   ['recharts'],
+          'vendor-dnd':      ['@dnd-kit/core', '@dnd-kit/sortable', '@dnd-kit/utilities'],
+          'vendor-i18n':     ['i18next', 'react-i18next'],
+        },
+      },
+    },
+  },
   plugins: [
     react(),
     VitePWA({
