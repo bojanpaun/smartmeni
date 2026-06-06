@@ -12,7 +12,7 @@ const TABS = [
 // Modal: pregled biblioteke preddefinisanih recepata + preuzimanje u meni.
 // Preuzimanje ide kroz RPC import_recipe_from_library (kreira menu_item, a uz
 // inventory_pro i namirnice + recept). Po završetku zove onImported() za reload.
-export default function RecipeLibraryPicker({ onClose, onImported }) {
+export default function RecipeLibraryPicker({ onClose, onImported, categories = [], defaultCategoryId = '' }) {
   const { restaurant, hasAddon } = usePlatform()
   const hasInventory = hasAddon('inventory_pro')
 
@@ -22,6 +22,7 @@ export default function RecipeLibraryPicker({ onClose, onImported }) {
   const [selected, setSelected] = useState(new Set())
   const [loading, setLoading] = useState(true)
   const [importing, setImporting] = useState(false)
+  const [targetCategoryId, setTargetCategoryId] = useState(defaultCategoryId || '')
 
   useEffect(() => {
     loadLibrary()
@@ -76,6 +77,7 @@ export default function RecipeLibraryPicker({ onClose, onImported }) {
       const { data, error } = await supabase.rpc('import_recipe_from_library', {
         p_recipe_id: id,
         p_restaurant_id: restaurant.id,
+        p_category_id: targetCategoryId || null,
       })
       if (error) { fail++; continue }
       ok++
@@ -112,6 +114,16 @@ export default function RecipeLibraryPicker({ onClose, onImported }) {
           {hasInventory
             ? '✓ Imaš Inventar Pro — uz svaku stavku kreiraju se i namirnice + recept (zalihe se odbijaju automatski).'
             : 'ℹ️ Preuzimaju se stavke menija. Uz Inventar Pro automatski bi se kreirali i recepti/zalihe.'}
+        </div>
+
+        <div className={styles.targetRow}>
+          <label>Dodaj u kategoriju:</label>
+          <select value={targetCategoryId} onChange={e => setTargetCategoryId(e.target.value)}>
+            {categories.map(c => (
+              <option key={c.id} value={c.id}>{c.icon} {c.name}</option>
+            ))}
+            <option value="">+ Nova (Kafa/Kokteli automatski)</option>
+          </select>
         </div>
 
         <div className={styles.tabs}>

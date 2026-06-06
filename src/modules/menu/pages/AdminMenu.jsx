@@ -36,6 +36,8 @@ export default function AdminMenu() {
   const [saving, setSaving] = useState(false)
   const [saveMsg, setSaveMsg] = useState('')
   const [showLibrary, setShowLibrary] = useState(false)
+  const [catForm, setCatForm] = useState({ name: '', icon: '' })
+  const [editingCat, setEditingCat] = useState(false)
 
   useEffect(() => {
     if (user && (ctxRestaurant || restaurant)) {
@@ -143,6 +145,20 @@ export default function AdminMenu() {
     setActiveCategory(data.id)
   }
 
+  const startEditCategory = (cat) => {
+    setCatForm({ name: cat.name, icon: cat.icon || '🍽️' })
+    setEditingCat(true)
+  }
+
+  const saveCategoryEdit = async (cat) => {
+    const name = catForm.name.trim()
+    if (!name) return
+    const payload = { name, icon: catForm.icon || '🍽️' }
+    await supabase.from('categories').update(payload).eq('id', cat.id).eq('restaurant_id', restaurant.id)
+    setCategories(categories.map(c => c.id === cat.id ? { ...c, ...payload } : c))
+    setEditingCat(false)
+  }
+
   const deleteCategory = async (cat) => {
     const itemCount = items.filter(i => i.category_id === cat.id).length
     const msg = itemCount > 0
@@ -172,6 +188,8 @@ export default function AdminMenu() {
 
       {showLibrary && (
         <RecipeLibraryPicker
+          categories={categories}
+          defaultCategoryId={activeCategory}
           onClose={() => setShowLibrary(false)}
           onImported={() => restaurant && loadData(restaurant.id)}
         />
@@ -286,14 +304,43 @@ export default function AdminMenu() {
               }
               return (
                 <div className={styles.catSettings}>
-                  <label className={styles.catToggleLabel}>
-                    <input type="checkbox" checked={!!cat.is_bar} onChange={toggleBar} />
-                    <span>🍷 Bar kategorija</span>
-                    <span className={styles.catToggleHint}>Stavke iz ove kategorije idu na Bar dashboard, ne u Kuhinju</span>
-                  </label>
-                  <button className={styles.catDeleteBtn} onClick={() => deleteCategory(cat)}>
-                    🗑 Obriši kategoriju
-                  </button>
+                  <div className={styles.catEditRow}>
+                    {editingCat ? (
+                      <>
+                        <select
+                          className={styles.catIconSelect}
+                          value={catForm.icon}
+                          onChange={e => setCatForm(f => ({ ...f, icon: e.target.value }))}
+                        >
+                          {EMOJI_OPTIONS.map(em => <option key={em} value={em}>{em}</option>)}
+                        </select>
+                        <input
+                          className={styles.catNameInput}
+                          value={catForm.name}
+                          autoFocus
+                          onChange={e => setCatForm(f => ({ ...f, name: e.target.value }))}
+                          onKeyDown={e => e.key === 'Enter' && saveCategoryEdit(cat)}
+                          placeholder="Naziv kategorije"
+                        />
+                        <button className={styles.catSaveBtn} onClick={() => saveCategoryEdit(cat)}>Sačuvaj</button>
+                        <button className={styles.catCancelBtn} onClick={() => setEditingCat(false)}>Odustani</button>
+                      </>
+                    ) : (
+                      <button className={styles.catRenameBtn} onClick={() => startEditCategory(cat)}>
+                        ✏️ Preimenuj kategoriju
+                      </button>
+                    )}
+                  </div>
+                  <div className={styles.catSettingsRight}>
+                    <label className={styles.catToggleLabel}>
+                      <input type="checkbox" checked={!!cat.is_bar} onChange={toggleBar} />
+                      <span>🍷 Bar kategorija</span>
+                      <span className={styles.catToggleHint}>Stavke iz ove kategorije idu na Bar dashboard, ne u Kuhinju</span>
+                    </label>
+                    <button className={styles.catDeleteBtn} onClick={() => deleteCategory(cat)}>
+                      🗑 Obriši kategoriju
+                    </button>
+                  </div>
                 </div>
               )
             })()}
