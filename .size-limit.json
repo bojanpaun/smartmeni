@@ -1,0 +1,17 @@
+[
+  {
+    "name": "Inicijalni JS (gzip) — učitava se na svakoj stranici",
+    "path": [
+      "dist/assets/index-*.js",
+      "dist/assets/vendor-react-*.js",
+      "dist/assets/vendor-supabase-*.js",
+      "dist/assets/vendor-i18n-*.js"
+    ],
+    "limit": "155 KB"
+  },
+  {
+    "name": "Recharts chunk (gzip) — samo analitika",
+    "path": "dist/assets/vendor-charts-*.js",
+    "limit": "120 KB"
+  }
+]
