@@ -234,8 +234,12 @@ export default function Menu() {
   const waiterVis = isDemo ? 'all' : r?.waiter_visibility ? r.waiter_visibility : !isQRAccess ? 'off' : (waiterEnabled ? 'all' : 'off')
   const reservationVis = isDemo ? 'all' : (r?.reservation_visibility || (onlineReservations ? 'all' : 'off'))
   const registrationVis = isDemo ? 'all' : (r?.registration_visibility || (guestRegistration ? 'all' : 'off'))
-  const hotelVis = isDemo ? 'off' : (r?.hotel_visibility || 'off')
-  const spaVis = isDemo ? 'off' : (r?.spa_visibility || 'off')
+  // Hotel/spa/booking opcije imaju smisla samo ako tenant ima hotel vertikalu.
+  // Vertikala (a NE addon) je mjerilo — addon je pod beta modom svima true, pa bi
+  // se inače hotel/spa pokazivali i restoranu-only nalogu.
+  const hasHotelVertical = (r?.active_verticals ?? ['restaurant']).includes('hotel')
+  const hotelVis = (isDemo || !hasHotelVertical) ? 'off' : (r?.hotel_visibility || 'off')
+  const spaVis = (isDemo || !hasHotelVertical) ? 'off' : (r?.spa_visibility || 'off')
   const tableNumber = isDemo ? 'Sto 4' : (new URLSearchParams(window.location.search).get('table') || '')
   const currentCategories = isDemo ? data.categories : realData?.categories || []
   const allItems = isDemo
@@ -898,7 +902,7 @@ export default function Menu() {
     </div>
 
     {/* Floating booking button */}
-    {!isDemo && r?.show_booking_button && (
+    {!isDemo && hasHotelVertical && r?.show_booking_button && (
       <button
         className={styles.bookingFab}
         style={{ background: tpl.brand }}

@@ -253,9 +253,12 @@ function BookingButtonToggle({ restaurant, setRestaurant }) {
 // ── Glavna komponenta ──────────────────────────────────────
 
 export default function AdminMenuSettings() {
-  const { restaurant, setRestaurant, hasAddon } = usePlatform()
-  const hasHotel = hasAddon('hotel_core')
-  const hasSpa   = hasAddon('spa_wellness')
+  const { restaurant, setRestaurant, hasAddon, hasVertical } = usePlatform()
+  // Hotel/spa/booking opcije se nude SAMO ako nalog ima hotel vertikalu (šta vodi),
+  // a ne na osnovu addona — addon je pod beta modom svima true, pa bi se inače
+  // pokazivali i restoranu-only nalogu. Spa dodatno traži spa_wellness addon.
+  const hasHotel = hasVertical('hotel')
+  const hasSpa   = hasVertical('hotel') && hasAddon('spa_wellness')
 
   const [activeTab, setActiveTab] = useState('opste')
   const [form, setForm]     = useState(restaurant ? { ...restaurant } : null)
@@ -396,9 +399,13 @@ export default function AdminMenuSettings() {
               value={form.spa_visibility || 'off'} onChange={val => toggleVis('spa_visibility', val)} />
           )}
 
-          <div className={styles.sectionLabel} style={{ marginTop: 28 }}>Rezervacija smještaja</div>
-          <div className={styles.visDesc}>Dugme za online booking koje se prikazuje na gostovoj stranici</div>
-          <BookingButtonToggle restaurant={restaurant} setRestaurant={setRestaurant} />
+          {hasHotel && (
+            <>
+              <div className={styles.sectionLabel} style={{ marginTop: 28 }}>Rezervacija smještaja</div>
+              <div className={styles.visDesc}>Dugme za online booking koje se prikazuje na gostovoj stranici</div>
+              <BookingButtonToggle restaurant={restaurant} setRestaurant={setRestaurant} />
+            </>
+          )}
         </>
       )}
 
