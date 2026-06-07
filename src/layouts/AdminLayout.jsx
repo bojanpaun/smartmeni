@@ -233,7 +233,7 @@ const BOTTOM_NAV = [
 ]
 
 export default function AdminLayout({ children }) {
-  const { restaurant, logout, isOwner, isSuperAdmin, hasPermission, hasAddon } = usePlatform()
+  const { restaurant, logout, isOwner, isSuperAdmin, hasPermission, hasAddon, hasVertical } = usePlatform()
   const location = useLocation()
   const navigate = useNavigate()
   const [collapsed, setCollapsed] = useState(false)
@@ -264,7 +264,7 @@ export default function AdminLayout({ children }) {
       : null
   )
 
-  const { counts: kitchenCounts, refresh: refreshCounts } = useKitchenCounts(restaurant?.id)
+  const { counts: kitchenCounts, refresh: refreshCounts } = useKitchenCounts(restaurant?.id, hasVertical('hotel'))
   const badges = {
     '/admin/orders':              kitchenCounts.waiter        || 0,
     '/admin/waiter':              kitchenCounts.waiterReq     || 0,

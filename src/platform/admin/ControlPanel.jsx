@@ -100,8 +100,11 @@ export default function ControlPanel() {
     restaurant && !restaurant.onboarding_completed
   )
 
-  const hasHotel = hasAddon('hotel_core')
-  const hasSpa   = hasAddon('spa_wellness')
+  // Hotel/spa KPI upiti se rade SAMO ako tenant ima tu vertikalu (ne na osnovu
+  // addona — beta mod ga svima postavlja na true, pa bi se hotel_reservations/rooms
+  // upiti nepotrebno slali i restoranu-only nalogu).
+  const hasHotel = hasVertical('hotel')
+  const hasSpa   = hasVertical('hotel') && hasAddon('spa_wellness')
   const { kpi, badges } = useDashboardData(restaurant, hasHotel, hasSpa)
 
   const canSee    = (perm) => !perm || isOwner() || isSuperAdmin() || hasPermission(perm)
