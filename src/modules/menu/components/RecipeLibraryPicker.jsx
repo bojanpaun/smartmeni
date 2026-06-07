@@ -11,10 +11,14 @@ const CAT_META = {
   soft:      { label: '🥤 Bezalkoholna',    order: 3 },
   hot:       { label: '🍵 Topli napici',    order: 4 },
   beverage:  { label: '🍺 Pivo/vino',       order: 5 },
-  food:      { label: '🍽️ Jela',            order: 6 },
-  salad:     { label: '🥗 Salate/predjela', order: 7 },
-  breakfast: { label: '🍳 Doručak',         order: 8 },
-  dessert:   { label: '🍰 Deserti',         order: 9 },
+  soup:      { label: '🍲 Supe i čorbe',    order: 6 },
+  food:      { label: '🍽️ Jela',            order: 7 },
+  vegetarian:{ label: '🥦 Vegetarijansko',  order: 8 },
+  salad:     { label: '🥗 Salate/predjela', order: 9 },
+  side:      { label: '🍚 Prilozi',         order: 10 },
+  breakfast: { label: '🍳 Doručak',         order: 11 },
+  dessert:   { label: '🍰 Deserti',         order: 12 },
+  kids:      { label: '🧒 Dječji meni',     order: 13 },
 }
 const catLabel = (key) => CAT_META[key]?.label || key
 const catOrder = (key) => CAT_META[key]?.order ?? 99

@@ -6,11 +6,11 @@ import styles from './RecipeLibraryAdmin.module.css'
 
 const BUCKET = 'recipe-library'
 const UNITS = ['ml', 'g', 'kom']
-const CAT_ORDER = ['coffee', 'cocktail', 'soft', 'hot', 'beverage', 'food', 'salad', 'breakfast', 'dessert']
+const CAT_ORDER = ['coffee', 'cocktail', 'soft', 'hot', 'beverage', 'soup', 'food', 'vegetarian', 'salad', 'side', 'breakfast', 'dessert', 'kids']
 const CAT_LABEL = {
   coffee: '☕ Kafa', cocktail: '🍸 Kokteli', soft: '🥤 Bezalkoholna', hot: '🍵 Topli napici',
-  beverage: '🍺 Pivo/vino', food: '🍽️ Jela', salad: '🥗 Salate/predjela',
-  breakfast: '🍳 Doručak', dessert: '🍰 Deserti',
+  beverage: '🍺 Pivo/vino', soup: '🍲 Supe i čorbe', food: '🍽️ Jela', vegetarian: '🥦 Vegetarijansko',
+  salad: '🥗 Salate/predjela', side: '🍚 Prilozi', breakfast: '🍳 Doručak', dessert: '🍰 Deserti', kids: '🧒 Dječji meni',
 }
 const catOrder = (c) => { const i = CAT_ORDER.indexOf(c); return i < 0 ? 99 : i }
 
