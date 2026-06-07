@@ -1,6 +1,36 @@
 ﻿# rest.by.me — HospitalityOS Produkt roadmap
 
-> **Verzija:** 5.7 *(MENU-LIB faza 3 — biblioteka ~167 stavki sa slikama, superadmin editor recepata + nutritivna tabela, re-import čuva izmjene, mobilni /admin/menu. — 2026-06-07. Prethodno: PERF — 2026-06-06)*
+> **Verzija:** 5.8 *(2b — tenants model + nezavisne vertikale: izbor biznisa pri registraciji, hotel-only sakriva restoran, "dodaj biznis", RLS izolaciona matrica (23 tabele). — 2026-06-07. Prethodno: MENU-LIB faza 3 — 2026-06-07)*
+
+---
+
+## ✅ 2b — Tenant model + nezavisne vertikale (ZAVRŠENA suština — 2026-06-07)
+
+> **Cilj:** razdvojiti NALOG (tenant) od vertikala (restoran/hotel/buduće); pri registraciji se bira biznis, vertikale su nezavisne, naknadno dodavanje moguće. **Restoran besplatan, hotel plaćen.**
+>
+> **Strategija:** expand/contract + sigurnosna mreža testova PRIJE refaktora. Stabilni id-jevi (`tenants.id == restaurants.id`) → `restaurant_id` na svih 23 tabele već JESTE tenant id, bez re-pointa podataka i bez diranja 270 upita.
+
+### Test harness (mreža za refaktor)
+- `010` RLS izolaciona matrica — SELECT (privatne) + DELETE (svih 23) izolacija; otporno na auto-trigere (before/after broj redova).
+- `011` strukturni guard (svaka `restaurant_id`: NOT NULL + FK), `004` no-orphan, `000` RLS-enabled. `012` guest auto-trigger, `013` tenants, `014` mirror, `015` verticals, `016` public verticals, `017` add-vertical izolacija.
+- **CI je u 3 iteracije uhvatio stvarna ponašanja** (order_items javni read; room_availability trigger; temp-table grant) prije oslanjanja.
+
+### Faze
+| Faza | Šta | Migracija |
+|------|-----|-----------|
+| 1 | `tenants` (id=restaurants.id) + RLS (privatno) + backfill + FK restaurants.id→tenants; BEFORE INSERT auto-create tenant (popravlja FK na svim insert putevima, uklj. registraciju) | `…0006`, `…0007` |
+| 2 | `tenants` izvor account polja: mirror trigger (restaurants→tenants) + PlatformContext čita/spaja account iz tenanta | `…0008` |
+| 3 | `active_verticals` + `hasVertical()` helper + gating restoran sekcije | `…0009` |
+| 4a/b/c | Registracija „izbor biznisa"; `VerticalGuard` (restoran rute); javni `restaurants.active_verticals` + guest `/:slug` → hotel za hotel-only | `…0010` |
+| „Dodaj biznis" | Hub sekcija — naknadno aktiviranje vertikale (restoran odmah, hotel → billing) | — |
+| 5 (sigurni dio) | `stripAccountFields` na settings update-ovima; drop vestigijalnog `tenants.active_verticals` | `…0011` |
+
+### Svjesno odgođeno (tehnički dug, bez funkcionalne koristi)
+- Tvrdi DROP `restaurants` account kolona + prepis payment edge funkcija na `tenants` → nepovratno, dira plaćanja; mirror trigger već sve drži konzistentnim. Radi se na staging-u kad/ako zatreba.
+- Unifikacija hotel nav/gating na `active_verticals` (sad hotel preko `hasAddon('hotel_core')`).
+- Staff vertikale rade preko javnog `restaurants.active_verticals`.
+
+
 > **Kontekst:** Evolucija rest.by.me (bivši SmartMeni) SaaS platforme prema punom hospitality management sistemu
 > **Tim:** 1 developer + Claude Code AI asistent
 > **Branch:** `main` → direktno na produkciju (Vercel auto-deploy)
