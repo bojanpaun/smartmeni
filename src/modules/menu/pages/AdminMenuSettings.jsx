@@ -1,5 +1,6 @@
 import { useState, useRef } from 'react'
 import { supabase } from '../../../lib/supabase'
+import { stripAccountFields } from '../../../lib/planUtils'
 import { usePlatform } from '../../../context/PlatformContext'
 import TemplateSettings from './TemplateSettings'
 import styles from './GeneralSettings.module.css'
@@ -266,7 +267,7 @@ export default function AdminMenuSettings() {
   const saveForm = async (e) => {
     e.preventDefault()
     setSaving(true)
-    await supabase.from('restaurants').update(form).eq('id', restaurant.id)
+    await supabase.from('restaurants').update(stripAccountFields(form)).eq('id', restaurant.id)
     setRestaurant(form)
     setSaving(false)
     setMsg('Sačuvano!')

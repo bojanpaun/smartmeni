@@ -93,3 +93,18 @@ export const PLAN_PRICING = {
 }
 
 export const ANNUAL_DISCOUNT = 20 // %
+
+// 2b: account/billing polja žive u `tenants` (izvor istine). Ova lista služi da
+// se NE pišu u `restaurants` kroz "full object" update-ove postavki (koje uzimaju
+// {...restaurant}, gdje su account polja spojena iz tenanta) — inače bi mirror
+// trigger vratio (potencijalno stale) vrijednosti u tenants.
+export const ACCOUNT_FIELDS = [
+  'plan', 'trial_ends_at', 'plan_expires_at', 'suspended_at',
+  'is_complimentary', 'complimentary_note', 'admin_theme',
+  'onboarding_completed', 'subscription_id', 'paypal_customer_id',
+]
+export function stripAccountFields(obj) {
+  const out = { ...obj }
+  for (const f of ACCOUNT_FIELDS) delete out[f]
+  return out
+}

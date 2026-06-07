@@ -2,6 +2,7 @@ import { useState, useEffect } from 'react'
 import { useNavigate } from 'react-router-dom'
 import { supabase } from '../../../lib/supabase'
 import { usePlatform } from '../../../context/PlatformContext'
+import { stripAccountFields } from '../../../lib/planUtils'
 import RecipeLibraryPicker from '../components/RecipeLibraryPicker'
 import styles from './AdminMenu.module.css'
 import gsStyles from './GeneralSettings.module.css'
@@ -587,7 +588,7 @@ function SettingsPage({ restaurant, setRestaurant }) {
   const save = async (e) => {
     e.preventDefault()
     setSaving(true)
-    await supabase.from('restaurants').update(form).eq('id', restaurant.id)
+    await supabase.from('restaurants').update(stripAccountFields(form)).eq('id', restaurant.id)
     setRestaurant(form)
     setSaving(false)
     setMsg('Sačuvano!')
