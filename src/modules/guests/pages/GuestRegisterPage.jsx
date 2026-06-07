@@ -36,6 +36,23 @@ export default function GuestRegisterPage() {
     if (!form.phone && !form.email) { setError('Unesite telefon ili email.'); return }
     setSaving(true); setError('')
 
+    // Detekcija duplikata (anon ne može čitati tuđe/pending goste → RPC).
+    const { data: existsCode } = await supabase.rpc('guest_exists', {
+      p_restaurant_id: restaurant.id,
+      p_phone: form.phone || null,
+      p_email: form.email || null,
+    })
+    if (existsCode === 'pending') {
+      setError('Vaš zahtjev je već poslat i čeka odobrenje restorana.')
+      setSaving(false)
+      return
+    }
+    if (existsCode === 'exists') {
+      setError('Već ste registrovani kod ovog restorana. Prijavite se preko stranice za prijavu.')
+      setSaving(false)
+      return
+    }
+
     const { error: err } = await supabase.from('guests').insert({
       restaurant_id: restaurant.id,
       first_name: form.first_name.trim(),
