@@ -182,6 +182,79 @@
 .btnSave:hover { background: var(--c-primary-hover); }
 .btnSave:disabled { opacity: 0.6; cursor: default; }
 
+/* Card head sa akcijom */
+.cardHead {
+  display: flex; align-items: flex-start; justify-content: space-between;
+  gap: 12px; margin-bottom: 14px; flex-wrap: wrap;
+}
+.btnNew {
+  background: var(--c-primary); color: #fff; border: none;
+  padding: 9px 16px; border-radius: 8px; font-size: 0.88rem; font-weight: 600;
+  cursor: pointer; white-space: nowrap;
+}
+.btnNew:hover { background: var(--c-primary-hover); }
+
+.rowBtns { display: flex; gap: 6px; justify-content: flex-end; }
+.btnEdit {
+  background: var(--c-bg-subtle); border: 1px solid var(--c-border); color: var(--c-text);
+  padding: 7px 12px; border-radius: 8px; font-size: 0.85rem; font-weight: 600;
+  cursor: pointer; white-space: nowrap;
+}
+.btnEdit:hover { background: var(--c-bg); }
+
+/* Modal */
+.overlay {
+  position: fixed; inset: 0; background: rgba(0,0,0,0.5);
+  display: flex; align-items: center; justify-content: center; z-index: 1000; padding: 16px;
+}
+.modal {
+  background: var(--c-surface); border: 1px solid var(--c-border); border-radius: 16px;
+  width: 100%; max-width: 600px; max-height: 92vh; display: flex; flex-direction: column; overflow: hidden;
+}
+.modalHead {
+  display: flex; align-items: center; justify-content: space-between;
+  padding: 16px 20px; border-bottom: 1px solid var(--c-border);
+}
+.modalTitle { font-size: 1.05rem; font-weight: 700; }
+.modalClose { background: none; border: none; font-size: 1.1rem; color: var(--c-text-muted); cursor: pointer; }
+.modalBody { padding: 16px 20px; overflow-y: auto; display: flex; flex-direction: column; gap: 14px; }
+.modalFoot {
+  display: flex; align-items: center; justify-content: flex-end; gap: 10px;
+  padding: 14px 20px; border-top: 1px solid var(--c-border);
+}
+
+.formRow { display: flex; gap: 12px; flex-wrap: wrap; }
+.formRow .field { flex: 1; min-width: 120px; }
+.field textarea {
+  padding: 9px 11px; border: 1px solid var(--c-border-input); border-radius: 8px;
+  background: var(--c-bg); color: var(--c-text); font-size: 0.92rem;
+  font-family: var(--c-font-sans); resize: vertical; width: 100%;
+}
+.field textarea:focus { outline: none; border-color: var(--c-primary); }
+.field input[type="color"] { width: 56px; height: 38px; padding: 2px; cursor: pointer; }
+.idFixed {
+  font-weight: 600; color: var(--c-text-muted); background: var(--c-bg-subtle);
+  padding: 9px 11px; border-radius: 8px; font-size: 0.9rem;
+}
+
+.toggleRow { display: flex; align-items: center; gap: 8px; flex-wrap: wrap; }
+.toggleRow span { font-size: 0.88rem; margin-right: 8px; }
+
+.allInc { display: flex; align-items: center; gap: 8px; font-size: 0.88rem; margin-bottom: 8px; cursor: pointer; }
+.incGrid { display: flex; flex-wrap: wrap; gap: 6px; }
+.incChip {
+  display: inline-flex; align-items: center; gap: 6px; padding: 5px 10px;
+  border: 1px solid var(--c-border); border-radius: 999px; font-size: 0.82rem;
+  cursor: pointer; color: var(--c-text-medium); background: var(--c-bg-subtle);
+}
+.incChipOn { background: var(--c-primary-light); border-color: var(--c-primary); color: var(--c-primary-hover); }
+
+.providerBox {
+  border: 1px dashed var(--c-border); border-radius: 10px; padding: 12px 14px;
+  display: flex; flex-direction: column; gap: 10px;
+}
+.providerTitle { font-size: 0.82rem; color: var(--c-text-muted); font-weight: 600; }
+
 /* Toggle */
 .toggle {
   width: 42px;
