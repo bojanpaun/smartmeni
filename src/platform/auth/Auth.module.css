@@ -165,6 +165,21 @@
 }
 .loginLink a { color: #1a9e6e; font-weight: 500; }
 
+/* Akcijski link (npr. "Zaboravili ste lozinku?") — izgleda isto kao .loginLink a */
+.linkBtn {
+  background: none;
+  border: none;
+  padding: 0;
+  font: inherit;
+  color: #1a9e6e;
+  font-weight: 500;
+  cursor: pointer;
+}
+.linkBtn:hover { text-decoration: underline; }
+
+/* Kad se dva linka nižu, drugi je bliže prvom */
+.loginLink + .loginLink { margin-top: 0.5rem; }
+
 /* 2b/Faza 4 — izbor biznisa pri registraciji */
 .bizChoices { display: flex; flex-direction: column; gap: 8px; }
 .bizChoice {

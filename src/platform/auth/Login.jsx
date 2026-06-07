@@ -88,9 +88,11 @@ export default function Login() {
               </button>
             </form>
 
-            <button type="button" className={styles.btnBack} onClick={() => switchMode('forgot')}>
-              Zaboravili ste lozinku?
-            </button>
+            <p className={styles.loginLink}>
+              <button type="button" className={styles.linkBtn} onClick={() => switchMode('forgot')}>
+                Zaboravili ste lozinku?
+              </button>
+            </p>
 
             <p className={styles.loginLink}>
               Nemate nalog? <Link to="/registracija">Registrujte se besplatno</Link>
