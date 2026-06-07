@@ -1,6 +1,6 @@
 ﻿# rest.by.me — HospitalityOS Produkt roadmap
 
-> **Verzija:** 5.6 *(PERF — optimizacija mobilnog učitavanja: bundle split, lazy + manje slike, manje round-tripova, size-limit + Lighthouse CI. Prethodno: MENU-LIB faza 2 — hrana + pića, ~106 stavki. — 2026-06-06)*
+> **Verzija:** 5.7 *(MENU-LIB faza 3 — biblioteka ~167 stavki sa slikama, superadmin editor recepata + nutritivna tabela, re-import čuva izmjene, mobilni /admin/menu. — 2026-06-07. Prethodno: PERF — 2026-06-06)*
 > **Kontekst:** Evolucija rest.by.me (bivši SmartMeni) SaaS platforme prema punom hospitality management sistemu
 > **Tim:** 1 developer + Claude Code AI asistent
 > **Branch:** `main` → direktno na produkciju (Vercel auto-deploy)
@@ -451,6 +451,29 @@ Recepti pića/kafe su standardizovani (Mojito je svuda isti) → najveća korist
 - Opciono: interni opis kategorije prikazati i na Bar/Kuhinja dashboardu osoblju.
 - Opciono: superadmin UI za uređivanje recepata/sastojaka (sad samo slike); proširenje sadržaja po potrebi.
 - ✅ ~~Superadmin UI za slike~~ (ML-7) · ✅ ~~izbor ciljne kategorije~~ (ML-8) · ✅ ~~hrana + ostala pića~~ (ML-10..14) · ✅ ~~slike za sve~~ (ML-12) · ✅ ~~opisi me/en~~ (ML-13/14)
+
+---
+
+## ✅ MENU-LIB faza 3 — superadmin tooling + proširenje biblioteke (ZAVRŠENA — 2026-06-07)
+
+> Biblioteka narasla na **~167 stavki, sve sa slikama (~600px, lazy)**, recept/BOM, alergeni, kalorije, opisi (me/en).
+
+### Superadmin tooling
+| Stavka | Detalji |
+|--------|---------|
+| Editor recepata | `/superadmin/recipes` — uređivanje svih polja (naziv me/en, kategorija, emoji, cijena, prep_time, opis me/en, alergeni, kalorije, is_active) + **sastojci (BOM)**; **+ Novi recept**; **brisanje** (cascade); dinamički tabovi |
+| Preračun | „🧮 Preračunaj kalorije i alergene iz sastojaka" — klijentski iz trenutnih sastojaka; prijavljuje nepoznate |
+| Nutritivna tabela | Nova tabela `recipe_ingredient_nutrition` (`20260607000002`) + UI `/superadmin/nutrition` (dodaj/izmijeni/obriši: kcal/jed. + EU-14 alergeni) |
+
+### Ponašanje importa
+- **Re-import ne resetuje recept** postojeće stavke (`20260607000001`) — BOM se popunjava samo ako je prazan; skalarna polja samo backfill. pgTAP `005` regresija dodata.
+
+### Proširenje sadržaja (kategorije: +soup, side, kids, vegetarian)
+- Gazirana/flaširana pića (`20260607000003`), supe/čorbe + riblja/glavna jela + žestoko + topli napici + prilozi + dječji + vegetarijansko (`20260607000004`), deserti + sladoledi (`20260607000005`).
+- RPC mapira sve kategorije → ciljni tab + `is_bar`; nutritivna mapa proširena (junetina, riba/orada/brancin, vrste sladoleda, celer…).
+
+### Mobilni
+- `/admin/menu` lista (tabela → kompaktni red, mobileInfo) i `/admin/menu/settings` (orderingCard stack, editor poruka wrap) prilagođeni telefonu.
 
 ---
 
