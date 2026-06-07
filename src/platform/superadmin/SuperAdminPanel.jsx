@@ -228,6 +228,7 @@ export default function SuperAdminPanel() {
         <div style={{ display: 'flex', gap: 8 }}>
           <button className={styles.btnRefresh} onClick={() => navigate('/superadmin/billing')}>💶 Naplata i cijene</button>
           <button className={styles.btnRefresh} onClick={() => navigate('/superadmin/recipes')}>📚 Biblioteka recepata</button>
+          <button className={styles.btnRefresh} onClick={() => navigate('/superadmin/spa-treatments')}>💆 Biblioteka tretmana</button>
           <button className={styles.btnRefresh} onClick={loadRestaurants}>↻ Osvježi</button>
         </div>
       </div>

@@ -1,5 +1,6 @@
 import { useState } from 'react'
 import { usePlatform } from '../../../context/PlatformContext'
+import { supabase } from '../../../lib/supabase'
 import { useSpaServices } from '../hooks/useSpaServices'
 import LoadingSpinner from '../../../components/shared/LoadingSpinner'
 import styles from '../../hotel/pages/Hotel.module.css'
@@ -22,14 +23,43 @@ const BLANK = {
 
 export default function ServicesPage() {
   const { restaurant } = usePlatform()
-  const { services, loading, save, remove, toggle } = useSpaServices(restaurant?.id)
+  const { services, loading, save, remove, toggle, refetch } = useSpaServices(restaurant?.id)
   const [showForm, setShowForm] = useState(false)
   const [editing, setEditing]   = useState(null)
   const [form, setForm]         = useState(BLANK)
   const [saving, setSaving]     = useState(false)
   const [catFilter, setCatFilter] = useState('all')
 
+  // Biblioteka tretmana (uvoz)
+  const [showLib, setShowLib]   = useState(false)
+  const [libItems, setLibItems] = useState([])
+  const [libLoading, setLibLoading] = useState(false)
+  const [importingId, setImportingId] = useState(null)
+  const [libMsg, setLibMsg] = useState('')
+
   if (!restaurant) return <LoadingSpinner fullPage />
+
+  const openLib = async () => {
+    setShowLib(true); setLibMsg(''); setLibLoading(true)
+    const { data } = await supabase
+      .from('spa_treatment_library')
+      .select('id, name, name_en, category, duration_minutes, suggested_price')
+      .eq('is_active', true)
+      .order('sort_order').order('name')
+    setLibItems(data ?? [])
+    setLibLoading(false)
+  }
+
+  const importTreatment = async (id, name) => {
+    setImportingId(id)
+    const { data, error } = await supabase.rpc('import_spa_treatment', {
+      p_restaurant_id: restaurant.id, p_treatment_id: id,
+    })
+    setImportingId(null)
+    if (error) { setLibMsg('Greška: ' + error.message); return }
+    setLibMsg(data?.skipped ? `Već postoji: ${name}` : `Uvezeno: ${name}`)
+    refetch()
+  }
 
   const openNew = () => { setEditing(null); setForm(BLANK); setShowForm(true) }
   const openEdit = (s) => { setEditing(s.id); setForm({ ...BLANK, ...s }); setShowForm(true) }
@@ -53,8 +83,40 @@ export default function ServicesPage() {
           <h1 className={styles.title}>Katalog tretmana</h1>
           <p className={styles.subtitle}>Definirajte tretmane, trajanje i cijene</p>
         </div>
-        <button className={styles.btnPrimary} onClick={openNew}>+ Novi tretman</button>
+        <div style={{ display: 'flex', gap: 8 }}>
+          <button className={styles.btnSecondary} onClick={openLib}>📚 Iz biblioteke</button>
+          <button className={styles.btnPrimary} onClick={openNew}>+ Novi tretman</button>
+        </div>
       </div>
+
+      {showLib && (
+        <div className={spa.formPanel}>
+          <div className={spa.formPanelHeader}>
+            <span className={spa.formPanelTitle}>Biblioteka tretmana</span>
+            <button className={spa.formPanelClose} onClick={() => setShowLib(false)}>✕</button>
+          </div>
+          <div style={{ padding: '4px 4px 12px', fontSize: 13, color: 'var(--c-text-muted)' }}>
+            Uvezi gotov tretman u svoj katalog (cijenu i detalje poslije doradi). {libMsg && <strong style={{ color: '#0d7a52' }}>· {libMsg}</strong>}
+          </div>
+          {libLoading ? <LoadingSpinner /> : (
+            <div style={{ display: 'flex', flexDirection: 'column', gap: 6, maxHeight: 360, overflowY: 'auto' }}>
+              {libItems.map(it => (
+                <div key={it.id} style={{ display: 'flex', alignItems: 'center', gap: 10, padding: '8px 10px', border: '1px solid var(--c-border)', borderRadius: 8 }}>
+                  <div style={{ flex: 1 }}>
+                    <div style={{ fontWeight: 600 }}>{it.name}</div>
+                    <div style={{ fontSize: 12, color: 'var(--c-text-muted)' }}>
+                      {it.duration_minutes} min{it.suggested_price != null ? ` · ~€${Number(it.suggested_price).toFixed(0)}` : ''}
+                    </div>
+                  </div>
+                  <button className={styles.btnSecondary} style={{ fontSize: 12 }} disabled={importingId === it.id} onClick={() => importTreatment(it.id, it.name)}>
+                    {importingId === it.id ? '...' : '+ Uvezi'}
+                  </button>
+                </div>
+              ))}
+            </div>
+          )}
+        </div>
+      )}
 
       {/* Category filter */}
       <div style={{ display: 'flex', gap: 8, marginBottom: 20, flexWrap: 'wrap' }}>
