@@ -65,3 +65,36 @@
 .btnCancel { padding: 9px 16px; background: var(--c-bg-subtle); border: 1px solid var(--c-border); border-radius: 10px; font-weight: 600; cursor: pointer; color: var(--c-text-medium); }
 .btnSave { padding: 9px 18px; background: var(--c-primary); color: #fff; border: none; border-radius: 10px; font-weight: 700; cursor: pointer; }
 .btnSave:disabled { opacity: 0.5; cursor: not-allowed; }
+
+/* ── Responsive: tabela → kartice (bez horizontalnog scrolla) ── */
+@media (max-width: 640px) {
+  .wrap { padding: 16px 12px 60px; }
+  .tableWrap { overflow: visible; background: transparent; border: none; }
+  .table thead { display: none; }
+  .table, .table tbody { display: block; width: 100%; }
+
+  .table tr {
+    display: block;
+    background: var(--c-surface);
+    border: 1px solid var(--c-border);
+    border-radius: 12px;
+    padding: 4px 14px;
+    margin-bottom: 10px;
+  }
+
+  .table td {
+    display: flex; align-items: center; justify-content: space-between; gap: 12px;
+    padding: 9px 0; border-bottom: 1px solid var(--c-bg-subtle); text-align: right;
+  }
+  .table tr td:last-child { border-bottom: none; }
+  .table td::before {
+    content: attr(data-label);
+    font-size: 0.78rem; font-weight: 600; color: var(--c-text-muted);
+    text-align: left;
+  }
+
+  .nm { padding-top: 12px; font-size: 1rem; justify-content: flex-start; }
+  .nm::before { content: none; }
+  .actions { padding-top: 12px; justify-content: flex-end; }
+  .actions::before { content: none; }
+}

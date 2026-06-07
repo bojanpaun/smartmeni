@@ -107,8 +107,8 @@ export default function NutritionAdmin() {
               {filtered.map(r => (
                 <tr key={r.nm}>
                   <td className={styles.nm}>{r.nm}</td>
-                  <td>{Number(r.kcal)}</td>
-                  <td className={styles.alg}>{(r.allergens || []).join(', ') || '—'}</td>
+                  <td data-label="kcal / jed.">{Number(r.kcal)}</td>
+                  <td className={styles.alg} data-label="Alergeni">{(r.allergens || []).join(', ') || '—'}</td>
                   <td className={styles.actions}>
                     <button className={styles.btnEdit} onClick={() => openEdit(r)}>Uredi</button>
                     <button className={styles.btnDel} onClick={() => del(r)}>✕</button>

@@ -213,5 +213,57 @@
 
 @media (max-width: 640px) {
   .wrap { padding: 16px 10px 60px; }
-  .priceInput { width: 70px; }
+  .card { padding: 16px 14px; }
+  .betaHead { gap: 10px; }
+  .noteRow { flex-direction: column; align-items: stretch; }
+  .noteRow .btnSave { width: 100%; }
+
+  /* Tabela → kartice: bez horizontalnog scrolla, svako polje sa svojom labelom */
+  .tableScroll { overflow-x: visible; }
+  .table thead { display: none; }
+  .table, .table tbody { display: block; width: 100%; }
+
+  .table tr {
+    display: block;
+    border: 1px solid var(--c-border);
+    border-radius: 12px;
+    padding: 4px 14px;
+    margin-bottom: 12px;
+    background: var(--c-bg);
+  }
+  .table tr.rowBeta { background: var(--c-primary-light); }
+
+  .table td {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 12px;
+    padding: 9px 0;
+    border-bottom: 1px solid var(--c-border);
+  }
+  .table tr td:last-child { border-bottom: none; }
+
+  .table td::before {
+    content: attr(data-label);
+    font-size: 0.8rem;
+    font-weight: 600;
+    color: var(--c-text-muted);
+  }
+
+  /* Naziv = naslov kartice (bez labele) */
+  .nameCell {
+    justify-content: flex-start;
+    flex-wrap: wrap;
+    gap: 8px;
+    font-size: 1rem;
+    padding-top: 12px;
+  }
+  .nameCell::before { content: none; }
+
+  /* Sačuvaj = puna širina, bez labele */
+  .saveCell::before { content: none; }
+  .saveCell { padding-top: 12px; }
+  .saveCell .btnSave { width: 100%; padding: 11px; }
+
+  .priceInput { width: 120px; text-align: right; }
 }

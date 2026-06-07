@@ -177,11 +177,11 @@ export default function BillingControl() {
               {plans.map(p => (
                 <tr key={p.id}>
                   <td className={styles.nameCell}>{p.name}<span className={styles.idTag}>{p.id}</span></td>
-                  <td><PriceInput value={p.price_monthly} onChange={v => patchPlan(p.id, { price_monthly: v })} /></td>
-                  <td><PriceInput value={p.price_annual_per_month} onChange={v => patchPlan(p.id, { price_annual_per_month: v })} /></td>
-                  <td><PriceInput value={p.price_annual_total} onChange={v => patchPlan(p.id, { price_annual_total: v })} /></td>
-                  <td><Toggle on={p.is_active} onClick={() => patchPlan(p.id, { is_active: !p.is_active })} /></td>
-                  <td>
+                  <td data-label="€/mj"><PriceInput value={p.price_monthly} onChange={v => patchPlan(p.id, { price_monthly: v })} /></td>
+                  <td data-label="€/mj (godišnje)"><PriceInput value={p.price_annual_per_month} onChange={v => patchPlan(p.id, { price_annual_per_month: v })} /></td>
+                  <td data-label="€ godišnje ukupno"><PriceInput value={p.price_annual_total} onChange={v => patchPlan(p.id, { price_annual_total: v })} /></td>
+                  <td data-label="Aktivan"><Toggle on={p.is_active} onClick={() => patchPlan(p.id, { is_active: !p.is_active })} /></td>
+                  <td className={styles.saveCell}>
                     <button className={styles.btnSave} disabled={savingId === p.id} onClick={() => savePlan(p)}>
                       {savingId === p.id ? '…' : 'Sačuvaj'}
                     </button>
@@ -219,11 +219,11 @@ export default function BillingControl() {
                   {list.map(a => (
                     <tr key={a.id} className={a.beta_free ? styles.rowBeta : ''}>
                       <td className={styles.nameCell}>{a.name}<span className={styles.idTag}>{a.id}</span></td>
-                      <td><PriceInput value={a.price_monthly} onChange={v => patchAddon(a.id, { price_monthly: v })} /></td>
-                      <td><PriceInput value={a.price_yearly} onChange={v => patchAddon(a.id, { price_yearly: v })} /></td>
-                      <td><Toggle on={a.is_active} onClick={() => patchAddon(a.id, { is_active: !a.is_active })} /></td>
-                      <td><Toggle on={a.beta_free} onClick={() => patchAddon(a.id, { beta_free: !a.beta_free })} /></td>
-                      <td>
+                      <td data-label="€/mj"><PriceInput value={a.price_monthly} onChange={v => patchAddon(a.id, { price_monthly: v })} /></td>
+                      <td data-label="€/god"><PriceInput value={a.price_yearly} onChange={v => patchAddon(a.id, { price_yearly: v })} /></td>
+                      <td data-label="Aktivan"><Toggle on={a.is_active} onClick={() => patchAddon(a.id, { is_active: !a.is_active })} /></td>
+                      <td data-label="Beta-free"><Toggle on={a.beta_free} onClick={() => patchAddon(a.id, { beta_free: !a.beta_free })} /></td>
+                      <td className={styles.saveCell}>
                         <button className={styles.btnSave} disabled={savingId === a.id} onClick={() => saveAddon(a)}>
                           {savingId === a.id ? '…' : 'Sačuvaj'}
                         </button>
