@@ -3648,7 +3648,14 @@ prije produkcijskog naplaćivanja.
 │
 │              ✅ Staff portal sub-pills — wrap layout (sve vidljive bez h-scroll)
 │
-│              ← OVDJE SMO (2026-06-04) — PAUZA
+│              ✅ Spa dopuna (2026-06-08) — recenzije/ocjene terapeuta (spa_reviews +
+│                            auto-rating + submit_spa_review), retail prodaja
+│                            (spa_retail_items CRUD + sell_retail_to_folio), online
+│                            kartično plaćanje vanjskih spa gostiju (sourceType 'spa')
+│              ✅ Minibar (Faza P dio, 2026-06-08) — minibar_items katalog +
+│                            zaduženje na folio (type 'minibar')
+│
+│              ← OVDJE SMO (2026-06-08)
 │
 ├── Jun–Jul    ⬜ Faza N  — Nocni audit + Split folio + Doručak kontrola
 │                            EOD automatizacija, room charge na folije, split billing
@@ -3690,4 +3697,4 @@ prije produkcijskog naplaćivanja.
 
 ---
 
-*Roadmap ažuriran: 2026-06-07 (v6.0 — Faza BILL dopuna: planovi/addoni opisi+features, superadmin kreira planove (Nivo A), gating iz plans.includes, render iz DB; Nivo B kupovina odgođena do Monri; v5.9 — Faza BILL: superadmin pricing & beta kontrola — platform_settings + plans + addon_catalog.beta_free + is_beta_free(), /superadmin/billing UI, cijene iz DB; v5.8 — 2b tenant model; v5.1 — Staff portal sub-pills wrap layout; v5.0 — Faza PAY kompletna PAY-1..12; v4.9 — Faza Z.1 kompletna) | Branch: main | Deployment: Vercel auto-deploy*
+*Roadmap ažuriran: 2026-06-08 (v6.1 — Spa dopuna: recenzije/ocjene, retail prodaja, online kartično plaćanje vanjskih gostiju; Minibar (Faza P dio): katalog + folio zaduženje; v6.0 — Faza BILL dopuna: planovi/addoni opisi+features, superadmin kreira planove (Nivo A), gating iz plans.includes, render iz DB; Nivo B kupovina odgođena do Monri; v5.9 — Faza BILL: superadmin pricing & beta kontrola — platform_settings + plans + addon_catalog.beta_free + is_beta_free(), /superadmin/billing UI, cijene iz DB; v5.8 — 2b tenant model; v5.1 — Staff portal sub-pills wrap layout; v5.0 — Faza PAY kompletna PAY-1..12; v4.9 — Faza Z.1 kompletna) | Branch: main | Deployment: Vercel auto-deploy*
