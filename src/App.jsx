@@ -10,6 +10,7 @@ const AdminLayout = lazy(() => import('./layouts/AdminLayout'))
 const Landing              = lazy(() => import('./platform/Landing'))
 const Login                = lazy(() => import('./platform/auth/Login'))
 const Register             = lazy(() => import('./platform/auth/Register'))
+const ResetPassword        = lazy(() => import('./platform/auth/ResetPassword'))
 
 const GuestMenu            = lazy(() => import('./layouts/GuestMenu'))
 const AdminMenu            = lazy(() => import('./modules/menu/pages/AdminMenu'))
@@ -170,6 +171,7 @@ function AppRoutes() {
         <Route path="/" element={<Landing />} />
         <Route path="/login" element={<Login />} />
         <Route path="/registracija" element={<Register />} />
+        <Route path="/reset-lozinke" element={<ResetPassword />} />
 
         {/* Kontrolna tabla */}
         <Route path="/admin" element={<AdminRoute><ControlPanel /></AdminRoute>} />

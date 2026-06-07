@@ -60,19 +60,54 @@ export default function Register() {
     setLoading(true)
 
     try {
+      // 1) Pokušaj kreirati novi auth nalog.
+      let userId
       const { data: authData, error: authError } = await supabase.auth.signUp({
         email: form.email,
         password: form.password,
       })
 
-      if (authError) throw authError
+      if (authError) {
+        // Email već ima nalog (npr. korisnik je već zaposleni negdje). Auth je
+        // globalan po emailu — ne pravi se drugi nalog; umjesto toga prijavimo
+        // postojeći istim kredencijalima i zakačimo mu novi tenant.
+        const alreadyExists =
+          authError.code === 'user_already_exists' ||
+          /already (registered|exists|been registered)/i.test(authError.message || '')
+        if (!alreadyExists) throw authError
 
+        const { data: signInData, error: signInError } = await supabase.auth.signInWithPassword({
+          email: form.email,
+          password: form.password,
+        })
+        if (signInError) {
+          setError('Ovaj email već ima nalog. Unesite tačnu lozinku tog naloga da dodate biznis — ili se prijavite pa dodajte biznis iz panela.')
+          setLoading(false)
+          return
+        }
+        userId = signInData.user.id
+      } else {
+        userId = authData.user.id
+      }
+
+      // 2) Jedan vlasnički tenant po nalogu — ako restoran već postoji, ne pravi
+      //    drugi (PlatformContext očekuje 0/1), samo uđi u panel.
+      const { data: existingRest } = await supabase
+        .from('restaurants')
+        .select('id')
+        .eq('user_id', userId)
+        .maybeSingle()
+      if (existingRest) {
+        navigate('/admin')
+        return
+      }
+
+      // 3) Kreiraj tenant (restaurants); auto-create tenant trigger radi ostatak.
       const slug = form.slug || generateSlug(form.name)
-
       const { error: restError } = await supabase
         .from('restaurants')
         .insert({
-          user_id: authData.user.id,
+          user_id: userId,
           name: form.name,
           slug,
           location: form.location,
