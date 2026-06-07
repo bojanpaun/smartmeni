@@ -19,6 +19,17 @@ function withTenant(rest, tenant) {
   return merged
 }
 
+// Globalni billing config (beta + addon katalog + planovi) je isti za sve i rijetko
+// se mijenja → keširamo ga u localStorage da bude instant ispravan (bez flash-a) i
+// da NE blokira loadProfile/prvi paint. Osvježava se u pozadini pri svakom učitavanju.
+const GLOBAL_CFG_KEY = 'rbm_global_cfg_v1'
+function readGlobalCfg() {
+  try { return JSON.parse(localStorage.getItem(GLOBAL_CFG_KEY)) || null } catch { return null }
+}
+function writeGlobalCfg(cfg) {
+  try { localStorage.setItem(GLOBAL_CFG_KEY, JSON.stringify(cfg)) } catch { /* quota/private mode */ }
+}
+
 export function PlatformProvider({ children }) {
   const [user, setUser] = useState(null)
   const [restaurant, setRestaurant] = useState(null)
@@ -31,9 +42,10 @@ export function PlatformProvider({ children }) {
   // beta_free) + plan cijene — izvor istine je DB (superadmin ih uređuje na
   // /superadmin/billing). Dok je beta aktivna, gating (checkAddon) propušta sve
   // besplatno; vertikale (hasVertical) i dalje ograničavaju ŠTA tenant vidi.
-  const [betaGlobal, setBetaGlobal] = useState(false)
-  const [addonCatalog, setAddonCatalog] = useState([])
-  const [plans, setPlans] = useState([])
+  // Init iz keša (instant), pa background refresh u loadGlobalConfig.
+  const [betaGlobal, setBetaGlobal] = useState(() => readGlobalCfg()?.beta_free_mode ?? false)
+  const [addonCatalog, setAddonCatalog] = useState(() => readGlobalCfg()?.addonCatalog ?? [])
+  const [plans, setPlans] = useState(() => readGlobalCfg()?.plans ?? [])
   // Spriječi višestruko pokretanje loadProfile-a: getSession + INITIAL_SESSION se
   // oboje okidaju na startu, a SIGNED_IN se re-fira na fokus taba. Učitaj profil
   // tačno jednom po korisniku (8 upita po pozivu — inače se gomilaju).
@@ -66,9 +78,8 @@ export function PlatformProvider({ children }) {
         setSubscription(null)
         setStaffProfile(null)
         setPermissions([])
-        setBetaGlobal(false)
-        setAddonCatalog([])
-        setPlans([])
+        // betaGlobal/addonCatalog/plans su globalni (ne user-specific) → ne resetuju
+        // se na logout; ostaju iz keša, osvježe se pri sljedećem loadGlobalConfig.
         setLoading(false)
       }
       // TOKEN_REFRESHED i ponovni SIGNED_IN za istog korisnika (fokus taba) se ignorišu.
@@ -77,24 +88,34 @@ export function PlatformProvider({ children }) {
     return () => listener.subscription.unsubscribe()
   }, [])
 
+  // Globalni billing config — osvježi u pozadini (ne blokira prvi paint; stanje je
+  // već iz keša). Piše i u localStorage za sljedeći put.
+  const loadGlobalConfig = async () => {
+    const [{ data: settings }, { data: addonRows }, { data: planRows }] = await Promise.all([
+      supabase.from('platform_settings').select('beta_free_mode').limit(1).maybeSingle(),
+      supabase.from('addon_catalog').select('id, name, category, description, features, price_monthly, price_yearly, beta_free'),
+      supabase.from('plans').select('id, name, description, features, color, includes, is_popular, coming_soon, price_monthly, price_annual_per_month, price_annual_total, is_active, sort_order, paypal_plan_id'),
+    ])
+    if (settings) setBetaGlobal(!!settings.beta_free_mode)
+    if (addonRows) setAddonCatalog(addonRows)
+    if (planRows) setPlans(planRows)
+    if (settings && addonRows && planRows) {
+      writeGlobalCfg({ beta_free_mode: !!settings.beta_free_mode, addonCatalog: addonRows, plans: planRows })
+    }
+  }
+
   const loadProfile = async (user) => {
-    // Sve query-je paralelno — uklj. subscription vlasnika (embedded join na
-    // restaurants.user_id), pa nema dodatnog round-tripa nakon prve grupe.
-    const [{ data: profile }, { data: ownerRest }, { data: staff }, { data: ownerSub }, { data: ownerTenant }, { data: settings }, { data: addonRows }, { data: planRows }] = await Promise.all([
+    // Globalni config ne blokira — pali se paralelno, prvi paint ga ne čeka.
+    loadGlobalConfig()
+
+    // Samo user-specifični upiti gate-uju prvi paint (5 umjesto 8).
+    const [{ data: profile }, { data: ownerRest }, { data: staff }, { data: ownerSub }, { data: ownerTenant }] = await Promise.all([
       supabase.from('user_profiles').select('*').eq('id', user.id).maybeSingle(),
       supabase.from('restaurants').select('*').eq('user_id', user.id).maybeSingle(),
       supabase.from('staff').select('*, role:roles(*)').eq('user_id', user.id).eq('is_active', true).maybeSingle(),
       supabase.from('subscriptions').select('*, restaurants!inner(user_id)').eq('restaurants.user_id', user.id).maybeSingle(),
       supabase.from('tenants').select('*').eq('user_id', user.id).maybeSingle(),
-      supabase.from('platform_settings').select('beta_free_mode').limit(1).maybeSingle(),
-      supabase.from('addon_catalog').select('id, name, category, description, features, price_monthly, price_yearly, beta_free'),
-      supabase.from('plans').select('id, name, description, features, color, includes, is_popular, coming_soon, price_monthly, price_annual_per_month, price_annual_total, is_active, sort_order, paypal_plan_id'),
     ])
-
-    // Billing config je globalan (isti za sve tenante) — postavi prije bilo koje grane.
-    setBetaGlobal(!!settings?.beta_free_mode)
-    setAddonCatalog(addonRows ?? [])
-    setPlans(planRows ?? [])
 
     if (profile?.is_superadmin) {
       setStaffProfile({ ...profile, role: 'superadmin' })
