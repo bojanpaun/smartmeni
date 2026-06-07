@@ -94,7 +94,7 @@ function useDashboardData(restaurant, hasHotel, hasSpa) {
 }
 
 export default function ControlPanel() {
-  const { restaurant, hasPermission, isOwner, isSuperAdmin, hasAddon, hasVertical } = usePlatform()
+  const { restaurant, setRestaurant, hasPermission, isOwner, isSuperAdmin, hasAddon, hasVertical } = usePlatform()
   const navigate = useNavigate()
   const [showOnboarding, setShowOnboarding] = useState(
     restaurant && !restaurant.onboarding_completed
@@ -117,6 +117,23 @@ export default function ControlPanel() {
     if (v === null) return '—'
     if (v >= 1000) return `€${(v / 1000).toFixed(1)}k`
     return `€${Math.round(v)}`
+  }
+
+  // 2b/Faza: dodavanje biznisa (vertikale) naknadno. Restoran besplatno (odmah);
+  // hotel plaćeno (aktivira vertikalu pa vodi na pretplatu).
+  const ALL_VERTICALS = [
+    { key: 'restaurant', emoji: '🍽️', title: 'Restoran', desc: 'Digitalni meni i stolovi · besplatno' },
+    { key: 'hotel',      emoji: '🏨', title: 'Hotel',    desc: 'Sobe, rezervacije, folio · plaćeno' },
+  ]
+  const missingVerticals = ALL_VERTICALS.filter(v => !hasVertical(v.key))
+  const addVertical = async (v) => {
+    if (!restaurant) return
+    const next = Array.from(new Set([...(restaurant.active_verticals || ['restaurant']), v]))
+    const { error } = await supabase.from('restaurants')
+      .update({ active_verticals: next }).eq('id', restaurant.id)
+    if (error) return
+    setRestaurant({ ...restaurant, active_verticals: next })
+    if (v === 'hotel') navigate('/admin/billing') // plaćeno → pretplata na hotel
   }
 
   const restaurantMods  = MODULES.filter(m => RESTAURANT_KEYS.includes(m.key)  && canSee(m.perm))
@@ -283,6 +300,30 @@ export default function ControlPanel() {
             </div>
           </div>
           <div className={styles.grid}>{upravljanjeMods.map(renderCard)}</div>
+        </div>
+      )}
+
+      {/* ── Dodaj biznis (naknadno dodavanje vertikale) ── */}
+      {isOwner() && missingVerticals.length > 0 && (
+        <div className={styles.section}>
+          <div className={styles.verticalHead}>
+            <span className={styles.verticalEmoji}>➕</span>
+            <div>
+              <div className={styles.verticalTitle}>Dodaj biznis</div>
+              <div className={styles.verticalSub}>Proširi nalog novom vertikalom</div>
+            </div>
+          </div>
+          <div className={styles.grid}>
+            {missingVerticals.map(v => (
+              <button key={v.key} className={`${styles.card} ${styles.cardActive}`} onClick={() => addVertical(v.key)}>
+                <div className={styles.cardIcon}>{v.emoji}</div>
+                <div className={styles.cardBody}>
+                  <div className={styles.cardName}>Dodaj {v.title}</div>
+                  <div className={styles.cardDesc}>{v.desc}</div>
+                </div>
+              </button>
+            ))}
+          </div>
         </div>
       )}
 
