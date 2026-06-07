@@ -57,15 +57,22 @@ export function planStatus(restaurant) {
 }
 
 // Provjera da li tenant ima određeni addon aktivan
-// Provjerava i bundle plan I individualne addonе (trial/grandfathered)
-export function hasAddon(subscription, addonId) {
+// Provjerava i bundle plan I individualne addonе (trial/grandfathered).
+// `planIncludesOverride` (opciono): mapa { planId: addonId[] | null } iz DB tabele
+// `plans` — kad je proslijeđena, izvor uključenja je DB (omogućava superadmin-
+// kreirane planove). null vrijednost = "sve uključeno" (enterprise). Bez override-a
+// pada na hardkodirani PLAN_INCLUDES (rezilijentno ako DB nije učitan).
+export function hasAddon(subscription, addonId, planIncludesOverride = null) {
   if (!subscription) return false
   const plan = normalizePlan(subscription.plan)
 
   if (plan === 'enterprise') return true
 
-  // Provjeri da li je addon uključen u plan
-  const included = PLAN_INCLUDES[plan]
+  // Izvor uključenja: DB override (ako ima taj plan) ili konstanta.
+  const included = (planIncludesOverride && plan in planIncludesOverride)
+    ? planIncludesOverride[plan]
+    : PLAN_INCLUDES[plan]
+  if (included === null) return true            // null = sve (enterprise/custom)
   if (included?.includes(addonId)) return true
 
   // Provjeri individualne addonе (trial, grandfathered)

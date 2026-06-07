@@ -52,6 +52,30 @@ describe('hasAddon', () => {
     expect(hasAddon(sub, 'hr_pro')).toBe(true)
     expect(hasAddon(sub, 'hotel_core')).toBe(false)
   })
+
+  describe('planIncludesOverride (DB-driven includes)', () => {
+    it('DB override određuje uključenja umjesto konstante', () => {
+      const sub = { plan: 'bistro' } // superadmin-kreiran plan
+      const override = { bistro: ['hr_pro', 'inventory_pro'] }
+      expect(hasAddon(sub, 'hr_pro', override)).toBe(true)
+      expect(hasAddon(sub, 'hotel_core', override)).toBe(false)
+    })
+
+    it('override sa null = sve uključeno (custom enterprise-like)', () => {
+      const sub = { plan: 'mega' }
+      expect(hasAddon(sub, 'bilo_sta', { mega: null })).toBe(true)
+    })
+
+    it('plan koji nije u override mapi pada na konstantu', () => {
+      const sub = { plan: 'hotel' }
+      const override = { bistro: ['hr_pro'] } // hotel nije tu
+      expect(hasAddon(sub, 'hotel_core', override)).toBe(true) // iz PLAN_INCLUDES
+    })
+
+    it('bez override-a ponašanje ostaje nepromijenjeno', () => {
+      expect(hasAddon({ plan: 'hotel' }, 'spa_wellness')).toBe(false)
+    })
+  })
 })
 
 describe('isPro / isSuspended', () => {

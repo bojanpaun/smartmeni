@@ -80,7 +80,7 @@ export function PlatformProvider({ children }) {
       supabase.from('tenants').select('*').eq('user_id', user.id).maybeSingle(),
       supabase.from('platform_settings').select('beta_free_mode').limit(1).maybeSingle(),
       supabase.from('addon_catalog').select('id, name, category, price_monthly, price_yearly, beta_free'),
-      supabase.from('plans').select('id, price_monthly, price_annual_per_month, price_annual_total'),
+      supabase.from('plans').select('id, price_monthly, price_annual_per_month, price_annual_total, includes'),
     ])
 
     // Billing config je globalan (isti za sve tenante) — postavi prije bilo koje grane.
@@ -144,7 +144,15 @@ export function PlatformProvider({ children }) {
   // public.is_beta_free() — koriste ga DB RPC-ovi za isti rezultat.)
   const isBetaFree = (addonId) =>
     betaGlobal || !!addonCatalog.find((a) => a.id === addonId)?.beta_free
-  const checkAddon = (addonId) => isBetaFree(addonId) || hasAddon(subscription, addonId)
+  // Uključenja plana: izvor je DB `plans.includes` (omogućava superadmin-kreirane
+  // planove). Fallback na konstantu ako plans nije učitan (vidi hasAddon).
+  const checkAddon = (addonId) => {
+    if (isBetaFree(addonId)) return true
+    const map = plans.length
+      ? Object.fromEntries(plans.map((p) => [p.id, p.includes ?? null]))
+      : null
+    return hasAddon(subscription, addonId, map)
+  }
 
   // Cijena addona iz DB kataloga (za UpgradePrompt). Fallback na prosljeđenu cijenu.
   const addonPrice = (addonId, fallback = null) =>
