@@ -72,7 +72,7 @@ const PLANS = [
 const PLAN_ORDER = ['starter', 'restaurant', 'hotel', 'hotel_pro']
 
 export default function BillingPage() {
-  const { restaurant, subscription, setSubscription } = usePlatform()
+  const { restaurant, subscription, setSubscription, plans: dbPlans } = usePlatform()
   const [cycle, setCycle] = useState('annual') // 'monthly' | 'annual'
   const [loading, setLoading] = useState(false)
   const [error, setError] = useState(null)
@@ -84,10 +84,15 @@ export default function BillingPage() {
     return p === 'pro' ? 'restaurant' : p
   })()
 
+  // Cijene: izvor istine je DB tabela `plans` (superadmin ih uređuje); padamo na
+  // hardkodirani PLAN_PRICING ako DB još nije učitan ili nema taj plan.
   const price = (planId) => {
     if (planId === 'starter') return null
-    const p = PLAN_PRICING[planId]
-    if (!p) return null
+    const db = dbPlans?.find((p) => p.id === planId)
+    const p = db
+      ? { monthly: db.price_monthly, annual_per_month: db.price_annual_per_month, annual_total: db.price_annual_total }
+      : PLAN_PRICING[planId]
+    if (!p || p.monthly == null) return null
     return cycle === 'annual'
       ? { main: p.annual_per_month, sub: `€${p.annual_total}/god`, save: true }
       : { main: p.monthly, sub: '/mj', save: false }

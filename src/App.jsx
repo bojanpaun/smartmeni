@@ -116,14 +116,14 @@ function AdminRoute({ children }) {
 }
 
 function AddonGuard({ addonId, name, description, price, category, dependsOn, children }) {
-  const { hasAddon } = usePlatform()
+  const { hasAddon, addonPrice } = usePlatform()
   if (!hasAddon(addonId)) {
     return (
       <UpgradePrompt
         addonId={addonId}
         name={name}
         description={description}
-        price={price}
+        price={addonPrice(addonId, price)}
         category={category}
         dependsOn={dependsOn}
         fullPage
