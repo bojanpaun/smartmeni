@@ -47,10 +47,22 @@ PLATFORMA (Auth · Billing · Multi-tenancy · Onboarding · osnovno osoblje/gos
 - Platforma je infrastruktura — kupac kupuje **vertikale i addonе**, ne platformu.
 - `hr_pro` / `inventory_pro` rade za OBA vertikala.
 
-### Tenant identifikator — KRITIČNO
-`restaurants` tabela je primarni tenant identifikator. Hotel bez restorana i dalje ima
-`restaurant_id` (konceptualno netačno, ali tako je dok se ne odluči drugačije).
-**Koristi `restaurant_id`. NE migriraj na `tenants`/`properties` bez eksplicitnog dogovora.**
+### Tenant model — KRITIČNO (2b, 2026-06-07)
+- **`tenants` = nalog** (billing/vlasništvo). **`tenants.id == restaurants.id`** (1:1, stabilni
+  id-jevi). Zato `restaurant_id` na svim child tabelama **i dalje JESTE tenant id** — kolona
+  NIJE preimenovana. **Koristi `restaurant_id`** u upitima/RLS kao i prije.
+- **`restaurants` = profil restoran-vertikale + javni tenant-root** (name, slug, meni postavke,
+  `active_verticals`). Javno čitljiv.
+- **Account/billing polja DUPLIRANA** na `restaurants` i `tenants` (plan, is_complimentary,
+  suspended_at, trial_ends_at, plan_expires_at, admin_theme, onboarding_completed,
+  subscription_id, paypal_customer_id). **Izvor čitanja = `tenants`** (PlatformContext spaja na
+  `restaurant` objekat). **Pisci pišu `restaurants`** → **mirror trigger** drži tenants sinhron.
+- **Vertikale:** `restaurants.active_verticals` (text[], javno). `hasVertical(v)` (PlatformContext)
+  + `<VerticalGuard>` (App.jsx) gejtuju. Restoran = besplatna baza; hotel = plaćen (`hotel_core`).
+  Nova vertikala: dodaj u `active_verticals` + `ALL_VERTICALS` (ControlPanel) + RPC kategorije + guard.
+- **NE raditi** bez eksplicitnog dogovora i staging-a: tvrdi DROP `restaurants` account kolona /
+  prepis payment edge funkcija na `tenants` (kozmetika s rizikom po naplate; mirror već drži sve).
+  Detalji: `restbyme_hotel_roadmap.md` (v5.8) i memorija `project_tenant_model`.
 
 ---
 
