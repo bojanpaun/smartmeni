@@ -72,7 +72,7 @@ const PLANS = [
 const PLAN_ORDER = ['starter', 'restaurant', 'hotel', 'hotel_pro']
 
 export default function BillingPage() {
-  const { restaurant, subscription, setSubscription, plans: dbPlans } = usePlatform()
+  const { restaurant, subscription, setSubscription, plans: dbPlans, betaMode } = usePlatform()
   const [cycle, setCycle] = useState('annual') // 'monthly' | 'annual'
   const [loading, setLoading] = useState(false)
   const [error, setError] = useState(null)
@@ -145,6 +145,24 @@ export default function BillingPage() {
       setLoading(false)
     }
   }
+
+  // ── Beta period ──────────────────────────────────────────────
+  // Dok je beta uključena, sve je besplatno → ne prikazuj planove/kupovinu.
+  if (betaMode) return (
+    <div className={styles.page}>
+      <div className={styles.header}>
+        <h1 className={styles.title}>Pretplata i naplata</h1>
+      </div>
+      <div className={styles.complimentaryCard}>
+        <div className={styles.complimentaryIcon}>🧪</div>
+        <div className={styles.complimentaryTitle}>Beta period — sve besplatno</div>
+        <div className={styles.complimentaryDesc}>
+          Tokom beta perioda svi moduli su besplatni. Planovi i naplata biće dostupni
+          kada beta period završi.
+        </div>
+      </div>
+    </div>
+  )
 
   // ── Complimentary ────────────────────────────────────────────
   if (status === 'complimentary') return (
