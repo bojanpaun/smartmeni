@@ -32,29 +32,32 @@ Predlog: dodaj u `package.json` skripte → `"test:db": "supabase test db"`.
 - Svaki fajl: `BEGIN; plan(N); ... finish(); ROLLBACK;` (helperi dolaze iz `0000_` setupa).
 - Broj u `plan(N)` mora odgovarati broju asercija (inače pgTAP prijavi grešku).
 
-## Plan Sloja 1 (po riziku iz "Kritične funkcionalnosti")
+## Šta je pokriveno
 
-- [x] **RLS izolacija** — `001_rls_isolation_hotel_reservations.sql`
-      (šablon: kopirati za `guests`, `folios`, `orders`, `spa_appointments`)
-- [x] **Overbooking** — `002_overbooking_create_booking_direct.sql`
-      (preklapajuća rezervacija odbijena; zaštita živi u `fn_auto_assign_room`)
-- [x] **Folio** — `003_folio_spa_charge.sql`
-      (spa termin na folio → tačna stavka; gotovinski → bez stavke; trigger `trg_spa_folio`)
+**Meta-guardi (samoodržavajući, preko `pg_catalog` — pokrivaju SVE tabele):**
+- [x] `000_rls_enabled_all_tables` — RLS uključen na svim tabelama
+- [x] `004_tenant_id_no_orphans` — nijedan red `restaurant_id IS NULL`
+- [x] `011_tenant_fk_guard` — svaka `restaurant_id`: NOT NULL + FK na `restaurants`
 
-## Kasnije: CI gate
+**RLS izolacija:**
+- [x] `001_rls_isolation_hotel_reservations` — šablon (A ne vidi/mijenja B)
+- [x] `010_rls_isolation_matrix` — **svih 23 tenant tabele**: SELECT-izolacija (privatne)
+      + DELETE-izolacija (sve; before/after, otporno na auto-trigere)
 
-Pošto se pušta pravo na `main`, vrijedi vezati ove testove za GitHub Actions na
-push/PR — padne test ⇒ crveni X prije produkcije:
+**Kritični tokovi:**
+- [x] `002_overbooking_create_booking_direct` — preklapanje odbijeno
+- [x] `003_folio_spa_charge` — spa → folio stavka (trigger `trg_spa_folio`)
+- [x] `005_import_recipe_from_library` — import RPC (happy/idempotent/odbijanje/starter)
+- [x] `012_guest_auto_trigger` — rezervacija s emailom → auto-kreira/povezuje gosta
 
-```yaml
-name: DB tests
-on: { push: { branches: [main] }, pull_request: { branches: [main] } }
-jobs:
-  test:
-    runs-on: ubuntu-latest
-    steps:
-      - uses: actions/checkout@v4
-      - uses: supabase/setup-cli@v1
-      - run: supabase start
-      - run: supabase test db
-```
+**2b tenant model:**
+- [x] `013_tenants` — tenants RLS izolacija + backfill integritet
+- [x] `014_tenants_mirror` — mirror trigger restaurants→tenants (account polja)
+- [x] `015_tenant_verticals` — `restaurants.active_verticals` default + guard
+- [x] `016_public_verticals` — anon čita `active_verticals` (guest routing)
+- [x] `017_add_vertical_isolation` — owner mijenja vlastite vertikale, tuđe ne može
+
+## CI gate — AKTIVAN
+
+Vezano za GitHub Actions (`.github/workflows/tests.yml`, job `database`): `supabase start`
++ `supabase test db` na svaki push/PR. Padne test ⇒ crveni X prije produkcije.
