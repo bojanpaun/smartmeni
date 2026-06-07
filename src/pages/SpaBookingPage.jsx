@@ -160,6 +160,40 @@ export default function SpaBookingPage() {
       return
     }
 
+    // Kartica: termin je kreiran (payment_status 'pending') → otvori plaćanje
+    // (Faza PAY). Webhook za sourceType 'spa' označi termin plaćenim po uspjehu.
+    if (paymentMethod === 'card') {
+      try {
+        const res = await fetch(
+          `${import.meta.env.VITE_SUPABASE_URL}/functions/v1/payments-create-session`,
+          {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json', 'apikey': import.meta.env.VITE_SUPABASE_KEY },
+            body: JSON.stringify({
+              restaurantId: restaurant.id,
+              sourceType:   'spa',
+              sourceId:     data.appointment_id,
+              amountMinor:  Math.round(Number(selectedSlot.price) * 100),
+              currency:     'EUR',
+              idempotencyKey: data.appointment_id,
+              successUrl:   `${window.location.origin}/${slug}/spa?paid=1`,
+              cancelUrl:    `${window.location.origin}/${slug}/spa?cancelled=1`,
+              description:  `${data.service_name} — ${data.date}`,
+              metadata:     { source_type: 'spa', guest_email: guestEmail },
+            }),
+          }
+        )
+        const sess = await res.json()
+        if (!res.ok || !sess.redirectUrl) throw new Error(sess.error || 'Greška pri pokretanju plaćanja.')
+        window.location.href = sess.redirectUrl
+        return
+      } catch (e) {
+        setBookError(e.message || 'Greška pri pokretanju plaćanja.')
+        setBooking(false)
+        return
+      }
+    }
+
     setConfirmation(data)
 
     // Send confirmation email
@@ -204,6 +238,21 @@ export default function SpaBookingPage() {
 
   if (!restaurant) return (
     <div className={styles.loadWrap}><p className={styles.notFound}>Spa centar nije pronađen.</p></div>
+  )
+
+  // Povratak sa online plaćanja (webhook je već označio termin plaćenim).
+  const payParam = new URLSearchParams(window.location.search).get('paid')
+  if (payParam === '1') return (
+    <div className={styles.page}>
+      <div className={styles.confirmWrap || ''} style={{ maxWidth: 440, margin: '40px auto', textAlign: 'center', padding: 24 }}>
+        <div style={{ fontSize: 52, marginBottom: 12 }}>✅</div>
+        <h1 style={{ fontSize: 20, fontWeight: 700, marginBottom: 8 }}>Plaćanje uspješno</h1>
+        <p style={{ color: 'var(--c-text-muted)', marginBottom: 20 }}>
+          Vaš spa termin je potvrđen i plaćen. Potvrda je poslana na email.
+        </p>
+        <a href={`/${slug}/spa`} style={{ color: 'var(--c-primary, #0d7a52)', fontWeight: 600 }}>← Nazad na spa booking</a>
+      </div>
+    </div>
   )
 
   const cats = [...new Set(services.map(s => s.category))]
@@ -438,6 +487,10 @@ export default function SpaBookingPage() {
                   <input type="radio" name="payment" value="cash" checked={paymentMethod === 'cash'} onChange={() => setPaymentMethod('cash')} />
                   <span>💰 Platiti na recepciji spa centra</span>
                 </label>
+                <label className={`${styles.payOpt} ${paymentMethod === 'card' ? styles.payOptActive : ''}`}>
+                  <input type="radio" name="payment" value="card" checked={paymentMethod === 'card'} onChange={() => setPaymentMethod('card')} />
+                  <span>💳 Platiti karticom odmah (online)</span>
+                </label>
                 <label className={`${styles.payOpt} ${paymentMethod === 'folio' ? styles.payOptActive : ''}`}>
                   <input type="radio" name="payment" value="folio" checked={paymentMethod === 'folio'} onChange={() => setPaymentMethod('folio')} />
                   <span>🏨 Dodati na hotelski račun</span>
@@ -464,7 +517,7 @@ export default function SpaBookingPage() {
               onClick={handleBook}
               disabled={booking || (paymentMethod === 'folio' && !reservationCode.trim())}
             >
-              {booking ? 'Rezervisanje...' : '✓ Potvrdi rezervaciju'}
+              {booking ? 'Obrada...' : paymentMethod === 'card' ? '💳 Nastavi na plaćanje' : '✓ Potvrdi rezervaciju'}
             </button>
           </div>
         )}
