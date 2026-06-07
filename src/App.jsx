@@ -20,6 +20,7 @@ const StaffRoles           = lazy(() => import('./platform/superadmin/StaffRoles
 const SuperAdminPanel      = lazy(() => import('./platform/superadmin/SuperAdminPanel'))
 const RecipeLibraryAdmin   = lazy(() => import('./platform/superadmin/RecipeLibraryAdmin'))
 const NutritionAdmin       = lazy(() => import('./platform/superadmin/NutritionAdmin'))
+const BillingControl       = lazy(() => import('./platform/superadmin/BillingControl'))
 const TableMapEditor       = lazy(() => import('./modules/tables/pages/TableMapEditor'))
 const WaiterMapView        = lazy(() => import('./modules/tables/pages/WaiterMapView'))
 const ReservationsPage     = lazy(() => import('./modules/tables/pages/ReservationsPage'))
@@ -213,6 +214,7 @@ function AppRoutes() {
         <Route path="/superadmin" element={<AdminRoute><SuperAdminPanel /></AdminRoute>} />
         <Route path="/superadmin/recipes" element={<AdminRoute><RecipeLibraryAdmin /></AdminRoute>} />
         <Route path="/superadmin/nutrition" element={<AdminRoute><NutritionAdmin /></AdminRoute>} />
+        <Route path="/superadmin/billing" element={<AdminRoute><BillingControl /></AdminRoute>} />
 
         {/* Inventar modul */}
         <Route path="/admin/inventory/analytics" element={<AdminRoute><AddonGuard addonId="inventory_pro" name="Inventar Pro" description="Napredna analitika potrošnje zaliha, trendovi i izvještaji po kategorijama." price={149} category="restaurant"><InventoryAnalytics /></AddonGuard></AdminRoute>} />
