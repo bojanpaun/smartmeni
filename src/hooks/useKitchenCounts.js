@@ -10,52 +10,21 @@ export default function useKitchenCounts(restaurantId, hasHotel = false) {
 
   const loadCounts = useCallback(async () => {
     if (!restaurantId) return
-    const today = new Date().toISOString().slice(0, 10)
-    // Restoranske brojke uvijek; hotelske samo ako tenant ima hotel vertikalu
-    // (inače 5 nepotrebnih upita na svaki refresh).
-    const queries = [
-      supabase.from('orders').select('id', { count: 'exact', head: true })
-        .eq('restaurant_id', restaurantId).in('status', ['pending', 'received', 'ready']),
-      supabase.from('orders').select('id', { count: 'exact', head: true })
-        .eq('restaurant_id', restaurantId).eq('kitchen_status', 'preparing')
-        .not('status', 'in', '("served","closed")'),
-      supabase.from('orders').select('id', { count: 'exact', head: true })
-        .eq('restaurant_id', restaurantId).eq('bar_status', 'preparing')
-        .not('status', 'in', '("served","closed")'),
-      supabase.from('waiter_requests').select('id', { count: 'exact', head: true })
-        .eq('restaurant_id', restaurantId).eq('is_resolved', false),
-    ]
-    if (hasHotel) queries.push(
-      supabase.from('housekeeping_tasks').select('id', { count: 'exact', head: true })
-        .eq('restaurant_id', restaurantId)
-        .in('status', ['pending', 'in_progress', 'done'])
-        .eq('scheduled_for', today),
-      supabase.from('maintenance_requests').select('id', { count: 'exact', head: true })
-        .eq('restaurant_id', restaurantId)
-        .not('status', 'in', '("verified","resolved")'),
-      supabase.from('hotel_reservations').select('id', { count: 'exact', head: true })
-        .eq('restaurant_id', restaurantId).eq('status', 'inquiry').gte('check_out_date', today),
-      supabase.from('hotel_reservations').select('id', { count: 'exact', head: true })
-        .eq('restaurant_id', restaurantId).eq('status', 'confirmed').eq('check_in_date', today),
-      supabase.from('hotel_reservations').select('id', { count: 'exact', head: true })
-        .eq('restaurant_id', restaurantId).eq('status', 'checked_in').eq('check_out_date', today),
-    )
-
-    const res = await Promise.all(queries)
-    const [waiter, kitchen, bar, waiterReq] = res.map(r => r.count || 0)
-    let i = 4
-    const housekeeping   = hasHotel ? (res[i++].count || 0) : 0
-    const maintOpen      = hasHotel ? (res[i++].count || 0) : 0
-    const hotelInquiry   = hasHotel ? (res[i++].count || 0) : 0
-    const arrivalsToday  = hasHotel ? (res[i++].count || 0) : 0
-    const departuresToday= hasHotel ? (res[i++].count || 0) : 0
-
+    // Sve brojke u jednom RPC pozivu (rasterećuje pooler — ranije ~9 zasebnih
+    // count-upita). RPC vraća i hotelske brojke (0 za restoran-only).
+    const { data } = await supabase.rpc('get_admin_overview', { p_restaurant_id: restaurantId })
+    if (!data) return
     setCounts({
-      waiter, kitchen, bar, waiterReq,
-      housekeeping, maintOpen, hotelInquiry,
-      hotelFrontDesk: arrivalsToday + departuresToday,
+      waiter:         data.waiter        || 0,
+      kitchen:        data.kitchen       || 0,
+      bar:            data.bar           || 0,
+      waiterReq:      data.waiter_req    || 0,
+      housekeeping:   data.housekeeping  || 0,
+      maintOpen:      data.maint_open    || 0,
+      hotelInquiry:   data.hotel_inquiry || 0,
+      hotelFrontDesk: (data.hotel_arrivals || 0) + (data.hotel_departures || 0),
     })
-  }, [restaurantId, hasHotel])
+  }, [restaurantId])
 
   useEffect(() => {
     if (!restaurantId) return

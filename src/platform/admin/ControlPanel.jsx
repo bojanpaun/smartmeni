@@ -17,68 +17,25 @@ function useDashboardData(restaurant, hasHotel, hasSpa) {
   useEffect(() => {
     if (!restaurant?.id) return
     const rid  = restaurant.id
-    const today = new Date().toISOString().split('T')[0]
 
+    // Sve KPI/badge brojke u jednom RPC pozivu (ranije ~11 zasebnih count-upita).
     async function load() {
-      const base = [
-        supabase.from('orders').select('id', { count: 'exact', head: true })
-          .eq('restaurant_id', rid).gte('created_at', `${today}T00:00:00.000Z`),
-        supabase.from('orders').select('total')
-          .eq('restaurant_id', rid).gte('created_at', `${today}T00:00:00.000Z`)
-          .not('status', 'in', '(cancelled,closed)'),
-        supabase.from('orders').select('id', { count: 'exact', head: true })
-          .eq('restaurant_id', rid).in('status', ['pending', 'received', 'ready']),
-        supabase.from('orders').select('id', { count: 'exact', head: true })
-          .eq('restaurant_id', rid).eq('kitchen_status', 'preparing')
-          .not('status', 'in', '("served","closed")'),
-        supabase.from('orders').select('id', { count: 'exact', head: true })
-          .eq('restaurant_id', rid).eq('bar_status', 'preparing')
-          .not('status', 'in', '("served","closed")'),
-        supabase.from('waiter_requests').select('id', { count: 'exact', head: true })
-          .eq('restaurant_id', rid).eq('is_resolved', false),
-      ]
-      if (hasHotel) base.push(
-        supabase.from('hotel_reservations').select('id', { count: 'exact', head: true })
-          .eq('restaurant_id', rid).eq('check_in_date', today).in('status', ['confirmed', 'checked_in']),
-        supabase.from('hotel_reservations').select('id', { count: 'exact', head: true })
-          .eq('restaurant_id', rid).eq('status', 'checked_in'),
-        supabase.from('rooms').select('id', { count: 'exact', head: true })
-          .eq('restaurant_id', rid),
-        supabase.from('rooms').select('id', { count: 'exact', head: true })
-          .eq('restaurant_id', rid).eq('status', 'available'),
-      )
-      if (hasSpa) base.push(
-        supabase.from('spa_appointments').select('id', { count: 'exact', head: true })
-          .eq('restaurant_id', rid).eq('appointment_date', today)
-          .not('status', 'in', '("cancelled","no_show")')
-      )
-
-      const [ordersR, revenueR, waiterR, kitchenR, barR, waiterReqR, ...rest] = await Promise.all(base)
-
-      let hotelIdx = 0
-      const checkinsToday = hasHotel ? (rest[hotelIdx++]?.count ?? 0) : null
-      const checkedInNow  = hasHotel ? (rest[hotelIdx++]?.count ?? 0) : null
-      const totalRooms    = hasHotel ? (rest[hotelIdx++]?.count ?? 0) : null
-      const freeRooms     = hasHotel ? (rest[hotelIdx++]?.count ?? 0) : null
-      const spaToday      = hasSpa   ? (rest[hotelIdx]?.count  ?? 0) : null
-
-      const occupancy = (hasHotel && totalRooms > 0)
-        ? Math.round((checkedInNow / totalRooms) * 100)
-        : null
-
+      const { data } = await supabase.rpc('get_admin_overview', { p_restaurant_id: rid })
+      if (!data) return
       setKpi({
-        ordersToday:   ordersR.count ?? 0,
-        revenueToday:  (revenueR.data || []).reduce((s, o) => s + (Number(o.total) || 0), 0),
-        checkinsToday,
-        spaToday,
-        occupancy,
-        freeRooms,
+        ordersToday:   data.orders_today || 0,
+        revenueToday:  Number(data.revenue_today) || 0,
+        checkinsToday: hasHotel ? (data.checkins_today || 0) : null,
+        spaToday:      hasSpa   ? (data.spa_today || 0) : null,
+        occupancy:     (hasHotel && data.total_rooms > 0)
+          ? Math.round((data.checked_in_now / data.total_rooms) * 100) : null,
+        freeRooms:     hasHotel ? (data.free_rooms || 0) : null,
       })
       setBadges({
-        waiter:    waiterR.count    || 0,
-        kitchen:   kitchenR.count   || 0,
-        bar:       barR.count       || 0,
-        waiterReq: waiterReqR.count || 0,
+        waiter:    data.waiter     || 0,
+        kitchen:   data.kitchen    || 0,
+        bar:       data.bar        || 0,
+        waiterReq: data.waiter_req || 0,
       })
     }
 
