@@ -25,6 +25,7 @@ export default function GuestSpaTab({ restaurantId, session, isEn }) {
 
   // Existing appointments
   const [appointments, setAppointments] = useState([])
+  const [reviewedIds, setReviewedIds] = useState(() => new Set())
   const [apptLoading, setApptLoading] = useState(true)
 
   // Booking flow state
@@ -206,6 +207,14 @@ export default function GuestSpaTab({ restaurantId, session, isEn }) {
                 <div style={{ fontSize: 13, color: '#0d7a52', fontWeight: 600, marginTop: 6 }}>
                   €{parseFloat(appt.price).toFixed(2)} — {isEn ? 'billed to folio' : 'na hotelski folio'}
                 </div>
+                {appt.status === 'completed' && (
+                  <ReviewRow
+                    apptId={appt.id}
+                    isEn={isEn}
+                    done={reviewedIds.has(appt.id)}
+                    onDone={() => setReviewedIds(s => new Set(s).add(appt.id))}
+                  />
+                )}
               </div>
             )
           })}
@@ -486,6 +495,42 @@ export default function GuestSpaTab({ restaurantId, session, isEn }) {
           </div>
         </div>
       )}
+    </div>
+  )
+}
+
+// Ocjena završenog termina (gost). submit_spa_review je SECURITY DEFINER pa ne
+// treba write pristup spa_reviews tabeli.
+function ReviewRow({ apptId, isEn, done, onDone }) {
+  const [rating, setRating] = useState(0)
+  const [busy, setBusy] = useState(false)
+  const [sent, setSent] = useState(done)
+
+  if (sent) return (
+    <div style={{ fontSize: 12, color: '#0d7a52', marginTop: 8 }}>
+      ★ {isEn ? 'Thanks for your rating!' : 'Hvala na ocjeni!'}
+    </div>
+  )
+
+  const submit = async (r) => {
+    setRating(r); setBusy(true)
+    const { error } = await supabase.rpc('submit_spa_review', { p_appointment_id: apptId, p_rating: r })
+    setBusy(false)
+    if (!error) { setSent(true); onDone?.() }
+  }
+
+  return (
+    <div style={{ marginTop: 8, display: 'flex', alignItems: 'center', gap: 4 }}>
+      <span style={{ fontSize: 12, color: '#6b7280', marginRight: 4 }}>{isEn ? 'Rate:' : 'Ocijeni:'}</span>
+      {[1, 2, 3, 4, 5].map(n => (
+        <button
+          key={n}
+          disabled={busy}
+          onClick={() => submit(n)}
+          aria-label={`${n}`}
+          style={{ background: 'none', border: 'none', cursor: 'pointer', fontSize: 20, lineHeight: 1, padding: 0, color: n <= rating ? '#f59e0b' : '#d1d5db' }}
+        >★</button>
+      ))}
     </div>
   )
 }

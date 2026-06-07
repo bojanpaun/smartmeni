@@ -163,6 +163,9 @@ export default function TherapistsPage() {
                   <td style={{ fontWeight: 600 }}>
                     <div>{name}</div>
                     {staffInfo?.role?.name && <div style={{ fontSize: 11, color: 'var(--c-text-muted)' }}>{staffInfo.role.name}</div>}
+                    {t.rating != null
+                      ? <div style={{ fontSize: 12, color: '#f59e0b', marginTop: 2 }}>★ {Number(t.rating).toFixed(2)}</div>
+                      : <div style={{ fontSize: 11, color: 'var(--c-text-muted)', marginTop: 2 }}>bez ocjena</div>}
                   </td>
                   <td>
                     <div className={spa.chipWrap}>
