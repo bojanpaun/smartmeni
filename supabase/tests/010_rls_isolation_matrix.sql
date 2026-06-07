@@ -82,6 +82,9 @@ INSERT INTO before_counts VALUES
   ('housekeeping_tasks', (SELECT count(*)::int FROM housekeeping_tasks WHERE restaurant_id='bbbbbbbb-2222-2222-2222-222222222222')),
   ('maintenance_requests',(SELECT count(*)::int FROM maintenance_requests WHERE restaurant_id='bbbbbbbb-2222-2222-2222-222222222222'));
 
+-- before_counts mora biti čitljiv i kad se prebacimo na service_role (verifikacija).
+GRANT SELECT ON before_counts TO service_role;
+
 -- ── Ulogovan kao vlasnik A ──────────────────────────────────────────────────
 SELECT tests.authenticate_as('owner_a');
 
