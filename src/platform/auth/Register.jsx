@@ -1,10 +1,12 @@
 import { useState } from 'react'
 import { useNavigate, Link } from 'react-router-dom'
 import { supabase } from '../../lib/supabase'
+import { usePlatform } from '../../context/PlatformContext'
 import styles from './Auth.module.css'
 
 export default function Register() {
   const navigate = useNavigate()
+  const { loadProfile } = usePlatform()
   const [step, setStep] = useState(1)
   const [loading, setLoading] = useState(false)
   const [error, setError] = useState('')
@@ -98,6 +100,7 @@ export default function Register() {
         .eq('user_id', userId)
         .maybeSingle()
       if (existingRest) {
+        await loadProfile({ id: userId })
         navigate('/admin')
         return
       }
@@ -118,6 +121,9 @@ export default function Register() {
 
       if (restError) throw restError
 
+      // Osvježi kontekst da /admin ima novi restoran prije navigacije (inače
+      // prazna stranica dok onAuthStateChange/loadProfile ne odradi svoje).
+      await loadProfile({ id: userId })
       navigate('/admin')
     } catch (err) {
       setError(err.message || 'Greška pri registraciji. Pokušajte ponovo.')
