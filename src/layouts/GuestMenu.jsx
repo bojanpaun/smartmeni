@@ -192,7 +192,6 @@ export default function Menu() {
   const data = isDemo ? DEMO_DATA : null
   const r = isDemo ? data.restaurant : realData?.restaurant
   const tpl = getTemplate(r?.template)
-  const digitalOrdering = isDemo ? true : (r?.digital_ordering ?? true)
   const onlineReservations = isDemo ? true : (r?.online_reservations ?? false)
   const guestRegistration = isDemo ? true : (r?.guest_registration_enabled ?? true)
   const waiterEnabled = isDemo ? true : (r?.waiter_requests_enabled === false ? false : (r?.waiter_requests_enabled ?? true))
@@ -312,6 +311,9 @@ export default function Menu() {
 
   const sendOrder = async () => {
     if (cart.length === 0) return
+    // Odbrana u dubinu: ne dozvoli slanje ako naručivanje nije dopušteno za ovog
+    // gosta (npr. 'registered' bez sesije, ili 'off').
+    if (orderingVis === 'off' || (orderingVis === 'registered' && !guestSession)) return
     setOrderSending(true)
     if (!isDemo && realData?.restaurant) {
       // Kreiraj narudžbu
@@ -352,6 +354,10 @@ export default function Menu() {
     if (visibility === 'registered') return !!guestSession
     return true
   }
+  // Naručivanje poštuje ordering_visibility (off/registered/all) — isto kao ostale
+  // kontrole. Ranije je gejtovano legacy bool-om digital_ordering pa se "registered"
+  // ignorisao (svako je mogao naručiti).
+  const canOrder = canSee(orderingVis)
 
   const saveGuestSession = (guest) => {
     const session = { id: guest.id, first_name: guest.first_name, last_name: guest.last_name, status: guest.status }
@@ -538,7 +544,7 @@ export default function Menu() {
               )}
               <div className={styles.itemFooter}>
                 <span className={styles.itemPrice} style={{ color: tpl.priceColor }}>€{parseFloat(item.price).toFixed(2)}</span>
-                {digitalOrdering && (() => {
+                {canOrder && (() => {
                   const qty = cart.find(c => c.id === item.id)?.qty || 0
                   return qty > 0 ? (
                     <div className={styles.itemQtyControl} onClick={e => e.stopPropagation()}>
@@ -586,7 +592,7 @@ export default function Menu() {
 
       {/* WAITER BUTTON */}
       <div className={styles.waiterSection}>
-        {digitalOrdering && cartCount > 0 && (
+        {canOrder && cartCount > 0 && (
           <div className={styles.cartBar} onClick={() => setShowCart(true)}>
             <div className={styles.cartBarLeft}>
               <span style={{ fontSize: 16 }}>🛒</span>
@@ -743,7 +749,7 @@ export default function Menu() {
               </div>
             </div>
             <div className={styles.sheetPrice} style={{ color: tpl.priceColor }}>€{parseFloat(selectedItem.price).toFixed(2)}</div>
-            {digitalOrdering && (
+            {canOrder && (
               <button
                 className={styles.sheetAdd}
                 style={{ background: tpl.brand }}
@@ -752,9 +758,11 @@ export default function Menu() {
                 {isEn ? 'Add to order' : 'Dodaj u narudžbu'}
               </button>
             )}
-            {!digitalOrdering && (
+            {!canOrder && (
               <div className={styles.orderingOff}>
-                {isEn ? 'Online ordering is currently unavailable' : 'Naručivanje putem aplikacije nije dostupno'}
+                {orderingVis === 'registered'
+                  ? (isEn ? 'Log in as a guest to order' : 'Prijavite se kao gost da biste naručili')
+                  : (isEn ? 'Online ordering is currently unavailable' : 'Naručivanje putem aplikacije nije dostupno')}
               </div>
             )}
           </div>
