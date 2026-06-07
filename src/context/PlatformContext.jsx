@@ -79,8 +79,8 @@ export function PlatformProvider({ children }) {
       supabase.from('subscriptions').select('*, restaurants!inner(user_id)').eq('restaurants.user_id', user.id).maybeSingle(),
       supabase.from('tenants').select('*').eq('user_id', user.id).maybeSingle(),
       supabase.from('platform_settings').select('beta_free_mode').limit(1).maybeSingle(),
-      supabase.from('addon_catalog').select('id, name, category, price_monthly, price_yearly, beta_free'),
-      supabase.from('plans').select('id, price_monthly, price_annual_per_month, price_annual_total, includes'),
+      supabase.from('addon_catalog').select('id, name, category, description, features, price_monthly, price_yearly, beta_free'),
+      supabase.from('plans').select('id, name, description, features, color, includes, is_popular, coming_soon, price_monthly, price_annual_per_month, price_annual_total, is_active, sort_order, paypal_plan_id'),
     ])
 
     // Billing config je globalan (isti za sve tenante) — postavi prije bilo koje grane.

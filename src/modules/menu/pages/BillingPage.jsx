@@ -98,6 +98,21 @@ export default function BillingPage() {
       : { main: p.monthly, sub: '/mj', save: false }
   }
 
+  // Plan kartice iz DB (opis/funkcije/boja/oznake); fallback na hardkodirani PLANS
+  // ako DB nije učitan. paypal=true → PayPal dugme (zasad samo restaurant i planovi
+  // sa paypal_plan_id; ostalo "uskoro"/kontakt). Vidi Faza E za punu kupovinu.
+  const planList = (dbPlans && dbPlans.length)
+    ? dbPlans.filter(p => p.is_active)
+        .sort((a, b) => (a.sort_order ?? 0) - (b.sort_order ?? 0))
+        .map(p => ({
+          id: p.id, name: p.name, color: p.color || 'var(--c-brand, #0d7a52)',
+          desc: p.description || '', features: p.features || [],
+          popular: p.is_popular, comingSoon: p.coming_soon,
+          paypal: !p.coming_soon && p.id !== 'starter' && (p.id === 'restaurant' || !!p.paypal_plan_id),
+        }))
+    : PLANS
+  const planOrder = planList.map(p => p.id)
+
   const handlePayPal = async () => {
     setLoading(true)
     setError(null)
@@ -200,10 +215,10 @@ export default function BillingPage() {
 
       {/* Plan kartice */}
       <div className={styles.plansGrid}>
-        {PLANS.map(plan => {
+        {planList.map(plan => {
           const p = price(plan.id)
           const isCurrent = currentPlan === plan.id
-          const isDowngrade = PLAN_ORDER.indexOf(plan.id) < PLAN_ORDER.indexOf(currentPlan)
+          const isDowngrade = planOrder.indexOf(plan.id) < planOrder.indexOf(currentPlan)
 
           return (
             <div

@@ -65,6 +65,28 @@
   margin: 0 0 16px;
 }
 
+.featureList {
+  list-style: none;
+  margin: 0 0 16px;
+  padding: 0;
+  text-align: left;
+  display: inline-block;
+}
+.featureItem {
+  display: flex;
+  align-items: flex-start;
+  gap: 8px;
+  font-size: 13px;
+  color: #5a7a6e;
+  line-height: 1.5;
+  margin-bottom: 6px;
+}
+.featureCheck {
+  color: #0d7a52;
+  font-weight: 700;
+  flex-shrink: 0;
+}
+
 .priceRow {
   display: flex;
   align-items: baseline;

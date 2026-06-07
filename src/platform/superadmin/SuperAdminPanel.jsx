@@ -24,6 +24,7 @@ export default function SuperAdminPanel() {
 
   const [restaurants, setRestaurants] = useState([])
   const [addonCatalog, setAddonCatalog] = useState([])
+  const [plans, setPlans] = useState([])
   const [loading, setLoading] = useState(true)
   const [search, setSearch] = useState('')
   const [filterPlan, setFilterPlan] = useState('all')
@@ -46,7 +47,16 @@ export default function SuperAdminPanel() {
   useEffect(() => {
     loadRestaurants()
     loadAddonCatalog()
+    loadPlans()
   }, [])
+
+  const loadPlans = async () => {
+    const { data } = await supabase
+      .from('plans')
+      .select('id, name, price_monthly, is_active')
+      .order('sort_order')
+    setPlans(data || [])
+  }
 
   const loadRestaurants = async () => {
     setLoading(true)
@@ -391,11 +401,11 @@ export default function SuperAdminPanel() {
                   value={editForm.plan}
                   onChange={e => setEditForm(f => ({ ...f, plan: e.target.value }))}
                 >
-                  <option value="starter">Starter (besplatan)</option>
-                  <option value="restaurant">Restoran — €29/mj</option>
-                  <option value="hotel">Hotel — €79/mj</option>
-                  <option value="hotel_pro">Hotel Pro — €119/mj</option>
-                  <option value="enterprise">Enterprise</option>
+                  {plans.map(pl => (
+                    <option key={pl.id} value={pl.id}>
+                      {pl.name}{pl.price_monthly ? ` — €${pl.price_monthly}/mj` : pl.id === 'starter' ? ' (besplatan)' : ''}
+                    </option>
+                  ))}
                 </select>
               </div>
               <div className={styles.field}>

@@ -11,6 +11,7 @@ export default function UpgradePrompt({
   addonId,
   name,
   description,
+  features = [],
   price,
   category,
   dependsOn = [],
@@ -35,6 +36,16 @@ export default function UpgradePrompt({
 
       <h2 className={styles.title}>{name}</h2>
       <p className={styles.description}>{description}</p>
+
+      {features.length > 0 && (
+        <ul className={styles.featureList}>
+          {features.map(f => (
+            <li key={f} className={styles.featureItem}>
+              <span className={styles.featureCheck}>✓</span>{f}
+            </li>
+          ))}
+        </ul>
+      )}
 
       {dependsOn.length > 0 && (
         <p className={styles.dependsNote}>
