@@ -208,6 +208,7 @@ export default function RecipeLibraryAdmin() {
         </div>
         <div className={styles.headerActions}>
           <button className={styles.btnNew} onClick={openNew}>+ Novi recept</button>
+          <button className={styles.btnBack} onClick={() => navigate('/superadmin/nutrition')}>🧪 Nutritivna tabela</button>
           <button className={styles.btnBack} onClick={() => navigate('/superadmin')}>← Super admin</button>
         </div>
       </div>
