@@ -3185,6 +3185,21 @@ RLS politike se proširuju da provjeravaju `portfolio_access.scope` — regional
 Superadmin upravlja cijenama i tim šta se naplaćuje + globalni „beta" mod koji svima
 daje module besplatno (po izabranim vertikalama). Cilj: kontrola tokom testiranja.
 
+> **Dopuna 2026-06-07 — planovi/addoni opisi + kreiranje planova (Nivo A) ZAVRŠENO:**
+> `plans` proširen (`description`, `features[]`, `color`, `is_popular`, `coming_soon`,
+> + provajder kolone `paypal_plan_id`/`stripe_price_id_*`); `addon_catalog.features`.
+> Superadmin na `/superadmin/billing` **kreira/uređuje planove** (modal: opis, funkcije,
+> cijene, boja, uključeni moduli, oznake) i addon opise/funkcije. Gating čita
+> `plans.includes` iz DB (`hasAddon` + `planIncludesOverride`, fallback konstanta;
+> 23 unit testa). BillingPage/UpgradePrompt/SuperAdminPanel renderuju iz DB. Migracije
+> `20260607150000`; testovi `020`. Mobilne kartice za BillingControl/NutritionAdmin.
+>
+> **Nivo B (samostalna kupovina custom planova) — ODGOĐEN.** Razlog: PayPal se planira
+> zamijeniti **Monri**-jem (PayPal ne radi u CG), pa bi PayPal self-serve wiring bio
+> bačen posao; uz to smo još u **beta** (nema naplate). Bezbjedan default već stoji:
+> plan je kupljiv samo ako ima provajderski ID, inače „uskoro"/kontakt. Nivo B raditi
+> jednom — na Monri-ju (dodati `monri_*` referencu + Monri create-subscription edge + webhook).
+
 **DB sloj (migracija `20260607120000`):**
 - `platform_settings` — singleton red; `beta_free_mode` (globalni master), `beta_note`.
   RLS: čitaju svi autentifikovani, **piše samo `public.is_superadmin()`**. Bez
@@ -3675,4 +3690,4 @@ prije produkcijskog naplaćivanja.
 
 ---
 
-*Roadmap ažuriran: 2026-06-07 (v5.9 — Faza BILL: superadmin pricing & beta kontrola — platform_settings + plans + addon_catalog.beta_free + is_beta_free(), /superadmin/billing UI, cijene iz DB; v5.8 — 2b tenant model; v5.1 — Staff portal sub-pills wrap layout; v5.0 — Faza PAY kompletna PAY-1..12; v4.9 — Faza Z.1 kompletna) | Branch: main | Deployment: Vercel auto-deploy*
+*Roadmap ažuriran: 2026-06-07 (v6.0 — Faza BILL dopuna: planovi/addoni opisi+features, superadmin kreira planove (Nivo A), gating iz plans.includes, render iz DB; Nivo B kupovina odgođena do Monri; v5.9 — Faza BILL: superadmin pricing & beta kontrola — platform_settings + plans + addon_catalog.beta_free + is_beta_free(), /superadmin/billing UI, cijene iz DB; v5.8 — 2b tenant model; v5.1 — Staff portal sub-pills wrap layout; v5.0 — Faza PAY kompletna PAY-1..12; v4.9 — Faza Z.1 kompletna) | Branch: main | Deployment: Vercel auto-deploy*
