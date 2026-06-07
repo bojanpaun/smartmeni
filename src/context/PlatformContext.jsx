@@ -4,9 +4,25 @@ import { hasAddon } from '../lib/planUtils'
 
 const PlatformContext = createContext(null)
 
+// 2b/Faza 2: account/billing polja su izvor istine u `tenants`. Spajamo ih na
+// `restaurant` objekat koji app već koristi (restaurant.plan, isPro(restaurant)…),
+// pa komponente ostaju nepromijenjene dok izvor postaje tenant.
+const ACCOUNT_FIELDS = [
+  'plan', 'trial_ends_at', 'plan_expires_at', 'suspended_at',
+  'is_complimentary', 'complimentary_note', 'admin_theme',
+  'onboarding_completed', 'subscription_id', 'paypal_customer_id',
+]
+function withTenant(rest, tenant) {
+  if (!rest || !tenant) return rest
+  const merged = { ...rest }
+  for (const f of ACCOUNT_FIELDS) merged[f] = tenant[f]
+  return merged
+}
+
 export function PlatformProvider({ children }) {
   const [user, setUser] = useState(null)
   const [restaurant, setRestaurant] = useState(null)
+  const [tenant, setTenant] = useState(null)
   const [subscription, setSubscription] = useState(null)
   const [staffProfile, setStaffProfile] = useState(null)
   const [permissions, setPermissions] = useState([])
@@ -31,6 +47,7 @@ export function PlatformProvider({ children }) {
       } else if (event === 'SIGNED_OUT') {
         setUser(null)
         setRestaurant(null)
+        setTenant(null)
         setSubscription(null)
         setStaffProfile(null)
         setPermissions([])
@@ -45,18 +62,20 @@ export function PlatformProvider({ children }) {
   const loadProfile = async (user) => {
     // Sve query-je paralelno — uklj. subscription vlasnika (embedded join na
     // restaurants.user_id), pa nema dodatnog round-tripa nakon prve grupe.
-    const [{ data: profile }, { data: ownerRest }, { data: staff }, { data: ownerSub }] = await Promise.all([
+    const [{ data: profile }, { data: ownerRest }, { data: staff }, { data: ownerSub }, { data: ownerTenant }] = await Promise.all([
       supabase.from('user_profiles').select('*').eq('id', user.id).maybeSingle(),
       supabase.from('restaurants').select('*').eq('user_id', user.id).maybeSingle(),
       supabase.from('staff').select('*, role:roles(*)').eq('user_id', user.id).eq('is_active', true).maybeSingle(),
       supabase.from('subscriptions').select('*, restaurants!inner(user_id)').eq('restaurants.user_id', user.id).maybeSingle(),
+      supabase.from('tenants').select('*').eq('user_id', user.id).maybeSingle(),
     ])
 
     if (profile?.is_superadmin) {
       setStaffProfile({ ...profile, role: 'superadmin' })
       setPermissions(['*'])
       if (ownerRest) {
-        setRestaurant(ownerRest)
+        setTenant(ownerTenant ?? null)
+        setRestaurant(withTenant(ownerRest, ownerTenant))
         setSubscription(ownerSub ?? null)
       }
       setLoading(false)
@@ -64,7 +83,8 @@ export function PlatformProvider({ children }) {
     }
 
     if (ownerRest) {
-      setRestaurant(ownerRest)
+      setTenant(ownerTenant ?? null)
+      setRestaurant(withTenant(ownerRest, ownerTenant))
       setPermissions(['*'])
       setSubscription(ownerSub ?? null)
       setLoading(false)
@@ -106,6 +126,7 @@ export function PlatformProvider({ children }) {
   return (
     <PlatformContext.Provider value={{
       user, restaurant, setRestaurant,
+      tenant, setTenant,
       subscription, setSubscription,
       staffProfile, permissions,
       loading, hasPermission,
