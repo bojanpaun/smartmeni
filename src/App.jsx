@@ -132,6 +132,15 @@ function AddonGuard({ addonId, name, description, price, category, dependsOn, ch
   return children
 }
 
+// 2b/Faza 4: rute vertikale koja nije aktivna za ovaj tenant → nazad na hub.
+// (Restoran je besplatna baza; hotel plaćen. hasVertical fallback drži restoran
+//  vidljivim za zatečene tenante/staff.)
+function VerticalGuard({ vertical, children }) {
+  const { hasVertical } = usePlatform()
+  if (!hasVertical(vertical)) return <Navigate to="/admin" replace />
+  return children
+}
+
 // Redirect sa starog URL-a na /:slug/staff koristeći apsolutan path
 function StaffPortalRedirect() {
   const { slug } = useParams()
@@ -164,14 +173,14 @@ function AppRoutes() {
         {/* Kontrolna tabla */}
         <Route path="/admin" element={<AdminRoute><ControlPanel /></AdminRoute>} />
 
-        {/* Digitalni meni modul */}
-        <Route path="/admin/menu/analytics" element={<AdminRoute><AdminMenuAnalytics /></AdminRoute>} />
-        <Route path="/admin/menu/qr" element={<AdminRoute><AdminMenuQR /></AdminRoute>} />
-        <Route path="/admin/menu/settings" element={<AdminRoute><AdminMenuSettings /></AdminRoute>} />
-        <Route path="/admin/menu/landing" element={<AdminRoute><RestaurantLandingEditor /></AdminRoute>} />
-        <Route path="/admin/menu/help" element={<AdminRoute><ModuleHelp moduleKey="menu" /></AdminRoute>} />
+        {/* Digitalni meni modul (restoran vertikala) */}
+        <Route path="/admin/menu/analytics" element={<AdminRoute><VerticalGuard vertical="restaurant"><AdminMenuAnalytics /></VerticalGuard></AdminRoute>} />
+        <Route path="/admin/menu/qr" element={<AdminRoute><VerticalGuard vertical="restaurant"><AdminMenuQR /></VerticalGuard></AdminRoute>} />
+        <Route path="/admin/menu/settings" element={<AdminRoute><VerticalGuard vertical="restaurant"><AdminMenuSettings /></VerticalGuard></AdminRoute>} />
+        <Route path="/admin/menu/landing" element={<AdminRoute><VerticalGuard vertical="restaurant"><RestaurantLandingEditor /></VerticalGuard></AdminRoute>} />
+        <Route path="/admin/menu/help" element={<AdminRoute><VerticalGuard vertical="restaurant"><ModuleHelp moduleKey="menu" /></VerticalGuard></AdminRoute>} />
         <Route path="/admin/menu/items" element={<Navigate to="/admin/menu" replace />} />
-        <Route path="/admin/menu" element={<AdminRoute><AdminMenu /></AdminRoute>} />
+        <Route path="/admin/menu" element={<AdminRoute><VerticalGuard vertical="restaurant"><AdminMenu /></VerticalGuard></AdminRoute>} />
         <Route path="/admin/settings" element={<AdminRoute><TemplateSettings /></AdminRoute>} />
         <Route path="/admin/settings/templates" element={<AdminRoute><TemplateSettings /></AdminRoute>} />
         <Route path="/admin/settings/logo" element={<AdminRoute><LogoUpload /></AdminRoute>} />
@@ -179,10 +188,10 @@ function AppRoutes() {
         <Route path="/admin/settings/landing" element={<AdminRoute><RestaurantLandingEditor /></AdminRoute>} />
         <Route path="/admin/billing" element={<AdminRoute><BillingPage /></AdminRoute>} />
         <Route path="/admin/billing/success" element={<AdminRoute><BillingSuccess /></AdminRoute>} />
-        <Route path="/admin/orders" element={<AdminRoute><WaiterDashboard /></AdminRoute>} />
-        <Route path="/admin/waiter" element={<AdminRoute><WaiterDashboard /></AdminRoute>} />
-        <Route path="/admin/kitchen" element={<AdminRoute><KitchenDashboard /></AdminRoute>} />
-        <Route path="/admin/bar"     element={<AdminRoute><BarDashboard /></AdminRoute>} />
+        <Route path="/admin/orders" element={<AdminRoute><VerticalGuard vertical="restaurant"><WaiterDashboard /></VerticalGuard></AdminRoute>} />
+        <Route path="/admin/waiter" element={<AdminRoute><VerticalGuard vertical="restaurant"><WaiterDashboard /></VerticalGuard></AdminRoute>} />
+        <Route path="/admin/kitchen" element={<AdminRoute><VerticalGuard vertical="restaurant"><KitchenDashboard /></VerticalGuard></AdminRoute>} />
+        <Route path="/admin/bar"     element={<AdminRoute><VerticalGuard vertical="restaurant"><BarDashboard /></VerticalGuard></AdminRoute>} />
 
         {/* Osoblje modul */}
         <Route path="/admin/staff" element={<AdminRoute><StaffRoles /></AdminRoute>} />
@@ -190,12 +199,12 @@ function AppRoutes() {
         <Route path="/admin/staff/roles/help" element={<AdminRoute><ModuleHelp moduleKey="staff" /></AdminRoute>} />
         <Route path="/admin/staff/help" element={<AdminRoute><ModuleHelp moduleKey="staff" /></AdminRoute>} />
 
-        {/* Stolovi modul */}
-        <Route path="/admin/tables/analytics" element={<AdminRoute><TablesAnalytics /></AdminRoute>} />
-        <Route path="/admin/tables" element={<AdminRoute><TableMapEditor /></AdminRoute>} />
-        <Route path="/admin/tables/view" element={<AdminRoute><WaiterMapView /></AdminRoute>} />
-        <Route path="/admin/tables/help" element={<AdminRoute><ModuleHelp moduleKey="tables" /></AdminRoute>} />
-        <Route path="/admin/reservations" element={<AdminRoute><ReservationsPage /></AdminRoute>} />
+        {/* Stolovi modul (restoran vertikala) */}
+        <Route path="/admin/tables/analytics" element={<AdminRoute><VerticalGuard vertical="restaurant"><TablesAnalytics /></VerticalGuard></AdminRoute>} />
+        <Route path="/admin/tables" element={<AdminRoute><VerticalGuard vertical="restaurant"><TableMapEditor /></VerticalGuard></AdminRoute>} />
+        <Route path="/admin/tables/view" element={<AdminRoute><VerticalGuard vertical="restaurant"><WaiterMapView /></VerticalGuard></AdminRoute>} />
+        <Route path="/admin/tables/help" element={<AdminRoute><VerticalGuard vertical="restaurant"><ModuleHelp moduleKey="tables" /></VerticalGuard></AdminRoute>} />
+        <Route path="/admin/reservations" element={<AdminRoute><VerticalGuard vertical="restaurant"><ReservationsPage /></VerticalGuard></AdminRoute>} />
 
         {/* Moj nalog */}
         <Route path="/admin/account" element={<AdminRoute><MyAccount /></AdminRoute>} />
