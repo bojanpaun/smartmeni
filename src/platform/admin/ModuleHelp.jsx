@@ -485,9 +485,20 @@ const HELP_CONTENT = {
           'Folio se otvara automatski pri check-inu',
           'Prikazuje sve troškove: soba, restoran narudžbe, minibar, spa, ostalo',
           'Klikni + Dodaj stavku za ručno dodavanje troška',
+          'Brza dugmad: 🥤 Minibar (zaduženje minibara) i 🛍️ Prodaj proizvod (spa retail)',
           'Restoranske narudžbe "Naplati na sobu" automatski se dodaju na folio',
           'Spa tretmani sa plaćanjem putem folija automatski se dodaju',
           'Zatvori folio pri odjavi — označava završeno plaćanje',
+        ],
+      },
+      {
+        icon: '🥤',
+        title: 'Minibar',
+        steps: [
+          'Idi na Hotel → Minibar da definišeš cjenovnik (naziv + cijena): voda, sok, pivo...',
+          'Zaduženje po gostu: otvori folio gosta → 🥤 Minibar → izaberi artikal i količinu',
+          'Stavka se dodaje na folio kao "Minibar: <naziv>" i ulazi u saldo',
+          'Minibar se ne prati po zalihama (puni se ručno u sobama) — samo se zadužuje folio',
         ],
       },
       {
@@ -534,6 +545,7 @@ const HELP_CONTENT = {
     tips: [
       'Kalendar dostupnosti je najbrži način da vidiš popunjenost — koristi ga svakodnevno',
       'Folio se kreira automatski pri check-inu — ne trebaš ga ručno kreirati',
+      'Minibar i spa retail se zadužuju direktno iz folija gosta (🥤 / 🛍️ dugmad)',
       'Housekeeping zadaci se kreiraju automatski — sobarice ih vide samo u Staff portalu',
       'Guest App link šalje se automatski u email potvrdi rezervacije',
       'Hotelska javna web stranica (rest.by.me/slug/hotel) uređuje se u Hotel → Sajt hotela',
@@ -613,13 +625,34 @@ const HELP_CONTENT = {
           'Gosti odabiru paket na javnoj spa stranici',
         ],
       },
+      {
+        icon: '⭐',
+        title: 'Recenzije i ocjene',
+        steps: [
+          'Nakon završenog termina, gost ocjenjuje tretman (1–5 zvjezdica) — u Guest App-u (tab Spa) za hotelske goste',
+          'Ocjena terapeuta se automatski računa kao prosjek svih recenzija',
+          'Prosječna ocjena (★) prikazana je uz svakog terapeuta na stranici Terapeuti',
+        ],
+      },
+      {
+        icon: '🛍️',
+        title: 'Retail prodaja',
+        steps: [
+          'Idi na Retail da definišeš proizvode za prodaju (ulja, kreme...) sa cijenom i zalihom',
+          'Prodaja ide kroz folio gosta: otvori folio → 🛍️ Prodaj proizvod → izaberi proizvod i količinu',
+          'Zaliha se automatski skida; iznos se dodaje na folio gosta',
+          'Prodaja iznad raspoložive zalihe je blokirana',
+        ],
+      },
     ],
     tips: [
       'Buffer između termina (npr. 15 min) obezbjeđuje da terapeut i kabina budu slobodni za pripremu',
       'Folio integracija: spa tretman hotelskog gosta automatski se dodaje na folio',
+      'Vanjski gosti mogu platiti tretman karticom online (potreban aktivan payment provajder)',
       'Vidljivost spa linka u guest meniju podešava se u Postavke menija → Vidljivost',
       'Terapeut mora biti zaposlenik u HR modulu da bi se pojavio u listi terapeuta',
       'Javna spa stranica vidljiva je svima — nema potrebe za hotel rezervacijom',
+      'Retail proizvodi se prodaju iz folija gosta (🛍️ Prodaj proizvod); zaliha se prati automatski',
     ],
   },
 
