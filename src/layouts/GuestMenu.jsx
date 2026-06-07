@@ -158,6 +158,12 @@ export default function Menu() {
       const { data: rest } = await supabase
         .from('restaurants').select('*').eq('slug', slug).single()
       if (!rest) { setLoadingData(false); return }
+      // 2b/Faza 4c: hotel-only objekat nema restoran meni → vodi na hotel sajt.
+      const verts = rest.active_verticals || ['restaurant']
+      if (!verts.includes('restaurant') && verts.includes('hotel')) {
+        navigate(`/${slug}/hotel`, { replace: true })
+        return
+      }
       const [{ data: cats }, { data: its }] = await Promise.all([
         supabase.from('categories').select('*').eq('restaurant_id', rest.id).order('sort_order'),
         supabase.from('menu_items').select('*').eq('restaurant_id', rest.id).eq('is_visible', true).order('sort_order'),

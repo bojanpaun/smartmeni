@@ -78,16 +78,10 @@ export default function Register() {
           location: form.location,
           phone: form.phone,
           hours: form.hours,
+          active_verticals: activeVerticals,
         })
 
       if (restError) throw restError
-
-      // Restoran insert je auto-kreirao tenant (default vertikale '{restaurant}').
-      // Postavi izabrane vertikale (hotel-only → restoran sakriven gejtovanjem).
-      await supabase
-        .from('tenants')
-        .update({ active_verticals: activeVerticals })
-        .eq('user_id', authData.user.id)
 
       navigate('/admin')
     } catch (err) {
