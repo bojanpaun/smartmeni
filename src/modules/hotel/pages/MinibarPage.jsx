@@ -15,6 +15,14 @@ export default function MinibarPage() {
   const [form, setForm] = useState(BLANK)
   const [saving, setSaving] = useState(false)
 
+  // Biblioteka minibara (multi-uvoz)
+  const [showLib, setShowLib] = useState(false)
+  const [libItems, setLibItems] = useState([])
+  const [libLoading, setLibLoading] = useState(false)
+  const [libSel, setLibSel] = useState(() => new Set())
+  const [libBusy, setLibBusy] = useState(false)
+  const [libMsg, setLibMsg] = useState('')
+
   const load = async () => {
     if (!restaurant?.id) return
     setLoading(true)
@@ -55,6 +63,31 @@ export default function MinibarPage() {
     load()
   }
 
+  const openLib = async () => {
+    setShowLib(true); setLibMsg(''); setLibSel(new Set()); setLibLoading(true)
+    const { data } = await supabase
+      .from('minibar_library')
+      .select('id, name, category, suggested_price')
+      .eq('is_active', true)
+      .order('sort_order').order('name')
+    setLibItems(data ?? [])
+    setLibLoading(false)
+  }
+  const toggleSel = (id) => setLibSel(s => {
+    const n = new Set(s); n.has(id) ? n.delete(id) : n.add(id); return n
+  })
+  const importSelected = async () => {
+    if (libSel.size === 0) return
+    setLibBusy(true)
+    const { data, error } = await supabase.rpc('import_minibar_items', {
+      p_restaurant_id: restaurant.id, p_ids: [...libSel],
+    })
+    setLibBusy(false)
+    if (error) { setLibMsg('Greška: ' + error.message); return }
+    setShowLib(false)
+    load()
+  }
+
   if (!restaurant) return <LoadingSpinner fullPage />
 
   return (
@@ -64,8 +97,43 @@ export default function MinibarPage() {
           <h1 className={styles.title}>Minibar</h1>
           <p className={styles.subtitle}>Cjenovnik minibara — zaduženje ide na folio gosta</p>
         </div>
-        <button className={styles.btnPrimary} onClick={openNew}>+ Dodaj artikal</button>
+        <div style={{ display: 'flex', gap: 8 }}>
+          <button className={styles.btnSecondary} onClick={openLib}>📚 Iz biblioteke</button>
+          <button className={styles.btnPrimary} onClick={openNew}>+ Dodaj artikal</button>
+        </div>
       </div>
+
+      {showLib && (
+        <div style={{ background: 'var(--c-surface)', border: '1px solid var(--c-border)', borderRadius: 12, padding: 16, marginBottom: 16 }}>
+          <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: 10 }}>
+            <div style={{ fontWeight: 600 }}>📚 Biblioteka minibara — označi i uvezi</div>
+            <button onClick={() => setShowLib(false)} style={{ background: 'none', border: 'none', fontSize: 18, cursor: 'pointer', color: 'var(--c-text-muted)' }}>✕</button>
+          </div>
+          {libMsg && <div style={{ color: '#c0392b', fontSize: 13, marginBottom: 8 }}>{libMsg}</div>}
+          {libLoading ? <LoadingSpinner /> : (
+            <>
+              <div style={{ display: 'flex', flexWrap: 'wrap', gap: 8, maxHeight: 320, overflowY: 'auto' }}>
+                {libItems.map(it => (
+                  <label key={it.id} style={{
+                    display: 'flex', alignItems: 'center', gap: 8, padding: '8px 12px', cursor: 'pointer',
+                    border: `1px solid ${libSel.has(it.id) ? 'var(--c-primary)' : 'var(--c-border)'}`,
+                    borderRadius: 8, background: libSel.has(it.id) ? 'var(--c-primary-light)' : 'transparent',
+                  }}>
+                    <input type="checkbox" checked={libSel.has(it.id)} onChange={() => toggleSel(it.id)} />
+                    <span style={{ fontSize: 13 }}>{it.name}{it.suggested_price != null ? ` · €${Number(it.suggested_price).toFixed(2)}` : ''}</span>
+                  </label>
+                ))}
+              </div>
+              <div style={{ display: 'flex', gap: 8, justifyContent: 'flex-end', marginTop: 12 }}>
+                <button className={styles.btnSecondary} onClick={() => setShowLib(false)}>Odustani</button>
+                <button className={styles.btnPrimary} onClick={importSelected} disabled={libBusy || libSel.size === 0}>
+                  {libBusy ? 'Uvoz...' : `Uvezi izabrane (${libSel.size})`}
+                </button>
+              </div>
+            </>
+          )}
+        </div>
+      )}
 
       {showForm && (
         <div style={{ background: 'var(--c-surface)', border: '1px solid var(--c-border)', borderRadius: 12, padding: 16, marginBottom: 16 }}>
