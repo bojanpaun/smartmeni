@@ -111,6 +111,41 @@ export default function RecipeLibraryAdmin() {
 
   const closeEdit = () => { setEditing(null); setEditMsg('') }
 
+  // Preračun kalorija + alergena iz trenutnih (nesačuvanih) sastojaka.
+  const recompute = async () => {
+    const { data: nut, error } = await supabase
+      .from('recipe_ingredient_nutrition').select('nm, kcal, allergens')
+    if (error) { setEditMsg('Greška pri čitanju nutritivne tabele.'); return }
+    const map = {}
+    for (const n of (nut || [])) map[n.nm] = n
+    let kcal = 0
+    const alg = new Set()
+    const unknown = []
+    for (const ing of ings) {
+      const nm = ing.ingredient_name.trim().toLowerCase()
+      if (!nm) continue
+      const m = map[nm]
+      if (!m) { unknown.push(ing.ingredient_name.trim()); continue }
+      kcal += (parseFloat(ing.quantity) || 0) * Number(m.kcal)
+      for (const a of (m.allergens || [])) alg.add(a)
+    }
+    setForm(f => ({ ...f, calories: String(Math.round(kcal)), allergens: [...alg].sort().join(', ') }))
+    setEditMsg(unknown.length
+      ? `Preračunato. Nepoznati sastojci (računati kao 0 kcal): ${unknown.join(', ')}`
+      : 'Preračunato iz sastojaka.')
+  }
+
+  const deleteRecipe = async (recipe) => {
+    if (!confirm(`Obrisati recept "${recipe.name}" iz biblioteke? Sastojci se brišu zajedno.\n\nNe utiče na stavke koje su tenanti već uvezli.`)) return
+    setSavingEdit(true)
+    await supabase.storage.from(BUCKET).remove([`${recipe.id}.jpg`]) // best-effort
+    const { error } = await supabase.from('recipe_library').delete().eq('id', recipe.id)
+    if (error) { setEditMsg('Greška: ' + error.message); setSavingEdit(false); return }
+    setSavingEdit(false)
+    closeEdit()
+    await load()
+  }
+
   const addIngRow = () => setIngs(prev => [...prev, { ingredient_name: '', quantity: '', unit: 'ml' }])
   const updateIng = (i, field, val) => setIngs(prev => prev.map((row, idx) => idx === i ? { ...row, [field]: val } : row))
   const removeIngRow = (i) => setIngs(prev => prev.filter((_, idx) => idx !== i))
@@ -285,8 +320,11 @@ export default function RecipeLibraryAdmin() {
                   <input type="number" value={form.calories} onChange={e => setForm(f => ({ ...f, calories: e.target.value }))} />
                 </div>
               </div>
-              <div className={styles.hint} style={{ marginTop: -4 }}>
-                ⚠️ Alergeni i kalorije se NE računaju automatski iz sastojaka — upiši ručno ako mijenjaš recept.
+              <div className={styles.recomputeRow}>
+                <button type="button" className={styles.btnRecompute} onClick={recompute}>
+                  🧮 Preračunaj kalorije i alergene iz sastojaka
+                </button>
+                <span className={styles.hint}>Popunjava polja iznad na osnovu sastojaka; provjeri prije snimanja.</span>
               </div>
 
               {/* Sastojci */}
@@ -317,6 +355,11 @@ export default function RecipeLibraryAdmin() {
             </div>
 
             <div className={styles.modalFooter}>
+              {editing !== 'new' && (
+                <button className={styles.btnDelete} onClick={() => deleteRecipe({ id: editing, name: form.name })} disabled={savingEdit}>
+                  🗑 Obriši recept
+                </button>
+              )}
               {editMsg && <span className={styles.editMsg}>{editMsg}</span>}
               <button className={styles.btnCancel} onClick={closeEdit}>Odustani</button>
               <button className={styles.btnSave} onClick={saveEdit} disabled={savingEdit}>

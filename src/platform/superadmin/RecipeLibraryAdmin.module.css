@@ -128,7 +128,20 @@
 .ingUnit { width: 70px; padding: 7px 6px; border: 1px solid var(--c-border-input); border-radius: 8px; font-size: 13px; background: var(--c-surface); color: var(--c-text); }
 .ingDel { background: none; border: 1px solid var(--c-border); border-radius: 8px; color: var(--c-danger, #c0392b); cursor: pointer; padding: 7px 10px; font-size: 13px; flex-shrink: 0; }
 
-.editMsg { font-size: 12px; color: var(--c-danger, #c0392b); margin-right: auto; }
+.recomputeRow { display: flex; align-items: center; gap: 10px; flex-wrap: wrap; margin: 8px 0 4px; }
+.btnRecompute {
+  padding: 8px 14px; background: var(--c-primary-light); color: var(--c-primary);
+  border: 1px solid var(--c-primary-medium); border-radius: 8px; font-size: 12px;
+  font-weight: 600; cursor: pointer; font-family: var(--c-font-sans); white-space: nowrap;
+}
+
+.btnDelete {
+  margin-right: auto; padding: 9px 14px; background: transparent;
+  border: 1px solid var(--c-danger, #c0392b); border-radius: 10px;
+  color: var(--c-danger, #c0392b); font-weight: 600; cursor: pointer;
+}
+.btnDelete:disabled { opacity: 0.5; cursor: not-allowed; }
+.editMsg { font-size: 12px; color: var(--c-text-medium); }
 .btnCancel { padding: 9px 16px; background: var(--c-bg-subtle); border: 1px solid var(--c-border); border-radius: 10px; font-weight: 600; cursor: pointer; color: var(--c-text-medium); }
 .btnSave { padding: 9px 18px; background: var(--c-primary); color: #fff; border: none; border-radius: 10px; font-weight: 700; cursor: pointer; }
 .btnSave:disabled { opacity: 0.5; cursor: not-allowed; }
