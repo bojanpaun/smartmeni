@@ -45,7 +45,9 @@ BEGIN
   VALUES (
     p_folio_id, v_item.restaurant_id, 'spa',
     v_item.name || COALESCE(' (' || v_item.brand || ')', ''),
-    p_quantity, v_item.price, v_total, current_date, auth.uid()
+    p_quantity, v_item.price, v_total, current_date,
+    -- created_by samo ako profil postoji (FK na user_profiles; kolona nullable)
+    (SELECT id FROM public.user_profiles WHERE id = auth.uid())
   );
 
   UPDATE public.spa_retail_items SET stock_quantity = stock_quantity - p_quantity WHERE id = p_item_id;
