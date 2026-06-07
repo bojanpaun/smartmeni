@@ -275,8 +275,9 @@ export default function ControlPanel() {
         </div>
       )}
 
-      {/* ── Hotel vertical ── */}
-      {hasHotel && (
+      {/* ── Hotel vertical (vidljivost po izabranoj vertikali; stranice iza
+              hotel_core paywalla) ── */}
+      {hasVertical('hotel') && (
         <div className={styles.section}>
           <div className={styles.verticalHead}>
             <span className={styles.verticalEmoji}>🏨</span>
