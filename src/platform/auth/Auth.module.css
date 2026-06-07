@@ -164,3 +164,16 @@
   margin-top: 1.5rem;
 }
 .loginLink a { color: #1a9e6e; font-weight: 500; }
+
+/* 2b/Faza 4 — izbor biznisa pri registraciji */
+.bizChoices { display: flex; flex-direction: column; gap: 8px; }
+.bizChoice {
+  display: flex; align-items: center; gap: 10px; padding: 10px 12px;
+  border: 1.5px solid #d0e4dc; border-radius: 10px; cursor: pointer; background: #fff;
+}
+.bizChoiceOn { border-color: #1a9e6e; background: #f0faf6; }
+.bizChoice input { width: 18px; height: 18px; accent-color: #1a9e6e; cursor: pointer; }
+.bizIcon { font-size: 22px; }
+.bizText { display: flex; flex-direction: column; }
+.bizName { font-size: 14px; font-weight: 600; color: #1a3028; }
+.bizDesc { font-size: 12px; color: #7a9e8e; }

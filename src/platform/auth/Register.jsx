@@ -18,6 +18,9 @@ export default function Register() {
     phone: '',
     hours: '',
   })
+  // 2b/Faza 4: izbor biznisa (vertikala). Restoran je besplatna baza, hotel plaćen.
+  const [verticals, setVerticals] = useState({ restaurant: true, hotel: false })
+  const toggleVertical = (k) => setVerticals(v => ({ ...v, [k]: !v[k] }))
 
   const set = (k, v) => setForm(f => ({ ...f, [k]: v }))
 
@@ -44,8 +47,17 @@ export default function Register() {
 
   const handleSubmit = async (e) => {
     e.preventDefault()
-    setLoading(true)
     setError('')
+
+    const activeVerticals = []
+    if (verticals.restaurant) activeVerticals.push('restaurant')
+    if (verticals.hotel) activeVerticals.push('hotel')
+    if (activeVerticals.length === 0) {
+      setError('Izaberite bar jedan biznis (restoran i/ili hotel).')
+      return
+    }
+
+    setLoading(true)
 
     try {
       const { data: authData, error: authError } = await supabase.auth.signUp({
@@ -69,6 +81,13 @@ export default function Register() {
         })
 
       if (restError) throw restError
+
+      // Restoran insert je auto-kreirao tenant (default vertikale '{restaurant}').
+      // Postavi izabrane vertikale (hotel-only → restoran sakriven gejtovanjem).
+      await supabase
+        .from('tenants')
+        .update({ active_verticals: activeVerticals })
+        .eq('user_id', authData.user.id)
 
       navigate('/admin')
     } catch (err) {
@@ -126,14 +145,35 @@ export default function Register() {
 
         {step === 2 && (
           <>
-            <h1 className={styles.title}>O vašem restoranu</h1>
-            <p className={styles.sub}>Ove informacije će vidjeti vaši gosti.</p>
+            <h1 className={styles.title}>Vaš biznis</h1>
+            <p className={styles.sub}>Izaberite šta vodite — kasnije možete dodati još.</p>
             <form onSubmit={handleSubmit} className={styles.form}>
               <div className={styles.field}>
-                <label>Naziv restorana *</label>
+                <label>Šta vodite?</label>
+                <div className={styles.bizChoices}>
+                  <label className={`${styles.bizChoice} ${verticals.restaurant ? styles.bizChoiceOn : ''}`}>
+                    <input type="checkbox" checked={verticals.restaurant} onChange={() => toggleVertical('restaurant')} />
+                    <span className={styles.bizIcon}>🍽️</span>
+                    <span className={styles.bizText}>
+                      <span className={styles.bizName}>Restoran</span>
+                      <span className={styles.bizDesc}>Digitalni meni i stolovi · besplatno</span>
+                    </span>
+                  </label>
+                  <label className={`${styles.bizChoice} ${verticals.hotel ? styles.bizChoiceOn : ''}`}>
+                    <input type="checkbox" checked={verticals.hotel} onChange={() => toggleVertical('hotel')} />
+                    <span className={styles.bizIcon}>🏨</span>
+                    <span className={styles.bizText}>
+                      <span className={styles.bizName}>Hotel</span>
+                      <span className={styles.bizDesc}>Sobe, rezervacije, folio · plaćeno</span>
+                    </span>
+                  </label>
+                </div>
+              </div>
+              <div className={styles.field}>
+                <label>{verticals.restaurant ? 'Naziv restorana *' : 'Naziv objekta *'}</label>
                 <input
                   type="text"
-                  placeholder="npr. Restoran Mornar"
+                  placeholder={verticals.restaurant ? 'npr. Restoran Mornar' : 'npr. Hotel Mornar'}
                   value={form.name}
                   onChange={e => {
                     set('name', e.target.value)
