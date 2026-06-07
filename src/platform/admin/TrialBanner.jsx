@@ -6,10 +6,20 @@ import { planStatus, trialDaysLeft } from '../../lib/planUtils'
 import styles from './TrialBanner.module.css'
 
 export default function TrialBanner() {
-  const { restaurant } = usePlatform()
+  const { restaurant, betaMode } = usePlatform()
   const navigate = useNavigate()
 
   if (!restaurant) return null
+
+  // Beta period — svi moduli besplatni. Ima prednost nad naplata-banerima
+  // (trial/expired/suspended) jer se tokom bete ništa ne naplaćuje.
+  if (betaMode) {
+    return (
+      <div className={`${styles.banner} ${styles.bannerBeta}`}>
+        <span>🧪 <strong>Beta period</strong> — svi moduli su trenutno besplatni za funkcionalnosti koje koristiš.</span>
+      </div>
+    )
+  }
 
   const status = planStatus(restaurant)
   const days = trialDaysLeft(restaurant)

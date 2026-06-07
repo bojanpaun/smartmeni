@@ -27,6 +27,13 @@
   color: #6b0000;
 }
 
+.bannerBeta {
+  background: var(--c-primary-light);
+  border-bottom: 1px solid var(--c-primary-medium);
+  color: var(--c-primary-hover);
+  justify-content: center;
+}
+
 .bannerBtn {
   background: var(--c-primary);
   color: var(--c-surface);
