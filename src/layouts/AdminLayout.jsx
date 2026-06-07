@@ -158,6 +158,7 @@ export const MODULES = [
         { label: 'Rezervacije', icon: '📅', path: '/admin/hotel/reservations' },
         { label: 'Sobe',        icon: '🛏️', path: '/admin/hotel/rooms' },
         { label: 'Domaćinstvo', icon: '🧹', path: '/admin/hotel/housekeeping' },
+        { label: 'Minibar',     icon: '🥤', path: '/admin/hotel/minibar' },
       ],
     },
     admin: {

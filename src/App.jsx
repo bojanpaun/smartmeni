@@ -60,6 +60,7 @@ const RatePlansPage        = lazy(() => import('./modules/hotel/pages/RatePlansP
 const HotelGuestsPage      = lazy(() => import('./modules/hotel/pages/GuestsPage'))
 const BookingSettings      = lazy(() => import('./modules/hotel/pages/BookingSettings'))
 const HousekeepingPage     = lazy(() => import('./modules/hotel/pages/HousekeepingPage'))
+const MinibarPage          = lazy(() => import('./modules/hotel/pages/MinibarPage'))
 const HousekeepingPortalPage = lazy(() => import('./modules/hotel/pages/HousekeepingPortalPage'))
 const RevenueManagementPage = lazy(() => import('./modules/hotel/pages/RevenueManagementPage'))
 const BookingPage          = lazy(() => import('./pages/BookingPage'))
@@ -254,6 +255,7 @@ function AppRoutes() {
         <Route path="/admin/hotel/rate-plans" element={<AdminRoute><AddonGuard addonId="hotel_core" name="Hotel Core" description="Upravljanje sobama, rezervacijama, front desk i folio sistemom." price={299} category="hotel"><RatePlansPage /></AddonGuard></AdminRoute>} />
         <Route path="/admin/hotel/booking-settings" element={<AdminRoute><AddonGuard addonId="hotel_core" name="Hotel Core" description="Upravljanje sobama, rezervacijama, front desk i folio sistemom." price={299} category="hotel"><BookingSettings /></AddonGuard></AdminRoute>} />
         <Route path="/admin/hotel/housekeeping" element={<AdminRoute><AddonGuard addonId="hotel_core" name="Hotel Core" description="Upravljanje sobama, rezervacijama, front desk i folio sistemom." price={299} category="hotel"><HousekeepingPage /></AddonGuard></AdminRoute>} />
+        <Route path="/admin/hotel/minibar" element={<AdminRoute><AddonGuard addonId="hotel_core" name="Hotel Core" description="Upravljanje sobama, rezervacijama, front desk i folio sistemom." price={299} category="hotel"><MinibarPage /></AddonGuard></AdminRoute>} />
         <Route path="/admin/hotel/revenue" element={<AdminRoute><AddonGuard addonId="hotel_core" name="Hotel Core" description="Upravljanje sobama, rezervacijama, front desk i folio sistemom." price={299} category="hotel"><RevenueManagementPage /></AddonGuard></AdminRoute>} />
         <Route path="/admin/hotel/landing" element={<AdminRoute><AddonGuard addonId="hotel_core" name="Hotel Core" description="Upravljanje sobama, rezervacijama, front desk i folio sistemom." price={299} category="hotel"><HotelLandingEditor /></AddonGuard></AdminRoute>} />
         <Route path="/admin/hotel/guests" element={<AdminRoute><AddonGuard addonId="hotel_core" name="Hotel Core" description="Upravljanje sobama, rezervacijama, front desk i folio sistemom." price={299} category="hotel"><HotelGuestsPage /></AddonGuard></AdminRoute>} />

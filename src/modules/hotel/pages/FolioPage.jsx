@@ -31,6 +31,13 @@ export default function FolioPage() {
   const [retailItemId, setRetailItemId] = useState('')
   const [retailQty, setRetailQty] = useState(1)
   const [retailBusy, setRetailBusy] = useState(false)
+
+  // Minibar zaduženje
+  const [chargingMinibar, setChargingMinibar] = useState(false)
+  const [minibarList, setMinibarList] = useState([])
+  const [minibarItemId, setMinibarItemId] = useState('')
+  const [minibarQty, setMinibarQty] = useState(1)
+  const [minibarBusy, setMinibarBusy] = useState(false)
   const [paymentProvider, setPaymentProvider] = useState(false)
   const [payLoading, setPayLoading] = useState(false)
 
@@ -156,6 +163,47 @@ export default function FolioPage() {
     toast.success('Proizvod prodat na folio')
     setRetailBusy(false)
     setSellingRetail(false)
+    load()
+  }
+
+  // ── Minibar zaduženje na folio ────────────────────────────────
+  const openMinibar = async () => {
+    setChargingMinibar(true)
+    setMinibarItemId(''); setMinibarQty(1)
+    const { data } = await supabase
+      .from('minibar_items')
+      .select('id, name, price')
+      .eq('restaurant_id', restaurant.id)
+      .eq('is_active', true)
+      .order('name')
+    setMinibarList(data ?? [])
+  }
+
+  const chargeMinibar = async () => {
+    if (!minibarItemId) return toast.error('Odaberite artikal')
+    const it = minibarList.find(m => m.id === minibarItemId)
+    if (!it) return
+    const qty = parseInt(minibarQty) || 1
+    const total = (Number(it.price) || 0) * qty
+    setMinibarBusy(true)
+    const { error } = await supabase.from('folio_items').insert({
+      folio_id:      folio.id,
+      restaurant_id: restaurant.id,
+      type:          'minibar',
+      description:   `Minibar: ${it.name}`,
+      quantity:      qty,
+      unit_price:    Number(it.price) || 0,
+      total_price:   total,
+      date:          new Date().toISOString().slice(0, 10),
+    })
+    if (error) { toast.error('Greška pri zaduženju'); setMinibarBusy(false); return }
+    await supabase.from('folios').update({
+      total_amount: computedTotal + total,
+      updated_at: new Date().toISOString(),
+    }).eq('id', folio.id)
+    toast.success('Minibar zadužen na folio')
+    setMinibarBusy(false)
+    setChargingMinibar(false)
     load()
   }
 
@@ -371,13 +419,49 @@ export default function FolioPage() {
       <div className={styles.section}>
         <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: 12 }}>
           <h3 className={styles.sectionTitle} style={{ margin: 0 }}>Stavke</h3>
-          {folio.status === 'open' && !addingItem && !sellingRetail && (
-            <div style={{ display: 'flex', gap: 8 }}>
+          {folio.status === 'open' && !addingItem && !sellingRetail && !chargingMinibar && (
+            <div style={{ display: 'flex', gap: 8, flexWrap: 'wrap' }}>
+              <button className={styles.btnSecondary} onClick={openMinibar}>🥤 Minibar</button>
               <button className={styles.btnSecondary} onClick={openRetail}>🛍️ Prodaj proizvod</button>
               <button className={styles.btnSecondary} onClick={() => setAddingItem(true)}>+ Dodaj stavku</button>
             </div>
           )}
         </div>
+
+        {chargingMinibar && (
+          <div style={{ background: 'var(--c-bg-subtle)', border: '1px solid var(--c-border)', borderRadius: 12, padding: 14, marginBottom: 12 }}>
+            <div style={{ fontWeight: 600, marginBottom: 10 }}>🥤 Zaduženje minibara</div>
+            {minibarList.length === 0 ? (
+              <div style={{ fontSize: 13, color: 'var(--c-text-muted)' }}>
+                Nema artikala. Dodaj ih u Hotel → Minibar.
+              </div>
+            ) : (
+              <div style={{ display: 'flex', gap: 10, flexWrap: 'wrap', alignItems: 'flex-end' }}>
+                <div style={{ flex: 2, minWidth: 180 }}>
+                  <label style={{ fontSize: 12, color: 'var(--c-text-medium)' }}>Artikal</label>
+                  <select className={styles.input} value={minibarItemId} onChange={e => setMinibarItemId(e.target.value)}>
+                    <option value="">— Odaberi —</option>
+                    {minibarList.map(m => (
+                      <option key={m.id} value={m.id}>{m.name} — €{Number(m.price).toFixed(2)}</option>
+                    ))}
+                  </select>
+                </div>
+                <div style={{ width: 90 }}>
+                  <label style={{ fontSize: 12, color: 'var(--c-text-medium)' }}>Količina</label>
+                  <input className={styles.input} type="number" min="1" step="1" value={minibarQty} onChange={e => setMinibarQty(e.target.value)} />
+                </div>
+              </div>
+            )}
+            <div style={{ display: 'flex', gap: 8, justifyContent: 'flex-end', marginTop: 12 }}>
+              <button className={styles.btnSecondary} onClick={() => setChargingMinibar(false)}>Odustani</button>
+              {minibarList.length > 0 && (
+                <button className={styles.btnPrimary} onClick={chargeMinibar} disabled={minibarBusy || !minibarItemId}>
+                  {minibarBusy ? 'Zaduženje...' : 'Zaduži na folio'}
+                </button>
+              )}
+            </div>
+          </div>
+        )}
 
         {sellingRetail && (
           <div style={{ background: 'var(--c-bg-subtle)', border: '1px solid var(--c-border)', borderRadius: 12, padding: 14, marginBottom: 12 }}>
