@@ -81,6 +81,7 @@ const SpaBookingPage       = lazy(() => import('./pages/SpaBookingPage'))
 const SpaAnalyticsPage     = lazy(() => import('./modules/spa/pages/SpaAnalyticsPage'))
 const SpaPackagesPage      = lazy(() => import('./modules/spa/pages/PackagesPage'))
 const SpaAppointmentsPage  = lazy(() => import('./modules/spa/pages/AppointmentsPage'))
+const SpaRetailPage        = lazy(() => import('./modules/spa/pages/RetailPage'))
 const RestaurantLandingEditor = lazy(() => import('./modules/menu/pages/RestaurantLandingEditor'))
 
 const ControlPanel         = lazy(() => import('./platform/admin/ControlPanel'))
@@ -269,6 +270,7 @@ function AppRoutes() {
         <Route path="/admin/spa/analytics" element={<AdminRoute><AddonGuard addonId="spa_wellness" name="Spa & Wellness" description="Upravljanje spa tretmanima, terapeutima, kalendarom i booking sistemom." price={199} category="hotel"><SpaAnalyticsPage /></AddonGuard></AdminRoute>} />
         <Route path="/admin/spa/packages" element={<AdminRoute><AddonGuard addonId="spa_wellness" name="Spa & Wellness" description="Upravljanje spa tretmanima, terapeutima, kalendarom i booking sistemom." price={199} category="hotel"><SpaPackagesPage /></AddonGuard></AdminRoute>} />
         <Route path="/admin/spa/appointments" element={<AdminRoute><AddonGuard addonId="spa_wellness" name="Spa & Wellness" description="Upravljanje spa tretmanima, terapeutima, kalendarom i booking sistemom." price={199} category="hotel"><SpaAppointmentsPage /></AddonGuard></AdminRoute>} />
+        <Route path="/admin/spa/retail" element={<AdminRoute><AddonGuard addonId="spa_wellness" name="Spa & Wellness" description="Upravljanje spa tretmanima, terapeutima, kalendarom i booking sistemom." price={199} category="hotel"><SpaRetailPage /></AddonGuard></AdminRoute>} />
         <Route path="/admin/hotel/reservations/:id/folio/print" element={<ProtectedRoute><Suspense fallback={<LoadingSpinner fullPage />}><FolioPrint /></Suspense></ProtectedRoute>} />
 
         {/* Analitika modul */}

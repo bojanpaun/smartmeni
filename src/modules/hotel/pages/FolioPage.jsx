@@ -24,6 +24,13 @@ export default function FolioPage() {
   const [addingItem, setAddingItem] = useState(false)
   const [newItem, setNewItem] = useState(EMPTY_ITEM)
   const [saving, setSaving] = useState(false)
+
+  // Retail prodaja (spa proizvodi)
+  const [sellingRetail, setSellingRetail] = useState(false)
+  const [retailList, setRetailList] = useState([])
+  const [retailItemId, setRetailItemId] = useState('')
+  const [retailQty, setRetailQty] = useState(1)
+  const [retailBusy, setRetailBusy] = useState(false)
   const [paymentProvider, setPaymentProvider] = useState(false)
   const [payLoading, setPayLoading] = useState(false)
 
@@ -117,6 +124,38 @@ export default function FolioPage() {
     await supabase.from('folio_items').delete().eq('id', item.id)
     const newTotal = computedTotal - (parseFloat(item.total_price) || 0)
     await supabase.from('folios').update({ total_amount: Math.max(0, newTotal), updated_at: new Date().toISOString() }).eq('id', folio.id)
+    load()
+  }
+
+  // ── Retail prodaja na folio ───────────────────────────────────
+  const openRetail = async () => {
+    setSellingRetail(true)
+    setRetailItemId(''); setRetailQty(1)
+    const { data } = await supabase
+      .from('spa_retail_items')
+      .select('id, name, brand, price, stock_quantity')
+      .eq('restaurant_id', restaurant.id)
+      .eq('is_active', true)
+      .gt('stock_quantity', 0)
+      .order('name')
+    setRetailList(data ?? [])
+  }
+
+  const sellRetail = async () => {
+    if (!retailItemId) return toast.error('Odaberite proizvod')
+    const qty = parseInt(retailQty) || 1
+    setRetailBusy(true)
+    const { data, error } = await supabase.rpc('sell_retail_to_folio', {
+      p_item_id: retailItemId, p_folio_id: folio.id, p_quantity: qty,
+    })
+    if (error) { toast.error(error.message || 'Greška pri prodaji'); setRetailBusy(false); return }
+    await supabase.from('folios').update({
+      total_amount: computedTotal + (Number(data?.total) || 0),
+      updated_at: new Date().toISOString(),
+    }).eq('id', folio.id)
+    toast.success('Proizvod prodat na folio')
+    setRetailBusy(false)
+    setSellingRetail(false)
     load()
   }
 
@@ -332,10 +371,50 @@ export default function FolioPage() {
       <div className={styles.section}>
         <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: 12 }}>
           <h3 className={styles.sectionTitle} style={{ margin: 0 }}>Stavke</h3>
-          {folio.status === 'open' && !addingItem && (
-            <button className={styles.btnSecondary} onClick={() => setAddingItem(true)}>+ Dodaj stavku</button>
+          {folio.status === 'open' && !addingItem && !sellingRetail && (
+            <div style={{ display: 'flex', gap: 8 }}>
+              <button className={styles.btnSecondary} onClick={openRetail}>🛍️ Prodaj proizvod</button>
+              <button className={styles.btnSecondary} onClick={() => setAddingItem(true)}>+ Dodaj stavku</button>
+            </div>
           )}
         </div>
+
+        {sellingRetail && (
+          <div style={{ background: 'var(--c-bg-subtle)', border: '1px solid var(--c-border)', borderRadius: 12, padding: 14, marginBottom: 12 }}>
+            <div style={{ fontWeight: 600, marginBottom: 10 }}>🛍️ Prodaja retail proizvoda</div>
+            {retailList.length === 0 ? (
+              <div style={{ fontSize: 13, color: 'var(--c-text-muted)' }}>
+                Nema proizvoda na zalihi. Dodaj ih u Spa → Retail.
+              </div>
+            ) : (
+              <div style={{ display: 'flex', gap: 10, flexWrap: 'wrap', alignItems: 'flex-end' }}>
+                <div style={{ flex: 2, minWidth: 180 }}>
+                  <label style={{ fontSize: 12, color: 'var(--c-text-medium)' }}>Proizvod</label>
+                  <select className={styles.input} value={retailItemId} onChange={e => setRetailItemId(e.target.value)}>
+                    <option value="">— Odaberi —</option>
+                    {retailList.map(r => (
+                      <option key={r.id} value={r.id}>
+                        {r.name}{r.brand ? ` (${r.brand})` : ''} — €{Number(r.price).toFixed(2)} · zaliha {r.stock_quantity}
+                      </option>
+                    ))}
+                  </select>
+                </div>
+                <div style={{ width: 90 }}>
+                  <label style={{ fontSize: 12, color: 'var(--c-text-medium)' }}>Količina</label>
+                  <input className={styles.input} type="number" min="1" step="1" value={retailQty} onChange={e => setRetailQty(e.target.value)} />
+                </div>
+              </div>
+            )}
+            <div style={{ display: 'flex', gap: 8, justifyContent: 'flex-end', marginTop: 12 }}>
+              <button className={styles.btnSecondary} onClick={() => setSellingRetail(false)}>Odustani</button>
+              {retailList.length > 0 && (
+                <button className={styles.btnPrimary} onClick={sellRetail} disabled={retailBusy || !retailItemId}>
+                  {retailBusy ? 'Prodaja...' : 'Prodaj na folio'}
+                </button>
+              )}
+            </div>
+          </div>
+        )}
 
         <div className={styles.table}>
           <div className={styles.folioHead}>

@@ -196,6 +196,7 @@ export const MODULES = [
         { label: 'Tretmani',    icon: '💆', path: '/admin/spa/services' },
         { label: 'Terapeuti',   icon: '👤', path: '/admin/spa/therapists' },
         { label: 'Kabine',      icon: '🚪', path: '/admin/spa/rooms' },
+        { label: 'Retail',      icon: '🛍️', path: '/admin/spa/retail' },
         { label: 'Paketi',      icon: '🎁', path: '/admin/spa/packages' },
         { label: 'Analitika',   icon: '📊', path: '/admin/spa/analytics' },
         { label: 'Postavke',    icon: '⚙️', path: '/admin/spa/settings' },
