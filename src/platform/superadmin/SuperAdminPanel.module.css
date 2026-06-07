@@ -18,8 +18,9 @@
 /* ── Header ── */
 .header {
   display: flex; align-items: flex-start;
-  justify-content: space-between; margin-bottom: 24px;
+  justify-content: space-between; margin-bottom: 24px; gap: 12px;
 }
+.headerActions { display: flex; gap: 8px; flex-wrap: wrap; justify-content: flex-end; }
 .headerTitle { font-size: 20px; font-weight: 600; color: var(--c-text); }
 .headerSub { font-size: 13px; color: var(--c-text-muted); margin-top: 2px; }
 .btnRefresh {
@@ -312,6 +313,11 @@
   .editGrid { grid-template-columns: 1fr; }
   .stats    { grid-template-columns: repeat(2, 1fr); }
   .addonCategories { grid-template-columns: 1fr; }
+
+  /* Header: naslov pa dugmad ispod (puna širina, wrap u 2 kolone) */
+  .header { flex-direction: column; align-items: stretch; gap: 12px; margin-bottom: 16px; }
+  .headerActions { justify-content: stretch; }
+  .headerActions .btnRefresh { flex: 1 1 calc(50% - 4px); text-align: center; padding: 10px 8px; }
 
   /* Sakrij kolone Plan, Status, Registrovan — ostaju Restoran + Akcije */
   .table thead th:nth-child(n+2):nth-child(-n+4),

@@ -225,7 +225,7 @@ export default function SuperAdminPanel() {
           <div className={styles.headerTitle}>Super admin panel</div>
           <div className={styles.headerSub}>Upravljanje restoranima i planovima</div>
         </div>
-        <div style={{ display: 'flex', gap: 8 }}>
+        <div className={styles.headerActions}>
           <button className={styles.btnRefresh} onClick={() => navigate('/superadmin/billing')}>💶 Naplata i cijene</button>
           <button className={styles.btnRefresh} onClick={() => navigate('/superadmin/recipes')}>📚 Biblioteka recepata</button>
           <button className={styles.btnRefresh} onClick={() => navigate('/superadmin/spa-treatments')}>💆 Biblioteka tretmana</button>
