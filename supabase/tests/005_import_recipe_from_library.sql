@@ -11,7 +11,7 @@
 
 BEGIN;
 
-SELECT plan(8);
+SELECT plan(9);
 
 -- ── Setup (kao postgres — RLS se zaobilazi pri seedovanju) ──────────────────
 SELECT tests.create_supabase_user('owner_a');
@@ -59,6 +59,22 @@ SELECT results_eq(
       WHERE m.restaurant_id = 'aaaaaaaa-0000-0000-0000-000000000001' $$,
   ARRAY[2],
   'Import kreira recept (menu_item_ingredients)'
+);
+
+-- Test 3b: re-import NE resetuje izmijenjenu količinu recepta (poštuje admin).
+UPDATE menu_item_ingredients mi SET quantity = 999
+  FROM inventory_items ii
+ WHERE mi.inventory_item_id = ii.id
+   AND ii.restaurant_id = 'aaaaaaaa-0000-0000-0000-000000000001'
+   AND lower(ii.name) = 'test zrno';
+SELECT import_recipe_from_library('test_kafa', 'aaaaaaaa-0000-0000-0000-000000000001');
+SELECT is(
+  (SELECT mi.quantity FROM menu_item_ingredients mi
+     JOIN inventory_items ii ON ii.id = mi.inventory_item_id
+    WHERE ii.restaurant_id = 'aaaaaaaa-0000-0000-0000-000000000001'
+      AND lower(ii.name) = 'test zrno'),
+  999::numeric,
+  'Re-import NE resetuje izmijenjenu količinu recepta'
 );
 
 -- ── Idempotentnost: ponovni import ne duplira stavku ───────────────────────
