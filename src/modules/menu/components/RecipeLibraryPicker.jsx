@@ -132,7 +132,7 @@ export default function RecipeLibraryPicker({ onClose, onImported, categories = 
         </div>
 
         <div className={styles.disclaimer}>
-          ⚠️ Kalorije su procjena, a alergeni polazna osnova — obavezno provjerite i dopunite po svojoj recepturi (uredite stavku nakon preuzimanja).
+          ⓘ Kalorije se računaju zbirno iz sastojaka recepta (procjena; flaširana/gotova pića po standardnoj porciji), a alergeni se izvode iz sastojaka kao polazna osnova. Vrijednosti zavise od tvoje recepture i porcije — provjeri i prilagodi nakon preuzimanja (uredi stavku).
         </div>
 
         <div className={styles.targetRow}>
