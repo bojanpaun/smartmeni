@@ -63,9 +63,12 @@ export default function Login() {
 
             <form onSubmit={handleSubmit} className={styles.form}>
               <div className={styles.field}>
-                <label>Email adresa</label>
+                <label htmlFor="login-email">Email adresa</label>
                 <input
+                  id="login-email"
+                  name="email"
                   type="email"
+                  autoComplete="email"
                   placeholder="vas@email.com"
                   value={email}
                   onChange={e => setEmail(e.target.value)}
@@ -73,9 +76,12 @@ export default function Login() {
                 />
               </div>
               <div className={styles.field}>
-                <label>Lozinka</label>
+                <label htmlFor="login-password">Lozinka</label>
                 <input
+                  id="login-password"
+                  name="password"
                   type="password"
+                  autoComplete="current-password"
                   placeholder="Vaša lozinka"
                   value={password}
                   onChange={e => setPassword(e.target.value)}
@@ -118,9 +124,12 @@ export default function Login() {
                 <p className={styles.sub}>Unesite email — poslaćemo vam link za novu lozinku.</p>
                 <form onSubmit={handleForgot} className={styles.form}>
                   <div className={styles.field}>
-                    <label>Email adresa</label>
+                    <label htmlFor="forgot-email">Email adresa</label>
                     <input
+                      id="forgot-email"
+                      name="email"
                       type="email"
+                      autoComplete="email"
                       placeholder="vas@email.com"
                       value={email}
                       onChange={e => setEmail(e.target.value)}
