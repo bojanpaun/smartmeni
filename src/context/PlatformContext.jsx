@@ -1,4 +1,4 @@
-import { createContext, useContext, useEffect, useState } from 'react'
+import { createContext, useContext, useEffect, useRef, useState } from 'react'
 import { supabase } from '../lib/supabase'
 import { hasAddon } from '../lib/planUtils'
 
@@ -34,24 +34,32 @@ export function PlatformProvider({ children }) {
   const [betaGlobal, setBetaGlobal] = useState(false)
   const [addonCatalog, setAddonCatalog] = useState([])
   const [plans, setPlans] = useState([])
+  // Spriječi višestruko pokretanje loadProfile-a: getSession + INITIAL_SESSION se
+  // oboje okidaju na startu, a SIGNED_IN se re-fira na fokus taba. Učitaj profil
+  // tačno jednom po korisniku (8 upita po pozivu — inače se gomilaju).
+  const loadedUserIdRef = useRef(null)
 
   useEffect(() => {
+    // Učitaj profil samo ako se korisnik promijenio u odnosu na zadnji put.
+    const maybeLoad = (session) => {
+      const uid = session?.user?.id
+      if (!uid) return
+      if (loadedUserIdRef.current === uid) return // već učitano za ovog korisnika
+      loadedUserIdRef.current = uid
+      setUser(session.user)
+      loadProfile(session.user)
+    }
+
     supabase.auth.getSession().then(({ data }) => {
-      if (data.session) {
-        setUser(data.session.user)
-        loadProfile(data.session.user)
-      } else {
-        setLoading(false)
-      }
+      if (data.session) maybeLoad(data.session)
+      else setLoading(false)
     })
 
     const { data: listener } = supabase.auth.onAuthStateChange((event, session) => {
       if (event === 'SIGNED_IN' || event === 'INITIAL_SESSION') {
-        if (session) {
-          setUser(session.user)
-          loadProfile(session.user)
-        }
+        if (session) maybeLoad(session)
       } else if (event === 'SIGNED_OUT') {
+        loadedUserIdRef.current = null
         setUser(null)
         setRestaurant(null)
         setTenant(null)
@@ -63,7 +71,7 @@ export function PlatformProvider({ children }) {
         setPlans([])
         setLoading(false)
       }
-      // TOKEN_REFRESHED i ostale akcije ne pokrecu loadProfile ponovo
+      // TOKEN_REFRESHED i ponovni SIGNED_IN za istog korisnika (fokus taba) se ignorišu.
     })
 
     return () => listener.subscription.unsubscribe()
