@@ -13,7 +13,7 @@
 -- ============================================================================
 
 BEGIN;
-SELECT plan(10);
+SELECT plan(11);
 
 -- ─── Setup: superadmin + običan vlasnik ──────────────────────────────────────
 SELECT tests.create_supabase_user('sa_billing');
