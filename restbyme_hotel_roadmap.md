@@ -25,10 +25,11 @@
 | „Dodaj biznis" | Hub sekcija — naknadno aktiviranje vertikale (restoran odmah, hotel → billing) | — |
 | 5 (sigurni dio) | `stripAccountFields` na settings update-ovima; drop vestigijalnog `tenants.active_verticals` | `…0011` |
 
-### Svjesno odgođeno (tehnički dug, bez funkcionalne koristi)
-- Tvrdi DROP `restaurants` account kolona + prepis payment edge funkcija na `tenants` → nepovratno, dira plaćanja; mirror trigger već sve drži konzistentnim. Radi se na staging-u kad/ako zatreba.
-- Unifikacija hotel nav/gating na `active_verticals` (sad hotel preko `hasAddon('hotel_core')`).
-- Staff vertikale rade preko javnog `restaurants.active_verticals`.
+### Dorada (2026-06-07)
+- ✅ Hotel vidljivost u hubu po `active_verticals` (`hasVertical('hotel')`); stranice ostaju iza `hotel_core` paywalla. Staff vertikale preko javnog `restaurants.active_verticals`.
+
+### Svjesno NE radimo (kozmetika s rizikom, bez funkcionalne koristi)
+- Tvrdi DROP `restaurants` account kolona + prepis payment edge funkcija na `tenants`. Razlozi protiv: dira žive naplate; **edge se deployuje ručno, bez CI testa**; postoje **dva `plan` polja** (`restaurants.plan` i `subscriptions.plan`); nepovratno. Mirror trigger (`…0008`) već drži `tenants` konzistentnim, pa je korist nula. Odluka: ne dirati osim ako zatreba (tada na staging-u uz verifikaciju prave naplate).
 
 
 > **Kontekst:** Evolucija rest.by.me (bivši SmartMeni) SaaS platforme prema punom hospitality management sistemu
