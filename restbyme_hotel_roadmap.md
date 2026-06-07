@@ -3180,6 +3180,41 @@ RLS politike se proširuju da provjeravaju `portfolio_access.scope` — regional
 
 ---
 
+## ✅ Faza BILL — Superadmin pricing & beta kontrola (ZAVRŠENA 2026-06-07)
+
+Superadmin upravlja cijenama i tim šta se naplaćuje + globalni „beta" mod koji svima
+daje module besplatno (po izabranim vertikalama). Cilj: kontrola tokom testiranja.
+
+**DB sloj (migracija `20260607120000`):**
+- `platform_settings` — singleton red; `beta_free_mode` (globalni master), `beta_note`.
+  RLS: čitaju svi autentifikovani, **piše samo `public.is_superadmin()`**. Bez
+  `restaurant_id` (platform-level config; meta-guardi 004/011 ga preskaču, 000 traži RLS).
+- `addon_catalog.beta_free` — per-addon „besplatno tokom bete" prekidač.
+- `plans` — `PLAN_PRICING` + `PLAN_INCLUDES` premješteni iz `planUtils.js` u DB
+  (cijene editabilne; `includes` seedovan za budućnost).
+- `public.is_beta_free(addon_id)` — `global OR per-addon`; **jedinstvena tačka istine**
+  koju koriste frontend (Context), StaffPortal i budući DB RPC gate-ovi.
+
+**Gating (Faza 2):** `PlatformContext.checkAddon = isBetaFree(addon) || hasAddon(...)`.
+Vertikale (`hasVertical`) i dalje ograničavaju ŠTA tenant vidi — beta uklanja samo paywall.
+
+**UI (Faza 3):** `/superadmin/billing` (`BillingControl.jsx`) — globalni beta prekidač
+(+ upozorenje kad je aktivan), cijene planova i addona, `is_active` (naplaćuje se),
+per-addon beta-free. Per-red Sačuvaj, RLS-aware.
+
+**Cijene iz DB (Faza 4):** `BillingPage` čita `plans` (fallback `PLAN_PRICING`),
+`AddonGuard`/`UpgradePrompt` čitaju cijenu iz `addon_catalog` (fallback prop). StaffPortal
+`hotelEnabled` sada poštuje beta (`is_beta_free` RPC). Gating `includes` ostao na konstanti
+(Faza 3 UI ga ne mijenja; kritičan gating bez UI-ja = rizik bez koristi).
+
+**Testovi:** pgTAP `018_platform_settings_pricing` (superadmin-only write, `is_beta_free`
+global+per-addon, `plans` seed). `planUtils.test.js` (19) netaknut.
+
+**NAPOMENA (naplata):** beta `ON` = naplata isključena za SVE tenante globalno — isključiti
+prije produkcijskog naplaćivanja.
+
+---
+
 ## Dnevnik napretka
 
 | Faza | Zadatak | Status | Datum |
@@ -3640,4 +3675,4 @@ RLS politike se proširuju da provjeravaju `portfolio_access.scope` — regional
 
 ---
 
-*Roadmap ažuriran: 2026-06-04 (v5.1 — Staff portal sub-pills wrap layout (sve pills vidljive bez horizontalnog scrolla, wrappaju se u više redova); v5.0 — Faza PAY kompletna PAY-1..12; v4.9 — Faza Z.1 kompletna) | Branch: main | Deployment: Vercel auto-deploy*
+*Roadmap ažuriran: 2026-06-07 (v5.9 — Faza BILL: superadmin pricing & beta kontrola — platform_settings + plans + addon_catalog.beta_free + is_beta_free(), /superadmin/billing UI, cijene iz DB; v5.8 — 2b tenant model; v5.1 — Staff portal sub-pills wrap layout; v5.0 — Faza PAY kompletna PAY-1..12; v4.9 — Faza Z.1 kompletna) | Branch: main | Deployment: Vercel auto-deploy*
