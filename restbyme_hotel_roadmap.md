@@ -3655,6 +3655,12 @@ prije produkcijskog naplaćivanja.
 │              ✅ Minibar (Faza P dio, 2026-06-08) — minibar_items katalog +
 │                            zaduženje na folio (type 'minibar')
 │
+│              ✅ Biblioteke za uvoz (2026-06-08) — biblioteka tretmana
+│                            (spa_treatment_library + import_spa_treatment + superadmin
+│                            editor + picker na ServicesPage + slike Pexels) i biblioteka
+│                            minibara (minibar_library + import_minibar_items multi-select
+│                            + superadmin editor + picker). Obrazac recipe_library.
+│
 │              ← OVDJE SMO (2026-06-08)
 │
 ├── Jun–Jul    ⬜ Faza N  — Nocni audit + Split folio + Doručak kontrola

@@ -496,6 +496,7 @@ const HELP_CONTENT = {
         title: 'Minibar',
         steps: [
           'Idi na Hotel → Minibar da definišeš cjenovnik (naziv + cijena): voda, sok, pivo...',
+          'Brzi start: 📚 Iz biblioteke → označi i uvezi gotove artikle odjednom',
           'Zaduženje po gostu: otvori folio gosta → 🥤 Minibar → izaberi artikal i količinu',
           'Stavka se dodaje na folio kao "Minibar: <naziv>" i ulazi u saldo',
           'Minibar se ne prati po zalihama (puni se ručno u sobama) — samo se zadužuje folio',
@@ -562,6 +563,7 @@ const HELP_CONTENT = {
         icon: '💆',
         title: 'Tretmani (katalog)',
         steps: [
+          'Brzi start: 📚 Iz biblioteke → uvezi gotove tretmane (cijenu i detalje poslije doradi)',
           'Idi na Tretmani da definišeš katalog usluga (masaže, facial, wellness...)',
           'Za svaki tretman unesi: naziv, kategoriju, trajanje, buffer između termina i cijenu',
           'Označi koji tipovi kabina mogu primiti ovaj tretman (treatment room, wet facility...)',
