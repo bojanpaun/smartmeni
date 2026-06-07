@@ -123,6 +123,11 @@ export function PlatformProvider({ children }) {
 
   const checkAddon = (addonId) => hasAddon(subscription, addonId)
 
+  // 2b/Faza 3: koje vertikale tenant koristi. Fallback ['restaurant'] (zatečeno
+  // ponašanje + staff koji ne čita tenants po RLS-u) → restoran uvijek vidljiv
+  // dok se eksplicitno ne isključi.
+  const hasVertical = (v) => (tenant?.active_verticals ?? ['restaurant']).includes(v)
+
   return (
     <PlatformContext.Provider value={{
       user, restaurant, setRestaurant,
@@ -132,6 +137,7 @@ export function PlatformProvider({ children }) {
       loading, hasPermission,
       isSuperAdmin, isOwner, isStaff,
       hasAddon: checkAddon,
+      hasVertical,
       logout, loadProfile
     }}>
       {children}

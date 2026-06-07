@@ -94,7 +94,7 @@ function useDashboardData(restaurant, hasHotel, hasSpa) {
 }
 
 export default function ControlPanel() {
-  const { restaurant, hasPermission, isOwner, isSuperAdmin, hasAddon } = usePlatform()
+  const { restaurant, hasPermission, isOwner, isSuperAdmin, hasAddon, hasVertical } = usePlatform()
   const navigate = useNavigate()
   const [showOnboarding, setShowOnboarding] = useState(
     restaurant && !restaurant.onboarding_completed
@@ -245,16 +245,18 @@ export default function ControlPanel() {
       </div>
 
       {/* ── Restoran vertical ── */}
-      <div className={styles.section}>
-        <div className={styles.verticalHead}>
-          <span className={styles.verticalEmoji}>🍽️</span>
-          <div>
-            <div className={styles.verticalTitle}>Restoran</div>
-            <div className={styles.verticalSub}>Digitalni meni i stolovi</div>
+      {hasVertical('restaurant') && (
+        <div className={styles.section}>
+          <div className={styles.verticalHead}>
+            <span className={styles.verticalEmoji}>🍽️</span>
+            <div>
+              <div className={styles.verticalTitle}>Restoran</div>
+              <div className={styles.verticalSub}>Digitalni meni i stolovi</div>
+            </div>
           </div>
+          <div className={styles.grid}>{restaurantMods.map(renderCard)}</div>
         </div>
-        <div className={styles.grid}>{restaurantMods.map(renderCard)}</div>
-      </div>
+      )}
 
       {/* ── Hotel vertical ── */}
       {hasHotel && (
