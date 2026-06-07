@@ -27,6 +27,11 @@ export function PlatformProvider({ children }) {
   const [staffProfile, setStaffProfile] = useState(null)
   const [permissions, setPermissions] = useState([])
   const [loading, setLoading] = useState(true)
+  // Billing/beta: globalni "beta-free" prekidač + per-addon prekidači (platform_settings,
+  // addon_catalog.beta_free). Dok je beta aktivna, gating (checkAddon) propušta sve module
+  // besplatno — vertikale i dalje ograničavaju ŠTA tenant vidi (hasVertical).
+  const [betaGlobal, setBetaGlobal] = useState(false)
+  const [betaAddons, setBetaAddons] = useState({})
 
   useEffect(() => {
     supabase.auth.getSession().then(({ data }) => {
@@ -51,6 +56,8 @@ export function PlatformProvider({ children }) {
         setSubscription(null)
         setStaffProfile(null)
         setPermissions([])
+        setBetaGlobal(false)
+        setBetaAddons({})
         setLoading(false)
       }
       // TOKEN_REFRESHED i ostale akcije ne pokrecu loadProfile ponovo
@@ -62,13 +69,19 @@ export function PlatformProvider({ children }) {
   const loadProfile = async (user) => {
     // Sve query-je paralelno — uklj. subscription vlasnika (embedded join na
     // restaurants.user_id), pa nema dodatnog round-tripa nakon prve grupe.
-    const [{ data: profile }, { data: ownerRest }, { data: staff }, { data: ownerSub }, { data: ownerTenant }] = await Promise.all([
+    const [{ data: profile }, { data: ownerRest }, { data: staff }, { data: ownerSub }, { data: ownerTenant }, { data: settings }, { data: addonRows }] = await Promise.all([
       supabase.from('user_profiles').select('*').eq('id', user.id).maybeSingle(),
       supabase.from('restaurants').select('*').eq('user_id', user.id).maybeSingle(),
       supabase.from('staff').select('*, role:roles(*)').eq('user_id', user.id).eq('is_active', true).maybeSingle(),
       supabase.from('subscriptions').select('*, restaurants!inner(user_id)').eq('restaurants.user_id', user.id).maybeSingle(),
       supabase.from('tenants').select('*').eq('user_id', user.id).maybeSingle(),
+      supabase.from('platform_settings').select('beta_free_mode').limit(1).maybeSingle(),
+      supabase.from('addon_catalog').select('id, beta_free'),
     ])
+
+    // Beta config je globalan (isti za sve tenante) — postavi prije bilo koje grane.
+    setBetaGlobal(!!settings?.beta_free_mode)
+    setBetaAddons(Object.fromEntries((addonRows ?? []).map((a) => [a.id, !!a.beta_free])))
 
     if (profile?.is_superadmin) {
       setStaffProfile({ ...profile, role: 'superadmin' })
@@ -121,7 +134,11 @@ export function PlatformProvider({ children }) {
     window.location.href = '/login'
   }
 
-  const checkAddon = (addonId) => hasAddon(subscription, addonId)
+  // Gating addona: beta mod (globalni ili per-addon) propušta sve besplatno;
+  // inače standardna provjera plana/individualnih addona. (Server-side ogledalo:
+  // public.is_beta_free() — koriste ga DB RPC-ovi za isti rezultat.)
+  const isBetaFree = (addonId) => betaGlobal || !!betaAddons[addonId]
+  const checkAddon = (addonId) => isBetaFree(addonId) || hasAddon(subscription, addonId)
 
   // 2b/Faza 4c: koje vertikale tenant koristi — izvor je restaurants.active_verticals
   // (javno čitljiv → radi i za staff i za guest sajt). Fallback ['restaurant'].
@@ -136,6 +153,7 @@ export function PlatformProvider({ children }) {
       loading, hasPermission,
       isSuperAdmin, isOwner, isStaff,
       hasAddon: checkAddon,
+      betaMode: betaGlobal,
       hasVertical,
       logout, loadProfile
     }}>
