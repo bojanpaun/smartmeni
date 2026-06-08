@@ -4,6 +4,7 @@ import { PlatformProvider, usePlatform } from './context/PlatformContext'
 import { CartProvider } from './context/CartContext'
 import LoadingSpinner from './components/shared/LoadingSpinner'
 import UpgradePrompt from './components/shared/UpgradePrompt'
+import PendingApproval from './platform/auth/PendingApproval'
 
 const AdminLayout = lazy(() => import('./layouts/AdminLayout'))
 
@@ -108,16 +109,28 @@ function ProtectedRoute({ children }) {
   return children
 }
 
+// Gejt: vlasnik čiji tenant nije odobren (pending/rejected) ne ulazi u admin panel —
+// vidi PendingApproval ekran. Superadmin i staff prolaze (isOwner() je tada false).
+function ApprovalGate({ children }) {
+  const { restaurant, isOwner } = usePlatform()
+  if (isOwner() && restaurant?.approval_status && restaurant.approval_status !== 'approved') {
+    return <PendingApproval status={restaurant.approval_status} />
+  }
+  return children
+}
+
 function AdminRoute({ children }) {
   return (
     <ProtectedRoute>
-      <Suspense fallback={<LoadingSpinner fullPage />}>
-        <AdminLayout>
-          <Suspense fallback={<LoadingSpinner fullPage />}>
-            {children}
-          </Suspense>
-        </AdminLayout>
-      </Suspense>
+      <ApprovalGate>
+        <Suspense fallback={<LoadingSpinner fullPage />}>
+          <AdminLayout>
+            <Suspense fallback={<LoadingSpinner fullPage />}>
+              {children}
+            </Suspense>
+          </AdminLayout>
+        </Suspense>
+      </ApprovalGate>
     </ProtectedRoute>
   )
 }

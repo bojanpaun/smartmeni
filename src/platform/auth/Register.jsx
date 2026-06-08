@@ -4,9 +4,10 @@ import { supabase } from '../../lib/supabase'
 import { usePlatform } from '../../context/PlatformContext'
 import styles from './Auth.module.css'
 
-// STOPGAP (2026-06-09): javna registracija privremeno zatvorena dok se ne uključi
-// approval flow (pending → odobrenje superadmina). Vrati na true kad flow bude gotov.
-const REGISTRATION_OPEN = false
+// Javna registracija je otvorena, ali novi tenant ide na ODOBRENJE superadmina
+// (approval_status='pending'; DB trigger to i forsira). Vlasnik vidi „čeka odobrenje"
+// ekran dok ga superadmin ne odobri na /superadmin.
+const REGISTRATION_OPEN = true
 
 export default function Register() {
   const navigate = useNavigate()
@@ -121,6 +122,7 @@ export default function Register() {
           phone: form.phone,
           hours: form.hours,
           active_verticals: activeVerticals,
+          approval_status: 'pending',   // čeka odobrenje superadmina (trigger to i forsira)
         })
 
       if (restError) throw restError

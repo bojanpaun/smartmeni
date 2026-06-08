@@ -62,7 +62,7 @@ export default function SuperAdminPanel() {
     setLoading(true)
     const { data, error } = await supabase
       .from('restaurants')
-      .select('id, name, slug, plan, trial_ends_at, plan_expires_at, suspended_at, is_complimentary, complimentary_note, admin_theme, created_at')
+      .select('id, name, slug, plan, trial_ends_at, plan_expires_at, suspended_at, is_complimentary, complimentary_note, admin_theme, approval_status, created_at')
       .order('created_at', { ascending: false })
 
     if (!error) setRestaurants(data || [])
@@ -177,6 +177,13 @@ export default function SuperAdminPanel() {
     setRestaurants(rs => rs.map(r => r.id === rest.id ? { ...r, ...payload } : r))
   }
 
+  const setApproval = async (rest, status) => {
+    const label = status === 'approved' ? 'Odobriti' : 'Odbiti'
+    if (!confirm(`${label} nalog "${rest.name}"? ${status === 'approved' ? 'Vlasnik dobija pristup, stranica postaje aktivna.' : 'Vlasnik neće moći pristupiti.'}`)) return
+    await supabase.from('restaurants').update({ approval_status: status }).eq('id', rest.id)
+    setRestaurants(rs => rs.map(r => r.id === rest.id ? { ...r, approval_status: status } : r))
+  }
+
   const PAID_PLANS = ['restaurant', 'hotel', 'hotel_pro', 'enterprise', 'pro']
 
   const withStatus = restaurants.map(r => ({ ...r, _status: planStatus(r) }))
@@ -190,6 +197,7 @@ export default function SuperAdminPanel() {
     if (filterPlan === 'paid') return PAID_PLANS.includes(r.plan) && !r.is_complimentary
     if (filterPlan === 'starter') return !PAID_PLANS.includes(r.plan) && !r.is_complimentary
     if (filterPlan === 'suspended') return !!r.suspended_at
+    if (filterPlan === 'pending') return r.approval_status === 'pending'
     return true
   })
   const stats = {
@@ -197,6 +205,7 @@ export default function SuperAdminPanel() {
     pro: restaurants.filter(r => PAID_PLANS.includes(r.plan) && !r.is_complimentary).length,
     complimentary: restaurants.filter(r => r.is_complimentary).length,
     suspended: restaurants.filter(r => !!r.suspended_at).length,
+    pending: restaurants.filter(r => r.approval_status === 'pending').length,
   }
 
   const catalogByCategory = addonCatalog.reduce((acc, addon) => {
@@ -251,6 +260,14 @@ export default function SuperAdminPanel() {
           <div className={styles.statVal}>{stats.suspended}</div>
           <div className={styles.statLabel}>Suspendirani</div>
         </div>
+        <div
+          className={`${styles.stat} ${styles.statSuspended}`}
+          style={stats.pending > 0 ? { cursor: 'pointer', borderColor: '#e67e22' } : undefined}
+          onClick={() => stats.pending > 0 && setFilterPlan('pending')}
+        >
+          <div className={styles.statVal} style={stats.pending > 0 ? { color: '#e67e22' } : undefined}>{stats.pending}</div>
+          <div className={styles.statLabel}>⏳ Na čekanju</div>
+        </div>
       </div>
 
       <div className={styles.toolbar}>
@@ -267,6 +284,7 @@ export default function SuperAdminPanel() {
             { key: 'complimentary', label: '🎁 Complimentary' },
             { key: 'starter',       label: 'Starter' },
             { key: 'suspended',     label: '⚠️ Suspendirani' },
+            { key: 'pending',       label: '⏳ Na čekanju' },
           ].map(f => (
             <button
               key={f.key}
@@ -299,7 +317,15 @@ export default function SuperAdminPanel() {
             {sort.sort(filtered).map(rest => (
                 <tr key={rest.id} className={editingId === rest.id ? styles.rowEditing : ''}>
                   <td>
-                    <div className={styles.restName}>{rest.name}</div>
+                    <div className={styles.restName}>
+                      {rest.name}
+                      {rest.approval_status === 'pending' && (
+                        <span style={{ marginLeft: 8, fontSize: 11, fontWeight: 600, color: '#e67e22', background: '#fff7ed', border: '1px solid #fed7aa', borderRadius: 12, padding: '1px 8px' }}>⏳ čeka odobrenje</span>
+                      )}
+                      {rest.approval_status === 'rejected' && (
+                        <span style={{ marginLeft: 8, fontSize: 11, fontWeight: 600, color: '#c0392b', background: '#fef2f2', border: '1px solid #fca5a5', borderRadius: 12, padding: '1px 8px' }}>✕ odbijen</span>
+                      )}
+                    </div>
                     <div className={styles.restSlug}>restby.me/{rest.slug}</div>
                     <ThemeDot theme={rest.admin_theme} />
                     <div className={styles.mobileInfo}>
@@ -316,6 +342,32 @@ export default function SuperAdminPanel() {
                   </td>
                   <td>
                     <div className={styles.actionBtns}>
+                      {rest.approval_status === 'pending' && (
+                        <>
+                          <button
+                            className={styles.btnEdit}
+                            style={{ background: '#16a34a', color: '#fff', borderColor: '#16a34a' }}
+                            onClick={() => setApproval(rest, 'approved')}
+                          >
+                            ✓ Odobri
+                          </button>
+                          <button
+                            className={styles.btnSuspend}
+                            onClick={() => setApproval(rest, 'rejected')}
+                          >
+                            ✕ Odbij
+                          </button>
+                        </>
+                      )}
+                      {rest.approval_status === 'rejected' && (
+                        <button
+                          className={styles.btnEdit}
+                          style={{ background: '#16a34a', color: '#fff', borderColor: '#16a34a' }}
+                          onClick={() => setApproval(rest, 'approved')}
+                        >
+                          ✓ Odobri ipak
+                        </button>
+                      )}
                       <button
                         className={styles.btnEdit}
                         onClick={() => editingId === rest.id ? closeEdit() : openEdit(rest)}
