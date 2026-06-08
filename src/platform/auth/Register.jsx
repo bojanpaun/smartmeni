@@ -220,7 +220,7 @@ export default function Register() {
               <div className={styles.field}>
                 <label>Vaš URL na RestByMeju</label>
                 <div className={styles.slugWrap}>
-                  <span className={styles.slugPrefix}>rest.by.me/</span>
+                  <span className={styles.slugPrefix}>restby.me/</span>
                   <input
                     type="text"
                     value={form.slug}

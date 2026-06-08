@@ -1,7 +1,7 @@
 {
-  "name": "SmartMeni",
-  "short_name": "SmartMeni",
-  "description": "Digitalni meni za restorane",
+  "name": "rest.by.me",
+  "short_name": "rest.by.me",
+  "description": "Platforma za restorane i hotele",
   "start_url": "/",
   "display": "standalone",
   "background_color": "#ffffff",

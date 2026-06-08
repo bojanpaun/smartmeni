@@ -76,7 +76,7 @@ export default function BillingSuccess() {
           <div className={styles.title}>Nešto nije u redu</div>
           <div className={styles.desc}>
             Ako si završio plaćanje, tvoj plan će biti ažuriran uskoro.
-            Kontaktiraj nas na support@rest.by.me ako problem potraje.
+            Kontaktiraj nas na support@restby.me ako problem potraje.
           </div>
           <button className={styles.btn} onClick={() => navigate('/admin/billing')}>
             Nazad na naplatu

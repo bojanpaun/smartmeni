@@ -524,7 +524,7 @@ export default function Landing() {
             rest.by<span>.me</span>
           </div>
           <div className={styles.footerLinks}>
-            <a href="mailto:info@rest.by.me">info@rest.by.me</a>
+            <a href="mailto:info@restby.me">info@restby.me</a>
             <a href="/login">Prijava</a>
             <a href="#">Privatnost</a>
             <a href="#">Uslovi korišćenja</a>

@@ -22,7 +22,7 @@ async function sendEmail(to: string, subject: string, html: string) {
       'Content-Type': 'application/json',
     },
     body: JSON.stringify({
-      from: 'RestByMe <noreply@rest.by.me>',
+      from: 'RestByMe <noreply@restby.me>',
       to,
       subject,
       html,
@@ -61,7 +61,7 @@ function reminderEmail(restaurantName: string, daysLeft: number): string {
         Pređi na Pro — €19/god →
       </a>
       <p style="font-size:12px;color:#8a9e96;margin-top:32px;line-height:1.5;">
-        Pitanja? <a href="mailto:support@rest.by.me" style="color:#0d7a52;">support@rest.by.me</a>
+        Pitanja? <a href="mailto:support@restby.me" style="color:#0d7a52;">support@restby.me</a>
       </p>
     </div>
   `
@@ -86,7 +86,7 @@ function expiredEmail(restaurantName: string): string {
         Aktiviraj Pro →
       </a>
       <p style="font-size:12px;color:#8a9e96;margin-top:32px;line-height:1.5;">
-        Pitanja? <a href="mailto:support@rest.by.me" style="color:#0d7a52;">support@rest.by.me</a>
+        Pitanja? <a href="mailto:support@restby.me" style="color:#0d7a52;">support@restby.me</a>
       </p>
     </div>
   `

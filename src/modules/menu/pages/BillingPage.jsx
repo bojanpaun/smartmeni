@@ -293,7 +293,7 @@ export default function BillingPage() {
                   </div>
                 ) : plan.id === 'starter' ? (
                   isDowngrade ? (
-                    <button className={styles.downgradeBtn} onClick={() => alert('Za downgrade kontaktirajte podršku na support@rest.by.me')}>
+                    <button className={styles.downgradeBtn} onClick={() => alert('Za downgrade kontaktirajte podršku na support@restby.me')}>
                       Smanji plan
                     </button>
                   ) : null
@@ -310,7 +310,7 @@ export default function BillingPage() {
                   <div className={styles.comingSoonWrap}>
                     <div className={styles.comingSoonBadge}>Stripe — uskoro</div>
                     <a
-                      href={`mailto:support@rest.by.me?subject=Interes za ${plan.name} plan`}
+                      href={`mailto:support@restby.me?subject=Interes za ${plan.name} plan`}
                       className={styles.contactBtn}
                     >
                       ✉️ Kontaktirajte nas
@@ -335,7 +335,7 @@ export default function BillingPage() {
           </div>
         </div>
         <a
-          href="mailto:support@rest.by.me?subject=Enterprise upit"
+          href="mailto:support@restby.me?subject=Enterprise upit"
           className={styles.enterpriseBtn}
         >
           Kontaktirajte nas →

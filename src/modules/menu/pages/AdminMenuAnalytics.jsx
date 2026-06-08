@@ -48,7 +48,7 @@ export default function AdminMenuAnalytics() {
         <div className={styles.metric}>
           <div className={styles.metricLabel}>Vaš URL</div>
           <div className={styles.metricVal} style={{ fontSize: 14 }}>
-            rest.by.me/{restaurant?.slug}
+            restby.me/{restaurant?.slug}
           </div>
         </div>
       </div>

@@ -68,7 +68,7 @@ const HELP_CONTENT = {
           'Editor je podjeljen: lijevo forma, desno live preview koji se ažurira dok tipkaš',
           'Blokovi (Hero, Priča, Galerija, Specijaliteti...) se pale/gase i reorderuju drag & drop-om',
           'Svaki blok ima odabir izgleda (layout varijante) i polja za sadržaj i slike',
-          'Klikni Sačuvaj da objaviš promjene — stranica je dostupna na rest.by.me/vas-slug/home',
+          'Klikni Sačuvaj da objaviš promjene — stranica je dostupna na restby.me/vas-slug/home',
         ],
       },
       {
@@ -120,7 +120,7 @@ const HELP_CONTENT = {
         icon: '📱',
         title: 'Staff portal (/slug/staff)',
         steps: [
-          'Zaposleni pristupaju operativnom prikazu na rest.by.me/vas-slug/staff',
+          'Zaposleni pristupaju operativnom prikazu na restby.me/vas-slug/staff',
           'Konobar vidi narudžbe sa station statusima (🧑‍🍳 Kuhinja priprema/gotova, 🍷 Bar priprema/gotov) i može naplatiti narudžbu na hotelsku sobu (kad je Hotel modul aktivan)',
           'Sobarica vidi housekeeping zadatke i zahtjeve održavanja u realnom vremenu — promjene statusa (Počni → Završi → Verifikuj) odmah se reflektuju i na admin dashboardu',
           'Recepcija može raditi check-in/check-out sa mobilnog uređaja — Front Desk stranica je mobilno prilagođena',
@@ -191,7 +191,7 @@ const HELP_CONTENT = {
         title: 'Online rezervacije',
         steps: [
           'Uključi toggle Online rezervacije u postavkama',
-          'Gosti šalju zahtjeve na rest.by.me/vas-slug/rezervacija',
+          'Gosti šalju zahtjeve na restby.me/vas-slug/rezervacija',
           'Svaki zahtjev ima status Na čekanju dok ga ne odobriš',
           'Potvrđene rezervacije se prikazuju na mapi konobara',
         ],
@@ -328,7 +328,7 @@ const HELP_CONTENT = {
     tips: [
       'Zaposlenik mora imati nalog sa istim emailom da bi se mogao prijaviti i vidio vlastiti raspored',
       'Role se definišu u Administrativnim postavkama → Role i permisije',
-      'Staff portal (rest.by.me/slug/staff) je operativni prikaz za zaposlene — bez admin pristupa',
+      'Staff portal (restby.me/slug/staff) je operativni prikaz za zaposlene — bez admin pristupa',
       'Koristite dnevni prikaz rasporeda za brzu provjeru pokrivenosti smjenama',
     ],
   },
@@ -353,7 +353,7 @@ const HELP_CONTENT = {
         title: 'Hotel gosti',
         steps: [
           'Gosti koji su imali hotelsku rezervaciju automatski su u evidenciji',
-          'Hotel gosti mogu pristupiti Guest App-u (rest.by.me/slug/guest) sa rezervacijskim kodom',
+          'Hotel gosti mogu pristupiti Guest App-u (restby.me/slug/guest) sa rezervacijskim kodom',
           'Guest App prikazuje: detalje boravka, folio troškove, zahtjeve sobi i spa booking',
         ],
       },
@@ -453,7 +453,7 @@ const HELP_CONTENT = {
         icon: '🔗',
         title: 'Online booking',
         steps: [
-          'Gosti mogu rezervisati direktno na rest.by.me/slug/book',
+          'Gosti mogu rezervisati direktno na restby.me/slug/book',
           'Stranica prikazuje dostupne tipove soba, cijene i formu za booking',
           'Email potvrda se šalje automatski pri rezervaciji',
           'Link na booking dostupan je i na javnoj hotelskoj stranici (/hotel) i Guest App-u',
@@ -516,7 +516,7 @@ const HELP_CONTENT = {
         icon: '🔑',
         title: 'Guest App za hotelske goste',
         steps: [
-          'Gosti pristupaju Guest App-u na rest.by.me/slug/guest',
+          'Gosti pristupaju Guest App-u na restby.me/slug/guest',
           'Login: email + 8-karakterni rezervacijski kod iz email potvrde',
           'Guest App prikazuje: detalje boravka, folio troškove, zahtjevi sobi (housekeeping, room service...) i spa booking',
           'Zahtjevi sobi se pojavljuju u realnom vremenu na Front Desk tabu Zahtjevi',
@@ -549,7 +549,7 @@ const HELP_CONTENT = {
       'Minibar i spa retail se zadužuju direktno iz folija gosta (🥤 / 🛍️ dugmad)',
       'Housekeeping zadaci se kreiraju automatski — sobarice ih vide samo u Staff portalu',
       'Guest App link šalje se automatski u email potvrdi rezervacije',
-      'Hotelska javna web stranica (rest.by.me/slug/hotel) uređuje se u Hotel → Sajt hotela',
+      'Hotelska javna web stranica (restby.me/slug/hotel) uređuje se u Hotel → Sajt hotela',
       'Rezervacije, Housekeeping i Upravljanje prihodima stranice su mobilno prilagođene — kartice umjesto tabela na mobilnim uređajima',
     ],
   },
@@ -603,7 +603,7 @@ const HELP_CONTENT = {
         icon: '🌐',
         title: 'Javni booking',
         steps: [
-          'Gosti rezerviraju tretmane na rest.by.me/slug/spa',
+          'Gosti rezerviraju tretmane na restby.me/slug/spa',
           'Tok: odabir tretmana → terapeut (opciono) → datum i slobodan termin → plaćanje (folio za hotelske goste, kartica za vanjske)',
           'Hotelski gosti mogu bookirati i direktno iz Guest App-a (tab Spa)',
           'Email potvrda i podsjetnik šalju se automatski',

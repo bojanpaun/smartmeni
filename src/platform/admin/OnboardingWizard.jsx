@@ -360,7 +360,7 @@ export default function OnboardingWizard({ onComplete, onSkip }) {
                 </div>
                 {restaurant && (
                   <div className={styles.qrUrl}>
-                    rest.by.me/<strong>{restaurant.slug}</strong>
+                    restby.me/<strong>{restaurant.slug}</strong>
                   </div>
                 )}
                 <div className={styles.qrNote}>
