@@ -2,7 +2,7 @@ import { serve } from 'https://deno.land/std@0.168.0/http/server.ts'
 import { createClient } from 'https://esm.sh/@supabase/supabase-js@2'
 
 const RESEND_API = 'https://api.resend.com/emails'
-const FROM       = 'RestByMe Spa <onboarding@resend.dev>'
+const FROM       = 'rest.by.me Spa <spa@send.restby.me>'
 
 function fmt(dateStr: string) {
   return new Date(dateStr + 'T12:00:00').toLocaleDateString('sr-Latn', {

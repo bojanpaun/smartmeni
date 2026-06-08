@@ -1,7 +1,7 @@
 import { serve } from 'https://deno.land/std@0.168.0/http/server.ts'
 
 const RESEND_API = 'https://api.resend.com/emails'
-const FROM       = 'RestByMe Spa <onboarding@resend.dev>'
+const FROM       = 'rest.by.me Spa <spa@send.restby.me>'
 
 const corsHeaders = {
   'Access-Control-Allow-Origin': '*',
