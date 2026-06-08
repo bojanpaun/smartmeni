@@ -10,6 +10,7 @@ import ThemeToggle from '../components/ThemeToggle'
 import LanguageSwitcher from '../i18n/LanguageSwitcher'
 import useKitchenCounts from '../hooks/useKitchenCounts'
 import { useAnnouncements } from '../context/AnnouncementsContext'
+import { useSupport } from '../context/SupportContext'
 
 // Zvonce sa brojem nepročitanih platform najava → /admin/announcements
 function AnnouncementBell() {
@@ -25,6 +26,26 @@ function AnnouncementBell() {
       {unread.length > 0 && (
         <span style={{ position: 'absolute', top: -2, right: -2, minWidth: 16, height: 16, padding: '0 4px', borderRadius: 8, background: '#c0392b', color: '#fff', fontSize: 10, fontWeight: 700, display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
           {unread.length > 9 ? '9+' : unread.length}
+        </span>
+      )}
+    </button>
+  )
+}
+
+// Zvonce za support (nepročitani odgovori superadmina) → /admin/support
+function SupportBell() {
+  const { unreadCount } = useSupport()
+  const navigate = useNavigate()
+  return (
+    <button
+      onClick={() => navigate('/admin/support')}
+      title="Podrška"
+      style={{ position: 'relative', background: 'none', border: 'none', cursor: 'pointer', fontSize: 19, lineHeight: 1, padding: 4 }}
+    >
+      💬
+      {unreadCount > 0 && (
+        <span style={{ position: 'absolute', top: -2, right: -2, minWidth: 16, height: 16, padding: '0 4px', borderRadius: 8, background: '#c0392b', color: '#fff', fontSize: 10, fontWeight: 700, display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
+          {unreadCount > 9 ? '9+' : unreadCount}
         </span>
       )}
     </button>
@@ -382,6 +403,7 @@ export default function AdminLayout({ children }) {
                 : restName[0]}
             </div>
             <span className={styles.hubRole}>{restRole}</span>
+            <SupportBell />
             <AnnouncementBell />
             <LanguageSwitcher variant="dark" />
             <ThemeToggle variant="dark" />
@@ -520,6 +542,7 @@ export default function AdminLayout({ children }) {
           </div>
 
           <div className={styles.topbarRight}>
+            <SupportBell />
             <AnnouncementBell />
             <LanguageSwitcher />
             <ThemeToggle />
