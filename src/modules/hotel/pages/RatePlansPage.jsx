@@ -29,6 +29,7 @@ const BLANK_PLAN = {
   applies_from: '',
   applies_until: '',
   is_active: true,
+  breakfast_included: false,
   selected_rooms: [],
 }
 
@@ -105,6 +106,7 @@ export default function RatePlansPage() {
       applies_from: plan.applies_from ?? '',
       applies_until: plan.applies_until ?? '',
       is_active: plan.is_active,
+      breakfast_included: plan.breakfast_included ?? false,
       payment_type: plan.payment_type ?? 'online',
       selected_rooms: plan.rate_plan_rooms?.map(r => r.room_id) ?? [],
     })
@@ -154,6 +156,7 @@ export default function RatePlansPage() {
           cancellation_policy: form.cancellation_policy,
           advance_booking_days: form.advance_booking_days ? parseInt(form.advance_booking_days) : null,
           payment_type: form.payment_type,
+          breakfast_included: form.breakfast_included,
           multiplier: 1.0,
           applies_from: null,
           applies_until: null,
@@ -363,6 +366,13 @@ export default function RatePlansPage() {
                 <label>Min. dana unaprijed (opciono)</label>
                 <input type="number" min="0" value={form.advance_booking_days}
                   onChange={e => f('advance_booking_days', e.target.value)} placeholder="0 = odmah" />
+              </div>
+              <div className={rp.field} style={{ gridColumn: '1 / -1' }}>
+                <label className={rp.toggleRow} style={{ marginTop: 4 }}>
+                  <span className={`${rp.toggle} ${form.breakfast_included ? rp.toggleOn : rp.toggleOff}`}
+                    onClick={() => f('breakfast_included', !form.breakfast_included)} />
+                  <span>🍳 Doručak uključen u cijenu</span>
+                </label>
               </div>
             </>)}
 
