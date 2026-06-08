@@ -201,9 +201,13 @@ export default function SuperAdminPanel() {
 
   const setApproval = async (rest, status) => {
     const label = status === 'approved' ? 'Odobriti' : 'Odbiti'
-    if (!confirm(`${label} nalog "${rest.name}"? ${status === 'approved' ? 'Vlasnik dobija pristup, stranica postaje aktivna.' : 'Vlasnik neće moći pristupiti.'}`)) return
+    if (!confirm(`${label} nalog "${rest.name}"? Vlasnik dobija email obavijest. ${status === 'approved' ? 'Vlasnik dobija pristup, stranica postaje aktivna.' : 'Vlasnik neće moći pristupiti.'}`)) return
     await supabase.from('restaurants').update({ approval_status: status }).eq('id', rest.id)
     setRestaurants(rs => rs.map(r => r.id === rest.id ? { ...r, approval_status: status } : r))
+    // Email obavijest vlasniku (fire-and-forget — ne blokira UI)
+    supabase.functions.invoke('send-approval-email', { body: { restaurant_id: rest.id, status } })
+      .then(({ error }) => { setSaveMsg(error ? 'Status promijenjen (email nije poslat)' : 'Status promijenjen — email poslat vlasniku'); setTimeout(() => setSaveMsg(''), 3000) })
+      .catch(() => {})
   }
 
   const PAID_PLANS = ['restaurant', 'hotel', 'hotel_pro', 'enterprise', 'pro']
