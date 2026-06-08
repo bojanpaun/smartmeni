@@ -159,6 +159,7 @@ export const MODULES = [
         { label: 'Sobe',        icon: '🛏️', path: '/admin/hotel/rooms' },
         { label: 'Domaćinstvo', icon: '🧹', path: '/admin/hotel/housekeeping' },
         { label: 'Minibar',     icon: '🥤', path: '/admin/hotel/minibar' },
+        { label: 'Noćni audit', icon: '🌙', path: '/admin/hotel/night-audit' },
       ],
     },
     admin: {

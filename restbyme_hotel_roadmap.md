@@ -1678,11 +1678,12 @@ Definition of Done:
 
 ---
 
-## ⬜ Faza N — Nocni audit + Split folio + Doručak kontrola
+## 🔄 Faza N — Nocni audit + Split folio + Doručak kontrola
 
 > **Preduslov:** `hotel_core` aktivan.
 > **Trajanje:** 5–7 dana
-> **Addon:** `night_audit` (ili uključiti u `hotel_core`)
+> **Status:** 🔄 Noćni audit ZAVRŠEN (2026-06-08). Split folio + doručak ⬜ slijede.
+> **Addon:** uključeno u `hotel_core` (bez zasebnog `night_audit` addona)
 > **Izvor:** Hotel IS Funkcionalna Specifikacija — Modul 1 (PMS) + Modul 3 (Finansije)
 
 ### Motivacija
@@ -1719,9 +1720,11 @@ Evidencija konzumiranja uključenih doručaka po sobi (sprječava zloupotrebe):
 
 ### Definition of Done
 
-- [ ] Nocni audit — dugme u admin panelu + pg_cron automatski u ponoć
-- [ ] Nocni audit — room charge stavke dodaju se na sve otvorene folije
-- [ ] Nocni audit — dnevni financijski izvještaj (screen prikaz + CSV export)
+- [x] Nocni audit — dugme u admin panelu (`/admin/hotel/night-audit`) + pg_cron `night-audit-daily` (01:00 UTC, zatvara prethodni lokalni dan)
+- [x] Nocni audit — room charge stavka po noći na otvorene folije (idempotentno po `folio_id+date`); check-in više ne seeduje pun iznos
+- [x] Nocni audit — dnevni financijski izvještaj (screen prikaz + CSV export): prihod po kategoriji, popunjenost, ADR
+- [x] Nocni audit — housekeeping reset (occupied + checked_out → cleaning); izvještaj flaguje otvorene folije odjavljenih gostiju
+- [x] Nocni audit — pgTAP test `027_night_audit` (room charge po noći, idempotencija, izvještaj, authz)
 - [ ] Split folio — kreiranje sekundarnog folija uz rezervaciju
 - [ ] Split folio — dodjela stavki na specifičan folio
 - [ ] Split folio — zasebni print za svaki folio
@@ -3661,10 +3664,16 @@ prije produkcijskog naplaćivanja.
 │                            minibara (minibar_library + import_minibar_items multi-select
 │                            + superadmin editor + picker). Obrazac recipe_library.
 │
+│              ✅ Noćni audit (Faza N, 2026-06-08) — EOD: room charge stavka po
+│                            noći na folije (idempotentno), housekeeping reset,
+│                            dnevni izvještaj (prihod/popunjenost/ADR + CSV),
+│                            pg_cron night-audit-daily. Uključeno u hotel_core.
+│                            Check-in više ne seeduje pun iznos. pgTAP 027.
+│
 │              ← OVDJE SMO (2026-06-08)
 │
-├── Jun–Jul    ⬜ Faza N  — Nocni audit + Split folio + Doručak kontrola
-│                            EOD automatizacija, room charge na folije, split billing
+├── Jun–Jul    🔄 Faza N  — Split folio + Doručak kontrola (noćni audit ✅)
+│                            split billing po foliju, kontrola uključenih doručaka
 │
 │              ⬜ GDPR    — Compliance UI (anonimizacija, export, privole)
 │
@@ -3703,4 +3712,4 @@ prije produkcijskog naplaćivanja.
 
 ---
 
-*Roadmap ažuriran: 2026-06-08 (v6.1 — Spa dopuna: recenzije/ocjene, retail prodaja, online kartično plaćanje vanjskih gostiju; Minibar (Faza P dio): katalog + folio zaduženje; v6.0 — Faza BILL dopuna: planovi/addoni opisi+features, superadmin kreira planove (Nivo A), gating iz plans.includes, render iz DB; Nivo B kupovina odgođena do Monri; v5.9 — Faza BILL: superadmin pricing & beta kontrola — platform_settings + plans + addon_catalog.beta_free + is_beta_free(), /superadmin/billing UI, cijene iz DB; v5.8 — 2b tenant model; v5.1 — Staff portal sub-pills wrap layout; v5.0 — Faza PAY kompletna PAY-1..12; v4.9 — Faza Z.1 kompletna) | Branch: main | Deployment: Vercel auto-deploy*
+*Roadmap ažuriran: 2026-06-08 (v6.2 — Faza N start: noćni audit (EOD) — night_audit_runs + run_night_audit/_all + _core, room charge stavka po noći (idempotentno), housekeeping reset, dnevni izvještaj (prihod/popunjenost/ADR) + CSV, /admin/hotel/night-audit UI, pg_cron night-audit-daily, pgTAP 027; uključeno u hotel_core; check-in seeduje folio na 0; v6.1 — Spa dopuna: recenzije/ocjene, retail prodaja, online kartično plaćanje vanjskih gostiju; Minibar (Faza P dio): katalog + folio zaduženje; v6.0 — Faza BILL dopuna: planovi/addoni opisi+features, superadmin kreira planove (Nivo A), gating iz plans.includes, render iz DB; Nivo B kupovina odgođena do Monri; v5.9 — Faza BILL: superadmin pricing & beta kontrola — platform_settings + plans + addon_catalog.beta_free + is_beta_free(), /superadmin/billing UI, cijene iz DB; v5.8 — 2b tenant model; v5.1 — Staff portal sub-pills wrap layout; v5.0 — Faza PAY kompletna PAY-1..12; v4.9 — Faza Z.1 kompletna) | Branch: main | Deployment: Vercel auto-deploy*

@@ -106,12 +106,14 @@ export default function FrontDeskPage() {
       await supabase.from('rooms').update({ status: 'occupied' }).eq('id', res.room_id)
     }
 
+    // Folio se seeduje na 0 — room charge se akumulira po noći kroz noćni audit
+    // (Faza N). Ekstra stavke (restoran/minibar/spa) inkrementiraju total.
     await supabase.from('folios').insert({
       reservation_id: res.id,
       restaurant_id: restaurant.id,
       guest_id: res.guest_id,
       status: 'open',
-      total_amount: res.total_amount ?? 0,
+      total_amount: 0,
     })
 
     toast.success(`${res.guest_name} — check-in uspješan`)
