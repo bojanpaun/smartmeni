@@ -31,27 +31,6 @@ const ADDONS = [
   { id: 'multi_property', icon: '🏢', title: 'Multi-property', desc: 'Upravljanje više objekata jednim nalogom — uskoro.', soon: true },
 ]
 
-const TESTIMONIALS = [
-  {
-    name: 'Nikola Petrović',
-    role: 'Vlasnik, Kafana Stari Grad · Podgorica',
-    text: 'Digitalni meni smo postavili za jedan dan. Gosti su oduševljeni, konobarima je lakše, a štampanje smo potpuno izbacili.',
-    initial: 'N', type: 'restaurant',
-  },
-  {
-    name: 'Milena Vukčević',
-    role: 'Direktorica, Hotel Perla · Boka Kotorska',
-    text: 'Front desk, housekeeping i rezervacije na jednoj platformi. Revenue management nam je pomogao da povećamo cijene u špicu za 22%.',
-    initial: 'M', type: 'hotel',
-  },
-  {
-    name: 'Stefan Radović',
-    role: 'Vlasnik, Resort Biogradska · Kolašin',
-    text: 'Koristimo i hotel i restoran modul. Minibar narudžbe idu direktno na folio. Ovo je ono što smo godinama tražili.',
-    initial: 'S', type: 'both',
-  },
-]
-
 // Beta: šta dobijaš (bez cijena) — marketing funkcija tokom beta pristupa.
 const BETA_INCLUDES = [
   { icon: '🍽️', title: 'Restoran modul', desc: 'Digitalni meni, mapa stolova, waiter zahtjevi, kitchen dashboard, analitika.' },
@@ -344,33 +323,6 @@ export default function Landing() {
                     {a.soon && <span className={styles.soonBadge}>Uskoro</span>}
                   </div>
                   <div className={styles.addonDesc}>{a.desc}</div>
-                </div>
-              </div>
-            ))}
-          </div>
-        </div>
-      </section>
-
-      {/* ── TESTIMONIALS ── */}
-      <section className={styles.testSection}>
-        <div className={styles.sectionInner}>
-          <div className={styles.sectionLabel}>Iskustva</div>
-          <h2 className={styles.sectionTitle}>Šta kažu naši korisnici</h2>
-          <div className={styles.testGrid}>
-            {TESTIMONIALS.map((t, i) => (
-              <div key={i} className={styles.testCard}>
-                <div className={styles.testType}>
-                  {t.type === 'restaurant' && <span className={styles.typePill} style={{ background:'var(--green-light)', color:'var(--green-dark)' }}>Restoran</span>}
-                  {t.type === 'hotel' && <span className={styles.typePill} style={{ background:'#e8f4f0', color:'#0d5c3e' }}>Hotel</span>}
-                  {t.type === 'both' && <span className={styles.typePill} style={{ background:'#faeeda', color:'#7a4a0a' }}>Hotel + Restoran</span>}
-                </div>
-                <p className={styles.testText}>„{t.text}"</p>
-                <div className={styles.testAuthor}>
-                  <div className={styles.testAvatar}>{t.initial}</div>
-                  <div>
-                    <div className={styles.testName}>{t.name}</div>
-                    <div className={styles.testRole}>{t.role}</div>
-                  </div>
                 </div>
               </div>
             ))}
