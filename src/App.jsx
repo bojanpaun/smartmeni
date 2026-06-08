@@ -5,6 +5,7 @@ import { CartProvider } from './context/CartContext'
 import LoadingSpinner from './components/shared/LoadingSpinner'
 import UpgradePrompt from './components/shared/UpgradePrompt'
 import PendingApproval from './platform/auth/PendingApproval'
+import { AnnouncementsProvider } from './context/AnnouncementsContext'
 
 const AdminLayout = lazy(() => import('./layouts/AdminLayout'))
 
@@ -25,6 +26,8 @@ const NutritionAdmin       = lazy(() => import('./platform/superadmin/NutritionA
 const BillingControl       = lazy(() => import('./platform/superadmin/BillingControl'))
 const SpaTreatmentLibraryAdmin = lazy(() => import('./platform/superadmin/SpaTreatmentLibraryAdmin'))
 const MinibarLibraryAdmin  = lazy(() => import('./platform/superadmin/MinibarLibraryAdmin'))
+const AnnouncementsAdmin    = lazy(() => import('./platform/superadmin/AnnouncementsAdmin'))
+const AnnouncementsInbox    = lazy(() => import('./platform/admin/AnnouncementsInbox'))
 const TableMapEditor       = lazy(() => import('./modules/tables/pages/TableMapEditor'))
 const WaiterMapView        = lazy(() => import('./modules/tables/pages/WaiterMapView'))
 const ReservationsPage     = lazy(() => import('./modules/tables/pages/ReservationsPage'))
@@ -123,13 +126,15 @@ function AdminRoute({ children }) {
   return (
     <ProtectedRoute>
       <ApprovalGate>
-        <Suspense fallback={<LoadingSpinner fullPage />}>
-          <AdminLayout>
-            <Suspense fallback={<LoadingSpinner fullPage />}>
-              {children}
-            </Suspense>
-          </AdminLayout>
-        </Suspense>
+        <AnnouncementsProvider>
+          <Suspense fallback={<LoadingSpinner fullPage />}>
+            <AdminLayout>
+              <Suspense fallback={<LoadingSpinner fullPage />}>
+                {children}
+              </Suspense>
+            </AdminLayout>
+          </Suspense>
+        </AnnouncementsProvider>
       </ApprovalGate>
     </ProtectedRoute>
   )
@@ -196,6 +201,7 @@ function AppRoutes() {
 
         {/* Kontrolna tabla */}
         <Route path="/admin" element={<AdminRoute><ControlPanel /></AdminRoute>} />
+        <Route path="/admin/announcements" element={<AdminRoute><AnnouncementsInbox /></AdminRoute>} />
 
         {/* Digitalni meni modul (restoran vertikala) */}
         <Route path="/admin/menu/analytics" element={<AdminRoute><VerticalGuard vertical="restaurant"><AdminMenuAnalytics /></VerticalGuard></AdminRoute>} />
@@ -235,6 +241,7 @@ function AppRoutes() {
 
         {/* Super admin panel */}
         <Route path="/superadmin" element={<AdminRoute><SuperAdminPanel /></AdminRoute>} />
+        <Route path="/superadmin/announcements" element={<AdminRoute><AnnouncementsAdmin /></AdminRoute>} />
         <Route path="/superadmin/recipes" element={<AdminRoute><RecipeLibraryAdmin /></AdminRoute>} />
         <Route path="/superadmin/nutrition" element={<AdminRoute><NutritionAdmin /></AdminRoute>} />
         <Route path="/superadmin/billing" element={<AdminRoute><BillingControl /></AdminRoute>} />
