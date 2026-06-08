@@ -251,9 +251,19 @@ serve(async (req) => {
     const resendData = await resendRes.json()
 
     if (!resendRes.ok) {
-      console.error('Resend error:', resendData)
-      return new Response(JSON.stringify({ error: 'Greška pri slanju', detail: resendData }), {
-        status: 500, headers: { ...corsHeaders, 'Content-Type': 'application/json' },
+      console.error('Resend error:', resendRes.status, resendData)
+      // Jasnija poruka po uzroku (lakši debug bez dashboard logova):
+      //  401 → nevažeći/rotiran RESEND_API_KEY u Supabase secrets
+      //  403 → sandbox FROM (onboarding@resend.dev) šalje samo na vlasnika naloga;
+      //        verifikuj domen i promijeni FROM
+      const hint = resendRes.status === 401
+        ? 'RESEND_API_KEY nije validan (rotiran a nije ažuriran u Supabase secrets).'
+        : resendRes.status === 403
+          ? 'Resend sandbox FROM (onboarding@resend.dev) šalje samo na vlasnika naloga. Verifikuj domen i promijeni FROM.'
+          : (resendData?.message ?? 'Resend je odbio slanje.')
+      return new Response(JSON.stringify({ error: 'Greška pri slanju', hint, detail: resendData }), {
+        // Proslijedi Resend status (401/403/422…) umjesto generičkog 500
+        status: resendRes.status, headers: { ...corsHeaders, 'Content-Type': 'application/json' },
       })
     }
 

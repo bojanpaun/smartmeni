@@ -119,14 +119,26 @@ export default function ReservationForm() {
     setSaving(false)
     if (error) return toast.error('Greška pri čuvanju: ' + error.message)
 
-    // Pošalji email potvrde gostu kada admin potvrdi online inquiry
+    // Pošalji email potvrde gostu kada admin potvrdi online inquiry.
+    // Rezervacija je već sačuvana — neuspjeh emaila NE blokira tok, samo upozorava.
     if (prevStatus === 'inquiry' && form.guest_email) {
-      fetch(`${import.meta.env.VITE_SUPABASE_URL}/functions/v1/send-booking-email`, {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json', 'apikey': import.meta.env.VITE_SUPABASE_KEY },
-        body: JSON.stringify({ reservation_id: id, type: 'confirmed' }),
-      }).catch(() => {})
-      toast.success('Rezervacija potvrđena — email potvrde je poslan gostu')
+      try {
+        const r = await fetch(`${import.meta.env.VITE_SUPABASE_URL}/functions/v1/send-booking-email`, {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json', 'apikey': import.meta.env.VITE_SUPABASE_KEY },
+          body: JSON.stringify({ reservation_id: id, type: 'confirmed' }),
+        })
+        if (r.ok) {
+          toast.success('Rezervacija potvrđena — email potvrde je poslan gostu')
+        } else {
+          const d = await r.json().catch(() => ({}))
+          console.error('send-booking-email:', d)
+          toast('Rezervacija potvrđena, ali email nije poslan (provjeri Resend postavke)', { icon: '⚠️' })
+        }
+      } catch (e) {
+        console.error('send-booking-email:', e)
+        toast('Rezervacija potvrđena, ali email nije poslan', { icon: '⚠️' })
+      }
     } else {
       toast.success(id ? 'Rezervacija ažurirana' : 'Rezervacija kreirana')
     }
