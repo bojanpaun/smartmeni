@@ -4,6 +4,10 @@ import { supabase } from '../../lib/supabase'
 import { usePlatform } from '../../context/PlatformContext'
 import styles from './Auth.module.css'
 
+// STOPGAP (2026-06-09): javna registracija privremeno zatvorena dok se ne uključi
+// approval flow (pending → odobrenje superadmina). Vrati na true kad flow bude gotov.
+const REGISTRATION_OPEN = false
+
 export default function Register() {
   const navigate = useNavigate()
   const { loadProfile } = usePlatform()
@@ -130,6 +134,26 @@ export default function Register() {
     } finally {
       setLoading(false)
     }
+  }
+
+  if (!REGISTRATION_OPEN) {
+    return (
+      <div className={styles.page}>
+        <div className={styles.card}>
+          <Link to="/" className={styles.logo}>
+            rest.by.me
+          </Link>
+          <h1 className={styles.title}>Registracija na poziv</h1>
+          <p className={styles.sub}>
+            Trenutno primamo nove objekte uz odobrenje. Pošaljite nam poruku na{' '}
+            <a href="mailto:info@restby.me">info@restby.me</a> i javićemo vam se sa pristupom.
+          </p>
+          <p className={styles.loginLink}>
+            Već imate nalog? <Link to="/login">Prijavite se</Link>
+          </p>
+        </div>
+      </div>
+    )
   }
 
   return (
