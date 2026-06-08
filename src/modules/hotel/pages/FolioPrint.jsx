@@ -29,12 +29,17 @@ export default function FolioPrint() {
   }, [data])
 
   const load = async () => {
-    const [{ data: res }, { data: folio }] = await Promise.all([
+    const wantedFolioId = new URLSearchParams(window.location.search).get('folio')
+    const [{ data: res }, { data: folios }] = await Promise.all([
       supabase.from('hotel_reservations')
         .select('*, rooms(room_number), room_types(name)')
         .eq('id', id).single(),
-      supabase.from('folios').select('*').eq('reservation_id', id).single(),
+      supabase.from('folios').select('*').eq('reservation_id', id)
+        .order('is_primary', { ascending: false }).order('created_at', { ascending: true }),
     ])
+
+    // Konkretan folio iz ?folio= ili primarni/prvi (split: štampa se po foliju)
+    const folio = (folios ?? []).find(f => f.id === wantedFolioId) ?? (folios ?? [])[0] ?? null
 
     let items = []
     if (folio) {
@@ -84,6 +89,9 @@ export default function FolioPrint() {
             <table className={styles.metaTable}>
               <tbody>
                 <tr><td>Broj:</td>  <td><strong>{invoiceNum}</strong></td></tr>
+                {(folio.label || !folio.is_primary) && (
+                  <tr><td>Folio:</td> <td>{folio.label || 'Folio'}</td></tr>
+                )}
                 <tr><td>Datum:</td> <td>{printDate}</td></tr>
                 <tr>
                   <td>Status:</td>

@@ -1725,9 +1725,11 @@ Evidencija konzumiranja uključenih doručaka po sobi (sprječava zloupotrebe):
 - [x] Nocni audit — dnevni financijski izvještaj (screen prikaz + CSV export): prihod po kategoriji, popunjenost, ADR
 - [x] Nocni audit — housekeeping reset (occupied + checked_out → cleaning); izvještaj flaguje otvorene folije odjavljenih gostiju
 - [x] Nocni audit — pgTAP test `027_night_audit` (room charge po noći, idempotencija, izvještaj, authz)
-- [ ] Split folio — kreiranje sekundarnog folija uz rezervaciju
-- [ ] Split folio — dodjela stavki na specifičan folio
-- [ ] Split folio — zasebni print za svaki folio
+- [x] Split folio — kreiranje sekundarnog folija uz rezervaciju (`create_secondary_folio` RPC + `folios.label/is_primary`; tabovi na FolioPage)
+- [x] Split folio — dodjela stavki na specifičan folio (`move_folio_item` RPC, atomični recalc oba folija; ⇄ akcija po stavci)
+- [x] Split folio — zasebni print za svaki folio (FolioPrint `?folio=` param + naziv folija na računu)
+- [x] Split folio — različiti načini plaćanja po foliju (inherentno: svaki folio se naplaćuje/zatvara nezavisno, `payment_transactions.source_id = folio.id`)
+- [x] Split folio — pgTAP test `028_split_folio` (kreiranje, premještanje+recalc, authz, cross-reservation guard)
 - [ ] `breakfast_included` flag na `rate_plans`
 - [ ] Doručak kontrola — dnevna evidencija konzumiranja po sobi
 - [ ] Doručak kontrola — dnevni izvještaj (planirano vs. iskorišteno)

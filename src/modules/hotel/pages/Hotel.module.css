@@ -189,6 +189,21 @@
 
 .empty { text-align: center; padding: 48px 20px; color: var(--c-text-muted); font-size: 14px; display: flex; flex-direction: column; gap: 16px; align-items: center; }
 
+/* ── Folio tabovi (split) ── */
+.folioTabs {
+  display: flex; flex-wrap: wrap; gap: 8px; align-items: center;
+  margin-bottom: 16px; padding-bottom: 12px; border-bottom: 1px solid var(--c-border);
+}
+.folioTab {
+  padding: 7px 14px; border-radius: 9px; border: 1.5px solid var(--c-border-input);
+  background: var(--c-surface); color: var(--c-text-medium); font-size: 13px;
+  font-weight: 600; cursor: pointer; transition: all 0.12s; white-space: nowrap;
+}
+.folioTab:hover { border-color: var(--c-primary); }
+.folioTabActive { background: var(--c-primary); color: var(--c-surface); border-color: var(--c-primary); }
+.folioTabClosed { opacity: 0.7; }
+.folioTabNew { display: flex; gap: 6px; align-items: center; margin-left: auto; }
+
 /* ── Folio ── */
 .folioSummary {
   display: grid;

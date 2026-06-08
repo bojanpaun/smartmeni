@@ -17,9 +17,15 @@ export default function FolioPage() {
   const { restaurant } = usePlatform()
 
   const [reservation, setReservation] = useState(null)
-  const [folio, setFolio] = useState(null)
+  const [folios, setFolios] = useState([])        // svi folji rezervacije (split)
+  const [folio, setFolio] = useState(null)        // aktivni folio
   const [items, setItems] = useState([])
   const [loading, setLoading] = useState(true)
+
+  // Split folio — kreiranje sekundarnog + premještanje stavki
+  const [newFolioLabel, setNewFolioLabel] = useState('')
+  const [creatingFolio, setCreatingFolio] = useState(false)
+  const [movingItemId, setMovingItemId] = useState(null)
 
   const [addingItem, setAddingItem] = useState(false)
   const [newItem, setNewItem] = useState(EMPTY_ITEM)
@@ -67,28 +73,75 @@ export default function FolioPage() {
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [])
 
-  const load = async () => {
+  // Učitaj rezervaciju + sve folje; zadrži aktivni folio (ili primarni/prvi).
+  const load = async (preferFolioId) => {
     setLoading(true)
-    const [{ data: res }, { data: f }] = await Promise.all([
+    const [{ data: res }, { data: fl }] = await Promise.all([
       supabase.from('hotel_reservations')
         .select('*, rooms(room_number), room_types(name)')
         .eq('id', id).single(),
-      supabase.from('folios').select('*').eq('reservation_id', id).single(),
+      supabase.from('folios').select('*').eq('reservation_id', id)
+        .order('is_primary', { ascending: false }).order('created_at', { ascending: true }),
     ])
     setReservation(res)
-    if (f) {
-      setFolio(f)
-      const [{ data: fi }, { data: tx }] = await Promise.all([
-        supabase.from('folio_items').select('*').eq('folio_id', f.id)
-          .order('created_at', { ascending: true }),
-        supabase.from('payment_transactions').select('*')
-          .eq('source_type', 'folio').eq('source_id', f.id)
-          .eq('status', 'paid').maybeSingle(),
-      ])
-      setItems(fi ?? [])
-      setPaymentTx(tx ?? null)
+    const list = fl ?? []
+    setFolios(list)
+    if (list.length) {
+      const wanted = preferFolioId ?? folio?.id
+      const active = list.find(x => x.id === wanted) ?? list[0]
+      setFolio(active)
+      await loadDetail(active.id)
+    } else {
+      setFolio(null); setItems([]); setPaymentTx(null)
     }
     setLoading(false)
+  }
+
+  // Stavke + plaćena transakcija za jedan folio
+  const loadDetail = async (folioId) => {
+    const [{ data: fi }, { data: tx }] = await Promise.all([
+      supabase.from('folio_items').select('*').eq('folio_id', folioId)
+        .order('created_at', { ascending: true }),
+      supabase.from('payment_transactions').select('*')
+        .eq('source_type', 'folio').eq('source_id', folioId)
+        .eq('status', 'paid').maybeSingle(),
+    ])
+    setItems(fi ?? [])
+    setPaymentTx(tx ?? null)
+  }
+
+  // Prebaci aktivni folio (tab)
+  const selectFolio = async (f) => {
+    if (f.id === folio?.id) return
+    setFolio(f); setShowRefund(false); setAddingItem(false)
+    setSellingRetail(false); setChargingMinibar(false)
+    await loadDetail(f.id)
+  }
+
+  // Kreiraj sekundarni (split) folio
+  const handleCreateFolio = async () => {
+    const label = newFolioLabel.trim()
+    if (!label) return toast.error('Unesite naziv folija')
+    setCreatingFolio(true)
+    const { data: newId, error } = await supabase.rpc('create_secondary_folio', {
+      p_reservation_id: id, p_label: label,
+    })
+    setCreatingFolio(false)
+    if (error) return toast.error(error.message || 'Greška pri kreiranju folija')
+    setNewFolioLabel('')
+    toast.success(`Folio "${label}" kreiran`)
+    load(newId)
+  }
+
+  // Premjesti stavku na drugi folio
+  const handleMoveItem = async (item, targetFolioId) => {
+    setMovingItemId(null)
+    const { error } = await supabase.rpc('move_folio_item', {
+      p_item_id: item.id, p_target_folio_id: targetFolioId,
+    })
+    if (error) return toast.error(error.message || 'Greška pri premještanju')
+    toast.success('Stavka premještena')
+    load()
   }
 
   const computedTotal = items.reduce((s, i) => s + (parseFloat(i.total_price) || 0), 0)
@@ -210,14 +263,14 @@ export default function FolioPage() {
   const handleCloseFolio = async () => {
     if (!confirm('Zatvoriti folio? Ovo označava boravak kao završen i plaćen.')) return
     await supabase.from('folios').update({ status: 'closed', updated_at: new Date().toISOString() }).eq('id', folio.id)
-    setFolio(f => ({ ...f, status: 'closed' }))
     toast.success('Folio zatvoren')
+    load(folio.id)
   }
 
   const handleReopenFolio = async () => {
     await supabase.from('folios').update({ status: 'open', updated_at: new Date().toISOString() }).eq('id', folio.id)
-    setFolio(f => ({ ...f, status: 'open' }))
     toast.success('Folio ponovo otvoren')
+    load(folio.id)
   }
 
   const handleRefund = async () => {
@@ -316,11 +369,39 @@ export default function FolioPage() {
         </div>
         <div className={styles.headerActions}>
           <button className={styles.btnSecondary} onClick={() => navigate(`/admin/hotel/reservations/${id}`)}>← Rezervacija</button>
-          <button className={styles.btnSecondary} onClick={() => window.open(`/admin/hotel/reservations/${id}/folio/print`, '_blank')}>🖨️ Štampaj / PDF</button>
+          <button className={styles.btnSecondary} onClick={() => window.open(`/admin/hotel/reservations/${id}/folio/print?folio=${folio.id}`, '_blank')}>🖨️ Štampaj / PDF</button>
           {folio.status === 'open'
             ? <button className={styles.btnPrimary} onClick={handleCloseFolio}>Zatvori folio ✓</button>
             : <button className={styles.btnSecondary} onClick={handleReopenFolio}>Ponovo otvori</button>
           }
+        </div>
+      </div>
+
+      {/* Folio tabovi (split) */}
+      <div className={styles.folioTabs}>
+        {folios.map(f => (
+          <button
+            key={f.id}
+            className={`${styles.folioTab} ${f.id === folio.id ? styles.folioTabActive : ''}`}
+            onClick={() => selectFolio(f)}
+          >
+            {f.is_primary ? '🧾 ' : '📄 '}
+            {f.label || (f.is_primary ? 'Glavni' : 'Folio')}
+            {f.status !== 'open' && <span className={styles.folioTabClosed}> ✓</span>}
+          </button>
+        ))}
+        <div className={styles.folioTabNew}>
+          <input
+            className={styles.input}
+            style={{ height: 34, fontSize: 13, maxWidth: 160 }}
+            placeholder="Naziv (npr. Firma)"
+            value={newFolioLabel}
+            onChange={e => setNewFolioLabel(e.target.value)}
+            onKeyDown={e => { if (e.key === 'Enter') handleCreateFolio() }}
+          />
+          <button className={styles.btnSecondary} onClick={handleCreateFolio} disabled={creatingFolio}>
+            {creatingFolio ? '...' : '+ Folio'}
+          </button>
         </div>
       </div>
 
@@ -528,7 +609,26 @@ export default function FolioPage() {
                 {item.quantity !== 1 && <span className={styles.folioQty}> × {item.quantity}</span>}
               </span>
               <span className={styles.folioAmount}>€{parseFloat(item.total_price).toFixed(2)}</span>
-              <span>
+              <span style={{ display: 'flex', gap: 4, alignItems: 'center', justifyContent: 'flex-end' }}>
+                {folio.status === 'open' && folios.length > 1 && (
+                  movingItemId === item.id ? (
+                    <select
+                      className={styles.input}
+                      style={{ height: 30, fontSize: 12, maxWidth: 140 }}
+                      defaultValue=""
+                      autoFocus
+                      onBlur={() => setMovingItemId(null)}
+                      onChange={e => e.target.value && handleMoveItem(item, e.target.value)}
+                    >
+                      <option value="" disabled>Premjesti na…</option>
+                      {folios.filter(f => f.id !== folio.id).map(f => (
+                        <option key={f.id} value={f.id}>{f.label || (f.is_primary ? 'Glavni' : 'Folio')}</option>
+                      ))}
+                    </select>
+                  ) : (
+                    <button className={styles.btnIcon} onClick={() => setMovingItemId(item.id)} title="Premjesti na drugi folio">⇄</button>
+                  )
+                )}
                 {folio.status === 'open' && (
                   <button className={styles.btnIcon} onClick={() => handleDeleteItem(item)} title="Ukloni stavku">✕</button>
                 )}
