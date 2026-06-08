@@ -4,6 +4,7 @@ import { usePlatform } from '../../../context/PlatformContext'
 import { supabase } from '../../../lib/supabase'
 import LoadingSpinner from '../../../components/shared/LoadingSpinner'
 import styles from './Hotel.module.css'
+import na from './NightAudit.module.css'
 
 // Lokalni "danas" (Europe/Podgorica praktično = lokalna mašina recepcije)
 const todayISO = () => {
@@ -97,12 +98,12 @@ export default function NightAuditPage() {
 
       {/* Pokretanje */}
       <div style={{ background: 'var(--c-surface)', border: '1px solid var(--c-border)', borderRadius: 12, padding: 16, marginBottom: 16 }}>
-        <div style={{ display: 'flex', gap: 12, flexWrap: 'wrap', alignItems: 'flex-end' }}>
-          <div>
+        <div className={na.runRow}>
+          <div className={na.runField}>
             <label style={{ fontSize: 12, color: 'var(--c-text-medium)', display: 'block', marginBottom: 4 }}>Dan koji se zatvara</label>
-            <input className={styles.input} type="date" value={date} max={todayISO()} onChange={e => setDate(e.target.value)} />
+            <input className={styles.input} type="date" value={date} max={todayISO()} onChange={e => setDate(e.target.value)} style={{ width: '100%' }} />
           </div>
-          <button className={styles.btnPrimary} onClick={runAudit} disabled={running}>
+          <button className={`${styles.btnPrimary} ${na.runBtn}`} onClick={runAudit} disabled={running}>
             {running ? 'Pokrećem…' : '🌙 Pokreni noćni audit'}
           </button>
         </div>
@@ -162,26 +163,26 @@ export default function NightAuditPage() {
       {loadingHist ? <LoadingSpinner /> : history.length === 0 ? (
         <div style={{ padding: 24, textAlign: 'center', color: 'var(--c-text-muted)' }}>Još nema pokrenutih audita.</div>
       ) : (
-        <div className={styles.table}>
-          <table style={{ width: '100%', borderCollapse: 'collapse', background: 'var(--c-surface)', borderRadius: 12, overflow: 'hidden', border: '1px solid var(--c-border)' }}>
+        <div className={na.histWrap}>
+          <table className={na.histTable}>
             <thead>
-              <tr style={{ textAlign: 'left' }}>
-                <th style={{ padding: '10px 12px' }}>Datum</th>
-                <th style={{ padding: '10px 12px' }}>Prihod</th>
-                <th style={{ padding: '10px 12px' }}>Popunjenost</th>
-                <th style={{ padding: '10px 12px' }}>Room charge</th>
-                <th style={{ padding: '10px 12px' }}>Pokrenut</th>
+              <tr>
+                <th>Datum</th>
+                <th>Prihod</th>
+                <th>Popunjenost</th>
+                <th>Room charge</th>
+                <th>Pokrenut</th>
               </tr>
             </thead>
             <tbody>
               {history.map(h => (
-                <tr key={h.id} style={{ borderTop: '1px solid var(--c-border)', cursor: 'pointer' }}
+                <tr key={h.id}
                     onClick={() => { setResult({ report: h.report, already_run: true }); setDate(h.business_date) }}>
-                  <td style={{ padding: '10px 12px', fontWeight: 600 }}>{fmtDate(h.business_date)}</td>
-                  <td style={{ padding: '10px 12px' }}>{eur(h.report?.revenue_total)}</td>
-                  <td style={{ padding: '10px 12px' }}>{h.report?.occupancy_pct ?? 0}%</td>
-                  <td style={{ padding: '10px 12px' }}>{h.room_charges_posted}× · {eur(h.room_charges_amount)}</td>
-                  <td style={{ padding: '10px 12px', fontSize: 12, color: 'var(--c-text-muted)' }}>
+                  <td className={na.dateCell} data-label="Datum">{fmtDate(h.business_date)}</td>
+                  <td data-label="Prihod">{eur(h.report?.revenue_total)}</td>
+                  <td data-label="Popunjenost">{h.report?.occupancy_pct ?? 0}%</td>
+                  <td data-label="Room charge">{h.room_charges_posted}× · {eur(h.room_charges_amount)}</td>
+                  <td className={na.mutedCell} data-label="Pokrenut">
                     {h.run_at ? new Date(h.run_at).toLocaleString('sr-Latn', { day: '2-digit', month: '2-digit', hour: '2-digit', minute: '2-digit' }) : '—'}
                   </td>
                 </tr>

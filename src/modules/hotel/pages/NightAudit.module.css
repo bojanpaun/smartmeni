@@ -1,0 +1,51 @@
+/* Noćni audit — responsive istorija (tabela na desktopu, kartice na mobilnom) */
+
+/* Pokretanje audita — datum + dugme */
+.runRow { display: flex; gap: 12px; flex-wrap: wrap; align-items: flex-end; }
+.runField { flex: 0 0 auto; }
+@media (max-width: 600px) {
+  .runField { flex: 1 1 100%; }
+  .runBtn { width: 100%; }
+}
+
+
+.histWrap {
+  background: var(--c-surface);
+  border: 1px solid var(--c-border);
+  border-radius: 14px;
+  overflow: hidden;
+}
+.histTable { width: 100%; border-collapse: collapse; }
+.histTable th {
+  text-align: left; padding: 10px 12px; font-size: 13px;
+  font-weight: 600; color: var(--c-text-medium);
+}
+.histTable td { padding: 10px 12px; font-size: 13px; }
+.histTable tbody tr { border-top: 1px solid var(--c-border); cursor: pointer; }
+.histTable tbody tr:hover { background: var(--c-bg); }
+.dateCell { font-weight: 600; }
+.mutedCell { font-size: 12px; color: var(--c-text-muted); }
+
+@media (max-width: 600px) {
+  /* Kartice: blok layout, thead skriven, svaka ćelija = red sa labelom */
+  .histWrap { background: transparent; border: none; border-radius: 0; overflow: visible; }
+  .histTable, .histTable tbody, .histTable tr, .histTable td { display: block; width: 100%; }
+  .histTable thead { display: none; }
+  .histTable tbody tr {
+    border: 1px solid var(--c-border);
+    border-radius: 12px;
+    background: var(--c-surface);
+    padding: 4px 2px;
+    margin-bottom: 10px;
+  }
+  .histTable td {
+    display: flex; justify-content: space-between; align-items: center; gap: 12px;
+    padding: 7px 12px; text-align: right;
+  }
+  .histTable td::before {
+    content: attr(data-label);
+    font-size: 12px; color: var(--c-text-muted); font-weight: 500;
+    text-align: left; flex-shrink: 0;
+  }
+  .dateCell { font-size: 15px; border-bottom: 1px solid var(--c-border); }
+}
