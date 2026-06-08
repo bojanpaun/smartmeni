@@ -52,48 +52,14 @@ const TESTIMONIALS = [
   },
 ]
 
-const PLANS = [
-  {
-    key: 'starter',
-    name: 'Starter',
-    monthly: 0,
-    annual: 0,
-    desc: 'Za objekat koji želi da isprobá digitalni meni bez ikakvog rizika.',
-    features: ['✓ Digitalni QR meni', '✓ Do 30 stavki', '✓ 1 QR kod', '✓ Crnogorski jezik', '✓ Bez kreditne kartice'],
-    cta: 'Počni besplatno',
-    featured: false,
-  },
-  {
-    key: 'restoran',
-    name: 'Restoran',
-    monthly: 29,
-    annual: 23,
-    desc: 'Kompletan restoranski sistem sa stolovima, narudžbama i analitikom.',
-    features: ['✓ Neograničene stavke menija', '✓ QR kodovi za svaki sto', '✓ Mapa stolova + waiter zahtjevi', '✓ Kitchen dashboard', '✓ Osnovna analitika', '✓ Evidencija osoblja'],
-    cta: 'Probaj besplatno',
-    featured: false,
-  },
-  {
-    key: 'hotel',
-    name: 'Hotel',
-    monthly: 79,
-    annual: 63,
-    desc: 'Kompletan hotel management sa booking engine i revenue managementom.',
-    features: ['✓ Sobe, tipovi, rezervacije', '✓ Front desk + Folio sistem', '✓ Online Booking engine', '✓ Housekeeping dashboard', '✓ Revenue management', '✓ Spa & Wellness modul', '✓ Guest App'],
-    cta: 'Probaj besplatno',
-    featured: true,
-    badge: 'Najpopularnije',
-  },
-  {
-    key: 'hotel_pro',
-    name: 'Hotel Pro',
-    monthly: 119,
-    annual: 95,
-    desc: 'Hotel + Restoran u jednom. Minibar narudžbe na folio, dijeljeni gosti.',
-    features: ['✓ Sve iz Hotel plana', '✓ Restoran modul uključen', '✓ Minibar → folio integracija', '✓ Zajednička baza gostiju', '✓ Dijeljeni inventar'],
-    cta: 'Probaj besplatno',
-    featured: false,
-  },
+// Beta: šta dobijaš (bez cijena) — marketing funkcija tokom beta pristupa.
+const BETA_INCLUDES = [
+  { icon: '🍽️', title: 'Restoran modul', desc: 'Digitalni meni, mapa stolova, waiter zahtjevi, kitchen dashboard, analitika.' },
+  { icon: '🏨', title: 'Hotel modul', desc: 'Front desk, rezervacije, folio, housekeeping, revenue management, noćni audit.' },
+  { icon: '🧖', title: 'Spa & Wellness', desc: 'Booking tretmana, kalendar terapeuta, recenzije i folio integracija.' },
+  { icon: '📱', title: 'Guest App & Online booking', desc: 'Gosti rezervišu i naručuju direktno — bez provizija posrednicima.' },
+  { icon: '👥', title: 'HR & Inventar', desc: 'Raspored, prisustvo, plate, zalihe i recepture za osoblje oba vertikala.' },
+  { icon: '🤝', title: 'Direktna podrška', desc: 'Rani korisnici dobijaju ličnu podršku i utiču na razvoj platforme.' },
 ]
 
 /* ──────────────────────────────────────────
@@ -131,7 +97,6 @@ function CountUp({ end, suffix = '', duration = 1800 }) {
 ────────────────────────────────────────── */
 export default function Landing() {
   const [menuOpen, setMenuOpen] = useState(false)
-  const [annual, setAnnual] = useState(false)
   const [registerType, setRegisterType] = useState(null)
 
   const registerHref = registerType
@@ -140,6 +105,11 @@ export default function Landing() {
 
   return (
     <div className={styles.page}>
+
+      {/* ── BETA TRAKA ── */}
+      <div style={{ background: 'var(--ink)', color: '#5dcaa5', textAlign: 'center', padding: '9px 16px', fontSize: 13, fontWeight: 600, letterSpacing: '.01em' }}>
+        🚧 Beta verzija — rani pristup, sve funkcije besplatno tokom bete
+      </div>
 
       {/* ── NAV ── */}
       <nav className={styles.nav}>
@@ -150,11 +120,11 @@ export default function Landing() {
           <a href="#restoran">Restoran</a>
           <a href="#hotel">Hotel</a>
           <a href="#addoni">Addoni</a>
-          <a href="#cijene">Cijene</a>
+          <a href="#beta">Beta</a>
         </div>
         <div className={styles.navActions}>
           <a href="/login" className={styles.navLogin}>Prijava</a>
-          <a href="/registracija" className={styles.navCta}>Počni besplatno</a>
+          <a href="/registracija" className={styles.navCta}>Zatraži pristup</a>
         </div>
         <button className={styles.navBurger} onClick={() => setMenuOpen(v => !v)} aria-label="Meni">
           {menuOpen ? '✕' : '☰'}
@@ -163,13 +133,13 @@ export default function Landing() {
 
       {menuOpen && (
         <div className={styles.mobileMenu}>
-          {['#restoran', '#hotel', '#addoni', '#cijene'].map((href, i) => (
+          {['#restoran', '#hotel', '#addoni', '#beta'].map((href, i) => (
             <a key={href} href={href} onClick={() => setMenuOpen(false)}>
-              {['Restoran', 'Hotel', 'Addoni', 'Cijene'][i]}
+              {['Restoran', 'Hotel', 'Addoni', 'Beta'][i]}
             </a>
           ))}
           <a href="/login" onClick={() => setMenuOpen(false)}>Prijava</a>
-          <a href="/registracija" className={styles.mobileMenuCta} onClick={() => setMenuOpen(false)}>Počni besplatno</a>
+          <a href="/registracija" className={styles.mobileMenuCta} onClick={() => setMenuOpen(false)}>Zatraži pristup</a>
         </div>
       )}
 
@@ -190,7 +160,7 @@ export default function Landing() {
             </p>
             <div className={styles.heroActions}>
               <a href="/registracija" className={styles.btnPrimary}>
-                Počni besplatno
+                Zatraži pristup (beta)
               </a>
               <a href="#restoran" className={styles.btnGhost}>
                 Pogledaj module →
@@ -198,8 +168,8 @@ export default function Landing() {
             </div>
             <div className={styles.heroTrust}>
               <div className={styles.trustPills}>
-                <span className={styles.trustPill}>✓ Starter plan besplatan</span>
-                <span className={styles.trustPill}>✓ 14 dana trial</span>
+                <span className={styles.trustPill}>✓ Besplatno tokom bete</span>
+                <span className={styles.trustPill}>✓ Pun pristup svim modulima</span>
                 <span className={styles.trustPill}>✓ Lokalna podrška</span>
               </div>
             </div>
@@ -271,10 +241,10 @@ export default function Landing() {
       <section className={styles.stats}>
         <div className={styles.statsGrid}>
           {[
-            { end: 50, suffix: '+', label: 'objekata u Crnoj Gori' },
-            { end: 12000, suffix: '+', label: 'pregleda menija/mj' },
-            { end: 14, suffix: ' dana', label: 'besplatnog triala' },
-            { end: 1, suffix: ' platforma', label: 'za hotel i restoran' },
+            { end: 2, suffix: ' vertikale', label: 'hotel i restoran' },
+            { end: 10, suffix: '+', label: 'modula u jednoj platformi' },
+            { end: 100, suffix: '% besplatno', label: 'tokom beta verzije' },
+            { end: 1, suffix: ' platforma', label: 'umjesto deset sistema' },
           ].map((s, i) => (
             <div key={i} className={styles.stat}>
               <div className={styles.statNum}><CountUp end={s.end} suffix={s.suffix} /></div>
@@ -302,13 +272,8 @@ export default function Landing() {
                 Radi kao standalone restoranski sistem ili
                 integrisano sa hotelskim foliom.
               </p>
-              <div className={styles.modulePrice}>
-                <span className={styles.modulePriceFrom}>od</span>
-                <span className={styles.modulePriceNum}>€29</span>
-                <span className={styles.modulePricePer}>/mj</span>
-              </div>
               <a href="/registracija?plan=restoran" className={styles.btnPrimary}>
-                Probaj restoran modul
+                Zatraži pristup restoranu
               </a>
             </div>
             <div className={styles.featGrid}>
@@ -341,13 +306,8 @@ export default function Landing() {
                 management i Spa & Wellness. Online booking engine
                 direktno sa vaše hotel stranice — bez provizija.
               </p>
-              <div className={styles.modulePrice}>
-                <span className={styles.modulePriceFrom} style={{ color: '#5dcaa5' }}>od</span>
-                <span className={styles.modulePriceNum} style={{ color: 'white' }}>€79</span>
-                <span className={styles.modulePricePer} style={{ color: '#8a9e96' }}>/mj</span>
-              </div>
               <a href="/registracija?plan=hotel" className={styles.btnAccent}>
-                Probaj hotel modul
+                Zatraži pristup hotelu
               </a>
             </div>
             <div className={styles.featGrid}>
@@ -418,62 +378,32 @@ export default function Landing() {
         </div>
       </section>
 
-      {/* ── PRICING ── */}
-      <section className={styles.pricingSection} id="cijene">
+      {/* ── BETA ── */}
+      <section className={styles.addonsSection} id="beta">
         <div className={styles.sectionInner}>
-          <div className={styles.sectionLabel}>Cijene</div>
-          <h2 className={styles.sectionTitle}>Transparentno. Bez iznenađenja.</h2>
+          <div className={styles.sectionLabel}>Beta program</div>
+          <h2 className={styles.sectionTitle}>
+            Sve funkcije. Bez naplate.<br />Trenutno u beta verziji.
+          </h2>
           <p className={styles.sectionSub}>
-            Počnite besplatno. Nadogradite kad ste spremni.
-            14 dana probnog perioda bez kreditne kartice.
+            rest.by.me je u aktivnom razvoju. Rani korisnici dobijaju <strong>pun pristup svim
+            modulima besplatno</strong> tokom bete — uz direktnu podršku i priliku da utiču na
+            razvoj. Pristup se odobrava ručno kako bismo svakom objektu pomogli oko postavke.
           </p>
 
-          <div className={styles.annualToggle}>
-            <span>Mjesečno</span>
-            <label className={styles.annualSwitch}>
-              <input type="checkbox" checked={annual} onChange={e => setAnnual(e.target.checked)} />
-              <span className={styles.annualSlider} />
-            </label>
-            <span>Godišnje</span>
-            <span className={styles.annualSave}>Ušteda ~20%</span>
-          </div>
-
-          <div className={styles.pricingGrid}>
-            {PLANS.map((plan) => (
-              <div key={plan.key} className={`${styles.pricingCard} ${plan.featured ? styles.pricingCardFeatured : ''}`}>
-                {plan.badge && <div className={styles.pricingBadge}>{plan.badge}</div>}
-                <div className={styles.pricingName}>{plan.name}</div>
-                <div className={styles.pricingPrice}>
-                  {plan.monthly === 0
-                    ? 'Besplatno'
-                    : <>€{annual ? plan.annual : plan.monthly}<span>/mj</span></>
-                  }
-                </div>
-                <div className={styles.pricingAnnual}>
-                  {annual && plan.annual > 0
-                    ? `€${plan.annual * 12}/god — ušteda €${(plan.monthly - plan.annual) * 12}`
-                    : plan.monthly > 0
-                    ? `ili €${plan.annual}/mj godišnje`
-                    : ''
-                  }
-                </div>
-                <div className={styles.pricingDesc}>{plan.desc}</div>
-                <ul className={styles.pricingFeatures}>
-                  {plan.features.map((f, i) => <li key={i}>{f}</li>)}
-                </ul>
-                <a
-                  href={`/registracija?plan=${plan.key}`}
-                  className={`${styles.pricingBtn} ${plan.featured ? styles.pricingBtnPrimary : ''}`}
-                >
-                  {plan.cta}
-                </a>
+          <div className={styles.featGrid} style={{ marginTop: 32 }}>
+            {BETA_INCLUDES.map((f, i) => (
+              <div key={i} className={styles.featCard}>
+                <div className={styles.featIcon}>{f.icon}</div>
+                <div className={styles.featTitle}>{f.title}</div>
+                <div className={styles.featDesc}>{f.desc}</div>
               </div>
             ))}
           </div>
 
-          <div className={styles.addonsNote}>
-            <strong>Operativni addoni</strong> (HR Pro, Inventar Pro, Analitika Pro) naplaćuju se zasebno
-            i rade za oba vertikala. Pogledajte detalje u <a href="#addoni">sekciji Addoni</a>.
+          <div className={styles.addonsNote} style={{ marginTop: 28 }}>
+            Cijene i planovi pretplate biće objavljeni nakon izlaska iz bete. Rani korisnici
+            zadržavaju poseban tretman. Pitanja? <a href="mailto:info@restby.me">info@restby.me</a>
           </div>
         </div>
       </section>
@@ -481,20 +411,19 @@ export default function Landing() {
       {/* ── CTA / REGISTRACIJA ── */}
       <section className={styles.ctaSection} id="registracija">
         <div className={styles.ctaInner}>
-          <div className={styles.sectionLabel} style={{ color: '#5dcaa5' }}>Počni danas</div>
+          <div className={styles.sectionLabel} style={{ color: '#5dcaa5' }}>Pridruži se beti</div>
           <h2 className={styles.ctaTitle}>
-            14 dana probnog perioda.<br />Bez kreditne kartice.
+            Rani pristup.<br />Besplatno tokom bete.
           </h2>
           <p className={styles.ctaSub}>
-            Odaberite šta koristite i registrujte se za 2 minute.
+            Odaberite šta vodite i zatražite pristup — javljamo se sa odobrenjem obično u roku od jednog radnog dana.
           </p>
 
           <div className={styles.typeSelector}>
             {[
-              { key: 'starter', label: '🎁 Starter', sub: 'Besplatno' },
-              { key: 'restoran', label: '🍽️ Restoran', sub: 'od €29/mj' },
-              { key: 'hotel', label: '🏨 Hotel', sub: 'od €79/mj' },
-              { key: 'hotel_pro', label: '🏨🍽️ Hotel Pro', sub: 'od €119/mj' },
+              { key: 'restoran', label: '🍽️ Restoran', sub: 'Meni, stolovi, kuhinja' },
+              { key: 'hotel', label: '🏨 Hotel', sub: 'Front desk, booking, folio' },
+              { key: 'hotel_pro', label: '🏨🍽️ Hotel + Restoran', sub: 'Sve, integrisano' },
             ].map(opt => (
               <button
                 key={opt.key}
@@ -508,11 +437,11 @@ export default function Landing() {
           </div>
 
           <a href={registerHref} className={styles.ctaRegisterBtn}>
-            Registruj se besplatno →
+            Zatraži pristup (beta) →
           </a>
 
           <div className={styles.ctaNote}>
-            Bez kreditne kartice · 14 dana trial · Otkazivanje u bilo kom trenutku
+            Besplatno tokom bete · Pristup uz odobrenje · Direktna podrška
           </div>
         </div>
       </section>
@@ -530,7 +459,7 @@ export default function Landing() {
             <a href="#">Uslovi korišćenja</a>
           </div>
           <div className={styles.footerCopy}>
-            © 2025 rest.by.me · Podgorica, Crna Gora
+            © 2026 rest.by.me · Podgorica, Crna Gora
           </div>
         </div>
       </footer>
