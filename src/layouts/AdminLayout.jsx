@@ -528,7 +528,6 @@ export default function AdminLayout({ children }) {
             <ThemeToggle />
           </div>
         </header>
-        <AnnouncementBanner />
         <TrialBanner />
         <main className={styles.main}>
           <AdminBadgeContext.Provider value={{ refreshCounts }}>
