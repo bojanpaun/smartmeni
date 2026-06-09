@@ -13,8 +13,8 @@ const isUnreadForAdmin = (c) =>
   (!c.admin_last_read_at || new Date(c.last_message_at) > new Date(c.admin_last_read_at))
 
 export function SupportProvider({ children }) {
-  const { user, restaurant, isOwner } = usePlatform()
-  const owner = isOwner()
+  // Učitava za vlasnika ILI superadmina (svako u admin-route sa restoran kontekstom).
+  const { user, restaurant } = usePlatform()
   const rid = restaurant?.id
   const [conversations, setConversations] = useState([])
   const ridRef = useRef(null)
@@ -30,7 +30,7 @@ export function SupportProvider({ children }) {
   }, [rid])
 
   useEffect(() => {
-    if (!rid || !owner) { setConversations([]); return }
+    if (!rid) { setConversations([]); return }
     reload()
     if (ridRef.current === rid) return
     ridRef.current = rid
@@ -41,7 +41,7 @@ export function SupportProvider({ children }) {
       .on('postgres_changes', { event: '*', schema: 'public', table: 'support_conversations', filter: `restaurant_id=eq.${rid}` }, reload)
       .subscribe()
     return () => { ridRef.current = null; supabase.removeChannel(ch) }
-  }, [rid, owner, reload])
+  }, [rid, reload])
 
   const unreadCount = conversations.filter(isUnreadForAdmin).length
 
