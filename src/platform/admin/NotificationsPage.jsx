@@ -49,11 +49,40 @@ export default function NotificationsPage() {
   )
 }
 
+const SEV_FILTERS = [
+  { k: 'all', l: 'Sve' }, { k: 'important', l: '⚠️ Važno' }, { k: 'update', l: '✨ Novost' }, { k: 'info', l: 'ℹ️ Info' },
+]
+
 function NajaveTab({ visible, unreadSnapshot }) {
-  if (visible.length === 0) return <div style={{ padding: 40, textAlign: 'center', color: 'var(--c-text-muted)' }}>Trenutno nema najava.</div>
+  const [q, setQ] = useState('')
+  const [sev, setSev] = useState('all')
+
+  const filtered = visible.filter(a => {
+    if (sev !== 'all' && a.severity !== sev) return false
+    if (q.trim()) {
+      const s = q.trim().toLowerCase()
+      if (!(a.title.toLowerCase().includes(s) || (a.body || '').toLowerCase().includes(s))) return false
+    }
+    return true
+  })
+
   return (
+    <div>
+      <div style={{ display: 'flex', gap: 10, flexWrap: 'wrap', alignItems: 'center', marginBottom: 14 }}>
+        <input className={styles.input} placeholder="🔍 Pretraži najave…" value={q} onChange={e => setQ(e.target.value)} style={{ flex: 1, minWidth: 180 }} />
+        <div style={{ display: 'flex', gap: 6, flexWrap: 'wrap' }}>
+          {SEV_FILTERS.map(f => (
+            <button key={f.k} onClick={() => setSev(f.k)}
+              className={sev === f.k ? styles.btnPrimary : styles.btnSecondary} style={{ fontSize: 12, padding: '6px 10px' }}>{f.l}</button>
+          ))}
+        </div>
+      </div>
+
+      {filtered.length === 0 ? (
+        <div style={{ padding: 40, textAlign: 'center', color: 'var(--c-text-muted)' }}>{visible.length === 0 ? 'Trenutno nema najava.' : 'Nema rezultata za filter.'}</div>
+      ) : (
     <div style={{ display: 'flex', flexDirection: 'column', gap: 12 }}>
-      {visible.map(a => {
+      {filtered.map(a => {
         const sev = SEV[a.severity] || SEV.info
         const isNew = unreadSnapshot.has(a.id)
         return (
@@ -71,6 +100,8 @@ function NajaveTab({ visible, unreadSnapshot }) {
         )
       })}
     </div>
+      )}
+    </div>
   )
 }
 
@@ -81,6 +112,8 @@ function OglasnaTablaTab({ restaurant }) {
   const [editingId, setEditingId] = useState(null)
   const [form, setForm] = useState(BLANK)
   const [saving, setSaving] = useState(false)
+  const [q, setQ] = useState('')
+  const [filter, setFilter] = useState('all')   // all | active | expired
 
   const load = async () => {
     if (!restaurant?.id) return
@@ -142,11 +175,35 @@ function OglasnaTablaTab({ restaurant }) {
         </div>
       )}
 
-      {loading ? <LoadingSpinner /> : items.length === 0 ? (
-        <div style={{ padding: 32, textAlign: 'center', color: 'var(--c-text-muted)' }}>Nema obavijesti. Dodaj prvu da je osoblje vidi u portalu.</div>
-      ) : (
+      {items.length > 0 && (
+        <div style={{ display: 'flex', gap: 10, flexWrap: 'wrap', alignItems: 'center', marginBottom: 14 }}>
+          <input className={styles.input} placeholder="🔍 Pretraži obavijesti…" value={q} onChange={e => setQ(e.target.value)} style={{ flex: 1, minWidth: 180 }} />
+          <div style={{ display: 'flex', gap: 6, flexWrap: 'wrap' }}>
+            {[{ k: 'all', l: 'Sve' }, { k: 'active', l: 'Aktivne' }, { k: 'expired', l: 'Istekle' }].map(f => (
+              <button key={f.k} onClick={() => setFilter(f.k)}
+                className={filter === f.k ? styles.btnPrimary : styles.btnSecondary} style={{ fontSize: 12, padding: '6px 10px' }}>{f.l}</button>
+            ))}
+          </div>
+        </div>
+      )}
+
+      {loading ? <LoadingSpinner /> : (() => {
+        const now = new Date()
+        const filtered = items.filter(a => {
+          const expired = a.expires_at && new Date(a.expires_at) < now
+          if (filter === 'active' && expired) return false
+          if (filter === 'expired' && !expired) return false
+          if (q.trim()) {
+            const s = q.trim().toLowerCase()
+            if (!(a.title.toLowerCase().includes(s) || (a.body || '').toLowerCase().includes(s))) return false
+          }
+          return true
+        })
+        if (items.length === 0) return <div style={{ padding: 32, textAlign: 'center', color: 'var(--c-text-muted)' }}>Nema obavijesti. Dodaj prvu da je osoblje vidi u portalu.</div>
+        if (filtered.length === 0) return <div style={{ padding: 32, textAlign: 'center', color: 'var(--c-text-muted)' }}>Nema rezultata za filter.</div>
+        return (
         <div style={{ display: 'flex', flexDirection: 'column', gap: 10 }}>
-          {items.map(a => {
+          {filtered.map(a => {
             const expired = a.expires_at && new Date(a.expires_at) < new Date()
             return (
               <div key={a.id} style={{ background: 'var(--c-surface)', border: '1px solid var(--c-border)', borderRadius: 12, padding: '12px 16px', opacity: expired ? 0.6 : 1, display: 'flex', justifyContent: 'space-between', gap: 12 }}>
@@ -166,7 +223,8 @@ function OglasnaTablaTab({ restaurant }) {
             )
           })}
         </div>
-      )}
+        )
+      })()}
     </div>
   )
 }
