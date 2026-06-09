@@ -3551,6 +3551,18 @@ prije produkcijskog naplaćivanja.
 | fix | AnalyticsPage — horizontalni meni (periodi + sekcije) koristi nav.pillBar/pillBtn/pillBtnActive | ✅ | 2026-06-02 |
 | fix | StaffPage — create-staff-user 400 greška: proper parsing iz FunctionsHttpError.context.json() | ✅ | 2026-06-02 |
 | fix | HousekeepingPage — defaultni filter: zadaci=pending, održavanje=open; "Svi" na kraju | ✅ | 2026-06-02 |
+| N | Noćni audit (EOD) — night_audit_runs + run_night_audit/_all/_core, room charge po noći, housekeeping reset, izvještaj+CSV, pg_cron, pgTAP 027 | ✅ | 2026-06-08 |
+| N | Split folio — folios.label/is_primary, create_secondary_folio + move_folio_item, tabovi + zaseban print, pgTAP 028 | ✅ | 2026-06-08 |
+| N | Doručak kontrola — rate_plans.breakfast_included + breakfast_log, /admin/hotel/breakfast, pgTAP 029 | ✅ | 2026-06-08 |
+| fix | Noćni audit — responsive (istorija kao kartice na mobilnom) | ✅ | 2026-06-08 |
+| infra | Domen restby.me LIVE — GoDaddy A→Vercel (216.198.79.1), Resend send.restby.me verifikovan, Supabase Auth + SITE_URL/APP_URL secrets | ✅ | 2026-06-09 |
+| fix | Email 403 — FROM @send.restby.me u send-booking/spa/spa-reminder/trial-reminder | ✅ | 2026-06-09 |
+| feat | Landing → beta — bez cijena/ponuda, #beta sekcija, testimonijali uklonjeni, CTA „Zatraži pristup" | ✅ | 2026-06-09 |
+| feat | Tenant approval flow — approval_status + trigger + RLS, /superadmin Odobri/Odbij, send-approval-email, pgTAP 030 | ✅ | 2026-06-09 |
+| feat | Messaging F1 — platform najave (broadcast, banner za važne, realtime), pgTAP 031 | ✅ | 2026-06-09 |
+| feat | Messaging F2 — support threadovi (admin↔superadmin = podrška, realtime), pgTAP 032 | ✅ | 2026-06-09 |
+| fix | Messaging F3 — staff_announcements RLS fix (cross-tenant curenje) + superadmin support badge, pgTAP 033 | ✅ | 2026-06-09 |
+| feat | Komunikacija dashboard widget + editovanje najava/oglasne ploče (edited_at) | ✅ | 2026-06-09 |
 
 ---
 
@@ -3682,7 +3694,20 @@ prije produkcijskog naplaćivanja.
 │                            iskorišteno vs neiskorišteno). pgTAP 029.
 │              ✅ FAZA N KOMPLETNA (2026-06-08)
 │
-│              ← OVDJE SMO (2026-06-08)
+│              ✅ Domen restby.me LIVE (2026-06-09) — GoDaddy A→Vercel (216.198.79.1),
+│                            Resend verifikovan (send.restby.me), Supabase Auth + secrets.
+│                            Email 403 bug riješen (FROM @send.restby.me). Domen rollout kompletan.
+│              ✅ Landing → beta (2026-06-09) — bez cijena/ponuda, beta poruke, #beta sekcija,
+│                            izmišljeni testimonijali uklonjeni, CTA „Zatraži pristup".
+│              ✅ Tenant approval flow (2026-06-09) — nova registracija → odobrenje superadmina
+│                            (approval_status + trigger + RLS; /superadmin Odobri/Odbij +
+│                            email obavijest vlasniku). pgTAP 030.
+│              ✅ In-app messaging KOMPLETAN (2026-06-09) — najave (broadcast, banner za važne),
+│                            support threadovi (admin↔superadmin = podrška), staff_announcements
+│                            RLS fix; sve realtime; dashboard widget; editovanje najava/oglasne
+│                            ploče. pgTAP 031/032/033.
+│
+│              ← OVDJE SMO (2026-06-09)
 │
 ├── Jun–Jul    ⬜ GDPR    — Compliance UI (anonimizacija, export, privole)
 │
@@ -3721,4 +3746,4 @@ prije produkcijskog naplaćivanja.
 
 ---
 
-*Roadmap ažuriran: 2026-06-08 (v6.3 — Faza N KOMPLETNA: + split folio (folios.label/is_primary, create_secondary_folio + move_folio_item, tabovi + zaseban print po foliju, pgTAP 028) + doručak kontrola (rate_plans.breakfast_included + breakfast_log, /admin/hotel/breakfast planirano vs iskorišteno, pgTAP 029); v6.2 — Faza N start: noćni audit (EOD) — night_audit_runs + run_night_audit/_all + _core, room charge stavka po noći (idempotentno), housekeeping reset, dnevni izvještaj (prihod/popunjenost/ADR) + CSV, /admin/hotel/night-audit UI, pg_cron night-audit-daily, pgTAP 027; uključeno u hotel_core; check-in seeduje folio na 0; v6.1 — Spa dopuna: recenzije/ocjene, retail prodaja, online kartično plaćanje vanjskih gostiju; Minibar (Faza P dio): katalog + folio zaduženje; v6.0 — Faza BILL dopuna: planovi/addoni opisi+features, superadmin kreira planove (Nivo A), gating iz plans.includes, render iz DB; Nivo B kupovina odgođena do Monri; v5.9 — Faza BILL: superadmin pricing & beta kontrola — platform_settings + plans + addon_catalog.beta_free + is_beta_free(), /superadmin/billing UI, cijene iz DB; v5.8 — 2b tenant model; v5.1 — Staff portal sub-pills wrap layout; v5.0 — Faza PAY kompletna PAY-1..12; v4.9 — Faza Z.1 kompletna) | Branch: main | Deployment: Vercel auto-deploy*
+*Roadmap ažuriran: 2026-06-09 (v6.4 — Domen restby.me LIVE (GoDaddy A→Vercel 216.198.79.1, Resend send.restby.me verifikovan, Supabase Auth+secrets, email 403 fix FROM @send.restby.me); Landing→beta (bez cijena, #beta sekcija, testimonijali uklonjeni, CTA „Zatraži pristup"); Tenant approval flow (approval_status+trigger+RLS, /superadmin Odobri/Odbij + send-approval-email, pgTAP 030); In-app messaging KOMPLETAN — Faza 1 najave (platform_announcements+reads, broadcast, banner za važne, pgTAP 031), Faza 2 support threadovi (support_conversations+messages, admin↔superadmin=podrška, pgTAP 032), Faza 3 staff_announcements RLS fix (pgTAP 033)+superadmin support badge; sve realtime; dashboard CommunicationWidget; editovanje najava/oglasne ploče (edited_at); v6.3 — Faza N KOMPLETNA: + split folio (folios.label/is_primary, create_secondary_folio + move_folio_item, tabovi + zaseban print po foliju, pgTAP 028) + doručak kontrola (rate_plans.breakfast_included + breakfast_log, /admin/hotel/breakfast planirano vs iskorišteno, pgTAP 029); v6.2 — Faza N start: noćni audit (EOD) — night_audit_runs + run_night_audit/_all + _core, room charge stavka po noći (idempotentno), housekeeping reset, dnevni izvještaj (prihod/popunjenost/ADR) + CSV, /admin/hotel/night-audit UI, pg_cron night-audit-daily, pgTAP 027; uključeno u hotel_core; check-in seeduje folio na 0; v6.1 — Spa dopuna: recenzije/ocjene, retail prodaja, online kartično plaćanje vanjskih gostiju; Minibar (Faza P dio): katalog + folio zaduženje; v6.0 — Faza BILL dopuna: planovi/addoni opisi+features, superadmin kreira planove (Nivo A), gating iz plans.includes, render iz DB; Nivo B kupovina odgođena do Monri; v5.9 — Faza BILL: superadmin pricing & beta kontrola — platform_settings + plans + addon_catalog.beta_free + is_beta_free(), /superadmin/billing UI, cijene iz DB; v5.8 — 2b tenant model; v5.1 — Staff portal sub-pills wrap layout; v5.0 — Faza PAY kompletna PAY-1..12; v4.9 — Faza Z.1 kompletna) | Branch: main | Deployment: Vercel auto-deploy*
