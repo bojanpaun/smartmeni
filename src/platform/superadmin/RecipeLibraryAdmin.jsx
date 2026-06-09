@@ -3,6 +3,7 @@ import { useNavigate } from 'react-router-dom'
 import { supabase } from '../../lib/supabase'
 import { usePlatform } from '../../context/PlatformContext'
 import styles from './RecipeLibraryAdmin.module.css'
+import hs from '../../modules/hotel/pages/Hotel.module.css'
 
 const BUCKET = 'recipe-library'
 const UNITS = ['ml', 'g', 'kom']
@@ -207,9 +208,9 @@ export default function RecipeLibraryAdmin() {
           <div className={styles.sub}>Uređivanje recepata, sastojaka i slika</div>
         </div>
         <div className={styles.headerActions}>
-          <button className={styles.btnNew} onClick={openNew}>+ Novi recept</button>
-          <button className={styles.btnBack} onClick={() => navigate('/superadmin/nutrition')}>🧪 Nutritivna tabela</button>
-          <button className={styles.btnBack} onClick={() => navigate('/superadmin')}>← Super admin</button>
+          <button className={hs.btnSecondary} onClick={() => navigate('/superadmin')}>← Super admin</button>
+          <button className={hs.btnSecondary} onClick={() => navigate('/superadmin/nutrition')}>🧪 Nutritivna tabela</button>
+          <button className={hs.btnPrimary} onClick={openNew}>+ Novi recept</button>
         </div>
       </div>
 
