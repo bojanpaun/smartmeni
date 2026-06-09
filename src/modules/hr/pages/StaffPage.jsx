@@ -184,69 +184,7 @@ export default function StaffPage() {
         </div>
       )}
 
-      {/* Obavijesti za osoblje */}
-      <div className={styles.section} style={{ marginTop: 24 }}>
-        <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: 12 }}>
-          <div className={styles.sectionLabel}>OBAVIJESTI ZA OSOBLJE ({announcements.length})</div>
-          <button className={styles.btnSecondary} onClick={() => {
-            if (showAnnForm) { setShowAnnForm(false); setEditingAnnId(null); setAnnForm({ title: '', body: '', expires_at: '' }) }
-            else setShowAnnForm(true)
-          }}>
-            {showAnnForm ? 'Otkaži' : '+ Nova obavijest'}
-          </button>
-        </div>
-
-        {showAnnForm && (
-          <form onSubmit={saveAnnouncement} className={styles.annForm}>
-            <div className={styles.field}>
-              <label>Naslov *</label>
-              <input value={annForm.title} onChange={e => setAnnForm(f => ({ ...f, title: e.target.value }))}
-                placeholder="Npr. Promjena rasporeda u subotu" required />
-            </div>
-            <div className={styles.field}>
-              <label>Tekst obavijesti</label>
-              <textarea value={annForm.body} onChange={e => setAnnForm(f => ({ ...f, body: e.target.value }))}
-                placeholder="Detaljniji opis (opcionalno)..." rows={3} />
-            </div>
-            <div className={styles.field}>
-              <label>Istječe (opcionalno)</label>
-              <input type="datetime-local" value={annForm.expires_at}
-                onChange={e => setAnnForm(f => ({ ...f, expires_at: e.target.value }))} />
-            </div>
-            <div className={styles.modalActions}>
-              <button type="button" className={styles.btnSecondary} onClick={() => { setShowAnnForm(false); setEditingAnnId(null); setAnnForm({ title: '', body: '', expires_at: '' }) }}>Otkaži</button>
-              <button type="submit" className={styles.btnPrimary} disabled={annSaving}>
-                {annSaving ? 'Slanje...' : (editingAnnId ? 'Sačuvaj izmjene' : 'Objavi obavijest')}
-              </button>
-            </div>
-          </form>
-        )}
-
-        {announcements.length === 0 && !showAnnForm && (
-          <div className={styles.annEmpty}>Nema aktivnih obavijesti. Dodaj obavijest da je osoblje vidi na Početnoj stranici portala.</div>
-        )}
-        {announcements.map(ann => {
-          const isExpired = ann.expires_at && new Date(ann.expires_at) < new Date()
-          return (
-            <div key={ann.id} className={`${styles.annCard} ${isExpired ? styles.annExpired : ''}`}>
-              <div className={styles.annCardBody}>
-                <div className={styles.annCardTitle}>{ann.title}</div>
-                {ann.body && <div className={styles.annCardText}>{ann.body}</div>}
-                <div className={styles.annCardMeta}>
-                  Objavljeno {new Date(ann.created_at).toLocaleDateString('sr-Latn', { day: 'numeric', month: 'short', year: 'numeric' })}
-                  {ann.expires_at && ` · istječe ${new Date(ann.expires_at).toLocaleDateString('sr-Latn', { day: 'numeric', month: 'short' })}`}
-                  {ann.edited_at && ' · izmijenjeno'}
-                  {isExpired && ' · ⚠ Isteklo'}
-                </div>
-              </div>
-              <div style={{ display: 'flex', gap: 6, flexShrink: 0 }}>
-                <button className={styles.btnSecondary} style={{ padding: '4px 10px', fontSize: 12 }} onClick={() => openEditAnn(ann)} title="Uredi">Uredi</button>
-                <button className={styles.annDeleteBtn} onClick={() => deleteAnnouncement(ann.id)} title="Obriši">✕</button>
-              </div>
-            </div>
-          )
-        })}
-      </div>
+      {/* Obavijesti za osoblje preseljene u Obavještenja (/admin/notifications → tab Oglasna tabla) */}
 
       {showForm && (
         <div className={styles.overlay} onClick={() => setShowForm(false)}>

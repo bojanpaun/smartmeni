@@ -1,8 +1,10 @@
 import { useState } from 'react'
 import { supabase } from '../../../lib/supabase'
 import s from '../StaffPortal.module.css'
+import NotificationsView from './NotificationsView'
 
 export default function ProfileView({ staff, staffId, brand }) {
+  const [section, setSection] = useState('profil')
   const [form, setForm] = useState({
     phone:                  staff?.phone                  || '',
     address:                staff?.address                || '',
@@ -50,6 +52,17 @@ export default function ProfileView({ staff, staffId, brand }) {
 
   return (
     <div>
+      <div className={s.subPillNav}>
+        {[{ k: 'profil', l: 'Profil' }, { k: 'obavestenja', l: 'Obavještenja' }].map(p => (
+          <button key={p.k} className={`${s.subPill} ${section === p.k ? s.subPillActive : ''}`}
+            style={section === p.k ? { background: brand, borderColor: brand } : undefined}
+            onClick={() => setSection(p.k)}>{p.l}</button>
+        ))}
+      </div>
+
+      {section === 'obavestenja' ? (
+        <NotificationsView restaurantId={staff?.restaurant_id} />
+      ) : (<>
       {/* Osnovno */}
       <div className={s.card}>
         <div className={s.cardTitle}>Moj profil</div>
@@ -132,6 +145,7 @@ export default function ProfileView({ staff, staffId, brand }) {
           </form>
         )}
       </div>
+      </>)}
     </div>
   )
 }

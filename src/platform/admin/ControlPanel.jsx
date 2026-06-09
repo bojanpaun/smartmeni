@@ -265,7 +265,7 @@ export default function ControlPanel() {
       )}
 
       {/* ── Upravljanje (dijeljeni moduli) ── */}
-      {(upravljanjeMods.length > 0 || isOwner()) && (
+      {(upravljanjeMods.length > 0 || isOwner() || isSuperAdmin()) && (
         <div className={styles.section}>
           <div className={styles.verticalHead}>
             <span className={styles.verticalEmoji}>📋</span>
@@ -276,7 +276,7 @@ export default function ControlPanel() {
           </div>
           <div className={styles.grid}>
             {upravljanjeMods.map(renderCard)}
-            {isOwner() && (
+            {(isOwner() || isSuperAdmin()) && (
               <button className={`${styles.card} ${styles.cardActive}`} onClick={() => navigate('/admin/notifications')}>
                 <div className={styles.cardIcon}>📣</div>
                 <div className={styles.cardBody}>
@@ -325,7 +325,7 @@ export default function ControlPanel() {
                 <div className={styles.cardDesc}>Upravljanje rolama i pristupima osoblja</div>
               </div>
             </button>
-            {isOwner() && (
+            {(isOwner() || isSuperAdmin()) && (
               <button className={`${styles.card} ${styles.cardSys} ${styles.cardActive}`} onClick={() => navigate('/admin/support')}>
                 <div className={styles.cardIcon}>💬</div>
                 <div className={styles.cardBody}>
