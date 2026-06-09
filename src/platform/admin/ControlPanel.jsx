@@ -325,8 +325,8 @@ export default function ControlPanel() {
                 <div className={styles.cardDesc}>Upravljanje rolama i pristupima osoblja</div>
               </div>
             </button>
-            {(isOwner() || isSuperAdmin()) && (
-              <button className={`${styles.card} ${styles.cardSys} ${styles.cardActive}`} onClick={() => navigate(isSuperAdmin() ? '/superadmin/podrska' : '/admin/support')}>
+            {isOwner() && (
+              <button className={`${styles.card} ${styles.cardSys} ${styles.cardActive}`} onClick={() => navigate('/admin/support')}>
                 <div className={styles.cardIcon}>💬</div>
                 <div className={styles.cardBody}>
                   <div className={styles.cardName}>Podrška <CardBadge n={unreadSupport} /></div>
