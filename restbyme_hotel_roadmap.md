@@ -326,6 +326,17 @@ Sljedeće funkcionalnosti su stabilne i testovane end-to-end. Svaka izmjena mora
 | `night_audit` | Nocni audit (EOD), split folio, doručak kontrola | ⬜ Faza N |
 | `pms_pro` | Room service, minibar, grupne rezervacije, waitlista | ⬜ Faza P |
 
+### Rental-specifični addoni (vertikala kratkoročnog najma)
+
+| Addon ID | Opis | Status u kodu |
+|----------|------|---------------|
+| `rental_core` | Osnova rental verticale (jedinice, multi-unit kalendar, direktne rezervacije, boravišna taksa, prijava gostiju) — gating kao `hotel_core` | ⬜ Faza RENT |
+
+> **Napomena (korekcija 2026-06-09):** `channel_manager` i `housekeeping` addoni trenutno
+> `depends_on = ARRAY['hotel_core', ...]`, pa ih čist rental tenant ne može aktivirati. Rental
+> distribucija (RENT-1) koristi vlastiti iCal sloj; za puni 2-way channel manager treba
+> relaksirati `depends_on` na „hotel_core OR rental_core".
+
 ---
 
 ## 💳 Arhitektura plaćanja (Payment provider abstrakcija)
@@ -3165,6 +3176,260 @@ RLS politike se proširuju da provjeravaju `portfolio_access.scope` — regional
 
 ---
 
+## ⬜ Faza RENT — Rental vertikala (kratkoročni najam: apartmani, vile)
+
+> **Naziv:** „Faza RENT", a NE „Faza R" — `Faza R` je već zauzeta (Bar kao posebna
+> stanica, ZAVRŠENA). Vertikalni ključ: `rental`. Gating addon: `rental_core`.
+> **Status:** ⬜ planirano (analiza i korekcije usvojene 2026-06-09).
+
+**Pozicija:** treća vertikala uz `restaurant` i `hotel`. NIJE isto što Hotel (jedna
+zgrada, recepcija, sve na istoj lokaciji) ni Faza 9 `portfolio_owner` (menadžment sloj
+iznad više tenant-biznisa). Ovdje **jedan tenant izdaje više nezavisnih jedinica**
+(apartmani, vile) raštrkanih po lokacijama, najčešće sa self check-in-om i distribucijom
+preko OTA-a.
+
+### Vizija
+Vacation-rental PMS za crnogorsko tržište: jedan nalog vodi kalendar, goste, čišćenje,
+plaćanja i zakonsku usklađenost (prijava gostiju, boravišna taksa) za sve jedinice — bilo
+da su domaćinove vlastite, tuđe (agencijski model), ili kombinacija.
+
+### Ključni model — vlasništvo je osobina JEDINICE (ne mod aplikacije)
+Ne pravimo „domaćin mod" vs „agencija mod". Svaka jedinica ima vlasnika:
+- `owner_id IS NULL` → **vlastita** jedinica (0% provizije, prihod ide tenantu),
+- `owner_id` popunjen → **tuđa** jedinica (provizija + payout tom vlasniku).
+
+Jedan nalog time pokriva domaćina, agenciju i miks. Vlasnički sloj (portal, obračuni,
+isplate) ne tiče se vlastitih jedinica i može doći u kasnijoj pod-fazi bez promjene strukture.
+
+### Reuse vs novo — KORIGOVANO (provjereno uz kod, 2026-06-09)
+Originalni nacrt je precjenjivao „reuse" na tri mjesta. Stvarno stanje:
+
+| Komponenta | Nacrt rekao | Stvarnost u kodu | Zaključak |
+|------------|-------------|------------------|-----------|
+| **Booking/availability engine** | reuse | `get_available_rooms()` + trigeri + `room_availability` keš su tvrdo vezani za `hotel_reservations`/`hotel_rooms` (`20260530000006_availability_engine.sql`) | **NOVO** — ista logika iznova za `rental_*`. Preporuka: `EXCLUDE` constraint (`daterange` + gist) na `rental_reservations` umjesto trigger pristupa |
+| **Folio / plaćanja** | reuse folija | `folios.reservation_id → hotel_reservations(id)` (`hotel_core.sql:80`) — folio je tvrdo spojen na hotel | **Folio se NE koristi.** R0 je samodostatan (novčane kolone na `rental_reservations`). Reuse = **payment apstrakcija** (Monri/Stripe edge funkcije), NE folio tabela |
+| **`channel_manager` / `housekeeping` addoni** | reuse | oba `depends_on = ARRAY['hotel_core', ...]` (`addon_catalog`) — čist rental tenant ih ne može aktivirati | RENT-1 koristi **vlastiti** iCal (`rental_channel_listings`); RENT-3 housekeeping je **novi rental sloj**. Ili relaksiraj `depends_on` na „hotel_core OR rental_core" |
+| **Baza gostiju** | reuse | `guests` je dijeljena, FK radi | ✔ reuse |
+| **Customizabilni sajt (Faza Y)** | reuse | block editor je oko hotel/restoran page modela | **djelimično** — per-unit javna booking stranica je nova površina |
+| **Analytics Pro** | reuse | dijeljeni addon | ✔ reuse |
+
+### Gating — kako se uklapa u postojeći model
+- `rental_core` = **addon** u `addon_catalog` (nova kategorija `rental`) + registracija u
+  `planUtils.js` (pravilo §2: novi addon ID na DVA mjesta). Rute se gejtuju
+  `<AddonGuard addonId="rental_core">` — isto kao hotel (`/admin/hotel` koristi
+  `AddonGuard hotel_core`, NE `VerticalGuard`).
+- `rental` u `restaurants.active_verticals` (+ `ALL_VERTICALS` u `ControlPanel.jsx` + RPC
+  kategorije) — prisutnost-flag za dashboard kartice.
+
+### Tehnički dug — `restaurants → properties` refaktor
+Ova vertikala je **najjači argument** za refaktor: jedinica sa vlastitom lokacijom
+konceptualno ne pripada `restaurant_id`. MVP i dalje koristi `restaurant_id` kao tenant
+identifikator (pravilo §1), ali svaka nova tabela produbljuje dug. **Odluku o refaktoru
+donijeti svjesno prije Faze RENT-2.**
+
+---
+
+### ⬜ Faza RENT-0 — MVP (podijeljeno na 0a + 0b)
+
+> **Preduslov:** `rental_core` addon. **Korekcija sizinga:** originalnih „5–7 sedmica" za
+> cijeli R0 je preambiciozno za solo dev + Claude (javni booking + payment integracija su
+> sami velik komad). Razdvojeno na:
+
+**RENT-0a — Admin core (3–4 sedmice)**
+- CRUD jedinica sa lokacijom + mapa pregled; amenities, foto (Supabase Storage).
+- Centralni multi-unit kalendar preko svih jedinica/lokacija; **overbooking guard po
+  jedinici** preko `EXCLUDE` constrainta (+ pgTAP test).
+- Direktna rezervacija (admin strana).
+- **Sezonske cijene** — `rental_unit_pricing` (date-range override). **Dodato u korekciji:**
+  flat `base_price` je pretanak za CG tržište (ljeto vs zima 3–5×); hotel ima `rate_plans_v2`,
+  rental treba ekvivalent već u MVP-u.
+- **`rental_settings`** tabela — stopa boravišne takse, default check-in instrukcije
+  (konfigurabilna stopa mora negdje živjeti). **Dodato u korekciji.**
+- Boravišna taksa auto-obračun (po osobi/noćenju) na rezervaciji.
+
+**RENT-0b — Javna strana + usklađenost (3–4 sedmice)**
+- Javni booking po jedinici (reuse customizabilnog sajta, **djelimično** — nova površina).
+- Plaćanje gosta (depozit + balans) preko payment apstrakcije. **Zavisnost (korekcija):**
+  online naplata realno čeka **Monri rollout** (po `project_payments_direction` Monri još
+  nije živ; naplata je beta). MVP može krenuti sa praćenjem depozita + bankovni transfer.
+- Prijava gostiju: prikupljanje (`rental_guest_registrations`) + **export liste** za
+  eTurista/MUP (API integracija = RENT-4).
+- Self check-in: instrukcije i pristupni kod po jedinici, automatski u guest poruci.
+
+**Ključne tabele (sve: `restaurant_id NOT NULL` + FK + RLS; + indeksi `(restaurant_id)`,
+`(unit_id, check_in_date, check_out_date)`; + `updated_at` na units/reservations):**
+
+```sql
+CREATE TABLE rental_owners (        -- skelet od starta; alati u RENT-2
+  id UUID PRIMARY KEY DEFAULT gen_random_uuid(),
+  restaurant_id UUID NOT NULL REFERENCES restaurants(id) ON DELETE CASCADE,
+  name TEXT NOT NULL,
+  email TEXT, phone TEXT, iban TEXT,
+  default_commission_pct NUMERIC(5,2) DEFAULT 0,
+  user_id UUID REFERENCES auth.users(id),   -- za owner portal (RENT-2)
+  created_at TIMESTAMPTZ DEFAULT now()
+);
+
+CREATE TABLE rental_units (
+  id UUID PRIMARY KEY DEFAULT gen_random_uuid(),
+  restaurant_id UUID NOT NULL REFERENCES restaurants(id) ON DELETE CASCADE,
+  owner_id UUID REFERENCES rental_owners(id),   -- NULL = vlastita jedinica
+  commission_pct NUMERIC(5,2),                  -- override default vlasnika
+  name TEXT NOT NULL,
+  unit_type TEXT NOT NULL DEFAULT 'apartman',   -- apartman|vila|studio|soba
+  address TEXT, city TEXT, country_code TEXT DEFAULT 'ME',
+  latitude NUMERIC(9,6), longitude NUMERIC(9,6),
+  max_guests INT, bedrooms INT, beds INT, bathrooms INT,
+  amenities TEXT[] DEFAULT '{}',
+  description TEXT, description_en TEXT, house_rules TEXT,
+  base_price NUMERIC(10,2),
+  cleaning_fee NUMERIC(10,2) DEFAULT 0,
+  min_stay INT DEFAULT 1,
+  access_type TEXT DEFAULT 'keybox',            -- keybox|smart_lock|licno
+  check_in_instructions TEXT,
+  status TEXT DEFAULT 'active',
+  created_at TIMESTAMPTZ DEFAULT now(),
+  updated_at TIMESTAMPTZ DEFAULT now()
+);
+
+CREATE TABLE rental_unit_pricing (              -- DODATO U KOREKCIJI (sezonske cijene)
+  id UUID PRIMARY KEY DEFAULT gen_random_uuid(),
+  restaurant_id UUID NOT NULL REFERENCES restaurants(id) ON DELETE CASCADE,
+  unit_id UUID NOT NULL REFERENCES rental_units(id) ON DELETE CASCADE,
+  date_from DATE NOT NULL, date_to DATE NOT NULL,
+  nightly_price NUMERIC(10,2) NOT NULL,
+  min_stay INT
+);
+
+CREATE TABLE rental_settings (                  -- DODATO U KOREKCIJI (config po tenantu)
+  restaurant_id UUID PRIMARY KEY REFERENCES restaurants(id) ON DELETE CASCADE,
+  tourist_tax_per_person NUMERIC(10,2) DEFAULT 0,
+  tourist_tax_currency TEXT DEFAULT 'EUR',
+  default_check_in_instructions TEXT
+);
+
+CREATE TABLE rental_reservations (
+  id UUID PRIMARY KEY DEFAULT gen_random_uuid(),
+  restaurant_id UUID NOT NULL REFERENCES restaurants(id) ON DELETE CASCADE,
+  unit_id UUID NOT NULL REFERENCES rental_units(id),
+  guest_id UUID REFERENCES guests(id),
+  source TEXT DEFAULT 'direct',                 -- direct|booking|airbnb|vrbo
+  external_ref TEXT,                            -- OTA broj rezervacije
+  check_in_date DATE NOT NULL, check_out_date DATE NOT NULL,
+  guest_name TEXT NOT NULL, guest_email TEXT, guest_phone TEXT,
+  adults INT DEFAULT 1, children INT DEFAULT 0,
+  nightly_total NUMERIC(10,2), cleaning_fee NUMERIC(10,2) DEFAULT 0,
+  tourist_tax NUMERIC(10,2) DEFAULT 0,          -- boravišna taksa
+  deposit NUMERIC(10,2) DEFAULT 0,
+  total_amount NUMERIC(10,2),
+  payment_status TEXT DEFAULT 'pending',
+  status TEXT DEFAULT 'confirmed',
+  created_at TIMESTAMPTZ DEFAULT now(),
+  updated_at TIMESTAMPTZ DEFAULT now(),
+  -- DODATO U KOREKCIJI: overbooking guard kao constraint (ne trigger)
+  -- Preduslov: CREATE EXTENSION IF NOT EXISTS btree_gist; (za `unit_id WITH =`)
+  EXCLUDE USING gist (
+    unit_id WITH =,
+    daterange(check_in_date, check_out_date, '[)') WITH &&
+  ) WHERE (status <> 'cancelled')
+);
+
+CREATE TABLE rental_guest_registrations (        -- eTurista/MUP usklađenost (RLS obavezan!)
+  id UUID PRIMARY KEY DEFAULT gen_random_uuid(),
+  restaurant_id UUID NOT NULL REFERENCES restaurants(id) ON DELETE CASCADE,
+  reservation_id UUID NOT NULL REFERENCES rental_reservations(id) ON DELETE CASCADE,
+  full_name TEXT, document_type TEXT, document_number TEXT,
+  nationality TEXT, birth_date DATE,
+  registered_at TIMESTAMPTZ, eturista_ref TEXT
+);
+```
+
+**Trigger (dodato u korekciji):** analogno hotelu (`trg_hotel_reservation_auto_guest`),
+napraviti `trg_rental_reservation_auto_guest` na `rental_reservations` (auto-kreiranje/
+linkovanje gosta) radi konzistentnosti CRM-a.
+
+**Definition of Done (RENT-0):**
+- [ ] `rental_owners/units/unit_pricing/settings/reservations/guest_registrations` sa RLS
+- [ ] `owner_id` model radi: vlastite (NULL) i tuđe jedinice koegzistiraju
+- [ ] Multi-unit kalendar + overbooking guard (`EXCLUDE` constraint) + pgTAP test
+- [ ] Sezonske cijene (`rental_unit_pricing`) primijenjene na obračun rezervacije
+- [ ] Direktna rezervacija; javni booking + plaćanje (RENT-0b, uz Monri zavisnost)
+- [ ] Boravišna taksa auto-obračun (stopa iz `rental_settings`)
+- [ ] Auto-guest trigger na `rental_reservations`
+- [ ] Export prijave gostiju (lista za eTurista/MUP)
+- [ ] `rental_core` u `addon_catalog` (kategorija `rental`) + `planUtils.js`
+- [ ] `000_` RLS guard zelen za sve nove tabele
+
+---
+
+### ⬜ Faza RENT-1 — Distribucija (kanali)
+> **Preduslov:** RENT-0. Trajanje: 4–6 sedmica. **Samodostatan** — ne zahtijeva hotelski
+> `channel_manager` addon (koji ionako `depends_on hotel_core`).
+- iCal sync po jedinici (import/export) — minimalna zaštita od double-bookinga sa
+  Booking.com/Airbnb (`rental_channel_listings`: `unit_id, channel, ical_url, token`).
+  iCal export = anon, token-gated edge endpoint (obrazac postojećih anon RPC-ova).
+- Objedinjeni prikaz direktnih + OTA rezervacija u jednom kalendaru.
+- Kasnije: puni 2-way channel manager (rate/availability push) kroz Faza 6 (uz relaksaciju
+  `depends_on` na „hotel_core OR rental_core").
+
+---
+
+### ⬜ Faza RENT-2 — Vlasnički sloj (agencijski model)
+> **Preduslov:** RENT-0. Trajanje: 5–7 sedmica. Aditivno — ne dira RENT-0 strukturu.
+> **NAJVEĆI arhitektonski dodatak (korekcija):** owner portal uvodi **treću auth rolu** —
+> „eksterni vlasnik" (`auth.users` vezan preko `rental_owners.user_id`, nije ni tenant-owner
+> ni staff ni superadmin). PlatformContext trenutno tu rolu ne poznaje; treba novi guard +
+> RLS obrazac `owner_id IN (SELECT id FROM rental_owners WHERE user_id = auth.uid())`.
+
+```sql
+CREATE TABLE rental_expenses (
+  id UUID PRIMARY KEY DEFAULT gen_random_uuid(),
+  restaurant_id UUID NOT NULL REFERENCES restaurants(id) ON DELETE CASCADE,
+  unit_id UUID NOT NULL REFERENCES rental_units(id),
+  type TEXT, amount NUMERIC(10,2) NOT NULL, expense_date DATE, note TEXT
+);
+
+CREATE TABLE rental_owner_statements (
+  id UUID PRIMARY KEY DEFAULT gen_random_uuid(),
+  restaurant_id UUID NOT NULL REFERENCES restaurants(id) ON DELETE CASCADE,
+  owner_id UUID NOT NULL REFERENCES rental_owners(id),
+  period_start DATE, period_end DATE,
+  gross NUMERIC(10,2), expenses NUMERIC(10,2), commission NUMERIC(10,2),
+  payout NUMERIC(10,2), status TEXT DEFAULT 'draft',  -- draft|sent|paid
+  created_at TIMESTAMPTZ DEFAULT now()
+);
+```
+
+**Definition of Done (RENT-2):**
+- [ ] Provizija i troškovi po jedinici
+- [ ] Auto mjesečni obračun po vlasniku (bruto − troškovi − provizija = payout) + PDF
+- [ ] Owner portal sa RLS izolacijom (vlasnik A ne vidi vlasnika B) + pgTAP test
+- [ ] Nova „eksterni vlasnik" auth rola u PlatformContext/guard
+- [ ] Vlastite jedinice (`owner_id IS NULL`) izuzete iz owner obračuna
+
+---
+
+### ⬜ Faza RENT-3 — Operacije: distribuirani housekeeping + održavanje
+> **Preduslov:** RENT-0. Trajanje: 4–5 sedmica. **Novi rental sloj** (hotelski `housekeeping`
+> addon `depends_on hotel_core` i nema rutiranje između lokacija).
+- Turnover čišćenje između gostiju po jedinici; raspored + dodjela čistačica.
+- **Rutiranje između lokacija** (redoslijed obilaska, putno vrijeme) — ključno jer su
+  jedinice raštrkane (ne postoji kod hotela).
+- Checkliste po jedinici, evidencija veša; maintenance ticketi po jedinici + majstori.
+
+---
+
+### ⬜ Faza RENT-4 — Napredno
+> **Preduslov:** RENT-0..2.
+- eTurista/MUP API direktna integracija (auto prijava umjesto export liste).
+- Dynamic pricing (PriceLabs/Beyond integracija).
+- Pametne brave (Nuki/TTLock) — auto pristupni kodovi po rezervaciji.
+- Automatske sekvence poruka gostu (pred-dolazak, tokom, checkout, recenzija).
+- Digitalni vodič za goste (house manual, wifi, preporuke) u guest app-u.
+- Agregacija recenzija po kanalima.
+
+---
+
 ## Tehnički dug / Poznati problemi
 
 | Stavka | Prioritet | Šta konkretno treba | Faza |
@@ -3563,6 +3828,11 @@ prije produkcijskog naplaćivanja.
 | feat | Messaging F2 — support threadovi (admin↔superadmin = podrška, realtime), pgTAP 032 | ✅ | 2026-06-09 |
 | fix | Messaging F3 — staff_announcements RLS fix (cross-tenant curenje) + superadmin support badge, pgTAP 033 | ✅ | 2026-06-09 |
 | feat | Komunikacija dashboard widget + editovanje najava/oglasne ploče (edited_at) | ✅ | 2026-06-09 |
+| feat | NotificationsPage — filteri + pretraga (severity/aktivno-isteklo); superadmin sidebar modul (auto-nav umjesto dugmadi); support/obavještenja role split (/admin = tenant, /superadmin = sve); admin poruka kao „oblak" banner samo na dashboardu | ✅ | 2026-06-09 |
+| feat | Support FAQ baza znanja — `support_faq` (platform-global, RLS is_superadmin manage / authenticated read published), pgTAP 035 | ✅ | 2026-06-09 |
+| feat | FAQ kao zaseban sidebar tab (Poruke \| FAQ) + `FaqSuggestions` u composeru tiketa + `/superadmin/faq` CRUD | ✅ | 2026-06-09 |
+| feat | FAQ seed — 38 pitanja, 9 kategorija (rezervacije/folio/meni/spa/domaćinstvo/inventar/plaćanja/osoblje/ostalo); osnovne funkcionalnosti + veze modula | ✅ | 2026-06-09 |
+| docs | Roadmap — Faza RENT (Rental vertikala) dodata uz korekcije (reuse provjeren uz kod, R0a/0b split, sezonske cijene, rental_settings, EXCLUDE overbooking guard, eksterni-vlasnik auth rola, Monri zavisnost) | ✅ | 2026-06-09 |
 
 ---
 
@@ -3706,6 +3976,11 @@ prije produkcijskog naplaćivanja.
 │                            support threadovi (admin↔superadmin = podrška), staff_announcements
 │                            RLS fix; sve realtime; dashboard widget; editovanje najava/oglasne
 │                            ploče. pgTAP 031/032/033.
+│              ✅ Support FAQ baza znanja (2026-06-09) — support_faq (platform-global, RLS),
+│                            FAQ kao zaseban sidebar tab (Poruke | FAQ), FaqSuggestions u
+│                            composeru, /superadmin/faq CRUD, seed 38 pitanja / 9 kategorija.
+│                            pgTAP 035. NotificationsPage filteri+pretraga; superadmin
+│                            auto-nav sidebar; support/obavještenja role split.
 │
 │              ← OVDJE SMO (2026-06-09)
 │
@@ -3734,6 +4009,14 @@ prije produkcijskog naplaćivanja.
 ├── Q3–Q4      ⬜ Faza 9  — Portfolio Owner Dashboard
 │                            portfolios tabele, KPI aggregacija, alert sistem
 │
+│              ⬜ Faza RENT — Rental vertikala (treća vertikala: apartmani, vile)
+│                            rental_core addon + owner_id model (vlastite/tuđe jedinice)
+│                            RENT-0a admin core (jedinice+kalendar+EXCLUDE guard+sezonske
+│                            cijene+taksa), RENT-0b javni booking+plaćanje+prijava gostiju,
+│                            RENT-1 iCal distribucija, RENT-2 vlasnički sloj (eksterni-vlasnik
+│                            auth rola+payout), RENT-3 distribuirani housekeeping, RENT-4 napredno
+│                            (eTurista API, dynamic pricing, pametne brave)
+│
 └── Q4         ⬜ Faza 10 — Brand & Regional Management
                              brand šabloni, RBAC hijerarhija pristupa
 
@@ -3746,4 +4029,4 @@ prije produkcijskog naplaćivanja.
 
 ---
 
-*Roadmap ažuriran: 2026-06-09 (v6.4 — Domen restby.me LIVE (GoDaddy A→Vercel 216.198.79.1, Resend send.restby.me verifikovan, Supabase Auth+secrets, email 403 fix FROM @send.restby.me); Landing→beta (bez cijena, #beta sekcija, testimonijali uklonjeni, CTA „Zatraži pristup"); Tenant approval flow (approval_status+trigger+RLS, /superadmin Odobri/Odbij + send-approval-email, pgTAP 030); In-app messaging KOMPLETAN — Faza 1 najave (platform_announcements+reads, broadcast, banner za važne, pgTAP 031), Faza 2 support threadovi (support_conversations+messages, admin↔superadmin=podrška, pgTAP 032), Faza 3 staff_announcements RLS fix (pgTAP 033)+superadmin support badge; sve realtime; dashboard CommunicationWidget; editovanje najava/oglasne ploče (edited_at); v6.3 — Faza N KOMPLETNA: + split folio (folios.label/is_primary, create_secondary_folio + move_folio_item, tabovi + zaseban print po foliju, pgTAP 028) + doručak kontrola (rate_plans.breakfast_included + breakfast_log, /admin/hotel/breakfast planirano vs iskorišteno, pgTAP 029); v6.2 — Faza N start: noćni audit (EOD) — night_audit_runs + run_night_audit/_all + _core, room charge stavka po noći (idempotentno), housekeeping reset, dnevni izvještaj (prihod/popunjenost/ADR) + CSV, /admin/hotel/night-audit UI, pg_cron night-audit-daily, pgTAP 027; uključeno u hotel_core; check-in seeduje folio na 0; v6.1 — Spa dopuna: recenzije/ocjene, retail prodaja, online kartično plaćanje vanjskih gostiju; Minibar (Faza P dio): katalog + folio zaduženje; v6.0 — Faza BILL dopuna: planovi/addoni opisi+features, superadmin kreira planove (Nivo A), gating iz plans.includes, render iz DB; Nivo B kupovina odgođena do Monri; v5.9 — Faza BILL: superadmin pricing & beta kontrola — platform_settings + plans + addon_catalog.beta_free + is_beta_free(), /superadmin/billing UI, cijene iz DB; v5.8 — 2b tenant model; v5.1 — Staff portal sub-pills wrap layout; v5.0 — Faza PAY kompletna PAY-1..12; v4.9 — Faza Z.1 kompletna) | Branch: main | Deployment: Vercel auto-deploy*
+*Roadmap ažuriran: 2026-06-09 (v6.5 — Support FAQ baza znanja: support_faq (platform-global, RLS is_superadmin manage/authenticated read published, pgTAP 035), FAQ kao zaseban sidebar tab (Poruke | FAQ), FaqSuggestions u composeru tiketa, /superadmin/faq CRUD, seed 38 pitanja/9 kategorija (osnovne funkcionalnosti + veze modula); NotificationsPage filteri+pretraga; superadmin auto-nav sidebar; support/obavještenja role split (/admin tenant vs /superadmin sve); admin poruka kao „oblak" banner samo na dashboardu. + Faza RENT (Rental vertikala) dodata uz korekcije provjerene uz kod: reuse precizan (booking engine = NOVO/EXCLUDE guard, folio se NE koristi → reuse je payment apstrakcija, channel_manager/housekeeping depends_on hotel_core mismatch), R0 split na RENT-0a admin core / RENT-0b javni booking, dodato rental_unit_pricing (sezonske cijene) + rental_settings (taksa/config) + auto-guest trigger, eksterni-vlasnik kao treća auth rola (RENT-2), Monri zavisnost za online naplatu, rental_core addon (kategorija rental + planUtils.js). Naziv „Faza RENT" jer je „Faza R" zauzeta (Bar). | v6.4 — Domen restby.me LIVE (GoDaddy A→Vercel 216.198.79.1, Resend send.restby.me verifikovan, Supabase Auth+secrets, email 403 fix FROM @send.restby.me); Landing→beta (bez cijena, #beta sekcija, testimonijali uklonjeni, CTA „Zatraži pristup"); Tenant approval flow (approval_status+trigger+RLS, /superadmin Odobri/Odbij + send-approval-email, pgTAP 030); In-app messaging KOMPLETAN — Faza 1 najave (platform_announcements+reads, broadcast, banner za važne, pgTAP 031), Faza 2 support threadovi (support_conversations+messages, admin↔superadmin=podrška, pgTAP 032), Faza 3 staff_announcements RLS fix (pgTAP 033)+superadmin support badge; sve realtime; dashboard CommunicationWidget; editovanje najava/oglasne ploče (edited_at); v6.3 — Faza N KOMPLETNA: + split folio (folios.label/is_primary, create_secondary_folio + move_folio_item, tabovi + zaseban print po foliju, pgTAP 028) + doručak kontrola (rate_plans.breakfast_included + breakfast_log, /admin/hotel/breakfast planirano vs iskorišteno, pgTAP 029); v6.2 — Faza N start: noćni audit (EOD) — night_audit_runs + run_night_audit/_all + _core, room charge stavka po noći (idempotentno), housekeeping reset, dnevni izvještaj (prihod/popunjenost/ADR) + CSV, /admin/hotel/night-audit UI, pg_cron night-audit-daily, pgTAP 027; uključeno u hotel_core; check-in seeduje folio na 0; v6.1 — Spa dopuna: recenzije/ocjene, retail prodaja, online kartično plaćanje vanjskih gostiju; Minibar (Faza P dio): katalog + folio zaduženje; v6.0 — Faza BILL dopuna: planovi/addoni opisi+features, superadmin kreira planove (Nivo A), gating iz plans.includes, render iz DB; Nivo B kupovina odgođena do Monri; v5.9 — Faza BILL: superadmin pricing & beta kontrola — platform_settings + plans + addon_catalog.beta_free + is_beta_free(), /superadmin/billing UI, cijene iz DB; v5.8 — 2b tenant model; v5.1 — Staff portal sub-pills wrap layout; v5.0 — Faza PAY kompletna PAY-1..12; v4.9 — Faza Z.1 kompletna) | Branch: main | Deployment: Vercel auto-deploy*
