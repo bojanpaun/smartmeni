@@ -42,34 +42,12 @@ export default function SuperAdminPanel() {
   })
   const [saving, setSaving] = useState(false)
   const [saveMsg, setSaveMsg] = useState('')
-  const [supportUnread, setSupportUnread] = useState(0)
   const sort = useSortable('name', 'asc')
 
   useEffect(() => {
     loadRestaurants()
     loadAddonCatalog()
     loadPlans()
-  }, [])
-
-  // Broj nepročitanih support konverzacija (admin poslao zadnji, superadmin nije pročitao) + realtime
-  useEffect(() => {
-    const loadSupportUnread = async () => {
-      const { data } = await supabase
-        .from('support_conversations')
-        .select('last_message_at, last_sender_role, superadmin_last_read_at')
-      const n = (data ?? []).filter(c =>
-        c.last_sender_role === 'admin' &&
-        (!c.superadmin_last_read_at || new Date(c.last_message_at) > new Date(c.superadmin_last_read_at))
-      ).length
-      setSupportUnread(n)
-    }
-    loadSupportUnread()
-    const ch = supabase
-      .channel('superadmin-support-unread')
-      .on('postgres_changes', { event: '*', schema: 'public', table: 'support_messages' }, loadSupportUnread)
-      .on('postgres_changes', { event: '*', schema: 'public', table: 'support_conversations' }, loadSupportUnread)
-      .subscribe()
-    return () => supabase.removeChannel(ch)
   }, [])
 
   const loadPlans = async () => {
@@ -261,10 +239,6 @@ export default function SuperAdminPanel() {
           <div className={styles.headerSub}>Upravljanje restoranima i planovima</div>
         </div>
         <div className={styles.headerActions}>
-          <button className={styles.btnRefresh} onClick={() => navigate('/superadmin/announcements')}>📣 Najave</button>
-          <button className={styles.btnRefresh} onClick={() => navigate('/superadmin/support')} style={supportUnread > 0 ? { borderColor: '#c0392b', color: '#c0392b', fontWeight: 700 } : undefined}>
-            💬 Podrška{supportUnread > 0 ? ` (${supportUnread})` : ''}
-          </button>
           <button className={styles.btnRefresh} onClick={() => navigate('/superadmin/billing')}>💶 Naplata i cijene</button>
           <button className={styles.btnRefresh} onClick={() => navigate('/superadmin/recipes')}>📚 Biblioteka recepata</button>
           <button className={styles.btnRefresh} onClick={() => navigate('/superadmin/spa-treatments')}>💆 Biblioteka tretmana</button>

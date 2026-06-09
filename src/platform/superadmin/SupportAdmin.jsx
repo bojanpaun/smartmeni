@@ -156,7 +156,7 @@ export default function SupportAdmin() {
           <h1 className={styles.title}>💬 Podrška — svi tenanti</h1>
           <p className={styles.subtitle}>{unreadTotal} nepročitanih · poruke admina</p>
         </div>
-        <button className={styles.btnSecondary} onClick={() => navigate('/superadmin')}>← Super admin</button>
+        <button className={styles.btnSecondary} onClick={() => navigate('/admin')}>← Kontrolna tabla</button>
       </div>
 
       <div style={{ display: 'flex', gap: 8, marginBottom: 16, flexWrap: 'wrap' }}>

@@ -4,10 +4,18 @@ import { useSupport } from '../../context/SupportContext'
 import { supabase } from '../../lib/supabase'
 import LoadingSpinner from '../../components/shared/LoadingSpinner'
 import styles from '../../modules/hotel/pages/Hotel.module.css'
+import SupportAdmin from '../superadmin/SupportAdmin'
 
 const fmt = (s) => new Date(s).toLocaleString('sr-Latn', { day: '2-digit', month: '2-digit', hour: '2-digit', minute: '2-digit' })
 
+// Role-aware: superadmin vidi svih tenanata (SupportAdmin), vlasnik svoj inbox.
 export default function SupportPage() {
+  const platform = usePlatform()
+  if (platform.isSuperAdmin()) return <SupportAdmin />
+  return <OwnerSupport />
+}
+
+function OwnerSupport() {
   const { user, restaurant } = usePlatform()
   const { conversations, reload, isUnreadForAdmin } = useSupport()
 

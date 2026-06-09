@@ -5,6 +5,7 @@ import { useAnnouncements } from '../../context/AnnouncementsContext'
 import { supabase } from '../../lib/supabase'
 import LoadingSpinner from '../../components/shared/LoadingSpinner'
 import styles from '../../modules/hotel/pages/Hotel.module.css'
+import AnnouncementsManager from '../superadmin/AnnouncementsManager'
 
 const SEV = {
   info:      { icon: 'ℹ️', label: 'Info',   color: 'var(--c-text-medium)' },
@@ -14,36 +15,40 @@ const SEV = {
 const BLANK = { title: '', body: '', expires_at: '' }
 
 export default function NotificationsPage() {
-  const { restaurant } = usePlatform()
+  const { restaurant, isSuperAdmin } = usePlatform()
+  const superA = isSuperAdmin()
   const { visible, readIds, markAllRead } = useAnnouncements()
   const { section } = useParams()
   const tab = section === 'tabla' ? 'tabla' : 'najave'
 
-  // Označi najave pročitanim pri otvaranju sekcije „Najave"
+  // Vlasnik: označi najave pročitanim pri otvaranju. Superadmin upravlja (ne čita).
   const initialUnread = useRef(null)
   const [unreadSnapshot, setUnreadSnapshot] = useState(() => new Set())
   useEffect(() => {
-    if (tab === 'najave' && initialUnread.current === null) {
+    if (tab === 'najave' && !superA && initialUnread.current === null) {
       const snap = new Set(visible.filter(a => !readIds.has(a.id)).map(a => a.id))
       initialUnread.current = snap
       setUnreadSnapshot(snap)
       if (snap.size) markAllRead()
     }
-  }, [tab, visible, readIds, markAllRead])
+  }, [tab, superA, visible, readIds, markAllRead])
+
+  const najaveTitle = superA ? '📣 Najave platforme' : '📣 Najave platforme'
+  const najaveSub = superA ? 'Kreirajte i upravljajte najavama za sve tenante' : 'Novosti i obavijesti platforme rest.by.me'
 
   return (
     <div className={styles.page}>
       <div className={styles.header}>
         <div>
-          <h1 className={styles.title}>{tab === 'tabla' ? '📌 Oglasna tabla' : '📣 Najave platforme'}</h1>
+          <h1 className={styles.title}>{tab === 'tabla' ? '📌 Oglasna tabla' : najaveTitle}</h1>
           <p className={styles.subtitle}>
-            {tab === 'tabla' ? 'Obavijesti za vaše osoblje (vidljive u Staff portalu)' : 'Novosti i obavijesti platforme rest.by.me'}
+            {tab === 'tabla' ? 'Obavijesti za vaše osoblje (vidljive u Staff portalu)' : najaveSub}
           </p>
         </div>
       </div>
 
       {tab === 'najave'
-        ? <NajaveTab visible={visible} unreadSnapshot={unreadSnapshot} />
+        ? (superA ? <AnnouncementsManager /> : <NajaveTab visible={visible} unreadSnapshot={unreadSnapshot} />)
         : <OglasnaTablaTab restaurant={restaurant} />}
     </div>
   )
