@@ -31,9 +31,9 @@ export default defineConfig({
       registerType: 'autoUpdate',
       includeAssets: ['favicon.ico', 'apple-touch-icon.png', 'icons/*.png'],
       manifest: {
-        name: 'SmartMeni',
-        short_name: 'SmartMeni',
-        description: 'Digitalni meni za restorane',
+        name: 'rest.by.me',
+        short_name: 'rest.by.me',
+        description: 'Platforma za restorane i hotele',
         theme_color: '#0d7a52',
         background_color: '#ffffff',
         display: 'standalone',
