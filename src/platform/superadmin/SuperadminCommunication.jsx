@@ -1,14 +1,12 @@
-import { useParams } from 'react-router-dom'
 import { usePlatform } from '../../context/PlatformContext'
 import styles from '../../modules/hotel/pages/Hotel.module.css'
 import SupportManager from './SupportManager'
 import AnnouncementsManager from './AnnouncementsManager'
 
-// Superadmin komunikacija. Sekcija iz rute (/superadmin/komunikacija/:section);
-// sidebar linkovi (Podrška | Obavještenja) dolaze iz AdminLayout modula.
-export default function SuperadminCommunication() {
+// Superadmin komunikacija. Sekcija stiže kao prop iz rute (/superadmin/podrska |
+// /superadmin/obavestenja); sidebar linkovi dolaze iz AdminLayout modula.
+export default function SuperadminCommunication({ section }) {
   const { isSuperAdmin } = usePlatform()
-  const { section } = useParams()
   const tab = section === 'obavestenja' ? 'obavestenja' : 'podrska'
 
   if (!isSuperAdmin()) return (

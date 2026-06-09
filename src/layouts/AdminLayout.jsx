@@ -286,8 +286,8 @@ export const MODULES = [
       label: 'Super admin',
       links: [
         { label: 'Restorani',          icon: '🏢', path: '/superadmin', exact: true },
-        { label: 'Podrška',            icon: '💬', path: '/superadmin/komunikacija/podrska' },
-        { label: 'Obavještenja',       icon: '📣', path: '/superadmin/komunikacija/obavestenja' },
+        { label: 'Podrška',            icon: '💬', path: '/superadmin/podrska' },
+        { label: 'Obavještenja',       icon: '📣', path: '/superadmin/obavestenja' },
         { label: 'Naplata i cijene',   icon: '💶', path: '/superadmin/billing' },
         { label: 'Biblioteka recepata', icon: '📚', path: '/superadmin/recipes' },
         { label: 'Biblioteka tretmana', icon: '💆', path: '/superadmin/spa-treatments' },
