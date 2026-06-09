@@ -56,6 +56,10 @@ export function AnnouncementsProvider({ children }) {
     !isExpired(a) && (a.audience === 'all' || verticals.includes(a.audience)))
   const unread = visible.filter(a => !readIds.has(a.id))
   const importantUnread = unread.filter(a => a.severity === 'important' && !dismissed.has(a.id))
+  // Banner: sve nepročitane koje nisu zatvorene u ovoj sesiji (važne prve)
+  const sevRank = { important: 0, update: 1, info: 2 }
+  const bannerUnread = unread.filter(a => !dismissed.has(a.id))
+    .sort((x, y) => (sevRank[x.severity] ?? 9) - (sevRank[y.severity] ?? 9))
 
   const markRead = useCallback(async (id) => {
     if (!user?.id) return
@@ -79,7 +83,7 @@ export function AnnouncementsProvider({ children }) {
   }, [markRead])
 
   return (
-    <AnnouncementsContext.Provider value={{ visible, unread, importantUnread, readIds, markRead, markAllRead, dismissBanner }}>
+    <AnnouncementsContext.Provider value={{ visible, unread, importantUnread, bannerUnread, readIds, markRead, markAllRead, dismissBanner }}>
       {children}
     </AnnouncementsContext.Provider>
   )

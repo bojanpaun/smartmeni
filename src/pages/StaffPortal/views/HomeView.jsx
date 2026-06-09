@@ -16,6 +16,19 @@ export default function HomeView({ staffId, restaurantId, staffInfo, brand }) {
   const [elapsed, setElapsed]             = useState(null)
   const timerRef = useRef(null)
 
+  // Zatvaranje obavijesti (po zaposlenom, lokalno na uređaju)
+  const dkey = `staff_ann_dismissed_${staffId}`
+  const [dismissed, setDismissed] = useState(() => new Set())
+  useEffect(() => {
+    if (!staffId) return
+    try { setDismissed(new Set(JSON.parse(localStorage.getItem(`staff_ann_dismissed_${staffId}`) || '[]'))) } catch { /* ignore */ }
+  }, [staffId])
+  const dismissAnn = (id) => setDismissed(prev => {
+    const n = new Set(prev); n.add(id)
+    try { localStorage.setItem(dkey, JSON.stringify([...n])) } catch { /* ignore */ }
+    return n
+  })
+
   useEffect(() => { if (staffId) load() }, [staffId])
 
   const load = async () => {
@@ -109,10 +122,12 @@ export default function HomeView({ staffId, restaurantId, staffInfo, brand }) {
 
   return (
     <div>
-      {/* Obavijesti */}
-      {announcements.map(ann => (
-        <div key={ann.id} className={s.announcementCard}>
-          <div className={s.announcementTitle}>📢 {ann.title}</div>
+      {/* Obavijesti (zatvorene se skrivaju; sve su dostupne u tabu Profil) */}
+      {announcements.filter(a => !dismissed.has(a.id)).map(ann => (
+        <div key={ann.id} className={s.announcementCard} style={{ position: 'relative' }}>
+          <button onClick={() => dismissAnn(ann.id)} title="Zatvori"
+            style={{ position: 'absolute', top: 8, right: 8, background: 'none', border: 'none', fontSize: 16, lineHeight: 1, color: 'var(--c-text-muted)', cursor: 'pointer' }}>✕</button>
+          <div className={s.announcementTitle} style={{ paddingRight: 20 }}>📢 {ann.title}</div>
           {ann.body && <div className={s.announcementBody}>{ann.body}</div>}
           <div className={s.announcementDate}>
             {new Date(ann.created_at).toLocaleDateString('sr-Latn', { day: 'numeric', month: 'long' })}

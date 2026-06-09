@@ -10,63 +10,28 @@ import ThemeToggle from '../components/ThemeToggle'
 import LanguageSwitcher from '../i18n/LanguageSwitcher'
 import useKitchenCounts from '../hooks/useKitchenCounts'
 import { useAnnouncements } from '../context/AnnouncementsContext'
-import { useSupport } from '../context/SupportContext'
-
-// Zvonce sa brojem nepročitanih platform najava → /admin/announcements
-function AnnouncementBell() {
-  const { unread } = useAnnouncements()
-  const navigate = useNavigate()
-  return (
-    <button
-      onClick={() => navigate('/admin/announcements')}
-      title="Najave"
-      style={{ position: 'relative', background: 'none', border: 'none', cursor: 'pointer', fontSize: 19, lineHeight: 1, padding: 4 }}
-    >
-      📣
-      {unread.length > 0 && (
-        <span style={{ position: 'absolute', top: -2, right: -2, minWidth: 16, height: 16, padding: '0 4px', borderRadius: 8, background: '#c0392b', color: '#fff', fontSize: 10, fontWeight: 700, display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
-          {unread.length > 9 ? '9+' : unread.length}
-        </span>
-      )}
-    </button>
-  )
+const SEV_BANNER = {
+  important: { bg: '#fef2f2', border: '#fca5a5', text: '#991b1b', icon: '⚠️' },
+  update:    { bg: '#ecfdf5', border: '#a7f3d0', text: '#065f46', icon: '✨' },
+  info:      { bg: '#eff6ff', border: '#bfdbfe', text: '#1e40af', icon: '📣' },
 }
 
-// Zvonce za support (nepročitani odgovori superadmina) → /admin/support
-function SupportBell() {
-  const { unreadCount } = useSupport()
-  const navigate = useNavigate()
-  return (
-    <button
-      onClick={() => navigate('/admin/support')}
-      title="Podrška"
-      style={{ position: 'relative', background: 'none', border: 'none', cursor: 'pointer', fontSize: 19, lineHeight: 1, padding: 4 }}
-    >
-      💬
-      {unreadCount > 0 && (
-        <span style={{ position: 'absolute', top: -2, right: -2, minWidth: 16, height: 16, padding: '0 4px', borderRadius: 8, background: '#c0392b', color: '#fff', fontSize: 10, fontWeight: 700, display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
-          {unreadCount > 9 ? '9+' : unreadCount}
-        </span>
-      )}
-    </button>
-  )
-}
-
-// Banner za važne nepročitane najave (severity='important')
+// Banner ispod headera za nepročitane platform najave (jedna po jedna, može da se ugasi)
 function AnnouncementBanner() {
-  const { importantUnread, dismissBanner } = useAnnouncements()
+  const { bannerUnread, dismissBanner } = useAnnouncements()
   const navigate = useNavigate()
-  if (!importantUnread.length) return null
-  const a = importantUnread[0]  // jedna po jedna
+  if (!bannerUnread?.length) return null
+  const a = bannerUnread[0]
+  const c = SEV_BANNER[a.severity] || SEV_BANNER.info
   return (
-    <div style={{ background: '#fef2f2', borderBottom: '1px solid #fca5a5', padding: '10px 20px', display: 'flex', alignItems: 'center', gap: 12 }}>
-      <span style={{ fontSize: 16 }}>⚠️</span>
+    <div style={{ background: c.bg, borderBottom: `1px solid ${c.border}`, padding: '10px 20px', display: 'flex', alignItems: 'center', gap: 12 }}>
+      <span style={{ fontSize: 16 }}>{c.icon}</span>
       <div style={{ flex: 1, minWidth: 0 }}>
-        <span style={{ fontWeight: 700, color: '#991b1b' }}>{a.title}</span>
-        {a.body && <span style={{ color: '#7f1d1d', fontSize: 13, marginLeft: 8 }}>{a.body}</span>}
+        <span style={{ fontWeight: 700, color: c.text }}>{a.title}</span>
+        {a.body && <span style={{ color: c.text, opacity: 0.85, fontSize: 13, marginLeft: 8 }}>{a.body}</span>}
       </div>
-      <button onClick={() => navigate('/admin/announcements')} style={{ background: 'none', border: '1px solid #fca5a5', color: '#991b1b', borderRadius: 7, padding: '4px 10px', fontSize: 12, fontWeight: 600, cursor: 'pointer', flexShrink: 0 }}>Detalji</button>
-      <button onClick={() => dismissBanner(a.id)} title="Zatvori" style={{ background: 'none', border: 'none', color: '#991b1b', fontSize: 18, cursor: 'pointer', flexShrink: 0, lineHeight: 1 }}>✕</button>
+      <button onClick={() => navigate('/admin/notifications')} style={{ background: 'none', border: `1px solid ${c.border}`, color: c.text, borderRadius: 7, padding: '4px 10px', fontSize: 12, fontWeight: 600, cursor: 'pointer', flexShrink: 0 }}>Detalji</button>
+      <button onClick={() => dismissBanner(a.id)} title="Zatvori" style={{ background: 'none', border: 'none', color: c.text, fontSize: 18, cursor: 'pointer', flexShrink: 0, lineHeight: 1 }}>✕</button>
     </div>
   )
 }
@@ -403,8 +368,6 @@ export default function AdminLayout({ children }) {
                 : restName[0]}
             </div>
             <span className={styles.hubRole}>{restRole}</span>
-            <SupportBell />
-            <AnnouncementBell />
             <LanguageSwitcher variant="dark" />
             <ThemeToggle variant="dark" />
             <button className={styles.hubLogoutBtn} onClick={handleLogout}>Odjava</button>
@@ -542,8 +505,6 @@ export default function AdminLayout({ children }) {
           </div>
 
           <div className={styles.topbarRight}>
-            <SupportBell />
-            <AnnouncementBell />
             <LanguageSwitcher />
             <ThemeToggle />
           </div>

@@ -29,6 +29,7 @@ const SpaTreatmentLibraryAdmin = lazy(() => import('./platform/superadmin/SpaTre
 const MinibarLibraryAdmin  = lazy(() => import('./platform/superadmin/MinibarLibraryAdmin'))
 const AnnouncementsAdmin    = lazy(() => import('./platform/superadmin/AnnouncementsAdmin'))
 const AnnouncementsInbox    = lazy(() => import('./platform/admin/AnnouncementsInbox'))
+const NotificationsPage     = lazy(() => import('./platform/admin/NotificationsPage'))
 const SupportPage           = lazy(() => import('./platform/admin/SupportPage'))
 const SupportAdmin          = lazy(() => import('./platform/superadmin/SupportAdmin'))
 const TableMapEditor       = lazy(() => import('./modules/tables/pages/TableMapEditor'))
@@ -206,6 +207,7 @@ function AppRoutes() {
 
         {/* Kontrolna tabla */}
         <Route path="/admin" element={<AdminRoute><ControlPanel /></AdminRoute>} />
+        <Route path="/admin/notifications" element={<AdminRoute><NotificationsPage /></AdminRoute>} />
         <Route path="/admin/announcements" element={<AdminRoute><AnnouncementsInbox /></AdminRoute>} />
         <Route path="/admin/support" element={<AdminRoute><SupportPage /></AdminRoute>} />
 

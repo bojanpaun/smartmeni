@@ -4,8 +4,19 @@ import { usePlatform } from '../../context/PlatformContext'
 import { supabase } from '../../lib/supabase'
 import { MODULES } from '../../layouts/AdminLayout'
 import OnboardingWizard from './OnboardingWizard'
-import CommunicationWidget from './CommunicationWidget'
+import { useAnnouncements } from '../../context/AnnouncementsContext'
+import { useSupport } from '../../context/SupportContext'
 import styles from './ControlPanel.module.css'
+
+// Mali numerički badge za kartice komunikacije
+function CardBadge({ n }) {
+  if (!n) return null
+  return (
+    <span style={{ marginLeft: 8, minWidth: 18, height: 18, padding: '0 5px', borderRadius: 9, background: '#c0392b', color: '#fff', fontSize: 11, fontWeight: 700, display: 'inline-flex', alignItems: 'center', justifyContent: 'center', verticalAlign: 'middle' }}>
+      {n > 9 ? '9+' : n}
+    </span>
+  )
+}
 
 const RESTAURANT_KEYS  = ['menu', 'tables']
 const HOTEL_KEYS       = ['hotel', 'spa']
@@ -53,6 +64,8 @@ function useDashboardData(restaurant, hasHotel, hasSpa) {
 
 export default function ControlPanel() {
   const { restaurant, setRestaurant, hasPermission, isOwner, isSuperAdmin, hasAddon, hasVertical } = usePlatform()
+  const { unread: unreadAnn } = useAnnouncements()
+  const { unreadCount: unreadSupport } = useSupport()
   const navigate = useNavigate()
   const [showOnboarding, setShowOnboarding] = useState(
     restaurant && !restaurant.onboarding_completed
@@ -211,9 +224,6 @@ export default function ControlPanel() {
         )}
       </div>
 
-      {/* ── Komunikacija ── */}
-      <CommunicationWidget />
-
       {/* ── Quick actions ── */}
       <div className={styles.quickRow}>
         {QUICK.filter(a => canSee(a.perm)).map(a => (
@@ -255,7 +265,7 @@ export default function ControlPanel() {
       )}
 
       {/* ── Upravljanje (dijeljeni moduli) ── */}
-      {upravljanjeMods.length > 0 && (
+      {(upravljanjeMods.length > 0 || isOwner()) && (
         <div className={styles.section}>
           <div className={styles.verticalHead}>
             <span className={styles.verticalEmoji}>📋</span>
@@ -264,7 +274,18 @@ export default function ControlPanel() {
               <div className={styles.verticalSub}>HR, zalihe, gosti i analitika — zajednički za restoran i hotel</div>
             </div>
           </div>
-          <div className={styles.grid}>{upravljanjeMods.map(renderCard)}</div>
+          <div className={styles.grid}>
+            {upravljanjeMods.map(renderCard)}
+            {isOwner() && (
+              <button className={`${styles.card} ${styles.cardActive}`} onClick={() => navigate('/admin/notifications')}>
+                <div className={styles.cardIcon}>📣</div>
+                <div className={styles.cardBody}>
+                  <div className={styles.cardName}>Obavještenja <CardBadge n={unreadAnn.length} /></div>
+                  <div className={styles.cardDesc}>Najave platforme i oglasna tabla osoblja</div>
+                </div>
+              </button>
+            )}
+          </div>
         </div>
       )}
 
@@ -304,6 +325,15 @@ export default function ControlPanel() {
                 <div className={styles.cardDesc}>Upravljanje rolama i pristupima osoblja</div>
               </div>
             </button>
+            {isOwner() && (
+              <button className={`${styles.card} ${styles.cardSys} ${styles.cardActive}`} onClick={() => navigate('/admin/support')}>
+                <div className={styles.cardIcon}>💬</div>
+                <div className={styles.cardBody}>
+                  <div className={styles.cardName}>Podrška <CardBadge n={unreadSupport} /></div>
+                  <div className={styles.cardDesc}>Pitanja i pomoć tima rest.by.me</div>
+                </div>
+              </button>
+            )}
             {adminMods.map(renderCard)}
             {isSuperAdmin() && (
               <button className={`${styles.card} ${styles.cardSys} ${styles.cardActive}`} onClick={() => navigate('/superadmin')}>

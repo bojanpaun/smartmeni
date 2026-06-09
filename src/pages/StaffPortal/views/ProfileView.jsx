@@ -1,6 +1,37 @@
-import { useState } from 'react'
+import { useState, useEffect } from 'react'
 import { supabase } from '../../../lib/supabase'
 import s from '../StaffPortal.module.css'
+
+// Sva obavještenja (oglasna tabla) — pregled u tabu Profil
+function StaffNotifications({ restaurantId }) {
+  const [items, setItems] = useState([])
+  useEffect(() => {
+    if (!restaurantId) return
+    supabase.from('staff_announcements').select('*')
+      .eq('restaurant_id', restaurantId).order('created_at', { ascending: false })
+      .then(({ data }) => setItems(data ?? []))
+  }, [restaurantId])
+  return (
+    <div className={s.card}>
+      <div className={s.cardTitle}>Obavještenja ({items.length})</div>
+      {items.length === 0 ? (
+        <div style={{ fontSize: 13, color: 'var(--c-text-muted)', padding: '6px 0' }}>Nema obavijesti.</div>
+      ) : items.map(a => {
+        const expired = a.expires_at && new Date(a.expires_at) < new Date()
+        return (
+          <div key={a.id} style={{ padding: '10px 0', borderTop: '1px solid var(--c-border)', opacity: expired ? 0.55 : 1 }}>
+            <div style={{ fontWeight: 600 }}>📢 {a.title}{expired && <span style={{ fontSize: 11, color: 'var(--c-text-muted)', fontWeight: 400 }}> (isteklo)</span>}</div>
+            {a.body && <div style={{ fontSize: 13, color: 'var(--c-text-medium)', marginTop: 3, whiteSpace: 'pre-wrap' }}>{a.body}</div>}
+            <div style={{ fontSize: 11, color: 'var(--c-text-muted)', marginTop: 5 }}>
+              {new Date(a.created_at).toLocaleDateString('sr-Latn', { day: 'numeric', month: 'long' })}
+              {a.edited_at && ' · izmijenjeno'}
+            </div>
+          </div>
+        )
+      })}
+    </div>
+  )
+}
 
 export default function ProfileView({ staff, staffId, brand }) {
   const [form, setForm] = useState({
@@ -67,6 +98,8 @@ export default function ProfileView({ staff, staffId, brand }) {
           </div>
         )}
       </div>
+
+      <StaffNotifications restaurantId={staff?.restaurant_id} />
 
       {/* Kontakt i hitni kontakt */}
       <div className={s.card}>
