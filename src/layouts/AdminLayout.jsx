@@ -387,12 +387,12 @@ export default function AdminLayout({ children }) {
         <header className={styles.hubHeader}>
           <div className={styles.hubRestName}>{restName}</div>
           <div className={styles.hubHeaderRight}>
-            {restaurant && (
+            {restaurant && hasVertical('restaurant') && (
               <a href={`/${restaurant.slug}`} target="_blank" rel="noreferrer" className={styles.hubLiveBtn}>
                 👁 Restoran
               </a>
             )}
-            {restaurant && hasAddon('hotel_core') && (
+            {restaurant && hasVertical('hotel') && (
               <a href={`/${restaurant.slug}/hotel`} target="_blank" rel="noreferrer" className={styles.hubLiveBtn}>
                 🏨 Hotel sajt
               </a>
