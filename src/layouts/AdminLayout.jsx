@@ -251,6 +251,25 @@ export const MODULES = [
       ],
     },
   },
+  {
+    // Nije kategorisan (RESTAURANT/HOTEL/UPRAVLJANJE/adminOnly) → ne renderuje se kao
+    // dashboard kartica; služi da sidebar prikaže linkove kad si na /admin/notifications.
+    key: 'notifications',
+    label: 'Obavještenja',
+    icon: '📣',
+    desc: 'Najave platforme i oglasna tabla',
+    path: '/admin/notifications',
+    active: true,
+    perm: null,
+    interactive: null,
+    admin: {
+      label: 'Obavještenja',
+      links: [
+        { label: 'Najave platforme', icon: '📣', path: '/admin/notifications/najave' },
+        { label: 'Oglasna tabla',    icon: '📌', path: '/admin/notifications/tabla' },
+      ],
+    },
+  },
 ]
 
 const BOTTOM_NAV = [

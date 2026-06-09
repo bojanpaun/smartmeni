@@ -208,6 +208,7 @@ function AppRoutes() {
         {/* Kontrolna tabla */}
         <Route path="/admin" element={<AdminRoute><ControlPanel /></AdminRoute>} />
         <Route path="/admin/notifications" element={<AdminRoute><NotificationsPage /></AdminRoute>} />
+        <Route path="/admin/notifications/:section" element={<AdminRoute><NotificationsPage /></AdminRoute>} />
         <Route path="/admin/announcements" element={<AdminRoute><AnnouncementsInbox /></AdminRoute>} />
         <Route path="/admin/support" element={<AdminRoute><SupportPage /></AdminRoute>} />
 

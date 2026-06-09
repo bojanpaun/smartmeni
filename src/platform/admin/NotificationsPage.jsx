@@ -1,10 +1,10 @@
 import { useState, useEffect, useRef } from 'react'
+import { useParams } from 'react-router-dom'
 import { usePlatform } from '../../context/PlatformContext'
 import { useAnnouncements } from '../../context/AnnouncementsContext'
 import { supabase } from '../../lib/supabase'
 import LoadingSpinner from '../../components/shared/LoadingSpinner'
 import styles from '../../modules/hotel/pages/Hotel.module.css'
-import nz from './Notifications.module.css'
 
 const SEV = {
   info:      { icon: 'ℹ️', label: 'Info',   color: 'var(--c-text-medium)' },
@@ -16,9 +16,10 @@ const BLANK = { title: '', body: '', expires_at: '' }
 export default function NotificationsPage() {
   const { restaurant } = usePlatform()
   const { visible, readIds, markAllRead } = useAnnouncements()
-  const [tab, setTab] = useState('najave')
+  const { section } = useParams()
+  const tab = section === 'tabla' ? 'tabla' : 'najave'
 
-  // Označi najave pročitanim pri otvaranju taba „Najave"
+  // Označi najave pročitanim pri otvaranju sekcije „Najave"
   const initialUnread = useRef(null)
   const [unreadSnapshot, setUnreadSnapshot] = useState(() => new Set())
   useEffect(() => {
@@ -34,24 +35,16 @@ export default function NotificationsPage() {
     <div className={styles.page}>
       <div className={styles.header}>
         <div>
-          <h1 className={styles.title}>Obavještenja</h1>
-          <p className={styles.subtitle}>Najave platforme i oglasna tabla za vaše osoblje</p>
+          <h1 className={styles.title}>{tab === 'tabla' ? '📌 Oglasna tabla' : '📣 Najave platforme'}</h1>
+          <p className={styles.subtitle}>
+            {tab === 'tabla' ? 'Obavijesti za vaše osoblje (vidljive u Staff portalu)' : 'Novosti i obavijesti platforme rest.by.me'}
+          </p>
         </div>
       </div>
 
-      <div className={nz.layout}>
-        <div className={nz.sidebar}>
-          {[{ k: 'najave', l: '📣 Najave platforme' }, { k: 'tabla', l: '📌 Oglasna tabla' }].map(t => (
-            <button key={t.k} onClick={() => setTab(t.k)}
-              className={`${nz.tabBtn} ${tab === t.k ? nz.tabBtnActive : ''}`}>{t.l}</button>
-          ))}
-        </div>
-        <div className={nz.content}>
-          {tab === 'najave'
-            ? <NajaveTab visible={visible} unreadSnapshot={unreadSnapshot} />
-            : <OglasnaTablaTab restaurant={restaurant} />}
-        </div>
-      </div>
+      {tab === 'najave'
+        ? <NajaveTab visible={visible} unreadSnapshot={unreadSnapshot} />
+        : <OglasnaTablaTab restaurant={restaurant} />}
     </div>
   )
 }
