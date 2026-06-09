@@ -250,6 +250,7 @@ function AppRoutes() {
         {/* Super admin panel */}
         <Route path="/superadmin" element={<AdminRoute><SuperAdminPanel /></AdminRoute>} />
         <Route path="/superadmin/komunikacija" element={<AdminRoute><SuperadminCommunication /></AdminRoute>} />
+        <Route path="/superadmin/komunikacija/:section" element={<AdminRoute><SuperadminCommunication /></AdminRoute>} />
         <Route path="/superadmin/recipes" element={<AdminRoute><RecipeLibraryAdmin /></AdminRoute>} />
         <Route path="/superadmin/nutrition" element={<AdminRoute><NutritionAdmin /></AdminRoute>} />
         <Route path="/superadmin/billing" element={<AdminRoute><BillingControl /></AdminRoute>} />

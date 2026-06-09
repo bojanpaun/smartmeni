@@ -270,6 +270,24 @@ export const MODULES = [
       ],
     },
   },
+  {
+    // Superadmin komunikacija — sidebar linkovi Podrška | Obavještenja. Nije dashboard kartica.
+    key: 'superadmin_comm',
+    label: 'Komunikacija',
+    icon: '💬',
+    desc: 'Podrška tenantima i platform najave',
+    path: '/superadmin/komunikacija',
+    active: true,
+    perm: null,
+    interactive: null,
+    admin: {
+      label: 'Komunikacija',
+      links: [
+        { label: 'Podrška',     icon: '💬', path: '/superadmin/komunikacija/podrska' },
+        { label: 'Obavještenja', icon: '📣', path: '/superadmin/komunikacija/obavestenja' },
+      ],
+    },
+  },
 ]
 
 const BOTTOM_NAV = [
