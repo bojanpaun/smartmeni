@@ -239,11 +239,7 @@ export default function SuperAdminPanel() {
           <div className={styles.headerSub}>Upravljanje restoranima i planovima</div>
         </div>
         <div className={styles.headerActions}>
-          <button className={styles.btnRefresh} onClick={() => navigate('/superadmin/komunikacija/podrska')}>💬 Komunikacija</button>
-          <button className={styles.btnRefresh} onClick={() => navigate('/superadmin/billing')}>💶 Naplata i cijene</button>
-          <button className={styles.btnRefresh} onClick={() => navigate('/superadmin/recipes')}>📚 Biblioteka recepata</button>
-          <button className={styles.btnRefresh} onClick={() => navigate('/superadmin/spa-treatments')}>💆 Biblioteka tretmana</button>
-          <button className={styles.btnRefresh} onClick={() => navigate('/superadmin/minibar-library')}>🥤 Biblioteka minibara</button>
+          {/* Navigacija je sada u lijevom sidebar-u (Super admin modul) */}
           <button className={styles.btnRefresh} onClick={loadRestaurants}>↻ Osvježi</button>
         </div>
       </div>

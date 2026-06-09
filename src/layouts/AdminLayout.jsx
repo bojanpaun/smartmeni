@@ -261,6 +261,7 @@ export const MODULES = [
     path: '/admin/notifications',
     active: true,
     perm: null,
+    noHelp: true,
     interactive: null,
     admin: {
       label: 'Obavještenja',
@@ -271,20 +272,26 @@ export const MODULES = [
     },
   },
   {
-    // Superadmin komunikacija — sidebar linkovi Podrška | Obavještenja. Nije dashboard kartica.
-    key: 'superadmin_comm',
-    label: 'Komunikacija',
-    icon: '💬',
-    desc: 'Podrška tenantima i platform najave',
-    path: '/superadmin/komunikacija',
+    // Superadmin — kompletna navigacija u sidebar-u (na /superadmin* aktivno). Nije dashboard kartica.
+    key: 'superadmin',
+    label: 'Super admin',
+    icon: '🔧',
+    desc: 'Upravljanje platformom',
+    path: '/superadmin',
     active: true,
     perm: null,
+    noHelp: true,
     interactive: null,
     admin: {
-      label: 'Komunikacija',
+      label: 'Super admin',
       links: [
-        { label: 'Podrška',     icon: '💬', path: '/superadmin/komunikacija/podrska' },
-        { label: 'Obavještenja', icon: '📣', path: '/superadmin/komunikacija/obavestenja' },
+        { label: 'Restorani',          icon: '🏢', path: '/superadmin', exact: true },
+        { label: 'Podrška',            icon: '💬', path: '/superadmin/komunikacija/podrska' },
+        { label: 'Obavještenja',       icon: '📣', path: '/superadmin/komunikacija/obavestenja' },
+        { label: 'Naplata i cijene',   icon: '💶', path: '/superadmin/billing' },
+        { label: 'Biblioteka recepata', icon: '📚', path: '/superadmin/recipes' },
+        { label: 'Biblioteka tretmana', icon: '💆', path: '/superadmin/spa-treatments' },
+        { label: 'Biblioteka minibara', icon: '🥤', path: '/superadmin/minibar-library' },
       ],
     },
   },
@@ -466,7 +473,7 @@ export default function AdminLayout({ children }) {
 
           {renderSegment(activeModule?.admin)}
 
-          {activeModule && (
+          {activeModule && !activeModule.noHelp && (
             <>
               <div className={styles.navDivider} />
               <Link
@@ -593,7 +600,7 @@ export default function AdminLayout({ children }) {
               )}
               {renderSegment(activeModule?.admin, true, () => setMobileMenuOpen(false))}
 
-              {activeModule && (
+              {activeModule && !activeModule.noHelp && (
                 <>
                   <div className={styles.navDivider} />
                   <Link to={`${activeModule.path}/help`} className={styles.navItem} onClick={() => setMobileMenuOpen(false)}>
