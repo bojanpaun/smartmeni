@@ -4,6 +4,7 @@ import { useAnnouncements } from '../../context/AnnouncementsContext'
 import { supabase } from '../../lib/supabase'
 import LoadingSpinner from '../../components/shared/LoadingSpinner'
 import styles from '../../modules/hotel/pages/Hotel.module.css'
+import nz from './Notifications.module.css'
 
 const SEV = {
   info:      { icon: 'ℹ️', label: 'Info',   color: 'var(--c-text-medium)' },
@@ -38,19 +39,19 @@ export default function NotificationsPage() {
         </div>
       </div>
 
-      <div style={{ display: 'flex', gap: 8, marginBottom: 18, borderBottom: '1px solid var(--c-border)' }}>
-        {[{ k: 'najave', l: '📣 Najave platforme' }, { k: 'tabla', l: '📌 Oglasna tabla' }].map(t => (
-          <button key={t.k} onClick={() => setTab(t.k)} style={{
-            background: 'none', border: 'none', borderBottom: tab === t.k ? '2px solid var(--c-primary)' : '2px solid transparent',
-            color: tab === t.k ? 'var(--c-primary)' : 'var(--c-text-medium)', fontWeight: 600, fontSize: 14,
-            padding: '8px 4px', cursor: 'pointer', marginBottom: -1,
-          }}>{t.l}</button>
-        ))}
+      <div className={nz.layout}>
+        <div className={nz.sidebar}>
+          {[{ k: 'najave', l: '📣 Najave platforme' }, { k: 'tabla', l: '📌 Oglasna tabla' }].map(t => (
+            <button key={t.k} onClick={() => setTab(t.k)}
+              className={`${nz.tabBtn} ${tab === t.k ? nz.tabBtnActive : ''}`}>{t.l}</button>
+          ))}
+        </div>
+        <div className={nz.content}>
+          {tab === 'najave'
+            ? <NajaveTab visible={visible} unreadSnapshot={unreadSnapshot} />
+            : <OglasnaTablaTab restaurant={restaurant} />}
+        </div>
       </div>
-
-      {tab === 'najave'
-        ? <NajaveTab visible={visible} unreadSnapshot={unreadSnapshot} />
-        : <OglasnaTablaTab restaurant={restaurant} />}
     </div>
   )
 }
