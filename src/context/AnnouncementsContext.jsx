@@ -14,10 +14,9 @@ export const useAnnouncements = () => useContext(AnnouncementsContext)
 const isExpired = (a) => a.expires_at && new Date(a.expires_at) < new Date()
 
 export function AnnouncementsProvider({ children }) {
-  // Učitava SAMO za vlasnika (prima najave). Superadmin upravlja najavama kroz manager,
-  // pa mu kontekst (badge/banner) nije potreban → ostaje prazan.
-  const { user, restaurant, isOwner } = usePlatform()
-  const owner = isOwner()
+  // Učitava za svakog admin-route korisnika (vlasnik ILI superadmin) → najave se vide
+  // na dashboardu i kad si ulogovan kao superadmin. Filter po vertikalama restorana.
+  const { user, restaurant } = usePlatform()
   const [announcements, setAnnouncements] = useState([])
   const [readIds, setReadIds] = useState(() => new Set())
   const [dismissed, setDismissed] = useState(() => new Set())  // session: ne prikazuj banner ponovo
@@ -25,7 +24,7 @@ export function AnnouncementsProvider({ children }) {
   const loadedFor = useRef(null)
 
   useEffect(() => {
-    if (!user?.id || !owner) { setAnnouncements([]); setReadIds(new Set()); return }
+    if (!user?.id) { setAnnouncements([]); setReadIds(new Set()); return }
     if (loadedFor.current === user.id) return
     loadedFor.current = user.id
 
@@ -51,7 +50,7 @@ export function AnnouncementsProvider({ children }) {
       .subscribe()
 
     return () => { active = false; supabase.removeChannel(ch) }
-  }, [user?.id, owner])
+  }, [user?.id])
 
   const verticals = restaurant?.active_verticals ?? []
   const visible = announcements.filter(a =>
