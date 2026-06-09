@@ -1,21 +1,21 @@
 import { useState, useEffect, useRef } from 'react'
-import { useNavigate } from 'react-router-dom'
 import { usePlatform } from '../../context/PlatformContext'
 import { supabase } from '../../lib/supabase'
 import LoadingSpinner from '../../components/shared/LoadingSpinner'
 import styles from '../../modules/hotel/pages/Hotel.module.css'
 
+// Superadmin support — svi tenanti (sadržaj bez page header-a). Koristi se u
+// /superadmin/komunikacija (tab Podrška).
 const fmt = (s) => new Date(s).toLocaleString('sr-Latn', { day: '2-digit', month: '2-digit', hour: '2-digit', minute: '2-digit' })
 const isUnreadForSuper = (c) =>
   c.last_sender_role === 'admin' &&
   (!c.superadmin_last_read_at || new Date(c.last_message_at) > new Date(c.superadmin_last_read_at))
 
-export default function SupportAdmin() {
-  const { isSuperAdmin, user } = usePlatform()
-  const navigate = useNavigate()
+export default function SupportManager() {
+  const { user } = usePlatform()
   const [conversations, setConversations] = useState([])
   const [loading, setLoading] = useState(true)
-  const [filter, setFilter] = useState('open')   // open | unread | all
+  const [filter, setFilter] = useState('open')
   const [selected, setSelected] = useState(null)
   const [messages, setMessages] = useState([])
   const [reply, setReply] = useState('')
@@ -53,7 +53,6 @@ export default function SupportAdmin() {
     reload()
   }
 
-  // Realtime na otvoreni thread
   useEffect(() => {
     if (!selected?.id) return
     const ch = supabase.channel(`support-super-thread-${selected.id}`)
@@ -86,19 +85,13 @@ export default function SupportAdmin() {
     reload()
   }
 
-  if (!isSuperAdmin()) return (
-    <div style={{ display: 'flex', flexDirection: 'column', alignItems: 'center', justifyContent: 'center', minHeight: '50vh', gap: 12, color: 'var(--c-text-muted)' }}>
-      <div style={{ fontSize: 40 }}>🔒</div><div>Nemate pristup ovoj stranici.</div>
-    </div>
-  )
-
   // ── Thread ──
   if (selected) {
     return (
-      <div className={styles.page}>
+      <div>
         <div className={styles.header}>
           <div>
-            <h1 className={styles.title} style={{ fontSize: 20 }}>{selected.subject}</h1>
+            <h2 className={styles.title} style={{ fontSize: 18 }}>{selected.subject}</h2>
             <p className={styles.subtitle}>{selected.restaurants?.name ?? '—'} · {selected.status === 'closed' ? 'Zatvoreno' : 'Otvoreno'}</p>
           </div>
           <div style={{ display: 'flex', gap: 8 }}>
@@ -150,15 +143,7 @@ export default function SupportAdmin() {
   const unreadTotal = conversations.filter(isUnreadForSuper).length
 
   return (
-    <div className={styles.page}>
-      <div className={styles.header}>
-        <div>
-          <h1 className={styles.title}>💬 Podrška — svi tenanti</h1>
-          <p className={styles.subtitle}>{unreadTotal} nepročitanih · poruke admina</p>
-        </div>
-        <button className={styles.btnSecondary} onClick={() => navigate('/admin')}>← Kontrolna tabla</button>
-      </div>
-
+    <div>
       <div style={{ display: 'flex', gap: 8, marginBottom: 16, flexWrap: 'wrap' }}>
         {[{ k: 'open', l: 'Otvoreni' }, { k: 'unread', l: `Nepročitani (${unreadTotal})` }, { k: 'all', l: 'Svi' }].map(f => (
           <button key={f.k} className={filter === f.k ? styles.btnPrimary : styles.btnSecondary} style={{ fontSize: 13 }} onClick={() => setFilter(f.k)}>{f.l}</button>
