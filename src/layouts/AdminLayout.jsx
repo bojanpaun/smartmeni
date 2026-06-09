@@ -24,7 +24,7 @@ function AnnouncementBanner() {
   const a = bannerUnread[0]
   const c = SEV_BANNER[a.severity] || SEV_BANNER.info
   return (
-    <div style={{ background: c.bg, borderBottom: `1px solid ${c.border}`, padding: '10px 20px', display: 'flex', alignItems: 'center', gap: 12 }}>
+    <div style={{ margin: '14px 20px 0', background: c.bg, border: `1px solid ${c.border}`, borderRadius: 12, padding: '12px 16px', display: 'flex', alignItems: 'center', gap: 12 }}>
       <span style={{ fontSize: 16 }}>{c.icon}</span>
       <div style={{ flex: 1, minWidth: 0 }}>
         <span style={{ fontWeight: 700, color: c.text }}>{a.title}</span>
