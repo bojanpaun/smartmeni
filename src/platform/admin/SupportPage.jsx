@@ -4,7 +4,7 @@ import { useSupport } from '../../context/SupportContext'
 import { supabase } from '../../lib/supabase'
 import LoadingSpinner from '../../components/shared/LoadingSpinner'
 import styles from '../../modules/hotel/pages/Hotel.module.css'
-import SupportFaq from './SupportFaq'
+import SupportFaq, { FaqSuggestions } from './SupportFaq'
 
 const fmt = (s) => new Date(s).toLocaleString('sr-Latn', { day: '2-digit', month: '2-digit', hour: '2-digit', minute: '2-digit' })
 
@@ -159,6 +159,7 @@ export default function SupportPage() {
             <label style={{ fontSize: 12, color: 'var(--c-text-medium)', display: 'block', marginBottom: 4 }}>Poruka *</label>
             <textarea className={styles.input} style={{ width: '100%', minHeight: 90, resize: 'vertical' }} value={firstMsg} onChange={e => setFirstMsg(e.target.value)} placeholder="Opišite pitanje ili problem…" />
           </div>
+          <FaqSuggestions query={`${subject} ${firstMsg}`} />
           <div style={{ display: 'flex', gap: 8, justifyContent: 'flex-end' }}>
             <button className={styles.btnSecondary} onClick={() => setComposing(false)}>Odustani</button>
             <button className={styles.btnPrimary} onClick={createConversation} disabled={sending || !subject.trim() || !firstMsg.trim()}>Pošalji</button>
