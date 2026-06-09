@@ -106,15 +106,9 @@ export default function FrontDeskPage() {
       await supabase.from('rooms').update({ status: 'occupied' }).eq('id', res.room_id)
     }
 
-    // Folio se seeduje na 0 — room charge se akumulira po noći kroz noćni audit
-    // (Faza N). Ekstra stavke (restoran/minibar/spa) inkrementiraju total.
-    await supabase.from('folios').insert({
-      reservation_id: res.id,
-      restaurant_id: restaurant.id,
-      guest_id: res.guest_id,
-      status: 'open',
-      total_amount: 0,
-    })
+    // Upiši room_charge za sve noći boravka (kreira folio ako fali). Tako je folio
+    // pun od check-ina i poklapa se sa iznosom rezervacije. Noćni audit je idempotentan.
+    await supabase.rpc('post_stay_room_charges', { p_reservation_id: res.id })
 
     toast.success(`${res.guest_name} — check-in uspješan`)
     supabase.functions.invoke('send-booking-email', {
@@ -125,9 +119,12 @@ export default function FrontDeskPage() {
   }
 
   const handleCheckOut = async (res) => {
+    const nowIso = new Date().toISOString()
+    const todayStr = nowIso.slice(0, 10)
+
     const { error } = await supabase.from('hotel_reservations').update({
       status: 'checked_out',
-      actual_check_out: new Date().toISOString(),
+      actual_check_out: nowIso,
     }).eq('id', res.id)
     if (error) return toast.error('Greška pri check-outu')
 
@@ -135,7 +132,20 @@ export default function FrontDeskPage() {
       await supabase.from('rooms').update({ status: 'cleaning' }).eq('id', res.room_id)
     }
 
-    await supabase.from('folios').update({ status: 'closed', updated_at: new Date().toISOString() })
+    // Rani odlazak: ako politika hotela = 'stay', skini room_charge za neodsjedene
+    // (buduće) noći. 'full' = zadrži ukupno rezervisano.
+    if (todayStr < res.check_out_date && restaurant.early_departure_charge !== 'full') {
+      const { data: folio } = await supabase.from('folios')
+        .select('id').eq('reservation_id', res.id)
+        .order('is_primary', { ascending: false }).order('created_at').limit(1).maybeSingle()
+      if (folio?.id) {
+        await supabase.from('folio_items').delete()
+          .eq('folio_id', folio.id).eq('type', 'room_charge').gte('date', todayStr)
+        await supabase.rpc('recalc_folio_total', { p_folio_id: folio.id })
+      }
+    }
+
+    await supabase.from('folios').update({ status: 'closed', updated_at: nowIso })
       .eq('reservation_id', res.id)
 
     toast.success(`${res.guest_name} — check-out uspješan. Soba na čišćenje.`)

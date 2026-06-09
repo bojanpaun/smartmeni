@@ -18,6 +18,7 @@ export default function BookingSettings() {
     booking_checkout_time: restaurant.booking_checkout_time ?? '11:00',
     booking_custom_domain: restaurant.booking_custom_domain ?? '',
     booking_mode:          restaurant.booking_mode          ?? 'immediate',
+    early_departure_charge: restaurant.early_departure_charge ?? 'stay',
   } : null)
   const [saving, setSaving] = useState(false)
   const [copied, setCopied] = useState(false)
@@ -145,6 +146,17 @@ export default function BookingSettings() {
                 <label>Check-out (default)</label>
                 <input type="time" value={form.booking_checkout_time}
                   onChange={e => setForm(f => ({ ...f, booking_checkout_time: e.target.value }))} />
+              </div>
+            </div>
+            <div className={bs.field}>
+              <label>Naplata pri ranom odlasku</label>
+              <select value={form.early_departure_charge}
+                onChange={e => setForm(f => ({ ...f, early_departure_charge: e.target.value }))}>
+                <option value="stay">Naplati samo odsjedene noći</option>
+                <option value="full">Naplati ukupno rezervisano (bez obzira na raniji odlazak)</option>
+              </select>
+              <div className={bs.toggleHint}>
+                Određuje da li se pri check-outu prije rezervisanog datuma skidaju neodsjedene noći sa folija.
               </div>
             </div>
           </div>
