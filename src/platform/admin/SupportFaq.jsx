@@ -3,12 +3,15 @@ import { supabase } from '../../lib/supabase'
 import styles from '../../modules/hotel/pages/Hotel.module.css'
 
 export const FAQ_CATS = {
-  rezervacije: 'Rezervacije',
-  folio:       'Folio',
-  meni:        'Meni i narudžbe',
-  placanja:    'Plaćanja',
-  osoblje:     'Osoblje / HR',
-  ostalo:      'Ostalo',
+  rezervacije:  'Rezervacije',
+  folio:        'Folio',
+  meni:         'Meni i narudžbe',
+  spa:          'Spa',
+  housekeeping: 'Domaćinstvo',
+  inventar:     'Inventar',
+  placanja:     'Plaćanja',
+  osoblje:      'Osoblje / HR',
+  ostalo:       'Ostalo',
 }
 
 // Prijedlozi FAQ-a dok admin kuca novi tiket (na osnovu unesenog teksta).
@@ -79,8 +82,8 @@ export default function SupportFaq() {
     <div className={styles.page}>
       <div className={styles.header}>
         <div>
-          <h1 className={styles.title}>📖 Česta pitanja</h1>
-          <p className={styles.subtitle}>Odgovori na osnovna pitanja o korišćenju platforme</p>
+          <h1 className={styles.title}>📖 FAQ</h1>
+          <p className={styles.subtitle}>Česta pitanja i odgovori o korišćenju platforme</p>
         </div>
       </div>
 

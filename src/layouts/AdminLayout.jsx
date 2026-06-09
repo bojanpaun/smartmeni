@@ -285,8 +285,8 @@ export const MODULES = [
     admin: {
       label: 'Podrška',
       links: [
-        { label: 'Poruke',        icon: '💬', path: '/admin/support', exact: true },
-        { label: 'Česta pitanja', icon: '📖', path: '/admin/support/faq' },
+        { label: 'Poruke', icon: '💬', path: '/admin/support', exact: true },
+        { label: 'FAQ',    icon: '📖', path: '/admin/support/faq' },
       ],
     },
   },
