@@ -28,6 +28,7 @@ const BillingControl       = lazy(() => import('./platform/superadmin/BillingCon
 const SpaTreatmentLibraryAdmin = lazy(() => import('./platform/superadmin/SpaTreatmentLibraryAdmin'))
 const MinibarLibraryAdmin  = lazy(() => import('./platform/superadmin/MinibarLibraryAdmin'))
 const SuperadminCommunication = lazy(() => import('./platform/superadmin/SuperadminCommunication'))
+const FaqAdmin              = lazy(() => import('./platform/superadmin/FaqAdmin'))
 const AnnouncementsInbox    = lazy(() => import('./platform/admin/AnnouncementsInbox'))
 const NotificationsPage     = lazy(() => import('./platform/admin/NotificationsPage'))
 const SupportPage           = lazy(() => import('./platform/admin/SupportPage'))
@@ -251,6 +252,7 @@ function AppRoutes() {
         <Route path="/superadmin" element={<AdminRoute><SuperAdminPanel /></AdminRoute>} />
         <Route path="/superadmin/podrska" element={<AdminRoute><SuperadminCommunication section="podrska" /></AdminRoute>} />
         <Route path="/superadmin/obavestenja" element={<AdminRoute><SuperadminCommunication section="obavestenja" /></AdminRoute>} />
+        <Route path="/superadmin/faq" element={<AdminRoute><FaqAdmin /></AdminRoute>} />
         <Route path="/superadmin/recipes" element={<AdminRoute><RecipeLibraryAdmin /></AdminRoute>} />
         <Route path="/superadmin/nutrition" element={<AdminRoute><NutritionAdmin /></AdminRoute>} />
         <Route path="/superadmin/billing" element={<AdminRoute><BillingControl /></AdminRoute>} />

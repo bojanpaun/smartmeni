@@ -4,6 +4,7 @@ import { useSupport } from '../../context/SupportContext'
 import { supabase } from '../../lib/supabase'
 import LoadingSpinner from '../../components/shared/LoadingSpinner'
 import styles from '../../modules/hotel/pages/Hotel.module.css'
+import SupportFaq from './SupportFaq'
 
 const fmt = (s) => new Date(s).toLocaleString('sr-Latn', { day: '2-digit', month: '2-digit', hour: '2-digit', minute: '2-digit' })
 
@@ -145,6 +146,8 @@ export default function SupportPage() {
         </div>
         {!composing && <button className={styles.btnPrimary} onClick={() => setComposing(true)}>+ Nova poruka</button>}
       </div>
+
+      <SupportFaq />
 
       {composing && (
         <div style={{ background: 'var(--c-surface)', border: '1px solid var(--c-border)', borderRadius: 12, padding: 16, marginBottom: 20 }}>

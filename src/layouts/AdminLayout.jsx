@@ -287,6 +287,7 @@ export const MODULES = [
       links: [
         { label: 'Restorani',          icon: '🏢', path: '/superadmin', exact: true },
         { label: 'Podrška',            icon: '💬', path: '/superadmin/podrska' },
+        { label: 'Baza znanja (FAQ)',  icon: '📖', path: '/superadmin/faq' },
         { label: 'Obavještenja',       icon: '📣', path: '/superadmin/obavestenja' },
         { label: 'Naplata i cijene',   icon: '💶', path: '/superadmin/billing' },
         { label: 'Biblioteka recepata', icon: '📚', path: '/superadmin/recipes' },
