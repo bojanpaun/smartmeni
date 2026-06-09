@@ -53,6 +53,7 @@ export default function AnnouncementsInbox() {
                 {a.body && <div style={{ fontSize: 14, color: 'var(--c-text-medium)', marginTop: 8, whiteSpace: 'pre-wrap', lineHeight: 1.5 }}>{a.body}</div>}
                 <div style={{ fontSize: 12, color: 'var(--c-text-muted)', marginTop: 10 }}>
                   {sev.label} · {new Date(a.published_at).toLocaleDateString('sr-Latn', { day: '2-digit', month: '2-digit', year: 'numeric' })}
+                  {a.edited_at && <span> · izmijenjeno</span>}
                 </div>
               </div>
             )

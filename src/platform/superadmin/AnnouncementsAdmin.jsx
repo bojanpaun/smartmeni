@@ -26,6 +26,7 @@ export default function AnnouncementsAdmin() {
   const [items, setItems] = useState([])
   const [loading, setLoading] = useState(true)
   const [form, setForm] = useState(BLANK)
+  const [editingId, setEditingId] = useState(null)
   const [saving, setSaving] = useState(false)
   const [msg, setMsg] = useState('')
 
@@ -43,21 +44,38 @@ export default function AnnouncementsAdmin() {
   const upd = (k, v) => setForm(f => ({ ...f, [k]: v }))
   const flash = (m) => { setMsg(m); setTimeout(() => setMsg(''), 2500) }
 
+  const openEdit = (a) => {
+    setEditingId(a.id)
+    setForm({
+      title: a.title, body: a.body || '', severity: a.severity, audience: a.audience,
+      expires_at: a.expires_at ? a.expires_at.slice(0, 10) : '',
+    })
+    window.scrollTo({ top: 0, behavior: 'smooth' })
+  }
+  const cancelEdit = () => { setEditingId(null); setForm(BLANK) }
+
   const publish = async () => {
     if (!form.title.trim()) return flash('Naslov je obavezan')
     setSaving(true)
-    const { error } = await supabase.from('platform_announcements').insert({
+    const payload = {
       title: form.title.trim(),
       body: form.body.trim() || null,
       severity: form.severity,
       audience: form.audience,
       expires_at: form.expires_at ? new Date(form.expires_at).toISOString() : null,
-      created_by: (await supabase.auth.getUser()).data.user?.id ?? null,
-    })
+    }
+    let error
+    if (editingId) {
+      ;({ error } = await supabase.from('platform_announcements')
+        .update({ ...payload, edited_at: new Date().toISOString() }).eq('id', editingId))
+    } else {
+      ;({ error } = await supabase.from('platform_announcements')
+        .insert({ ...payload, created_by: (await supabase.auth.getUser()).data.user?.id ?? null }))
+    }
     setSaving(false)
     if (error) return flash('Greška: ' + error.message)
-    setForm(BLANK)
-    flash('Najava objavljena')
+    setForm(BLANK); setEditingId(null)
+    flash(editingId ? 'Najava izmijenjena' : 'Najava objavljena')
     load()
   }
 
@@ -88,7 +106,7 @@ export default function AnnouncementsAdmin() {
 
       {/* Compose */}
       <div style={{ background: 'var(--c-surface)', border: '1px solid var(--c-border)', borderRadius: 12, padding: 16, marginBottom: 24 }}>
-        <div style={{ fontWeight: 600, marginBottom: 12 }}>Nova najava</div>
+        <div style={{ fontWeight: 600, marginBottom: 12 }}>{editingId ? '✏️ Izmjena najave' : 'Nova najava'}</div>
         <div style={{ marginBottom: 10 }}>
           <label style={{ fontSize: 12, color: 'var(--c-text-medium)', display: 'block', marginBottom: 4 }}>Naslov *</label>
           <input className={styles.input} style={{ width: '100%' }} value={form.title} onChange={e => upd('title', e.target.value)} placeholder="npr. Nova funkcija: noćni audit" />
@@ -114,7 +132,8 @@ export default function AnnouncementsAdmin() {
             <label style={{ fontSize: 12, color: 'var(--c-text-medium)', display: 'block', marginBottom: 4 }}>Ističe (opciono)</label>
             <input className={styles.input} type="date" value={form.expires_at} onChange={e => upd('expires_at', e.target.value)} />
           </div>
-          <button className={styles.btnPrimary} onClick={publish} disabled={saving}>{saving ? 'Objavljujem…' : '📣 Objavi najavu'}</button>
+          <button className={styles.btnPrimary} onClick={publish} disabled={saving}>{saving ? 'Čuvam…' : (editingId ? '💾 Sačuvaj izmjene' : '📣 Objavi najavu')}</button>
+          {editingId && <button className={styles.btnSecondary} onClick={cancelEdit}>Odustani</button>}
         </div>
       </div>
 
@@ -137,9 +156,13 @@ export default function AnnouncementsAdmin() {
                     {a.body && <div style={{ fontSize: 13, color: 'var(--c-text-medium)', marginTop: 4, whiteSpace: 'pre-wrap' }}>{a.body}</div>}
                     <div style={{ fontSize: 11, color: 'var(--c-text-muted)', marginTop: 6 }}>
                       {AUD_LABEL[a.audience]} · {new Date(a.published_at).toLocaleDateString('sr-Latn', { day: '2-digit', month: '2-digit', year: 'numeric' })}
+                      {a.edited_at && <span> · izmijenjeno</span>}
                     </div>
                   </div>
-                  <button style={{ padding: '5px 10px', fontSize: 12, background: 'transparent', color: '#c0392b', border: '1px solid #fca5a5', borderRadius: 7, cursor: 'pointer', flexShrink: 0 }} onClick={() => remove(a.id)}>Obriši</button>
+                  <div style={{ display: 'flex', gap: 6, flexShrink: 0 }}>
+                    <button style={{ padding: '5px 10px', fontSize: 12, background: 'transparent', color: 'var(--c-text-medium)', border: '1px solid var(--c-border)', borderRadius: 7, cursor: 'pointer' }} onClick={() => openEdit(a)}>Uredi</button>
+                    <button style={{ padding: '5px 10px', fontSize: 12, background: 'transparent', color: '#c0392b', border: '1px solid #fca5a5', borderRadius: 7, cursor: 'pointer' }} onClick={() => remove(a.id)}>Obriši</button>
+                  </div>
                 </div>
               </div>
             )

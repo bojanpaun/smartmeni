@@ -116,6 +116,7 @@ export default function HomeView({ staffId, restaurantId, staffInfo, brand }) {
           {ann.body && <div className={s.announcementBody}>{ann.body}</div>}
           <div className={s.announcementDate}>
             {new Date(ann.created_at).toLocaleDateString('sr-Latn', { day: 'numeric', month: 'long' })}
+            {ann.edited_at && ' · izmijenjeno'}
           </div>
         </div>
       ))}

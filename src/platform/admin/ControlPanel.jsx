@@ -4,6 +4,7 @@ import { usePlatform } from '../../context/PlatformContext'
 import { supabase } from '../../lib/supabase'
 import { MODULES } from '../../layouts/AdminLayout'
 import OnboardingWizard from './OnboardingWizard'
+import CommunicationWidget from './CommunicationWidget'
 import styles from './ControlPanel.module.css'
 
 const RESTAURANT_KEYS  = ['menu', 'tables']
@@ -209,6 +210,9 @@ export default function ControlPanel() {
           </div>
         )}
       </div>
+
+      {/* ── Komunikacija ── */}
+      <CommunicationWidget />
 
       {/* ── Quick actions ── */}
       <div className={styles.quickRow}>

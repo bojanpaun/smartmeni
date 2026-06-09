@@ -26,6 +26,7 @@ export default function StaffPage() {
   const [announcements, setAnnouncements] = useState([])
   const [showAnnForm, setShowAnnForm]     = useState(false)
   const [annForm, setAnnForm]             = useState({ title: '', body: '', expires_at: '' })
+  const [editingAnnId, setEditingAnnId]   = useState(null)
   const [annSaving, setAnnSaving]         = useState(false)
 
   useEffect(() => { if (restaurant) loadData() }, [restaurant])
@@ -52,16 +53,26 @@ export default function StaffPage() {
   const saveAnnouncement = async (e) => {
     e.preventDefault()
     setAnnSaving(true)
-    const { data } = await supabase.from('staff_announcements').insert({
-      restaurant_id: restaurant.id,
-      title: annForm.title,
-      body:  annForm.body || null,
-      expires_at: annForm.expires_at || null,
-    }).select().single()
-    if (data) setAnnouncements(prev => [data, ...prev])
+    const payload = { title: annForm.title, body: annForm.body || null, expires_at: annForm.expires_at || null }
+    if (editingAnnId) {
+      const { data } = await supabase.from('staff_announcements')
+        .update({ ...payload, edited_at: new Date().toISOString() }).eq('id', editingAnnId).select().single()
+      if (data) setAnnouncements(prev => prev.map(a => a.id === editingAnnId ? data : a))
+    } else {
+      const { data } = await supabase.from('staff_announcements')
+        .insert({ restaurant_id: restaurant.id, ...payload }).select().single()
+      if (data) setAnnouncements(prev => [data, ...prev])
+    }
     setAnnForm({ title: '', body: '', expires_at: '' })
+    setEditingAnnId(null)
     setShowAnnForm(false)
     setAnnSaving(false)
+  }
+
+  const openEditAnn = (a) => {
+    setEditingAnnId(a.id)
+    setAnnForm({ title: a.title, body: a.body || '', expires_at: a.expires_at ? a.expires_at.slice(0, 10) : '' })
+    setShowAnnForm(true)
   }
 
   const deleteAnnouncement = async (id) => {
@@ -177,7 +188,10 @@ export default function StaffPage() {
       <div className={styles.section} style={{ marginTop: 24 }}>
         <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: 12 }}>
           <div className={styles.sectionLabel}>OBAVIJESTI ZA OSOBLJE ({announcements.length})</div>
-          <button className={styles.btnSecondary} onClick={() => setShowAnnForm(v => !v)}>
+          <button className={styles.btnSecondary} onClick={() => {
+            if (showAnnForm) { setShowAnnForm(false); setEditingAnnId(null); setAnnForm({ title: '', body: '', expires_at: '' }) }
+            else setShowAnnForm(true)
+          }}>
             {showAnnForm ? 'Otkaži' : '+ Nova obavijest'}
           </button>
         </div>
@@ -200,9 +214,9 @@ export default function StaffPage() {
                 onChange={e => setAnnForm(f => ({ ...f, expires_at: e.target.value }))} />
             </div>
             <div className={styles.modalActions}>
-              <button type="button" className={styles.btnSecondary} onClick={() => setShowAnnForm(false)}>Otkaži</button>
+              <button type="button" className={styles.btnSecondary} onClick={() => { setShowAnnForm(false); setEditingAnnId(null); setAnnForm({ title: '', body: '', expires_at: '' }) }}>Otkaži</button>
               <button type="submit" className={styles.btnPrimary} disabled={annSaving}>
-                {annSaving ? 'Slanje...' : 'Objavi obavijest'}
+                {annSaving ? 'Slanje...' : (editingAnnId ? 'Sačuvaj izmjene' : 'Objavi obavijest')}
               </button>
             </div>
           </form>
@@ -221,10 +235,14 @@ export default function StaffPage() {
                 <div className={styles.annCardMeta}>
                   Objavljeno {new Date(ann.created_at).toLocaleDateString('sr-Latn', { day: 'numeric', month: 'short', year: 'numeric' })}
                   {ann.expires_at && ` · istječe ${new Date(ann.expires_at).toLocaleDateString('sr-Latn', { day: 'numeric', month: 'short' })}`}
+                  {ann.edited_at && ' · izmijenjeno'}
                   {isExpired && ' · ⚠ Isteklo'}
                 </div>
               </div>
-              <button className={styles.annDeleteBtn} onClick={() => deleteAnnouncement(ann.id)} title="Obriši">✕</button>
+              <div style={{ display: 'flex', gap: 6, flexShrink: 0 }}>
+                <button className={styles.btnSecondary} style={{ padding: '4px 10px', fontSize: 12 }} onClick={() => openEditAnn(ann)} title="Uredi">Uredi</button>
+                <button className={styles.annDeleteBtn} onClick={() => deleteAnnouncement(ann.id)} title="Obriši">✕</button>
+              </div>
             </div>
           )
         })}
