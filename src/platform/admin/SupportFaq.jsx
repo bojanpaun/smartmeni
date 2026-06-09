@@ -65,8 +65,6 @@ export default function SupportFaq() {
       .then(({ data }) => { setItems(data ?? []); setLoaded(true) })
   }, [])
 
-  if (loaded && items.length === 0) return null  // nema FAQ → ne prikazuj sekciju
-
   const cats = ['all', ...Array.from(new Set(items.map(i => i.category)))]
   const filtered = items.filter(i => {
     if (cat !== 'all' && i.category !== cat) return false
@@ -78,9 +76,19 @@ export default function SupportFaq() {
   })
 
   return (
-    <div style={{ marginBottom: 24, background: 'var(--c-surface)', border: '1px solid var(--c-border)', borderRadius: 14, padding: 16 }}>
-      <div style={{ fontWeight: 700, marginBottom: 12 }}>📖 Česta pitanja</div>
+    <div className={styles.page}>
+      <div className={styles.header}>
+        <div>
+          <h1 className={styles.title}>📖 Česta pitanja</h1>
+          <p className={styles.subtitle}>Odgovori na osnovna pitanja o korišćenju platforme</p>
+        </div>
+      </div>
 
+      {loaded && items.length === 0 && (
+        <div style={{ padding: 40, textAlign: 'center', color: 'var(--c-text-muted)' }}>Još nema objavljenih pitanja.</div>
+      )}
+
+      {items.length > 0 && (<>
       <div style={{ display: 'flex', gap: 10, flexWrap: 'wrap', alignItems: 'center', marginBottom: 12 }}>
         <input className={styles.input} placeholder="🔍 Pretraži pitanja…" value={q} onChange={e => setQ(e.target.value)} style={{ flex: 1, minWidth: 180 }} />
         <div style={{ display: 'flex', gap: 6, flexWrap: 'wrap' }}>
@@ -116,6 +124,7 @@ export default function SupportFaq() {
           })}
         </div>
       )}
+      </>)}
     </div>
   )
 }

@@ -32,6 +32,7 @@ const FaqAdmin              = lazy(() => import('./platform/superadmin/FaqAdmin'
 const AnnouncementsInbox    = lazy(() => import('./platform/admin/AnnouncementsInbox'))
 const NotificationsPage     = lazy(() => import('./platform/admin/NotificationsPage'))
 const SupportPage           = lazy(() => import('./platform/admin/SupportPage'))
+const SupportFaqPage        = lazy(() => import('./platform/admin/SupportFaq'))
 const TableMapEditor       = lazy(() => import('./modules/tables/pages/TableMapEditor'))
 const WaiterMapView        = lazy(() => import('./modules/tables/pages/WaiterMapView'))
 const ReservationsPage     = lazy(() => import('./modules/tables/pages/ReservationsPage'))
@@ -211,6 +212,7 @@ function AppRoutes() {
         <Route path="/admin/notifications/:section" element={<AdminRoute><NotificationsPage /></AdminRoute>} />
         <Route path="/admin/announcements" element={<AdminRoute><AnnouncementsInbox /></AdminRoute>} />
         <Route path="/admin/support" element={<AdminRoute><SupportPage /></AdminRoute>} />
+        <Route path="/admin/support/faq" element={<AdminRoute><SupportFaqPage /></AdminRoute>} />
 
         {/* Digitalni meni modul (restoran vertikala) */}
         <Route path="/admin/menu/analytics" element={<AdminRoute><VerticalGuard vertical="restaurant"><AdminMenuAnalytics /></VerticalGuard></AdminRoute>} />

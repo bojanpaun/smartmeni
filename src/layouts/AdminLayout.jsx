@@ -272,6 +272,25 @@ export const MODULES = [
     },
   },
   {
+    // Podrška — sidebar Poruke | Česta pitanja. Nije dashboard kartica (postoji Sistem kartica).
+    key: 'support',
+    label: 'Podrška',
+    icon: '💬',
+    desc: 'Pomoć i česta pitanja',
+    path: '/admin/support',
+    active: true,
+    perm: null,
+    noHelp: true,
+    interactive: null,
+    admin: {
+      label: 'Podrška',
+      links: [
+        { label: 'Poruke',        icon: '💬', path: '/admin/support', exact: true },
+        { label: 'Česta pitanja', icon: '📖', path: '/admin/support/faq' },
+      ],
+    },
+  },
+  {
     // Superadmin — kompletna navigacija u sidebar-u (na /superadmin* aktivno). Nije dashboard kartica.
     key: 'superadmin',
     label: 'Super admin',
