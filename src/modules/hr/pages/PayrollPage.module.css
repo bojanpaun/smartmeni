@@ -34,7 +34,7 @@
 .entryDate { font-size: 12px; color: var(--c-text-muted); }
 .entryNote { font-size: 12px; color: var(--c-text-medium); overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
 .entryAmount { font-size: 14px; font-weight: 700; }
-.entryDelete { background: none; border: none; cursor: pointer; color: #d0d0d0; font-size: 14px; padding: 4px; border-radius: 4px; }
+.entryDelete { background: none; border: none; cursor: pointer; color: var(--c-border); font-size: 14px; padding: 4px; border-radius: 4px; }
 .entryDelete:hover { color: var(--c-danger); background: var(--c-danger-bg); }
 
 .empty { padding: 2rem; text-align: center; color: var(--c-text-muted); font-size: 13px; }
@@ -55,7 +55,7 @@
 
 .statusPill { font-size: 11px; padding: 4px 10px; border-radius: 20px; font-weight: 500; }
 .status-draft    { background: var(--c-bg-subtle); color: var(--c-text-medium); }
-.status-approved { background: #e8f0fe; color: #185fa5; }
+.status-approved { background: var(--c-info-bg); color: var(--c-info); }
 .status-paid     { background: var(--c-primary-light); color: var(--c-primary); }
 
 .periodGrid { display: grid; grid-template-columns: repeat(3, 1fr); gap: 10px; margin-bottom: 14px; }
@@ -66,10 +66,10 @@
 .periodTotalVal { font-size: 20px; color: var(--c-primary); }
 
 .periodActions { display: flex; gap: 8px; margin-top: 12px; }
-.btnApprove { padding: 7px 16px; background: #e8f0fe; color: #185fa5; border: 1px solid #b5d4f4; border-radius: 8px; font-size: 12px; cursor: pointer; font-family: var(--c-font-sans); font-weight: 500; }
+.btnApprove { padding: 7px 16px; background: var(--c-info-bg); color: var(--c-info); border: 1px solid var(--c-info-border); border-radius: 8px; font-size: 12px; cursor: pointer; font-family: var(--c-font-sans); font-weight: 500; }
 .btnApprove:hover { background: #c0d8f8; }
 .btnPay { padding: 7px 16px; background: var(--c-primary-light); color: var(--c-primary); border: 1px solid var(--c-primary-muted); border-radius: 8px; font-size: 12px; cursor: pointer; font-family: var(--c-font-sans); font-weight: 500; }
-.btnPay:hover { background: #c8edd8; }
+.btnPay:hover { background: var(--c-primary-light); }
 
 /* ── Modal ── */
 .overlay { composes: overlay from '../../../styles/modal.module.css'; }

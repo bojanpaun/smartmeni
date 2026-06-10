@@ -224,7 +224,7 @@
 
 /* Linked rooms badge on plan card */
 .planRooms {
-  background: #e8f5f0;
+  background: var(--c-primary-light);
   color: #0a5c3e;
   border-radius: 6px;
   font-size: 11px;
@@ -267,8 +267,8 @@
 }
 
 /* Multiplier color */
-.multUp   { color: #c0392b; }
-.multDown { color: #0d7a52; }
+.multUp   { color: var(--c-danger); }
+.multDown { color: var(--c-primary); }
 
 /* Empty state */
 .empty {

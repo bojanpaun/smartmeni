@@ -6,7 +6,7 @@
 /* ── Header ── */
 .header { display: flex; align-items: flex-start; justify-content: space-between; margin-bottom: 16px; gap: 12px; flex-wrap: wrap; }
 .headerTitle { font-size: 20px; font-weight: 600; color: var(--c-text); }
-.lowBadge { display: inline-block; margin-top: 4px; background: #fff8e0; color: #7a5c00; font-size: 12px; padding: 3px 10px; border-radius: 20px; font-weight: 500; }
+.lowBadge { display: inline-block; margin-top: 4px; background: var(--c-warning-bg); color: var(--c-warning); font-size: 12px; padding: 3px 10px; border-radius: 20px; font-weight: 500; }
 .headerActions { display: flex; gap: 8px; flex-wrap: wrap; }
 
 .btnAdd { composes: btnPrimary from '../../../styles/buttons.module.css'; }
@@ -19,7 +19,7 @@
 .filterCats { display: flex; gap: 5px; flex-wrap: wrap; }
 .filterBtn { composes: pillBtn from '../../../styles/nav.module.css'; }
 .filterBtnActive { composes: pillBtnActive from '../../../styles/nav.module.css'; }
-.filterBtnLow { background: #fff8e0; color: #7a5c00; border-color: #f5d070; }
+.filterBtnLow { background: var(--c-warning-bg); color: var(--c-warning); border-color: var(--c-warning-border); }
 
 /* ── Tabela ── */
 .table { background: var(--c-surface); border: 1px solid var(--c-border); border-radius: 14px; overflow: hidden; }
@@ -40,21 +40,21 @@
 .tableRow:last-child { border-bottom: none; }
 .tableRow:hover { background: var(--c-bg); }
 .tableRowLow { background: #fffdf0; }
-.tableRowLow:hover { background: #fff8e0; }
+.tableRowLow:hover { background: var(--c-warning-bg); }
 
 .itemName { font-size: 14px; font-weight: 500; color: var(--c-text); display: flex; align-items: center; gap: 6px; flex-wrap: wrap; }
 .itemNote { font-size: 11px; color: var(--c-text-muted); font-weight: 400; }
-.lowDot { width: 8px; height: 8px; border-radius: 50%; background: #f5b87a; flex-shrink: 0; }
+.lowDot { width: 8px; height: 8px; border-radius: 50%; background: var(--c-warning-border); flex-shrink: 0; }
 
 .itemCat { font-size: 12px; color: var(--c-text-medium); }
 .itemQty { font-size: 14px; font-weight: 600; color: var(--c-text); }
-.itemQtyLow { color: #c0600a; }
+.itemQtyLow { color: var(--c-warning); }
 .itemMin { font-size: 12px; color: var(--c-text-muted); }
 .itemCost { font-size: 12px; color: var(--c-text-medium); }
 
 .itemActions { display: flex; gap: 5px; justify-content: flex-end; }
 .btnMovement { padding: 6px 10px; background: var(--c-primary-light); border: 1px solid var(--c-primary-muted); border-radius: 7px; font-size: 14px; font-weight: 700; cursor: pointer; color: var(--c-primary); font-family: var(--c-font-sans); }
-.btnMovement:hover { background: #c8edd8; }
+.btnMovement:hover { background: var(--c-primary-light); }
 .btnEdit { padding: 6px 10px; background: transparent; border: 1px solid var(--c-border-input); border-radius: 7px; font-size: 12px; cursor: pointer; color: var(--c-text-medium); font-family: var(--c-font-sans); }
 .btnEdit:hover { background: var(--c-bg-subtle); }
 .btnDelete { padding: 6px 10px; background: transparent; border: 1px solid var(--c-danger-border); border-radius: 7px; font-size: 12px; cursor: pointer; color: var(--c-danger); font-family: var(--c-font-sans); }
@@ -97,8 +97,8 @@
 .type-in.movementTypeBtnActive .movementTypeBtnLabel { color: var(--c-primary); }
 .type-out.movementTypeBtnActive { background: var(--c-danger-bg); border-color: var(--c-danger); }
 .type-out.movementTypeBtnActive .movementTypeBtnLabel { color: var(--c-danger); }
-.type-adjustment.movementTypeBtnActive { background: #e8f0fe; border-color: #378add; }
-.type-adjustment.movementTypeBtnActive .movementTypeBtnLabel { color: #185fa5; }
+.type-adjustment.movementTypeBtnActive { background: var(--c-info-bg); border-color: var(--c-info); }
+.type-adjustment.movementTypeBtnActive .movementTypeBtnLabel { color: var(--c-info); }
 
 .movementPreview { font-size: 13px; color: var(--c-text-medium); background: var(--c-bg-subtle); border-radius: 8px; padding: 8px 12px; }
 
@@ -152,7 +152,7 @@
   }
   .itemMin {
     font-size: 11px;
-    color: #b0c0b8;
+    color: var(--c-text-muted);
     flex: 0 0 auto;
     margin-left: 4px;
   }

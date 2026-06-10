@@ -46,7 +46,7 @@
 .staffSectionName { display: flex; align-items: center; gap: 8px; font-size: 14px; font-weight: 500; color: var(--c-text); }
 .staffAvatar { width: 32px; height: 32px; border-radius: 50%; background: var(--c-primary); color: var(--c-surface); font-size: 13px; font-weight: 600; display: flex; align-items: center; justify-content: center; flex-shrink: 0; }
 .activeBadge { font-size: 11px; color: var(--c-primary); background: var(--c-primary-light); padding: 2px 8px; border-radius: 20px; font-weight: 500; }
-.absentBadge { font-size: 11px; color: var(--c-text-muted); background: #f0f0f0; padding: 2px 8px; border-radius: 20px; }
+.absentBadge { font-size: 11px; color: var(--c-text-muted); background: var(--c-bg-subtle); padding: 2px 8px; border-radius: 20px; }
 .staffSectionMeta { display: flex; align-items: center; gap: 8px; }
 .staffTotalH { font-size: 13px; font-weight: 600; color: var(--c-primary); }
 .btnAddEntry { padding: 5px 12px; background: var(--c-bg-subtle); border: 1px solid var(--c-border-input); border-radius: 7px; font-size: 12px; cursor: pointer; font-family: var(--c-font-sans); color: var(--c-text-medium); }
@@ -65,7 +65,7 @@
 .entryNote { font-size: 11px; color: var(--c-text-muted); flex: 1; }
 .entryActions { display: flex; gap: 4px; margin-left: auto; }
 .btnEdit { padding: 4px 10px; background: var(--c-bg-subtle); border: 1px solid var(--c-border-input); border-radius: 6px; font-size: 11px; cursor: pointer; font-family: var(--c-font-sans); color: var(--c-text-medium); }
-.btnEdit:hover { background: #e0f0e8; }
+.btnEdit:hover { background: var(--c-primary-light); }
 .btnDel { padding: 4px 8px; background: transparent; border: 1px solid var(--c-danger-border); border-radius: 6px; font-size: 11px; cursor: pointer; color: var(--c-danger); }
 .btnDel:hover { background: var(--c-danger-bg); }
 

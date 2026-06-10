@@ -6,13 +6,13 @@
   font-size: 14px;
   font-family: inherit;
   outline: none;
-  color: var(--ink, #0e1a14);
+  color: var(--ink, var(--c-text));
   background: #fff;
   margin-bottom: 16px;
   box-sizing: border-box;
 }
 .searchBar:focus {
-  border-color: var(--c-primary, #1a9e6e);
+  border-color: var(--c-primary, var(--c-primary-medium));
 }
 
 .guestList {
@@ -30,11 +30,11 @@
   background: #fff;
 }
 .guestCard:hover {
-  border-color: var(--c-primary, #1a9e6e);
+  border-color: var(--c-primary, var(--c-primary-medium));
   box-shadow: 0 2px 12px rgba(14,26,20,0.06);
 }
 .guestCardExpanded {
-  border-color: var(--c-primary, #1a9e6e);
+  border-color: var(--c-primary, var(--c-primary-medium));
 }
 
 .guestCardTop {
@@ -59,7 +59,7 @@
 .guestName {
   font-weight: 700;
   font-size: 15px;
-  color: var(--ink, #0e1a14);
+  color: var(--ink, var(--c-text));
 }
 
 .vipBadge {
@@ -68,13 +68,13 @@
   padding: 2px 8px;
   font-size: 10px;
   font-weight: 700;
-  color: #7a5c00;
+  color: var(--c-warning);
   letter-spacing: 0.3px;
 }
 
 .guestMeta {
   font-size: 12px;
-  color: var(--muted, #8a9e96);
+  color: var(--muted, var(--c-text-muted));
   display: flex;
   flex-wrap: wrap;
   gap: 6px;
@@ -91,19 +91,19 @@
 .stayCount {
   font-weight: 600;
   font-size: 13px;
-  color: var(--c-primary, #1a9e6e);
+  color: var(--c-primary, var(--c-primary-medium));
 }
 
 .lastStay {
   font-size: 11px;
-  color: var(--muted, #8a9e96);
+  color: var(--muted, var(--c-text-muted));
 }
 
 .editForm {
   border-top: 1px solid var(--border, rgba(14,26,20,0.08));
   padding-top: 16px;
   margin-top: 14px;
-  background: var(--surface, #f5f9f7);
+  background: var(--surface, var(--c-bg-subtle));
   border-radius: 0 0 10px 10px;
   margin-left: -18px;
   margin-right: -18px;
@@ -131,7 +131,7 @@
 .editField label {
   font-size: 11px;
   font-weight: 600;
-  color: var(--ink-soft, #3a4a42);
+  color: var(--ink-soft, var(--c-text-medium));
   letter-spacing: 0.3px;
   text-transform: uppercase;
 }
@@ -143,12 +143,12 @@
   font-size: 13px;
   font-family: inherit;
   outline: none;
-  color: var(--ink, #0e1a14);
+  color: var(--ink, var(--c-text));
   background: #fff;
 }
 .editField input:focus,
 .editField textarea:focus {
-  border-color: var(--c-primary, #1a9e6e);
+  border-color: var(--c-primary, var(--c-primary-medium));
 }
 .editField textarea {
   resize: vertical;
@@ -164,11 +164,11 @@
   gap: 10px;
   margin-bottom: 14px;
   font-size: 13px;
-  color: var(--ink-soft, #3a4a42);
+  color: var(--ink-soft, var(--c-text-medium));
   cursor: pointer;
 }
 .vipToggleRow input {
-  accent-color: var(--c-primary, #1a9e6e);
+  accent-color: var(--c-primary, var(--c-primary-medium));
   width: 16px;
   height: 16px;
 }
@@ -181,7 +181,7 @@
 
 .btnSave {
   padding: 8px 20px;
-  background: var(--c-primary, #1a9e6e);
+  background: var(--c-primary, var(--c-primary-medium));
   color: #fff;
   border: none;
   border-radius: 8px;
@@ -191,25 +191,25 @@
   font-family: inherit;
   transition: background 0.15s;
 }
-.btnSave:hover { background: var(--c-primary-dark, #0d7a52); }
+.btnSave:hover { background: var(--c-primary-dark, var(--c-primary)); }
 .btnSave:disabled { opacity: 0.6; cursor: not-allowed; }
 
 .btnCancel {
   padding: 8px 16px;
   background: transparent;
-  color: var(--muted, #8a9e96);
+  color: var(--muted, var(--c-text-muted));
   border: 1.5px solid var(--border, rgba(14,26,20,0.1));
   border-radius: 8px;
   font-size: 13px;
   cursor: pointer;
   font-family: inherit;
 }
-.btnCancel:hover { background: var(--surface, #f5f9f7); }
+.btnCancel:hover { background: var(--surface, var(--c-bg-subtle)); }
 
 .emptyState {
   text-align: center;
   padding: 48px 16px;
-  color: var(--muted, #8a9e96);
+  color: var(--muted, var(--c-text-muted));
 }
 .emptyIcon {
   font-size: 40px;

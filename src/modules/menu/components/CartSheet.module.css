@@ -23,7 +23,7 @@
 .closeBtn {
   background: var(--c-bg); border: none; cursor: pointer;
   width: 28px; height: 28px; border-radius: 50%;
-  font-size: 14px; color: #6a8880;
+  font-size: 14px; color: var(--c-text-muted);
 }
 .body { overflow-y: auto; padding: 16px; flex: 1; }
 
@@ -52,7 +52,7 @@
   font-size: 12px; font-family: var(--c-font-sans);
   outline: none; background: var(--c-surface); color: var(--c-text);
 }
-.noteInput::placeholder { color: #aab8b2; }
+.noteInput::placeholder { color: var(--c-text-muted); }
 
 .qtyControl {
   display: flex; flex-direction: column; align-items: center; gap: 4px;

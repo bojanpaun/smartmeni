@@ -46,7 +46,7 @@
 .btnWarn:hover { background: var(--c-warning-bg); }
 .btnOk { background: var(--c-primary-light); border-color: var(--c-primary-medium); color: var(--c-primary); }
 .btnOk:hover { background: #c5eddb; }
-.btnDanger { background: #fff0f0; border-color: var(--c-danger-border); color: var(--c-danger); }
+.btnDanger { background: var(--c-danger-bg); border-color: var(--c-danger-border); color: var(--c-danger); }
 .btnDanger:hover { background: var(--c-danger-bg); }
 
 /* --- Empty state --- */

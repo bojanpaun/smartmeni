@@ -2,7 +2,7 @@
 
 .pageWrap {
   min-height: 100vh;
-  background: #f0f4f2;
+  background: var(--c-bg-subtle);
   display: flex;
   align-items: flex-start;
   justify-content: center;
@@ -254,8 +254,8 @@
 
 /* Konflikt stola upozorenje */
 .conflictWarn {
-  background: #FEF3C7;
-  border: 1px solid #F59E0B;
+  background: var(--c-warning-bg);
+  border: 1px solid var(--c-warning);
   border-radius: 10px;
   padding: 10px 14px;
   font-size: 13px;
@@ -292,7 +292,7 @@
 
 .tableBtnReserved {
   border-color: var(--c-danger-border);
-  background: #fff0f0;
+  background: var(--c-danger-bg);
   color: var(--c-danger);
   cursor: not-allowed;
   opacity: 0.6;

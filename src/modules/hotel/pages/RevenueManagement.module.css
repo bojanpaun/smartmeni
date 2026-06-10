@@ -73,8 +73,8 @@
   margin-bottom: 2px;
 }
 
-.kpiUp  { color: #0d7a52; }
-.kpiDown { color: #c0392b; }
+.kpiUp  { color: var(--c-primary); }
+.kpiDown { color: var(--c-danger); }
 
 .kpiSub {
   font-size: 11px;
@@ -221,8 +221,8 @@
   font-size: 12px;
 }
 
-.sugDiffUp   { color: #0d7a52; }
-.sugDiffDown { color: #c0392b; }
+.sugDiffUp   { color: var(--c-primary); }
+.sugDiffDown { color: var(--c-danger); }
 
 /* Occupancy bar */
 .occBar {

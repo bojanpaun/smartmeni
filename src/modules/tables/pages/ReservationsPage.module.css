@@ -100,7 +100,7 @@
   width: 6px; height: 6px; border-radius: 50%; flex-shrink: 0;
 }
 .calDotConfirmed { background: var(--c-primary); }
-.calDotPending   { background: #f5b87a; }
+.calDotPending   { background: var(--c-warning-border); }
 .calDotMore { font-size: 9px; color: var(--c-text-muted); }
 
 .calLegend {
@@ -144,30 +144,30 @@
   padding: 14px 16px; display: flex; align-items: flex-start;
   gap: 12px; flex-wrap: wrap;
 }
-.resCardPending { border-color: #f5b87a; background: #fff8f2; }
+.resCardPending { border-color: var(--c-warning-border); background: #fff8f2; }
 .resMain { flex: 1; min-width: 0; }
 .resTop { display: flex; align-items: center; gap: 8px; margin-bottom: 6px; flex-wrap: wrap; }
 .resGuest { font-size: 15px; font-weight: 600; color: var(--c-text); }
 
 .statusPill { font-size: 11px; padding: 2px 9px; border-radius: 20px; font-weight: 500; }
-.statusPending   { background: #fff8e0; color: #7a5c00; }
+.statusPending   { background: var(--c-warning-bg); color: var(--c-warning); }
 .statusConfirmed { background: var(--c-primary-light); color: var(--c-primary); }
 .statusCancelled { background: var(--c-danger-bg); color: var(--c-danger); }
-.statusCompleted { background: #f0f0f0; color: #6a7a72; }
+.statusCompleted { background: var(--c-bg-subtle); color: var(--c-text-muted); }
 
 .sourcePill {
   font-size: 10px; padding: 2px 8px; border-radius: 20px;
-  background: #e8f0fe; color: #1a4db5; font-weight: 500;
+  background: var(--c-info-bg); color: #1a4db5; font-weight: 500;
 }
 .resMeta { display: flex; gap: 12px; flex-wrap: wrap; font-size: 12px; color: var(--c-text-medium); margin-bottom: 4px; }
 .resNote { font-size: 12px; color: var(--c-text-muted); font-style: italic; margin-top: 4px; }
 .resActions { display: flex; gap: 6px; align-items: center; flex-shrink: 0; flex-wrap: wrap; }
 
 .btnConfirm { padding: 6px 12px; background: var(--c-primary-light); border: 1px solid var(--c-primary-muted); border-radius: 7px; font-size: 12px; cursor: pointer; color: var(--c-primary); font-family: var(--c-font-sans); font-weight: 500; }
-.btnConfirm:hover { background: #c8edd8; }
+.btnConfirm:hover { background: var(--c-primary-light); }
 .btnCancel { padding: 6px 12px; background: var(--c-danger-bg); border: 1px solid var(--c-danger-border); border-radius: 7px; font-size: 12px; cursor: pointer; color: var(--c-danger); font-family: var(--c-font-sans); font-weight: 500; }
 .btnCancel:hover { background: var(--c-danger-bg); }
-.btnComplete { padding: 6px 12px; background: #f0f0f0; border: 1px solid #d0d0d0; border-radius: 7px; font-size: 12px; cursor: pointer; color: var(--c-text-medium); font-family: var(--c-font-sans); }
+.btnComplete { padding: 6px 12px; background: var(--c-bg-subtle); border: 1px solid var(--c-border); border-radius: 7px; font-size: 12px; cursor: pointer; color: var(--c-text-medium); font-family: var(--c-font-sans); }
 .btnComplete:hover { background: #e0e0e0; }
 .btnEdit { padding: 6px 12px; background: transparent; border: 1px solid var(--c-border-input); border-radius: 7px; font-size: 12px; cursor: pointer; color: var(--c-text-medium); font-family: var(--c-font-sans); }
 .btnEdit:hover { background: var(--c-bg-subtle); }
@@ -203,8 +203,8 @@
 .legendFree, .legendReserved, .legendSelected {
   display: flex; align-items: center; gap: 5px; color: var(--c-text-medium);
 }
-.legendFree::before { content: ''; width: 12px; height: 12px; border-radius: 3px; background: var(--c-surface); border: 1.5px solid #b0c9be; flex-shrink: 0; }
-.legendReserved::before { content: ''; width: 12px; height: 12px; border-radius: 3px; background: #dceffe; border: 1.5px solid #378add; flex-shrink: 0; }
+.legendFree::before { content: ''; width: 12px; height: 12px; border-radius: 3px; background: var(--c-surface); border: 1.5px solid var(--c-text-muted); flex-shrink: 0; }
+.legendReserved::before { content: ''; width: 12px; height: 12px; border-radius: 3px; background: var(--c-info-bg); border: 1.5px solid var(--c-info); flex-shrink: 0; }
 .legendSelected::before { content: ''; width: 12px; height: 12px; border-radius: 3px; background: var(--c-primary); border: 1.5px solid var(--c-primary); flex-shrink: 0; }
 .pickerCanvas { position: relative; width: 100%; min-height: 160px; overflow: auto; }
 .pickerGrid {
@@ -215,18 +215,18 @@
 .pickerTable {
   position: absolute; display: flex; flex-direction: column;
   align-items: center; justify-content: center;
-  background: var(--c-surface); border: 2px solid #b0c9be;
+  background: var(--c-surface); border: 2px solid var(--c-text-muted);
   cursor: pointer; transition: all 0.15s; font-family: var(--c-font-sans); padding: 2px;
 }
 .pickerTable:hover { border-color: var(--c-primary); background: var(--c-bg-subtle); }
-.pickerTableReserved { background: #dceffe; border-color: #378add; }
+.pickerTableReserved { background: var(--c-info-bg); border-color: var(--c-info); }
 .pickerTableReserved:hover { background: #c0e0f8; }
 .pickerTableSelected { background: var(--c-primary) !important; border-color: var(--c-primary) !important; }
 .pickerTableSelected .pickerTableLabel { color: var(--c-surface) !important; }
 .pickerTableLabel { font-size: 10px; font-weight: 600; color: var(--c-text); text-align: center; line-height: 1.2; pointer-events: none; }
 .pickerReservedDot {
   position: absolute; top: -6px; right: -6px; width: 16px; height: 16px;
-  border-radius: 50%; background: #378add; color: var(--c-surface);
+  border-radius: 50%; background: var(--c-info); color: var(--c-surface);
   font-size: 9px; font-weight: 700; display: flex; align-items: center; justify-content: center;
   pointer-events: none;
 }
@@ -271,11 +271,11 @@
 .plannerScroll {
   overflow-x: auto; border-radius: 12px; border: 1px solid var(--c-border); background: var(--c-surface);
   /* Prikaži scrollbar samo kad treba */
-  scrollbar-width: thin; scrollbar-color: #c8e0d4 var(--c-bg-subtle);
+  scrollbar-width: thin; scrollbar-color: var(--c-primary-light) var(--c-bg-subtle);
 }
 .plannerScroll::-webkit-scrollbar { height: 6px; }
 .plannerScroll::-webkit-scrollbar-track { background: var(--c-bg-subtle); }
-.plannerScroll::-webkit-scrollbar-thumb { background: #c8e0d4; border-radius: 3px; }
+.plannerScroll::-webkit-scrollbar-thumb { background: var(--c-primary-light); border-radius: 3px; }
 
 .plannerTableLabel {
   height: 44px; display: flex; align-items: center;

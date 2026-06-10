@@ -217,7 +217,7 @@
 .btnStart {
   padding: 6px 14px; border-radius: 8px;
   border: 1px solid #d0e4dc; background: transparent;
-  font-size: 12px; cursor: pointer; color: #2563eb;
+  font-size: 12px; cursor: pointer; color: var(--c-info);
   font-family: var(--c-font-sans); font-weight: 500;
 }
 .btnStart:hover { background: #e6f0ff; }
@@ -233,12 +233,12 @@
 .btnVerify {
   padding: 6px 14px; border-radius: 8px;
   border: 1px solid #c4aae0; background: transparent;
-  font-size: 12px; cursor: pointer; color: #7c3aed;
+  font-size: 12px; cursor: pointer; color: var(--c-accent);
   font-family: var(--c-font-sans); font-weight: 500;
 }
 .btnVerify:hover { background: #f0eaff; }
 
-.verifiedLabel { font-size: 12px; color: #7c3aed; font-weight: 500; }
+.verifiedLabel { font-size: 12px; color: var(--c-accent); font-weight: 500; }
 
 /* Maintenance list */
 .maintList { display: flex; flex-direction: column; gap: 10px; }

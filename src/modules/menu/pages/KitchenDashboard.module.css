@@ -17,7 +17,7 @@
 }
 .topbarTab:hover { background: rgba(255,255,255,0.07); color: rgba(255,255,255,0.75); }
 .topbarTabActive      { background: var(--c-bg-subtle) !important; color: var(--c-text)   !important; font-weight: 700; }
-.topbarTabActiveBar   { background: #f0eefe            !important; color: #534AB7          !important; font-weight: 700; }
+.topbarTabActiveBar   { background: #f0eefe            !important; color: var(--c-accent)          !important; font-weight: 700; }
 .topbarTabActiveDone  { background: var(--c-bg-subtle) !important; color: var(--c-text)   !important; font-weight: 700; }
 
 /* ── LIVE BADGE ── */
@@ -69,7 +69,7 @@
 }
 .status_received { background: var(--c-primary-light); color: var(--c-primary); }
 .status_preparing { background: var(--c-warning-bg); color: var(--c-warning); }
-.status_ready { background: #eeedfe; color: #3c3489; }
+.status_ready { background: var(--c-accent-bg); color: #3c3489; }
 
 .ticketTime { font-size: 11px; color: var(--c-text-muted); }
 .urgent { color: var(--c-danger) !important; font-weight: 700; }
@@ -99,13 +99,13 @@
 }
 .ticketBtnPrimary { background: var(--c-text); color: var(--c-surface); }
 .ticketBtnPrimary:hover { background: var(--c-text-medium); }
-.ticketBtnBar { background: #534AB7; color: white; }
+.ticketBtnBar { background: var(--c-accent); color: white; }
 .ticketBtnBar:hover { background: #4038a0; }
 .ticketBtnSuccess { background: var(--c-primary-medium); color: var(--c-surface); }
 .ticketBtnSuccess:hover { background: var(--c-primary); }
 .ticketReady {
   text-align: center; padding: 10px; font-size: 13px;
-  color: #534AB7; background: #eeedfe; border-radius: var(--c-radius-md); font-weight: 500;
+  color: var(--c-accent); background: var(--c-accent-bg); border-radius: var(--c-radius-md); font-weight: 500;
 }
 .ticketWaiting {
   text-align: center; padding: 10px; font-size: 13px;

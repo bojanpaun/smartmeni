@@ -43,11 +43,11 @@
 .gridCellToday { background: var(--c-bg-subtle); }
 .cellShifts { display: flex; flex-direction: column; gap: 3px; height: 100%; }
 .shift { padding: 5px 7px; border-radius: 6px; background: var(--c-bg-subtle); border-left: 3px solid var(--c-primary); cursor: pointer; }
-.shift:hover { background: #e8f5f0; }
+.shift:hover { background: var(--c-primary-light); }
 .shiftTime { font-size: 11px; font-weight: 600; color: var(--c-text); }
 .shiftNote { font-size: 10px; color: var(--c-text-muted); margin-top: 1px; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
 .cellEmpty { font-size: 16px; color: var(--c-border-input); cursor: pointer; text-align: center; padding: 4px; border-radius: 6px; }
-.cellEmpty:hover { color: var(--c-primary); background: #e8f5f0; }
+.cellEmpty:hover { color: var(--c-primary); background: var(--c-primary-light); }
 
 /* Empty */
 .empty { text-align: center; padding: 3rem 1rem; display: flex; flex-direction: column; align-items: center; gap: 10px; color: var(--c-text-muted); font-size: 14px; }
@@ -80,7 +80,7 @@
 /* Red pokrivenosti */
 .tlCoverageRow { height: 40px; position: relative; background: var(--c-bg); border-top: 1px solid var(--c-border); display: flex; align-items: center; }
 .tlCovBar { position: absolute; top: 10px; bottom: 10px; border-radius: 4px; background: var(--c-primary-light); border: 1px solid var(--c-primary-medium); }
-.tlGapBar { position: absolute; top: 10px; bottom: 10px; border-radius: 4px; background: #FEF3C7; border: 1px solid #F59E0B; z-index: 2; }
+.tlGapBar { position: absolute; top: 10px; bottom: 10px; border-radius: 4px; background: var(--c-warning-bg); border: 1px solid var(--c-warning); z-index: 2; }
 .tlNoCoverage { font-size: 12px; color: var(--c-text-muted); padding: 0 16px; }
 
 /* Legenda */

@@ -19,7 +19,7 @@
 .profileBadges { display: flex; gap: 6px; flex-wrap: wrap; }
 .roleBadge { font-size: 11px; background: var(--c-primary-light); color: var(--c-primary); padding: 3px 10px; border-radius: 20px; font-weight: 500; }
 .posBadge { font-size: 11px; background: var(--c-bg-subtle); color: var(--c-text-medium); padding: 3px 10px; border-radius: 20px; }
-.contractBadge { font-size: 11px; background: #EEEDFE; color: #534AB7; padding: 3px 10px; border-radius: 20px; }
+.contractBadge { font-size: 11px; background: var(--c-accent-bg); color: var(--c-accent); padding: 3px 10px; border-radius: 20px; }
 
 .profileStats { display: flex; gap: 20px; flex-wrap: wrap; }
 .statItem { text-align: center; min-width: 60px; }
@@ -103,10 +103,10 @@
 
 /* Absence approve/reject akcije */
 .absenceActions { display: flex; align-items: center; gap: 6px; flex-shrink: 0; }
-.approvedBadge { font-size: 11px; font-weight: 500; color: #0F6E56; background: var(--c-primary-light); padding: 3px 9px; border-radius: 20px; }
+.approvedBadge { font-size: 11px; font-weight: 500; color: var(--c-primary-hover); background: var(--c-primary-light); padding: 3px 9px; border-radius: 20px; }
 .pendingBadge { font-size: 11px; font-weight: 500; color: #854F0B; background: var(--c-warning-bg); padding: 3px 9px; border-radius: 20px; }
-.rejectedBadge { font-size: 11px; font-weight: 500; color: #991b1b; background: #fef2f2; padding: 3px 9px; border-radius: 20px; }
-.btnApprove { font-size: 11px; padding: 4px 10px; border: 0.5px solid var(--c-primary-medium); border-radius: 6px; background: transparent; color: #0F6E56; cursor: pointer; font-family: var(--c-font-sans); }
+.rejectedBadge { font-size: 11px; font-weight: 500; color: var(--c-danger); background: var(--c-danger-bg); padding: 3px 9px; border-radius: 20px; }
+.btnApprove { font-size: 11px; padding: 4px 10px; border: 0.5px solid var(--c-primary-medium); border-radius: 6px; background: transparent; color: var(--c-primary-hover); cursor: pointer; font-family: var(--c-font-sans); }
 .btnApprove:hover { background: var(--c-primary-light); }
-.btnReject { font-size: 11px; padding: 4px 10px; border: 0.5px solid #F09595; border-radius: 6px; background: transparent; color: var(--c-danger); cursor: pointer; font-family: var(--c-font-sans); }
+.btnReject { font-size: 11px; padding: 4px 10px; border: 0.5px solid var(--c-danger-border); border-radius: 6px; background: transparent; color: var(--c-danger); cursor: pointer; font-family: var(--c-font-sans); }
 .btnReject:hover { background: var(--c-danger-bg); }

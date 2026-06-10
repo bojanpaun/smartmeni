@@ -8,7 +8,7 @@
 
 .btnPrimary { composes: btnPrimary from '../../../styles/buttons.module.css'; }
 .btnSecondary { composes: btnSecondary from '../../../styles/buttons.module.css'; }
-.btnPending { padding: 9px 14px; background: #E6F1FB; border: 1px solid #85B7EB; border-radius: 9px; font-size: 13px; cursor: pointer; font-family: var(--c-font-sans); color: #0C447C; font-weight: 500; }
+.btnPending { padding: 9px 14px; background: #E6F1FB; border: 1px solid #85B7EB; border-radius: 9px; font-size: 13px; cursor: pointer; font-family: var(--c-font-sans); color: var(--c-info); font-weight: 500; }
 
 .toolbar { display: flex; gap: 10px; margin-bottom: 14px; align-items: center; flex-wrap: wrap; }
 .search { padding: 9px 12px; border: 1px solid var(--c-border-input); border-radius: 9px; font-size: 13px; font-family: var(--c-font-sans); outline: none; width: 260px; }
@@ -38,8 +38,8 @@
 
 .rowActions { display: flex; gap: 5px; justify-content: flex-end; }
 .btnEdit { font-size: 12px; padding: 5px 10px; border: 1px solid var(--c-border-input); border-radius: 6px; background: transparent; color: var(--c-text); cursor: pointer; }
-.btnApprove { font-size: 12px; padding: 5px 10px; border: 1px solid var(--c-primary-medium); border-radius: 6px; background: transparent; color: #0F6E56; cursor: pointer; }
-.btnReject { font-size: 12px; padding: 5px 10px; border: 1px solid #F09595; border-radius: 6px; background: transparent; color: var(--c-danger); cursor: pointer; }
+.btnApprove { font-size: 12px; padding: 5px 10px; border: 1px solid var(--c-primary-medium); border-radius: 6px; background: transparent; color: var(--c-primary-hover); cursor: pointer; }
+.btnReject { font-size: 12px; padding: 5px 10px; border: 1px solid var(--c-danger-border); border-radius: 6px; background: transparent; color: var(--c-danger); cursor: pointer; }
 
 .empty { display: flex; flex-direction: column; align-items: center; gap: 12px; padding: 4rem 1rem; text-align: center; }
 .emptyIcon { font-size: 48px; }

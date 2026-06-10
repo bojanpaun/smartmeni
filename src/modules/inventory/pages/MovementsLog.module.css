@@ -6,7 +6,7 @@
 .header { display: flex; align-items: center; justify-content: space-between; margin-bottom: 16px; }
 .headerTitle { font-size: 20px; font-weight: 600; color: var(--c-text); }
 .btnBack { padding: 8px 14px; background: var(--c-bg-subtle); border: 1px solid var(--c-border-input); border-radius: 9px; font-size: 13px; cursor: pointer; font-family: var(--c-font-sans); color: var(--c-text-medium); }
-.btnBack:hover { background: #e0f0e8; }
+.btnBack:hover { background: var(--c-primary-light); }
 
 .filters { display: flex; gap: 8px; margin-bottom: 16px; flex-wrap: wrap; align-items: center; }
 .filterSelect { padding: 8px 12px; border: 1px solid var(--c-border-input); border-radius: 9px; font-size: 13px; font-family: var(--c-font-sans); outline: none; }
@@ -33,7 +33,7 @@
 .movType { font-size: 11px; font-weight: 600; padding: 3px 8px; border-radius: 20px; text-align: center; }
 .typeIn  { background: var(--c-primary-light); color: var(--c-primary); }
 .typeOut { background: var(--c-danger-bg); color: var(--c-danger); }
-.typeAdj { background: #e8f0fe; color: #185fa5; }
+.typeAdj { background: var(--c-info-bg); color: var(--c-info); }
 
 .movMain { min-width: 0; }
 .movName { font-size: 13px; font-weight: 500; color: var(--c-text); }
@@ -43,7 +43,7 @@
 .movQtyNum { font-size: 14px; font-weight: 700; }
 .qty-in  { color: var(--c-primary); }
 .qty-out { color: var(--c-danger); }
-.qty-adjustment { color: #185fa5; }
+.qty-adjustment { color: var(--c-info); }
 .movQtyAfter { font-size: 11px; color: var(--c-text-muted); }
 
 .movMeta { display: flex; flex-direction: column; align-items: flex-end; gap: 2px; }

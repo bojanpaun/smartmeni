@@ -108,7 +108,7 @@
 .catTabAdd:hover { border-color: var(--c-primary-medium); color: var(--c-primary); }
 .barBadge {
   display: inline-block; margin-left: 5px; font-size: 10px; font-weight: 700;
-  background: #eeedf8; color: #534AB7; padding: 1px 6px; border-radius: 6px;
+  background: var(--c-accent-bg); color: var(--c-accent); padding: 1px 6px; border-radius: 6px;
   letter-spacing: 0.04em; vertical-align: middle;
 }
 .catSettings {
@@ -156,14 +156,14 @@
   display: flex; align-items: center; gap: 10px; cursor: pointer;
   font-size: 13px; font-family: var(--c-font-sans); color: var(--c-text);
 }
-.catToggleLabel input { accent-color: #534AB7; width: 16px; height: 16px; cursor: pointer; }
+.catToggleLabel input { accent-color: var(--c-accent); width: 16px; height: 16px; cursor: pointer; }
 .catToggleHint { font-size: 12px; color: var(--c-text-muted); }
 .catDeleteBtn {
   padding: 6px 12px; background: transparent; border: 1px solid var(--c-border);
-  border-radius: 8px; font-size: 12px; cursor: pointer; color: var(--c-danger, #c0392b);
+  border-radius: 8px; font-size: 12px; cursor: pointer; color: var(--c-danger, var(--c-danger));
   font-family: var(--c-font-sans); white-space: nowrap; flex-shrink: 0;
 }
-.catDeleteBtn:hover { background: var(--c-danger-bg, #fdeaea); border-color: var(--c-danger, #c0392b); }
+.catDeleteBtn:hover { background: var(--c-danger-bg, #fdeaea); border-color: var(--c-danger, var(--c-danger)); }
 
 /* ── Emoji picker (ikona stavke) ── */
 .fieldHintInline { font-weight: 400; font-size: 11px; color: var(--c-text-muted); }
@@ -212,7 +212,7 @@
 }
 .table td { padding: 10px; border-bottom: 1px solid var(--c-bg-subtle); vertical-align: middle; }
 .table tr:last-child td { border: none; }
-.table tr:hover td { background: #f8fcfa; }
+.table tr:hover td { background: var(--c-bg-subtle); }
 
 .itemThumb {
   width: 40px; height: 40px; border-radius: 8px;

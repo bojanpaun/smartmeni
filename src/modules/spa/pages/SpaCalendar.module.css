@@ -100,7 +100,7 @@
 .slotBg {
   position: absolute;
   top: 0; bottom: 0;
-  border-right: 1px solid var(--c-border-subtle, #f3f4f6);
+  border-right: 1px solid var(--c-border-subtle, var(--c-bg-subtle));
   pointer-events: none;
 }
 .slotBgHour {
@@ -151,7 +151,7 @@
   position: absolute;
   top: 0; bottom: 0;
   width: 2px;
-  background: #ef4444;
+  background: var(--c-danger);
   z-index: 3;
   pointer-events: none;
 }
@@ -161,7 +161,7 @@
   top: 0;
   left: -4px;
   width: 10px; height: 10px;
-  background: #ef4444;
+  background: var(--c-danger);
   border-radius: 50%;
 }
 

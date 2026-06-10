@@ -71,13 +71,13 @@
   font-size: 11px;
   font-weight: 600;
 }
-.badgeActive   { background: #d1fae5; color: #065f46; }
-.badgeInactive { background: #f3f4f6; color: #6b7280; }
-.badgeMassage  { background: #ede9fe; color: #6d28d9; }
+.badgeActive   { background: var(--c-primary-light); color: var(--c-primary-hover); }
+.badgeInactive { background: var(--c-bg-subtle); color: var(--c-text-muted); }
+.badgeMassage  { background: var(--c-accent-bg); color: var(--c-accent); }
 .badgeFacial   { background: #fce7f3; color: #9d174d; }
-.badgeBody     { background: #dbeafe; color: #1e40af; }
-.badgeWellness { background: #d1fae5; color: #065f46; }
-.badgeGroup    { background: #fef3c7; color: #92400e; }
+.badgeBody     { background: var(--c-info-bg); color: var(--c-info); }
+.badgeWellness { background: var(--c-primary-light); color: var(--c-primary-hover); }
+.badgeGroup    { background: var(--c-warning-bg); color: #92400e; }
 .badgeNail     { background: #fce7f3; color: #9d174d; }
 
 /* ── Form panel ── */
@@ -152,7 +152,7 @@
 }
 .table td {
   padding: 12px 14px;
-  border-bottom: 1px solid var(--c-border-subtle, #f3f4f6);
+  border-bottom: 1px solid var(--c-border-subtle, var(--c-bg-subtle));
   color: var(--c-text);
   vertical-align: middle;
 }
@@ -172,7 +172,7 @@
   position: absolute;
   cursor: pointer;
   top: 0; left: 0; right: 0; bottom: 0;
-  background: #d1d5db;
+  background: var(--c-border);
   border-radius: 22px;
   transition: background 0.2s;
 }
