@@ -1,0 +1,26 @@
+#!/bin/sh
+# ============================================================================
+# pre-push hook — lokalna mreža prije nego kod ode na main (Vercel) / prod.
+# ----------------------------------------------------------------------------
+# Unit testovi se vrte UVIJEK (brzi, ne traže Docker).
+# pgTAP DB testovi se vrte SAMO ako je lokalni Supabase upaljen — ako nije,
+# preskaču se uz upozorenje (CI ih svejedno pokrije na push/PR).
+#
+# Aktivacija (jednom po klonu):  git config core.hooksPath .githooks
+# Preskakanje u hitnom slučaju:  git push --no-verify   (izbjegavati)
+# ============================================================================
+set -e
+
+echo "▶ pre-push: unit testovi (Vitest)..."
+npm run test:unit --silent
+
+if supabase status >/dev/null 2>&1; then
+  echo "▶ pre-push: pgTAP DB testovi (lokalni Supabase aktivan)..."
+  npm run test:db
+else
+  echo "⚠ pre-push: lokalni Supabase nije upaljen — preskačem DB testove."
+  echo "  Ako si mijenjao bazu/migracije: 'npm run db:start' pa 'npm run check' ručno."
+  echo "  (CI će svejedno pokrenuti pgTAP na push/PR.)"
+fi
+
+echo "✓ pre-push provjere prošle — push ide dalje."
