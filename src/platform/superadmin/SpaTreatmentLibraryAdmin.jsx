@@ -95,7 +95,7 @@ export default function SpaTreatmentLibraryAdmin() {
           <p className={styles.subtitle}>Predefinisani spa tretmani koje tenanti uvoze u svoj katalog</p>
         </div>
         <div style={{ display: 'flex', gap: 8 }}>
-          {msg && <span style={{ alignSelf: 'center', color: '#0d7a52', fontSize: 13 }}>✓ {msg}</span>}
+          {msg && <span style={{ alignSelf: 'center', color: 'var(--c-primary)', fontSize: 13 }}>✓ {msg}</span>}
           <button className={styles.btnSecondary} onClick={() => navigate('/superadmin')}>← Super admin</button>
           <button className={styles.btnPrimary} onClick={openNew}>+ Novi tretman</button>
         </div>
@@ -192,7 +192,7 @@ export default function SpaTreatmentLibraryAdmin() {
                 <td>
                   <div style={{ display: 'flex', gap: 8 }}>
                     <button className={styles.btnSecondary} style={{ fontSize: 12 }} onClick={() => openEdit(it)}>Uredi</button>
-                    <button style={{ padding: '5px 10px', fontSize: 12, background: 'transparent', color: '#c0392b', border: '1px solid #fca5a5', borderRadius: 7, cursor: 'pointer' }} onClick={() => remove(it.id)}>Obriši</button>
+                    <button style={{ padding: '5px 10px', fontSize: 12, background: 'transparent', color: 'var(--c-danger)', border: '1px solid #fca5a5', borderRadius: 7, cursor: 'pointer' }} onClick={() => remove(it.id)}>Obriši</button>
                   </div>
                 </td>
               </tr>

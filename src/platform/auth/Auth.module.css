@@ -184,7 +184,7 @@
 .bizChoices { display: flex; flex-direction: column; gap: 8px; }
 .bizChoice {
   display: flex; align-items: center; gap: 10px; padding: 10px 12px;
-  border: 1.5px solid #d0e4dc; border-radius: 10px; cursor: pointer; background: #fff;
+  border: 1.5px solid var(--c-border-input); border-radius: 10px; cursor: pointer; background: #fff;
 }
 .bizChoiceOn { border-color: #1a9e6e; background: #f0faf6; }
 .bizChoice input { width: 18px; height: 18px; accent-color: #1a9e6e; cursor: pointer; }

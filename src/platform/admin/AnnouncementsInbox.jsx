@@ -4,8 +4,8 @@ import styles from '../../modules/hotel/pages/Hotel.module.css'
 
 const SEV = {
   info:      { icon: 'ℹ️', label: 'Info',   color: 'var(--c-text-medium)' },
-  update:    { icon: '✨', label: 'Novost', color: '#0d7a52' },
-  important: { icon: '⚠️', label: 'Važno',  color: '#c0392b' },
+  update:    { icon: '✨', label: 'Novost', color: 'var(--c-primary)' },
+  important: { icon: '⚠️', label: 'Važno',  color: 'var(--c-danger)' },
 }
 
 export default function AnnouncementsInbox() {

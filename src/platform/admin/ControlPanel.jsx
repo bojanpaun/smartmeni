@@ -12,7 +12,7 @@ import styles from './ControlPanel.module.css'
 function CardBadge({ n }) {
   if (!n) return null
   return (
-    <span style={{ marginLeft: 8, minWidth: 18, height: 18, padding: '0 5px', borderRadius: 9, background: '#c0392b', color: '#fff', fontSize: 11, fontWeight: 700, display: 'inline-flex', alignItems: 'center', justifyContent: 'center', verticalAlign: 'middle' }}>
+    <span style={{ marginLeft: 8, minWidth: 18, height: 18, padding: '0 5px', borderRadius: 9, background: 'var(--c-danger)', color: '#fff', fontSize: 11, fontWeight: 700, display: 'inline-flex', alignItems: 'center', justifyContent: 'center', verticalAlign: 'middle' }}>
       {n > 9 ? '9+' : n}
     </span>
   )

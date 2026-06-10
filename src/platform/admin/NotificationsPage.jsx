@@ -8,8 +8,8 @@ import styles from '../../modules/hotel/pages/Hotel.module.css'
 
 const SEV = {
   info:      { icon: 'ℹ️', label: 'Info',   color: 'var(--c-text-medium)' },
-  update:    { icon: '✨', label: 'Novost', color: '#0d7a52' },
-  important: { icon: '⚠️', label: 'Važno',  color: '#c0392b' },
+  update:    { icon: '✨', label: 'Novost', color: 'var(--c-primary)' },
+  important: { icon: '⚠️', label: 'Važno',  color: 'var(--c-danger)' },
 }
 const BLANK = { title: '', body: '', expires_at: '' }
 
@@ -217,7 +217,7 @@ function OglasnaTablaTab({ restaurant }) {
                 </div>
                 <div style={{ display: 'flex', gap: 6, flexShrink: 0 }}>
                   <button className={styles.btnSecondary} style={{ fontSize: 12 }} onClick={() => openEdit(a)}>Uredi</button>
-                  <button style={{ padding: '5px 10px', fontSize: 12, background: 'transparent', color: '#c0392b', border: '1px solid #fca5a5', borderRadius: 7, cursor: 'pointer' }} onClick={() => remove(a.id)}>Obriši</button>
+                  <button style={{ padding: '5px 10px', fontSize: 12, background: 'transparent', color: 'var(--c-danger)', border: '1px solid #fca5a5', borderRadius: 7, cursor: 'pointer' }} onClick={() => remove(a.id)}>Obriši</button>
                 </div>
               </div>
             )

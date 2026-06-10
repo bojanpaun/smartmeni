@@ -82,7 +82,7 @@
   margin-bottom: 6px;
 }
 .featureCheck {
-  color: #0d7a52;
+  color: var(--c-primary);
   font-weight: 700;
   flex-shrink: 0;
 }

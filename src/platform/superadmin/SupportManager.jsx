@@ -164,7 +164,7 @@ export default function SupportManager() {
               }}>
                 <div style={{ minWidth: 0 }}>
                   <div style={{ fontWeight: 600, display: 'flex', alignItems: 'center', gap: 8 }}>
-                    {unread && <span style={{ width: 8, height: 8, borderRadius: '50%', background: '#c0392b', flexShrink: 0 }} />}
+                    {unread && <span style={{ width: 8, height: 8, borderRadius: '50%', background: 'var(--c-danger)', flexShrink: 0 }} />}
                     {c.subject}
                     {c.status === 'closed' && <span style={{ fontSize: 11, color: 'var(--c-text-muted)', fontWeight: 400 }}>(zatvoreno)</span>}
                   </div>

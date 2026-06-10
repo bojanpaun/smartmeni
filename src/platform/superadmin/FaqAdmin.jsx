@@ -74,7 +74,7 @@ export default function FaqAdmin() {
           <p className={styles.subtitle}>Česta pitanja koja admini vide na stranici Podrška</p>
         </div>
         <div style={{ display: 'flex', gap: 8 }}>
-          {msg && <span style={{ alignSelf: 'center', color: '#0d7a52', fontSize: 13 }}>✓ {msg}</span>}
+          {msg && <span style={{ alignSelf: 'center', color: 'var(--c-primary)', fontSize: 13 }}>✓ {msg}</span>}
           {!showForm && <button className={styles.btnPrimary} onClick={openNew}>+ Novo pitanje</button>}
         </div>
       </div>
@@ -125,7 +125,7 @@ export default function FaqAdmin() {
                 </div>
                 <div style={{ display: 'flex', gap: 6, flexShrink: 0 }}>
                   <button className={styles.btnSecondary} style={{ fontSize: 12 }} onClick={() => openEdit(f)}>Uredi</button>
-                  <button style={{ padding: '5px 10px', fontSize: 12, background: 'transparent', color: '#c0392b', border: '1px solid #fca5a5', borderRadius: 7, cursor: 'pointer' }} onClick={() => remove(f.id)}>Obriši</button>
+                  <button style={{ padding: '5px 10px', fontSize: 12, background: 'transparent', color: 'var(--c-danger)', border: '1px solid #fca5a5', borderRadius: 7, cursor: 'pointer' }} onClick={() => remove(f.id)}>Obriši</button>
                 </div>
               </div>
             </div>

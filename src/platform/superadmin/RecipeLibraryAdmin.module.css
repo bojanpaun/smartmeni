@@ -56,7 +56,7 @@
 .btnUpload:disabled { opacity: 0.5; cursor: not-allowed; }
 .btnRemove {
   padding: 6px 12px; background: transparent; border: 1px solid var(--c-border);
-  border-radius: 8px; font-size: 12px; cursor: pointer; color: var(--c-danger, #c0392b);
+  border-radius: 8px; font-size: 12px; cursor: pointer; color: var(--c-danger, var(--c-danger));
 }
 
 .activeRow {
@@ -126,7 +126,7 @@
 .ingName { flex: 1; min-width: 0; padding: 7px 10px; border: 1px solid var(--c-border-input); border-radius: 8px; font-size: 13px; font-family: var(--c-font-sans); outline: none; background: var(--c-surface); color: var(--c-text); }
 .ingQty { width: 80px; padding: 7px 8px; border: 1px solid var(--c-border-input); border-radius: 8px; font-size: 13px; font-family: var(--c-font-sans); outline: none; background: var(--c-surface); color: var(--c-text); }
 .ingUnit { width: 70px; padding: 7px 6px; border: 1px solid var(--c-border-input); border-radius: 8px; font-size: 13px; background: var(--c-surface); color: var(--c-text); }
-.ingDel { background: none; border: 1px solid var(--c-border); border-radius: 8px; color: var(--c-danger, #c0392b); cursor: pointer; padding: 7px 10px; font-size: 13px; flex-shrink: 0; }
+.ingDel { background: none; border: 1px solid var(--c-border); border-radius: 8px; color: var(--c-danger, var(--c-danger)); cursor: pointer; padding: 7px 10px; font-size: 13px; flex-shrink: 0; }
 
 .recomputeRow { display: flex; align-items: center; gap: 10px; flex-wrap: wrap; margin: 8px 0 4px; }
 .btnRecompute {
@@ -137,8 +137,8 @@
 
 .btnDelete {
   margin-right: auto; padding: 9px 14px; background: transparent;
-  border: 1px solid var(--c-danger, #c0392b); border-radius: 10px;
-  color: var(--c-danger, #c0392b); font-weight: 600; cursor: pointer;
+  border: 1px solid var(--c-danger, var(--c-danger)); border-radius: 10px;
+  color: var(--c-danger, var(--c-danger)); font-weight: 600; cursor: pointer;
 }
 .btnDelete:disabled { opacity: 0.5; cursor: not-allowed; }
 .editMsg { font-size: 12px; color: var(--c-text-medium); }

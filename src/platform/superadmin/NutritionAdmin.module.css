@@ -31,7 +31,7 @@
 .alg { color: var(--c-text-medium); }
 .actions { text-align: right; white-space: nowrap; }
 .btnEdit { padding: 5px 10px; background: var(--c-bg-subtle); border: 1px solid var(--c-border); border-radius: 7px; font-size: 12px; cursor: pointer; color: var(--c-text); }
-.btnDel { padding: 5px 9px; margin-left: 6px; background: transparent; border: 1px solid var(--c-border); border-radius: 7px; font-size: 12px; cursor: pointer; color: var(--c-danger, #c0392b); }
+.btnDel { padding: 5px 9px; margin-left: 6px; background: transparent; border: 1px solid var(--c-border); border-radius: 7px; font-size: 12px; cursor: pointer; color: var(--c-danger, var(--c-danger)); }
 
 /* ── Modal ── */
 .overlay { position: fixed; inset: 0; background: rgba(0,0,0,0.5); display: flex; align-items: center; justify-content: center; z-index: 1000; padding: 16px; }
