@@ -155,7 +155,7 @@
   cursor: pointer;
   transition: border-color 0.15s;
 }
-.item:hover { border-color: var(--tpl-border, #5dcaa5); }
+.item:hover { border-color: var(--tpl-border, var(--green-mid)); }
 
 .itemEmoji {
   width: 64px; height: 64px;
@@ -264,7 +264,7 @@
   font-family: var(--c-font-sans); color: var(--c-text);
   text-align: left;
 }
-.waiterOpt:hover { border-color: var(--tpl-border, #5dcaa5); background: var(--tpl-brand-light, var(--c-primary-light)); }
+.waiterOpt:hover { border-color: var(--tpl-border, var(--green-mid)); background: var(--tpl-brand-light, var(--c-primary-light)); }
 .waiterOptIcon { font-size: 20px; }
 
 .footer {
@@ -273,7 +273,7 @@
   border-top: 1px solid var(--c-border);
 }
 .footerBrand { font-size: 12px; color: var(--c-text-muted); }
-.footerBrand strong { color: #1a9e6e; }
+.footerBrand strong { color: var(--green); }
 
 .orderingOff {
   width: 100%;

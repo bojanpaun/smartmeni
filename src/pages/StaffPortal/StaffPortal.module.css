@@ -1,7 +1,7 @@
 /* ── StaffPortal — shared styles ─────────────────────────────── */
 
 :root {
-  --sp-brand: #0d7a52;
+  --sp-brand: var(--green-dark);
   --sp-brand-dark: #0a5c3c;
 }
 
@@ -852,13 +852,13 @@
   background: #f9fafb; border: 1px solid #e5e7eb;
   font-size: 12.5px; color: #6b7280; font-family: inherit;
 }
-.stationDone { color: #0d7a52; font-weight: 600; }
+.stationDone { color: var(--green-dark); font-weight: 600; }
 
 /* ── Room charge ────────────────────────────────────────────────── */
 .roomChargeBtn {
   padding: 10px 14px; border-radius: 10px;
   border: 1.5px solid #d1fae5; background: #ecfdf5;
-  color: #0d7a52; font-size: 13px; font-weight: 500;
+  color: var(--green-dark); font-size: 13px; font-weight: 500;
   cursor: pointer; font-family: inherit; white-space: nowrap;
   transition: background 0.15s;
 }
@@ -868,7 +868,7 @@
   margin-top: 10px; padding: 10px 12px;
   background: #ecfdf5; border: 1.5px solid #d1fae5; border-radius: 10px;
 }
-.roomChargePanelTitle { font-size: 12px; font-weight: 600; color: #0d7a52; margin-bottom: 8px; }
+.roomChargePanelTitle { font-size: 12px; font-weight: 600; color: var(--green-dark); margin-bottom: 8px; }
 .roomChargeRow { display: flex; gap: 6px; align-items: center; }
 
 .roomChargeInput {
@@ -879,7 +879,7 @@
 .roomChargeInput:focus { border-color: #6ee7b7; }
 
 .roomChargeConfirm {
-  padding: 8px 14px; background: #0d7a52; color: #fff;
+  padding: 8px 14px; background: var(--green-dark); color: #fff;
   border: none; border-radius: 8px; font-size: 13px; font-weight: 600;
   cursor: pointer; font-family: inherit; white-space: nowrap;
 }

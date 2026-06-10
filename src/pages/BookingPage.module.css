@@ -2,7 +2,7 @@
 
 .page {
   min-height: 100vh;
-  background: var(--surface, #f5f9f7);
+  background: var(--surface, var(--surface));
   font-family: var(--font-body, 'DM Sans', sans-serif);
   padding: 24px 16px 48px;
 }
@@ -31,13 +31,13 @@
 .hotelName {
   font-size: 22px;
   font-weight: 700;
-  color: var(--ink, #0e1a14);
+  color: var(--ink, var(--ink));
   margin: 0;
   font-family: var(--font-display, 'Syne', sans-serif);
 }
 .headerSub {
   font-size: 12px;
-  color: var(--muted, #8a9e96);
+  color: var(--muted, var(--muted));
   margin: 2px 0 0;
 }
 
@@ -68,17 +68,17 @@
   width: 22px; height: 22px; border-radius: 50%;
   background: var(--border, #e0e4e2);
   display: flex; align-items: center; justify-content: center;
-  font-size: 11px; font-weight: 600; color: var(--muted, #8a9e96);
+  font-size: 11px; font-weight: 600; color: var(--muted, var(--muted));
 }
 .stepActive .stepDot {
-  background: var(--green, #1a9e6e);
+  background: var(--green, var(--green));
   color: #fff;
 }
 .stepDone .stepDot {
-  background: var(--green-light, #e0f5ec);
-  color: var(--green-dark, #0d7a52);
+  background: var(--green-light, var(--green-light));
+  color: var(--green-dark, var(--green-dark));
 }
-.stepLabel { font-size: 12px; color: var(--ink-soft, #3a4a42); }
+.stepLabel { font-size: 12px; color: var(--ink-soft, var(--ink-soft)); }
 
 /* Card */
 .card {
@@ -100,20 +100,20 @@
 .stepTitle {
   font-size: 20px;
   font-weight: 700;
-  color: var(--ink, #0e1a14);
+  color: var(--ink, var(--ink));
   margin: 0 0 6px;
   font-family: var(--font-display, 'Syne', sans-serif);
 }
 .stepSub {
   font-size: 13px;
-  color: var(--muted, #8a9e96);
+  color: var(--muted, var(--muted));
   margin: 0 0 20px;
 }
 
 .btnBack {
   background: none;
   border: none;
-  color: var(--green, #1a9e6e);
+  color: var(--green, var(--green));
   font-size: 13px;
   cursor: pointer;
   padding: 0;
@@ -134,7 +134,7 @@
 }
 
 .field { display: flex; flex-direction: column; gap: 6px; }
-.field label { font-size: 12px; font-weight: 600; color: var(--ink-soft, #3a4a42); letter-spacing: 0.3px; }
+.field label { font-size: 12px; font-weight: 600; color: var(--ink-soft, var(--ink-soft)); letter-spacing: 0.3px; }
 .field input, .field select {
   padding: 10px 14px;
   border: 1.5px solid var(--border, rgba(14,26,20,0.1));
@@ -142,20 +142,20 @@
   font-size: 14px;
   font-family: inherit;
   outline: none;
-  color: var(--ink, #0e1a14);
+  color: var(--ink, var(--ink));
   background: #fff;
 }
 .field input:focus, .field select:focus {
-  border-color: var(--green, #1a9e6e);
+  border-color: var(--green, var(--green));
 }
 .field input:disabled {
-  background: var(--surface, #f5f9f7);
-  color: var(--muted, #8a9e96);
+  background: var(--surface, var(--surface));
+  color: var(--muted, var(--muted));
 }
 
 .nightsInfo {
   font-size: 13px;
-  color: var(--green-dark, #0d7a52);
+  color: var(--green-dark, var(--green-dark));
   font-weight: 600;
   margin-bottom: 16px;
 }
@@ -172,7 +172,7 @@
 .btnPrimary {
   width: 100%;
   padding: 14px;
-  background: var(--green, #1a9e6e);
+  background: var(--green, var(--green));
   color: #fff;
   border: none;
   border-radius: 12px;
@@ -182,14 +182,14 @@
   font-family: inherit;
   transition: background 0.15s;
 }
-.btnPrimary:hover { background: var(--green-dark, #0d7a52); }
+.btnPrimary:hover { background: var(--green-dark, var(--green-dark)); }
 .btnPrimary:disabled { opacity: 0.6; cursor: not-allowed; }
 
 .btnSecondary {
   display: inline-block;
   padding: 10px 20px;
   background: #fff;
-  color: var(--ink-soft, #3a4a42);
+  color: var(--ink-soft, var(--ink-soft));
   border: 1.5px solid var(--border, rgba(14,26,20,0.1));
   border-radius: 10px;
   font-size: 14px;
@@ -199,7 +199,7 @@
   text-decoration: none;
   text-align: center;
 }
-.btnSecondary:hover { background: var(--surface, #f5f9f7); }
+.btnSecondary:hover { background: var(--surface, var(--surface)); }
 
 /* Room list */
 .roomList { display: flex; flex-direction: column; gap: 14px; margin-top: 16px; }
@@ -229,17 +229,17 @@
   flex: 1;
   padding: 16px;
 }
-.roomName { font-size: 16px; font-weight: 700; color: var(--ink, #0e1a14); margin-bottom: 4px; }
-.roomDesc { font-size: 13px; color: var(--ink-soft, #3a4a42); margin: 0 0 10px; }
+.roomName { font-size: 16px; font-weight: 700; color: var(--ink, var(--ink)); margin-bottom: 4px; }
+.roomDesc { font-size: 13px; color: var(--ink-soft, var(--ink-soft)); margin: 0 0 10px; }
 .roomMeta {
   display: flex;
   flex-wrap: wrap;
   gap: 6px;
   font-size: 12px;
-  color: var(--muted, #8a9e96);
+  color: var(--muted, var(--muted));
 }
 .amenity {
-  background: var(--surface, #f5f9f7);
+  background: var(--surface, var(--surface));
   border-radius: 6px;
   padding: 2px 8px;
   font-size: 11px;
@@ -258,14 +258,14 @@
 @media (min-width: 540px) {
   .roomPrice { border-top: none; border-left: 1px solid var(--border, rgba(14,26,20,0.08)); }
 }
-.roomPriceVal { font-size: 22px; font-weight: 700; color: var(--green-dark, #0d7a52); }
-.roomPriceSub { font-size: 11px; color: var(--muted, #8a9e96); }
-.roomPriceTotal { font-size: 12px; color: var(--ink-soft, #3a4a42); margin-bottom: 8px; }
+.roomPriceVal { font-size: 22px; font-weight: 700; color: var(--green-dark, var(--green-dark)); }
+.roomPriceSub { font-size: 11px; color: var(--muted, var(--muted)); }
+.roomPriceTotal { font-size: 12px; color: var(--ink-soft, var(--ink-soft)); margin-bottom: 8px; }
 
 .btnSelect {
   width: 100%;
   padding: 10px 16px;
-  background: var(--green, #1a9e6e);
+  background: var(--green, var(--green));
   color: #fff;
   border: none;
   border-radius: 10px;
@@ -274,12 +274,12 @@
   cursor: pointer;
   font-family: inherit;
 }
-.btnSelect:hover { background: var(--green-dark, #0d7a52); }
+.btnSelect:hover { background: var(--green-dark, var(--green-dark)); }
 
 .noRooms {
   text-align: center;
   padding: 32px 0;
-  color: var(--muted, #8a9e96);
+  color: var(--muted, var(--muted));
 }
 .noRoomsIcon { font-size: 36px; margin-bottom: 12px; }
 
@@ -301,14 +301,14 @@
   font-size: 14px;
   font-family: inherit;
   outline: none;
-  color: var(--ink, #0e1a14);
+  color: var(--ink, var(--ink));
   resize: vertical;
 }
-.textarea:focus { border-color: var(--green, #1a9e6e); }
+.textarea:focus { border-color: var(--green, var(--green)); }
 
 /* Summary box */
 .summaryBox {
-  background: var(--surface, #f5f9f7);
+  background: var(--surface, var(--surface));
   border-radius: 10px;
   padding: 14px 16px;
   margin-bottom: 20px;
@@ -319,13 +319,13 @@
   gap: 8px;
   font-size: 14px;
   font-weight: 600;
-  color: var(--ink, #0e1a14);
+  color: var(--ink, var(--ink));
 }
-.summaryMeta { font-weight: 400; font-size: 13px; color: var(--muted, #8a9e96); }
+.summaryMeta { font-weight: 400; font-size: 13px; color: var(--muted, var(--muted)); }
 
 /* Full summary */
 .summaryFull {
-  background: var(--surface, #f5f9f7);
+  background: var(--surface, var(--surface));
   border-radius: 12px;
   padding: 18px;
   margin-bottom: 20px;
@@ -334,10 +334,10 @@
   display: flex;
   justify-content: space-between;
   font-size: 14px;
-  color: var(--ink-soft, #3a4a42);
+  color: var(--ink-soft, var(--ink-soft));
   padding: 6px 0;
 }
-.summaryRow span:first-child { color: var(--muted, #8a9e96); }
+.summaryRow span:first-child { color: var(--muted, var(--muted)); }
 .summaryDivider {
   height: 1px;
   background: var(--border, rgba(14,26,20,0.08));
@@ -346,12 +346,12 @@
 .summaryTotal {
   font-size: 16px;
   font-weight: 700;
-  color: var(--ink, #0e1a14);
+  color: var(--ink, var(--ink));
 }
 
 .paypalNote {
   font-size: 12px;
-  color: var(--muted, #8a9e96);
+  color: var(--muted, var(--muted));
   margin-bottom: 14px;
   text-align: center;
 }
@@ -380,13 +380,13 @@
   justify-content: center;
   min-height: 40vh;
   gap: 16px;
-  color: var(--muted, #8a9e96);
+  color: var(--muted, var(--muted));
 }
 
 .spinner {
   width: 36px; height: 36px;
   border: 3px solid var(--border, rgba(14,26,20,0.1));
-  border-top-color: var(--green, #1a9e6e);
+  border-top-color: var(--green, var(--green));
   border-radius: 50%;
   animation: spin 0.8s linear infinite;
 }
@@ -401,17 +401,17 @@
 .confirmTitle {
   font-size: 24px;
   font-weight: 700;
-  color: var(--ink, #0e1a14);
+  color: var(--ink, var(--ink));
   margin: 0 0 8px;
   font-family: var(--font-display, 'Syne', sans-serif);
 }
 .confirmSub {
   font-size: 14px;
-  color: var(--ink-soft, #3a4a42);
+  color: var(--ink-soft, var(--ink-soft));
   margin-bottom: 24px;
 }
 .confirmDetails {
-  background: var(--surface, #f5f9f7);
+  background: var(--surface, var(--surface));
   border-radius: 12px;
   padding: 16px;
   text-align: left;
@@ -422,10 +422,10 @@
   justify-content: space-between;
   font-size: 14px;
   padding: 6px 0;
-  color: var(--ink-soft, #3a4a42);
+  color: var(--ink-soft, var(--ink-soft));
 }
-.confirmRow span:first-child { color: var(--muted, #8a9e96); }
-.confirmCode { font-weight: 700; font-family: monospace; color: var(--green-dark, #0d7a52); }
+.confirmRow span:first-child { color: var(--muted, var(--muted)); }
+.confirmCode { font-weight: 700; font-family: monospace; color: var(--green-dark, var(--green-dark)); }
 
 /* Error block */
 .errorBlock {
@@ -433,27 +433,27 @@
   padding: 24px 0;
 }
 .errorIcon { font-size: 40px; margin-bottom: 12px; }
-.errorBlock h3 { color: var(--ink, #0e1a14); margin: 0 0 8px; }
-.errorBlock p { color: var(--muted, #8a9e96); font-size: 14px; margin-bottom: 20px; }
+.errorBlock h3 { color: var(--ink, var(--ink)); margin: 0 0 8px; }
+.errorBlock p { color: var(--muted, var(--muted)); font-size: 14px; margin-bottom: 20px; }
 
 /* Room card expanded state */
-.roomCardExpanded { border-color: var(--green, #1a9e6e); }
+.roomCardExpanded { border-color: var(--green, var(--green)); }
 
 /* Price "from" label */
-.roomPriceLabel { font-size: 10px; color: var(--muted, #8a9e96); text-transform: uppercase; letter-spacing: 0.3px; min-height: 14px; }
+.roomPriceLabel { font-size: 10px; color: var(--muted, var(--muted)); text-transform: uppercase; letter-spacing: 0.3px; min-height: 14px; }
 
 /* Package picker */
 .packagePicker {
   border-top: 1px solid var(--border, rgba(14,26,20,0.08));
   padding: 16px 20px;
-  background: var(--surface, #f5f9f7);
+  background: var(--surface, var(--surface));
   display: flex;
   flex-direction: column;
   gap: 10px;
 }
-.pkgTitle { font-size: 13px; font-weight: 600; color: var(--ink, #0e1a14); margin: 0 0 4px; }
+.pkgTitle { font-size: 13px; font-weight: 600; color: var(--ink, var(--ink)); margin: 0 0 4px; }
 .pkgLoading { display: flex; justify-content: center; padding: 16px; }
-.pkgEmpty { font-size: 13px; color: var(--muted, #8a9e96); margin: 0; }
+.pkgEmpty { font-size: 13px; color: var(--muted, var(--muted)); margin: 0; }
 
 .pkgOption {
   display: flex;
@@ -466,16 +466,16 @@
   cursor: pointer;
   transition: border-color 0.15s;
 }
-.pkgOption:hover { border-color: var(--green, #1a9e6e); }
-.pkgSelected { border-color: var(--green, #1a9e6e); background: #f0faf5; }
+.pkgOption:hover { border-color: var(--green, var(--green)); }
+.pkgSelected { border-color: var(--green, var(--green)); background: #f0faf5; }
 
-.pkgRadio { accent-color: var(--green, #1a9e6e); width: 16px; height: 16px; flex-shrink: 0; }
+.pkgRadio { accent-color: var(--green, var(--green)); width: 16px; height: 16px; flex-shrink: 0; }
 .pkgInfo { flex: 1; display: flex; flex-direction: column; gap: 2px; }
-.pkgName { font-size: 14px; font-weight: 600; color: var(--ink, #0e1a14); }
-.pkgDesc { font-size: 12px; color: var(--muted, #8a9e96); }
+.pkgName { font-size: 14px; font-weight: 600; color: var(--ink, var(--ink)); }
+.pkgDesc { font-size: 12px; color: var(--muted, var(--muted)); }
 .pkgPrices { display: flex; flex-direction: column; align-items: flex-end; gap: 1px; }
-.pkgPrice { font-size: 16px; font-weight: 700; color: var(--green-dark, #0d7a52); }
-.pkgPriceSub { font-size: 10px; color: var(--muted, #8a9e96); }
+.pkgPrice { font-size: 16px; font-weight: 700; color: var(--green-dark, var(--green-dark)); }
+.pkgPriceSub { font-size: 10px; color: var(--muted, var(--muted)); }
 
 .pkgActions {
   display: flex;
@@ -486,19 +486,19 @@
 .pkgActions .btnSecondary { flex-shrink: 0; }
 
 /* Summary package tag */
-.summaryPackage { font-weight: 400; color: var(--green-dark, #0d7a52); font-size: 13px; }
+.summaryPackage { font-weight: 400; color: var(--green-dark, var(--green-dark)); font-size: 13px; }
 
 /* Not found */
 .notFound {
   display: flex; flex-direction: column; align-items: center; justify-content: center;
-  min-height: 60vh; text-align: center; color: var(--muted, #8a9e96);
+  min-height: 60vh; text-align: center; color: var(--muted, var(--muted));
 }
 .notFoundIcon { font-size: 48px; margin-bottom: 12px; }
 
 .btnOnArrival {
   width: 100%;
   padding: 14px;
-  background: var(--ink, #0e1a14);
+  background: var(--ink, var(--ink));
   color: #fff;
   border: none;
   border-radius: 12px;
@@ -517,7 +517,7 @@
   border-radius: 10px;
   padding: 14px 16px;
   font-size: 13px;
-  color: var(--muted, #8a9e96);
+  color: var(--muted, var(--muted));
   line-height: 1.5;
   text-align: center;
 }
@@ -526,6 +526,6 @@
 .footer {
   text-align: center;
   font-size: 11px;
-  color: var(--muted, #8a9e96);
+  color: var(--muted, var(--muted));
   margin-top: 32px;
 }

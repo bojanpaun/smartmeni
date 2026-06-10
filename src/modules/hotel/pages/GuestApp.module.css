@@ -24,7 +24,7 @@
 .spinner {
   width: 32px; height: 32px;
   border: 3px solid rgba(26,158,110,0.2);
-  border-top-color: #1a9e6e;
+  border-top-color: var(--green);
   border-radius: 50%;
   animation: spin 0.8s linear infinite;
 }
@@ -40,7 +40,7 @@
 
 /* ── Login screen ── */
 .loginHeader {
-  background: linear-gradient(135deg, #0d7a52 0%, #1a9e6e 100%);
+  background: linear-gradient(135deg, var(--green-dark) 0%, var(--green) 100%);
   padding: 32px 24px 28px;
   color: #fff;
 }
@@ -120,7 +120,7 @@
   outline: none;
   color: #111827;
 }
-.field input:focus { border-color: #1a9e6e; }
+.field input:focus { border-color: var(--green); }
 
 .codeInput {
   font-family: monospace !important;
@@ -149,7 +149,7 @@
 
 /* ── App header ── */
 .appHeader {
-  background: linear-gradient(135deg, #0d7a52 0%, #1a9e6e 100%);
+  background: linear-gradient(135deg, var(--green-dark) 0%, var(--green) 100%);
   padding: 14px 16px;
   display: flex;
   align-items: center;
@@ -238,7 +238,7 @@
   transition: color 0.15s;
 }
 
-.navBtnActive { color: #0d7a52; }
+.navBtnActive { color: var(--green-dark); }
 
 .navIcon { font-size: 20px; line-height: 1; }
 .navLabel { font-size: 10px; font-weight: 600; letter-spacing: 0.02em; }
@@ -253,7 +253,7 @@
   font-size: 13px;
   font-weight: 600;
 }
-.statusIn      { background: #ecfdf5; color: #0d7a52; }
+.statusIn      { background: #ecfdf5; color: var(--green-dark); }
 .statusPending { background: #fff7ed; color: #c2590a; }
 
 .stayCard {
@@ -278,7 +278,7 @@
 }
 .stayRoomNum span {
   font-weight: 700;
-  color: #0d7a52;
+  color: var(--green-dark);
   font-size: 15px;
 }
 
@@ -296,7 +296,7 @@
 .stayNights {
   font-size: 22px;
   font-weight: 800;
-  color: #0d7a52;
+  color: var(--green-dark);
   text-align: center;
   line-height: 1.1;
   flex-shrink: 0;
@@ -341,7 +341,7 @@
   transition: border-color 0.15s, background 0.15s;
 }
 .quickBtn span { font-size: 24px; }
-.quickBtn:hover { border-color: #1a9e6e; background: #f0fdf7; color: #0d7a52; }
+.quickBtn:hover { border-color: var(--green); background: #f0fdf7; color: var(--green-dark); }
 
 /* ── Hotel info tab ── */
 .hotelTab { display: flex; flex-direction: column; gap: 12px; }
@@ -372,7 +372,7 @@
 .hotelInfoIcon { font-size: 20px; flex-shrink: 0; }
 .hotelInfoLabel { font-size: 11px; color: #9ca3af; text-transform: uppercase; letter-spacing: 0.05em; margin-bottom: 2px; }
 .hotelInfoVal { font-size: 14px; color: #111827; font-weight: 500; }
-.hotelLink { color: #0d7a52; text-decoration: none; }
+.hotelLink { color: var(--green-dark); text-decoration: none; }
 .hotelLink:hover { text-decoration: underline; }
 
 /* ── Requests tab ── */
@@ -404,9 +404,9 @@
 }
 .catBtn span:first-child { font-size: 18px; flex-shrink: 0; }
 .catBtnActive {
-  border-color: #1a9e6e;
+  border-color: var(--green);
   background: #f0fdf7;
-  color: #0d7a52;
+  color: var(--green-dark);
   font-weight: 600;
 }
 
@@ -421,11 +421,11 @@
   color: #111827;
   min-height: 100px;
 }
-.reqTextarea:focus { border-color: #1a9e6e; }
+.reqTextarea:focus { border-color: var(--green); }
 
 .reqSuccess {
   background: #ecfdf5;
-  color: #0d7a52;
+  color: var(--green-dark);
   padding: 12px 14px;
   border-radius: 10px;
   font-size: 13px;
@@ -525,7 +525,7 @@
   padding: 14px;
   border: none;
   border-radius: 12px;
-  background: #0d7a52;
+  background: var(--green-dark);
   color: #fff;
   font-size: 15px;
   font-weight: 700;
@@ -553,7 +553,7 @@
 .btnPrimary {
   width: 100%;
   padding: 14px;
-  background: #1a9e6e;
+  background: var(--green);
   color: #fff;
   border: none;
   border-radius: 12px;
@@ -563,7 +563,7 @@
   font-family: inherit;
   transition: background 0.15s;
 }
-.btnPrimary:hover { background: #0d7a52; }
+.btnPrimary:hover { background: var(--green-dark); }
 .btnPrimary:disabled { opacity: 0.55; cursor: not-allowed; }
 
 .btnSecondary {
