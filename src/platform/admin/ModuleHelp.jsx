@@ -551,6 +551,8 @@ const HELP_CONTENT = {
       'Guest App link šalje se automatski u email potvrdi rezervacije',
       'Hotelska javna web stranica (restby.me/slug/hotel) uređuje se u Hotel → Sajt hotela',
       'Rezervacije, Housekeeping i Upravljanje prihodima stranice su mobilno prilagođene — kartice umjesto tabela na mobilnim uređajima',
+      'Za brzo početno podešavanje koristi „📋 Vodič: Hotel" na kontrolnoj tabli (pored naslova Hotel) — vodi te kroz tip sobe, sobe i booking vrijeme',
+      'Online plaćanje gostiju (booking/folio) postavlja se u Hotel → Plaćanja (Monri za CG, Stripe za testiranje)',
     ],
   },
 
@@ -697,6 +699,8 @@ const HELP_CONTENT = {
       'Vidljivost funkcija u guest meniju podešava se u Digitalni meni → Postavke menija → Vidljivost',
       'Sajt restorana uređuje se u Digitalni meni → Sajt restorana',
       'Sajt hotela uređuje se u Hotel → Sajt hotela',
+      'Online plaćanje (Monri/Stripe) postavlja se u Hotel → Plaćanja; vodiči za podešavanje su na kontrolnoj tabli pored naslova Restoran/Hotel',
+      'Tema i boje admin panela (zelena/plava/ljubičasta + custom palete) postavlja superadmin: /superadmin → tenant → Tema; dark mode je prekidač ☀️/🌙 u sidebaru',
     ],
   },
 }

@@ -94,6 +94,15 @@ PLATFORMA (Auth · Billing · Multi-tenancy · Onboarding · osnovno osoblje/gos
 - Modul bez guarda = sigurnosni propust, ne tehnički dug za kasnije.
 - Postojeći addoni: `hotel_core`, `spa_wellness`, `inventory_pro`, `hr_pro` (izvor istine je
   `addon_catalog`).
+- **DVA odvojena sistema plaćanja** (ne miješati):
+  - **A) Plaćanja gostiju** (booking/folio/spa) — **per-tenant** (`tenant_payment_configs` +
+    `payment_credentials`, šifrovano). Apstrakcija: `supabase/functions/_shared/payments/`
+    (Stripe ✓ kompletan; Monri za CG — usklađen sa WebPay v2, dormant dok tenant ne unese
+    ključeve). Tok: `payments-create-session` → checkout → `payments-webhook` → izvor (rezervacija/folio).
+    Frontend redirect: `src/lib/payments.js` `goToPaymentSession` (Stripe redirect / Monri POST).
+    Detalji: memorija [[project-payments-booking-monri]].
+  - **B) Pretplate** (tenant→platforma) — PayPal/Stripe na platform-nivou; ODGOĐENO do Monri,
+    sad `beta_free_mode` ON (naplata off). Detalji: [[project-payments-direction]].
 
 ### 3. Baza i migracije (`supabase/migrations/`)
 - **Migracije su nepromjenjive** — pushovan fajl se nikad ne edituje. Grešku ispravljaš
@@ -123,6 +132,16 @@ PLATFORMA (Auth · Billing · Multi-tenancy · Onboarding · osnovno osoblje/gos
 - Status boje definiši kao `STATUS_BADGE` objekt na vrhu fajla — ne inline po statusu u JSX.
 - Dark mode testiraj pri svakoj UI izmjeni (`[data-theme*="-dark"]` override). Hardcoded boja
   ⇒ dark mode je vjerovatno slomljen.
+- **Token sistem:** svi `--c-*` tokeni definisani u `src/index.css` u 4 bloka:
+  `:root` (zelena/light), `[data-theme="green-dark"]`, `[data-theme="blue"]`, `[data-theme="blue-dark"]`,
+  `[data-theme="purple"]`, `[data-theme="purple-dark"]`. **Nova paleta = dodaj 2 bloka (light+dark)
+  + 1 red u `ADMIN_THEMES` (SuperAdminPanel.jsx).** Dark mode je per-user toggle; paleta je per-tenant
+  (`restaurants.admin_theme`, primjenjuje `useTheme` koji MORA dobiti `restaurant`).
+  Dark mode/tema se primjenjuju SAMO na admin rutama (`/admin`,`/superadmin`) — vidi `index.html`
+  inline skriptu + `ThemeRouteSync` (App.jsx); login/javne stranice ostaju svijetle.
+- **Custom palete:** superadmin ih kreira na `/superadmin/theme` (tabela `theme_palettes`);
+  `useTheme` ih primjenjuje inline preko `documentElement.style.setProperty` (baza green/green-dark
+  za neutralne tokene).
 - Responsive je standard: upotrebljivo na 375px / 768px / desktop. Mobile-first gdje može.
 
 ### 6. i18n
