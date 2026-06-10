@@ -1,4 +1,4 @@
-import { lazy, Suspense, Component } from 'react'
+import { lazy, Suspense, Component, useEffect } from 'react'
 import { Routes, Route, Navigate, useParams, useLocation } from 'react-router-dom'
 import { PlatformProvider, usePlatform } from './context/PlatformContext'
 import { CartProvider } from './context/CartContext'
@@ -220,9 +220,22 @@ class ChunkErrorBoundary extends Component {
   render() { return this.props.children }
 }
 
+// Dark mode je admin-only. Pri SPA navigaciji van /admin (npr. istek sesije →
+// redirect na /login) skidamo data-theme da javne stranice ostanu svijetle.
+// (Full-load / prvi paint pokriva inline skripta u index.html.)
+function ThemeRouteSync() {
+  const { pathname } = useLocation()
+  useEffect(() => {
+    const isAdmin = pathname.startsWith('/admin') || pathname.startsWith('/superadmin')
+    if (!isAdmin) document.documentElement.removeAttribute('data-theme')
+  }, [pathname])
+  return null
+}
+
 function AppRoutes() {
   return (
     <ChunkErrorBoundary>
+    <ThemeRouteSync />
     <Suspense fallback={<LoadingSpinner fullPage />}>
       <Routes>
         {/* Javne rute */}
