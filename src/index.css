@@ -233,6 +233,94 @@
   --c-sb-accent-bg:  rgba(96, 165, 250, 0.15);
 }
 
+/* ── Purple — svijetla ── */
+[data-theme="purple"] {
+  --c-primary:        #7c3aed;
+  --c-primary-hover:  #6d28d9;
+  --c-primary-medium: #8b5cf6;
+  --c-primary-light:  #f3effe;
+  --c-primary-muted:  #c4b5fd;
+
+  --c-text:        #28203f;
+  --c-text-medium: #5b4f7a;
+  --c-text-muted:  #9990b0;
+
+  --c-surface:    #ffffff;
+  --c-bg:         #faf9fe;
+  --c-bg-subtle:  #f4f1fb;
+
+  --c-border:       #e8e2f5;
+  --c-border-input: #d8cdf0;
+
+  --c-danger:        #dc2626;
+  --c-danger-bg:     #fef2f2;
+  --c-danger-border: #fecaca;
+
+  --c-warning:    #d97706;
+  --c-warning-bg: #fffbeb;
+  --c-warning-border: #f0c987;
+
+  --c-success:        #16a34a;
+  --c-success-bg:     #ecfdf5;
+  --c-success-border: #a7f3d0;
+
+  --c-info:        #2563eb;
+  --c-info-bg:     #eff6ff;
+  --c-info-border: #bfdbfe;
+
+  --c-accent:    #db2777;
+  --c-accent-bg: #fce7f3;
+
+  /* Sidebar */
+  --c-sb-bg:         #1e1340;
+  --c-sb-accent:     #a78bfa;
+  --c-sb-accent-bg:  rgba(167, 139, 250, 0.15);
+}
+
+/* ── Purple — tamna ── */
+[data-theme="purple-dark"] {
+  --c-primary:        #a78bfa;
+  --c-primary-hover:  #c4b5fd;
+  --c-primary-medium: #8b5cf6;
+  --c-primary-light:  rgba(139, 92, 246, 0.15);
+  --c-primary-muted:  #4c2d8f;
+
+  --c-text:        #e6e0f5;
+  --c-text-medium: #a99fc4;
+  --c-text-muted:  #6f6490;
+
+  --c-surface:    #241f35;
+  --c-bg:         #1a1626;
+  --c-bg-subtle:  #261f3a;
+
+  --c-border:       #3a2f5e;
+  --c-border-input: #3a2f5e;
+
+  --c-danger:        #f87171;
+  --c-danger-bg:     rgba(248, 113, 113, 0.12);
+  --c-danger-border: rgba(248, 113, 113, 0.3);
+
+  --c-warning:    #fbbf24;
+  --c-warning-bg: rgba(251, 191, 36, 0.12);
+  --c-warning-border: rgba(243, 156, 18, 0.3);
+
+  --c-success:        #34d399;
+  --c-success-bg:     rgba(22, 163, 74, 0.15);
+  --c-success-border: rgba(52, 211, 153, 0.3);
+
+  --c-info:        #60a5fa;
+  --c-info-bg:     rgba(37, 99, 235, 0.15);
+  --c-info-border: rgba(96, 165, 250, 0.3);
+
+  --c-accent:    #f472b6;
+  --c-accent-bg: rgba(219, 39, 119, 0.2);
+
+  /* Sidebar */
+  --c-sb-bg:         #160d30;
+  --c-sb-accent:     #a78bfa;
+  --c-sb-accent-bg:  rgba(167, 139, 250, 0.15);
+}
+
 html {
   scroll-behavior: smooth;
 }

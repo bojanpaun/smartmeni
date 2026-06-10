@@ -8,8 +8,9 @@ import SortableHead from '../../components/shared/SortableHead'
 import styles from './SuperAdminPanel.module.css'
 
 const ADMIN_THEMES = [
-  { key: 'green', label: 'Zelena', color: '#0d7a52' },
-  { key: 'blue',  label: 'Plava',  color: '#2563eb' },
+  { key: 'green',  label: 'Zelena',     color: '#0d7a52' },
+  { key: 'blue',   label: 'Plava',      color: '#2563eb' },
+  { key: 'purple', label: 'Ljubičasta', color: '#7c3aed' },
 ]
 
 const CATEGORY_LABELS = {
