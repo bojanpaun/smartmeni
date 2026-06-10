@@ -1,4 +1,5 @@
 import { useState, useEffect, useRef } from 'react'
+import { Navigate } from 'react-router-dom'
 import { usePlatform } from '../../context/PlatformContext'
 import { useSupport } from '../../context/SupportContext'
 import { supabase } from '../../lib/supabase'
@@ -10,7 +11,7 @@ const fmt = (s) => new Date(s).toLocaleString('sr-Latn', { day: '2-digit', month
 
 // Vlasnikov support inbox (superadmin upravlja iz /superadmin/komunikacija).
 export default function SupportPage() {
-  const { user, restaurant } = usePlatform()
+  const { user, restaurant, loading, isSuperAdmin } = usePlatform()
   const { conversations, reload, isUnreadForAdmin } = useSupport()
 
   const [selected, setSelected] = useState(null)   // conversation
@@ -90,7 +91,20 @@ export default function SupportPage() {
     openConversation(conv)
   }
 
-  if (!restaurant) return <LoadingSpinner fullPage />
+  // Platform još učitava → spinner. Kad je učitavanje GOTOVO a tenant ne postoji
+  // (npr. superadmin koji ne posjeduje restoran) ne smijemo visjeti na spinneru:
+  // superadmin ima svoj sve-tenanti inbox na /superadmin/podrska, ostale obavijesti.
+  if (loading) return <LoadingSpinner fullPage />
+  if (!restaurant) {
+    if (isSuperAdmin()) return <Navigate to="/superadmin/podrska" replace />
+    return (
+      <div className={styles.page}>
+        <div style={{ padding: 40, textAlign: 'center', color: 'var(--c-text-muted)' }}>
+          Podrška je dostupna iz vlasničkog naloga.
+        </div>
+      </div>
+    )
+  }
 
   // ── Thread prikaz ──
   if (selected) {
