@@ -9,6 +9,7 @@
   --sb-accent:     var(--c-sb-accent);
   --sb-accent-bg:  var(--c-sb-accent-bg);
   --sb-text:       rgba(255, 255, 255, 0.5);
+  --sb-text-hover: rgba(255, 255, 255, 0.95);
   --sb-border:     rgba(255, 255, 255, 0.07);
   --topbar-h:      48px;
   --bottom-nav-h:  64px;
@@ -42,7 +43,7 @@
   font-family: var(--c-font-display);
   font-size: 16px;
   font-weight: 700;
-  color: var(--c-surface);
+  color: var(--sb-text-hover);
   letter-spacing: -0.01em;
 }
 
@@ -101,7 +102,7 @@
   font-family: var(--c-font-sans);
   transition: color 0.12s, border-color 0.12s;
 }
-.hubLogoutBtn:hover { color: var(--c-surface); border-color: rgba(255,255,255,0.3); }
+.hubLogoutBtn:hover { color: var(--sb-text-hover); border-color: rgba(255,255,255,0.3); }
 
 .hubMain { flex: 1; }
 
@@ -292,7 +293,7 @@
   transition: background 0.12s, color 0.12s;
   white-space: nowrap;
 }
-.navItem:hover { background: rgba(255,255,255,0.05); color: var(--c-surface); }
+.navItem:hover { background: rgba(255,255,255,0.05); color: var(--sb-text-hover); }
 .navItemActive {
   background: var(--sb-accent-bg) !important;
   color: var(--sb-accent) !important;
@@ -383,7 +384,7 @@
   font-family: var(--c-font-sans);
   transition: color 0.12s, border-color 0.12s;
 }
-.logoutBtn:hover { color: var(--c-surface); border-color: rgba(255,255,255,0.2); }
+.logoutBtn:hover { color: var(--sb-text-hover); border-color: rgba(255,255,255,0.2); }
 
 
 /* Collapsed dno */
@@ -611,6 +612,6 @@
   .mobileBackBtn:hover { background: rgba(255,255,255,0.2); }
   .mobileModuleTitle {
     flex: 1; min-width: 0; text-align: center; font-size: 14px; font-weight: 600;
-    color: var(--c-surface); overflow: hidden; text-overflow: ellipsis; white-space: nowrap;
+    color: var(--sb-text-hover); overflow: hidden; text-overflow: ellipsis; white-space: nowrap;
   }
 }
