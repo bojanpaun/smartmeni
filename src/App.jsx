@@ -1,5 +1,5 @@
 import { lazy, Suspense, Component } from 'react'
-import { Routes, Route, Navigate, useParams } from 'react-router-dom'
+import { Routes, Route, Navigate, useParams, useLocation } from 'react-router-dom'
 import { PlatformProvider, usePlatform } from './context/PlatformContext'
 import { CartProvider } from './context/CartContext'
 import LoadingSpinner from './components/shared/LoadingSpinner'
@@ -127,21 +127,46 @@ function ApprovalGate({ children }) {
   return children
 }
 
+// Gejt: prijavljen korisnik bez tenanta (realno samo: superadmin koji ne posjeduje
+// restoran) NE smije visjeti na ~40 admin stranica koje rade `if (!restaurant)
+// return <Loading/>`. ProtectedRoute je već potvrdio da je učitavanje gotovo i da
+// korisnik postoji → ako restorana nema, to je konačno stanje, ne „još se učitava".
+// Izuzeci koji rade bez tenanta: sve /superadmin/* rute i /admin/account.
+const NO_TENANT_OK = ['/admin/account']
+function TenantGate({ children }) {
+  const { restaurant, isSuperAdmin } = usePlatform()
+  const { pathname } = useLocation()
+  const superRoute = pathname === '/superadmin' || pathname.startsWith('/superadmin/')
+  if (!restaurant && !superRoute && !NO_TENANT_OK.includes(pathname)) {
+    // Superadmin bez vlastitog restorana → na njegov home umjesto spinnera.
+    if (isSuperAdmin()) return <Navigate to="/superadmin" replace />
+    // Vlasnici/staff uvijek imaju tenant; ovo je krajnji fallback (greška stanja).
+    return (
+      <div style={{ minHeight: '60vh', display: 'flex', alignItems: 'center', justifyContent: 'center', padding: 24, textAlign: 'center', color: 'var(--c-text-muted)' }}>
+        Nalog nema povezan restoran. Obratite se podršci.
+      </div>
+    )
+  }
+  return children
+}
+
 function AdminRoute({ children }) {
   return (
     <ProtectedRoute>
       <ApprovalGate>
-        <AnnouncementsProvider>
-          <SupportProvider>
-            <Suspense fallback={<LoadingSpinner fullPage />}>
-              <AdminLayout>
-                <Suspense fallback={<LoadingSpinner fullPage />}>
-                  {children}
-                </Suspense>
-              </AdminLayout>
-            </Suspense>
-          </SupportProvider>
-        </AnnouncementsProvider>
+        <TenantGate>
+          <AnnouncementsProvider>
+            <SupportProvider>
+              <Suspense fallback={<LoadingSpinner fullPage />}>
+                <AdminLayout>
+                  <Suspense fallback={<LoadingSpinner fullPage />}>
+                    {children}
+                  </Suspense>
+                </AdminLayout>
+              </Suspense>
+            </SupportProvider>
+          </AnnouncementsProvider>
+        </TenantGate>
       </ApprovalGate>
     </ProtectedRoute>
   )
