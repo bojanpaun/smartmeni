@@ -1,6 +1,7 @@
 import { useState, useEffect } from 'react'
 import { useParams } from 'react-router-dom'
 import { supabase } from '../../../lib/supabase'
+import { goToPaymentSession } from '../../../lib/payments'
 import LanguageSwitcher from '../../../i18n/LanguageSwitcher'
 import GuestSpaTab from './GuestSpaTab'
 import styles from './GuestApp.module.css'
@@ -168,11 +169,11 @@ export default function GuestAppPage() {
       },
     })
     setFolioPayLoading(false)
-    if (error || !data?.redirectUrl) {
+    if (error || (!data?.redirectUrl && !data?.formPost)) {
       alert(isEn ? 'Payment error. Please contact reception.' : 'Greška pri plaćanju. Obratite se recepciji.')
       return
     }
-    window.location.href = data.redirectUrl
+    goToPaymentSession(data)
   }
 
   const loadRequests = async () => {

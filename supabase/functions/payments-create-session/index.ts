@@ -105,6 +105,7 @@ serve(async (req) => {
       JSON.stringify({
         redirectUrl:  session.redirectUrl,
         clientSecret: session.clientSecret,
+        formPost:     session.formPost,   // Monri: POST auto-submit; Stripe: undefined
         providerRef:  session.providerRef,
         provider:     config.provider,
       }),

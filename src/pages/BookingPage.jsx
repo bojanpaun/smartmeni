@@ -2,6 +2,7 @@ import { useState, useEffect } from 'react'
 import { useParams } from 'react-router-dom'
 import { useTranslation, Trans } from 'react-i18next'
 import { supabase } from '../lib/supabase'
+import { goToPaymentSession } from '../lib/payments'
 import LanguageSwitcher from '../i18n/LanguageSwitcher'
 import styles from './BookingPage.module.css'
 
@@ -213,7 +214,7 @@ export default function BookingPage() {
       if (!res.ok) throw new Error(data.error ?? t('date.errSearch'))
 
       sessionStorage.setItem('booking_pending', JSON.stringify(pending))
-      window.location.href = data.redirectUrl
+      goToPaymentSession(data)
     } catch (err) {
       setPayError(err.message)
       setPayLoading(false)

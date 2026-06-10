@@ -1,6 +1,7 @@
 import { useState, useEffect } from 'react'
 import { useParams } from 'react-router-dom'
 import { supabase } from '../lib/supabase'
+import { goToPaymentSession } from '../lib/payments'
 import styles from './SpaBookingPage.module.css'
 
 // ── Helpers ──────────────────────────────────────────────────
@@ -184,8 +185,8 @@ export default function SpaBookingPage() {
           }
         )
         const sess = await res.json()
-        if (!res.ok || !sess.redirectUrl) throw new Error(sess.error || 'Greška pri pokretanju plaćanja.')
-        window.location.href = sess.redirectUrl
+        if (!res.ok || (!sess.redirectUrl && !sess.formPost)) throw new Error(sess.error || 'Greška pri pokretanju plaćanja.')
+        goToPaymentSession(sess)
         return
       } catch (e) {
         setBookError(e.message || 'Greška pri pokretanju plaćanja.')

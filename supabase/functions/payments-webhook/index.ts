@@ -23,35 +23,44 @@ serve(async (req) => {
   const url      = new URL(req.url)
   const provider = url.searchParams.get('provider') ?? 'stripe'
 
+  const supabase = createClient(
+    Deno.env.get('SUPABASE_URL')!,
+    Deno.env.get('SUPABASE_SERVICE_ROLE_KEY')!,
+  )
+
   try {
-    // Pre-parse — izvuci restaurant_id
-    // Stripe: JSON metadata.restaurant_id
-    // Monri:  form-encoded custom_attribute_1
+    // Pre-parse — izvuci provider_ref i (ako ga ima) restaurant_id
+    // Stripe: JSON metadata.restaurant_id + object.id
+    // Monri:  form-encoded order_number (restaurant_id razrješavamo iz DB-a)
     let restaurantId: string | null = null
     let providerRefFromBody: string | null = null
     try {
       if (provider === 'monri') {
-        // Monri šalje form-encoded POST
         const p = new URLSearchParams(rawBody)
-        restaurantId        = p.get('custom_attribute_1')
         providerRefFromBody = p.get('order_number')
+        restaurantId        = p.get('custom_attribute_1') // legacy/opciono
       } else {
-        // Stripe šalje JSON
         const preEvent      = JSON.parse(rawBody)
         restaurantId        = preEvent.data?.object?.metadata?.restaurant_id ?? null
         providerRefFromBody = preEvent.data?.object?.id ?? null
       }
     } catch { /* obradi niže */ }
 
-    if (!restaurantId) {
-      console.warn('[webhook] Nema restaurant_id u metadata, ignorišemo event')
-      return new Response('ok', { status: 200 })
+    // Monri: routing NE oslanjamo na custom_attributes (format varira po banci) —
+    // restaurant_id razrješavamo preko payment_transactions po provider_ref (order_number).
+    if (!restaurantId && providerRefFromBody) {
+      const { data: tx } = await supabase
+        .from('payment_transactions')
+        .select('restaurant_id')
+        .eq('provider_ref', providerRefFromBody)
+        .maybeSingle()
+      restaurantId = tx?.restaurant_id ?? null
     }
 
-    const supabase = createClient(
-      Deno.env.get('SUPABASE_URL')!,
-      Deno.env.get('SUPABASE_SERVICE_ROLE_KEY')!,
-    )
+    if (!restaurantId) {
+      console.warn('[webhook] Nema restaurant_id (ni payload ni provider_ref), ignorišemo event')
+      return new Response('ok', { status: 200 })
+    }
 
     // Dohvati aktivan config za ovaj tenant i provajder
     const config = await getActiveTenantConfig(supabase, restaurantId)

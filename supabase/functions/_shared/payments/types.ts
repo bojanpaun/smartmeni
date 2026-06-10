@@ -46,8 +46,12 @@ export interface RefundResult {
 export interface PaymentProvider {
   id: ProviderType
   createCheckoutSession(ctx: SessionCtx): Promise<{
-    redirectUrl?:  string   // hosted redirect (Monri, Stripe Checkout)
+    redirectUrl?:  string   // hosted redirect (Stripe Checkout) — frontend radi GET redirect
     clientSecret?: string   // Stripe embedded (opciono, kasnija faza)
+    formPost?: {            // Monri v2 form — frontend radi POST auto-submit
+      action: string
+      fields: Record<string, string>
+    }
     providerRef:   string   // ID transakcije kod provajdera
   }>
   verifyAndParseWebhook(rawBody: string, headers: Headers): Promise<NormalizedEvent>

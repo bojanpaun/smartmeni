@@ -336,7 +336,7 @@ export default function FolioPage() {
       )
       const data = await res.json()
       if (!res.ok) throw new Error(data.error ?? 'Greška pri pokretanju plaćanja')
-      window.location.href = data.redirectUrl
+      goToPaymentSession(data)
     } catch (err) {
       toast.error(err.message)
       setPayLoading(false)

@@ -11,8 +11,8 @@ const CREDENTIAL_FIELDS = {
     { key: 'webhook_secret',  label: 'Webhook Secret',  placeholder: 'whsec_...',     hint: 'Stripe Dashboard → Webhooks → Signing secret' },
   ],
   monri: [
-    { key: 'merchant_key',       label: 'Merchant Key',       placeholder: '',  hint: 'Monri/Payten Dashboard → Merchant podaci' },
-    { key: 'authenticity_token', label: 'Authenticity Token', placeholder: '',  hint: 'Monri Dashboard → API podešavanja' },
+    { key: 'merchant_key',       label: 'Key (tajni ključ)',  placeholder: '',  hint: 'Monri/Payten Dashboard → API podešavanja → "Key". Služi za digitalni potpis (digest). Tajno — ne dijeliti.' },
+    { key: 'authenticity_token', label: 'Authenticity Token', placeholder: '',  hint: 'Monri Dashboard → API podešavanja → "Authenticity token" (identifikator trgovca).' },
   ],
 }
 
@@ -315,6 +315,32 @@ export default function PaymentSettingsPage() {
             </div>
             <div className={styles.credsSecurity}>
               🔒 Kredencijali se šifruju pri čuvanju i nisu vidljivi ni administratoru.
+            </div>
+
+            {/* Pomoć tenantu — odakle ključevi + callback URL za dashboard */}
+            <div style={{ background: 'var(--c-info-bg)', border: '1px solid var(--c-info-border)', borderRadius: 8, padding: '10px 12px', marginBottom: 12, fontSize: 13, color: 'var(--c-text)' }}>
+              <strong>📘 Kako popuniti</strong>
+              {credsForConfig.provider === 'monri' ? (
+                <ol style={{ margin: '6px 0 10px 18px', padding: 0, lineHeight: 1.6 }}>
+                  <li>U Monri/banka dashboardu otvori <strong>API podešavanja</strong>.</li>
+                  <li>Prekopiraj <strong>„Key"</strong> (tajni potpisni ključ) i <strong>„Authenticity token"</strong> (identifikator trgovca) u polja ispod.</li>
+                  <li>Počni u <strong>Test</strong> modu (probne kartice), pa kad sve radi prebaci na <strong>Live</strong>.</li>
+                </ol>
+              ) : (
+                <ol style={{ margin: '6px 0 10px 18px', padding: 0, lineHeight: 1.6 }}>
+                  <li>U Stripe Dashboardu otvori <strong>Developers → API keys</strong> (Secret key) i <strong>Webhooks</strong> (Signing secret).</li>
+                  <li>Test ključevi počinju sa <code>sk_test_</code>, live sa <code>sk_live_</code>.</li>
+                </ol>
+              )}
+              <div style={{ fontWeight: 600, marginBottom: 4 }}>Callback / Webhook URL — zalijepi ga u {PROVIDER_LABELS[credsForConfig.provider]} dashboard:</div>
+              <code style={{ display: 'block', background: 'var(--c-bg-subtle)', padding: '6px 8px', borderRadius: 6, fontSize: 12, wordBreak: 'break-all', color: 'var(--c-text)' }}>
+                {import.meta.env.VITE_SUPABASE_URL}/functions/v1/payments-webhook?provider={credsForConfig.provider}
+              </code>
+              <div style={{ color: 'var(--c-text-muted)', marginTop: 6 }}>
+                {credsForConfig.provider === 'monri'
+                  ? 'Monri na ovaj URL šalje potvrdu plaćanja (callback). Bez njega se rezervacija/folio neće automatski označiti kao plaćeno.'
+                  : 'Stripe na ovaj URL šalje webhook događaje. Signing secret iz tog webhooka unesi gore.'}
+              </div>
             </div>
             {credsSaved ? (
               <div className={styles.credsSavedMsg}>✓ Kredencijali su uspješno sačuvani.</div>
