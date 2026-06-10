@@ -155,7 +155,8 @@ Stabilne i end-to-end testirane; izmjene izoliraj i ručno testiraj cijeli scena
 ---
 
 ## Testiranje
-Pokretati lokalno prije svakog pusha na `main`; CI ih pokreće na svaki push/PR.
+Pokretati lokalno prije svakog pusha na `main` — najlakše `npm run check` (unit + pgTAP);
+pre-push hook to i automatski radi (vidi Workflow → Deploy). CI ih ponovo vrti na svaki push/PR.
 
 Slojevi i komande:
 - **DB (pgTAP)** — `supabase/tests/`, komanda `supabase test db`. Svaki test u `BEGIN…ROLLBACK`.
@@ -179,22 +180,46 @@ Produkcija se dira tek kad je lokalno zeleno.
 
 **Preduslov:** Docker Desktop mora biti upaljen.
 
+### Jednokratni setup (svaki novi klon / nova mašina)
+```
+npm install
+git config core.hooksPath .githooks   # aktivira pre-push hook (nije u repo configu!)
+npm run db:start                       # prvi put povuče Docker images (~par GB)
+```
+- **`.env.local`** (gitignored, per-mašina) treba ručno kreirati — lokalni Supabase
+  URL + ključ iz `supabase status`. Bez njega `npm run dev` gađa prod.
+
+### Dnevni tok
 ```
 npm run db:start     # podigni lokalni Supabase stack (Docker)
 npm run db:reset     # primijeni SVE migracije + seed.sql lokalno (čista baza)
 npm run dev          # frontend → LOKALNA baza (.env.local override)
 # ...razvoj + nova migracija u supabase/migrations/...
 npm run db:reset     # ponovi da nova migracija legne čisto
-npm run test:db      # pgTAP mora biti zeleno (BITNO: db reset prije ako je baza ustajala)
+npm run check        # unit + pgTAP testovi (vidi Deploy dolje)
 npm run db:push      # tek SAD: migracije na PRODUKCIJU (supabase db push)
 git push             # tek SAD na main (Vercel deploy frontenda)
 ```
 
-- **`.env.local`** (gitignored) drži lokalne Supabase kredencijale; Vite ga u dev modu
-  preferira nad `.env`. `.env` ostaje produkcija (koristi ga samo prod build na Vercelu).
-- **`supabase/seed.sql`** puni lokalnu bazu test-tenantom (owner@local.test / password123,
-  superadmin admin@local.test / password123). Ne ide na produkciju.
+### Deploy — testovi PRIJE pusha (obavezno)
+- **Prije `git push`** mora proći `npm run check` (= `test:unit` + `test:db`).
+  Edge/E2E po potrebi (`npm run test:edge`, `npm run test:e2e`) kod izmjena te logike.
+- **`.githooks/pre-push`** to **automatski** pokreće na svaki `git push` i blokira push
+  ako padne. DB testove preskače samo ako lokalni Supabase nije upaljen (CI ih pokrije).
+  Hitni bypass: `git push --no-verify` — izbjegavati, koristiti samo svjesno.
+- **Redoslijed deploya je fiksan: `db:push` PRIJE `git push`** (frontend ne smije stići
+  na prod prije šeme koju očekuje).
+- CI (`.github/workflows/tests.yml`) ponovo vrti unit/edge/pgTAP + bundle budžet na svaki
+  push/PR — druga mreža poslije lokalne.
+
+### Pravila lokalne baze i seed-a
 - **NIKAD** `supabase db reset --linked` (gađa prod). `db reset` bez flaga = lokalno, bezopasno.
-- Redoslijed deploya je fiksan: **`db:push` PRIJE `git push`** (frontend ne smije stići na
-  prod prije šeme koju očekuje).
+- **`supabase/seed.sql`** puni SAMO lokalnu bazu (login: `za.bojana.paunovica@gmail.com` /
+  `password123`, superadmin `bojanpaun@gmail.com` / `password123`). Ne ide na produkciju.
+- **Seed mora ostati test-neutralan** (učitava se i prije `supabase test db`):
+  koristi rezervisani UUID prostor `dddddddd-…` (testovi koriste `1111..`/`aaaa..`),
+  NE diraj globalni `platform_settings.beta_free_mode` (test 018) — addone otključavaj
+  per-tenant kroz `subscriptions.addons`.
+- Ako `supabase test db` puca na zaostalim podacima → `npm run db:reset` pa ponovo.
+
 - Kad završiš zaokruženu cjelinu, ažuriraj `restbyme_hotel_roadmap.md` (dnevnik napretka).
