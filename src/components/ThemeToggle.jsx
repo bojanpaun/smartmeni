@@ -5,8 +5,8 @@ import styles from './ThemeToggle.module.css'
 export default function ThemeToggle({ variant = 'light' }) {
   // Proslijedi restaurant da useTheme primijeni paletu iz admin_theme
   // (zelena/plava/ljubičasta). Bez ovoga colorScheme ostaje 'green'.
-  const { restaurant } = usePlatform()
-  const { mode, toggleMode } = useTheme({ restaurant })
+  const { restaurant, palettes } = usePlatform()
+  const { mode, toggleMode } = useTheme({ restaurant, palettes })
   const isDark = mode === 'dark'
   const dark = variant === 'dark'
 

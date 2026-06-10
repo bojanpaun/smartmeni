@@ -20,8 +20,13 @@ const CATEGORY_LABELS = {
 }
 
 export default function SuperAdminPanel() {
-  const { isSuperAdmin } = usePlatform()
+  const { isSuperAdmin, palettes } = usePlatform()
   const navigate = useNavigate()
+  // Ugrađene + custom palete (iz theme_palettes) za picker.
+  const themeChoices = [
+    ...ADMIN_THEMES,
+    ...(palettes ?? []).map(p => ({ key: p.key, label: p.name, color: p.light?.primary || '#0d7a52' })),
+  ]
 
   const [restaurants, setRestaurants] = useState([])
   const [addonCatalog, setAddonCatalog] = useState([])
@@ -435,7 +440,7 @@ export default function SuperAdminPanel() {
             <div className={styles.editSection}>
               <div className={styles.editSectionTitle}>🎨 Tema admin panela</div>
               <div className={styles.themeOptions}>
-                {ADMIN_THEMES.map(t => (
+                {themeChoices.map(t => (
                   <button
                     key={t.key}
                     className={`${styles.themeOption} ${editForm.admin_theme === t.key ? styles.themeOptionActive : ''}`}
@@ -446,6 +451,10 @@ export default function SuperAdminPanel() {
                   </button>
                 ))}
               </div>
+              <button onClick={() => navigate('/superadmin/theme')}
+                style={{ marginTop: 8, background: 'none', border: 'none', color: 'var(--c-primary)', fontSize: 12, cursor: 'pointer', padding: 0 }}>
+                + Upravljaj custom paletama →
+              </button>
             </div>
 
             {/* Plan override */}

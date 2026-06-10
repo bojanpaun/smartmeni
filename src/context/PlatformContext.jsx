@@ -46,6 +46,8 @@ export function PlatformProvider({ children }) {
   const [betaGlobal, setBetaGlobal] = useState(() => readGlobalCfg()?.beta_free_mode ?? false)
   const [addonCatalog, setAddonCatalog] = useState(() => readGlobalCfg()?.addonCatalog ?? [])
   const [plans, setPlans] = useState(() => readGlobalCfg()?.plans ?? [])
+  // Custom palete (superadmin definisao kroz app) — primjenjuje useTheme.
+  const [palettes, setPalettes] = useState(() => readGlobalCfg()?.palettes ?? [])
   // Spriječi višestruko pokretanje loadProfile-a: getSession + INITIAL_SESSION se
   // oboje okidaju na startu, a SIGNED_IN se re-fira na fokus taba. Učitaj profil
   // tačno jednom po korisniku (8 upita po pozivu — inače se gomilaju).
@@ -91,16 +93,18 @@ export function PlatformProvider({ children }) {
   // Globalni billing config — osvježi u pozadini (ne blokira prvi paint; stanje je
   // već iz keša). Piše i u localStorage za sljedeći put.
   const loadGlobalConfig = async () => {
-    const [{ data: settings }, { data: addonRows }, { data: planRows }] = await Promise.all([
+    const [{ data: settings }, { data: addonRows }, { data: planRows }, { data: paletteRows }] = await Promise.all([
       supabase.from('platform_settings').select('beta_free_mode').limit(1).maybeSingle(),
       supabase.from('addon_catalog').select('id, name, category, description, features, price_monthly, price_yearly, beta_free'),
       supabase.from('plans').select('id, name, description, features, color, includes, is_popular, coming_soon, price_monthly, price_annual_per_month, price_annual_total, is_active, sort_order, paypal_plan_id'),
+      supabase.from('theme_palettes').select('key, name, light, dark'),
     ])
     if (settings) setBetaGlobal(!!settings.beta_free_mode)
     if (addonRows) setAddonCatalog(addonRows)
     if (planRows) setPlans(planRows)
+    if (paletteRows) setPalettes(paletteRows)
     if (settings && addonRows && planRows) {
-      writeGlobalCfg({ beta_free_mode: !!settings.beta_free_mode, addonCatalog: addonRows, plans: planRows })
+      writeGlobalCfg({ beta_free_mode: !!settings.beta_free_mode, addonCatalog: addonRows, plans: planRows, palettes: paletteRows ?? [] })
     }
   }
 
@@ -202,6 +206,7 @@ export function PlatformProvider({ children }) {
       hasAddon: checkAddon,
       betaMode: betaGlobal,
       addonCatalog, addonPrice, plans,
+      palettes,
       hasVertical,
       logout, loadProfile
     }}>

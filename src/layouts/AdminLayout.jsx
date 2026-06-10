@@ -309,6 +309,7 @@ export const MODULES = [
         { label: 'Baza znanja (FAQ)',  icon: '📖', path: '/superadmin/faq' },
         { label: 'Obavještenja',       icon: '📣', path: '/superadmin/obavestenja' },
         { label: 'Naplata i cijene',   icon: '💶', path: '/superadmin/billing' },
+        { label: 'Custom palete',      icon: '🎨', path: '/superadmin/theme' },
         { label: 'Biblioteka recepata', icon: '📚', path: '/superadmin/recipes' },
         { label: 'Biblioteka tretmana', icon: '💆', path: '/superadmin/spa-treatments' },
         { label: 'Biblioteka minibara', icon: '🥤', path: '/superadmin/minibar-library' },
