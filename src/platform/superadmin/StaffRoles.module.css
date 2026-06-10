@@ -23,7 +23,7 @@
 .roleName { font-size: 16px; font-weight: 600; color: var(--c-text); }
 .roleActions { display: flex; gap: 6px; }
 .actionBtn { padding: 5px 12px; background: var(--c-bg-subtle); border: 1px solid var(--c-border-input); border-radius: 7px; font-size: 12px; cursor: pointer; font-family: var(--c-font-sans); color: var(--c-text-medium); }
-.actionBtn:hover { background: #e0f0e8; }
+.actionBtn:hover { background: var(--c-primary-light); }
 .actionBtnDanger { color: var(--c-danger) !important; border-color: var(--c-danger-border) !important; }
 .actionBtnDanger:hover { background: var(--c-danger-bg) !important; }
 

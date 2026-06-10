@@ -41,7 +41,7 @@
   border-radius: 9px; font-size: 12px; cursor: pointer;
   font-family: var(--c-font-sans); color: var(--c-text-medium); white-space: nowrap;
 }
-.avatarBtn:hover { background: #e0f0e8; }
+.avatarBtn:hover { background: var(--c-primary-light); }
 .avatarBtn:disabled { opacity: 0.6; cursor: not-allowed; }
 .avatarHint { font-size: 10px; color: var(--c-text-muted); text-align: center; }
 

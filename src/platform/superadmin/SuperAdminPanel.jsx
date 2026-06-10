@@ -324,7 +324,7 @@ export default function SuperAdminPanel() {
                         <span style={{ marginLeft: 8, fontSize: 11, fontWeight: 600, color: '#e67e22', background: '#fff7ed', border: '1px solid #fed7aa', borderRadius: 12, padding: '1px 8px' }}>⏳ čeka odobrenje</span>
                       )}
                       {rest.approval_status === 'rejected' && (
-                        <span style={{ marginLeft: 8, fontSize: 11, fontWeight: 600, color: 'var(--c-danger)', background: '#fef2f2', border: '1px solid #fca5a5', borderRadius: 12, padding: '1px 8px' }}>✕ odbijen</span>
+                        <span style={{ marginLeft: 8, fontSize: 11, fontWeight: 600, color: 'var(--c-danger)', background: 'var(--c-danger-bg)', border: '1px solid var(--c-danger-border)', borderRadius: 12, padding: '1px 8px' }}>✕ odbijen</span>
                       )}
                     </div>
                     <div className={styles.restSlug}>restby.me/{rest.slug}</div>

@@ -26,7 +26,7 @@
   display: flex;
   align-items: center;
   justify-content: center;
-  color: #7a9e8e;
+  color: var(--c-text-muted);
   margin-bottom: 20px;
 }
 
@@ -48,7 +48,7 @@
   font-family: var(--c-font-display);
   font-size: 20px;
   font-weight: 700;
-  color: #1a3028;
+  color: var(--c-text);
   margin: 0 0 10px;
 }
 
@@ -102,12 +102,12 @@
 
 .pricePeriod {
   font-size: 13px;
-  color: #7a9e8e;
+  color: var(--c-text-muted);
 }
 
 .priceTbd {
   font-size: 16px;
-  color: #7a9e8e;
+  color: var(--c-text-muted);
 }
 
 .ctaBtn {
@@ -126,7 +126,7 @@
   margin-bottom: 12px;
 }
 
-.ctaBtn:hover { background: #0a6445; }
+.ctaBtn:hover { background: var(--c-primary-hover); }
 
 .trialNote {
   font-size: 12px;

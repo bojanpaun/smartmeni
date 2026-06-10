@@ -34,13 +34,13 @@
   font-family: var(--c-font-display);
   font-size: 22px;
   font-weight: 700;
-  color: #1a3028;
+  color: var(--c-text);
   margin-bottom: 10px;
 }
 
 .desc {
   font-size: 14px;
-  color: #7a9e8e;
+  color: var(--c-text-muted);
   line-height: 1.6;
   margin-bottom: 20px;
 }
@@ -73,4 +73,4 @@
   font-family: var(--c-font-sans);
   transition: background 0.15s;
 }
-.btn:hover { background: #0a6445; }
+.btn:hover { background: var(--c-primary-hover); }

@@ -33,20 +33,20 @@
   font-family: var(--c-font-display);
   font-size: 16px;
   font-weight: 700;
-  color: #1a3028;
+  color: var(--c-text);
 }
 
 .skipAllBtn {
   background: transparent;
   border: none;
-  color: #7a9e8e;
+  color: var(--c-text-muted);
   font-size: 13px;
   cursor: pointer;
   font-family: var(--c-font-sans);
   padding: 4px 0;
   transition: color 0.12s;
 }
-.skipAllBtn:hover { color: #1a3028; }
+.skipAllBtn:hover { color: var(--c-text); }
 
 /* ── Progress ── */
 .progress {
@@ -88,7 +88,7 @@
   height: 28px;
   border-radius: 50%;
   background: var(--c-border);
-  color: #7a9e8e;
+  color: var(--c-text-muted);
   display: flex;
   align-items: center;
   justify-content: center;
@@ -113,7 +113,7 @@
 
 .progressLabel {
   font-size: 10px;
-  color: #7a9e8e;
+  color: var(--c-text-muted);
   text-align: center;
   white-space: nowrap;
 }
@@ -135,13 +135,13 @@
   font-family: var(--c-font-display);
   font-size: 20px;
   font-weight: 700;
-  color: #1a3028;
+  color: var(--c-text);
   margin: 0 0 6px;
 }
 
 .stepDesc {
   font-size: 14px;
-  color: #7a9e8e;
+  color: var(--c-text-muted);
   margin: 0 0 20px;
   line-height: 1.5;
 }
@@ -242,7 +242,7 @@
 .tname {
   font-size: 11px;
   font-weight: 500;
-  color: #1a3028;
+  color: var(--c-text);
 }
 
 /* ── Logo ── */
@@ -263,8 +263,8 @@
 .logoDropZone:hover { border-color: var(--c-primary); background: #f5faf7; }
 
 .logoDropIcon { font-size: 28px; }
-.logoDropText { font-size: 14px; font-weight: 500; color: #1a3028; }
-.logoDropHint { font-size: 12px; color: #7a9e8e; }
+.logoDropText { font-size: 14px; font-weight: 500; color: var(--c-text); }
+.logoDropHint { font-size: 12px; color: var(--c-text-muted); }
 
 .logoPreviewRow {
   display: flex;
@@ -297,13 +297,13 @@
 
 .logoHint {
   font-size: 11px;
-  color: #7a9e8e;
+  color: var(--c-text-muted);
 }
 
 .logoChangeBtn {
   background: transparent;
   border: 1px solid var(--c-border-input);
-  color: #7a9e8e;
+  color: var(--c-text-muted);
   padding: 6px 14px;
   border-radius: 8px;
   font-size: 12px;
@@ -311,7 +311,7 @@
   font-family: var(--c-font-sans);
   margin-left: auto;
 }
-.logoChangeBtn:hover { border-color: #7a9e8e; color: #1a3028; }
+.logoChangeBtn:hover { border-color: var(--c-text-muted); color: var(--c-text); }
 
 /* ── QR ── */
 .qrSection {
@@ -330,13 +330,13 @@
   font-family: var(--c-font-display);
   font-size: 22px;
   font-weight: 700;
-  color: #1a3028;
+  color: var(--c-text);
   margin-bottom: 8px;
 }
 
 .qrSuccessDesc {
   font-size: 14px;
-  color: #7a9e8e;
+  color: var(--c-text-muted);
   margin-bottom: 14px;
 }
 
@@ -352,7 +352,7 @@
 
 .qrNote {
   font-size: 12px;
-  color: #7a9e8e;
+  color: var(--c-text-muted);
   line-height: 1.5;
 }
 
@@ -368,7 +368,7 @@
 .backBtn {
   background: transparent;
   border: 1px solid var(--c-border-input);
-  color: #7a9e8e;
+  color: var(--c-text-muted);
   padding: 10px 18px;
   border-radius: 10px;
   font-size: 14px;
@@ -376,7 +376,7 @@
   font-family: var(--c-font-sans);
   transition: all 0.12s;
 }
-.backBtn:hover { border-color: #7a9e8e; color: #1a3028; }
+.backBtn:hover { border-color: var(--c-text-muted); color: var(--c-text); }
 
 .footerRight {
   display: flex;
@@ -388,13 +388,13 @@
 .skipStepBtn {
   background: transparent;
   border: none;
-  color: #7a9e8e;
+  color: var(--c-text-muted);
   font-size: 13px;
   cursor: pointer;
   font-family: var(--c-font-sans);
   transition: color 0.12s;
 }
-.skipStepBtn:hover { color: #1a3028; }
+.skipStepBtn:hover { color: var(--c-text); }
 
 .nextBtn {
   padding: 10px 24px;
@@ -408,7 +408,7 @@
   font-family: var(--c-font-sans);
   transition: background 0.15s;
 }
-.nextBtn:hover:not(:disabled) { background: #0a6445; }
+.nextBtn:hover:not(:disabled) { background: var(--c-primary-hover); }
 .nextBtn:disabled { background: var(--c-primary-muted); cursor: default; }
 
 /* ── Responsive ── */

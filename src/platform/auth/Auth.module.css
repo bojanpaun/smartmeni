@@ -26,7 +26,7 @@
   margin-bottom: 2rem;
   letter-spacing: -0.03em;
 }
-.logo span { color: #1a9e6e; }
+.logo span { color: var(--c-primary-medium); }
 
 .steps {
   display: flex;
@@ -41,7 +41,7 @@
   display: flex; align-items: center; justify-content: center;
   transition: all 0.2s;
 }
-.stepActive { background: #1a9e6e; border-color: #1a9e6e; color: white; }
+.stepActive { background: var(--c-primary-medium); border-color: var(--c-primary-medium); color: white; }
 .stepLine { flex: 1; height: 1px; background: var(--c-border); }
 
 .title {
@@ -86,7 +86,7 @@
   outline: none;
   transition: border-color 0.15s;
 }
-.field input:focus { border-color: #1a9e6e; }
+.field input:focus { border-color: var(--c-primary-medium); }
 .field input::placeholder { color: #aab8b2; }
 
 .fieldRow {
@@ -103,7 +103,7 @@
   overflow: hidden;
   transition: border-color 0.15s;
 }
-.slugWrap:focus-within { border-color: #1a9e6e; }
+.slugWrap:focus-within { border-color: var(--c-primary-medium); }
 .slugPrefix {
   padding: 10px 10px 10px 13px;
   font-size: 13px;
@@ -131,7 +131,7 @@
 
 .btn {
   padding: 12px;
-  background: #1a9e6e;
+  background: var(--c-primary-medium);
   color: white;
   border: none;
   border-radius: 10px;
@@ -163,7 +163,7 @@
   color: var(--c-text-muted);
   margin-top: 1.5rem;
 }
-.loginLink a { color: #1a9e6e; font-weight: 500; }
+.loginLink a { color: var(--c-primary-medium); font-weight: 500; }
 
 /* Akcijski link (npr. "Zaboravili ste lozinku?") — izgleda isto kao .loginLink a */
 .linkBtn {
@@ -171,7 +171,7 @@
   border: none;
   padding: 0;
   font: inherit;
-  color: #1a9e6e;
+  color: var(--c-primary-medium);
   font-weight: 500;
   cursor: pointer;
 }
@@ -186,9 +186,9 @@
   display: flex; align-items: center; gap: 10px; padding: 10px 12px;
   border: 1.5px solid var(--c-border-input); border-radius: 10px; cursor: pointer; background: #fff;
 }
-.bizChoiceOn { border-color: #1a9e6e; background: #f0faf6; }
-.bizChoice input { width: 18px; height: 18px; accent-color: #1a9e6e; cursor: pointer; }
+.bizChoiceOn { border-color: var(--c-primary-medium); background: #f0faf6; }
+.bizChoice input { width: 18px; height: 18px; accent-color: var(--c-primary-medium); cursor: pointer; }
 .bizIcon { font-size: 22px; }
 .bizText { display: flex; flex-direction: column; }
-.bizName { font-size: 14px; font-weight: 600; color: #1a3028; }
-.bizDesc { font-size: 12px; color: #7a9e8e; }
+.bizName { font-size: 14px; font-weight: 600; color: var(--c-text); }
+.bizDesc { font-size: 12px; color: var(--c-text-muted); }

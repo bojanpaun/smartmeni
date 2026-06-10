@@ -192,7 +192,7 @@ export default function SpaTreatmentLibraryAdmin() {
                 <td>
                   <div style={{ display: 'flex', gap: 8 }}>
                     <button className={styles.btnSecondary} style={{ fontSize: 12 }} onClick={() => openEdit(it)}>Uredi</button>
-                    <button style={{ padding: '5px 10px', fontSize: 12, background: 'transparent', color: 'var(--c-danger)', border: '1px solid #fca5a5', borderRadius: 7, cursor: 'pointer' }} onClick={() => remove(it.id)}>Obriši</button>
+                    <button style={{ padding: '5px 10px', fontSize: 12, background: 'transparent', color: 'var(--c-danger)', border: '1px solid var(--c-danger-border)', borderRadius: 7, cursor: 'pointer' }} onClick={() => remove(it.id)}>Obriši</button>
                   </div>
                 </td>
               </tr>

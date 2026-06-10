@@ -43,7 +43,7 @@
 .statComplimentary { border-color: var(--c-primary-muted); background: var(--c-bg-subtle); }
 .statSuspended     { border-color: #f5c4a0; background: #fdf5f0; }
 .statVal { font-size: 26px; font-weight: 600; color: var(--c-text); line-height: 1; }
-.statComplimentary .statVal { color: #0a4f35; }
+.statComplimentary .statVal { color: var(--c-primary-hover); }
 .statSuspended .statVal     { color: #a04010; }
 .statLabel { font-size: 12px; color: var(--c-text-muted); margin-top: 4px; }
 
@@ -96,7 +96,7 @@
   font-size: 11px; padding: 3px 10px; border-radius: 20px;
   font-weight: 500; white-space: nowrap;
 }
-.badgeComplimentary { background: #d4f0e3; color: #0a4f35; }
+.badgeComplimentary { background: var(--c-primary-light); color: var(--c-primary-hover); }
 .badgePro           { background: #dceffe; color: #0c447c; }
 .badgeStarter       { background: #f5f5f5; color: #6a7a72; }
 
@@ -115,7 +115,7 @@
   font-size: 12px; cursor: pointer; color: var(--c-primary);
   font-family: var(--c-font-sans);
 }
-.btnEdit:hover { background: #e6f5ee; }
+.btnEdit:hover { background: var(--c-primary-light); }
 .btnSuspend {
   padding: 5px 12px; border-radius: 7px;
   border: 1px solid #f5c4a0; background: transparent;
@@ -124,7 +124,7 @@
 }
 .btnSuspend:hover { background: #fde8d8; }
 .btnUnsuspend { border-color: var(--c-border-input); color: var(--c-primary); }
-.btnUnsuspend:hover { background: #e6f5ee; }
+.btnUnsuspend:hover { background: var(--c-primary-light); }
 
 /* ── Edit panel ── */
 .editPanel {
@@ -136,9 +136,9 @@
   align-items: center; margin-bottom: 20px;
 }
 .editPanelTitle { font-size: 14px; color: var(--c-text-medium); }
-.editPanelTitle strong { color: #0a4f35; }
+.editPanelTitle strong { color: var(--c-primary-hover); }
 .editPanelClose {
-  background: #e6f5ee; border: none; cursor: pointer;
+  background: var(--c-primary-light); border: none; cursor: pointer;
   width: 28px; height: 28px; border-radius: 50%;
   font-size: 14px; color: var(--c-primary);
 }

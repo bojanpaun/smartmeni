@@ -134,7 +134,7 @@ export default function AnnouncementsManager() {
                   </div>
                   <div style={{ display: 'flex', gap: 6, flexShrink: 0 }}>
                     <button style={{ padding: '5px 10px', fontSize: 12, background: 'transparent', color: 'var(--c-text-medium)', border: '1px solid var(--c-border)', borderRadius: 7, cursor: 'pointer' }} onClick={() => openEdit(a)}>Uredi</button>
-                    <button style={{ padding: '5px 10px', fontSize: 12, background: 'transparent', color: 'var(--c-danger)', border: '1px solid #fca5a5', borderRadius: 7, cursor: 'pointer' }} onClick={() => remove(a.id)}>Obriši</button>
+                    <button style={{ padding: '5px 10px', fontSize: 12, background: 'transparent', color: 'var(--c-danger)', border: '1px solid var(--c-danger-border)', borderRadius: 7, cursor: 'pointer' }} onClick={() => remove(a.id)}>Obriši</button>
                   </div>
                 </div>
               </div>

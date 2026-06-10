@@ -56,13 +56,13 @@
   padding: 0 12px;
   background: transparent;
   color: #ef4444;
-  border: 1px solid #fca5a5;
+  border: 1px solid var(--c-danger-border);
   border-radius: 6px;
   font-size: 12px;
   cursor: pointer;
   transition: background 0.15s;
 }
-.removeBtn:hover { background: #fef2f2; }
+.removeBtn:hover { background: var(--c-danger-bg); }
 
 /* ── Gallery (multi) ── */
 .gallery {
