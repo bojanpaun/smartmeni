@@ -58,6 +58,21 @@
   /* Upozorenje (narandžasta) */
   --c-warning:    #ba7517;
   --c-warning-bg: #faeeda;
+  --c-warning-border: #f0c987;
+
+  /* Uspjeh (zelena — semantička, nezavisna od palete) */
+  --c-success:        #16a34a;
+  --c-success-bg:     #ecfdf5;
+  --c-success-border: #a7f3d0;
+
+  /* Info (plava — semantička, nezavisna od palete) */
+  --c-info:        #2563eb;
+  --c-info-bg:     #eff6ff;
+  --c-info-border: #bfdbfe;
+
+  /* Accent (ljubičasta — addon badge i sl.) */
+  --c-accent:    #6d28d9;
+  --c-accent-bg: #ede9fe;
 
   /* Tipografija */
   --c-font-sans:    'DM Sans', sans-serif;
@@ -108,6 +123,21 @@
   /* Upozorenje */
   --c-warning:    #f39c12;
   --c-warning-bg: rgba(243, 156, 18, 0.12);
+  --c-warning-border: rgba(243, 156, 18, 0.3);
+
+  /* Uspjeh */
+  --c-success:        #34d399;
+  --c-success-bg:     rgba(22, 163, 74, 0.15);
+  --c-success-border: rgba(52, 211, 153, 0.3);
+
+  /* Info */
+  --c-info:        #60a5fa;
+  --c-info-bg:     rgba(37, 99, 235, 0.15);
+  --c-info-border: rgba(96, 165, 250, 0.3);
+
+  /* Accent */
+  --c-accent:    #a78bfa;
+  --c-accent-bg: rgba(109, 40, 217, 0.2);
 
   /* Sidebar */
   --c-sb-bg:         #081a10;
@@ -140,6 +170,18 @@
 
   --c-warning:    #d97706;
   --c-warning-bg: #fffbeb;
+  --c-warning-border: #f0c987;
+
+  --c-success:        #16a34a;
+  --c-success-bg:     #ecfdf5;
+  --c-success-border: #a7f3d0;
+
+  --c-info:        #2563eb;
+  --c-info-bg:     #eff6ff;
+  --c-info-border: #bfdbfe;
+
+  --c-accent:    #6d28d9;
+  --c-accent-bg: #ede9fe;
 
   /* Sidebar */
   --c-sb-bg:         #0c1938;
@@ -172,6 +214,18 @@
 
   --c-warning:    #fbbf24;
   --c-warning-bg: rgba(251, 191, 36, 0.12);
+  --c-warning-border: rgba(243, 156, 18, 0.3);
+
+  --c-success:        #34d399;
+  --c-success-bg:     rgba(22, 163, 74, 0.15);
+  --c-success-border: rgba(52, 211, 153, 0.3);
+
+  --c-info:        #60a5fa;
+  --c-info-bg:     rgba(37, 99, 235, 0.15);
+  --c-info-border: rgba(96, 165, 250, 0.3);
+
+  --c-accent:    #a78bfa;
+  --c-accent-bg: rgba(109, 40, 217, 0.2);
 
   /* Sidebar */
   --c-sb-bg:         #070f22;

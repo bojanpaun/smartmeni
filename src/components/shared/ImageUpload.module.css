@@ -5,19 +5,19 @@
   align-items: center;
   justify-content: center;
   gap: 6px;
-  border: 2px dashed #d1d5db;
+  border: 2px dashed var(--c-border);
   border-radius: 8px;
   padding: 28px 16px;
   cursor: pointer;
-  background: var(--bg-secondary, #fafafa);
+  background: var(--bg-secondary, var(--c-bg-subtle));
   transition: border-color 0.15s, background 0.15s;
   min-height: 100px;
 }
-.dropzone:hover { border-color: #9ca3af; background: var(--bg-hover, #f3f4f6); }
+.dropzone:hover { border-color: var(--c-text-muted); background: var(--bg-hover, var(--c-bg-subtle)); }
 .dropzoneLoading { cursor: default; pointer-events: none; }
 .dropzoneIcon { font-size: 28px; line-height: 1; }
-.dropzoneText { font-size: 13px; color: var(--text-primary, #374151); font-weight: 500; }
-.dropzoneHint { font-size: 11px; color: var(--text-muted, #9ca3af); }
+.dropzoneText { font-size: 13px; color: var(--text-primary, var(--c-text)); font-weight: 500; }
+.dropzoneHint { font-size: 11px; color: var(--text-muted, var(--c-text-muted)); }
 
 /* ── Single image preview ── */
 .previewWrap { position: relative; display: inline-block; max-width: 100%; }
@@ -40,22 +40,22 @@
   min-width: 80px;
   height: 30px;
   padding: 0 12px;
-  background: var(--bg-secondary, #f3f4f6);
-  color: var(--text-primary, #374151);
-  border: 1px solid var(--border-color, #e5e7eb);
+  background: var(--bg-secondary, var(--c-bg-subtle));
+  color: var(--text-primary, var(--c-text));
+  border: 1px solid var(--border-color, var(--c-border));
   border-radius: 6px;
   font-size: 12px;
   font-weight: 500;
   cursor: pointer;
   transition: background 0.15s;
 }
-.replaceBtn:hover { background: var(--bg-hover, #e5e7eb); }
+.replaceBtn:hover { background: var(--bg-hover, var(--c-border)); }
 .replaceBtn:disabled { opacity: 0.6; cursor: default; }
 .removeBtn {
   height: 30px;
   padding: 0 12px;
   background: transparent;
-  color: #ef4444;
+  color: var(--c-danger);
   border: 1px solid var(--c-danger-border);
   border-radius: 6px;
   font-size: 12px;
@@ -75,7 +75,7 @@
   aspect-ratio: 1;
   border-radius: 6px;
   overflow: hidden;
-  background: #f3f4f6;
+  background: var(--c-bg-subtle);
 }
 .galleryImg { width: 100%; height: 100%; object-fit: cover; display: block; }
 .galleryRemove {
@@ -99,24 +99,24 @@
 .galleryAdd {
   aspect-ratio: 1;
   border-radius: 6px;
-  border: 2px dashed #d1d5db;
+  border: 2px dashed var(--c-border);
   display: flex;
   align-items: center;
   justify-content: center;
   cursor: pointer;
   transition: border-color 0.15s, color 0.15s;
-  background: var(--bg-secondary, #fafafa);
+  background: var(--bg-secondary, var(--c-bg-subtle));
 }
-.galleryAdd:hover { border-color: #9ca3af; }
+.galleryAdd:hover { border-color: var(--c-text-muted); }
 .galleryAddLoading { cursor: default; pointer-events: none; }
-.addIcon { font-size: 26px; color: #9ca3af; line-height: 1; }
+.addIcon { font-size: 26px; color: var(--c-text-muted); line-height: 1; }
 
 /* ── Spinner ── */
 .spinner {
   display: inline-block;
   width: 20px;
   height: 20px;
-  border: 2px solid var(--border-color, #e5e7eb);
+  border: 2px solid var(--border-color, var(--c-border));
   border-top-color: var(--c-primary-medium);
   border-radius: 50%;
   animation: imgSpin 0.7s linear infinite;

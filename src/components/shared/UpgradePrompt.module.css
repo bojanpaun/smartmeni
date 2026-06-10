@@ -21,7 +21,7 @@
 .lockIcon {
   width: 64px;
   height: 64px;
-  background: #f0f4f1;
+  background: var(--c-bg-subtle);
   border-radius: 50%;
   display: flex;
   align-items: center;
@@ -40,9 +40,9 @@
   text-transform: uppercase;
 }
 
-.category_restaurant { background: var(--c-primary-light); color: #0d5c3a; }
-.category_hotel      { background: #e0eeff; color: #1a3a8a; }
-.category_enterprise { background: #f3eeff; color: #4a1a8a; }
+.category_restaurant { background: var(--c-primary-light); color: var(--c-success); }
+.category_hotel      { background: var(--c-info-bg); color: var(--c-info); }
+.category_enterprise { background: var(--c-accent-bg); color: var(--c-accent); }
 
 .title {
   font-family: var(--c-font-display);
@@ -54,14 +54,14 @@
 
 .description {
   font-size: 14px;
-  color: #5a7a6e;
+  color: var(--c-text-medium);
   line-height: 1.6;
   margin: 0 0 14px;
 }
 
 .dependsNote {
   font-size: 12px;
-  color: #8aaa9a;
+  color: var(--c-text-muted);
   margin: 0 0 16px;
 }
 
@@ -77,7 +77,7 @@
   align-items: flex-start;
   gap: 8px;
   font-size: 13px;
-  color: #5a7a6e;
+  color: var(--c-text-medium);
   line-height: 1.5;
   margin-bottom: 6px;
 }
@@ -130,6 +130,6 @@
 
 .trialNote {
   font-size: 12px;
-  color: #9ab8aa;
+  color: var(--c-text-muted);
   margin: 0;
 }

@@ -173,7 +173,7 @@
 .field label {
   font-size: 12px;
   font-weight: 500;
-  color: #3a5044;
+  color: var(--c-text);
 }
 
 .field input {
@@ -260,7 +260,7 @@
   transition: border-color 0.15s, background 0.15s;
   background: var(--c-surface);
 }
-.logoDropZone:hover { border-color: var(--c-primary); background: #f5faf7; }
+.logoDropZone:hover { border-color: var(--c-primary); background: var(--c-bg-subtle); }
 
 .logoDropIcon { font-size: 28px; }
 .logoDropText { font-size: 14px; font-weight: 500; color: var(--c-text); }

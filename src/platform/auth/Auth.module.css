@@ -87,7 +87,7 @@
   transition: border-color 0.15s;
 }
 .field input:focus { border-color: var(--c-primary-medium); }
-.field input::placeholder { color: #aab8b2; }
+.field input::placeholder { color: var(--c-text-muted); }
 
 .fieldRow {
   display: grid;
@@ -121,9 +121,9 @@
 .slugWrap input:focus { border: none; }
 
 .error {
-  background: #fceae8;
-  border: 1px solid #f5c1b8;
-  color: #8a2a1a;
+  background: var(--c-danger-bg);
+  border: 1px solid var(--c-danger-border);
+  color: var(--c-danger);
   padding: 10px 13px;
   border-radius: 10px;
   font-size: 13px;
@@ -186,7 +186,7 @@
   display: flex; align-items: center; gap: 10px; padding: 10px 12px;
   border: 1.5px solid var(--c-border-input); border-radius: 10px; cursor: pointer; background: #fff;
 }
-.bizChoiceOn { border-color: var(--c-primary-medium); background: #f0faf6; }
+.bizChoiceOn { border-color: var(--c-primary-medium); background: var(--c-bg-subtle); }
 .bizChoice input { width: 18px; height: 18px; accent-color: var(--c-primary-medium); cursor: pointer; }
 .bizIcon { font-size: 22px; }
 .bizText { display: flex; flex-direction: column; }

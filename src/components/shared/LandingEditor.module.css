@@ -544,7 +544,7 @@
   transition: color 0.15s, border-color 0.15s;
 }
 
-.removeItemBtn:hover { color: #e53e3e; border-color: #e53e3e; }
+.removeItemBtn:hover { color: var(--c-danger); border-color: var(--c-danger); }
 
 .addItemBtn {
   width: 100%;
@@ -579,7 +579,7 @@
   padding: 0;
   line-height: 1;
   transition: transform 0.1s;
-  color: #f59e0b;
+  color: var(--c-warning);
 }
 
 .starBtn:hover { transform: scale(1.2); }

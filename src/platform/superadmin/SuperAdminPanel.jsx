@@ -263,10 +263,10 @@ export default function SuperAdminPanel() {
         </div>
         <div
           className={`${styles.stat} ${styles.statSuspended}`}
-          style={stats.pending > 0 ? { cursor: 'pointer', borderColor: '#e67e22' } : undefined}
+          style={stats.pending > 0 ? { cursor: 'pointer', borderColor: 'var(--c-warning)' } : undefined}
           onClick={() => stats.pending > 0 && setFilterPlan('pending')}
         >
-          <div className={styles.statVal} style={stats.pending > 0 ? { color: '#e67e22' } : undefined}>{stats.pending}</div>
+          <div className={styles.statVal} style={stats.pending > 0 ? { color: 'var(--c-warning)' } : undefined}>{stats.pending}</div>
           <div className={styles.statLabel}>⏳ Na čekanju</div>
         </div>
       </div>
@@ -321,7 +321,7 @@ export default function SuperAdminPanel() {
                     <div className={styles.restName}>
                       {rest.name}
                       {rest.approval_status === 'pending' && (
-                        <span style={{ marginLeft: 8, fontSize: 11, fontWeight: 600, color: '#e67e22', background: '#fff7ed', border: '1px solid #fed7aa', borderRadius: 12, padding: '1px 8px' }}>⏳ čeka odobrenje</span>
+                        <span style={{ marginLeft: 8, fontSize: 11, fontWeight: 600, color: 'var(--c-warning)', background: 'var(--c-warning-bg)', border: '1px solid var(--c-warning-border)', borderRadius: 12, padding: '1px 8px' }}>⏳ čeka odobrenje</span>
                       )}
                       {rest.approval_status === 'rejected' && (
                         <span style={{ marginLeft: 8, fontSize: 11, fontWeight: 600, color: 'var(--c-danger)', background: 'var(--c-danger-bg)', border: '1px solid var(--c-danger-border)', borderRadius: 12, padding: '1px 8px' }}>✕ odbijen</span>
@@ -347,7 +347,7 @@ export default function SuperAdminPanel() {
                         <>
                           <button
                             className={styles.btnEdit}
-                            style={{ background: '#16a34a', color: '#fff', borderColor: '#16a34a' }}
+                            style={{ background: 'var(--c-success)', color: '#fff', borderColor: 'var(--c-success)' }}
                             onClick={() => setApproval(rest, 'approved')}
                           >
                             ✓ Odobri
@@ -363,7 +363,7 @@ export default function SuperAdminPanel() {
                       {rest.approval_status === 'rejected' && (
                         <button
                           className={styles.btnEdit}
-                          style={{ background: '#16a34a', color: '#fff', borderColor: '#16a34a' }}
+                          style={{ background: 'var(--c-success)', color: '#fff', borderColor: 'var(--c-success)' }}
                           onClick={() => setApproval(rest, 'approved')}
                         >
                           ✓ Odobri ipak

@@ -10,21 +10,21 @@
 }
 
 .bannerTrial {
-  background: #fef9ed;
-  border-bottom: 1px solid #f5e0a0;
-  color: #7a5c00;
+  background: var(--c-warning-bg);
+  border-bottom: 1px solid var(--c-warning-border);
+  color: var(--c-warning);
 }
 
 .bannerExpired {
   background: var(--c-warning-bg);
-  border-bottom: 1px solid #f5c842;
-  color: #5c3a00;
+  border-bottom: 1px solid var(--c-warning);
+  color: var(--c-warning);
 }
 
 .bannerDanger {
   background: var(--c-danger-bg);
-  border-bottom: 1px solid #f5a0a0;
-  color: #6b0000;
+  border-bottom: 1px solid var(--c-danger-border);
+  color: var(--c-danger);
 }
 
 .bannerBeta {

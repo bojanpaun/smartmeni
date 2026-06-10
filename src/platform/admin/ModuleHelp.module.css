@@ -67,13 +67,13 @@
 
 .step {
   font-size: 13px;
-  color: #3a5044;
+  color: var(--c-text);
   line-height: 1.5;
 }
 
 .tips {
   background: var(--c-bg-subtle);
-  border: 1px solid #c0e4d4;
+  border: 1px solid var(--c-success-bg);
   border-radius: 12px;
   padding: 16px 20px;
 }
@@ -95,7 +95,7 @@
 
 .tip {
   font-size: 13px;
-  color: #1d5a3a;
+  color: var(--c-success);
   line-height: 1.5;
 }
 

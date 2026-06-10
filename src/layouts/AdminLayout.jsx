@@ -11,9 +11,9 @@ import LanguageSwitcher from '../i18n/LanguageSwitcher'
 import useKitchenCounts from '../hooks/useKitchenCounts'
 import { useAnnouncements } from '../context/AnnouncementsContext'
 const SEV_BANNER = {
-  important: { bg: '#fef2f2', border: '#fca5a5', text: '#991b1b', icon: '⚠️' },
-  update:    { bg: '#ecfdf5', border: '#a7f3d0', text: '#065f46', icon: '✨' },
-  info:      { bg: '#eff6ff', border: '#bfdbfe', text: '#1e40af', icon: '📣' },
+  important: { bg: 'var(--c-danger-bg)',  border: 'var(--c-danger-border)',  text: 'var(--c-danger)',  icon: '⚠️' },
+  update:    { bg: 'var(--c-success-bg)', border: 'var(--c-success-border)', text: 'var(--c-success)', icon: '✨' },
+  info:      { bg: 'var(--c-info-bg)',    border: 'var(--c-info-border)',    text: 'var(--c-info)',    icon: '📣' },
 }
 
 // Banner ispod headera za nepročitane platform najave (jedna po jedna, može da se ugasi)

@@ -34,17 +34,17 @@ export function FaqSuggestions({ query }) {
   if (matches.length === 0) return null
 
   return (
-    <div style={{ background: '#f0f9ff', border: '1px solid #bae6fd', borderRadius: 10, padding: '10px 14px', marginBottom: 12 }}>
-      <div style={{ fontSize: 13, fontWeight: 600, color: '#0369a1', marginBottom: 6 }}>💡 Možda ovo pomaže?</div>
+    <div style={{ background: 'var(--c-info-bg)', border: '1px solid var(--c-info-border)', borderRadius: 10, padding: '10px 14px', marginBottom: 12 }}>
+      <div style={{ fontSize: 13, fontWeight: 600, color: 'var(--c-info)', marginBottom: 6 }}>💡 Možda ovo pomaže?</div>
       <div style={{ display: 'flex', flexDirection: 'column', gap: 4 }}>
         {matches.map(f => {
           const open = openId === f.id
           return (
             <div key={f.id}>
-              <button onClick={() => setOpenId(open ? null : f.id)} style={{ background: 'none', border: 'none', padding: '3px 0', cursor: 'pointer', color: '#0c4a6e', fontSize: 13, fontWeight: 600, textAlign: 'left' }}>
+              <button onClick={() => setOpenId(open ? null : f.id)} style={{ background: 'none', border: 'none', padding: '3px 0', cursor: 'pointer', color: 'var(--c-info)', fontSize: 13, fontWeight: 600, textAlign: 'left' }}>
                 {open ? '▾' : '▸'} {f.question}
               </button>
-              {open && <div style={{ fontSize: 13, color: '#1e3a8a', whiteSpace: 'pre-wrap', lineHeight: 1.5, padding: '2px 0 6px 14px' }}>{f.answer}</div>}
+              {open && <div style={{ fontSize: 13, color: 'var(--c-info)', whiteSpace: 'pre-wrap', lineHeight: 1.5, padding: '2px 0 6px 14px' }}>{f.answer}</div>}
             </div>
           )
         })}

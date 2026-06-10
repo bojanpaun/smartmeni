@@ -99,7 +99,7 @@
   height: 18px;
   padding: 0 5px;
   border-radius: 9px;
-  background: #E24B4A;
+  background: var(--c-danger);
   color: #fff;
   font-size: 10px;
   font-weight: 700;
@@ -226,7 +226,7 @@
 .badgeActive  { background: var(--c-primary-light); color: var(--c-primary); }
 .badgeSoon    { background: var(--c-bg-subtle); color: var(--c-text-muted); }
 .badgeLocked  { background: var(--c-danger-bg); color: var(--c-danger); }
-.badgeAddon   { background: #ede9fe; color: #6d28d9; }
+.badgeAddon   { background: var(--c-accent-bg); color: var(--c-accent); }
 
 /* ── Responsive ── */
 @media (max-width: 768px) {
