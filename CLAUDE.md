@@ -173,7 +173,28 @@ Slojevi i komande:
 - Izmjena mapiranja statusa plaćanja (`status-map.ts`) → Deno test; svaki izlaz mora ostati
   validan `NormalizedStatus` (Princip 2), nikad provajder-specifičan string.
 
-## Workflow
-- Radi direktno na `main` (push ⇒ produkcija). Zato: pokreni `supabase test db` i testiraj
-  kritične oblasti prije pusha.
+## Workflow — LOKALNO-FIRST (obavezno)
+Razvoj ide nad **lokalnom** Supabase bazom (Docker), nikad direktno nad produkcijom.
+Produkcija se dira tek kad je lokalno zeleno.
+
+**Preduslov:** Docker Desktop mora biti upaljen.
+
+```
+npm run db:start     # podigni lokalni Supabase stack (Docker)
+npm run db:reset     # primijeni SVE migracije + seed.sql lokalno (čista baza)
+npm run dev          # frontend → LOKALNA baza (.env.local override)
+# ...razvoj + nova migracija u supabase/migrations/...
+npm run db:reset     # ponovi da nova migracija legne čisto
+npm run test:db      # pgTAP mora biti zeleno (BITNO: db reset prije ako je baza ustajala)
+npm run db:push      # tek SAD: migracije na PRODUKCIJU (supabase db push)
+git push             # tek SAD na main (Vercel deploy frontenda)
+```
+
+- **`.env.local`** (gitignored) drži lokalne Supabase kredencijale; Vite ga u dev modu
+  preferira nad `.env`. `.env` ostaje produkcija (koristi ga samo prod build na Vercelu).
+- **`supabase/seed.sql`** puni lokalnu bazu test-tenantom (owner@local.test / password123,
+  superadmin admin@local.test / password123). Ne ide na produkciju.
+- **NIKAD** `supabase db reset --linked` (gađa prod). `db reset` bez flaga = lokalno, bezopasno.
+- Redoslijed deploya je fiksan: **`db:push` PRIJE `git push`** (frontend ne smije stići na
+  prod prije šeme koju očekuje).
 - Kad završiš zaokruženu cjelinu, ažuriraj `restbyme_hotel_roadmap.md` (dnevnik napretka).

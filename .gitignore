@@ -1,6 +1,8 @@
 node_modules/
 dist/
 .env
+# Lokalni env override-i (per-mašina): .env.local, .env.development.local, ...
+.env*.local
 slike gresaka/
 
 # Lokalni prod schema dump (sadrži service_role JWT) — regeneriši: supabase db dump --linked --schema public
