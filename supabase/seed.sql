@@ -87,6 +87,30 @@ VALUES (
 )
 ON CONFLICT DO NOTHING;
 
+-- ── 3c) Drugi tenant: i superadmin (bojanpaun) posjeduje restoran ────────────
+-- Bez vlastitog tenanta superadmin bi visio na `if (!restaurant)` gate-u na ~40
+-- admin stranica (isti uzrok kao SupportPage). Ovim dobija svoj tenant pa cijeli
+-- /admin radi i kad si prijavljen kao superadmin. (Dva tenanta = i test izolacije.)
+INSERT INTO public.restaurants (
+  id, user_id, name, slug, description, location, color,
+  onboarding_completed, plan, active_verticals, hotel_visibility
+)
+VALUES (
+  'dddddddd-0000-0000-0000-000000000020',
+  'dddddddd-0000-0000-0000-000000000002',
+  'Superadmin Test Hotel', 'superadmin-test', 'Tenant superadmin naloga (lokalno)',
+  'Podgorica', '#0d7a52', true, 'pro',
+  ARRAY['restaurant','hotel']::text[], 'all'
+)
+ON CONFLICT (id) DO NOTHING;
+
+INSERT INTO public.subscriptions (restaurant_id, plan, addons, status)
+VALUES (
+  'dddddddd-0000-0000-0000-000000000020', 'pro',
+  '["hotel_core","spa_wellness","inventory_pro","hr_pro"]'::jsonb, 'active'
+)
+ON CONFLICT DO NOTHING;
+
 -- ── 4) Meni: kategorije + par stavki ────────────────────────────────────────
 INSERT INTO public.categories (id, restaurant_id, name, name_en, icon, sort_order)
 VALUES
