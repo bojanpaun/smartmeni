@@ -101,25 +101,37 @@ export default function OnboardingWizard({ onComplete, onSkip }) {
       }
 
       if (current.id === 'category' && categoryName.trim()) {
-        const { data } = await supabase.from('categories').insert({
-          restaurant_id: restaurant.id,
-          name: categoryName.trim(),
-          icon: categoryIcon,
-          sort_order: 0,
-        }).select().single()
-        if (data) setCreatedCategoryId(data.id)
+        // Re-run zaštita: ako kategorija s tim nazivom već postoji, koristi nju (ne dupliraj).
+        const { data: existing } = await supabase.from('categories')
+          .select('id').eq('restaurant_id', restaurant.id).eq('name', categoryName.trim()).maybeSingle()
+        if (existing) {
+          setCreatedCategoryId(existing.id)
+        } else {
+          const { data } = await supabase.from('categories').insert({
+            restaurant_id: restaurant.id,
+            name: categoryName.trim(),
+            icon: categoryIcon,
+            sort_order: 0,
+          }).select().single()
+          if (data) setCreatedCategoryId(data.id)
+        }
       }
 
       if (current.id === 'item' && itemName.trim() && itemPrice) {
-        await supabase.from('menu_items').insert({
-          restaurant_id: restaurant.id,
-          category_id: createdCategoryId,
-          name: itemName.trim(),
-          price: parseFloat(itemPrice),
-          emoji: itemEmoji,
-          is_visible: true,
-          sort_order: 0,
-        })
+        // Re-run zaštita: preskoči ako stavka s tim nazivom već postoji.
+        const { data: existing } = await supabase.from('menu_items')
+          .select('id').eq('restaurant_id', restaurant.id).eq('name', itemName.trim()).maybeSingle()
+        if (!existing) {
+          await supabase.from('menu_items').insert({
+            restaurant_id: restaurant.id,
+            category_id: createdCategoryId,
+            name: itemName.trim(),
+            price: parseFloat(itemPrice),
+            emoji: itemEmoji,
+            is_visible: true,
+            sort_order: 0,
+          })
+        }
       }
 
       if (isLast) {

@@ -4,6 +4,7 @@ import { usePlatform } from '../../context/PlatformContext'
 import { supabase } from '../../lib/supabase'
 import { MODULES } from '../../layouts/AdminLayout'
 import OnboardingWizard from './OnboardingWizard'
+import HotelOnboardingWizard from './HotelOnboardingWizard'
 import { useAnnouncements } from '../../context/AnnouncementsContext'
 import { useSupport } from '../../context/SupportContext'
 import styles from './ControlPanel.module.css'
@@ -67,9 +68,14 @@ export default function ControlPanel() {
   const { unread: unreadAnn } = useAnnouncements()
   const { unreadCount: unreadSupport } = useSupport()
   const navigate = useNavigate()
-  const [showOnboarding, setShowOnboarding] = useState(
-    restaurant && !restaurant.onboarding_completed
-  )
+  // Hotel-only tenant (izabrao samo hotel pri registraciji) dobija HOTEL wizard
+  // automatski; restoran/oba → restoranski (kao i dosad). Koristi isti
+  // onboarding_completed flag (hotel wizard ga markira kad je auto-prikazan).
+  const hotelOnly = !!restaurant && hasVertical('hotel') && !hasVertical('restaurant')
+  const needsOnboarding = restaurant && !restaurant.onboarding_completed
+  const [showOnboarding, setShowOnboarding] = useState(needsOnboarding && !hotelOnly)
+  const [showHotelOnboarding, setShowHotelOnboarding] = useState(needsOnboarding && hotelOnly)
+  const [hotelAuto, setHotelAuto] = useState(needsOnboarding && hotelOnly) // auto-prikaz → markiraj completed
 
   // Hotel/spa KPI upiti se rade SAMO ako tenant ima tu vertikalu (ne na osnovu
   // addona — beta mod ga svima postavlja na true, pa bi se hotel_reservations/rooms
@@ -163,6 +169,9 @@ export default function ControlPanel() {
       {showOnboarding && (
         <OnboardingWizard onComplete={() => setShowOnboarding(false)} onSkip={() => setShowOnboarding(false)} />
       )}
+      {showHotelOnboarding && (
+        <HotelOnboardingWizard markComplete={hotelAuto} onComplete={() => setShowHotelOnboarding(false)} onSkip={() => setShowHotelOnboarding(false)} />
+      )}
 
       {/* ── Header ── */}
       <div className={styles.header}>
@@ -244,6 +253,12 @@ export default function ControlPanel() {
               <div className={styles.verticalTitle}>Restoran</div>
               <div className={styles.verticalSub}>Digitalni meni i stolovi</div>
             </div>
+            {(isOwner() || isSuperAdmin()) && (
+              <button onClick={() => setShowOnboarding(true)}
+                style={{ marginLeft: 12, alignSelf: 'center', background: 'none', border: 'none', color: 'var(--c-primary)', fontSize: 13, fontWeight: 600, cursor: 'pointer', whiteSpace: 'nowrap' }}>
+                📋 Vodič →
+              </button>
+            )}
           </div>
           <div className={styles.grid}>{restaurantMods.map(renderCard)}</div>
         </div>
@@ -259,6 +274,12 @@ export default function ControlPanel() {
               <div className={styles.verticalTitle}>Hotel</div>
               <div className={styles.verticalSub}>Sobe, rezervacije i spa</div>
             </div>
+            {(isOwner() || isSuperAdmin()) && (
+              <button onClick={() => { setHotelAuto(false); setShowHotelOnboarding(true) }}
+                style={{ marginLeft: 12, alignSelf: 'center', background: 'none', border: 'none', color: 'var(--c-primary)', fontSize: 13, fontWeight: 600, cursor: 'pointer', whiteSpace: 'nowrap' }}>
+                📋 Vodič →
+              </button>
+            )}
           </div>
           <div className={styles.grid}>{hotelMods.map(renderCard)}</div>
         </div>
