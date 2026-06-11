@@ -2,31 +2,28 @@ import i18n from 'i18next'
 import { initReactI18next } from 'react-i18next'
 import { LANGUAGE_CODES, DEFAULT_LANG, isReady } from './languages'
 
-// Primarni jezici (me/en) ostaju STATIČKI bundlovani → instant prvi paint,
-// zadržava postojeće ponašanje. Svi ostali jezici se LAZY učitavaju (svaki
-// locale fajl je zaseban Vite chunk) → bundle budžet (hard CI gate) ostaje mali.
-import meBooking from './locales/me/booking.json'
-import enBooking from './locales/en/booking.json'
-import meCommon from './locales/me/common.json'
-import enCommon from './locales/en/common.json'
-
 const STORAGE_KEY = 'sm_lang'
 
-// Vite lazy mapa locale fajlova (svi osim me/en koji su statički bundlovani gore).
-// Svaki je zaseban chunk: { './locales/sr/menu.json': () => import(...) }
-const localeModules = import.meta.glob([
-  './locales/*/*.json',
-  '!./locales/me/*.json',
-  '!./locales/en/*.json',
-])
+// Primarni jezici (me/en) su EAGER (bundlovani → instant prvi paint, svaki namespace).
+// Ostali jezici su LAZY (zaseban Vite chunk po fajlu → bundle budžet ostaje mali).
+// Dodavanje namespace-a = samo dodaj locale JSON fajlove; ništa se ovdje ne mijenja.
+const eager = import.meta.glob(['./locales/me/*.json', './locales/en/*.json'], { eager: true })
+const lazy = import.meta.glob(['./locales/*/*.json', '!./locales/me/*.json', '!./locales/en/*.json'])
 
-// Custom i18next backend — učita <lng>/<ns> na zahtjev. Ako fajl ne postoji
-// (jezik/namespace još nije preveden), vrati prazno → i18next fallback na `me`.
+// Sastavi statičke resurse iz eager mape: { me: { common, booking, ... }, en: {...} }.
+const resources = {}
+for (const [path, mod] of Object.entries(eager)) {
+  const m = /\.\/locales\/([^/]+)\/([^/]+)\.json$/.exec(path)
+  if (m) ((resources[m[1]] ??= {})[m[2]] = mod.default || mod)
+}
+
+// Lazy backend za ne-bundlovane jezike/namespace-e. Ako fajl ne postoji → prazno
+// → i18next fallback na `me`.
 const lazyBackend = {
   type: 'backend',
   init() {},
   read(lng, ns, callback) {
-    const loader = localeModules[`./locales/${lng}/${ns}.json`]
+    const loader = lazy[`./locales/${lng}/${ns}.json`]
     if (!loader) { callback(null, {}); return }
     loader()
       .then((mod) => callback(null, mod.default || mod))
@@ -42,7 +39,7 @@ function detectLang() {
   try {
     const browser = navigator.language?.slice(0, 2).toLowerCase()
     if (browser && isReady(browser)) return browser
-  } catch { /* SSR/no navigator */ }
+  } catch { /* no navigator */ }
   return DEFAULT_LANG
 }
 
@@ -50,13 +47,8 @@ i18n
   .use(lazyBackend)
   .use(initReactI18next)
   .init({
-    // Bundlovani primarni jezici; partialBundledLanguages dozvoljava backend-u da
-    // dopuni jezike/namespace-e koji ovdje nisu (lazy).
-    resources: {
-      me: { booking: meBooking, common: meCommon },
-      en: { booking: enBooking, common: enCommon },
-    },
-    partialBundledLanguages: true,
+    resources,
+    partialBundledLanguages: true, // dopuni iz backend-a jezike/ns koji nisu u resources
     lng: detectLang(),
     fallbackLng: DEFAULT_LANG,
     supportedLngs: LANGUAGE_CODES,
@@ -64,7 +56,7 @@ i18n
     ns: ['common', 'booking'],
     defaultNS: 'common',
     interpolation: { escapeValue: false },
-    react: { useSuspense: false }, // backend je async; izbjegni Suspense flicker
+    react: { useSuspense: false },
   })
 
 i18n.on('languageChanged', (lng) => {

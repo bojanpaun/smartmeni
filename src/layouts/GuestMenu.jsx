@@ -1,7 +1,9 @@
 import { useState, useEffect, useRef } from 'react'
 import { useParams, useNavigate } from 'react-router-dom'
+import { useTranslation } from 'react-i18next'
 import { supabase } from '../lib/supabase'
 import { getTemplate } from '../lib/templates'
+import LanguageSwitcher from '../i18n/LanguageSwitcher'
 import styles from './GuestMenu.module.css'
 
 // Ključ za localStorage sesiju gosta
@@ -69,9 +71,9 @@ const TAG_CONFIG = {
 export default function Menu() {
   const { slug } = useParams()
   const navigate = useNavigate()
+  const { t, i18n } = useTranslation('menu')
   const [activeCat, setActiveCat] = useState('predjela')
   const [selectedItem, setSelectedItem] = useState(null)
-  const [lang, setLang] = useState('sr')
   const [waiterSent, setWaiterSent] = useState(false)
   const [showWaiter, setShowWaiter] = useState(false)
   const [waiterRequestId, setWaiterRequestId] = useState(() => {
@@ -248,7 +250,7 @@ export default function Menu() {
   const items = isDemo
     ? (data.items[activeCat] || [])
     : allItems.filter(i => i.category_id === activeCat)
-  const isEn = lang === 'en'
+  const isEn = i18n.language === 'en'
   const specialItem = allItems.find(i => isDemo ? i.special : i.is_special)
 
   const sendWaiterRequest = async (type) => {
@@ -448,11 +450,9 @@ export default function Menu() {
       {/* HEADER */}
       <div className={styles.header} style={{ background: tpl.brand }}>
         <div className={styles.headerTop}>
-          <div className={styles.tableTag}>{tableNumber ? `Sto ${tableNumber}` : (r.table || '')}</div>
+          <div className={styles.tableTag}>{tableNumber ? t('tableLabel', { n: tableNumber }) : (r.table || '')}</div>
           <div className={styles.headerRight}>
-            <button className={styles.langToggle} onClick={() => setLang(isEn ? 'sr' : 'en')}>
-              {isEn ? 'SR' : 'EN'}
-            </button>
+            <LanguageSwitcher variant="dark" />
           </div>
         </div>
         <div className={styles.restInfo}>
@@ -477,7 +477,7 @@ export default function Menu() {
       <div className={styles.searchBar}>
         <span className={styles.searchIcon}>🔍</span>
         <span className={styles.searchPlaceholder}>
-          {isEn ? 'Search menu...' : 'Pretražite meni...'}
+          {t('search')}
         </span>
       </div>
 
@@ -485,7 +485,7 @@ export default function Menu() {
       {specialItem && (
         <div className={styles.special} style={{ background: tpl.brand }} onClick={() => setSelectedItem(specialItem)}>
           <div className={styles.specialLabel}>
-            {isEn ? '⚡ Daily special' : '⚡ Dnevna ponuda'}
+            ⚡ {t('dailySpecial')}
           </div>
           <div className={styles.specialName}>
             {specialItem.emoji} {isEn ? specialItem.nameEn : specialItem.name}
@@ -516,9 +516,7 @@ export default function Menu() {
 
       {/* ALLERGEN NOTICE */}
       <div className={styles.allergenNote}>
-        ⚠ {isEn
-          ? 'Allergen information available on each item. Ask staff if unsure.'
-          : 'Informacije o alergenima dostupne na svakom jelu. Pitajte osoblje.'}
+        ⚠ {t('allergenNote')}
       </div>
 
       {/* ITEMS */}
@@ -575,12 +573,10 @@ export default function Menu() {
         <div className={styles.qrExpired}>
           <div className={styles.qrExpiredIcon}>⏱️</div>
           <div className={styles.qrExpiredTitle}>
-            {isEn ? 'Session expired' : 'QR sesija je istekla'}
+            {t('sessionExpired')}
           </div>
           <div className={styles.qrExpiredDesc}>
-            {isEn
-              ? `Your ${r?.qr_session_minutes || 30}-minute session has ended. Please scan the QR code at your table again.`
-              : `Vaša ${r?.qr_session_minutes || 30}-minutna sesija je završena. Skenirajte ponovo QR kod na stolu.`}
+            {t('sessionExpiredDesc', { minutes: r?.qr_session_minutes || 30 })}
           </div>
         </div>
       )}
@@ -588,9 +584,7 @@ export default function Menu() {
       {/* QR ONLY NOTICE — za goste koji nikad nisu skenirali */}
       {!isQRAccess && !qrExpired && !isDemo && (r?.ordering_visibility !== 'off' || r?.waiter_visibility !== 'off') && (
         <div className={styles.qrNotice}>
-          📱 {isEn
-            ? 'Scan the QR code at your table to order and call a waiter.'
-            : 'Skenirajte QR kod na stolu za narudžbu i poziv konobara.'}
+          📱 {t('qrNotice')}
         </div>
       )}
 
@@ -600,7 +594,7 @@ export default function Menu() {
           <div className={styles.cartBar} onClick={() => setShowCart(true)}>
             <div className={styles.cartBarLeft}>
               <span style={{ fontSize: 16 }}>🛒</span>
-              <span className={styles.cartBarLabel}>{isEn ? 'View order' : 'Pogledaj narudžbu'}</span>
+              <span className={styles.cartBarLabel}>{t('viewOrder')}</span>
               <span className={styles.cartBarCount}>{cartCount}</span>
             </div>
             <span className={styles.cartBarTotal}>€{cartTotal.toFixed(2)}</span>
@@ -611,7 +605,7 @@ export default function Menu() {
           <div className={styles.guestSessionBar}>
             <span>👤 {guestSession.first_name} {guestSession.last_name}</span>
             <button className={styles.guestLogoutBtn} onClick={logoutGuest}>
-              {isEn ? 'Logout' : 'Odjava'}
+              {t('logout')}
             </button>
           </div>
         )}
@@ -622,7 +616,7 @@ export default function Menu() {
             if (waiterVis === 'registered' && !guestSession) { requireLogin(() => setShowWaiter(true)); return }
             setShowWaiter(true)
           }}>
-            🔔 {isEn ? 'Call waiter' : 'Pozovi konobara'}
+            🔔 {t('callWaiter')}
           </button>
         ) : (
           <div className={styles.waiterSent} style={{
@@ -631,20 +625,20 @@ export default function Menu() {
           }}>
             {waiterResolved ? (
               <div>
-                ✓ {isEn ? 'Request resolved!' : 'Zahtjev riješen!'}
+                ✓ {t('requestResolved')}
                 {waiterResponse && <div style={{ fontSize: 12, marginTop: 4, opacity: 0.85 }}>💬 {waiterResponse}</div>}
               </div>
             ) : waiterResponse ? (
               <div>
                 <div>💬 {waiterResponse}</div>
                 <div style={{ fontSize: 11, marginTop: 3, opacity: 0.7 }}>
-                  {isEn ? 'Waiter replied' : 'Konobar odgovorio'}
+                  {t('waiterReplied')}
                 </div>
               </div>
             ) : (
               <div className={styles.waiterPending}>
                 <span className={styles.waiterSpinner} />
-                {isEn ? 'Request sent — waiting for waiter...' : 'Zahtjev poslan — čekamo konobara...'}
+                {t('requestSent')}
               </div>
             )}
           </div>
@@ -662,21 +656,21 @@ export default function Menu() {
               }
             }}
           >
-            📅 {isEn ? 'Reserve a table' : 'Rezerviši sto'}
+            📅 {t('reserveTable')}
           </a>
         )}
 
         {/* Hotel landing link */}
         {canSee(hotelVis) && (
           <a href={`/${slug}/hotel`} className={styles.reservationBtn}>
-            🏨 {isEn ? 'Hotel info & rooms' : 'Hotel — info i smještaj'}
+            🏨 {t('hotelInfo')}
           </a>
         )}
 
         {/* Spa & Wellness booking link */}
         {canSee(spaVis) && (
           <a href={`/${slug}/spa`} className={styles.reservationBtn}>
-            ✨ {isEn ? 'Spa & Wellness' : 'Spa & Wellness'}
+            ✨ {t('spaWellness')}
           </a>
         )}
 
@@ -684,7 +678,7 @@ export default function Menu() {
         {(canSee(registrationVis) || guestSession) && (
           <div className={styles.accountSeparator}>
             <div className={styles.accountSepLine} />
-            <div className={styles.accountSepLabel}>{isEn ? 'MY ACCOUNT' : 'MOJ NALOG'}</div>
+            <div className={styles.accountSepLabel}>{t('myAccount')}</div>
             <div className={styles.accountSepLine} />
           </div>
         )}
@@ -693,10 +687,10 @@ export default function Menu() {
         {!guestSession && canSee(registrationVis) && (
           <div className={styles.accountRow}>
             <button className={styles.accountBtn} onClick={() => navigate(`/${isDemo ? 'demo' : slug}/registracija`)}>
-              🎟️ {isEn ? 'Register' : 'Registruj se'}
+              🎟️ {t('register')}
             </button>
             <button className={styles.accountBtn} onClick={() => navigate(`/${isDemo ? 'demo' : slug}/prijava?return=/${isDemo ? 'demo' : slug}/profil`)}>
-              👤 {isEn ? 'Login' : 'Prijava'}
+              👤 {t('login')}
             </button>
           </div>
         )}
@@ -707,12 +701,12 @@ export default function Menu() {
             className={styles.accountBtnFull}
             onClick={() => { window.location.href = `/${isDemo ? 'demo' : slug}/profil` }}
           >
-            👤 {isEn ? 'My profile' : 'Moj profil'}
+            👤 {t('myProfile')}
           </button>
         )}
         {orderSent && (
           <div className={styles.orderSentMsg} style={{ background: tpl.catBg, color: tpl.catColor }}>
-            ✓ {isEn ? 'Order sent! Thank you.' : 'Narudžba poslana! Hvala.'}
+            ✓ {t('orderSentThanks')}
           </div>
         )}
         {/* Dugme za praćenje — vidljivo dok narudžba postoji u sessionStorage */}
@@ -722,7 +716,7 @@ export default function Menu() {
             style={{ borderColor: tpl.brand, color: tpl.brand }}
             onClick={() => navigate(`/${slug}/narudzba/${lastOrderId}`)}
           >
-            📍 {isEn ? 'Track your order' : 'Prati narudžbu uživo'}
+            📍 {t('trackOrder')}
           </button>
         )}
       </div>
@@ -740,15 +734,15 @@ export default function Menu() {
             <div className={styles.sheetDesc}>{isEn ? (selectedItem.description_en || selectedItem.descEn || selectedItem.description) : (selectedItem.description || selectedItem.desc)}</div>
             <div className={styles.sheetDetails}>
               <div className={styles.sheetRow}>
-                <span className={styles.sheetRowLabel}>{isEn ? 'Calories' : 'Kalorije'}</span>
+                <span className={styles.sheetRowLabel}>{t('calories')}</span>
                 <span>{selectedItem.calories || selectedItem.cal || '—'} kcal</span>
               </div>
               <div className={styles.sheetRow}>
-                <span className={styles.sheetRowLabel}>{isEn ? 'Allergens' : 'Alergeni'}</span>
-                <span>{selectedItem.allergens || (isEn ? 'None' : 'Nema')}</span>
+                <span className={styles.sheetRowLabel}>{t('allergens')}</span>
+                <span>{selectedItem.allergens || t('none')}</span>
               </div>
               <div className={styles.sheetRow}>
-                <span className={styles.sheetRowLabel}>{isEn ? 'Prep time' : 'Priprema'}</span>
+                <span className={styles.sheetRowLabel}>{t('prepTime')}</span>
                 <span>{selectedItem.prep_time || selectedItem.time || '—'}</span>
               </div>
             </div>
@@ -759,14 +753,12 @@ export default function Menu() {
                 style={{ background: tpl.brand }}
                 onClick={() => { addToCart(selectedItem); setSelectedItem(null) }}
               >
-                {isEn ? 'Add to order' : 'Dodaj u narudžbu'}
+                {t('addToOrder')}
               </button>
             )}
             {!canOrder && (
               <div className={styles.orderingOff}>
-                {orderingVis === 'registered'
-                  ? (isEn ? 'Log in as a guest to order' : 'Prijavite se kao gost da biste naručili')
-                  : (isEn ? 'Online ordering is currently unavailable' : 'Naručivanje putem aplikacije nije dostupno')}
+                {orderingVis === 'registered' ? t('loginToOrder') : t('orderingUnavailable')}
               </div>
             )}
           </div>
@@ -778,10 +770,10 @@ export default function Menu() {
         <div className={styles.overlay} onClick={() => setShowCart(false)}>
           <div className={styles.sheet} onClick={e => e.stopPropagation()}>
             <button className={styles.sheetClose} onClick={() => setShowCart(false)}>✕</button>
-            <div className={styles.cartTitle}>{isEn ? 'Your order' : 'Vaša narudžba'}</div>
+            <div className={styles.cartTitle}>{t('yourOrder')}</div>
 
             {cart.length === 0 ? (
-              <div className={styles.cartEmpty}>{isEn ? 'Cart is empty' : 'Košarica je prazna'}</div>
+              <div className={styles.cartEmpty}>{t('cartEmpty')}</div>
             ) : (
               <>
                 <div className={styles.cartItems}>
@@ -798,7 +790,7 @@ export default function Menu() {
                   ))}
                 </div>
                 <div className={styles.cartTotal}>
-                  <span>{isEn ? 'Total' : 'Ukupno'}</span>
+                  <span>{t('total')}</span>
                   <span>€{cartTotal.toFixed(2)}</span>
                 </div>
                 <button
@@ -807,11 +799,11 @@ export default function Menu() {
                   onClick={() => setShowConfirm(true)}
                   disabled={orderSending}
                 >
-                  {isEn ? 'Send order' : 'Pošalji narudžbu'}
+                  {t('sendOrder')}
                 </button>
                 {tableNumber && (
                   <div className={styles.cartTableNote}>
-                    {isEn ? `Table ${tableNumber}` : `Sto ${tableNumber}`}
+                    {t('tableLabel', { n: tableNumber })}
                   </div>
                 )}
               </>
@@ -827,7 +819,7 @@ export default function Menu() {
           <div className={styles.sheet} onClick={e => e.stopPropagation()}>
             <button className={styles.sheetClose} onClick={() => setShowWaiter(false)}>✕</button>
             <div className={styles.waiterTitle}>
-              {isEn ? 'What do you need?' : 'Šta vam je potrebno?'}
+              {t('whatDoYouNeed')}
             </div>
             {(r?.waiter_messages || [
               { icon: '🔔', sr: 'Pozovi konobara', en: 'Call waiter' },
@@ -854,13 +846,10 @@ export default function Menu() {
           <div className={styles.sheet} onClick={e => e.stopPropagation()} style={{ textAlign: 'center' }}>
             <div style={{ fontSize: 48, marginBottom: 12 }}>🛒</div>
             <div className={styles.sheetName}>
-              {isEn ? 'Confirm order?' : 'Potvrdi narudžbu?'}
+              {t('confirmOrder')}
             </div>
             <div className={styles.sheetDesc}>
-              {isEn
-                ? `${cartCount} item(s) · €${cartTotal.toFixed(2)} total. Once sent, the order goes directly to the kitchen.`
-                : `${cartCount} ${cartCount === 1 ? 'stavka' : 'stavke'} · ukupno €${cartTotal.toFixed(2)}. Nakon slanja, narudžba ide direktno u kuhinju.`
-              }
+              {t('confirmOrderDesc', { count: cartCount, total: cartTotal.toFixed(2) })}
             </div>
             <div className={styles.cartItems} style={{ textAlign: 'left', marginBottom: 16 }}>
               {cart.map(item => (
@@ -877,15 +866,13 @@ export default function Menu() {
               onClick={async () => { setShowConfirm(false); await sendOrder() }}
               disabled={orderSending}
             >
-              {orderSending
-                ? (isEn ? 'Sending...' : 'Slanje...')
-                : (isEn ? '✓ Yes, send order' : '✓ Da, pošalji narudžbu')}
+              {orderSending ? t('sending') : `✓ ${t('yesSendOrder')}`}
             </button>
             <button
               className={styles.waiterBtn}
               onClick={() => setShowConfirm(false)}
             >
-              {isEn ? 'Back to order' : 'Nazad na narudžbu'}
+              {t('backToOrder')}
             </button>
           </div>
         </div>
