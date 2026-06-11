@@ -174,7 +174,7 @@ export default function Register() {
         {step === 1 && (
           <>
             <h1 className={styles.title}>Kreirajte nalog</h1>
-            <p className={styles.sub}>Besplatno zauvijek. Bez kreditne kartice.</p>
+            <p className={styles.sub}>Besplatno tokom beta testnog perioda.</p>
             <form onSubmit={handleStep1} className={styles.form}>
               <div className={styles.field}>
                 <label>Email adresa</label>
