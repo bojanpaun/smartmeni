@@ -1,15 +1,13 @@
 import { useTranslation } from 'react-i18next'
+import { READY_LANGUAGES } from './languages'
 import styles from './LanguageSwitcher.module.css'
 
-const LANGS = [
-  { code: 'me', label: 'MNE' },
-  { code: 'en', label: 'ENG' },
-]
-
+// Prikazuje samo spremne (prevedene) jezike. Dodavanje jezika u ponudu = označi
+// `ready: true` u languages.js (kad locale fajlovi budu kompletni).
 export default function LanguageSwitcher({ variant = 'light' }) {
   const { i18n } = useTranslation()
   const current = i18n.language
-  const currentLabel = LANGS.find(l => l.code === current)?.label ?? current.toUpperCase()
+  const currentLabel = READY_LANGUAGES.find(l => l.code === current)?.label ?? current.toUpperCase()
 
   return (
     <div className={`${styles.langWrap} ${variant === 'dark' ? styles.langWrapDark : ''}`}>
@@ -22,8 +20,8 @@ export default function LanguageSwitcher({ variant = 'light' }) {
         onChange={e => i18n.changeLanguage(e.target.value)}
         aria-label="Select language"
       >
-        {LANGS.map(({ code, label }) => (
-          <option key={code} value={code}>{label}</option>
+        {READY_LANGUAGES.map(({ code, native }) => (
+          <option key={code} value={code}>{native}</option>
         ))}
       </select>
     </div>

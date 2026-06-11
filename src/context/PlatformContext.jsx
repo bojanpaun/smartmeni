@@ -9,7 +9,7 @@ const PlatformContext = createContext(null)
 // pa komponente ostaju nepromijenjene dok izvor postaje tenant.
 const ACCOUNT_FIELDS = [
   'plan', 'trial_ends_at', 'plan_expires_at', 'suspended_at',
-  'is_complimentary', 'complimentary_note', 'admin_theme',
+  'is_complimentary', 'complimentary_note', 'admin_theme', 'admin_language',
   'onboarding_completed', 'subscription_id', 'paypal_customer_id',
 ]
 function withTenant(rest, tenant) {

@@ -16,6 +16,7 @@ jobs:
           node-version: 20
           cache: npm
       - run: npm ci
+      - run: npm run i18n:check
       - run: npm run test:unit
 
   # ── Brzi: Deno edge logika (payment status-map) ────────────────────────────

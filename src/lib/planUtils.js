@@ -107,7 +107,7 @@ export const ANNUAL_DISCOUNT = 20 // %
 // trigger vratio (potencijalno stale) vrijednosti u tenants.
 export const ACCOUNT_FIELDS = [
   'plan', 'trial_ends_at', 'plan_expires_at', 'suspended_at',
-  'is_complimentary', 'complimentary_note', 'admin_theme',
+  'is_complimentary', 'complimentary_note', 'admin_theme', 'admin_language',
   'onboarding_completed', 'subscription_id', 'paypal_customer_id',
 ]
 export function stripAccountFields(obj) {
