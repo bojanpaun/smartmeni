@@ -262,7 +262,9 @@ function AppRoutes() {
         <Route path="/admin/menu/help" element={<AdminRoute><VerticalGuard vertical="restaurant"><ModuleHelp moduleKey="menu" /></VerticalGuard></AdminRoute>} />
         <Route path="/admin/menu/items" element={<Navigate to="/admin/menu" replace />} />
         <Route path="/admin/menu" element={<AdminRoute><VerticalGuard vertical="restaurant"><AdminMenu /></VerticalGuard></AdminRoute>} />
-        <Route path="/admin/settings" element={<AdminRoute><TemplateSettings /></AdminRoute>} />
+        {/* Landing Postavke modula → Osnovni podaci (NE predlošci — oni su menu-modul,
+            dostupni preko /admin/menu/settings → tab Predlošci). */}
+        <Route path="/admin/settings" element={<Navigate to="/admin/settings/general" replace />} />
         <Route path="/admin/settings/templates" element={<AdminRoute><TemplateSettings /></AdminRoute>} />
         <Route path="/admin/settings/logo" element={<AdminRoute><LogoUpload /></AdminRoute>} />
         <Route path="/admin/settings/general" element={<AdminRoute><GeneralSettings /></AdminRoute>} />
