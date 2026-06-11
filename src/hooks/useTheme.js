@@ -1,4 +1,5 @@
 import { useState, useEffect } from 'react'
+import { deriveShades } from '../lib/brandPalette'
 
 // Ugrađene palete imaju CSS blokove u index.css ([data-theme="..."]).
 const BUILTIN = ['green', 'blue', 'purple']
@@ -116,7 +117,11 @@ export function useTheme({ restaurant, palettes = [] } = {}) {
     // Uvijek prvo očisti eventualne custom override-e prethodne palete.
     OVERRIDE_VARS.forEach(v => root.style.removeProperty(v))
 
-    const pal = palettes.find(p => p.key === colorScheme)
+    // Rezervisani key 'brand' — paleta se IZVODI uživo iz restaurant.color (bez
+    // perzistencije; uvijek prati boju brenda). Inače: custom paleta iz theme_palettes.
+    const pal = colorScheme === 'brand'
+      ? (restaurant?.color ? { key: 'brand', ...deriveShades(restaurant.color) } : null)
+      : palettes.find(p => p.key === colorScheme)
 
     if (BUILTIN.includes(colorScheme)) {
       // Ugrađena paleta — koristi CSS [data-theme] blok.
@@ -138,7 +143,7 @@ export function useTheme({ restaurant, palettes = [] } = {}) {
       applyInlineOverride(root, mode, pal, { neutrals: true })
     }
     try { localStorage.setItem('mode', mode) } catch {}
-  }, [colorScheme, mode, palettes])
+  }, [colorScheme, mode, palettes, restaurant?.color])
 
   const toggleMode = () => setModeState(m => (m === 'light' ? 'dark' : 'light'))
 

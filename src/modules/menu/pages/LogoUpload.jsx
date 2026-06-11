@@ -3,7 +3,9 @@ import { supabase } from '../../../lib/supabase'
 import { usePlatform } from '../../../context/PlatformContext'
 import styles from './LogoUpload.module.css'
 
-export default function LogoUpload() {
+// `embedded` — kad se renderuje unutar druge stranice (npr. Brend), sakrij vlastiti
+// header i page padding (kontejner ih daje).
+export default function LogoUpload({ embedded = false }) {
   const { restaurant, setRestaurant } = usePlatform()
   const [preview, setPreview] = useState(null)
   const [file, setFile] = useState(null)
@@ -78,13 +80,15 @@ export default function LogoUpload() {
   }
 
   return (
-    <div className={styles.page}>
-      <div className={styles.header}>
-        <h1 className={styles.title}>Logo restorana</h1>
-        <p className={styles.subtitle}>
-          Logo se prikazuje u guest meniju i admin panelu. Preporučen format: kvadratni, min 200×200px.
-        </p>
-      </div>
+    <div className={`${styles.page} ${embedded ? styles.embedded : ''}`}>
+      {!embedded && (
+        <div className={styles.header}>
+          <h1 className={styles.title}>Logo restorana</h1>
+          <p className={styles.subtitle}>
+            Logo se prikazuje u guest meniju i admin panelu. Preporučen format: kvadratni, min 200×200px.
+          </p>
+        </div>
+      )}
 
       <div className={styles.layout}>
         <div className={styles.uploadCol}>

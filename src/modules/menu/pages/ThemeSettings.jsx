@@ -1,6 +1,7 @@
 import { useState, useEffect } from 'react'
 import { supabase } from '../../../lib/supabase'
 import { usePlatform } from '../../../context/PlatformContext'
+import { deriveShades } from '../../../lib/brandPalette'
 import styles from './ThemeSettings.module.css'
 
 // Tenant bira paletu admin panela. Ponuda = ugrađene palete (zelena/plava/ljubičasta,
@@ -32,8 +33,10 @@ export default function ThemeSettings() {
     }
   }, [restaurant?.admin_theme])
 
-  // Ugrađene (uz override iz theme_palettes ako postoji) + custom palete.
+  // Brend paleta (izvedena iz boje objekta) + ugrađene (uz override) + custom palete.
+  const brandTheme = { key: 'brand', name: 'Brend', light: deriveShades(restaurant?.color || '#0d7a52').light }
   const themes = [
+    brandTheme,
     ...BUILTIN_THEMES.map(b => {
       const ov = (palettes ?? []).find(p => p.key === b.key)
       return ov ? { ...b, light: { ...b.light, ...(ov.light || {}) } } : b

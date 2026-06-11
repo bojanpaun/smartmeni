@@ -3,6 +3,8 @@
   max-width: 800px;
   font-family: var(--c-font-sans);
 }
+/* Kad je unutar Brend stranice — bez vlastitog page padding-a (kontejner ga daje). */
+.embedded { padding: 0; max-width: none; }
 
 .header { margin-bottom: 24px; }
 

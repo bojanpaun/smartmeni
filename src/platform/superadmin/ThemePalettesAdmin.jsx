@@ -1,6 +1,7 @@
 import { useState, useEffect } from 'react'
 import { supabase } from '../../lib/supabase'
 import { usePlatform } from '../../context/PlatformContext'
+import { deriveShades } from '../../lib/brandPalette'
 
 // Editor custom paleta (superadmin). Bira 7 brend tokena za light i dark;
 // ostali tokeni naslijede bazni green / green-dark. Vidi useTheme.js + migraciju
@@ -44,71 +45,6 @@ const BUILTIN_PALETTES = [
 const BUILTIN_KEYS = BUILTIN_PALETTES.map(p => p.key)
 
 const slugify = (s) => 'custom-' + (s || '').toLowerCase().trim().replace(/[^a-z0-9]+/g, '-').replace(/^-+|-+$/g, '').slice(0, 24)
-
-// ── Izvođenje nijansi iz jedne osnovne boje ──────────────────────────────────
-// Iz bazne boje uzimamo hue + saturaciju, pa svakom tokenu zadajemo ciljni
-// lightness (i blagu korekciju saturacije) da dobijemo skladan light/dark ramp.
-// Light.primary ostaje tačno bazna boja; ostalo su izvedene nijanse. Rezultat je
-// polazna tačka — superadmin svaki token i dalje može ručno doraditi.
-const clamp01to100 = (v) => Math.min(100, Math.max(0, v))
-
-function hexToHsl(hex) {
-  const m = /^#?([0-9a-fA-F]{6})$/.exec(hex || '')
-  if (!m) return { h: 0, s: 0, l: 0 }
-  const n = parseInt(m[1], 16)
-  const r = ((n >> 16) & 255) / 255, g = ((n >> 8) & 255) / 255, b = (n & 255) / 255
-  const max = Math.max(r, g, b), min = Math.min(r, g, b), d = max - min
-  let h = 0
-  const l = (max + min) / 2
-  const s = d === 0 ? 0 : d / (1 - Math.abs(2 * l - 1))
-  if (d !== 0) {
-    if (max === r) h = ((g - b) / d) % 6
-    else if (max === g) h = (b - r) / d + 2
-    else h = (r - g) / d + 4
-    h *= 60
-    if (h < 0) h += 360
-  }
-  return { h, s: s * 100, l: l * 100 }
-}
-
-function hslToHex(h, s, l) {
-  s = clamp01to100(s) / 100
-  l = clamp01to100(l) / 100
-  const c = (1 - Math.abs(2 * l - 1)) * s
-  const x = c * (1 - Math.abs(((h / 60) % 2) - 1))
-  const m = l - c / 2
-  let r = 0, g = 0, b = 0
-  if (h < 60) { r = c; g = x } else if (h < 120) { r = x; g = c }
-  else if (h < 180) { g = c; b = x } else if (h < 240) { g = x; b = c }
-  else if (h < 300) { r = x; b = c } else { r = c; b = x }
-  const to = (v) => Math.round((v + m) * 255).toString(16).padStart(2, '0')
-  return '#' + to(r) + to(g) + to(b)
-}
-
-function deriveShades(base) {
-  const { h, s, l } = hexToHsl(base)
-  const cs = clamp01to100
-  return {
-    light: {
-      primary:       base,
-      primaryHover:  hslToHex(h, s, cs(l - 7)),
-      primaryMedium: hslToHex(h, s, cs(l + 12)),
-      primaryLight:  hslToHex(h, Math.min(s, 60), 94),
-      primaryMuted:  hslToHex(h, cs(s - 20), 72),
-      sbBg:          hslToHex(h, Math.min(s + 10, 90), 12),
-      sbAccent:      hslToHex(h, s, 60),
-    },
-    dark: {
-      primary:       hslToHex(h, s, 62),
-      primaryHover:  hslToHex(h, s, 75),
-      primaryMedium: hslToHex(h, s, 55),
-      primaryLight:  hslToHex(h, cs(s - 10), 16),
-      primaryMuted:  hslToHex(h, cs(s - 25), 32),
-      sbBg:          hslToHex(h, Math.min(s + 5, 90), 8),
-      sbAccent:      hslToHex(h, s, 62),
-    },
-  }
-}
 
 const emptyForm = () => ({ key: '', name: '', light: { ...DEFAULT_LIGHT }, dark: { ...DEFAULT_DARK } })
 

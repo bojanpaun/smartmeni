@@ -102,7 +102,7 @@ const RestaurantLandingEditor = lazy(() => import('./modules/menu/pages/Restaura
 const ControlPanel         = lazy(() => import('./platform/admin/ControlPanel'))
 const ModuleHelp           = lazy(() => import('./platform/admin/ModuleHelp'))
 const TemplateSettings     = lazy(() => import('./modules/menu/pages/TemplateSettings'))
-const LogoUpload           = lazy(() => import('./modules/menu/pages/LogoUpload'))
+const BrandSettings        = lazy(() => import('./modules/menu/pages/BrandSettings'))
 const GeneralSettings      = lazy(() => import('./modules/menu/pages/GeneralSettings'))
 const ThemeSettings        = lazy(() => import('./modules/menu/pages/ThemeSettings'))
 const AdminMenuQR          = lazy(() => import('./modules/menu/pages/AdminMenuQR'))
@@ -266,7 +266,9 @@ function AppRoutes() {
             dostupni preko /admin/menu/settings → tab Predlošci). */}
         <Route path="/admin/settings" element={<Navigate to="/admin/settings/general" replace />} />
         <Route path="/admin/settings/templates" element={<AdminRoute><TemplateSettings /></AdminRoute>} />
-        <Route path="/admin/settings/logo" element={<AdminRoute><LogoUpload /></AdminRoute>} />
+        <Route path="/admin/settings/brand" element={<AdminRoute><BrandSettings /></AdminRoute>} />
+        {/* Stari link na Logo → Brend (logo je sad dio Brend sekcije) */}
+        <Route path="/admin/settings/logo" element={<Navigate to="/admin/settings/brand" replace />} />
         <Route path="/admin/settings/general" element={<AdminRoute><GeneralSettings /></AdminRoute>} />
         <Route path="/admin/settings/theme" element={<AdminRoute><ThemeSettings /></AdminRoute>} />
         <Route path="/admin/settings/landing" element={<AdminRoute><RestaurantLandingEditor /></AdminRoute>} />
