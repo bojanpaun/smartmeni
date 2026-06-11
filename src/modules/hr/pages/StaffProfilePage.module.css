@@ -26,15 +26,14 @@
 .statVal { font-size: 22px; font-weight: 700; color: var(--c-text); }
 .statLabel { font-size: 11px; color: var(--c-text-muted); margin-top: 2px; }
 
-/* Tabs */
-.tabs { composes: tabBar from '../../../styles/nav.module.css'; background: var(--c-surface); border-radius: 12px 12px 0 0; overflow-x: auto; scrollbar-width: none; margin-bottom: 0; }
-.tabs::-webkit-scrollbar { display: none; }
-.tab { composes: tabBtn from '../../../styles/nav.module.css'; }
-.tabActive { composes: tabBtnActive from '../../../styles/nav.module.css'; }
+/* Tabs — pilule (kanonski stil iz nav.module.css, isto kao na ostalim stranicama) */
+.tabs { composes: pillBar from '../../../styles/nav.module.css'; margin-bottom: 16px; }
+.tab { composes: pillBtn from '../../../styles/nav.module.css'; }
+.tabActive { composes: pillBtnActive from '../../../styles/nav.module.css'; }
 
 /* Tab body */
 .tabBody { margin-top: 0; }
-.card { background: var(--c-surface); border: 1px solid var(--c-border); border-radius: 0 0 16px 16px; padding: 24px; }
+.card { background: var(--c-surface); border: 1px solid var(--c-border); border-radius: 16px; padding: 24px; }
 .cardHeader { display: flex; justify-content: space-between; align-items: center; margin-bottom: 16px; }
 .cardTitle { font-size: 15px; font-weight: 600; color: var(--c-text); margin-bottom: 16px; }
 .divider { font-size: 11px; font-weight: 600; color: var(--c-text-muted); letter-spacing: 0.6px; text-transform: uppercase; margin: 20px 0 12px; padding-bottom: 6px; border-bottom: 1px solid var(--c-border); }

@@ -21,10 +21,10 @@
 .summaryLabel { font-size: 11px; color: var(--c-text-muted); text-transform: uppercase; letter-spacing: 0.5px; margin-bottom: 4px; }
 .summaryVal { font-size: 20px; font-weight: 700; color: var(--c-primary); }
 
-/* ── Tabovi ── */
-.tabs { composes: tabBar from '../../../styles/nav.module.css'; }
-.tab { composes: tabBtn from '../../../styles/nav.module.css'; }
-.tabActive { composes: tabBtnActive from '../../../styles/nav.module.css'; }
+/* ── Tabovi (pilule — kanonski stil iz nav.module.css) ── */
+.tabs { composes: pillBar from '../../../styles/nav.module.css'; }
+.tab { composes: pillBtn from '../../../styles/nav.module.css'; }
+.tabActive { composes: pillBtnActive from '../../../styles/nav.module.css'; }
 
 /* ── Stavke ── */
 .entriesList { display: flex; flex-direction: column; gap: 6px; }
