@@ -6,33 +6,12 @@ import { toEmbedUrl } from '../../../utils/videoUrl'
 import LanguageSwitcher from '../../../i18n/LanguageSwitcher'
 import styles from './HotelLanding.module.css'
 
-const T = {
-  me: {
-    book: 'Rezerviši sobu', guestApp: 'Imam rezervaciju', guestAppSub: 'Pregled folija i online usluge',
-    spaBook: 'Spa & Wellness', rooms: 'Tipovi smještaja', perNight: '/ noć', guests: 'gost(a)',
-    notFound: 'Hotel nije pronađen.', loading: 'Učitavanje...', amenities: 'Pogodnosti',
-    from: 'Od', contact: 'Kontakt', address: 'Adresa', bookNow: 'Rezerviši',
-    menuLink: 'Restoran / Meni', about: 'O hotelu', gallery: 'Galerija', location: 'Lokacija',
-    reviews: 'Recenzije gostiju', faq: 'Česta pitanja',
-  },
-  en: {
-    book: 'Book a room', guestApp: 'I have a reservation', guestAppSub: 'Folio & online services',
-    spaBook: 'Spa & Wellness', rooms: 'Room types', perNight: '/ night', guests: 'guest(s)',
-    notFound: 'Hotel not found.', loading: 'Loading...', amenities: 'Amenities',
-    from: 'From', contact: 'Contact', address: 'Address', bookNow: 'Book',
-    menuLink: 'Restaurant / Menu', about: 'About', gallery: 'Gallery', location: 'Location',
-    reviews: 'Guest reviews', faq: 'FAQ',
-  },
-}
-
 const isPreview = new URLSearchParams(window.location.search).get('preview') === 'true'
 
 export default function HotelLandingPage() {
   const { slug } = useParams()
   const navigate = useNavigate()
-  const { i18n } = useTranslation()
-  const [lang, setLang] = useState(i18n.language || 'me')
-  const t = lang === 'en' ? T.en : T.me
+  const { t } = useTranslation('hotellanding')
 
   const [hotel, setHotel] = useState(null)
   const [roomTypes, setRoomTypes] = useState([])
@@ -87,14 +66,8 @@ export default function HotelLandingPage() {
     return () => clearTimeout(t)
   }, [landingBlocks, loading])
 
-  useEffect(() => {
-    const onLang = (lng) => setLang(lng)
-    i18n.on('languageChanged', onLang)
-    return () => i18n.off('languageChanged', onLang)
-  }, [i18n])
-
   if (loading) return <div className={styles.loadWrap}><div className={styles.spinner} /></div>
-  if (notFound) return <div className={styles.loadWrap}><p className={styles.notFound}>{t.notFound}</p></div>
+  if (notFound) return <div className={styles.loadWrap}><p className={styles.notFound}>{t('notFound')}</p></div>
 
   const parseUrls = (str) => (str || '').split('\n').map(s => s.trim()).filter(s => s.startsWith('http'))
   const parseLines = (str) => (str || '').split('\n').map(s => s.trim()).filter(Boolean)
@@ -109,16 +82,16 @@ export default function HotelLandingPage() {
   const renderCtas = () => (
     <div className={styles.ctaSection}>
       <button className={styles.ctaPrimary} onClick={() => navigate(`/${slug}/book`)}>
-        🛏️ {t.book}
+        🛏️ {t('book')}
       </button>
       <div className={styles.ctaRow}>
         <button className={styles.ctaSecondary} onClick={() => navigate(`/${slug}/spa`)}>
-          <span className={styles.ctaSecLabel}>✨ {t.spaBook}</span>
-          <span className={styles.ctaSecSub}>{lang === 'en' ? 'Book a treatment' : 'Booking tretmana'}</span>
+          <span className={styles.ctaSecLabel}>✨ {t('spaBook')}</span>
+          <span className={styles.ctaSecSub}>{t('bookTreatment')}</span>
         </button>
         <button className={styles.ctaSecondary} onClick={() => navigate(`/${slug}/guest`)}>
-          <span className={styles.ctaSecLabel}>🔑 {t.guestApp}</span>
-          <span className={styles.ctaSecSub}>{t.guestAppSub}</span>
+          <span className={styles.ctaSecLabel}>🔑 {t('guestApp')}</span>
+          <span className={styles.ctaSecSub}>{t('guestAppSub')}</span>
         </button>
       </div>
     </div>
@@ -128,7 +101,7 @@ export default function HotelLandingPage() {
     if (roomTypes.length === 0) return null
     return (
       <section className={styles.section}>
-        <h2 className={styles.sectionTitle}>{t.rooms}</h2>
+        <h2 className={styles.sectionTitle}>{t('rooms')}</h2>
         <div className={styles.roomGrid}>
           {roomTypes.map(rt => {
             const img = firstImage(rt.images)
@@ -141,20 +114,20 @@ export default function HotelLandingPage() {
                     <h3 className={styles.roomName}>{rt.name}</h3>
                     {rt.base_price && (
                       <div className={styles.roomPrice}>
-                        <span className={styles.priceFrom}>{t.from}</span>
+                        <span className={styles.priceFrom}>{t('from')}</span>
                         <span className={styles.priceAmount}>€{Number(rt.base_price).toFixed(0)}</span>
-                        <span className={styles.priceNight}>{t.perNight}</span>
+                        <span className={styles.priceNight}>{t('perNight')}</span>
                       </div>
                     )}
                   </div>
-                  {rt.max_occupancy && <div className={styles.roomOccupancy}>👤 max {rt.max_occupancy} {t.guests}</div>}
+                  {rt.max_occupancy && <div className={styles.roomOccupancy}>👤 max {rt.max_occupancy} {t('guests')}</div>}
                   {rt.description && <p className={styles.roomDesc}>{rt.description}</p>}
                   {amens.length > 0 && (
                     <div className={styles.amenities}>
                       {amens.map((a, i) => <span key={i} className={styles.amenityTag}>{a}</span>)}
                     </div>
                   )}
-                  <button className={styles.roomBookBtn} onClick={() => navigate(`/${slug}/book`)}>{t.bookNow} →</button>
+                  <button className={styles.roomBookBtn} onClick={() => navigate(`/${slug}/book`)}>{t('bookNow')} →</button>
                 </div>
               </div>
             )
@@ -195,7 +168,7 @@ export default function HotelLandingPage() {
         const [textFlex, imgFlex] = (block.data.col_split || '50-50').split('-').map(Number)
         return (
           <section key={idx} className={styles.section}>
-            <h2 className={styles.sectionTitle}>{t.about}</h2>
+            <h2 className={styles.sectionTitle}>{t('about')}</h2>
             <div className={styles.aboutWrap} data-layout={layout || 'image-right'}>
               <p className={styles.aboutText} style={{ flex: textFlex }}>{block.data.text}</p>
               {block.data.image_url && layout !== 'text-only' && (
@@ -215,7 +188,7 @@ export default function HotelLandingPage() {
         const gridClass = layout === 'grid-2' ? styles.galleryGrid2 : layout === 'masonry' ? styles.galleryMasonry : styles.galleryGrid
         return (
           <section key={idx} className={styles.section}>
-            <h2 className={styles.sectionTitle}>{t.gallery}</h2>
+            <h2 className={styles.sectionTitle}>{t('gallery')}</h2>
             <div className={gridClass}>
               {imgs.map((url, i) => <img key={i} src={url} alt="" loading="lazy" decoding="async" className={styles.galleryImg} />)}
             </div>
@@ -229,7 +202,7 @@ export default function HotelLandingPage() {
         const gridClass = layout === 'list' ? styles.amenitiesList : layout === 'cards' ? styles.amenitiesCards : styles.amenitiesGrid
         return (
           <section key={idx} className={styles.section}>
-            <h2 className={styles.sectionTitle}>{t.amenities}</h2>
+            <h2 className={styles.sectionTitle}>{t('amenities')}</h2>
             <div className={gridClass}>
               {items.map((item, i) => <div key={i} className={styles.amenityItem}>{item}</div>)}
             </div>
@@ -242,7 +215,7 @@ export default function HotelLandingPage() {
         if (reviews.length === 0) return null
         return (
           <section key={idx} className={styles.section}>
-            <h2 className={styles.sectionTitle}>{t.reviews}</h2>
+            <h2 className={styles.sectionTitle}>{t('reviews')}</h2>
             <div className={`${styles.reviewsGrid} ${layout === 'list' ? styles.reviewsList : layout === 'featured' ? styles.reviewsFeatured : ''}`}>
               {reviews.map((r, i) => (
                 <div key={i} className={styles.reviewCard}>
@@ -277,7 +250,7 @@ export default function HotelLandingPage() {
         if (faqs.length === 0) return null
         return (
           <section key={idx} className={styles.section}>
-            <h2 className={styles.sectionTitle}>{t.faq}</h2>
+            <h2 className={styles.sectionTitle}>{t('faq')}</h2>
             <div className={layout === 'two-column' ? styles.faqGrid : styles.faqList}>
               {faqs.map((item, i) => (
                 <details key={i} className={styles.faqItem}>
@@ -311,7 +284,7 @@ export default function HotelLandingPage() {
         if (!locAddress && !block.data.maps_embed_url) return null
         return (
           <section key={idx} className={styles.section}>
-            <h2 className={styles.sectionTitle}>{t.location}</h2>
+            <h2 className={styles.sectionTitle}>{t('location')}</h2>
             <div className={styles.infoCard}>
               {locAddress && <div className={styles.infoRow}><span className={styles.infoIcon}>📍</span><span>{locAddress}</span></div>}
             </div>
@@ -331,7 +304,7 @@ export default function HotelLandingPage() {
         const wrapClass = layout === 'two-column' ? styles.contactTwoCol : layout === 'minimal' ? styles.contactMinimal : styles.infoCard
         return (
           <section key={idx} className={styles.section}>
-            <h2 className={styles.sectionTitle}>{t.contact}</h2>
+            <h2 className={styles.sectionTitle}>{t('contact')}</h2>
             <div className={wrapClass}>
               {phone && <a href={`tel:${phone}`} className={styles.infoRow}><span className={styles.infoIcon}>📞</span><span>{phone}</span></a>}
               {email && <a href={`mailto:${email}`} className={styles.infoRow}><span className={styles.infoIcon}>✉️</span><span>{email}</span></a>}
@@ -349,7 +322,7 @@ export default function HotelLandingPage() {
   const renderFooter = () => (
     <>
       <div className={styles.menuLink}>
-        <button className={styles.menuLinkBtn} onClick={() => navigate(`/${slug}`)}>🍽️ {t.menuLink}</button>
+        <button className={styles.menuLinkBtn} onClick={() => navigate(`/${slug}`)}>🍽️ {t('menuLink')}</button>
       </div>
       <footer className={styles.footer}><p>Powered by <strong>RestByMe</strong></p></footer>
     </>
@@ -380,7 +353,7 @@ export default function HotelLandingPage() {
       {renderRooms()}
       {(hotel.phone || hotel.address || hotel.email) && (
         <section className={styles.section}>
-          <h2 className={styles.sectionTitle}>{t.contact}</h2>
+          <h2 className={styles.sectionTitle}>{t('contact')}</h2>
           <div className={styles.infoCard}>
             {hotel.phone && <a href={`tel:${hotel.phone}`} className={styles.infoRow}><span className={styles.infoIcon}>📞</span><span>{hotel.phone}</span></a>}
             {hotel.email && <a href={`mailto:${hotel.email}`} className={styles.infoRow}><span className={styles.infoIcon}>✉️</span><span>{hotel.email}</span></a>}

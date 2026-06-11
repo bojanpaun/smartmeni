@@ -1,0 +1,23 @@
+{
+  "book": "Book a room",
+  "guestApp": "I have a reservation",
+  "guestAppSub": "Folio & online services",
+  "spaBook": "Spa & Wellness",
+  "bookTreatment": "Book a treatment",
+  "rooms": "Room types",
+  "perNight": "/ night",
+  "guests": "guest(s)",
+  "notFound": "Hotel not found.",
+  "loading": "Loading...",
+  "amenities": "Amenities",
+  "from": "From",
+  "contact": "Contact",
+  "address": "Address",
+  "bookNow": "Book",
+  "menuLink": "Restaurant / Menu",
+  "about": "About",
+  "gallery": "Gallery",
+  "location": "Location",
+  "reviews": "Guest reviews",
+  "faq": "FAQ"
+}
