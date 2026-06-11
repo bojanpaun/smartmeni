@@ -1,28 +1,16 @@
 import { useState, useEffect } from 'react'
 import { supabase } from '../../../lib/supabase'
 import { usePlatform } from '../../../context/PlatformContext'
-import { deriveShades, hexToRgb } from '../../../lib/brandPalette'
-import { TEMPLATES } from '../../../lib/templates'
+import { deriveShades } from '../../../lib/brandPalette'
+import { getTemplate } from '../../../lib/templates'
 import LogoUpload from './LogoUpload'
 import styles from './BrandSettings.module.css'
 
 // Kanonski izvor brend identiteta tenanta: LOGO + BOJA BRENDA (restaurants.color).
 // Iz boje brenda se OPCIONO (jednosmjerno, „predloži default") izvode:
 //   • admin tema  → admin_theme = 'brand' (useTheme je izvodi uživo iz color-a)
-//   • predložak menija → najbliži postojeći predložak boji brenda
+//   • meni → predložak 'brand' (boje menija se izvode iz brend boje)
 // Sve ostaje nadjačivo u Postavke → Tema, odn. Meni → Predlošci.
-
-// Najbliži predložak menija po boji (RGB euklidska distanca brend boje).
-function nearestTemplate(hex) {
-  const c = hexToRgb(hex)
-  let best = TEMPLATES[0], bestD = Infinity
-  for (const t of TEMPLATES) {
-    const tc = hexToRgb(t.brand)
-    const d = (c.r - tc.r) ** 2 + (c.g - tc.g) ** 2 + (c.b - tc.b) ** 2
-    if (d < bestD) { bestD = d; best = t }
-  }
-  return best
-}
 
 export default function BrandSettings() {
   const { restaurant, setRestaurant } = usePlatform()
@@ -63,17 +51,19 @@ export default function BrandSettings() {
 
   const applyMenuTemplate = async () => {
     if (!restaurant) return
-    const t = nearestTemplate(color)
     setBusy('menu')
-    const { error } = await supabase.from('restaurants').update({ color, template: t.id }).eq('id', restaurant.id)
+    // 'brand' predložak — meni izvodi boje iz brend boje (vidi getTemplate/deriveMenuTemplate).
+    const { error } = await supabase.from('restaurants').update({ color, template: 'brand' }).eq('id', restaurant.id)
     setBusy(null)
     if (error) { showMsg('Greška: ' + error.message); return }
-    setRestaurant({ ...restaurant, color, template: t.id })
-    showMsg(`✓ Meni usklađen — predložak „${t.name}". (Promjenljivo u Meni → Predlošci.)`)
+    setRestaurant({ ...restaurant, color, template: 'brand' })
+    showMsg('✓ Meni usklađen — „Brend" predložak (boje iz brenda). (Promjenljivo u Meni → Predlošci.)')
   }
 
   const previewLight = deriveShades(color).light
+  const menuPreview = getTemplate('brand', color)
   const adminActive = restaurant?.admin_theme === 'brand'
+  const menuActive = restaurant?.template === 'brand'
 
   return (
     <div className={styles.page}>
@@ -133,12 +123,12 @@ export default function BrandSettings() {
         {/* Meni predložak */}
         <div className={styles.actionRow}>
           <div className={styles.actionPreview}>
-            <span className={styles.swatch} style={{ background: nearestTemplate(color).brand }} />
-            <span className={styles.swatch} style={{ background: nearestTemplate(color).catBg }} />
+            <span className={styles.swatch} style={{ background: menuPreview.brand }} />
+            <span className={styles.swatch} style={{ background: menuPreview.catBg }} />
           </div>
           <div className={styles.actionInfo}>
-            <div className={styles.actionTitle}>Meni iz brenda</div>
-            <div className={styles.actionDesc}>Postavlja najbliži predložak menija: „{nearestTemplate(color).name}".</div>
+            <div className={styles.actionTitle}>Meni iz brenda {menuActive && <span className={styles.activeTag}>aktivno</span>}</div>
+            <div className={styles.actionDesc}>Postavlja „Brend" predložak — boje menija se izvode iz brend boje.</div>
           </div>
           <button className={styles.actionBtn} onClick={applyMenuTemplate} disabled={busy === 'menu'}>
             {busy === 'menu' ? 'Primjena…' : 'Uskladi meni'}

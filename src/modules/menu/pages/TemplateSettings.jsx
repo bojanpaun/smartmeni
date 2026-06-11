@@ -78,15 +78,17 @@ export default function TemplateSettings() {
     }
   }, [restaurant])
 
-  const activeTemplate = getTemplate(selected)
+  const activeTemplate = getTemplate(selected, restaurant?.color)
 
   const handleSave = async () => {
     if (!restaurant) return
     setSaving(true)
-    await supabase
-      .from('restaurants')
-      .update({ template: selected, color: activeTemplate.brand })
-      .eq('id', restaurant.id)
+    // 'brand' predložak izvodi boje IZ brend boje → ne diraj color (ona je izvor).
+    // Kurirani predložak i dalje postavlja brend boju na boju predloška.
+    const payload = selected === 'brand'
+      ? { template: 'brand' }
+      : { template: selected, color: activeTemplate.brand }
+    await supabase.from('restaurants').update(payload).eq('id', restaurant.id)
     setSaving(false)
     setSaved(true)
     setTimeout(() => setSaved(false), 2500)
@@ -106,6 +108,22 @@ export default function TemplateSettings() {
         {/* Lijevo — grid predložaka */}
         <div className={styles.pickerCol}>
           <div className={styles.grid}>
+            {/* Brend — boje se izvode iz boje brenda (Postavke → Brend) */}
+            {(() => {
+              const bt = getTemplate('brand', restaurant?.color)
+              return (
+                <button
+                  key="brand"
+                  className={`${styles.tcard} ${selected === 'brand' ? styles.tcardActive : ''}`}
+                  onClick={() => setSelected('brand')}
+                >
+                  <div className={styles.tswatch} style={{ background: bt.brand }} />
+                  <div className={styles.tname}>Brend</div>
+                  <div className={styles.tdesc}>Boje iz tvog brenda</div>
+                  {selected === 'brand' && <div className={styles.tcheck}>✓</div>}
+                </button>
+              )
+            })()}
             {TEMPLATES.map(t => (
               <button
                 key={t.id}

@@ -2,6 +2,30 @@
 // RestByMe — Registar predložaka
 // ═══════════════════════════════════════════════════
 
+import { hexToHsl, hslToHex } from './brandPalette'
+
+// Specijalni predložak 'brand' — boje menija se IZVODE iz boje brenda
+// (restaurants.color, podešava se na /admin/settings/brand). Vidi getTemplate().
+export const BRAND_TEMPLATE_ID = 'brand'
+
+// Izvedi paletu menija (brand + pozadine + akcenti) iz jedne brend boje.
+// Akcenti (catColor/priceColor/border) se po potrebi zatamne radi čitljivosti na
+// svijetlim podlogama; pozadine su blagi tintovi brend hue-a.
+export function deriveMenuTemplate(base) {
+  const { h, s, l } = hexToHsl(base || '#0d7a52')
+  const accent = l > 55 ? hslToHex(h, Math.max(s, 45), 40) : base
+  return {
+    brand:        base || '#0d7a52',
+    pageBg:       hslToHex(h, Math.min(s, 30), 97),
+    catColor:     accent,
+    catBg:        hslToHex(h, Math.min(s, 45), 92),
+    catBorder:    accent,
+    itemAccentBg: hslToHex(h, Math.min(s, 45), 92),
+    priceColor:   accent,
+    cardBg:       '#ffffff',
+  }
+}
+
 export const TEMPLATES = [
   // ── Zelene nijanse ──
   {
@@ -209,6 +233,11 @@ export const TEMPLATES = [
   },
 ]
 
-// Helper — vrati template po ID-u, default je modern_minimal
-export const getTemplate = (id) =>
-  TEMPLATES.find(t => t.id === id) || TEMPLATES[0]
+// Helper — vrati template po ID-u, default je modern_minimal.
+// Za 'brand' boje se izvode iz brandColor (restaurants.color).
+export const getTemplate = (id, brandColor) => {
+  if (id === BRAND_TEMPLATE_ID) {
+    return { id: BRAND_TEMPLATE_ID, name: 'Brend', desc: 'Boje iz tvog brenda', ...deriveMenuTemplate(brandColor) }
+  }
+  return TEMPLATES.find(t => t.id === id) || TEMPLATES[0]
+}

@@ -191,7 +191,7 @@ export default function Menu() {
   const isDemo = !slug || slug === 'demo' || !realData
   const data = isDemo ? DEMO_DATA : null
   const r = isDemo ? data.restaurant : realData?.restaurant
-  const tpl = getTemplate(r?.template)
+  const tpl = getTemplate(r?.template, r?.color)
   const onlineReservations = isDemo ? true : (r?.online_reservations ?? false)
   const guestRegistration = isDemo ? true : (r?.guest_registration_enabled ?? true)
   const waiterEnabled = isDemo ? true : (r?.waiter_requests_enabled === false ? false : (r?.waiter_requests_enabled ?? true))
