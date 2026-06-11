@@ -30,7 +30,14 @@
         if (p.indexOf('/admin') === 0 || p.indexOf('/superadmin') === 0) {
           var scheme = localStorage.getItem('colorScheme') || 'green';
           var mode   = localStorage.getItem('mode')        || 'light';
-          var full   = mode === 'dark' ? scheme + '-dark' : scheme;
+          // Samo ugrađene palete imaju [data-theme] CSS blok. Custom palete
+          // (theme_palettes) nemaju 'custom-x'/'custom-x-dark' blok — React/useTheme
+          // ih inline override-uje preko zelene baze. Zato za custom koristimo bazni
+          // 'green'/'green-dark' blok; bez ovoga bi dark mod bljesnuo SVIJETLOM temom
+          // (nepostojeći 'custom-x-dark' → fallback na :root light).
+          var BUILTIN = ['green', 'blue', 'purple'];
+          var base = BUILTIN.indexOf(scheme) === -1 ? 'green' : scheme;
+          var full = mode === 'dark' ? base + '-dark' : base;
           if (full !== 'green') document.documentElement.setAttribute('data-theme', full);
         }
       } catch(e) {}

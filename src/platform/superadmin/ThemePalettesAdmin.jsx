@@ -19,7 +19,96 @@ const TOKENS = [
 const DEFAULT_LIGHT = { primary: '#0d7a52', primaryHover: '#0a6343', primaryMedium: '#1d9e75', primaryLight: '#e0f5ec', primaryMuted: '#9ad4be', sbBg: '#0d2b1e', sbAccent: '#5dcaa5' }
 const DEFAULT_DARK  = { primary: '#1d9e75', primaryHover: '#25b882', primaryMedium: '#5dcaa5', primaryLight: '#173d30', primaryMuted: '#2d6b55', sbBg: '#081a10', sbAccent: '#5dcaa5' }
 
+// Ugrađene palete (CSS blokovi u index.css). Prikazane su u listi i mogu se urediti:
+// izmjena snima override red u theme_palettes sa istim key-em koji useTheme primijeni
+// inline preko CSS bloka. "Vrati podrazumijevano" briše taj red. Vrijednosti su izvor
+// istine iz index.css ([data-theme="blue"], "purple", *-dark). Dark primaryLight su
+// hex aproksimacije rgba(...,0.15) tokena (color input ne podržava alfu).
+const BUILTIN_PALETTES = [
+  {
+    key: 'green', name: 'Zelena',
+    light: { ...DEFAULT_LIGHT },
+    dark:  { ...DEFAULT_DARK },
+  },
+  {
+    key: 'blue', name: 'Plava',
+    light: { primary: '#2563eb', primaryHover: '#1d4ed8', primaryMedium: '#3b82f6', primaryLight: '#eff6ff', primaryMuted: '#93c5fd', sbBg: '#0c1938', sbAccent: '#60a5fa' },
+    dark:  { primary: '#60a5fa', primaryHover: '#93c5fd', primaryMedium: '#3b82f6', primaryLight: '#14233f', primaryMuted: '#1e3a6e', sbBg: '#070f22', sbAccent: '#60a5fa' },
+  },
+  {
+    key: 'purple', name: 'Ljubičasta',
+    light: { primary: '#7c3aed', primaryHover: '#6d28d9', primaryMedium: '#8b5cf6', primaryLight: '#f3effe', primaryMuted: '#c4b5fd', sbBg: '#1e1340', sbAccent: '#a78bfa' },
+    dark:  { primary: '#a78bfa', primaryHover: '#c4b5fd', primaryMedium: '#8b5cf6', primaryLight: '#221645', primaryMuted: '#4c2d8f', sbBg: '#160d30', sbAccent: '#a78bfa' },
+  },
+]
+const BUILTIN_KEYS = BUILTIN_PALETTES.map(p => p.key)
+
 const slugify = (s) => 'custom-' + (s || '').toLowerCase().trim().replace(/[^a-z0-9]+/g, '-').replace(/^-+|-+$/g, '').slice(0, 24)
+
+// ── Izvođenje nijansi iz jedne osnovne boje ──────────────────────────────────
+// Iz bazne boje uzimamo hue + saturaciju, pa svakom tokenu zadajemo ciljni
+// lightness (i blagu korekciju saturacije) da dobijemo skladan light/dark ramp.
+// Light.primary ostaje tačno bazna boja; ostalo su izvedene nijanse. Rezultat je
+// polazna tačka — superadmin svaki token i dalje može ručno doraditi.
+const clamp01to100 = (v) => Math.min(100, Math.max(0, v))
+
+function hexToHsl(hex) {
+  const m = /^#?([0-9a-fA-F]{6})$/.exec(hex || '')
+  if (!m) return { h: 0, s: 0, l: 0 }
+  const n = parseInt(m[1], 16)
+  const r = ((n >> 16) & 255) / 255, g = ((n >> 8) & 255) / 255, b = (n & 255) / 255
+  const max = Math.max(r, g, b), min = Math.min(r, g, b), d = max - min
+  let h = 0
+  const l = (max + min) / 2
+  const s = d === 0 ? 0 : d / (1 - Math.abs(2 * l - 1))
+  if (d !== 0) {
+    if (max === r) h = ((g - b) / d) % 6
+    else if (max === g) h = (b - r) / d + 2
+    else h = (r - g) / d + 4
+    h *= 60
+    if (h < 0) h += 360
+  }
+  return { h, s: s * 100, l: l * 100 }
+}
+
+function hslToHex(h, s, l) {
+  s = clamp01to100(s) / 100
+  l = clamp01to100(l) / 100
+  const c = (1 - Math.abs(2 * l - 1)) * s
+  const x = c * (1 - Math.abs(((h / 60) % 2) - 1))
+  const m = l - c / 2
+  let r = 0, g = 0, b = 0
+  if (h < 60) { r = c; g = x } else if (h < 120) { r = x; g = c }
+  else if (h < 180) { g = c; b = x } else if (h < 240) { g = x; b = c }
+  else if (h < 300) { r = x; b = c } else { r = c; b = x }
+  const to = (v) => Math.round((v + m) * 255).toString(16).padStart(2, '0')
+  return '#' + to(r) + to(g) + to(b)
+}
+
+function deriveShades(base) {
+  const { h, s, l } = hexToHsl(base)
+  const cs = clamp01to100
+  return {
+    light: {
+      primary:       base,
+      primaryHover:  hslToHex(h, s, cs(l - 7)),
+      primaryMedium: hslToHex(h, s, cs(l + 12)),
+      primaryLight:  hslToHex(h, Math.min(s, 60), 94),
+      primaryMuted:  hslToHex(h, cs(s - 20), 72),
+      sbBg:          hslToHex(h, Math.min(s + 10, 90), 12),
+      sbAccent:      hslToHex(h, s, 60),
+    },
+    dark: {
+      primary:       hslToHex(h, s, 62),
+      primaryHover:  hslToHex(h, s, 75),
+      primaryMedium: hslToHex(h, s, 55),
+      primaryLight:  hslToHex(h, cs(s - 10), 16),
+      primaryMuted:  hslToHex(h, cs(s - 25), 32),
+      sbBg:          hslToHex(h, Math.min(s + 5, 90), 8),
+      sbAccent:      hslToHex(h, s, 62),
+    },
+  }
+}
 
 const emptyForm = () => ({ key: '', name: '', light: { ...DEFAULT_LIGHT }, dark: { ...DEFAULT_DARK } })
 
@@ -28,6 +117,7 @@ export default function ThemePalettesAdmin() {
   const [list, setList] = useState([])
   const [form, setForm] = useState(emptyForm())
   const [editingKey, setEditingKey] = useState(null) // null = nova
+  const [baseColor, setBaseColor] = useState(DEFAULT_LIGHT.primary) // osnovna boja za auto-nijansiranje
   const [saving, setSaving] = useState(false)
   const [msg, setMsg] = useState('')
 
@@ -39,10 +129,19 @@ export default function ThemePalettesAdmin() {
 
   const showMsg = (t) => { setMsg(t); setTimeout(() => setMsg(''), 3500) }
 
-  const startNew = () => { setForm(emptyForm()); setEditingKey(null) }
+  const startNew = () => { setForm(emptyForm()); setEditingKey(null); setBaseColor(DEFAULT_LIGHT.primary) }
   const startEdit = (p) => {
     setForm({ key: p.key, name: p.name, light: { ...DEFAULT_LIGHT, ...p.light }, dark: { ...DEFAULT_DARK, ...p.dark } })
     setEditingKey(p.key)
+    setBaseColor(p.light?.primary || DEFAULT_LIGHT.primary)
+  }
+
+  // Popuni svih 14 tokena (light+dark) nijansama izvedenim iz osnovne boje.
+  // Ručne izmjene se ne diraju dok superadmin ponovo ne klikne.
+  const generateFromBase = () => {
+    const sh = deriveShades(baseColor)
+    setForm(f => ({ ...f, light: sh.light, dark: sh.dark }))
+    showMsg('✓ Nijanse generisane iz osnovne boje. Pojedinačne tokene možeš ručno doraditi.')
   }
 
   const setColor = (modeKey, token, val) =>
@@ -69,7 +168,32 @@ export default function ThemePalettesAdmin() {
     load()
   }
 
+  // "Vrati podrazumijevano" za ugrađenu paletu = obriši override red (CSS blok ostaje).
+  const resetBuiltin = async (key) => {
+    if (!confirm('Vratiti paletu na podrazumijevane (ugrađene) boje?')) return
+    const { error } = await supabase.from('theme_palettes').delete().eq('key', key)
+    if (error) { showMsg('Greška: ' + error.message); return }
+    if (editingKey === key) startNew()
+    showMsg('✓ Vraćeno na podrazumijevano. (Osvježi stranicu.)')
+    load()
+  }
+
   if (!isSuperAdmin()) return <div style={{ padding: 40 }}>Samo superadmin.</div>
+
+  // Override redovi za ugrađene palete + čisto custom palete.
+  const overrideMap = Object.fromEntries(list.filter(p => BUILTIN_KEYS.includes(p.key)).map(p => [p.key, p]))
+  const customList = list.filter(p => !BUILTIN_KEYS.includes(p.key))
+  // Prikazane boje ugrađene palete = override ako postoji, inače ugrađeni default.
+  const builtinRows = BUILTIN_PALETTES.map(b => {
+    const ov = overrideMap[b.key]
+    return {
+      ...b,
+      modified: !!ov,
+      displayLight: { ...b.light, ...(ov?.light || {}) },
+      editLight: { ...DEFAULT_LIGHT, ...b.light, ...(ov?.light || {}) },
+      editDark:  { ...DEFAULT_DARK,  ...b.dark,  ...(ov?.dark  || {}) },
+    }
+  })
 
   const card = { background: 'var(--c-surface)', border: '1px solid var(--c-border)', borderRadius: 12, padding: 16 }
   const swatch = (c) => <span style={{ display: 'inline-block', width: 16, height: 16, borderRadius: 4, background: c, border: '1px solid var(--c-border)', verticalAlign: 'middle' }} />
@@ -77,12 +201,12 @@ export default function ThemePalettesAdmin() {
   return (
     <div style={{ padding: '20px 24px', maxWidth: 880 }}>
       <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: 6 }}>
-        <h1 style={{ fontSize: 22, color: 'var(--c-text)' }}>🎨 Custom palete</h1>
+        <h1 style={{ fontSize: 22, color: 'var(--c-text)' }}>🎨 Palete</h1>
       </div>
       <p style={{ color: 'var(--c-text-muted)', fontSize: 13, marginBottom: 20 }}>
         Definiši brend boje (primarna familija + sidebar) za svijetli i tamni mod. Ostatak (tekst,
-        pozadine, danger/warning/...) naslijede provjerene default-e. Palete dodjeljuješ tenantima na ovoj
-        stranici (uredi tenant → Tema).
+        pozadine, danger/warning/...) naslijede provjerene default-e. Ugrađene palete (Zelena/Plava/Ljubičasta)
+        možeš urediti ili vratiti na podrazumijevano. Palete dodjeljuješ tenantima u uredniku tenanta (→ Tema).
       </p>
 
       {msg && <div style={{ ...card, padding: '10px 14px', marginBottom: 16, color: 'var(--c-text)' }}>{msg}</div>}
@@ -90,9 +214,28 @@ export default function ThemePalettesAdmin() {
       {/* Postojeće palete */}
       <div style={{ ...card, marginBottom: 20 }}>
         <div style={{ fontWeight: 600, marginBottom: 10, color: 'var(--c-text)' }}>Postojeće palete</div>
-        {list.length === 0 ? (
-          <div style={{ color: 'var(--c-text-muted)', fontSize: 13 }}>Još nema custom paleta.</div>
-        ) : list.map(p => (
+
+        {/* Ugrađene palete — uvijek dostupne, mogu se urediti ili vratiti na default. */}
+        {builtinRows.map(b => (
+          <div key={b.key} style={{ display: 'flex', alignItems: 'center', gap: 10, padding: '8px 0', borderBottom: '1px solid var(--c-border)' }}>
+            {swatch(b.displayLight.primary)}{swatch(b.displayLight.sbBg)}
+            <span style={{ fontWeight: 600, color: 'var(--c-text)' }}>{b.name}</span>
+            <span style={{ fontSize: 11, color: 'var(--c-text-muted)' }}>{b.key}</span>
+            <span style={{ fontSize: 11, padding: '1px 7px', borderRadius: 10, background: 'var(--c-primary-light)', color: 'var(--c-primary)' }}>
+              {b.modified ? 'izmijenjena' : 'ugrađena'}
+            </span>
+            <span style={{ flex: 1 }} />
+            <button onClick={() => startEdit({ key: b.key, name: b.name, light: b.editLight, dark: b.editDark })} style={{ padding: '4px 10px', fontSize: 12, background: 'var(--c-primary)', color: '#fff', border: 'none', borderRadius: 7, cursor: 'pointer' }}>Uredi</button>
+            {b.modified && (
+              <button onClick={() => resetBuiltin(b.key)} style={{ padding: '4px 10px', fontSize: 12, background: 'transparent', color: 'var(--c-text-medium)', border: '1px solid var(--c-border)', borderRadius: 7, cursor: 'pointer' }}>Vrati default</button>
+            )}
+          </div>
+        ))}
+
+        {/* Custom palete */}
+        {customList.length === 0 ? (
+          <div style={{ color: 'var(--c-text-muted)', fontSize: 13, paddingTop: 10 }}>Još nema custom paleta.</div>
+        ) : customList.map(p => (
           <div key={p.key} style={{ display: 'flex', alignItems: 'center', gap: 10, padding: '8px 0', borderBottom: '1px solid var(--c-border)' }}>
             {swatch(p.light?.primary || '#0d7a52')}{swatch(p.light?.sbBg || '#0d2b1e')}
             <span style={{ fontWeight: 600, color: 'var(--c-text)' }}>{p.name}</span>
@@ -115,6 +258,26 @@ export default function ThemePalettesAdmin() {
             placeholder="npr. Okean" disabled={!!editingKey}
             style={{ width: 280, padding: '8px 10px', border: '1px solid var(--c-border-input)', borderRadius: 8, background: 'var(--c-bg)', color: 'var(--c-text)' }} />
           {editingKey && <span style={{ fontSize: 11, color: 'var(--c-text-muted)', marginLeft: 8 }}>(key: {editingKey})</span>}
+        </div>
+
+        {/* Osnovna boja → auto-nijansiranje svih tokena */}
+        <div style={{ display: 'flex', alignItems: 'flex-end', gap: 12, marginBottom: 16, padding: '12px 14px', background: 'var(--c-bg)', border: '1px dashed var(--c-border)', borderRadius: 10 }}>
+          <div>
+            <label style={{ fontSize: 12, color: 'var(--c-text-medium)', display: 'block', marginBottom: 4 }}>Osnovna boja</label>
+            <div style={{ display: 'flex', alignItems: 'center', gap: 8 }}>
+              <input type="color" value={baseColor} onChange={e => setBaseColor(e.target.value)}
+                style={{ width: 44, height: 32, border: '1px solid var(--c-border)', borderRadius: 6, background: 'none', cursor: 'pointer' }} />
+              <input value={baseColor} onChange={e => setBaseColor(e.target.value)}
+                style={{ width: 96, padding: '7px 9px', border: '1px solid var(--c-border-input)', borderRadius: 8, background: 'var(--c-surface)', color: 'var(--c-text)', fontSize: 13 }} />
+            </div>
+          </div>
+          <button type="button" onClick={generateFromBase}
+            style={{ padding: '8px 14px', background: 'var(--c-primary)', color: '#fff', border: 'none', borderRadius: 8, cursor: 'pointer', fontWeight: 600, fontSize: 13 }}>
+            Generiši nijanse
+          </button>
+          <span style={{ fontSize: 12, color: 'var(--c-text-muted)', flex: 1 }}>
+            Popunjava svih 7 tokena (svijetli i tamni mod) nijansama izvedenim iz osnovne boje. Svaki token i dalje možeš ručno doraditi ispod.
+          </span>
         </div>
 
         <div style={{ display: 'grid', gridTemplateColumns: '1fr auto auto', gap: '8px 16px', alignItems: 'center' }}>

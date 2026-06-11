@@ -104,6 +104,7 @@ const ModuleHelp           = lazy(() => import('./platform/admin/ModuleHelp'))
 const TemplateSettings     = lazy(() => import('./modules/menu/pages/TemplateSettings'))
 const LogoUpload           = lazy(() => import('./modules/menu/pages/LogoUpload'))
 const GeneralSettings      = lazy(() => import('./modules/menu/pages/GeneralSettings'))
+const ThemeSettings        = lazy(() => import('./modules/menu/pages/ThemeSettings'))
 const AdminMenuQR          = lazy(() => import('./modules/menu/pages/AdminMenuQR'))
 const AdminMenuSettings    = lazy(() => import('./modules/menu/pages/AdminMenuSettings'))
 const AdminMenuAnalytics   = lazy(() => import('./modules/menu/pages/AdminMenuAnalytics'))
@@ -265,6 +266,7 @@ function AppRoutes() {
         <Route path="/admin/settings/templates" element={<AdminRoute><TemplateSettings /></AdminRoute>} />
         <Route path="/admin/settings/logo" element={<AdminRoute><LogoUpload /></AdminRoute>} />
         <Route path="/admin/settings/general" element={<AdminRoute><GeneralSettings /></AdminRoute>} />
+        <Route path="/admin/settings/theme" element={<AdminRoute><ThemeSettings /></AdminRoute>} />
         <Route path="/admin/settings/landing" element={<AdminRoute><RestaurantLandingEditor /></AdminRoute>} />
         <Route path="/admin/billing" element={<AdminRoute><BillingPage /></AdminRoute>} />
         <Route path="/admin/billing/success" element={<AdminRoute><BillingSuccess /></AdminRoute>} />

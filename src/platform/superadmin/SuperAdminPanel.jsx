@@ -20,12 +20,20 @@ const CATEGORY_LABELS = {
 }
 
 export default function SuperAdminPanel() {
-  const { isSuperAdmin, palettes } = usePlatform()
+  const { isSuperAdmin, palettes, restaurant, setRestaurant, setTenant } = usePlatform()
   const navigate = useNavigate()
-  // Ugrađene + custom palete (iz theme_palettes) za picker.
+  // Ugrađene + custom palete (iz theme_palettes) za picker. theme_palettes može
+  // sadržati i override redove za ugrađene palete (isti key) — ne dupliraj ih, samo
+  // preuzmi prikazanu boju iz override-a.
+  const builtinKeys = ADMIN_THEMES.map(t => t.key)
   const themeChoices = [
-    ...ADMIN_THEMES,
-    ...(palettes ?? []).map(p => ({ key: p.key, label: p.name, color: p.light?.primary || '#0d7a52' })),
+    ...ADMIN_THEMES.map(t => {
+      const ov = (palettes ?? []).find(p => p.key === t.key)
+      return ov ? { ...t, color: ov.light?.primary || t.color } : t
+    }),
+    ...(palettes ?? [])
+      .filter(p => !builtinKeys.includes(p.key))
+      .map(p => ({ key: p.key, label: p.name, color: p.light?.primary || '#0d7a52' })),
   ]
 
   const [restaurants, setRestaurants] = useState([])
@@ -163,6 +171,16 @@ export default function SuperAdminPanel() {
         )
 
       setRestaurants(rs => rs.map(r => r.id === editingId ? { ...r, ...payload } : r))
+
+      // Ako superadmin uređuje VLASTITI nalog, osvježi PlatformContext da se tema
+      // (admin_theme) i ostala account polja primijene ODMAH, bez reload-a. useTheme
+      // (preko ThemeToggle) keyira na restaurant.admin_theme — bez ovoga paleta se
+      // vidi tek nakon punog reload-a (loadProfile ponovo čita).
+      if (editingId === restaurant?.id) {
+        setRestaurant(r => r ? { ...r, ...payload } : r)
+        setTenant(t => t ? { ...t, ...payload } : t)
+      }
+
       setSaveMsg('Sačuvano!')
       setTimeout(() => setSaveMsg(''), 2500)
     } else {

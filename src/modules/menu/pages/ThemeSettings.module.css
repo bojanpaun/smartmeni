@@ -1,0 +1,170 @@
+.page {
+  padding: 28px 24px;
+  max-width: 720px;
+  font-family: var(--c-font-sans);
+}
+
+.header { margin-bottom: 24px; }
+
+.title {
+  font-family: var(--c-font-display);
+  font-size: 20px;
+  font-weight: 700;
+  color: var(--c-text);
+  margin: 0 0 6px;
+}
+
+.subtitle {
+  font-size: 14px;
+  color: var(--c-text-muted);
+  margin: 0;
+  line-height: 1.5;
+}
+
+/* ── Grid paleta ── */
+.grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(180px, 1fr));
+  gap: 14px;
+  margin-bottom: 24px;
+}
+
+.card {
+  position: relative;
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+  padding: 12px;
+  background: var(--c-surface);
+  border: 2px solid var(--c-border);
+  border-radius: 14px;
+  cursor: pointer;
+  text-align: left;
+  font-family: var(--c-font-sans);
+  transition: border-color 0.15s, box-shadow 0.15s, transform 0.1s;
+}
+.card:hover { border-color: var(--c-primary-muted); }
+.card:active { transform: scale(0.99); }
+
+.cardActive {
+  border-color: var(--c-primary);
+  box-shadow: 0 0 0 3px var(--c-primary-light);
+}
+
+.check {
+  position: absolute;
+  top: 8px;
+  right: 8px;
+  width: 22px;
+  height: 22px;
+  border-radius: 50%;
+  background: var(--c-primary);
+  color: #fff;
+  font-size: 13px;
+  font-weight: 700;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  z-index: 1;
+}
+
+/* ── Mini preview ── */
+.preview {
+  display: flex;
+  height: 86px;
+  border-radius: 10px;
+  overflow: hidden;
+  border: 1px solid var(--c-border);
+}
+
+.previewSb {
+  width: 34px;
+  flex-shrink: 0;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 6px;
+  padding: 12px 0;
+}
+
+.previewDot {
+  width: 14px;
+  height: 14px;
+  border-radius: 5px;
+}
+
+.previewBody {
+  flex: 1;
+  background: #ffffff;
+  padding: 12px;
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+  align-items: flex-start;
+}
+
+.previewBtn {
+  width: 54px;
+  height: 16px;
+  border-radius: 6px;
+}
+
+.previewBadge {
+  font-size: 9px;
+  font-weight: 600;
+  padding: 2px 7px;
+  border-radius: 9px;
+}
+
+.previewLine {
+  width: 80%;
+  height: 6px;
+  border-radius: 3px;
+  background: #e6ebe8;
+}
+.previewLineShort {
+  width: 50%;
+  height: 6px;
+  border-radius: 3px;
+  background: #eef2f0;
+}
+
+.cardName {
+  font-size: 14px;
+  font-weight: 600;
+  color: var(--c-text);
+}
+
+/* ── Akcije ── */
+.actions {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  min-height: 42px;
+}
+
+.saveBtn {
+  padding: 10px 24px;
+  background: var(--c-primary);
+  color: #fff;
+  border: none;
+  border-radius: 10px;
+  font-size: 14px;
+  font-weight: 600;
+  cursor: pointer;
+  font-family: var(--c-font-sans);
+  transition: background 0.15s;
+}
+.saveBtn:hover:not(:disabled) { background: var(--c-primary-hover); }
+.saveBtn:disabled { background: var(--c-primary-medium); cursor: default; }
+
+.savedMsg {
+  font-size: 13px;
+  font-weight: 600;
+  color: var(--c-primary);
+}
+
+@media (max-width: 600px) {
+  .page { padding: 16px; }
+  .grid { grid-template-columns: 1fr 1fr; }
+}

@@ -247,6 +247,7 @@ export const MODULES = [
       links: [
         { label: 'Logo',           icon: '🖼️', path: '/admin/settings/logo' },
         { label: 'Osnovni podaci', icon: '📋', path: '/admin/settings/general' },
+        { label: 'Izgled / Tema',  icon: '🎨', path: '/admin/settings/theme' },
         { label: 'Pretplata',      icon: '💳', path: '/admin/billing' },
       ],
     },
