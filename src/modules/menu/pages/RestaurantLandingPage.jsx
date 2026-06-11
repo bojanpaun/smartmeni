@@ -6,31 +6,12 @@ import { toEmbedUrl } from '../../../utils/videoUrl'
 import LanguageSwitcher from '../../../i18n/LanguageSwitcher'
 import styles from './RestaurantLanding.module.css'
 
-const T = {
-  me: {
-    loading: 'Učitavanje...', notFound: 'Restoran nije pronađen.',
-    menu: 'Pogledaj meni', viewFullMenu: 'Pogledaj cijeli meni →',
-    contact: 'Kontakt', location: 'Lokacija', reservation: 'Rezerviši sto',
-    hotelLink: 'Hotel — info i smještaj', reviews: 'Recenzije gostiju',
-    specials: 'Specijaliteti', hours: 'Radno vrijeme',
-  },
-  en: {
-    loading: 'Loading...', notFound: 'Restaurant not found.',
-    menu: 'View menu', viewFullMenu: 'View full menu →',
-    contact: 'Contact', location: 'Location', reservation: 'Book a table',
-    hotelLink: 'Hotel — info & rooms', reviews: 'Guest reviews',
-    specials: 'Specials', hours: 'Opening hours',
-  },
-}
-
 const isPreview = new URLSearchParams(window.location.search).get('preview') === 'true'
 
 export default function RestaurantLandingPage() {
   const { slug } = useParams()
   const navigate = useNavigate()
-  const { i18n } = useTranslation()
-  const [lang, setLang] = useState(i18n.language || 'me')
-  const t = lang === 'en' ? T.en : T.me
+  const { t } = useTranslation('landing')
 
   const [restaurant, setRestaurant] = useState(null)
   const [blocks, setBlocks] = useState(null)
@@ -85,14 +66,8 @@ export default function RestaurantLandingPage() {
     return () => clearTimeout(t)
   }, [blocks, loading])
 
-  useEffect(() => {
-    const onLang = (lng) => setLang(lng)
-    i18n.on('languageChanged', onLang)
-    return () => i18n.off('languageChanged', onLang)
-  }, [i18n])
-
   if (loading) return <div className={styles.loadWrap}><div className={styles.spinner} /></div>
-  if (notFound) return <div className={styles.loadWrap}><p className={styles.notFound}>{t.notFound}</p></div>
+  if (notFound) return <div className={styles.loadWrap}><p className={styles.notFound}>{t('notFound')}</p></div>
 
   const parseLines = (str) => (str || '').split('\n').map(s => s.trim()).filter(Boolean)
   const parseUrls = (str) => (str || '').split('\n').map(s => s.trim()).filter(s => s.startsWith('http'))
@@ -117,7 +92,7 @@ export default function RestaurantLandingPage() {
               {(block.data.subtitle || restaurant.description) && (
                 <p className={styles.restDesc}>{block.data.subtitle || restaurant.description}</p>
               )}
-              <button className={styles.heroCta} onClick={() => navigate(`/${slug}`)}>🍽️ {t.menu}</button>
+              <button className={styles.heroCta} onClick={() => navigate(`/${slug}`)}>🍽️ {t('menu')}</button>
             </div>
           </div>
         )
@@ -144,14 +119,14 @@ export default function RestaurantLandingPage() {
         if (categories.length === 0) return null
         return (
           <section key={idx} className={styles.section}>
-            <h2 className={styles.sectionTitle}>🍽️ {t.menu}</h2>
+            <h2 className={styles.sectionTitle}>🍽️ {t('menu')}</h2>
             <div className={layout === 'list' ? styles.categoryList : layout === 'cards' ? styles.categoryCards : styles.categoryGrid}>
               {categories.map(cat => (
                 <a key={cat.id} href={`/${slug}`} className={styles.categoryCard}>{cat.name}</a>
               ))}
             </div>
             <div className={styles.menuLink}>
-              <button className={styles.menuLinkBtn} onClick={() => navigate(`/${slug}`)}>{t.viewFullMenu}</button>
+              <button className={styles.menuLinkBtn} onClick={() => navigate(`/${slug}`)}>{t('viewFullMenu')}</button>
             </div>
           </section>
         )
@@ -161,7 +136,7 @@ export default function RestaurantLandingPage() {
         if (items.length === 0) return null
         return (
           <section key={idx} className={styles.section}>
-            <h2 className={styles.sectionTitle}>{t.specials}</h2>
+            <h2 className={styles.sectionTitle}>{t('specials')}</h2>
             <div className={layout === 'list' ? styles.specialsList : styles.specialsGrid}>
               {items.map((item, i) => (
                 <div key={i} className={styles.specialCard}>
@@ -198,7 +173,7 @@ export default function RestaurantLandingPage() {
         if (reviews.length === 0) return null
         return (
           <section key={idx} className={styles.section}>
-            <h2 className={styles.sectionTitle}>{t.reviews}</h2>
+            <h2 className={styles.sectionTitle}>{t('reviews')}</h2>
             <div className={`${styles.reviewsGrid} ${layout === 'list' ? styles.reviewsList : ''}`}>
               {reviews.map((r, i) => (
                 <div key={i} className={styles.reviewCard}>
@@ -263,10 +238,10 @@ export default function RestaurantLandingPage() {
       case 'reservation_cta':
         return (
           <div key={idx} className={`${styles.reservationCta} ${layout === 'card' ? styles.reservationCtaCard : layout === 'minimal' ? styles.reservationCtaMinimal : ''}`}>
-            <h2 className={styles.reservationCtaTitle}>{block.data.text || t.reservation}</h2>
+            <h2 className={styles.reservationCtaTitle}>{block.data.text || t('reservation')}</h2>
             {block.data.subtitle && <p className={styles.reservationCtaSub}>{block.data.subtitle}</p>}
             <button className={styles.reservationBtn} onClick={() => navigate(`/${slug}/rezervacija`)}>
-              📅 {t.reservation}
+              📅 {t('reservation')}
             </button>
           </div>
         )
@@ -295,23 +270,23 @@ export default function RestaurantLandingPage() {
           {restaurant.logo_url && <img src={restaurant.logo_url} alt={restaurant.name} className={styles.logo} />}
           <h1 className={styles.restName}>{restaurant.name}</h1>
           {restaurant.description && <p className={styles.restDesc}>{restaurant.description}</p>}
-          <button className={styles.heroCta} onClick={() => navigate(`/${slug}`)}>🍽️ {t.menu}</button>
+          <button className={styles.heroCta} onClick={() => navigate(`/${slug}`)}>🍽️ {t('menu')}</button>
         </div>
       </div>
       {categories.length > 0 && (
         <section className={styles.section}>
-          <h2 className={styles.sectionTitle}>🍽️ {t.menu}</h2>
+          <h2 className={styles.sectionTitle}>🍽️ {t('menu')}</h2>
           <div className={styles.categoryGrid}>
             {categories.map(cat => <a key={cat.id} href={`/${slug}`} className={styles.categoryCard}>{cat.name}</a>)}
           </div>
           <div className={styles.menuLink}>
-            <button className={styles.menuLinkBtn} onClick={() => navigate(`/${slug}`)}>{t.viewFullMenu}</button>
+            <button className={styles.menuLinkBtn} onClick={() => navigate(`/${slug}`)}>{t('viewFullMenu')}</button>
           </div>
         </section>
       )}
       {(restaurant.phone || restaurant.email || restaurant.address) && (
         <section className={styles.section}>
-          <h2 className={styles.sectionTitle}>{t.contact}</h2>
+          <h2 className={styles.sectionTitle}>{t('contact')}</h2>
           <div className={styles.infoCard}>
             {restaurant.phone && <a href={`tel:${restaurant.phone}`} className={styles.infoRow}><span className={styles.infoIcon}>📞</span><span>{restaurant.phone}</span></a>}
             {restaurant.email && <a href={`mailto:${restaurant.email}`} className={styles.infoRow}><span className={styles.infoIcon}>✉️</span><span>{restaurant.email}</span></a>}
