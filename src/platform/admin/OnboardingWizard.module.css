@@ -168,6 +168,7 @@
   display: flex;
   flex-direction: column;
   gap: 5px;
+  min-width: 0; /* dozvoli flex-itemu da se skuplja → inputi u .formRow ne prelivaju */
 }
 
 .field label {
@@ -186,6 +187,9 @@
   outline: none;
   background: var(--c-surface);
   transition: border-color 0.12s;
+  width: 100%;
+  min-width: 0;
+  box-sizing: border-box;
 }
 .field input:focus { border-color: var(--c-primary-medium); }
 
@@ -415,6 +419,9 @@
 @media (max-width: 600px) {
   .wizard { border-radius: 16px; }
   .formGrid { grid-template-columns: 1fr; }
+  .formRow { flex-direction: column; gap: 14px; }
+  /* "Dodaj sobu" dugme (inline alignSelf:flex-end) → puna širina kad se red slaže */
+  .formRow > button { align-self: stretch !important; }
   .templateGrid { grid-template-columns: repeat(2, 1fr); }
   .progressLabel { display: none; }
   .stepContent { padding: 8px 16px 16px; }
