@@ -76,7 +76,7 @@ export default function SuperAdminPanel() {
     setLoading(true)
     const { data, error } = await supabase
       .from('restaurants')
-      .select('id, name, slug, plan, trial_ends_at, plan_expires_at, suspended_at, is_complimentary, complimentary_note, admin_theme, approval_status, created_at')
+      .select('id, name, slug, plan, trial_ends_at, plan_expires_at, suspended_at, is_complimentary, complimentary_note, admin_theme, color, approval_status, created_at')
       .order('created_at', { ascending: false })
 
     if (!error) setRestaurants(data || [])
@@ -352,7 +352,7 @@ export default function SuperAdminPanel() {
                       )}
                     </div>
                     <div className={styles.restSlug}>restby.me/{rest.slug}</div>
-                    <ThemeDot theme={rest.admin_theme} />
+                    <ThemeDot theme={rest.admin_theme} color={rest.color} />
                     <div className={styles.mobileInfo}>
                       <PlanBadge rest={rest} />
                       <StatusBadge status={rest._status} />
@@ -458,6 +458,16 @@ export default function SuperAdminPanel() {
             <div className={styles.editSection}>
               <div className={styles.editSectionTitle}>🎨 Tema admin panela</div>
               <div className={styles.themeOptions}>
+                {/* Brend — izvedeno uživo iz boje brenda ovog tenanta (restaurants.color) */}
+                <button
+                  key="brand"
+                  className={`${styles.themeOption} ${editForm.admin_theme === 'brand' ? styles.themeOptionActive : ''}`}
+                  onClick={() => setEditForm(f => ({ ...f, admin_theme: 'brand' }))}
+                  title="Izvedeno iz boje brenda tenanta"
+                >
+                  <span className={styles.themeOptionDot} style={{ background: restaurants.find(r => r.id === editingId)?.color || '#0d7a52' }} />
+                  Brend
+                </button>
                 {themeChoices.map(t => (
                   <button
                     key={t.key}
@@ -568,7 +578,11 @@ export default function SuperAdminPanel() {
   )
 }
 
-function ThemeDot({ theme }) {
+function ThemeDot({ theme, color }) {
+  // 'brand' = izvedeno iz boje brenda tenanta; ostalo = ugrađene palete.
+  if (theme === 'brand') {
+    return <span className={styles.themeDot} style={{ background: color || '#0d7a52' }} title="Tema: Brend" />
+  }
   const t = ADMIN_THEMES.find(x => x.key === (theme || 'green')) || ADMIN_THEMES[0]
   return (
     <span className={styles.themeDot} style={{ background: t.color }} title={`Tema: ${t.label}`} />

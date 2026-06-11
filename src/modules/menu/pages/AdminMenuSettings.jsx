@@ -270,8 +270,10 @@ export default function AdminMenuSettings() {
   const saveForm = async (e) => {
     e.preventDefault()
     setSaving(true)
-    await supabase.from('restaurants').update(stripAccountFields(form)).eq('id', restaurant.id)
-    setRestaurant(form)
+    // Boja brenda se uređuje u Postavke → Brend (kanonski izvor) — ne diraj je odavde.
+    const { color, ...rest } = form
+    await supabase.from('restaurants').update(stripAccountFields(rest)).eq('id', restaurant.id)
+    setRestaurant({ ...restaurant, ...rest })
     setSaving(false)
     setMsg('Sačuvano!')
     setTimeout(() => setMsg(''), 2000)
@@ -336,16 +338,6 @@ export default function AdminMenuSettings() {
                   className={styles.textarea}
                 />
                 <div className={styles.fieldHint}>Prikazuje se ispod naziva restorana u guest meniju. Max 200 karaktera.</div>
-              </div>
-              <div className={menuStyles.field} style={{ gridColumn: '1 / -1' }}>
-                <label>Boja brenda (hex)</label>
-                <div style={{ display: 'flex', gap: 10, alignItems: 'center' }}>
-                  <input type="color" value={form.color || '#0d7a52'}
-                    onChange={e => setForm(f => ({ ...f, color: e.target.value }))}
-                    style={{ width: 40, height: 36, padding: 2, border: '1px solid #d0e4dc', borderRadius: 8 }} />
-                  <input value={form.color || '#0d7a52'}
-                    onChange={e => setForm(f => ({ ...f, color: e.target.value }))} style={{ flex: 1 }} />
-                </div>
               </div>
               <div className={menuStyles.field} style={{ gridColumn: '1 / -1' }}>
                 <label>📱 Trajanje QR sesije</label>
