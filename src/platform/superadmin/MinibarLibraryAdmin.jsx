@@ -72,7 +72,7 @@ export default function MinibarLibraryAdmin() {
     <div className={styles.page}>
       <div className={styles.header}>
         <div>
-          <h1 className={styles.title}>Biblioteka minibara</h1>
+          <h1 className={styles.title} style={{ fontSize: '1.3rem' }}>Biblioteka minibara</h1>
           <p className={styles.subtitle}>Predefinisani artikli koje tenanti uvoze u svoj minibar</p>
         </div>
         <div style={{ display: 'flex', gap: 8 }}>

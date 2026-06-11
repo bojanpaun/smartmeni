@@ -91,7 +91,7 @@ export default function SpaTreatmentLibraryAdmin() {
     <div className={styles.page}>
       <div className={styles.header}>
         <div>
-          <h1 className={styles.title}>Biblioteka tretmana</h1>
+          <h1 className={styles.title} style={{ fontSize: '1.3rem' }}>Biblioteka tretmana</h1>
           <p className={styles.subtitle}>Predefinisani spa tretmani koje tenanti uvoze u svoj katalog</p>
         </div>
         <div style={{ display: 'flex', gap: 8 }}>

@@ -22,11 +22,9 @@ const KitchenDashboard     = lazy(() => import('./modules/menu/pages/KitchenDash
 const BarDashboard         = lazy(() => import('./modules/menu/pages/BarDashboard'))
 const StaffRoles           = lazy(() => import('./platform/superadmin/StaffRoles'))
 const SuperAdminPanel      = lazy(() => import('./platform/superadmin/SuperAdminPanel'))
-const RecipeLibraryAdmin   = lazy(() => import('./platform/superadmin/RecipeLibraryAdmin'))
+const LibrariesAdmin       = lazy(() => import('./platform/superadmin/LibrariesAdmin'))
 const NutritionAdmin       = lazy(() => import('./platform/superadmin/NutritionAdmin'))
 const BillingControl       = lazy(() => import('./platform/superadmin/BillingControl'))
-const SpaTreatmentLibraryAdmin = lazy(() => import('./platform/superadmin/SpaTreatmentLibraryAdmin'))
-const MinibarLibraryAdmin  = lazy(() => import('./platform/superadmin/MinibarLibraryAdmin'))
 const SuperadminCommunication = lazy(() => import('./platform/superadmin/SuperadminCommunication'))
 const ThemePalettesAdmin   = lazy(() => import('./platform/superadmin/ThemePalettesAdmin'))
 const FaqAdmin              = lazy(() => import('./platform/superadmin/FaqAdmin'))
@@ -301,11 +299,15 @@ function AppRoutes() {
         <Route path="/superadmin/obavestenja" element={<AdminRoute><SuperadminCommunication section="obavestenja" /></AdminRoute>} />
         <Route path="/superadmin/faq" element={<AdminRoute><FaqAdmin /></AdminRoute>} />
         <Route path="/superadmin/theme" element={<AdminRoute><ThemePalettesAdmin /></AdminRoute>} />
-        <Route path="/superadmin/recipes" element={<AdminRoute><RecipeLibraryAdmin /></AdminRoute>} />
+        {/* Biblioteke — objedinjene pod jedan tab sa pill navigacijom */}
+        <Route path="/superadmin/libraries" element={<Navigate to="/superadmin/libraries/recepti" replace />} />
+        <Route path="/superadmin/libraries/:tab" element={<AdminRoute><LibrariesAdmin /></AdminRoute>} />
         <Route path="/superadmin/nutrition" element={<AdminRoute><NutritionAdmin /></AdminRoute>} />
         <Route path="/superadmin/billing" element={<AdminRoute><BillingControl /></AdminRoute>} />
-        <Route path="/superadmin/spa-treatments" element={<AdminRoute><SpaTreatmentLibraryAdmin /></AdminRoute>} />
-        <Route path="/superadmin/minibar-library" element={<AdminRoute><MinibarLibraryAdmin /></AdminRoute>} />
+        {/* Stari linkovi biblioteka → nove pilule */}
+        <Route path="/superadmin/recipes" element={<Navigate to="/superadmin/libraries/recepti" replace />} />
+        <Route path="/superadmin/spa-treatments" element={<Navigate to="/superadmin/libraries/tretmani" replace />} />
+        <Route path="/superadmin/minibar-library" element={<Navigate to="/superadmin/libraries/minibar" replace />} />
 
         {/* Inventar modul */}
         <Route path="/admin/inventory/analytics" element={<AdminRoute><AddonGuard addonId="inventory_pro" name="Inventar Pro" description="Napredna analitika potrošnje zaliha, trendovi i izvještaji po kategorijama." price={149} category="restaurant"><InventoryAnalytics /></AddonGuard></AdminRoute>} />

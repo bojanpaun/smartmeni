@@ -1,0 +1,17 @@
+.wrap {
+  font-family: var(--c-font-sans);
+}
+
+/* Horizontalna navigacija biblioteka — pilule (kanonski stil iz nav.module.css) */
+.pills {
+  composes: pillBar from '../../styles/nav.module.css';
+  padding: 18px 24px 0;
+  margin-bottom: 0;
+}
+.pill { composes: pillBtn from '../../styles/nav.module.css'; }
+.pillActive { composes: pillBtnActive from '../../styles/nav.module.css'; }
+
+.loading {
+  padding: 40px 24px;
+  color: var(--c-text-muted);
+}
