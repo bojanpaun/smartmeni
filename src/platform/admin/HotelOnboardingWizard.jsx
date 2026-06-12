@@ -1,5 +1,6 @@
 import { useState } from 'react'
 import { useNavigate } from 'react-router-dom'
+import { useTranslation } from 'react-i18next'
 import { supabase } from '../../lib/supabase'
 import { usePlatform } from '../../context/PlatformContext'
 import styles from './OnboardingWizard.module.css'
@@ -9,14 +10,15 @@ import styles from './OnboardingWizard.module.css'
 // zaštitu (room_type po nazivu; rooms preko UNIQUE(restaurant_id, room_number)).
 
 const STEPS = [
-  { id: 'roomtype', icon: '🛏️', title: 'Tip sobe',       desc: 'Npr. Standard, Deluxe — naziv, cijena i kapacitet' },
-  { id: 'rooms',    icon: '🚪', title: 'Sobe',           desc: 'Dodaj konkretne sobe za ovaj tip' },
-  { id: 'booking',  icon: '🕒', title: 'Booking vrijeme', desc: 'Vrijeme check-in i check-out' },
-  { id: 'done',     icon: '🏨', title: 'Gotovo',         desc: 'Hotel je spreman za rad' },
+  { id: 'roomtype', icon: '🛏️', titleKey: 'hobRoomtypeTitle', descKey: 'hobRoomtypeDesc' },
+  { id: 'rooms',    icon: '🚪', titleKey: 'hobRoomsTitle',    descKey: 'hobRoomsDesc' },
+  { id: 'booking',  icon: '🕒', titleKey: 'hobBookingTitle',  descKey: 'hobBookingDesc' },
+  { id: 'done',     icon: '🏨', titleKey: 'hobDoneTitle',     descKey: 'hobDoneDesc' },
 ]
 
 export default function HotelOnboardingWizard({ onComplete, onSkip, markComplete = false }) {
   const { restaurant, setRestaurant } = usePlatform()
+  const { t } = useTranslation('admin')
 
   // Kad je wizard auto-prikazan (hotel-only novi tenant), na kraj/skip
   // markiramo onboarding_completed da se ne pali ponovo. Button-launch ne dira flag.
@@ -54,7 +56,7 @@ export default function HotelOnboardingWizard({ onComplete, onSkip, markComplete
     })
     if (error) {
       // UNIQUE(restaurant_id, room_number) → soba već postoji
-      setRoomMsg(error.code === '23505' ? `Soba ${room.number.trim()} već postoji.` : 'Greška pri dodavanju.')
+      setRoomMsg(error.code === '23505' ? t('hobRoomExists', { n: room.number.trim() }) : t('hobAddErr'))
       return
     }
     setAddedRooms(list => [...list, room.number.trim()])
@@ -114,8 +116,8 @@ export default function HotelOnboardingWizard({ onComplete, onSkip, markComplete
       <div className={styles.wizard}>
 
         <div className={styles.wizardHeader}>
-          <div className={styles.wizardTitle}>Postavljanje hotela</div>
-          <button className={styles.skipAllBtn} onClick={handleSkipAll}>Preskoči sve →</button>
+          <div className={styles.wizardTitle}>{t('hobSetupHotel')}</div>
+          <button className={styles.skipAllBtn} onClick={handleSkipAll}>{t('onbSkipAll')} →</button>
         </div>
 
         <div className={styles.progress}>
@@ -124,32 +126,32 @@ export default function HotelOnboardingWizard({ onComplete, onSkip, markComplete
               className={`${styles.progressStep} ${i < step ? styles.progressDone : ''} ${i === step ? styles.progressActive : ''}`}
               onClick={() => i < step && setStep(i)}>
               <div className={styles.progressDot}>{i < step ? '✓' : i + 1}</div>
-              <div className={styles.progressLabel}>{s.title}</div>
+              <div className={styles.progressLabel}>{t(s.titleKey)}</div>
             </div>
           ))}
         </div>
 
         <div className={styles.stepContent}>
           <div className={styles.stepIcon}>{current.icon}</div>
-          <h2 className={styles.stepTitle}>{current.title}</h2>
-          <p className={styles.stepDesc}>{current.desc}</p>
+          <h2 className={styles.stepTitle}>{t(current.titleKey)}</h2>
+          <p className={styles.stepDesc}>{t(current.descKey)}</p>
 
           {/* TIP SOBE */}
           {current.id === 'roomtype' && (
             <div className={styles.formGrid}>
               <div className={styles.field}>
-                <label>Naziv tipa *</label>
+                <label>{t('hobTypeNameReq')}</label>
                 <input value={rt.name} onChange={e => setRt(p => ({ ...p, name: e.target.value }))}
-                  placeholder="npr. Standard dvokrevetna" autoFocus />
+                  placeholder={t('hobTypeNamePh')} autoFocus />
               </div>
               <div className={styles.formRow}>
                 <div className={styles.field} style={{ flex: 1 }}>
-                  <label>Cijena/noć (€)</label>
+                  <label>{t('hobPricePerNight')}</label>
                   <input type="number" step="0.50" min="0" value={rt.basePrice}
                     onChange={e => setRt(p => ({ ...p, basePrice: e.target.value }))} placeholder="60" />
                 </div>
                 <div className={styles.field} style={{ flex: 1 }}>
-                  <label>Max gostiju</label>
+                  <label>{t('hobMaxGuests')}</label>
                   <input type="number" min="1" value={rt.maxOccupancy}
                     onChange={e => setRt(p => ({ ...p, maxOccupancy: e.target.value }))} placeholder="2" />
                 </div>
@@ -162,17 +164,17 @@ export default function HotelOnboardingWizard({ onComplete, onSkip, markComplete
             <div className={styles.simpleForm}>
               <div className={styles.formRow}>
                 <div className={styles.field} style={{ flex: 2 }}>
-                  <label>Broj sobe</label>
+                  <label>{t('hobRoomNumber')}</label>
                   <input value={room.number} onChange={e => setRoom(p => ({ ...p, number: e.target.value }))}
-                    placeholder="npr. 101" onKeyDown={e => { if (e.key === 'Enter') addRoom() }} autoFocus />
+                    placeholder={t('hobRoomNumberPh')} onKeyDown={e => { if (e.key === 'Enter') addRoom() }} autoFocus />
                 </div>
                 <div className={styles.field} style={{ flex: 1 }}>
-                  <label>Sprat</label>
+                  <label>{t('hobFloor')}</label>
                   <input type="number" value={room.floor} onChange={e => setRoom(p => ({ ...p, floor: e.target.value }))}
                     placeholder="1" />
                 </div>
                 <button className={styles.nextBtn} style={{ alignSelf: 'flex-end', height: 40 }}
-                  onClick={addRoom} disabled={!room.number.trim()}>+ Dodaj</button>
+                  onClick={addRoom} disabled={!room.number.trim()}>+ {t('hobAdd')}</button>
               </div>
               {roomMsg && <div style={{ color: 'var(--c-danger)', fontSize: 13, marginTop: 6 }}>{roomMsg}</div>}
               {addedRooms.length > 0 && (
@@ -189,11 +191,11 @@ export default function HotelOnboardingWizard({ onComplete, onSkip, markComplete
           {current.id === 'booking' && (
             <div className={styles.formRow}>
               <div className={styles.field} style={{ flex: 1 }}>
-                <label>Check-in vrijeme</label>
+                <label>{t('hobCheckinTime')}</label>
                 <input type="time" value={booking.checkin} onChange={e => setBooking(p => ({ ...p, checkin: e.target.value }))} />
               </div>
               <div className={styles.field} style={{ flex: 1 }}>
-                <label>Check-out vrijeme</label>
+                <label>{t('hobCheckoutTime')}</label>
                 <input type="time" value={booking.checkout} onChange={e => setBooking(p => ({ ...p, checkout: e.target.value }))} />
               </div>
             </div>
@@ -204,9 +206,9 @@ export default function HotelOnboardingWizard({ onComplete, onSkip, markComplete
             <div className={styles.qrSection}>
               <div className={styles.qrSuccess}>
                 <div className={styles.qrSuccessIcon}>🎉</div>
-                <div className={styles.qrSuccessTitle}>Hotel je spreman!</div>
+                <div className={styles.qrSuccessTitle}>{t('hobHotelReady')}</div>
                 <div className={styles.qrSuccessDesc}>
-                  Kreirao si tip sobe{addedRooms.length > 0 ? ` i ${addedRooms.length} soba` : ''}. Nastavi na Front Desk za rezervacije i check-in.
+                  {t('hobDoneDescFull', { rooms: addedRooms.length > 0 ? t('hobRoomsSuffix', { count: addedRooms.length }) : '' })}
                 </div>
               </div>
             </div>
@@ -214,13 +216,13 @@ export default function HotelOnboardingWizard({ onComplete, onSkip, markComplete
         </div>
 
         <div className={styles.wizardFooter}>
-          {step > 0 && <button className={styles.backBtn} onClick={() => setStep(s => s - 1)}>← Nazad</button>}
+          {step > 0 && <button className={styles.backBtn} onClick={() => setStep(s => s - 1)}>← {t('onbBack')}</button>}
           <div className={styles.footerRight}>
             {!isLast && current.id !== 'roomtype' && (
-              <button className={styles.skipStepBtn} onClick={() => setStep(s => s + 1)}>Preskoči</button>
+              <button className={styles.skipStepBtn} onClick={() => setStep(s => s + 1)}>{t('onbSkip')}</button>
             )}
             <button className={styles.nextBtn} onClick={handleNext} disabled={saving || !canProceed()}>
-              {saving ? 'Čuvanje...' : isLast ? '🏨 Otvori Front Desk' : 'Dalje →'}
+              {saving ? t('saving') : isLast ? `🏨 ${t('hobOpenFrontdesk')}` : `${t('onbNext')} →`}
             </button>
           </div>
         </div>

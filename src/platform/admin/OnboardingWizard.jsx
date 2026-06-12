@@ -1,52 +1,24 @@
 import { useState } from 'react'
 import { useNavigate } from 'react-router-dom'
+import { useTranslation } from 'react-i18next'
 import { supabase } from '../../lib/supabase'
 import { usePlatform } from '../../context/PlatformContext'
 import { TEMPLATES } from '../../lib/templates'
 import styles from './OnboardingWizard.module.css'
 
 const STEPS = [
-  {
-    id: 'profile',
-    icon: '🏪',
-    title: 'Podaci restorana',
-    desc: 'Naziv, lokacija i radno vrijeme — vidljivo gostima',
-  },
-  {
-    id: 'template',
-    icon: '🎨',
-    title: 'Vizualni stil',
-    desc: 'Odaberi boju i stil guest menija',
-  },
-  {
-    id: 'logo',
-    icon: '🖼️',
-    title: 'Logo',
-    desc: 'Postavi logo restorana',
-  },
-  {
-    id: 'category',
-    icon: '🗂️',
-    title: 'Prva kategorija',
-    desc: 'Dodaj kategoriju menija (npr. Predjela, Pizza...)',
-  },
-  {
-    id: 'item',
-    icon: '🍽️',
-    title: 'Prvo jelo',
-    desc: 'Dodaj prvo jelo ili piće u meni',
-  },
-  {
-    id: 'qr',
-    icon: '📱',
-    title: 'QR kod',
-    desc: 'Tvoj meni je spreman — podijeli ga sa gostima',
-  },
+  { id: 'profile',  icon: '🏪',  titleKey: 'onbStepProfileTitle',  descKey: 'onbStepProfileDesc' },
+  { id: 'template', icon: '🎨',  titleKey: 'onbStepTemplateTitle', descKey: 'onbStepTemplateDesc' },
+  { id: 'logo',     icon: '🖼️', titleKey: 'onbStepLogoTitle',     descKey: 'onbStepLogoDesc' },
+  { id: 'category', icon: '🗂️', titleKey: 'onbStepCategoryTitle', descKey: 'onbStepCategoryDesc' },
+  { id: 'item',     icon: '🍽️', titleKey: 'onbStepItemTitle',     descKey: 'onbStepItemDesc' },
+  { id: 'qr',       icon: '📱',  titleKey: 'onbStepQrTitle',       descKey: 'onbStepQrDesc' },
 ]
 
 export default function OnboardingWizard({ onComplete, onSkip }) {
   const { restaurant, setRestaurant, user } = usePlatform()
   const navigate = useNavigate()
+  const { t } = useTranslation('admin')
   const [step, setStep] = useState(0)
   const [saving, setSaving] = useState(false)
 
@@ -79,7 +51,7 @@ export default function OnboardingWizard({ onComplete, onSkip }) {
       }
 
       if (current.id === 'template') {
-        const tpl = TEMPLATES.find(t => t.id === selectedTemplate) || TEMPLATES[0]
+        const tpl = TEMPLATES.find(x => x.id === selectedTemplate) || TEMPLATES[0]
         await supabase.from('restaurants')
           .update({ template: selectedTemplate, color: tpl.brand })
           .eq('id', restaurant.id)
@@ -184,10 +156,10 @@ export default function OnboardingWizard({ onComplete, onSkip }) {
         {/* Header */}
         <div className={styles.wizardHeader}>
           <div className={styles.wizardTitle}>
-            Postavljanje restorana
+            {t('onbSetupRest')}
           </div>
           <button className={styles.skipAllBtn} onClick={handleSkipAll}>
-            Preskoči sve →
+            {t('onbSkipAll')} →
           </button>
         </div>
 
@@ -202,7 +174,7 @@ export default function OnboardingWizard({ onComplete, onSkip }) {
               <div className={styles.progressDot}>
                 {i < step ? '✓' : i + 1}
               </div>
-              <div className={styles.progressLabel}>{s.title}</div>
+              <div className={styles.progressLabel}>{t(s.titleKey)}</div>
             </div>
           ))}
         </div>
@@ -210,43 +182,43 @@ export default function OnboardingWizard({ onComplete, onSkip }) {
         {/* Step sadržaj */}
         <div className={styles.stepContent}>
           <div className={styles.stepIcon}>{current.icon}</div>
-          <h2 className={styles.stepTitle}>{current.title}</h2>
-          <p className={styles.stepDesc}>{current.desc}</p>
+          <h2 className={styles.stepTitle}>{t(current.titleKey)}</h2>
+          <p className={styles.stepDesc}>{t(current.descKey)}</p>
 
           {/* PROFIL */}
           {current.id === 'profile' && (
             <div className={styles.formGrid}>
               <div className={styles.field}>
-                <label>Naziv restorana *</label>
+                <label>{t('onbRestNameReq')}</label>
                 <input
                   value={profile.name}
                   onChange={e => setProfile(p => ({ ...p, name: e.target.value }))}
-                  placeholder="npr. Pizzeria Napoli"
+                  placeholder={t('onbRestNamePh')}
                   autoFocus
                 />
               </div>
               <div className={styles.field}>
-                <label>Lokacija</label>
+                <label>{t('onbLocation')}</label>
                 <input
                   value={profile.location}
                   onChange={e => setProfile(p => ({ ...p, location: e.target.value }))}
-                  placeholder="npr. Budva, Crna Gora"
+                  placeholder={t('onbLocationPh')}
                 />
               </div>
               <div className={styles.field}>
-                <label>Radno vrijeme</label>
+                <label>{t('onbHours')}</label>
                 <input
                   value={profile.hours}
                   onChange={e => setProfile(p => ({ ...p, hours: e.target.value }))}
-                  placeholder="npr. 09:00 – 23:00"
+                  placeholder={t('onbHoursPh')}
                 />
               </div>
               <div className={styles.field}>
-                <label>Telefon</label>
+                <label>{t('onbPhone')}</label>
                 <input
                   value={profile.phone}
                   onChange={e => setProfile(p => ({ ...p, phone: e.target.value }))}
-                  placeholder="npr. +382 67 123 456"
+                  placeholder={t('onbPhonePh')}
                 />
               </div>
             </div>
@@ -255,14 +227,14 @@ export default function OnboardingWizard({ onComplete, onSkip }) {
           {/* TEMPLATE */}
           {current.id === 'template' && (
             <div className={styles.templateGrid}>
-              {TEMPLATES.slice(0, 8).map(t => (
+              {TEMPLATES.slice(0, 8).map(tpl => (
                 <button
-                  key={t.id}
-                  className={`${styles.tcard} ${selectedTemplate === t.id ? styles.tcardActive : ''}`}
-                  onClick={() => setSelectedTemplate(t.id)}
+                  key={tpl.id}
+                  className={`${styles.tcard} ${selectedTemplate === tpl.id ? styles.tcardActive : ''}`}
+                  onClick={() => setSelectedTemplate(tpl.id)}
                 >
-                  <div className={styles.tswatch} style={{ background: t.brand }} />
-                  <div className={styles.tname}>{t.name}</div>
+                  <div className={styles.tswatch} style={{ background: tpl.brand }} />
+                  <div className={styles.tname}>{tpl.name}</div>
                 </button>
               ))}
             </div>
@@ -275,21 +247,21 @@ export default function OnboardingWizard({ onComplete, onSkip }) {
                 <div className={styles.logoPreviewRow}>
                   <div className={styles.logoPreviewItem}>
                     <img src={logoPreview} alt="Logo" className={styles.logoCircle} />
-                    <div className={styles.logoHint}>Guest meni</div>
+                    <div className={styles.logoHint}>{t('onbLogoGuest')}</div>
                   </div>
                   <div className={styles.logoPreviewItem}>
                     <img src={logoPreview} alt="Logo" className={styles.logoSquare} />
-                    <div className={styles.logoHint}>Admin panel</div>
+                    <div className={styles.logoHint}>{t('onbLogoAdmin')}</div>
                   </div>
                   <button className={styles.logoChangeBtn} onClick={() => { setLogoFile(null); setLogoPreview(null) }}>
-                    Promijeni
+                    {t('onbChange')}
                   </button>
                 </div>
               ) : (
                 <label className={styles.logoDropZone}>
                   <div className={styles.logoDropIcon}>🖼️</div>
-                  <div className={styles.logoDropText}>Klikni da odabereš logo</div>
-                  <div className={styles.logoDropHint}>JPG, PNG, WebP · Max 2MB · Nije obavezno</div>
+                  <div className={styles.logoDropText}>{t('onbLogoDropText')}</div>
+                  <div className={styles.logoDropHint}>{t('onbLogoDropHint')}</div>
                   <input type="file" accept="image/jpeg,image/png,image/webp" onChange={handleLogoSelect} style={{ display: 'none' }} />
                 </label>
               )}
@@ -311,11 +283,11 @@ export default function OnboardingWizard({ onComplete, onSkip }) {
                 ))}
               </div>
               <div className={styles.field}>
-                <label>Naziv kategorije *</label>
+                <label>{t('onbCatNameReq')}</label>
                 <input
                   value={categoryName}
                   onChange={e => setCategoryName(e.target.value)}
-                  placeholder="npr. Predjela, Pizza, Piće..."
+                  placeholder={t('onbCatNamePh')}
                   autoFocus
                 />
               </div>
@@ -338,16 +310,16 @@ export default function OnboardingWizard({ onComplete, onSkip }) {
               </div>
               <div className={styles.formRow}>
                 <div className={styles.field} style={{ flex: 2 }}>
-                  <label>Naziv jela *</label>
+                  <label>{t('onbItemNameReq')}</label>
                   <input
                     value={itemName}
                     onChange={e => setItemName(e.target.value)}
-                    placeholder="npr. Margherita"
+                    placeholder={t('onbItemNamePh')}
                     autoFocus
                   />
                 </div>
                 <div className={styles.field} style={{ flex: 1 }}>
-                  <label>Cijena (€) *</label>
+                  <label>{t('onbPriceReq')}</label>
                   <input
                     type="number"
                     step="0.50"
@@ -366,9 +338,9 @@ export default function OnboardingWizard({ onComplete, onSkip }) {
             <div className={styles.qrSection}>
               <div className={styles.qrSuccess}>
                 <div className={styles.qrSuccessIcon}>🎉</div>
-                <div className={styles.qrSuccessTitle}>Meni je spreman!</div>
+                <div className={styles.qrSuccessTitle}>{t('onbMenuReady')}</div>
                 <div className={styles.qrSuccessDesc}>
-                  Gosti mogu skenirati QR kod ili otvoriti direktan link:
+                  {t('onbScanDesc')}
                 </div>
                 {restaurant && (
                   <div className={styles.qrUrl}>
@@ -376,7 +348,7 @@ export default function OnboardingWizard({ onComplete, onSkip }) {
                   </div>
                 )}
                 <div className={styles.qrNote}>
-                  Detaljan QR kod za štampu naći ćeš u meniju pod QR kod sekcijonom.
+                  {t('onbQrNote')}
                 </div>
               </div>
             </div>
@@ -387,13 +359,13 @@ export default function OnboardingWizard({ onComplete, onSkip }) {
         <div className={styles.wizardFooter}>
           {step > 0 && (
             <button className={styles.backBtn} onClick={() => setStep(s => s - 1)}>
-              ← Nazad
+              ← {t('onbBack')}
             </button>
           )}
           <div className={styles.footerRight}>
             {!isLast && current.id !== 'profile' && current.id !== 'category' && current.id !== 'item' && (
               <button className={styles.skipStepBtn} onClick={() => setStep(s => s + 1)}>
-                Preskoči
+                {t('onbSkip')}
               </button>
             )}
             <button
@@ -401,7 +373,7 @@ export default function OnboardingWizard({ onComplete, onSkip }) {
               onClick={handleNext}
               disabled={saving || !canProceed()}
             >
-              {saving ? 'Čuvanje...' : isLast ? '🎉 Završi postavljanje' : 'Dalje →'}
+              {saving ? t('saving') : isLast ? `🎉 ${t('onbFinishSetup')}` : `${t('onbNext')} →`}
             </button>
           </div>
         </div>

@@ -1,12 +1,14 @@
 // ▶ Novi fajl: src/platform/admin/MyAccount.jsx
 
 import { useState, useEffect, useRef } from 'react'
+import { useTranslation } from 'react-i18next'
 import { supabase } from '../../lib/supabase'
 import { usePlatform } from '../../context/PlatformContext'
 import styles from './MyAccount.module.css'
 
 export default function MyAccount() {
   const { user } = usePlatform()
+  const { t } = useTranslation('admin')
 
   const [profile, setProfile] = useState(null)
   const [loading, setLoading] = useState(true)
@@ -62,7 +64,7 @@ export default function MyAccount() {
   const saveProfile = async (e) => {
     e.preventDefault()
     if (!form.phone.trim()) {
-      showMsg('error', 'Telefon je obavezno polje.')
+      showMsg('error', t('accPhoneReq'))
       return
     }
     setSaving(true)
@@ -78,9 +80,9 @@ export default function MyAccount() {
       .eq('id', user.id)
 
     if (error) {
-      showMsg('error', 'Greška pri čuvanju profila.')
+      showMsg('error', t('accSaveErr'))
     } else {
-      showMsg('success', 'Profil uspješno sačuvan.')
+      showMsg('success', t('accSaved'))
       setProfile(p => ({ ...p, ...form }))
     }
     setSaving(false)
@@ -90,11 +92,11 @@ export default function MyAccount() {
   const changePassword = async (e) => {
     e.preventDefault()
     if (passwordForm.new.length < 6) {
-      showMsg('error', 'Nova lozinka mora imati najmanje 6 karaktera.')
+      showMsg('error', t('accPwMin'))
       return
     }
     if (passwordForm.new !== passwordForm.confirm) {
-      showMsg('error', 'Nova lozinka i potvrda se ne poklapaju.')
+      showMsg('error', t('accPwMismatch'))
       return
     }
     setSavingPassword(true)
@@ -104,9 +106,9 @@ export default function MyAccount() {
     })
 
     if (error) {
-      showMsg('error', 'Greška pri promjeni lozinke: ' + error.message)
+      showMsg('error', t('accPwChangeErr') + error.message)
     } else {
-      showMsg('success', 'Lozinka uspješno promijenjena.')
+      showMsg('success', t('accPwChanged'))
       setPasswordForm({ current: '', new: '', confirm: '' })
     }
     setSavingPassword(false)
@@ -118,7 +120,7 @@ export default function MyAccount() {
     if (!file) return
 
     if (file.size > 2 * 1024 * 1024) {
-      showMsg('error', 'Slika ne smije biti veća od 2MB.')
+      showMsg('error', t('accImgTooBig'))
       return
     }
 
@@ -131,7 +133,7 @@ export default function MyAccount() {
       .upload(path, file, { upsert: true })
 
     if (uploadError) {
-      showMsg('error', 'Greška pri uploadu slike.')
+      showMsg('error', t('accImgUploadErr'))
       setUploadingAvatar(false)
       return
     }
@@ -144,11 +146,11 @@ export default function MyAccount() {
 
     await supabase.from('user_profiles').update({ avatar_url: url }).eq('id', user.id)
     setProfile(p => ({ ...p, avatar_url: url }))
-    showMsg('success', 'Profilna slika ažurirana.')
+    showMsg('success', t('accAvatarUpdated'))
     setUploadingAvatar(false)
   }
 
-  if (loading) return <div className={styles.loading}>Učitavanje...</div>
+  if (loading) return <div className={styles.loading}>{t('loading')}</div>
 
   const initials = form.full_name
     ? form.full_name.split(' ').map(n => n[0]).join('').toUpperCase().slice(0, 2)
@@ -158,7 +160,7 @@ export default function MyAccount() {
     <div className={styles.wrap}>
 
       <div className={styles.header}>
-        <div className={styles.headerTitle}>Moj nalog</div>
+        <div className={styles.headerTitle}>{t('accTitle')}</div>
         <div className={styles.headerEmail}>{user?.email}</div>
       </div>
 
@@ -193,9 +195,9 @@ export default function MyAccount() {
             onClick={() => avatarRef.current.click()}
             disabled={uploadingAvatar}
           >
-            {uploadingAvatar ? 'Uploadovanje...' : 'Promijeni sliku'}
+            {uploadingAvatar ? t('accUploading') : t('accChangeImg')}
           </button>
-          <div className={styles.avatarHint}>JPG, PNG ili WebP, max 2MB</div>
+          <div className={styles.avatarHint}>{t('accAvatarHint')}</div>
         </div>
 
         {/* Desno — forme */}
@@ -203,19 +205,19 @@ export default function MyAccount() {
 
           {/* Lični podaci */}
           <div className={styles.card}>
-            <div className={styles.cardTitle}>Lični podaci</div>
+            <div className={styles.cardTitle}>{t('accPersonalData')}</div>
             <form onSubmit={saveProfile} className={styles.form}>
               <div className={styles.field}>
-                <label>Ime i prezime</label>
+                <label>{t('accFullName')}</label>
                 <input
                   value={form.full_name}
                   onChange={e => setForm(f => ({ ...f, full_name: e.target.value }))}
-                  placeholder="Vaše ime i prezime"
+                  placeholder={t('accFullNamePh')}
                 />
               </div>
 
               <div className={styles.field}>
-                <label>Telefon *</label>
+                <label>{t('accPhone')}</label>
                 <input
                   value={form.phone}
                   onChange={e => setForm(f => ({ ...f, phone: e.target.value }))}
@@ -226,7 +228,7 @@ export default function MyAccount() {
 
               <div className={styles.fieldRow}>
                 <div className={styles.field}>
-                  <label>WhatsApp</label>
+                  <label>{t('accWhatsapp')}</label>
                   <div className={styles.inputWithIcon}>
                     <span className={styles.inputIcon}>💬</span>
                     <input
@@ -237,7 +239,7 @@ export default function MyAccount() {
                   </div>
                 </div>
                 <div className={styles.field}>
-                  <label>Viber</label>
+                  <label>{t('accViber')}</label>
                   <div className={styles.inputWithIcon}>
                     <span className={styles.inputIcon}>📱</span>
                     <input
@@ -251,7 +253,7 @@ export default function MyAccount() {
 
               <div className={styles.formActions}>
                 <button type="submit" className={styles.btnSave} disabled={saving}>
-                  {saving ? 'Čuvanje...' : 'Sačuvaj podatke'}
+                  {saving ? t('saving') : t('accSaveData')}
                 </button>
               </div>
             </form>
@@ -259,30 +261,30 @@ export default function MyAccount() {
 
           {/* Promjena lozinke */}
           <div className={styles.card}>
-            <div className={styles.cardTitle}>Promjena lozinke</div>
+            <div className={styles.cardTitle}>{t('accChangePw')}</div>
             <form onSubmit={changePassword} className={styles.form}>
               <div className={styles.field}>
-                <label>Nova lozinka *</label>
+                <label>{t('accNewPw')}</label>
                 <input
                   type="password"
                   value={passwordForm.new}
                   onChange={e => setPasswordForm(f => ({ ...f, new: e.target.value }))}
-                  placeholder="Minimum 6 karaktera"
+                  placeholder={t('accNewPwPh')}
                   required
                 />
               </div>
               <div className={styles.field}>
-                <label>Potvrdi novu lozinku *</label>
+                <label>{t('accConfirmPw')}</label>
                 <input
                   type="password"
                   value={passwordForm.confirm}
                   onChange={e => setPasswordForm(f => ({ ...f, confirm: e.target.value }))}
-                  placeholder="Ponovite novu lozinku"
+                  placeholder={t('accConfirmPwPh')}
                   required
                 />
               </div>
               {passwordForm.new && passwordForm.confirm && passwordForm.new !== passwordForm.confirm && (
-                <div className={styles.fieldError}>Lozinke se ne poklapaju</div>
+                <div className={styles.fieldError}>{t('accPwNoMatch')}</div>
               )}
               <div className={styles.formActions}>
                 <button
@@ -290,7 +292,7 @@ export default function MyAccount() {
                   className={styles.btnSave}
                   disabled={savingPassword || !passwordForm.new || !passwordForm.confirm}
                 >
-                  {savingPassword ? 'Mijenjanje...' : 'Promijeni lozinku'}
+                  {savingPassword ? t('accChanging') : t('accChangePwBtn')}
                 </button>
               </div>
             </form>
