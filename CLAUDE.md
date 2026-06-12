@@ -144,11 +144,38 @@ PLATFORMA (Auth · Billing · Multi-tenancy · Onboarding · osnovno osoblje/gos
   za neutralne tokene).
 - Responsive je standard: upotrebljivo na 375px / 768px / desktop. Mobile-first gdje može.
 
-### 6. i18n
-- Javne stranice (BookingPage, GuestApp, HotelLanding, RestaurantLanding, SpaBooking):
-  sav vidljiv tekst kroz `t('ključ')`, bez hardcoded stringova. Locale-i: `me` (primarni), `en`
-  (`src/i18n/locales/`).
-- Admin panel: prevodi nisu obavezni — prihvatljiv hardcoded crnogorski tekst.
+### 6. i18n — DVA SLOJA (statički UI + dinamični sadržaj)
+**7 jezika:** `me` (primarni/izvor/fallback), `en`, `sr`, `hr`, `sq`, `tr`, `ru`. Detalji i
+istorija faza: memorija [[project-i18n-multilingual]].
+
+**Sloj A — statički UI tekst (i18next, `src/i18n/locales/{lng}/*.json`):**
+- Sav vidljiv tekst kroz `t('ključ')` — i javne stranice I **admin** (admin JESTE preveden na
+  svih 7; staro pravilo „prevodi nisu obavezni" više NE važi). Bez hardcoded stringova.
+- Namespace-i: javni (eager me/en, lazy ostali) + `admin`/`modulehelp` (LAZY i za me/en — veliki,
+  admin-only; vidi `src/i18n/index.js`). Nova javna stranica = samo dodaj locale JSON.
+- **Key-parity gate `scripts/i18n-check.mjs`** (u `npm run check` + CI): svaki jezik mora imati
+  identične ključeve kao `me`, inače pada. Novi ključ ide u SVIH 7 odjednom.
+- Obrazac: config `label`→`labelKey`→`t()`; datumi `dl = i18n.language==='en'?'en-US':'sr-Latn'`;
+  paziti na `t`-sjenku (preimenuj map/param varijable). Bundle: init JS hard cap 155 kB → admin ns
+  mora ostati lazy.
+
+**Sloj B — dinamični tenant-sadržaj (AI prevod, `content_translations`):**
+- Slobodan sadržaj koji tenant unosi (nazivi/opisi jela, kategorije, poruke konobaru, spa usluge)
+  prevodi se **AI-jem** (Claude Haiku / zamjenjivo, `TRANSLATE_PROVIDER` secret; Anthropic aktivan)
+  i keširaju u `content_translations` (entity_type, entity_id, field, lang, value, is_override).
+- **Izvor je `me`** (vrijednost u izvornoj koloni, npr. `menu_items.name`). Store drži 6 ciljnih jezika.
+- **Tok za NOVU guest-facing tenant-sadržaj površinu (OBAVEZNO oba):**
+  1. *Pisanje:* na snimanje okini `translateContent(restaurantId, items)` (`src/lib/contentTranslate.js`),
+     `items=[{entity_type, entity_id, field, text}]` (fire-and-forget; edge dedupe-uje po source_hash
+     i poštuje is_override).
+  2. *Čitanje:* `const tr = useContentTranslations(restaurantId)` pa `tr(entity_type, id, field, fallback)`
+     (fallback = izvor; za `me`/bez prevoda vraća izvor).
+- **Ručna korekcija:** `components/shared/ContentTranslations` modal (🌐 dugme) — admin ispravi prevod,
+  snima `is_override=true` (AI ga ne pregazi). Generičko: prima `entityType`/`entityId`/`fields`.
+- **Backfill** zatečenih: superadmin `/superadmin` → „🌐 Prevedi sve" (edge `backfill:true`).
+- Edge: `supabase/functions/translate-content/` (auth+vlasništvo, providers.ts, pure logika+Deno test
+  translate.ts). pgTAP 038 (RLS izolacija content_translations). **Ne brisati stare `_en` kolone**
+  (fallback). Setup/lekcije: [[todo-anthropic-api-key]].
 
 ### 7. Realtime, performanse, cleanup
 - Svaki Supabase Realtime channel ima cleanup u `useEffect` return
