@@ -2579,8 +2579,5 @@
   "sapTranslateAllConfirm": "Translate content of ALL tenants ({{count}}) into 6 languages? This may take a while.",
   "sapTranslating": "Translating…",
   "sapTranslateDone": "Translated: {{count}} fields.",
-  "sapTranslateErr": "Translation error (check ANTHROPIC_API_KEY).",
-  "sapTransTestTitle": "AI translation test (compare)",
-  "sapTransTestHint": "Enter sample text and run providers to compare quality. Does not write to the database.",
-  "sapTransTestPh": "E.g. Fish soup with homemade vegetables"
+  "sapTranslateErr": "Translation error (check ANTHROPIC_API_KEY)."
 }

@@ -2579,8 +2579,5 @@
   "sapTranslateAllConfirm": "TÜM kiracıların ({{count}}) içeriği 6 dile çevrilsin mi? Biraz sürebilir.",
   "sapTranslating": "Çevriliyor…",
   "sapTranslateDone": "Çevrildi: {{count}} alan.",
-  "sapTranslateErr": "Çeviri hatası (ANTHROPIC_API_KEY kontrol et).",
-  "sapTransTestTitle": "AI çeviri testi (karşılaştırma)",
-  "sapTransTestHint": "Örnek metin gir ve kaliteyi karşılaştırmak için sağlayıcıları çalıştır. Veritabanına yazmaz.",
-  "sapTransTestPh": "Örn. Ev yapımı sebzeli balık çorbası"
+  "sapTranslateErr": "Çeviri hatası (ANTHROPIC_API_KEY kontrol et)."
 }

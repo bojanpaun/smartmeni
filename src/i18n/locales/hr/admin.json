@@ -2579,8 +2579,5 @@
   "sapTranslateAllConfirm": "Prevesti sadržaj SVIH tenanata ({{count}}) na 6 jezika? Može potrajati.",
   "sapTranslating": "Prevodim…",
   "sapTranslateDone": "Prevedeno: {{count}} polja.",
-  "sapTranslateErr": "Pogreška pri prevođenju (provjeri ANTHROPIC_API_KEY).",
-  "sapTransTestTitle": "Test AI prijevoda (usporedba)",
-  "sapTransTestHint": "Unesi primjer teksta i pokreni pružatelje da usporediš kvalitetu. Ne zapisuje u bazu.",
-  "sapTransTestPh": "Npr. Riblja juha s domaćim povrćem"
+  "sapTranslateErr": "Pogreška pri prevođenju (provjeri ANTHROPIC_API_KEY)."
 }
