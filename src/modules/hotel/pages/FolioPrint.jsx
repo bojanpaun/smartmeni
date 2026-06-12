@@ -1,19 +1,22 @@
 import { useState, useEffect, useRef } from 'react'
 import { useParams } from 'react-router-dom'
+import { useTranslation } from 'react-i18next'
 import { usePlatform } from '../../../context/PlatformContext'
 import { supabase } from '../../../lib/supabase'
 import styles from './FolioPrint.module.css'
 
-const TYPE_LABEL = {
-  room_charge: 'Noćenje',
-  restaurant:  'Restoran',
-  minibar:     'Minibar',
-  spa:         'Spa',
-  other:       'Ostalo',
+const TYPE_LABEL_KEYS = {
+  room_charge: 'fpTypeNight',
+  restaurant:  'htTypeRestaurant',
+  minibar:     'htTypeMinibar',
+  spa:         'htTypeSpa',
+  other:       'htTypeOther',
 }
 
 export default function FolioPrint() {
   const { id } = useParams()
+  const { t, i18n } = useTranslation('admin')
+  const dl = i18n.language === 'en' ? 'en-US' : 'sr-Latn'
   const { restaurant } = usePlatform()
   const [data, setData] = useState(null)
   const [loading, setLoading] = useState(true)
@@ -54,8 +57,8 @@ export default function FolioPrint() {
     setLoading(false)
   }
 
-  if (loading) return <div className={styles.loading}>Učitavanje...</div>
-  if (!data?.folio) return <div className={styles.loading}>Folio nije pronađen.</div>
+  if (loading) return <div className={styles.loading}>{t('loading')}</div>
+  if (!data?.folio) return <div className={styles.loading}>{t('fpFolioNotFound')}</div>
 
   const { res, folio, items } = data
   const computedTotal = items.reduce((s, i) => s + (parseFloat(i.total_price) || 0), 0)
@@ -63,13 +66,13 @@ export default function FolioPrint() {
   const balance       = computedTotal - paidAmount
 
   const invoiceNum = `FOL-${folio.id.slice(-8).toUpperCase()}`
-  const printDate  = new Date().toLocaleDateString('sr-Latn', { day: '2-digit', month: '2-digit', year: 'numeric' })
+  const printDate  = new Date().toLocaleDateString(dl, { day: '2-digit', month: '2-digit', year: 'numeric' })
 
   return (
     <div className={styles.page}>
       <div className={styles.printActions}>
-        <button className={styles.printBtn} onClick={() => window.print()}>🖨️ Štampaj / Sačuvaj PDF</button>
-        <button className={styles.closeBtn} onClick={() => window.close()}>✕ Zatvori</button>
+        <button className={styles.printBtn} onClick={() => window.print()}>🖨️ {t('fpPrintSave')}</button>
+        <button className={styles.closeBtn} onClick={() => window.close()}>✕ {t('fpClose')}</button>
       </div>
 
       <div className={styles.invoice}>
@@ -85,19 +88,19 @@ export default function FolioPrint() {
           </div>
 
           <div className={styles.invoiceMeta}>
-            <h2 className={styles.invoiceTitle}>RAČUN</h2>
+            <h2 className={styles.invoiceTitle}>{t('fpInvoice')}</h2>
             <table className={styles.metaTable}>
               <tbody>
-                <tr><td>Broj:</td>  <td><strong>{invoiceNum}</strong></td></tr>
+                <tr><td>{t('fpNumber')}:</td>  <td><strong>{invoiceNum}</strong></td></tr>
                 {(folio.label || !folio.is_primary) && (
-                  <tr><td>Folio:</td> <td>{folio.label || 'Folio'}</td></tr>
+                  <tr><td>{t('htFolio')}:</td> <td>{folio.label || t('htFolio')}</td></tr>
                 )}
-                <tr><td>Datum:</td> <td>{printDate}</td></tr>
+                <tr><td>{t('htDateHead')}:</td> <td>{printDate}</td></tr>
                 <tr>
-                  <td>Status:</td>
+                  <td>{t('htFieldStatus')}:</td>
                   <td>
                     <strong className={balance <= 0 ? styles.paid : styles.due}>
-                      {balance <= 0 ? 'PLAĆENO' : 'DUGUJE'}
+                      {balance <= 0 ? t('fpPaid') : t('fpDue')}
                     </strong>
                   </td>
                 </tr>
@@ -111,18 +114,18 @@ export default function FolioPrint() {
         {/* Guest + room info */}
         <div className={styles.guestSection}>
           <div>
-            <p className={styles.sectionLabel}>GOST</p>
+            <p className={styles.sectionLabel}>{t('fpGuest')}</p>
             <p className={styles.guestName}>{res?.guest_name}</p>
           </div>
           <div>
-            <p className={styles.sectionLabel}>SMJEŠTAJ</p>
-            <p>{res?.rooms?.room_number ? `Soba ${res.rooms.room_number}` : res?.room_types?.name ?? '—'}</p>
-            {res?.check_in_date  && <p>Check-in: {new Date(res.check_in_date).toLocaleDateString('sr-Latn')}</p>}
-            {res?.check_out_date && <p>Check-out: {new Date(res.check_out_date).toLocaleDateString('sr-Latn')}</p>}
+            <p className={styles.sectionLabel}>{t('fpAccommodation')}</p>
+            <p>{res?.rooms?.room_number ? t('htRoomNum', { num: res.rooms.room_number }) : res?.room_types?.name ?? '—'}</p>
+            {res?.check_in_date  && <p>{t('htCheckin')}: {new Date(res.check_in_date).toLocaleDateString(dl)}</p>}
+            {res?.check_out_date && <p>{t('htCheckout')}: {new Date(res.check_out_date).toLocaleDateString(dl)}</p>}
           </div>
           <div>
-            <p className={styles.sectionLabel}>GOSTI</p>
-            <p>{res?.adults} odrasli{res?.children ? `, ${res.children} djece` : ''}</p>
+            <p className={styles.sectionLabel}>{t('fpGuests')}</p>
+            <p>{t('fpAdults', { n: res?.adults })}{res?.children ? t('fpChildren', { n: res.children }) : ''}</p>
           </div>
         </div>
 
@@ -132,26 +135,26 @@ export default function FolioPrint() {
         <table className={styles.itemsTable}>
           <thead>
             <tr>
-              <th>Datum</th>
-              <th>Kategorija</th>
-              <th>Opis</th>
-              <th className={styles.right}>Kom</th>
-              <th className={styles.right}>Jed. cijena</th>
-              <th className={styles.right}>Iznos</th>
+              <th>{t('htDateHead')}</th>
+              <th>{t('fpCategory')}</th>
+              <th>{t('flDesc')}</th>
+              <th className={styles.right}>{t('fpQtyShort')}</th>
+              <th className={styles.right}>{t('fpUnitPrice')}</th>
+              <th className={styles.right}>{t('htAmount')}</th>
             </tr>
           </thead>
           <tbody>
             {items.length === 0 && (
-              <tr><td colSpan={6} className={styles.emptyRow}>Nema stavki.</td></tr>
+              <tr><td colSpan={6} className={styles.emptyRow}>{t('fpNoItems')}</td></tr>
             )}
             {items.map(item => (
               <tr key={item.id}>
                 <td>
                   {item.date
-                    ? new Date(item.date).toLocaleDateString('sr-Latn', { day: '2-digit', month: '2-digit' })
+                    ? new Date(item.date).toLocaleDateString(dl, { day: '2-digit', month: '2-digit' })
                     : '—'}
                 </td>
-                <td>{TYPE_LABEL[item.type] ?? item.type}</td>
+                <td>{TYPE_LABEL_KEYS[item.type] ? t(TYPE_LABEL_KEYS[item.type]) : item.type}</td>
                 <td>{item.description}</td>
                 <td className={styles.right}>{item.quantity}</td>
                 <td className={styles.right}>€{parseFloat(item.unit_price).toFixed(2)}</td>
@@ -161,22 +164,22 @@ export default function FolioPrint() {
           </tbody>
           <tfoot>
             <tr className={styles.totalRow}>
-              <td colSpan={5} className={styles.right}><strong>Ukupno</strong></td>
+              <td colSpan={5} className={styles.right}><strong>{t('flTotal')}</strong></td>
               <td className={styles.right}><strong>€{computedTotal.toFixed(2)}</strong></td>
             </tr>
             <tr>
-              <td colSpan={5} className={styles.right}>Plaćeno</td>
+              <td colSpan={5} className={styles.right}>{t('htPayPaid')}</td>
               <td className={styles.right}>€{paidAmount.toFixed(2)}</td>
             </tr>
             {balance > 0 && (
               <tr className={styles.balanceDue}>
-                <td colSpan={5} className={styles.right}><strong>Duguje</strong></td>
+                <td colSpan={5} className={styles.right}><strong>{t('fpOwes')}</strong></td>
                 <td className={styles.right}><strong>€{balance.toFixed(2)}</strong></td>
               </tr>
             )}
             {balance < 0 && (
               <tr className={styles.balancePaid}>
-                <td colSpan={5} className={styles.right}><strong>Povrat</strong></td>
+                <td colSpan={5} className={styles.right}><strong>{t('fpRefundLabel')}</strong></td>
                 <td className={styles.right}><strong>€{Math.abs(balance).toFixed(2)}</strong></td>
               </tr>
             )}
@@ -184,7 +187,7 @@ export default function FolioPrint() {
         </table>
 
         <div className={styles.footer}>
-          <p>Hvala na posjeti! &bull; {restaurant?.name}</p>
+          <p>{t('fpThankYou')} &bull; {restaurant?.name}</p>
         </div>
       </div>
     </div>
