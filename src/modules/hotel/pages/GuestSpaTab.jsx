@@ -1,6 +1,7 @@
 import { useState, useEffect } from 'react'
 import { useTranslation } from 'react-i18next'
 import { supabase } from '../../../lib/supabase'
+import { useContentTranslations } from '../../../lib/useContentTranslations'
 import styles from './GuestApp.module.css'
 
 const TODAY = new Date().toISOString().slice(0, 10)
@@ -22,6 +23,9 @@ const APPT_STATUS = {
 
 export default function GuestSpaTab({ restaurantId, session }) {
   const { t, i18n } = useTranslation('guestapp')
+  const tr = useContentTranslations(restaurantId) // AI prevodi naziva/opisa usluge
+  const svcName = (s) => s ? tr('spa_service', s.id, 'name', s.name) : ''
+  const svcDesc = (s) => s ? tr('spa_service', s.id, 'description', s.description) : ''
   const isEn = i18n.language === 'en' // za fmtDateEn/CAT_LABEL_EN/APPT_STATUS lookupe
   const [view, setView] = useState('overview') // overview | book
   const [step, setStep] = useState(0)
@@ -51,7 +55,7 @@ export default function GuestSpaTab({ restaurantId, session }) {
     if (!restaurantId || !session?.id) return
     setApptLoading(true)
     supabase.from('spa_appointments')
-      .select('id, appointment_date, start_time, end_time, duration_minutes, status, price, spa_services(name, category), spa_rooms(name)')
+      .select('id, appointment_date, start_time, end_time, duration_minutes, status, price, spa_services(id, name, category), spa_rooms(name)')
       .eq('restaurant_id', restaurantId)
       .eq('hotel_reservation_id', session.id)
       .not('status', 'in', '(cancelled,no_show)')
@@ -149,7 +153,7 @@ export default function GuestSpaTab({ restaurantId, session }) {
     setConfirmation({ service: selectedService, slot: selectedSlot, date })
     // Refresh appointments
     supabase.from('spa_appointments')
-      .select('id, appointment_date, start_time, end_time, duration_minutes, status, price, spa_services(name, category), spa_rooms(name)')
+      .select('id, appointment_date, start_time, end_time, duration_minutes, status, price, spa_services(id, name, category), spa_rooms(name)')
       .eq('restaurant_id', restaurantId)
       .eq('hotel_reservation_id', session.id)
       .not('status', 'in', '(cancelled,no_show)')
@@ -192,7 +196,7 @@ export default function GuestSpaTab({ restaurantId, session }) {
               <div key={appt.id} className={styles.infoCard} style={{ marginBottom: 10, borderLeft: `4px solid ${st.color}` }}>
                 <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-start', marginBottom: 6 }}>
                   <div style={{ fontWeight: 700, fontSize: 15, color: '#111827' }}>
-                    {appt.spa_services?.name}
+                    {appt.spa_services ? svcName(appt.spa_services) : ''}
                   </div>
                   <span style={{ fontSize: 11, fontWeight: 600, color: st.color, background: `${st.color}18`, padding: '2px 8px', borderRadius: 20 }}>
                     {isEn ? st.labelEn : st.label}
@@ -238,7 +242,7 @@ export default function GuestSpaTab({ restaurantId, session }) {
         {t('spaBooked')}
       </div>
       <div style={{ fontSize: 14, color: '#374151', marginBottom: 4 }}>
-        {confirmation.service.name}
+        {svcName(confirmation.service)}
       </div>
       <div style={{ fontSize: 13, color: '#6b7280', marginBottom: 4 }}>
         {isEn ? fmtDateEn(confirmation.date) : fmtDate(confirmation.date)} · {confirmation.slot.slot_start?.slice(0,5)}
@@ -308,11 +312,11 @@ export default function GuestSpaTab({ restaurantId, session }) {
               onClick={() => setSelectedService(svc)}>
               <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-start' }}>
                 <div>
-                  <div style={{ fontWeight: 700, fontSize: 14, color: '#111827' }}>{svc.name}</div>
+                  <div style={{ fontWeight: 700, fontSize: 14, color: '#111827' }}>{svcName(svc)}</div>
                   <div style={{ fontSize: 12, color: '#6b7280', marginTop: 3 }}>
                     ⏱ {svc.duration_minutes} min · {CAT_ICON[svc.category] || '✨'} {isEn ? CAT_LABEL_EN[svc.category] || svc.category : CAT_LABEL[svc.category] || svc.category}
                   </div>
-                  {svc.description && <div style={{ fontSize: 12, color: '#9ca3af', marginTop: 4 }}>{svc.description}</div>}
+                  {svc.description && <div style={{ fontSize: 12, color: '#9ca3af', marginTop: 4 }}>{svcDesc(svc)}</div>}
                 </div>
                 <div style={{ fontWeight: 700, fontSize: 16, color: '#0d7a52', flexShrink: 0, marginLeft: 12 }}>
                   €{parseFloat(svc.price).toFixed(2)}
@@ -364,7 +368,7 @@ export default function GuestSpaTab({ restaurantId, session }) {
 
           {/* Summary */}
           <div style={{ background: '#f0fdf4', border: '1px solid #86efac', borderRadius: 12, padding: 14, marginBottom: 16 }}>
-            <div style={{ fontSize: 13, fontWeight: 700, color: '#15803d', marginBottom: 4 }}>{selectedService.name}</div>
+            <div style={{ fontSize: 13, fontWeight: 700, color: '#15803d', marginBottom: 4 }}>{svcName(selectedService)}</div>
             <div style={{ fontSize: 12, color: '#16a34a' }}>⏱ {selectedService.duration_minutes} min · €{parseFloat(selectedService.price).toFixed(2)} · folio</div>
           </div>
 

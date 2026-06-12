@@ -3,6 +3,7 @@ import { useTranslation } from 'react-i18next'
 import { usePlatform } from '../../../context/PlatformContext'
 import { supabase } from '../../../lib/supabase'
 import { useSpaServices } from '../hooks/useSpaServices'
+import { translateContent } from '../../../lib/contentTranslate'
 import LoadingSpinner from '../../../components/shared/LoadingSpinner'
 import styles from '../../hotel/pages/Hotel.module.css'
 import spa from './Spa.module.css'
@@ -71,7 +72,14 @@ export default function ServicesPage() {
   const handleSave = async () => {
     if (!form.name.trim() || !form.price) return
     setSaving(true)
-    await save({ ...form, price: Number(form.price), price_couple: form.price_couple ? Number(form.price_couple) : null }, editing)
+    const saved = await save({ ...form, price: Number(form.price), price_couple: form.price_couple ? Number(form.price_couple) : null }, editing)
+    // AI prevod naziva/opisa usluge na ostale jezike (fire-and-forget).
+    if (saved?.id) {
+      const items = []
+      if (saved.name?.trim()) items.push({ entity_type: 'spa_service', entity_id: saved.id, field: 'name', text: saved.name })
+      if (saved.description?.trim()) items.push({ entity_type: 'spa_service', entity_id: saved.id, field: 'description', text: saved.description })
+      translateContent(restaurant.id, items).catch(() => {})
+    }
     setSaving(false)
     close()
   }

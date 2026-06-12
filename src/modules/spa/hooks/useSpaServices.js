@@ -23,13 +23,14 @@ export function useSpaServices(restaurantId) {
 
   const save = async (values, id = null) => {
     const payload = { ...values, restaurant_id: restaurantId }
-    const { error } = id
-      ? await supabase.from('spa_services').update(payload).eq('id', id)
-      : await supabase.from('spa_services').insert(payload)
-    if (error) { toast.error('Greška pri čuvanju tretmana'); return false }
+    // .select().single() → vrati sačuvani red (treba nam id+name+description za AI prevod)
+    const { data, error } = id
+      ? await supabase.from('spa_services').update(payload).eq('id', id).select().single()
+      : await supabase.from('spa_services').insert(payload).select().single()
+    if (error) { toast.error('Greška pri čuvanju tretmana'); return null }
     toast.success(id ? 'Tretman ažuriran' : 'Tretman kreiran')
     load()
-    return true
+    return data
   }
 
   const remove = async (id) => {

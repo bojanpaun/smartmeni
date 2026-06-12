@@ -3,6 +3,7 @@ import { useParams } from 'react-router-dom'
 import { useTranslation } from 'react-i18next'
 import { supabase } from '../lib/supabase'
 import { goToPaymentSession } from '../lib/payments'
+import { useContentTranslations } from '../lib/useContentTranslations'
 import LanguageSwitcher from '../i18n/LanguageSwitcher'
 import styles from './SpaBookingPage.module.css'
 
@@ -38,6 +39,11 @@ export default function SpaBookingPage() {
 
   const [restaurant, setRestaurant] = useState(null)
   const [loadingRest, setLoadingRest] = useState(true)
+  const tr = useContentTranslations(restaurant?.id) // AI prevodi naziva/opisa usluge
+
+  // Prevedeni naziv/opis usluge za aktivni jezik (fallback na izvor).
+  const svcName = (s) => s ? tr('spa_service', s.id, 'name', s.name) : ''
+  const svcDesc = (s) => s ? tr('spa_service', s.id, 'description', s.description) : ''
 
   const [step, setStep] = useState(0)
 
@@ -326,16 +332,16 @@ export default function SpaBookingPage() {
                   {filtered.map(svc => (
                     <div key={svc.id} className={styles.serviceCard} onClick={() => handleSelectService(svc)}>
                       {svc.image_url
-                        ? <img src={svc.image_url} alt={svc.name} className={styles.serviceImg} />
+                        ? <img src={svc.image_url} alt={svcName(svc)} className={styles.serviceImg} />
                         : <div className={styles.serviceImgPlaceholder}>{CATEGORY_ICON[svc.category]}</div>
                       }
                       <div className={styles.serviceBody}>
-                        <div className={styles.serviceName}>{svc.name}</div>
+                        <div className={styles.serviceName}>{svcName(svc)}</div>
                         <div className={styles.serviceMeta}>
                           <span>⏱ {svc.duration_minutes} min</span>
                           {svc.price_couple && <span>👫 €{Number(svc.price_couple).toFixed(0)}/{t('perCouple')}</span>}
                         </div>
-                        {svc.description && <p className={styles.serviceDesc}>{svc.description}</p>}
+                        {svc.description && <p className={styles.serviceDesc}>{svcDesc(svc)}</p>}
                         <div className={styles.serviceFooter}>
                           <span className={styles.servicePrice}>€{Number(svc.price).toFixed(2)}</span>
                           <button className={styles.selectBtn}>{t('selectBtn')}</button>
@@ -355,7 +361,7 @@ export default function SpaBookingPage() {
             <button className={styles.btnBack} onClick={() => setStep(0)}>{t('changeTreatment')}</button>
             <h2 className={styles.stepTitle}>{t('chooseDate')}</h2>
             <div className={styles.summaryBox}>
-              <strong>{CATEGORY_ICON[selectedService.category]} {selectedService.name}</strong>
+              <strong>{CATEGORY_ICON[selectedService.category]} {svcName(selectedService)}</strong>
               <span className={styles.summaryMeta}>⏱ {selectedService.duration_minutes} min · €{Number(selectedService.price).toFixed(2)}</span>
             </div>
             <div className={styles.fieldGroup}>
