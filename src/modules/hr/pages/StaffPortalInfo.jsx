@@ -1,5 +1,6 @@
 // src/modules/hr/pages/StaffPortalInfo.jsx
 import { useState, useRef } from 'react'
+import { useTranslation } from 'react-i18next'
 import QRCode from 'react-qr-code'
 import { usePlatform } from '../../../context/PlatformContext'
 import gsStyles from '../../menu/pages/GeneralSettings.module.css'
@@ -18,6 +19,7 @@ const cardTitle = { fontSize: 13, fontWeight: 600, color: 'var(--c-text)', margi
 
 export default function StaffPortalInfo() {
   const { restaurant } = usePlatform()
+  const { t } = useTranslation('admin')
   const [copied, setCopied] = useState(false)
   const qrRef = useRef(null)
 
@@ -37,11 +39,11 @@ export default function StaffPortalInfo() {
     if (!svg) return
     const svgStr = new XMLSerializer().serializeToString(svg)
     const win = window.open('', '_blank')
-    win.document.write(`<!DOCTYPE html><html><head><title>QR — Portal zaposlenika</title>
+    win.document.write(`<!DOCTYPE html><html><head><title>${t('spiQrTitle')}</title>
       <style>body{margin:0;display:flex;flex-direction:column;align-items:center;justify-content:center;min-height:100vh;font-family:sans-serif;gap:16px}
       p{font-size:14px;color:#555;text-align:center}svg{width:200px;height:200px}@media print{button{display:none}}</style>
-      </head><body>${svgStr}<p>${portalUrl}</p><p style="font-size:12px;color:#999">Portal zaposlenika — ${restaurant.name}</p>
-      <button onclick="window.print()" style="margin-top:12px;padding:8px 20px;background:${brand};color:#fff;border:none;border-radius:8px;cursor:pointer;font-size:14px">Štampaj</button>
+      </head><body>${svgStr}<p>${portalUrl}</p><p style="font-size:12px;color:#999">${t('spiPortalEmployee')} — ${restaurant.name}</p>
+      <button onclick="window.print()" style="margin-top:12px;padding:8px 20px;background:${brand};color:#fff;border:none;border-radius:8px;cursor:pointer;font-size:14px">${t('spiPrint')}</button>
       </body></html>`)
     win.document.close()
   }
@@ -49,13 +51,13 @@ export default function StaffPortalInfo() {
   return (
     <div className={gsStyles.page} style={{ maxWidth: 640 }}>
       <div className={gsStyles.header}>
-        <h1 className={gsStyles.title}>Portal zaposlenika</h1>
-        <p className={gsStyles.subtitle}>Jedan portal za sve zaposlenike — sadržaj se prilagođava ulozi (konobar, sobarica, recepcija, spa terapeut…)</p>
+        <h1 className={gsStyles.title}>{t('spiTitle')}</h1>
+        <p className={gsStyles.subtitle}>{t('spiSubtitle')}</p>
       </div>
 
       {/* Link + QR */}
       <div style={card}>
-        <div style={cardTitle}>Link portala</div>
+        <div style={cardTitle}>{t('spiPortalLink')}</div>
         <div style={{ display: 'flex', alignItems: 'center', gap: 10, background: 'var(--c-primary-light)', borderRadius: 10, padding: '10px 14px' }}>
           <span style={{ flex: 1, fontSize: 13, fontWeight: 500, color: 'var(--c-primary)', wordBreak: 'break-all' }}>{portalUrl}</span>
           <button onClick={copy} style={{
@@ -64,7 +66,7 @@ export default function StaffPortalInfo() {
             fontSize: 12, fontWeight: 600, cursor: 'pointer', flexShrink: 0,
             fontFamily: 'var(--c-font-sans)', transition: 'all 0.2s',
           }}>
-            {copied ? '✓ Kopirano' : 'Kopiraj'}
+            {copied ? `✓ ${t('htCopied')}` : t('htCopy')}
           </button>
         </div>
         <div style={{ marginTop: 12, display: 'flex', gap: 10 }}>
@@ -72,15 +74,15 @@ export default function StaffPortalInfo() {
             padding: '9px 18px', borderRadius: 10, background: brand,
             color: '#fff', fontSize: 13, fontWeight: 600, textDecoration: 'none',
           }}>
-            Otvori portal →
+            {t('spiOpenPortal')} →
           </a>
         </div>
       </div>
 
       {/* QR kod */}
       <div style={card}>
-        <div style={{ ...cardTitle, marginBottom: 4 }}>QR kod za zaposlenike</div>
-        <div style={{ fontSize: 12, color: 'var(--c-text-muted)', marginBottom: 16 }}>Štampajte i zalijepite na vidljivo mjesto — konobarnica, kuhinja, recepcija.</div>
+        <div style={{ ...cardTitle, marginBottom: 4 }}>{t('spiQrForStaff')}</div>
+        <div style={{ fontSize: 12, color: 'var(--c-text-muted)', marginBottom: 16 }}>{t('spiQrHint')}</div>
         <div style={{ display: 'flex', alignItems: 'flex-start', gap: 24, flexWrap: 'wrap' }}>
           {/* QR mora ostati na bijeloj podlozi radi skeniranja (i u dark modu) */}
           <div ref={qrRef} style={{ padding: 12, background: '#fff', border: '1px solid var(--c-border)', borderRadius: 12, display: 'inline-block' }}>
@@ -94,7 +96,7 @@ export default function StaffPortalInfo() {
           </div>
           <div style={{ flex: 1, minWidth: 160 }}>
             <div style={{ fontSize: 12, color: 'var(--c-text-medium)', lineHeight: 1.6, marginBottom: 14 }}>
-              Zaposlenik skenira QR kodom → otvara se login stranica portala → loguje se sa email/lozinkom.
+              {t('spiQrDesc')}
             </div>
             <button onClick={printQR} style={{
               padding: '9px 18px', borderRadius: 10, border: `1px solid ${brand}`,
@@ -102,7 +104,7 @@ export default function StaffPortalInfo() {
               fontSize: 13, fontWeight: 600, cursor: 'pointer',
               fontFamily: 'var(--c-font-sans)',
             }}>
-              🖨 Štampaj QR kod
+              🖨 {t('spiPrintQr')}
             </button>
           </div>
         </div>
@@ -110,12 +112,12 @@ export default function StaffPortalInfo() {
 
       {/* Uputstvo */}
       <div style={card}>
-        <div style={{ ...cardTitle, marginBottom: 14 }}>Kako zaposlenici pristupaju portalu</div>
+        <div style={{ ...cardTitle, marginBottom: 14 }}>{t('spiHowAccess')}</div>
         {[
-          { num: '1', title: 'Kreiraj nalog zaposleniku', desc: 'U modulu Zaposleni → dodaj zaposlenika sa emailom i lozinkom.' },
-          { num: '2', title: 'Pošalji link', desc: `Zaposlenik otvara ${portalUrl} na svom telefonu ili računaru.` },
-          { num: '3', title: 'Login', desc: 'Zaposlenik se loguje sa emailom i lozinkom koje si mu dodijelio.' },
-          { num: '4', title: 'Pregled podataka', desc: 'Zaposlenik vidi svoj raspored, dolaske, zaradu i odsustva — bez mogućnosti izmjene.' },
+          { num: '1', title: t('spiStep1Title'), desc: t('spiStep1Desc') },
+          { num: '2', title: t('spiStep2Title'), desc: t('spiStep2Desc', { url: portalUrl }) },
+          { num: '3', title: t('spiStep3Title'), desc: t('spiStep3Desc') },
+          { num: '4', title: t('spiStep4Title'), desc: t('spiStep4Desc') },
         ].map(s => (
           <div key={s.num} style={{ display: 'flex', gap: 14, marginBottom: 14, alignItems: 'flex-start' }}>
             <div style={{
@@ -133,14 +135,14 @@ export default function StaffPortalInfo() {
 
       {/* Šta zaposlenik vidi */}
       <div style={{ ...card, marginBottom: 0 }}>
-        <div style={{ ...cardTitle, marginBottom: 14 }}>Šta zaposlenik može vidjeti</div>
+        <div style={{ ...cardTitle, marginBottom: 14 }}>{t('spiWhatSees')}</div>
         {[
-          { icon: '🧹', label: 'Sobarica', desc: 'Zadaci čišćenja za danas, prijava kvarova' },
-          { icon: '🍽️', label: 'Konobar', desc: 'Aktivne narudžbe, waiter zahtjevi' },
-          { icon: '🍳', label: 'Kuhinja', desc: 'Real-time kitchen display narudžbi' },
-          { icon: '🛎️', label: 'Recepcija', desc: 'Check-in/out za danas, status soba' },
-          { icon: '💆', label: 'Spa terapeut', desc: 'Dnevni termini i raspored' },
-          { icon: '📅', label: 'Svi', desc: 'Raspored, dolasci, zarada, odsustva (HR tab)' },
+          { icon: '🧹', label: t('spiRoleHK'), desc: t('spiRoleHKDesc') },
+          { icon: '🍽️', label: t('spiRoleWaiter'), desc: t('spiRoleWaiterDesc') },
+          { icon: '🍳', label: t('spiRoleKitchen'), desc: t('spiRoleKitchenDesc') },
+          { icon: '🛎️', label: t('spiRoleReception'), desc: t('spiRoleReceptionDesc') },
+          { icon: '💆', label: t('spiRoleSpa'), desc: t('spiRoleSpaDesc') },
+          { icon: '📅', label: t('spiRoleAll'), desc: t('spiRoleAllDesc') },
         ].map(item => (
           <div key={item.label} style={{ display: 'flex', gap: 12, marginBottom: 10, alignItems: 'center' }}>
             <span style={{ fontSize: 20, width: 28, textAlign: 'center', flexShrink: 0 }}>{item.icon}</span>
@@ -151,7 +153,7 @@ export default function StaffPortalInfo() {
           </div>
         ))}
         <div style={{ marginTop: 12, padding: '10px 14px', background: 'var(--c-bg-subtle)', borderRadius: 10, fontSize: 12, color: 'var(--c-text-medium)', border: '1px solid var(--c-border)' }}>
-          ℹ️ Zaposlenik ne može mijenjati nikakve podatke — sve je read-only.
+          ℹ️ {t('spiReadOnly')}
         </div>
       </div>
     </div>
