@@ -1,4 +1,5 @@
 import { useState, useEffect, useRef } from 'react'
+import { useContentTranslations } from '../lib/useContentTranslations'
 import { useParams, useNavigate } from 'react-router-dom'
 import { useTranslation } from 'react-i18next'
 import { supabase } from '../lib/supabase'
@@ -193,6 +194,8 @@ export default function Menu() {
   const isDemo = !slug || slug === 'demo' || !realData
   const data = isDemo ? DEMO_DATA : null
   const r = isDemo ? data.restaurant : realData?.restaurant
+  // AI prevodi tenant-sadržaja za aktivni jezik (demo ostaje na izvoru/en kolonama).
+  const tr = useContentTranslations(isDemo ? null : r?.id)
   const tpl = getTemplate(r?.template, r?.color)
   const onlineReservations = isDemo ? true : (r?.online_reservations ?? false)
   const guestRegistration = isDemo ? true : (r?.guest_registration_enabled ?? true)
@@ -488,7 +491,7 @@ export default function Menu() {
             ⚡ {t('dailySpecial')}
           </div>
           <div className={styles.specialName}>
-            {specialItem.emoji} {isEn ? specialItem.nameEn : specialItem.name}
+            {specialItem.emoji} {tr('menu_item', specialItem.id, 'name', isEn ? (specialItem.name_en || specialItem.nameEn || specialItem.name) : specialItem.name)}
           </div>
           <div className={styles.specialDesc}>
             {isEn ? specialItem.descEn : specialItem.desc}
@@ -509,7 +512,7 @@ export default function Menu() {
             style={activeCat === cat.id ? { background: tpl.catBg, color: tpl.catColor, borderColor: tpl.catBorder } : {}}
             onClick={() => setActiveCat(cat.id)}
           >
-            {cat.icon} {isEn ? (cat.name_en || cat.label || cat.name) : (cat.label || cat.name)}
+            {cat.icon} {tr('category', cat.id, 'name', isEn ? (cat.name_en || cat.label || cat.name) : (cat.label || cat.name))}
           </button>
         ))}
       </div>
@@ -529,8 +532,8 @@ export default function Menu() {
                 : item.emoji}
             </div>
             <div className={styles.itemBody}>
-              <div className={styles.itemName}>{isEn ? (item.name_en || item.nameEn || item.name) : item.name}</div>
-              <div className={styles.itemDesc}>{isEn ? (item.description_en || item.descEn || item.description) : (item.description || item.desc)}</div>
+              <div className={styles.itemName}>{tr('menu_item', item.id, 'name', isEn ? (item.name_en || item.nameEn || item.name) : item.name)}</div>
+              <div className={styles.itemDesc}>{tr('menu_item', item.id, 'description', isEn ? (item.description_en || item.descEn || item.description) : (item.description || item.desc))}</div>
               {(item.tags || []).length > 0 && (
                 <div className={styles.itemTags}>
                   {(item.tags || []).map(t => (
@@ -730,8 +733,8 @@ export default function Menu() {
               ? <img src={selectedItem.image_url} alt={selectedItem.name} loading="lazy" decoding="async" style={{width:'100%',height:160,objectFit:'cover',borderRadius:12,marginBottom:12}} />
               : <div className={styles.sheetEmoji}>{selectedItem.emoji}</div>
             }
-            <div className={styles.sheetName}>{isEn ? (selectedItem.name_en || selectedItem.nameEn || selectedItem.name) : selectedItem.name}</div>
-            <div className={styles.sheetDesc}>{isEn ? (selectedItem.description_en || selectedItem.descEn || selectedItem.description) : (selectedItem.description || selectedItem.desc)}</div>
+            <div className={styles.sheetName}>{tr('menu_item', selectedItem.id, 'name', isEn ? (selectedItem.name_en || selectedItem.nameEn || selectedItem.name) : selectedItem.name)}</div>
+            <div className={styles.sheetDesc}>{tr('menu_item', selectedItem.id, 'description', isEn ? (selectedItem.description_en || selectedItem.descEn || selectedItem.description) : (selectedItem.description || selectedItem.desc))}</div>
             <div className={styles.sheetDetails}>
               <div className={styles.sheetRow}>
                 <span className={styles.sheetRowLabel}>{t('calories')}</span>

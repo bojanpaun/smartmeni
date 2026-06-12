@@ -4,6 +4,7 @@ import { useTranslation } from 'react-i18next'
 import { supabase } from '../../../lib/supabase'
 import { usePlatform } from '../../../context/PlatformContext'
 import { stripAccountFields } from '../../../lib/planUtils'
+import { translateContent, menuItemFields } from '../../../lib/contentTranslate'
 import RecipeLibraryPicker from '../components/RecipeLibraryPicker'
 import styles from './AdminMenu.module.css'
 import gsStyles from './GeneralSettings.module.css'
@@ -122,12 +123,20 @@ export default function AdminMenu() {
       calories: itemForm.calories ? parseInt(itemForm.calories) : null,
       restaurant_id: restaurant.id,
     }
+    let savedId = editItem?.id
     if (editItem) {
       await supabase.from('menu_items').update(payload).eq('id', editItem.id)
       setItems(items.map(i => i.id === editItem.id ? { ...i, ...payload } : i))
     } else {
       const { data } = await supabase.from('menu_items').insert(payload).select().single()
+      savedId = data?.id
       setItems([...items, data])
+    }
+    // Fire-and-forget AI prevod naziva/opisa na 6 jezika (ne blokira UI; edge
+    // preskače svjež/override). Greške tihe — fallback na izvor u GuestMenu.
+    if (savedId) {
+      translateContent(restaurant.id, menuItemFields({ id: savedId, name: payload.name, description: payload.description }))
+        .catch(() => {})
     }
     setSaving(false)
     setShowItemForm(false)
@@ -146,6 +155,9 @@ export default function AdminMenu() {
     }).select().single()
     setCategories([...categories, data])
     setActiveCategory(data.id)
+    if (data?.id) {
+      translateContent(restaurant.id, [{ entity_type: 'category', entity_id: data.id, field: 'name', text: name }]).catch(() => {})
+    }
   }
 
   const startEditCategory = (cat) => {
@@ -160,6 +172,7 @@ export default function AdminMenu() {
     await supabase.from('categories').update(payload).eq('id', cat.id).eq('restaurant_id', restaurant.id)
     setCategories(categories.map(c => c.id === cat.id ? { ...c, ...payload } : c))
     setEditingCat(false)
+    translateContent(restaurant.id, [{ entity_type: 'category', entity_id: cat.id, field: 'name', text: name }]).catch(() => {})
   }
 
   const deleteCategory = async (cat) => {
