@@ -1,10 +1,19 @@
 import { useState, useEffect } from 'react'
+import { useTranslation } from 'react-i18next'
 import { supabase } from '../../../lib/supabase'
 import { usePlatform } from '../../../context/PlatformContext'
 import gsStyles from '../../menu/pages/GeneralSettings.module.css'
 
+const CAT_KEYS = {
+  namirnice: 'invCatNamirnice', 'piće': 'invCatPice', alkohol: 'invCatAlkohol',
+  'začini': 'invCatZacini', 'ambalaža': 'invCatAmbalaza', ostalo: 'invCatOstalo',
+}
+
 export default function InventoryAnalytics() {
   const { restaurant } = usePlatform()
+  const { t, i18n } = useTranslation('admin')
+  const dl = i18n.language === 'en' ? 'en-US' : 'sr-Latn'
+  const catLabel = (c) => t(CAT_KEYS[c] || 'invCatOstalo')
   const [items, setItems] = useState([])
   const [movements, setMovements] = useState([])
   const [loading, setLoading] = useState(true)
@@ -23,7 +32,7 @@ export default function InventoryAnalytics() {
     })
   }, [restaurant])
 
-  if (loading) return <div className={gsStyles.loading}>Učitavanje...</div>
+  if (loading) return <div className={gsStyles.loading}>{t('loading')}</div>
 
   const totalItems   = items.length
   const lowItems     = items.filter(i => i.min_quantity && i.quantity < i.min_quantity)
@@ -33,7 +42,7 @@ export default function InventoryAnalytics() {
 
   // Kategorije
   const byCategory = items.reduce((acc, i) => {
-    const cat = i.category || 'Ostalo'
+    const cat = i.category || 'ostalo'
     if (!acc[cat]) acc[cat] = { count: 0, value: 0 }
     acc[cat].count++
     acc[cat].value += (i.quantity || 0) * (i.cost_per_unit || 0)
@@ -41,18 +50,18 @@ export default function InventoryAnalytics() {
   }, {})
 
   const metrics = [
-    { label: 'Ukupno stavki', value: totalItems },
-    { label: 'Ispod minimuma', value: lowItems.length, color: lowItems.length > 0 ? '#a32d2d' : '#0d7a52' },
-    { label: 'Vrijednost zaliha', value: `€${totalValue.toFixed(0)}`, color: '#0d7a52' },
-    { label: 'Ulazi (30 dana)', value: inMoves, color: '#0d7a52' },
-    { label: 'Izlazi (30 dana)', value: outMoves, color: '#ba7517' },
+    { label: t('iaTotalItems'), value: totalItems },
+    { label: t('invBelowMin'), value: lowItems.length, color: lowItems.length > 0 ? '#a32d2d' : '#0d7a52' },
+    { label: t('iaStockValue'), value: `€${totalValue.toFixed(0)}`, color: '#0d7a52' },
+    { label: t('iaInflows'), value: inMoves, color: '#0d7a52' },
+    { label: t('iaOutflows'), value: outMoves, color: '#ba7517' },
   ]
 
   return (
     <div className={gsStyles.page} style={{ maxWidth: 900 }}>
       <div className={gsStyles.header}>
-        <h1 className={gsStyles.title}>Analitika zaliha</h1>
-        <p className={gsStyles.subtitle}>Pregled inventara, vrijednosti i promjena za posljednjih 30 dana.</p>
+        <h1 className={gsStyles.title}>{t('iaTitle')}</h1>
+        <p className={gsStyles.subtitle}>{t('iaSubtitle')}</p>
       </div>
 
       {/* Metrike */}
@@ -69,13 +78,13 @@ export default function InventoryAnalytics() {
       {lowItems.length > 0 && (
         <div style={{ background: '#fff8f5', border: '1px solid #f5c0a0', borderRadius: 14, padding: '18px 22px', marginBottom: 16 }}>
           <div style={{ fontSize: 14, fontWeight: 600, color: '#a32d2d', marginBottom: 12 }}>
-            ⚠️ Stavke ispod minimuma ({lowItems.length})
+            ⚠️ {t('iaItemsBelowMin')} ({lowItems.length})
           </div>
           {lowItems.map(item => (
             <div key={item.id} style={{ display: 'flex', justifyContent: 'space-between', padding: '7px 0', borderBottom: '1px solid #f5e0d8', fontSize: 13 }}>
               <span style={{ fontWeight: 500, color: '#1a2e26' }}>{item.name}</span>
               <span style={{ color: '#a32d2d', fontWeight: 600 }}>
-                {item.quantity} {item.unit} <span style={{ color: '#b0c0b8', fontWeight: 400 }}>/ min {item.min_quantity}</span>
+                {item.quantity} {item.unit} <span style={{ color: '#b0c0b8', fontWeight: 400 }}>/ {t('iaMin')} {item.min_quantity}</span>
               </span>
             </div>
           ))}
@@ -85,15 +94,15 @@ export default function InventoryAnalytics() {
       {/* Po kategorijama */}
       {Object.keys(byCategory).length > 0 && (
         <div style={{ background: '#fff', borderRadius: 14, border: '1px solid #e0ece6', padding: '20px 24px', marginBottom: 16 }}>
-          <div style={{ fontSize: 14, fontWeight: 600, color: '#0e1a14', marginBottom: 16 }}>Po kategorijama</div>
+          <div style={{ fontSize: 14, fontWeight: 600, color: '#0e1a14', marginBottom: 16 }}>{t('iaByCategory')}</div>
           {Object.entries(byCategory).sort(([,a],[,b]) => b.count - a.count).map(([cat, data]) => (
             <div key={cat} style={{ display: 'flex', alignItems: 'center', gap: 12, marginBottom: 10 }}>
-              <div style={{ width: 120, fontSize: 13, color: '#5a7a6a', fontWeight: 500, flexShrink: 0 }}>{cat}</div>
+              <div style={{ width: 120, fontSize: 13, color: '#5a7a6a', fontWeight: 500, flexShrink: 0 }}>{catLabel(cat)}</div>
               <div style={{ flex: 1, background: '#f0f5f2', borderRadius: 6, height: 10, overflow: 'hidden' }}>
                 <div style={{ height: '100%', borderRadius: 6, background: '#0d7a52', width: `${(data.count / totalItems) * 100}%` }} />
               </div>
               <div style={{ fontSize: 12, color: '#8a9e96', minWidth: 80, textAlign: 'right' }}>
-                {data.count} st. · €{data.value.toFixed(0)}
+                {data.count} {t('iaItemsShort')} · €{data.value.toFixed(0)}
               </div>
             </div>
           ))}
@@ -103,7 +112,7 @@ export default function InventoryAnalytics() {
       {/* Zadnje promjene */}
       {movements.length > 0 && (
         <div style={{ background: '#fff', borderRadius: 14, border: '1px solid #e0ece6', padding: '20px 24px' }}>
-          <div style={{ fontSize: 14, fontWeight: 600, color: '#0e1a14', marginBottom: 14 }}>Nedavne promjene</div>
+          <div style={{ fontSize: 14, fontWeight: 600, color: '#0e1a14', marginBottom: 14 }}>{t('iaRecentChanges')}</div>
           {movements.slice(0, 8).map(m => {
             const isIn = m.type === 'in' || m.quantity > 0
             return (
@@ -112,7 +121,7 @@ export default function InventoryAnalytics() {
                 <div style={{ flex: 1 }}>
                   <div style={{ fontSize: 13, fontWeight: 500, color: '#1a2e26' }}>{m.item_name || m.note || '—'}</div>
                   <div style={{ fontSize: 11, color: '#8a9e96' }}>
-                    {new Date(m.created_at).toLocaleDateString('sr-Latn')} · {m.note || ''}
+                    {new Date(m.created_at).toLocaleDateString(dl)} · {m.note || ''}
                   </div>
                 </div>
                 <span style={{ fontSize: 13, fontWeight: 600, color: isIn ? '#0d7a52' : '#ba7517' }}>

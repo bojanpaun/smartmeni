@@ -2,6 +2,7 @@
 
 import { useState, useEffect } from 'react'
 import { useNavigate } from 'react-router-dom'
+import { useTranslation } from 'react-i18next'
 import { supabase } from '../../../lib/supabase'
 import { usePlatform } from '../../../context/PlatformContext'
 import { useSortable } from '../../../hooks/useSortable'
@@ -12,11 +13,19 @@ import gsStyles from '../../menu/pages/GeneralSettings.module.css'
 const UNITS = ['kom', 'kg', 'g', 'l', 'ml', 'pak']
 const CATEGORIES = ['namirnice', 'piće', 'alkohol', 'začini', 'ambalaža', 'ostalo']
 
-const UNIT_LABELS = { kom: 'kom', kg: 'kg', g: 'g', l: 'l', ml: 'ml', pak: 'pak' }
+// Stored DB enum vrijednost → prevodni ključ (vrijednost u bazi ostaje crnogorska).
+const CAT_KEYS = {
+  namirnice: 'invCatNamirnice', 'piće': 'invCatPice', alkohol: 'invCatAlkohol',
+  'začini': 'invCatZacini', 'ambalaža': 'invCatAmbalaza', ostalo: 'invCatOstalo',
+}
 
 export default function InventoryPage() {
   const { restaurant } = usePlatform()
   const navigate = useNavigate()
+  const { t } = useTranslation('admin')
+
+  const catLabel = (c) => t(CAT_KEYS[c] || 'invCatOstalo')
+  const unitLabel = (u) => u === 'kom' ? t('invUnitKom') : u === 'pak' ? t('invUnitPak') : u
 
   const [items, setItems] = useState([])
   const [loading, setLoading] = useState(true)
@@ -97,7 +106,7 @@ export default function InventoryPage() {
   }
 
   const deleteItem = async (id) => {
-    if (!confirm('Obrisati ovu stavku iz inventara?')) return
+    if (!confirm(t('invDeleteConfirm'))) return
     await supabase.from('inventory_items').delete().eq('id', id)
     setItems(prev => prev.filter(i => i.id !== id))
   }
@@ -149,7 +158,7 @@ export default function InventoryPage() {
 
   const isLow = (item) => parseFloat(item.min_quantity) > 0 && parseFloat(item.quantity) <= parseFloat(item.min_quantity)
 
-  if (loading) return <div className={styles.loading}>Učitavanje inventara...</div>
+  if (loading) return <div className={styles.loading}>{t('invLoading')}</div>
 
   return (
     <div className={gsStyles.page} style={{ maxWidth: 960 }}>
@@ -157,17 +166,17 @@ export default function InventoryPage() {
       {/* Header */}
       <div className={styles.header}>
         <div>
-          <h1 className={gsStyles.title}>Inventar</h1>
-          <p className={gsStyles.subtitle}>Upravljajte stavkama zaliha, količinama i minimalnim nivoima.</p>
+          <h1 className={gsStyles.title}>{t('invTitle')}</h1>
+          <p className={gsStyles.subtitle}>{t('invSubtitle')}</p>
           {lowItems.length > 0 && (
             <div className={styles.lowBadge}>
-              ⚠️ {lowItems.length} {lowItems.length === 1 ? 'stavka' : 'stavki'} ispod minimuma
+              ⚠️ {t('invLowItems', { count: lowItems.length })}
             </div>
           )}
         </div>
         <div className={styles.headerActions}>
           <button className={styles.btnAdd} onClick={() => openForm()}>
-            + Nova stavka
+            + {t('invNewItem')}
           </button>
         </div>
       </div>
@@ -176,7 +185,7 @@ export default function InventoryPage() {
       <div className={styles.filters}>
         <input
           className={styles.search}
-          placeholder="Pretraži inventar..."
+          placeholder={t('invSearchPlaceholder')}
           value={search}
           onChange={e => setSearch(e.target.value)}
         />
@@ -187,7 +196,7 @@ export default function InventoryPage() {
               className={`${styles.filterBtn} ${filterCat === c ? styles.filterBtnActive : ''}`}
               onClick={() => setFilterCat(c)}
             >
-              {c.charAt(0).toUpperCase() + c.slice(1)}
+              {c === 'sve' ? t('invCatAll') : catLabel(c)}
             </button>
           ))}
         </div>
@@ -195,7 +204,7 @@ export default function InventoryPage() {
           className={`${styles.filterBtn} ${filterLow ? styles.filterBtnLow : ''}`}
           onClick={() => setFilterLow(f => !f)}
         >
-          ⚠️ Niske zalihe {lowItems.length > 0 && `(${lowItems.length})`}
+          ⚠️ {t('invLowStock')} {lowItems.length > 0 && `(${lowItems.length})`}
         </button>
       </div>
 
@@ -203,33 +212,33 @@ export default function InventoryPage() {
       {filtered.length === 0 ? (
         <div className={styles.empty}>
           <div className={styles.emptyIcon}>📦</div>
-          <div>Nema stavki u inventaru.</div>
-          <button className={styles.btnAdd} onClick={() => openForm()}>+ Dodaj prvu stavku</button>
+          <div>{t('invEmpty')}</div>
+          <button className={styles.btnAdd} onClick={() => openForm()}>+ {t('invAddFirst')}</button>
         </div>
       ) : (
         <div className={styles.table}>
           <div className={styles.tableHeader}>
-            <span><SortableHead col="name"          label="Naziv"       sortBy={sort.sortBy} sortDir={sort.sortDir} onSort={sort.onSort} /></span>
-            <span><SortableHead col="category"      label="Kategorija"  sortBy={sort.sortBy} sortDir={sort.sortDir} onSort={sort.onSort} /></span>
-            <span><SortableHead col="quantity"      label="Količina"    sortBy={sort.sortBy} sortDir={sort.sortDir} onSort={sort.onSort} /></span>
-            <span><SortableHead col="min_quantity"  label="Minimum"     sortBy={sort.sortBy} sortDir={sort.sortDir} onSort={sort.onSort} /></span>
-            <span><SortableHead col="cost_per_unit" label="Cijena/jed." sortBy={sort.sortBy} sortDir={sort.sortDir} onSort={sort.onSort} /></span>
+            <span><SortableHead col="name"          label={t('invColName')}     sortBy={sort.sortBy} sortDir={sort.sortDir} onSort={sort.onSort} /></span>
+            <span><SortableHead col="category"      label={t('invColCategory')} sortBy={sort.sortBy} sortDir={sort.sortDir} onSort={sort.onSort} /></span>
+            <span><SortableHead col="quantity"      label={t('invColQuantity')} sortBy={sort.sortBy} sortDir={sort.sortDir} onSort={sort.onSort} /></span>
+            <span><SortableHead col="min_quantity"  label={t('invColMin')}      sortBy={sort.sortBy} sortDir={sort.sortDir} onSort={sort.onSort} /></span>
+            <span><SortableHead col="cost_per_unit" label={t('invColCostUnit')} sortBy={sort.sortBy} sortDir={sort.sortDir} onSort={sort.onSort} /></span>
             <span></span>
           </div>
           {sort.sort(filtered).map(item => (
             <div key={item.id} className={`${styles.tableRow} ${isLow(item) ? styles.tableRowLow : ''}`}>
               <div className={styles.itemName}>
-                {isLow(item) && <span className={styles.lowDot} title="Ispod minimuma" />}
+                {isLow(item) && <span className={styles.lowDot} title={t('invBelowMin')} />}
                 {item.name}
                 {item.note && <span className={styles.itemNote}>{item.note}</span>}
               </div>
-              <div className={styles.itemCat}>{item.category}</div>
+              <div className={styles.itemCat}>{catLabel(item.category)}</div>
               <div className={`${styles.itemQty} ${isLow(item) ? styles.itemQtyLow : ''}`}>
-                {parseFloat(item.quantity).toLocaleString('sr')} {item.unit}
+                {parseFloat(item.quantity).toLocaleString('sr')} {unitLabel(item.unit)}
               </div>
               <div className={styles.itemMin}>
                 {parseFloat(item.min_quantity) > 0
-                  ? `${parseFloat(item.min_quantity).toLocaleString('sr')} ${item.unit}`
+                  ? `${parseFloat(item.min_quantity).toLocaleString('sr')} ${unitLabel(item.unit)}`
                   : '—'
                 }
               </div>
@@ -240,12 +249,12 @@ export default function InventoryPage() {
                 <button
                   className={styles.btnMovement}
                   onClick={() => { setShowMovement(item); setMovementForm({ type: 'in', quantity: '', note: '' }) }}
-                  title="Dodaj/odbitak"
+                  title={t('invMovementTitle')}
                 >
                   ±
                 </button>
-                <button className={styles.btnEdit} onClick={() => openForm(item)}>Uredi</button>
-                <button className={styles.btnDelete} onClick={() => deleteItem(item.id)}>Briši</button>
+                <button className={styles.btnEdit} onClick={() => openForm(item)}>{t('htEdit')}</button>
+                <button className={styles.btnDelete} onClick={() => deleteItem(item.id)}>{t('invDelete')}</button>
               </div>
             </div>
           ))}
@@ -257,48 +266,48 @@ export default function InventoryPage() {
         <div className={styles.overlay} onClick={() => setShowForm(false)}>
           <div className={styles.modal} onClick={e => e.stopPropagation()}>
             <div className={styles.modalHeader}>
-              <div className={styles.modalTitle}>{editItem ? 'Uredi stavku' : 'Nova stavka inventara'}</div>
+              <div className={styles.modalTitle}>{editItem ? t('invEditItem') : t('invNewItemTitle')}</div>
               <button className={styles.modalClose} onClick={() => setShowForm(false)}>✕</button>
             </div>
             <form onSubmit={saveItem} className={styles.form}>
               <div className={styles.grid}>
                 <div className={`${styles.field} ${styles.fullWidth}`}>
-                  <label>Naziv *</label>
+                  <label>{t('invFieldName')}</label>
                   <input value={form.name} onChange={e => setForm(f => ({ ...f, name: e.target.value }))} placeholder="npr. Brašno T-500" required />
                 </div>
                 <div className={styles.field}>
-                  <label>Kategorija</label>
+                  <label>{t('invFieldCategory')}</label>
                   <select value={form.category} onChange={e => setForm(f => ({ ...f, category: e.target.value }))}>
-                    {CATEGORIES.map(c => <option key={c} value={c}>{c.charAt(0).toUpperCase() + c.slice(1)}</option>)}
+                    {CATEGORIES.map(c => <option key={c} value={c}>{catLabel(c)}</option>)}
                   </select>
                 </div>
                 <div className={styles.field}>
-                  <label>Jedinica mjere</label>
+                  <label>{t('invFieldUnit')}</label>
                   <select value={form.unit} onChange={e => setForm(f => ({ ...f, unit: e.target.value }))}>
-                    {UNITS.map(u => <option key={u} value={u}>{UNIT_LABELS[u]}</option>)}
+                    {UNITS.map(u => <option key={u} value={u}>{unitLabel(u)}</option>)}
                   </select>
                 </div>
                 <div className={styles.field}>
-                  <label>Trenutna količina</label>
+                  <label>{t('invFieldQuantity')}</label>
                   <input type="number" min="0" step="0.001" value={form.quantity} onChange={e => setForm(f => ({ ...f, quantity: e.target.value }))} placeholder="0" />
                 </div>
                 <div className={styles.field}>
-                  <label>Minimalna količina</label>
+                  <label>{t('invFieldMinQuantity')}</label>
                   <input type="number" min="0" step="0.001" value={form.min_quantity} onChange={e => setForm(f => ({ ...f, min_quantity: e.target.value }))} placeholder="0" />
                 </div>
                 <div className={styles.field}>
-                  <label>Cijena po jedinici (€)</label>
+                  <label>{t('invFieldCostUnit')}</label>
                   <input type="number" min="0" step="0.01" value={form.cost_per_unit} onChange={e => setForm(f => ({ ...f, cost_per_unit: e.target.value }))} placeholder="0.00" />
                 </div>
                 <div className={`${styles.field} ${styles.fullWidth}`}>
-                  <label>Napomena</label>
-                  <input value={form.note} onChange={e => setForm(f => ({ ...f, note: e.target.value }))} placeholder="Dobavljač, napomena..." />
+                  <label>{t('hkpNote')}</label>
+                  <input value={form.note} onChange={e => setForm(f => ({ ...f, note: e.target.value }))} placeholder={t('invPhSupplierNote')} />
                 </div>
               </div>
               <div className={styles.formActions}>
-                <button type="button" className={styles.btnCancelForm} onClick={() => setShowForm(false)}>Odustani</button>
+                <button type="button" className={styles.btnCancelForm} onClick={() => setShowForm(false)}>{t('cancel')}</button>
                 <button type="submit" className={styles.btnSave} disabled={saving}>
-                  {saving ? 'Čuvanje...' : 'Sačuvaj'}
+                  {saving ? t('saving') : t('save')}
                 </button>
               </div>
             </form>
@@ -311,33 +320,33 @@ export default function InventoryPage() {
         <div className={styles.overlay} onClick={() => setShowMovement(null)}>
           <div className={styles.modalSmall} onClick={e => e.stopPropagation()}>
             <div className={styles.modalHeader}>
-              <div className={styles.modalTitle}>Pokret zaliha — {showMovement.name}</div>
+              <div className={styles.modalTitle}>{t('invMovementHead')} — {showMovement.name}</div>
               <button className={styles.modalClose} onClick={() => setShowMovement(null)}>✕</button>
             </div>
             <div className={styles.movementCurrent}>
-              Trenutno: <strong>{parseFloat(showMovement.quantity).toLocaleString('sr')} {showMovement.unit}</strong>
+              {t('invCurrent')}: <strong>{parseFloat(showMovement.quantity).toLocaleString('sr')} {unitLabel(showMovement.unit)}</strong>
             </div>
             <form onSubmit={saveMovement} className={styles.form}>
               <div className={styles.movementTypes}>
                 {[
-                  { value: 'in', label: '+ Ulaz', desc: 'Dodati na zalihu' },
-                  { value: 'out', label: '− Izlaz', desc: 'Oduzeti sa zalihe' },
-                  { value: 'adjustment', label: '= Korekcija', desc: 'Direktno postaviti' },
-                ].map(t => (
+                  { value: 'in', label: t('invTypeInLabel'), desc: t('invTypeInDesc') },
+                  { value: 'out', label: t('invTypeOutLabel'), desc: t('invTypeOutDesc') },
+                  { value: 'adjustment', label: t('invTypeAdjLabel'), desc: t('invTypeAdjDesc') },
+                ].map(mt => (
                   <button
-                    key={t.value}
+                    key={mt.value}
                     type="button"
-                    className={`${styles.movementTypeBtn} ${movementForm.type === t.value ? styles.movementTypeBtnActive : ''} ${styles[`type-${t.value}`]}`}
-                    onClick={() => setMovementForm(f => ({ ...f, type: t.value }))}
+                    className={`${styles.movementTypeBtn} ${movementForm.type === mt.value ? styles.movementTypeBtnActive : ''} ${styles[`type-${mt.value}`]}`}
+                    onClick={() => setMovementForm(f => ({ ...f, type: mt.value }))}
                   >
-                    <span className={styles.movementTypeBtnLabel}>{t.label}</span>
-                    <span className={styles.movementTypeBtnDesc}>{t.desc}</span>
+                    <span className={styles.movementTypeBtnLabel}>{mt.label}</span>
+                    <span className={styles.movementTypeBtnDesc}>{mt.desc}</span>
                   </button>
                 ))}
               </div>
               <div className={styles.field}>
                 <label>
-                  {movementForm.type === 'adjustment' ? 'Nova količina' : 'Količina'} ({showMovement.unit}) *
+                  {movementForm.type === 'adjustment' ? t('invNewQuantity') : t('invQuantity')} ({unitLabel(showMovement.unit)}) *
                 </label>
                 <input
                   type="number" min="0" step="0.001"
@@ -349,29 +358,29 @@ export default function InventoryPage() {
                 />
               </div>
               <div className={styles.field}>
-                <label>Napomena</label>
+                <label>{t('hkpNote')}</label>
                 <input
                   value={movementForm.note}
                   onChange={e => setMovementForm(f => ({ ...f, note: e.target.value }))}
-                  placeholder="Razlog, dobavljač..."
+                  placeholder={t('invPhReasonSupplier')}
                 />
               </div>
               {movementForm.quantity && (
                 <div className={styles.movementPreview}>
-                  Rezultat: <strong>
+                  {t('invResult')}: <strong>
                     {movementForm.type === 'in'
                       ? (parseFloat(showMovement.quantity) + parseFloat(movementForm.quantity || 0)).toLocaleString('sr')
                       : movementForm.type === 'out'
                       ? Math.max(0, parseFloat(showMovement.quantity) - parseFloat(movementForm.quantity || 0)).toLocaleString('sr')
                       : parseFloat(movementForm.quantity || 0).toLocaleString('sr')
-                    } {showMovement.unit}
+                    } {unitLabel(showMovement.unit)}
                   </strong>
                 </div>
               )}
               <div className={styles.formActions}>
-                <button type="button" className={styles.btnCancelForm} onClick={() => setShowMovement(null)}>Odustani</button>
+                <button type="button" className={styles.btnCancelForm} onClick={() => setShowMovement(null)}>{t('cancel')}</button>
                 <button type="submit" className={styles.btnSave} disabled={saving}>
-                  {saving ? 'Čuvanje...' : 'Sačuvaj pokret'}
+                  {saving ? t('saving') : t('invSaveMovement')}
                 </button>
               </div>
             </form>

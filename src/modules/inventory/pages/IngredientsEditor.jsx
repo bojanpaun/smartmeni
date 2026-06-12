@@ -1,5 +1,6 @@
 import { useState, useEffect, useRef } from 'react'
 import { useNavigate } from 'react-router-dom'
+import { useTranslation } from 'react-i18next'
 import { supabase } from '../../../lib/supabase'
 import { usePlatform } from '../../../context/PlatformContext'
 import styles from './IngredientsEditor.module.css'
@@ -7,6 +8,7 @@ import styles from './IngredientsEditor.module.css'
 export default function IngredientsEditor() {
   const { restaurant } = usePlatform()
   const navigate = useNavigate()
+  const { t } = useTranslation('admin')
 
   const [menuItems, setMenuItems] = useState([])
   const [categories, setCategories] = useState([])
@@ -117,7 +119,7 @@ export default function IngredientsEditor() {
     ...categories.map(c => ({ id: c.id, name: c.name, icon: c.icon || '🍽️',
       items: filteredMenu.filter(i => i.category_id === c.id) })),
     {
-      id: '__none__', name: 'Bez kategorije', icon: '📦',
+      id: '__none__', name: t('ingNoCategory'), icon: '📦',
       items: filteredMenu.filter(i => !i.category_id || !categories.some(c => c.id === i.category_id)),
     },
   ].filter(g => g.items.length > 0)
@@ -155,20 +157,20 @@ export default function IngredientsEditor() {
     !ingredients.find(ing => ing.inventory_item_id === ii.id)
   )
 
-  if (loading) return <div className={styles.loading}>Učitavanje receptura...</div>
+  if (loading) return <div className={styles.loading}>{t('ingLoading')}</div>
 
   return (
     <div className={styles.wrap}>
 
       <div className={styles.header}>
-        <div className={styles.headerTitle}>Recepture</div>
+        <div className={styles.headerTitle}>{t('ingTitle')}</div>
         <button className={styles.btnBack} onClick={() => navigate('/admin/inventory')}>
-          ← Inventar
+          ← {t('ingBackInventory')}
         </button>
       </div>
 
       <div className={styles.desc}>
-        Definiši koje namirnice se troše za svaku stavku menija. Kad se narudžba primi, zalihe se automatski odbijaju.
+        {t('ingDesc')}
       </div>
 
       <div
@@ -180,21 +182,21 @@ export default function IngredientsEditor() {
         {/* Lijevo — lista stavki menija (grupisano po kategorijama) */}
         <div className={styles.menuList}>
           <div className={styles.menuListHeader}>
-            Stavke menija — <strong>{withRecipe}/{menuItems.length}</strong> s recepturom
+            {t('ingMenuItems')} <strong>{withRecipe}/{menuItems.length}</strong> {t('ingWithRecipe')}
           </div>
           <input
             className={styles.menuSearch}
-            placeholder="Pretraži..."
+            placeholder={t('ingSearchPlaceholder')}
             value={search}
             onChange={e => setSearch(e.target.value)}
           />
           <label className={styles.listFilter}>
             <input type="checkbox" checked={onlyMissing} onChange={e => setOnlyMissing(e.target.checked)} />
-            Prikaži samo bez recepture
+            {t('ingOnlyMissing')}
           </label>
           {groups.length === 0 && (
             <div className={styles.menuEmpty}>
-              {onlyMissing ? 'Sve stavke imaju recepturu. 🎉' : 'Nema stavki menija.'}
+              {onlyMissing ? t('ingAllHaveRecipe') : t('ingNoMenuItems')}
             </div>
           )}
           <div className={styles.menuScroll}>
@@ -220,8 +222,8 @@ export default function IngredientsEditor() {
                         <span className={styles.menuItemEmoji}>{item.emoji}</span>
                         <span className={styles.menuItemName}>{item.name}</span>
                         {count > 0
-                          ? <span className={styles.menuItemBadge} title={`${count} sastojaka`}>{count}</span>
-                          : <span className={styles.menuItemNoRecipe} title="Bez recepture">—</span>}
+                          ? <span className={styles.menuItemBadge} title={t('ingIngredientsTitle', { count })}>{count}</span>
+                          : <span className={styles.menuItemNoRecipe} title={t('ingNoRecipeTitle')}>—</span>}
                       </div>
                     )
                   })}
@@ -232,19 +234,19 @@ export default function IngredientsEditor() {
         </div>
 
         {/* Drag handle za promjenu širine */}
-        <div className={styles.divider} onMouseDown={onDragStart} title="Povuci za promjenu širine" />
+        <div className={styles.divider} onMouseDown={onDragStart} title={t('ingDragResize')} />
 
         {/* Desno — receptura odabrane stavke */}
         <div className={styles.recipePanel}>
           {!selectedMenu ? (
             <div className={styles.recipeEmpty}>
               <div>🧪</div>
-              <div>Odaberi stavku menija da urediš recepturu</div>
+              <div>{t('ingSelectToEdit')}</div>
             </div>
           ) : (
             <>
               <button className={styles.mobileBack} onClick={() => setSelectedMenu(null)}>
-                ← Nazad na listu
+                ← {t('ingBackToList')}
               </button>
               <div className={styles.recipeHeader}>
                 <span className={styles.recipeEmoji}>{selectedMenu.emoji}</span>
@@ -253,12 +255,12 @@ export default function IngredientsEditor() {
 
               {/* Postojeći sastojci */}
               {ingredients.length === 0 ? (
-                <div className={styles.recipeNoIng}>Nema definisanih sastojaka za ovu stavku.</div>
+                <div className={styles.recipeNoIng}>{t('ingNoIngredients')}</div>
               ) : (
                 <div className={styles.ingList}>
                   <div className={styles.ingListHeader}>
-                    <span>Sastojak</span>
-                    <span>Količina po porciji</span>
+                    <span>{t('ingColIngredient')}</span>
+                    <span>{t('ingColQtyPerPortion')}</span>
                     <span></span>
                   </div>
                   {ingredients.map(ing => (
@@ -284,7 +286,7 @@ export default function IngredientsEditor() {
               {/* Dodaj sastojak */}
               {availableItems.length > 0 && (
                 <form onSubmit={addIngredient} className={styles.addForm}>
-                  <div className={styles.addFormTitle}>+ Dodaj sastojak</div>
+                  <div className={styles.addFormTitle}>+ {t('ingAddIngredient')}</div>
                   <div className={styles.addFormRow}>
                     <select
                       value={addForm.inventory_item_id}
@@ -292,7 +294,7 @@ export default function IngredientsEditor() {
                       className={styles.addSelect}
                       required
                     >
-                      <option value="">Odaberi namirnigu...</option>
+                      <option value="">{t('ingSelectIngredient')}</option>
                       {availableItems.map(ii => (
                         <option key={ii.id} value={ii.id}>{ii.name} ({ii.unit})</option>
                       ))}
@@ -301,14 +303,14 @@ export default function IngredientsEditor() {
                       type="number"
                       min="0"
                       step="0.001"
-                      placeholder="Količina"
+                      placeholder={t('ingPhQuantity')}
                       value={addForm.quantity}
                       onChange={e => setAddForm(f => ({ ...f, quantity: e.target.value }))}
                       className={styles.addQtyInput}
                       required
                     />
                     <button type="submit" className={styles.addBtn} disabled={saving}>
-                      {saving ? '...' : 'Dodaj'}
+                      {saving ? '...' : t('ingAdd')}
                     </button>
                   </div>
                 </form>
@@ -316,14 +318,14 @@ export default function IngredientsEditor() {
 
               {availableItems.length === 0 && inventoryItems.length > 0 && (
                 <div className={styles.allAdded}>
-                  Svi sastojci iz inventara su dodati u recepturu.
+                  {t('ingAllAdded')}
                 </div>
               )}
 
               {inventoryItems.length === 0 && (
                 <div className={styles.noInventory}>
-                  Inventar je prazan. Dodaj namirnice u{' '}
-                  <button className={styles.linkBtn} onClick={() => navigate('/admin/inventory')}>Inventar</button>.
+                  {t('ingEmptyInventory')}
+                  <button className={styles.linkBtn} onClick={() => navigate('/admin/inventory')}>{t('ingBackInventory')}</button>.
                 </div>
               )}
             </>

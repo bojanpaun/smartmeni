@@ -2,6 +2,7 @@
 
 import { useState, useEffect, useCallback } from 'react'
 import { useNavigate } from 'react-router-dom'
+import { useTranslation } from 'react-i18next'
 import { supabase } from '../../../lib/supabase'
 import { usePlatform } from '../../../context/PlatformContext'
 import DateNav from '../../../components/shared/DateNav'
@@ -10,20 +11,23 @@ import gsStyles from '../../menu/pages/GeneralSettings.module.css'
 
 const TODAY = new Date().toISOString().slice(0, 10)
 
+// label preko prevodnog ključa; cls je CSS klasa po tipu pokreta.
 const TYPE_MAP = {
-  in:         { label: 'Ulaz',      cls: 'typeIn' },
-  out:        { label: 'Izlaz',     cls: 'typeOut' },
-  adjustment: { label: 'Korekcija', cls: 'typeAdj' },
+  in:         { key: 'mlTypeIn',  cls: 'typeIn' },
+  out:        { key: 'mlTypeOut', cls: 'typeOut' },
+  adjustment: { key: 'mlTypeAdj', cls: 'typeAdj' },
 }
 
-const SOURCE_MAP = {
-  manual: 'Ručno',
-  order:  'Narudžba',
+const SOURCE_KEYS = {
+  manual: 'mlSourceManual',
+  order:  'mlSourceOrder',
 }
 
 export default function MovementsLog() {
   const { restaurant } = usePlatform()
   const navigate = useNavigate()
+  const { t, i18n } = useTranslation('admin')
+  const dl = i18n.language === 'en' ? 'en-US' : 'sr-Latn'
 
   const [movements, setMovements] = useState([])
   const [loading, setLoading] = useState(true)
@@ -61,15 +65,15 @@ export default function MovementsLog() {
     return matchType && matchSearch
   })
 
-  if (loading) return <div className={styles.loading}>Učitavanje pokreta...</div>
+  if (loading) return <div className={styles.loading}>{t('mlLoading')}</div>
 
   return (
     <div className={gsStyles.page} style={{ maxWidth: 960 }}>
 
       <div className={styles.header}>
         <div>
-          <h1 className={gsStyles.title}>Promjene zaliha</h1>
-          <p className={gsStyles.subtitle}>Istorija ulaza, izlaza i korekcija inventara.</p>
+          <h1 className={gsStyles.title}>{t('mlTitle')}</h1>
+          <p className={gsStyles.subtitle}>{t('mlSubtitle')}</p>
         </div>
       </div>
 
@@ -77,24 +81,24 @@ export default function MovementsLog() {
         from={from}
         to={to}
         search={search}
-        onChange={(f, t) => { setFrom(f); setTo(t) }}
+        onChange={(f, tt) => { setFrom(f); setTo(tt) }}
         onSearch={setSearch}
         showFuture={false}
         showMonth={true}
         allowAll={true}
-        placeholder="Pretraži stavku ili napomenu..."
+        placeholder={t('mlSearchPlaceholder')}
       />
 
       {/* Filteri */}
       <div className={styles.filters}>
         <div className={styles.filterTypes}>
-          {['all', 'in', 'out', 'adjustment'].map(t => (
+          {['all', 'in', 'out', 'adjustment'].map(ft => (
             <button
-              key={t}
-              className={`${styles.filterBtn} ${filterType === t ? styles.filterBtnActive : ''}`}
-              onClick={() => setFilterType(t)}
+              key={ft}
+              className={`${styles.filterBtn} ${filterType === ft ? styles.filterBtnActive : ''}`}
+              onClick={() => setFilterType(ft)}
             >
-              {t === 'all' ? 'Sve' : TYPE_MAP[t]?.label}
+              {ft === 'all' ? t('invCatAll') : t(TYPE_MAP[ft]?.key)}
             </button>
           ))}
         </div>
@@ -104,14 +108,14 @@ export default function MovementsLog() {
       {filtered.length === 0 ? (
         <div className={styles.empty}>
           <div>📋</div>
-          <div>Nema pokreta za odabrane filtere.</div>
+          <div>{t('mlEmpty')}</div>
         </div>
       ) : (
         <div className={styles.list}>
           {filtered.map(m => (
             <div key={m.id} className={styles.movRow}>
               <div className={`${styles.movType} ${styles[TYPE_MAP[m.type]?.cls]}`}>
-                {TYPE_MAP[m.type]?.label}
+                {t(TYPE_MAP[m.type]?.key)}
               </div>
               <div className={styles.movMain}>
                 <div className={styles.movName}>{m.inventory_items?.name || '—'}</div>
@@ -127,11 +131,11 @@ export default function MovementsLog() {
                 </span>
               </div>
               <div className={styles.movMeta}>
-                <span className={styles.movSource}>{SOURCE_MAP[m.source] || m.source}</span>
+                <span className={styles.movSource}>{SOURCE_KEYS[m.source] ? t(SOURCE_KEYS[m.source]) : m.source}</span>
                 <span className={styles.movDate}>
-                  {new Date(m.created_at).toLocaleDateString('sr-Latn', { day: '2-digit', month: '2-digit' })}
+                  {new Date(m.created_at).toLocaleDateString(dl, { day: '2-digit', month: '2-digit' })}
                   {' '}
-                  {new Date(m.created_at).toLocaleTimeString('sr', { hour: '2-digit', minute: '2-digit' })}
+                  {new Date(m.created_at).toLocaleTimeString(dl, { hour: '2-digit', minute: '2-digit' })}
                 </span>
               </div>
             </div>
