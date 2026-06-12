@@ -1,4 +1,5 @@
 import { useState, useEffect } from 'react'
+import { useTranslation } from 'react-i18next'
 import { usePlatform } from '../../../context/PlatformContext'
 import { supabase } from '../../../lib/supabase'
 import LoadingSpinner from '../../../components/shared/LoadingSpinner'
@@ -9,6 +10,7 @@ const BLANK = { name: '', brand: '', price: '', stock_quantity: 0, image_url: ''
 
 export default function RetailPage() {
   const { restaurant } = usePlatform()
+  const { t } = useTranslation('admin')
   const [items, setItems] = useState([])
   const [loading, setLoading] = useState(true)
   const [showForm, setShowForm] = useState(false)
@@ -54,7 +56,7 @@ export default function RetailPage() {
   }
 
   const remove = async (id) => {
-    if (!window.confirm('Obrisati proizvod?')) return
+    if (!window.confirm(t('spaDeleteProductConfirm'))) return
     await supabase.from('spa_retail_items').delete().eq('id', id)
     load()
   }
@@ -65,37 +67,37 @@ export default function RetailPage() {
     <div className={styles.page}>
       <div className={styles.header}>
         <div>
-          <h1 className={styles.title}>Retail proizvodi</h1>
-          <p className={styles.subtitle}>Proizvodi za prodaju gostima (na folio ili keš)</p>
+          <h1 className={styles.title}>{t('spaRetTitle')}</h1>
+          <p className={styles.subtitle}>{t('spaRetSubtitle')}</p>
         </div>
-        <button className={styles.btnPrimary} onClick={openNew}>+ Dodaj proizvod</button>
+        <button className={styles.btnPrimary} onClick={openNew}>+ {t('spaAddProduct')}</button>
       </div>
 
       {showForm && (
         <div className={spa.formPanel}>
           <div className={spa.formPanelHeader}>
-            <span className={spa.formPanelTitle}>{editing ? 'Uredi proizvod' : 'Novi proizvod'}</span>
+            <span className={spa.formPanelTitle}>{editing ? t('spaEditProduct') : t('spaNewProduct')}</span>
             <button className={spa.formPanelClose} onClick={close}>✕</button>
           </div>
           <div className={spa.formGrid}>
             <div className={spa.formField} style={{ gridColumn: '1 / -1' }}>
-              <label className={spa.formLabel}>Naziv *</label>
-              <input className={spa.formInput} value={form.name} onChange={e => upd('name', e.target.value)} placeholder="npr. Ulje za masažu" />
+              <label className={spa.formLabel}>{t('spaNameReq')}</label>
+              <input className={spa.formInput} value={form.name} onChange={e => upd('name', e.target.value)} placeholder={t('spaProductNamePh')} />
             </div>
             <div className={spa.formField}>
-              <label className={spa.formLabel}>Brend</label>
+              <label className={spa.formLabel}>{t('spaBrand')}</label>
               <input className={spa.formInput} value={form.brand} onChange={e => upd('brand', e.target.value)} />
             </div>
             <div className={spa.formField}>
-              <label className={spa.formLabel}>Cijena (€)</label>
+              <label className={spa.formLabel}>{t('spaPrice')} (€)</label>
               <input className={spa.formInput} type="number" min="0" step="0.01" value={form.price} onChange={e => upd('price', e.target.value)} />
             </div>
             <div className={spa.formField}>
-              <label className={spa.formLabel}>Zaliha</label>
+              <label className={spa.formLabel}>{t('spaStock')}</label>
               <input className={spa.formInput} type="number" min="0" step="1" value={form.stock_quantity} onChange={e => upd('stock_quantity', e.target.value)} />
             </div>
             <div className={spa.formField} style={{ gridColumn: '1 / -1' }}>
-              <label className={spa.formLabel}>URL slike (opciono)</label>
+              <label className={spa.formLabel}>{t('spaImageUrlOptional')}</label>
               <input className={spa.formInput} value={form.image_url} onChange={e => upd('image_url', e.target.value)} placeholder="https://..." />
             </div>
             <div className={spa.formField} style={{ flexDirection: 'row', alignItems: 'center', gap: 10 }}>
@@ -103,13 +105,13 @@ export default function RetailPage() {
                 <input type="checkbox" checked={form.is_active} onChange={e => upd('is_active', e.target.checked)} />
                 <span className={spa.toggleSlider} />
               </label>
-              <span className={spa.formLabel} style={{ margin: 0 }}>Aktivan (nudi se za prodaju)</span>
+              <span className={spa.formLabel} style={{ margin: 0 }}>{t('spaProductActive')}</span>
             </div>
           </div>
           <div className={spa.formActions}>
-            <button className={styles.btnSecondary} onClick={close}>Odustani</button>
+            <button className={styles.btnSecondary} onClick={close}>{t('cancel')}</button>
             <button className={styles.btnPrimary} onClick={handleSave} disabled={saving}>
-              {saving ? 'Čuvanje...' : editing ? 'Sačuvaj izmjene' : 'Dodaj proizvod'}
+              {saving ? t('saving') : editing ? t('spaSaveChanges') : t('spaAddProduct')}
             </button>
           </div>
         </div>
@@ -118,12 +120,12 @@ export default function RetailPage() {
       {loading ? <LoadingSpinner /> : items.length === 0 ? (
         <div className={spa.empty}>
           <div className={spa.emptyIcon}>🛍️</div>
-          <p>Nema proizvoda. Dodajte prvi za prodaju gostima.</p>
+          <p>{t('spaNoProducts')}</p>
         </div>
       ) : (
         <table className={spa.table} style={{ background: 'var(--c-surface)', borderRadius: 14, overflow: 'hidden', border: '1px solid var(--c-border)' }}>
           <thead>
-            <tr><th>Naziv</th><th>Brend</th><th>Cijena</th><th>Zaliha</th><th>Status</th><th></th></tr>
+            <tr><th>{t('spaName')}</th><th>{t('spaBrand')}</th><th>{t('spaPrice')}</th><th>{t('spaStock')}</th><th>{t('spaStatus')}</th><th></th></tr>
           </thead>
           <tbody>
             {items.map(it => (
@@ -135,11 +137,11 @@ export default function RetailPage() {
                 <td>{it.is_active ? '✓' : '—'}</td>
                 <td>
                   <div style={{ display: 'flex', gap: 8 }}>
-                    <button className={styles.btnSecondary} style={{ fontSize: 12 }} onClick={() => openEdit(it)}>Uredi</button>
+                    <button className={styles.btnSecondary} style={{ fontSize: 12 }} onClick={() => openEdit(it)}>{t('htEdit')}</button>
                     <button
                       style={{ padding: '5px 10px', fontSize: 12, background: 'transparent', color: '#c0392b', border: '1px solid #fca5a5', borderRadius: 7, cursor: 'pointer' }}
                       onClick={() => remove(it.id)}
-                    >Obriši</button>
+                    >{t('htDelete')}</button>
                   </div>
                 </td>
               </tr>

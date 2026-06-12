@@ -1,4 +1,5 @@
 import { useState, useEffect, useCallback } from 'react'
+import { useTranslation } from 'react-i18next'
 import { usePlatform } from '../../../context/PlatformContext'
 import { supabase } from '../../../lib/supabase'
 import LoadingSpinner from '../../../components/shared/LoadingSpinner'
@@ -14,7 +15,7 @@ const BLANK = {
   valid_from: '', valid_to: '', is_active: true, includes: [],
 }
 
-function useSpaPackages(restaurantId) {
+function useSpaPackages(restaurantId, t) {
   const [packages, setPackages] = useState([])
   const [loading, setLoading]   = useState(true)
 
@@ -37,15 +38,15 @@ function useSpaPackages(restaurantId) {
     const { error } = id
       ? await supabase.from('spa_packages').update(payload).eq('id', id)
       : await supabase.from('spa_packages').insert(payload)
-    if (error) { toast.error('Greška pri čuvanju paketa'); return false }
-    toast.success(id ? 'Paket ažuriran' : 'Paket kreiran')
+    if (error) { toast.error(t('spaPkgSaveErr')); return false }
+    toast.success(id ? t('spaPkgUpdated') : t('spaPkgCreated'))
     load(); return true
   }
 
   const remove = async (id) => {
     const { error } = await supabase.from('spa_packages').delete().eq('id', id)
-    if (error) { toast.error('Greška pri brisanju'); return false }
-    toast.success('Paket obrisan'); load(); return true
+    if (error) { toast.error(t('spaPkgDeleteErr')); return false }
+    toast.success(t('spaPkgDeleted')); load(); return true
   }
 
   const toggle = async (id, is_active) => {
@@ -58,7 +59,8 @@ function useSpaPackages(restaurantId) {
 
 export default function PackagesPage() {
   const { restaurant } = usePlatform()
-  const { packages, loading, save, remove, toggle } = useSpaPackages(restaurant?.id)
+  const { t } = useTranslation('admin')
+  const { packages, loading, save, remove, toggle } = useSpaPackages(restaurant?.id, t)
 
   const [showForm, setShowForm] = useState(false)
   const [editing, setEditing]   = useState(null)
@@ -108,25 +110,25 @@ export default function PackagesPage() {
     <div className={styles.page}>
       <div className={styles.header}>
         <div>
-          <h1 className={styles.title}>Spa paketi</h1>
-          <p className={styles.subtitle}>Kombinirajte smještaj i tretmane u atraktivne ponude</p>
+          <h1 className={styles.title}>{t('spaPkgTitle')}</h1>
+          <p className={styles.subtitle}>{t('spaPkgSubtitle')}</p>
         </div>
-        <button className={styles.btnPrimary} onClick={openNew}>+ Novi paket</button>
+        <button className={styles.btnPrimary} onClick={openNew}>+ {t('spaNewPackage')}</button>
       </div>
 
       {showForm && (
         <div className={spa.formPanel}>
           <div className={spa.formPanelHeader}>
-            <span className={spa.formPanelTitle}>{editing ? 'Uredi paket' : 'Novi paket'}</span>
+            <span className={spa.formPanelTitle}>{editing ? t('spaEditPackage') : t('spaNewPackage')}</span>
             <button className={spa.formPanelClose} onClick={close}>✕</button>
           </div>
           <div className={spa.formGrid}>
             <div className={spa.formField} style={{ gridColumn: '1 / -1' }}>
-              <label className={spa.formLabel}>Naziv paketa *</label>
-              <input className={spa.formInput} value={form.name} onChange={e => upd('name', e.target.value)} placeholder='Npr. "Romantic Getaway", "Wellness Weekend"' />
+              <label className={spa.formLabel}>{t('spaPkgNameReq')}</label>
+              <input className={spa.formInput} value={form.name} onChange={e => upd('name', e.target.value)} placeholder={t('spaPkgNamePh')} />
             </div>
             <div className={spa.formField}>
-              <label className={spa.formLabel}>Ukupna cijena (€) *</label>
+              <label className={spa.formLabel}>{t('spaTotalPriceReq')}</label>
               <input className={spa.formInput} type="number" min="0" step="0.01" value={form.total_price} onChange={e => upd('total_price', e.target.value)} placeholder="350.00" />
             </div>
             <div className={spa.formField}>
@@ -136,35 +138,35 @@ export default function PackagesPage() {
                   <input type="checkbox" checked={form.is_active} onChange={e => upd('is_active', e.target.checked)} />
                   <span className={spa.toggleSlider} />
                 </label>
-                <span className={spa.formLabel} style={{ margin: 0 }}>Aktivan</span>
+                <span className={spa.formLabel} style={{ margin: 0 }}>{t('spaActiveM')}</span>
               </div>
             </div>
             <div className={spa.formField}>
-              <label className={spa.formLabel}>Važi od (opciono)</label>
+              <label className={spa.formLabel}>{t('spaValidFrom')}</label>
               <input className={spa.formInput} type="date" value={form.valid_from} onChange={e => upd('valid_from', e.target.value)} />
             </div>
             <div className={spa.formField}>
-              <label className={spa.formLabel}>Važi do (opciono)</label>
+              <label className={spa.formLabel}>{t('spaValidTo')}</label>
               <input className={spa.formInput} type="date" value={form.valid_to} onChange={e => upd('valid_to', e.target.value)} />
             </div>
             <div className={spa.formField} style={{ gridColumn: '1 / -1' }}>
-              <label className={spa.formLabel}>Opis (opciono)</label>
-              <textarea className={spa.formTextarea} value={form.description} onChange={e => upd('description', e.target.value)} rows={2} placeholder="Kratki opis paketa za goste..." />
+              <label className={spa.formLabel}>{t('spaDescOptional')}</label>
+              <textarea className={spa.formTextarea} value={form.description} onChange={e => upd('description', e.target.value)} rows={2} placeholder={t('spaRoomDescPh')} />
             </div>
 
             {/* Package items */}
             <div className={spa.formField} style={{ gridColumn: '1 / -1' }}>
-              <label className={spa.formLabel}>Šta uključuje paket</label>
+              <label className={spa.formLabel}>{t('spaWhatIncludes')}</label>
               <div style={{ display: 'flex', gap: 8, marginBottom: 10 }}>
                 <input
                   className={spa.formInput}
                   value={newItem}
                   onChange={e => setNewItem(e.target.value)}
-                  placeholder="Npr. 2 noći u Deluxe sobi, Aromaterapijska masaža..."
+                  placeholder={t('spaIncludePh')}
                   onKeyDown={e => e.key === 'Enter' && (e.preventDefault(), addItem())}
                   style={{ flex: 1 }}
                 />
-                <button type="button" className={styles.btnSecondary} style={{ whiteSpace: 'nowrap', padding: '8px 14px' }} onClick={addItem}>+ Dodaj</button>
+                <button type="button" className={styles.btnSecondary} style={{ whiteSpace: 'nowrap', padding: '8px 14px' }} onClick={addItem}>+ {t('spaAddShort')}</button>
               </div>
               {form.includes.length > 0 && (
                 <div style={{ display: 'flex', flexDirection: 'column', gap: 6 }}>
@@ -176,13 +178,13 @@ export default function PackagesPage() {
                   ))}
                 </div>
               )}
-              {form.includes.length === 0 && <p style={{ fontSize: 12, color: 'var(--c-text-muted)' }}>Dodajte stavke koje paket uključuje.</p>}
+              {form.includes.length === 0 && <p style={{ fontSize: 12, color: 'var(--c-text-muted)' }}>{t('spaAddItemsHint')}</p>}
             </div>
           </div>
           <div className={spa.formActions}>
-            <button className={styles.btnSecondary} onClick={close}>Odustani</button>
+            <button className={styles.btnSecondary} onClick={close}>{t('cancel')}</button>
             <button className={styles.btnPrimary} onClick={handleSave} disabled={saving}>
-              {saving ? 'Čuvanje...' : editing ? 'Sačuvaj izmjene' : 'Kreiraj paket'}
+              {saving ? t('saving') : editing ? t('spaSaveChanges') : t('spaCreatePackage')}
             </button>
           </div>
         </div>
@@ -191,7 +193,7 @@ export default function PackagesPage() {
       {loading ? <LoadingSpinner /> : packages.length === 0 ? (
         <div className={spa.empty}>
           <div className={spa.emptyIcon}>🎁</div>
-          <p>Nema paketa. Kreirajte prvi spa paket.</p>
+          <p>{t('spaNoPackages')}</p>
         </div>
       ) : (
         <div className={spa.cardGrid}>
@@ -207,28 +209,28 @@ export default function PackagesPage() {
                       <span>📅 {pkg.valid_from} – {pkg.valid_to}</span>
                     )}
                     <span className={`${spa.badge} ${pkg.is_active ? spa.badgeActive : spa.badgeInactive}`}>
-                      {pkg.is_active ? 'Aktivan' : 'Neaktivan'}
+                      {pkg.is_active ? t('spaActiveM') : t('spaInactiveM')}
                     </span>
                   </div>
                   {pkg.description && <p style={{ fontSize: 12, color: 'var(--c-text-muted)', margin: '0 0 8px', lineHeight: 1.4 }}>{pkg.description}</p>}
                   {includes.length > 0 && (
                     <ul style={{ margin: '0 0 10px', paddingLeft: 16, fontSize: 12, color: 'var(--c-text-medium)', lineHeight: 1.8 }}>
                       {includes.slice(0, 4).map((item, i) => <li key={i}>{item.description}</li>)}
-                      {includes.length > 4 && <li style={{ color: 'var(--c-text-muted)' }}>+{includes.length - 4} stavki</li>}
+                      {includes.length > 4 && <li style={{ color: 'var(--c-text-muted)' }}>+{includes.length - 4} {t('spaItemsWord')}</li>}
                     </ul>
                   )}
                   <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: 12 }}>
                     <span className={spa.cardPrice}>€{Number(pkg.total_price || 0).toFixed(2)}</span>
                   </div>
                   <div className={spa.cardActions}>
-                    <button className={styles.btnSecondary} style={{ fontSize: 12 }} onClick={() => openEdit(pkg)}>Uredi</button>
+                    <button className={styles.btnSecondary} style={{ fontSize: 12 }} onClick={() => openEdit(pkg)}>{t('htEdit')}</button>
                     <button className={styles.btnSecondary} style={{ fontSize: 12 }} onClick={() => toggle(pkg.id, !pkg.is_active)}>
-                      {pkg.is_active ? 'Deaktiviraj' : 'Aktiviraj'}
+                      {pkg.is_active ? t('spaDeactivate') : t('spaActivate')}
                     </button>
                     <button
                       style={{ padding: '6px 12px', fontSize: 12, background: 'transparent', color: '#c0392b', border: '1px solid #fca5a5', borderRadius: 8, cursor: 'pointer' }}
-                      onClick={() => { if (window.confirm('Obrisati paket?')) remove(pkg.id) }}
-                    >Obriši</button>
+                      onClick={() => { if (window.confirm(t('spaDeletePackageConfirm'))) remove(pkg.id) }}
+                    >{t('htDelete')}</button>
                   </div>
                 </div>
               </div>

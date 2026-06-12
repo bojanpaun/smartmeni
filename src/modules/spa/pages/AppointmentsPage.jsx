@@ -1,4 +1,5 @@
 import { useState, useEffect, useCallback } from 'react'
+import { useTranslation } from 'react-i18next'
 import { usePlatform } from '../../../context/PlatformContext'
 import { supabase } from '../../../lib/supabase'
 import { useSpaServices } from '../hooks/useSpaServices'
@@ -13,11 +14,11 @@ import spa from './Spa.module.css'
 const TODAY = new Date().toISOString().slice(0, 10)
 
 const STATUS_MAP = {
-  confirmed:  { label: 'Potvrđen',  color: '#2563eb', bg: '#dbeafe' },
-  checked_in: { label: 'U toku',    color: '#0d7a52', bg: '#d1fae5' },
-  completed:  { label: 'Završen',   color: '#6d28d9', bg: '#ede9fe' },
-  cancelled:  { label: 'Otkazan',   color: '#9ca3af', bg: '#f3f4f6' },
-  no_show:    { label: 'No-show',   color: '#c0392b', bg: '#fde0e0' },
+  confirmed:  { key: 'spaStConfirmed',  color: '#2563eb', bg: '#dbeafe' },
+  checked_in: { key: 'spaStInProgress', color: '#0d7a52', bg: '#d1fae5' },
+  completed:  { key: 'spaStCompleted',  color: '#6d28d9', bg: '#ede9fe' },
+  cancelled:  { key: 'spaStCancelled',  color: '#9ca3af', bg: '#f3f4f6' },
+  no_show:    { key: 'spaStNoShow',     color: '#c0392b', bg: '#fde0e0' },
 }
 
 const BLANK = {
@@ -35,6 +36,7 @@ function addMinutes(time, minutes) {
 
 export default function AppointmentsPage() {
   const { restaurant } = usePlatform()
+  const { t } = useTranslation('admin')
   const { services }   = useSpaServices(restaurant?.id)
   const { therapists } = useSpaTherapists(restaurant?.id)
   const { rooms }      = useSpaRooms(restaurant?.id)
@@ -87,7 +89,7 @@ export default function AppointmentsPage() {
 
   const handleSave = async () => {
     if (!form.service_id || !form.appointment_date || !form.start_time || !form.guest_name) {
-      toast.error('Popunite obavezna polja (tretman, datum, vrijeme, ime gosta)')
+      toast.error(t('spaFillRequired'))
       return
     }
     setSaving(true)
@@ -118,8 +120,8 @@ export default function AppointmentsPage() {
     const { error } = await supabase.from('spa_appointments').insert(payload)
     setSaving(false)
 
-    if (error) { toast.error('Greška pri kreiranju termina'); return }
-    toast.success('Termin kreiran')
+    if (error) { toast.error(t('spaApptCreateErr')); return }
+    toast.success(t('spaApptCreated'))
     setShowForm(false)
     setForm(BLANK)
     load()
@@ -129,18 +131,18 @@ export default function AppointmentsPage() {
     const patch = { status }
     if (status === 'completed') patch.payment_status = 'paid'
     const { error } = await supabase.from('spa_appointments').update(patch).eq('id', id)
-    if (error) { toast.error('Greška pri ažuriranju'); return }
+    if (error) { toast.error(t('spaUpdateErr')); return }
     setAppointments(prev => prev.map(a => a.id === id ? { ...a, ...patch } : a))
-    toast.success(STATUS_MAP[status]?.label)
+    toast.success(t(STATUS_MAP[status]?.key))
   }
 
   const cancel = async (id) => {
-    if (!window.confirm('Otkazati ovaj termin?')) return
+    if (!window.confirm(t('spaCancelApptConfirm'))) return
     await supabase.from('spa_appointments').update({
       status: 'cancelled', cancelled_at: new Date().toISOString(),
     }).eq('id', id)
     load()
-    toast.success('Termin otkazan')
+    toast.success(t('spaApptCancelled'))
   }
 
   if (!restaurant) return <LoadingSpinner fullPage />
@@ -149,11 +151,11 @@ export default function AppointmentsPage() {
     <div className={styles.page}>
       <div className={styles.header}>
         <div>
-          <h1 className={styles.title}>Termini</h1>
-          <p className={styles.subtitle}>Pregled i upravljanje spa terminima</p>
+          <h1 className={styles.title}>{t('spaApptTitle')}</h1>
+          <p className={styles.subtitle}>{t('spaApptSubtitle')}</p>
         </div>
         <div className={styles.headerActions}>
-          <button className={styles.btnPrimary} onClick={() => setShowForm(true)}>+ Novi termin</button>
+          <button className={styles.btnPrimary} onClick={() => setShowForm(true)}>+ {t('spaNewAppt')}</button>
         </div>
       </div>
 
@@ -161,12 +163,12 @@ export default function AppointmentsPage() {
         from={from}
         to={to}
         search={search}
-        onChange={(f, t) => { setFrom(f); setTo(t) }}
+        onChange={(f, tt) => { setFrom(f); setTo(tt) }}
         onSearch={setSearch}
         showFuture={true}
         showMonth={true}
         allowAll={true}
-        placeholder="Pretraži gosta, terapeuta..."
+        placeholder={t('spaSearchGuestTherapist')}
       />
 
       {/* Status filter */}
@@ -177,7 +179,7 @@ export default function AppointmentsPage() {
             className={`${styles.filterBtn} ${statusFilter === s ? styles.filterBtnActive : ''}`}
             onClick={() => setStatusFilter(s)}
           >
-            {s === 'all' ? 'Svi' : STATUS_MAP[s]?.label}
+            {s === 'all' ? t('spaAll') : t(STATUS_MAP[s]?.key)}
           </button>
         ))}
       </div>
@@ -186,80 +188,80 @@ export default function AppointmentsPage() {
       {showForm && (
         <div className={spa.formPanel}>
           <div className={spa.formPanelHeader}>
-            <span className={spa.formPanelTitle}>Novi termin</span>
+            <span className={spa.formPanelTitle}>{t('spaNewAppt')}</span>
             <button className={spa.formPanelClose} onClick={() => setShowForm(false)}>✕</button>
           </div>
           <div className={spa.formGrid}>
             <div className={spa.formField}>
-              <label className={spa.formLabel}>Tretman *</label>
+              <label className={spa.formLabel}>{t('spaTreatmentReq')}</label>
               <select className={spa.formSelect} value={form.service_id} onChange={e => upd('service_id', e.target.value)}>
-                <option value="">— Odaberite tretman —</option>
+                <option value="">{t('spaSelectTreatment')}</option>
                 {services.filter(s => s.is_active).map(s => (
-                  <option key={s.id} value={s.id}>{s.name} ({s.duration_minutes} min)</option>
+                  <option key={s.id} value={s.id}>{s.name} ({s.duration_minutes} {t('spaMinUnit')})</option>
                 ))}
               </select>
             </div>
             <div className={spa.formField}>
-              <label className={spa.formLabel}>Cijena (€)</label>
+              <label className={spa.formLabel}>{t('spaPrice')} (€)</label>
               <input className={spa.formInput} type="number" min="0" step="0.01" value={form.price} onChange={e => upd('price', e.target.value)} />
             </div>
             <div className={spa.formField}>
-              <label className={spa.formLabel}>Datum *</label>
+              <label className={spa.formLabel}>{t('spaDateReq')}</label>
               <input className={spa.formInput} type="date" value={form.appointment_date} onChange={e => upd('appointment_date', e.target.value)} />
             </div>
             <div className={spa.formField}>
-              <label className={spa.formLabel}>Početak *</label>
+              <label className={spa.formLabel}>{t('spaStartReq')}</label>
               <input className={spa.formInput} type="time" value={form.start_time} onChange={e => upd('start_time', e.target.value)} />
             </div>
             <div className={spa.formField}>
-              <label className={spa.formLabel}>Terapeut</label>
+              <label className={spa.formLabel}>{t('spaTherapist')}</label>
               <select className={spa.formSelect} value={form.therapist_id} onChange={e => upd('therapist_id', e.target.value)}>
-                <option value="">— Nedodijeljeno —</option>
-                {therapists.map(t => (
-                  <option key={t.id} value={t.id}>
-                    {t.staff?.first_name} {t.staff?.last_name}
+                <option value="">{t('spaUnassigned')}</option>
+                {therapists.map(tp => (
+                  <option key={tp.id} value={tp.id}>
+                    {tp.staff?.first_name} {tp.staff?.last_name}
                   </option>
                 ))}
               </select>
             </div>
             <div className={spa.formField}>
-              <label className={spa.formLabel}>Kabina</label>
+              <label className={spa.formLabel}>{t('spaRoom')}</label>
               <select className={spa.formSelect} value={form.spa_room_id} onChange={e => upd('spa_room_id', e.target.value)}>
-                <option value="">— Nije odabrano —</option>
+                <option value="">{t('spaNotSelected')}</option>
                 {rooms.filter(r => r.is_active).map(r => (
                   <option key={r.id} value={r.id}>{r.name}</option>
                 ))}
               </select>
             </div>
             <div className={spa.formField}>
-              <label className={spa.formLabel}>Ime gosta *</label>
+              <label className={spa.formLabel}>{t('spaGuestNameReq')}</label>
               <input className={spa.formInput} value={form.guest_name} onChange={e => upd('guest_name', e.target.value)} placeholder="Marko Marković" />
             </div>
             <div className={spa.formField}>
-              <label className={spa.formLabel}>Email gosta</label>
+              <label className={spa.formLabel}>{t('spaGuestEmail')}</label>
               <input className={spa.formInput} type="email" value={form.guest_email} onChange={e => upd('guest_email', e.target.value)} placeholder="marko@email.com" />
             </div>
             <div className={spa.formField}>
-              <label className={spa.formLabel}>Telefon</label>
+              <label className={spa.formLabel}>{t('spaPhone')}</label>
               <input className={spa.formInput} type="tel" value={form.guest_phone} onChange={e => upd('guest_phone', e.target.value)} placeholder="+387 61 000 000" />
             </div>
             <div className={spa.formField}>
-              <label className={spa.formLabel}>Plaćanje</label>
+              <label className={spa.formLabel}>{t('spaPayment')}</label>
               <select className={spa.formSelect} value={form.payment_method} onChange={e => upd('payment_method', e.target.value)}>
-                <option value="cash">Na recepciji</option>
-                <option value="folio">Na sobu (folio)</option>
-                <option value="card">Kartica</option>
+                <option value="cash">{t('spaPayReception')}</option>
+                <option value="folio">{t('spaPayFolio')}</option>
+                <option value="card">{t('spaPayCard')}</option>
               </select>
             </div>
             <div className={spa.formField} style={{ gridColumn: '1 / -1' }}>
-              <label className={spa.formLabel}>Interni notes</label>
-              <textarea className={spa.formTextarea} rows={2} value={form.notes} onChange={e => upd('notes', e.target.value)} placeholder="Napomene za terapeuta..." />
+              <label className={spa.formLabel}>{t('spaInternalNotes')}</label>
+              <textarea className={spa.formTextarea} rows={2} value={form.notes} onChange={e => upd('notes', e.target.value)} placeholder={t('spaNotesPh')} />
             </div>
           </div>
           <div className={spa.formActions}>
-            <button className={styles.btnSecondary} onClick={() => setShowForm(false)}>Odustani</button>
+            <button className={styles.btnSecondary} onClick={() => setShowForm(false)}>{t('cancel')}</button>
             <button className={styles.btnPrimary} onClick={handleSave} disabled={saving}>
-              {saving ? 'Kreiranje...' : 'Kreiraj termin'}
+              {saving ? t('spaCreating') : t('spaCreateAppt')}
             </button>
           </div>
         </div>
@@ -282,20 +284,20 @@ export default function AppointmentsPage() {
         return filtered.length === 0 ? (
           <div className={spa.empty}>
             <div className={spa.emptyIcon}>🗓️</div>
-            <p>Nema termina za odabrani period{statusFilter !== 'all' ? ' i status' : ''}{search ? ' i pretragu' : ''}.</p>
+            <p>{t('spaNoApptsPeriod')}{statusFilter !== 'all' ? t('spaAndStatus') : ''}{search ? t('spaAndSearch') : ''}.</p>
           </div>
         ) : (
           <div style={{ background: 'var(--c-surface)', border: '1px solid var(--c-border)', borderRadius: 14, overflow: 'hidden' }}>
           <table className={spa.table}>
             <thead>
               <tr>
-                <th>Vrijeme</th>
-                <th>Tretman</th>
-                <th>Terapeut</th>
-                <th>Gost</th>
-                <th>Cijena</th>
-                <th>Status</th>
-                <th>Akcije</th>
+                <th>{t('spaTime')}</th>
+                <th>{t('spaTreatment')}</th>
+                <th>{t('spaTherapist')}</th>
+                <th>{t('spaGuest')}</th>
+                <th>{t('spaPrice')}</th>
+                <th>{t('spaStatus')}</th>
+                <th>{t('spaThActions')}</th>
               </tr>
             </thead>
             <tbody>
@@ -304,7 +306,7 @@ export default function AppointmentsPage() {
                 const therapistName = a.spa_therapists?.staff
                   ? `${a.spa_therapists.staff.first_name} ${a.spa_therapists.staff.last_name}`
                   : '—'
-                const guestName = a.external_guest_name || '(hotelski gost)'
+                const guestName = a.external_guest_name || t('spaHotelGuestParen')
                 return (
                   <tr key={a.id}>
                     <td style={{ fontWeight: 600, whiteSpace: 'nowrap' }}>
@@ -312,7 +314,7 @@ export default function AppointmentsPage() {
                     </td>
                     <td>
                       <div style={{ fontWeight: 500 }}>{a.spa_services?.name}</div>
-                      <div style={{ fontSize: 11, color: 'var(--c-text-muted)' }}>{a.duration_minutes} min</div>
+                      <div style={{ fontSize: 11, color: 'var(--c-text-muted)' }}>{a.duration_minutes} {t('spaMinUnit')}</div>
                     </td>
                     <td style={{ fontSize: 13 }}>{therapistName}</td>
                     <td>
@@ -321,29 +323,29 @@ export default function AppointmentsPage() {
                     </td>
                     <td style={{ fontWeight: 600 }}>€{Number(a.price).toFixed(2)}</td>
                     <td>
-                      <span className={spa.badge} style={{ background: sl.bg, color: sl.color }}>{sl.label}</span>
+                      <span className={spa.badge} style={{ background: sl.bg, color: sl.color }}>{t(sl.key)}</span>
                     </td>
                     <td>
                       <div style={{ display: 'flex', gap: 6, flexWrap: 'wrap' }}>
                         {a.status === 'confirmed' && (
                           <button style={{ padding: '4px 10px', fontSize: 12, background: 'var(--c-primary)', color: '#fff', border: 'none', borderRadius: 6, cursor: 'pointer' }}
-                            onClick={() => updateStatus(a.id, 'checked_in')}>▶ Počni</button>
+                            onClick={() => updateStatus(a.id, 'checked_in')}>▶ {t('spaStart')}</button>
                         )}
                         {a.status === 'checked_in' && (
                           <button style={{ padding: '4px 10px', fontSize: 12, background: '#6d28d9', color: '#fff', border: 'none', borderRadius: 6, cursor: 'pointer' }}
-                            onClick={() => updateStatus(a.id, 'completed')}>✓ Završi</button>
+                            onClick={() => updateStatus(a.id, 'completed')}>✓ {t('spaFinish')}</button>
                         )}
                         {a.status === 'completed' && a.payment_status !== 'paid' && (
                           <button style={{ padding: '4px 10px', fontSize: 12, background: '#0d7a52', color: '#fff', border: 'none', borderRadius: 6, cursor: 'pointer' }}
-                            onClick={() => updateStatus(a.id, 'completed')}>💶 Naplati</button>
+                            onClick={() => updateStatus(a.id, 'completed')}>💶 {t('spaCharge')}</button>
                         )}
                         {(a.status === 'confirmed' || a.status === 'checked_in') && (
                           <button style={{ padding: '4px 10px', fontSize: 12, background: 'transparent', color: '#c0392b', border: '1px solid #fca5a5', borderRadius: 6, cursor: 'pointer' }}
-                            onClick={() => cancel(a.id)}>Otkaži</button>
+                            onClick={() => cancel(a.id)}>{t('spaCancelBtn')}</button>
                         )}
                         {a.status === 'confirmed' && (
                           <button style={{ padding: '4px 10px', fontSize: 12, background: 'transparent', color: 'var(--c-text-muted)', border: '1px solid var(--c-border)', borderRadius: 6, cursor: 'pointer' }}
-                            onClick={() => updateStatus(a.id, 'no_show')}>No-show</button>
+                            onClick={() => updateStatus(a.id, 'no_show')}>{t('spaStNoShow')}</button>
                         )}
                       </div>
                     </td>

@@ -1,4 +1,5 @@
 import { useState, useEffect, useRef } from 'react'
+import { useTranslation } from 'react-i18next'
 import { usePlatform } from '../../../context/PlatformContext'
 import { supabase } from '../../../lib/supabase'
 import LoadingSpinner from '../../../components/shared/LoadingSpinner'
@@ -41,8 +42,8 @@ function shiftDate(dateStr, n) {
   return d.toISOString().slice(0, 10)
 }
 
-function fmtDate(dateStr) {
-  return new Date(dateStr + 'T12:00:00').toLocaleDateString('sr-Latn', {
+function fmtDate(dateStr, dl) {
+  return new Date(dateStr + 'T12:00:00').toLocaleDateString(dl, {
     weekday: 'long', day: 'numeric', month: 'long',
   })
 }
@@ -50,11 +51,11 @@ function fmtDate(dateStr) {
 // ── Status styles ─────────────────────────────────────────────
 
 const STATUS = {
-  confirmed:  { bg: '#dbeafe', color: '#1e40af', border: '#93c5fd', label: 'Potvrđen' },
-  checked_in: { bg: '#d1fae5', color: '#065f46', border: '#6ee7b7', label: 'U toku' },
-  completed:  { bg: '#ede9fe', color: '#5b21b6', border: '#c4b5fd', label: 'Završen' },
-  cancelled:  { bg: '#f1f5f9', color: '#64748b', border: '#cbd5e1', label: 'Otkazan' },
-  no_show:    { bg: '#fde0e0', color: '#c0392b', border: '#fca5a5', label: 'No-show' },
+  confirmed:  { bg: '#dbeafe', color: '#1e40af', border: '#93c5fd', key: 'spaStConfirmed' },
+  checked_in: { bg: '#d1fae5', color: '#065f46', border: '#6ee7b7', key: 'spaStInProgress' },
+  completed:  { bg: '#ede9fe', color: '#5b21b6', border: '#c4b5fd', key: 'spaStCompleted' },
+  cancelled:  { bg: '#f1f5f9', color: '#64748b', border: '#cbd5e1', key: 'spaStCancelled' },
+  no_show:    { bg: '#fde0e0', color: '#c0392b', border: '#fca5a5', key: 'spaStNoShow' },
 }
 
 const CATEGORY_ICON = {
@@ -66,6 +67,8 @@ const CATEGORY_ICON = {
 
 export default function SpaCalendarPage() {
   const { restaurant } = usePlatform()
+  const { t, i18n } = useTranslation('admin')
+  const dl = i18n.language === 'en' ? 'en-US' : 'sr-Latn'
   const [date, setDate]           = useState(TODAY)
   const [view, setView]           = useState('therapists') // 'therapists' | 'rooms'
   const [therapists, setTherapists] = useState([])
@@ -82,7 +85,7 @@ export default function SpaCalendarPage() {
     async function load() {
       setLoading(true)
 
-      const [{ data: settings }, { data: t }, { data: r }, { data: a }] = await Promise.all([
+      const [{ data: settings }, { data: th }, { data: r }, { data: a }] = await Promise.all([
         supabase.from('spa_settings').select('open_time, close_time').eq('restaurant_id', restaurant.id).maybeSingle(),
         supabase.from('spa_therapists')
           .select('id, staff!staff_id(first_name, last_name, role:roles!role_id(name))')
@@ -110,7 +113,7 @@ export default function SpaCalendarPage() {
         setOpenMin(timeToMin(settings.open_time || '09:00'))
         setCloseMin(timeToMin(settings.close_time || '20:00'))
       }
-      setTherapists(t ?? [])
+      setTherapists(th ?? [])
       setRooms(r ?? [])
       setAppts(a ?? [])
       setLoading(false)
@@ -157,11 +160,11 @@ export default function SpaCalendarPage() {
   })
 
   const rows = view === 'therapists'
-    ? therapists.map(t => ({
-        id: t.id,
-        name: t.staff ? `${t.staff.first_name} ${t.staff.last_name}` : '—',
-        sub: t.staff?.role?.name,
-        appts: byTherapist[t.id] ?? [],
+    ? therapists.map(tp => ({
+        id: tp.id,
+        name: tp.staff ? `${tp.staff.first_name} ${tp.staff.last_name}` : '—',
+        sub: tp.staff?.role?.name,
+        appts: byTherapist[tp.id] ?? [],
       }))
     : rooms.map(r => ({
         id: r.id,
@@ -181,8 +184,8 @@ export default function SpaCalendarPage() {
       {/* Header */}
       <div className={styles.header}>
         <div>
-          <h1 className={styles.title}>Spa kalendar</h1>
-          <p className={styles.subtitle}>{fmtDate(date)}</p>
+          <h1 className={styles.title}>{t('spaCalTitle')}</h1>
+          <p className={styles.subtitle}>{fmtDate(date, dl)}</p>
         </div>
         <div className={styles.headerActions} style={{ flexWrap: 'wrap' }}>
           {/* View toggle */}
@@ -191,19 +194,19 @@ export default function SpaCalendarPage() {
               className={`${cal.viewBtn} ${view === 'therapists' ? cal.viewBtnActive : ''}`}
               onClick={() => setView('therapists')}
             >
-              👤 Terapeuti
+              👤 {t('spaNavTherapists')}
             </button>
             <button
               className={`${cal.viewBtn} ${view === 'rooms' ? cal.viewBtnActive : ''}`}
               onClick={() => setView('rooms')}
             >
-              🚪 Kabine
+              🚪 {t('spaNavRooms')}
             </button>
           </div>
 
           {/* Date nav */}
           <button className={styles.btnSecondary} onClick={() => setDate(d => shiftDate(d, -1))}>‹</button>
-          <button className={styles.btnSecondary} onClick={() => setDate(TODAY)}>Danas</button>
+          <button className={styles.btnSecondary} onClick={() => setDate(TODAY)}>{t('spaToday')}</button>
           <button className={styles.btnSecondary} onClick={() => setDate(d => shiftDate(d, 1))}>›</button>
 
           <input
@@ -217,7 +220,7 @@ export default function SpaCalendarPage() {
 
       {loading ? <LoadingSpinner /> : rows.length === 0 ? (
         <div className={cal.empty}>
-          <p>{view === 'therapists' ? 'Nema aktivnih terapeuta.' : 'Nema aktivnih kabina.'}</p>
+          <p>{view === 'therapists' ? t('spaNoActiveTherapists') : t('spaNoActiveRooms')}</p>
         </div>
       ) : (
         <div className={cal.calendarWrap}>
@@ -226,7 +229,7 @@ export default function SpaCalendarPage() {
             {/* Time header row */}
             <div className={cal.headerRow}>
               <div className={cal.labelCol}>
-                {view === 'therapists' ? 'Terapeut' : 'Kabina'}
+                {view === 'therapists' ? t('spaTherapist') : t('spaRoom')}
               </div>
               <div className={cal.timelineHeader}>
                 {slots.map(m => (
@@ -269,7 +272,7 @@ export default function SpaCalendarPage() {
                     const s = STATUS[appt.status] ?? STATUS.confirmed
                     const cat = appt.spa_services?.category
                     const guestName = appt.external_guest_name
-                      || (appt.guest_id ? 'Hotelski gost' : '—')
+                      || (appt.guest_id ? t('spaHotelGuestFull') : '—')
                     const left  = pct(appt.start_time, openMin, totalMin)
                     const width = durationPct(appt.start_time, appt.end_time, totalMin)
 
@@ -308,13 +311,13 @@ export default function SpaCalendarPage() {
             {Object.entries(STATUS).filter(([k]) => k !== 'cancelled' && k !== 'no_show').map(([key, s]) => (
               <div key={key} className={cal.legendItem}>
                 <span className={cal.legendDot} style={{ background: s.bg, borderColor: s.border }} />
-                {s.label}
+                {t(s.key)}
               </div>
             ))}
             {nowPct !== null && (
               <div className={cal.legendItem}>
                 <span className={cal.legendDot} style={{ background: '#ef4444', borderColor: '#ef4444', borderRadius: '50%' }} />
-                Trenutno vrijeme
+                {t('spaCurrentTime')}
               </div>
             )}
           </div>
@@ -337,7 +340,7 @@ export default function SpaCalendarPage() {
           </div>
           <div className={cal.popupRow}>
             <span>🕐</span>
-            <span>{popup.appt.start_time?.slice(0,5)} – {popup.appt.end_time?.slice(0,5)} ({popup.appt.duration_minutes} min)</span>
+            <span>{popup.appt.start_time?.slice(0,5)} – {popup.appt.end_time?.slice(0,5)} ({popup.appt.duration_minutes} {t('spaMinUnit')})</span>
           </div>
           {popup.appt.spa_therapists?.staff && (
             <div className={cal.popupRow}>
@@ -353,7 +356,7 @@ export default function SpaCalendarPage() {
           )}
           <div className={cal.popupRow}>
             <span>👤</span>
-            <span>{popup.appt.external_guest_name || (popup.appt.guest_id ? 'Hotelski gost' : '—')}</span>
+            <span>{popup.appt.external_guest_name || (popup.appt.guest_id ? t('spaHotelGuestFull') : '—')}</span>
           </div>
           <div className={cal.popupRow}>
             <span>💶</span>
@@ -362,7 +365,7 @@ export default function SpaCalendarPage() {
           <div className={cal.popupRow}>
             <span>📌</span>
             <span style={{ color: STATUS[popup.appt.status]?.color }}>
-              {STATUS[popup.appt.status]?.label}
+              {t(STATUS[popup.appt.status]?.key)}
             </span>
           </div>
         </div>
