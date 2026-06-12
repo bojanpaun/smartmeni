@@ -2,41 +2,44 @@
 
 import { useState, useEffect } from 'react'
 import { useParams, useNavigate } from 'react-router-dom'
+import { useTranslation } from 'react-i18next'
 import { supabase } from '../../../lib/supabase'
 import { usePlatform } from '../../../context/PlatformContext'
 import styles from './StaffProfilePage.module.css'
 
 const ENTRY_TYPES = [
-  { key: 'salary',    label: 'Zarada',       color: '#0d7a52' },
-  { key: 'daily',     label: 'Dnevnica',     color: '#3aaa70' },
-  { key: 'bonus',     label: 'Bonus',        color: '#378add' },
-  { key: 'overtime',  label: 'Prekovremeni', color: '#7f77dd' },
-  { key: 'deduction', label: 'Odbitak',      color: '#c0392b' },
-  { key: 'advance',   label: 'Akontacija',   color: '#ef9f27' },
+  { key: 'salary',    labelKey: 'payTypeSalary',    color: '#0d7a52' },
+  { key: 'daily',     labelKey: 'payTypeDaily',     color: '#3aaa70' },
+  { key: 'bonus',     labelKey: 'payTypeBonus',     color: '#378add' },
+  { key: 'overtime',  labelKey: 'payTypeOvertime',  color: '#7f77dd' },
+  { key: 'deduction', labelKey: 'payTypeDeduction', color: '#c0392b' },
+  { key: 'advance',   labelKey: 'payTypeAdvance',   color: '#ef9f27' },
 ]
 function mStart() { const d = new Date(); return `${d.getFullYear()}-${String(d.getMonth()+1).padStart(2,'0')}-01` }
 function mEnd() { const d = new Date(); return new Date(d.getFullYear(), d.getMonth()+1, 0).toISOString().slice(0,10) }
 
-const CONTRACT_TYPES = {
-  permanent:'Stalni ugovor', fixed:'Ugovor na određeno',
-  seasonal:'Sezonski', probation:'Probni rad', freelance:'Ugovor o djelu',
+const CONTRACT_TYPE_KEYS = {
+  permanent:'profContractPermanent', fixed:'profContractFixed',
+  seasonal:'profContractSeasonal', probation:'profContractProbation', freelance:'profContractFreelance',
 }
-const EMPLOYMENT_TYPES = {
-  full_time:'Puno radno vrijeme', part_time:'Pola radnog vremena', hourly:'Po satu',
+const EMPLOYMENT_TYPE_KEYS = {
+  full_time:'profEmpFull', part_time:'profEmpPart', hourly:'stfWageHourly',
 }
 const HISTORY_ICONS = {
   hired:'🎉', promoted:'⬆️', wage_change:'💰', position_change:'🔄', warning:'⚠️', note:'📝', terminated:'🔚',
 }
 const ABSENCE_TYPES = {
-  vacation: { label:'Godišnji odmor', color:'#0d7a52', bg:'#e0f5ec' },
-  sick: { label:'Bolovanje', color:'#BA7517', bg:'#FAEEDA' },
-  unpaid: { label:'Neplaćeno', color:'#534AB7', bg:'#EEEDFE' },
-  other: { label:'Ostalo', color:'#888780', bg:'#F1EFE8' },
+  vacation: { labelKey:'sppVacation', color:'#0d7a52', bg:'#e0f5ec' },
+  sick: { labelKey:'sppSick', color:'#BA7517', bg:'#FAEEDA' },
+  unpaid: { labelKey:'profUnpaid', color:'#534AB7', bg:'#EEEDFE' },
+  other: { labelKey:'htTypeOther', color:'#888780', bg:'#F1EFE8' },
 }
 
 export default function StaffProfilePage() {
   const { staffId } = useParams()
   const navigate = useNavigate()
+  const { t, i18n } = useTranslation('admin')
+  const dl = i18n.language === 'en' ? 'en-US' : 'sr-Latn'
   const { restaurant } = usePlatform()
   const [staff, setStaff] = useState(null)
   const [roles, setRoles] = useState([])
@@ -142,7 +145,7 @@ export default function StaffProfilePage() {
   }
 
   const deleteAbsence = async (id) => {
-    if (!confirm('Obrisati?')) return
+    if (!confirm(t('profDeleteConfirm'))) return
     await supabase.from('staff_absences').delete().eq('id', id)
     setAbsences(prev => prev.filter(a => a.id !== id))
   }
@@ -165,7 +168,7 @@ export default function StaffProfilePage() {
     setAbsences(prev => prev.map(a => a.id === id ? { ...a, approved: false } : a))
   }
 
-  if (loading) return <div className={styles.loading}>Učitavanje profila...</div>
+  if (loading) return <div className={styles.loading}>{t('profLoading')}</div>
 
   const initials = staff.first_name && staff.last_name ? `${staff.first_name[0]}${staff.last_name[0]}` : staff.email[0].toUpperCase()
   const displayName = staff.first_name && staff.last_name ? `${staff.first_name} ${staff.last_name}` : staff.email
@@ -186,16 +189,16 @@ export default function StaffProfilePage() {
 
     const sName = (staff.first_name && staff.last_name) ? `${staff.first_name} ${staff.last_name}` : staff.email || '—'
     const rName = restaurant?.name || 'Restoran'
-    const period = `${new Date(payrollDateFrom).toLocaleDateString('sr-Latn', { day: 'numeric', month: 'long', year: 'numeric' })} – ${new Date(payrollDateTo).toLocaleDateString('sr-Latn', { day: 'numeric', month: 'long', year: 'numeric' })}`
-    const generated = new Date().toLocaleDateString('sr-Latn', { day: 'numeric', month: 'long', year: 'numeric' })
+    const period = `${new Date(payrollDateFrom).toLocaleDateString(dl, { day: 'numeric', month: 'long', year: 'numeric' })} – ${new Date(payrollDateTo).toLocaleDateString(dl, { day: 'numeric', month: 'long', year: 'numeric' })}`
+    const generated = new Date().toLocaleDateString(dl, { day: 'numeric', month: 'long', year: 'numeric' })
 
-    const typeLabel = (key) => ENTRY_TYPES.find(t => t.key === key)?.label || key
+    const typeLabel = (key) => { const et = ENTRY_TYPES.find(x => x.key === key); return et ? t(et.labelKey) : key }
 
     const html = `<!DOCTYPE html>
-<html lang="sr">
+<html lang="${i18n.language}">
 <head>
 <meta charset="UTF-8">
-<title>Platna lista — ${sName}</title>
+<title>${t('profPayslipTitle', { name: sName })}</title>
 <style>
   @page { size: A4; margin: 2cm; }
   * { box-sizing: border-box; margin: 0; padding: 0; }
@@ -231,58 +234,58 @@ export default function StaffProfilePage() {
 <body>
 
 <div class="no-print" style="background:#f0f8f4;padding:14px 20px;display:flex;gap:10px;align-items:center;margin-bottom:20px;border-radius:8px;">
-  <span style="font-weight:700;color:#0d7a52;">Platna lista generisana</span>
-  <button onclick="window.print()" style="margin-left:auto;padding:8px 20px;background:#0d7a52;color:#fff;border:none;border-radius:8px;cursor:pointer;font-size:13px;">Štampaj / Sačuvaj PDF</button>
-  <button onclick="window.close()" style="padding:8px 14px;background:#fff;border:1px solid #c8e0d4;border-radius:8px;cursor:pointer;font-size:13px;">Zatvori</button>
+  <span style="font-weight:700;color:#0d7a52;">${t('profPayslipGenerated')}</span>
+  <button onclick="window.print()" style="margin-left:auto;padding:8px 20px;background:#0d7a52;color:#fff;border:none;border-radius:8px;cursor:pointer;font-size:13px;">${t('fpPrintSave')}</button>
+  <button onclick="window.close()" style="padding:8px 14px;background:#fff;border:1px solid #c8e0d4;border-radius:8px;cursor:pointer;font-size:13px;">${t('fpClose')}</button>
 </div>
 
 <div class="header">
   <div class="logo-area">
     <h1>${rName}</h1>
-    <p>Platna lista za period: ${period}</p>
+    <p>${t('profPayslipForPeriod', { period })}</p>
   </div>
   <div class="doc-info">
-    <h2>PLATNA LISTA</h2>
-    <p>Datum: ${generated}</p>
+    <h2>${t('profPayslipHeader')}</h2>
+    <p>${t('profDate')}: ${generated}</p>
   </div>
 </div>
 
 <div class="employee-box">
-  <div class="field"><label>Zaposlenik</label><span>${sName}</span></div>
-  <div class="field"><label>Pozicija</label><span>${staff.position || '—'}</span></div>
-  <div class="field"><label>Tip ugovora</label><span>${staff.contract_type === 'permanent' ? 'Stalni ugovor' : staff.contract_type === 'temporary' ? 'Privremeni' : staff.contract_type || '—'}</span></div>
-  <div class="field"><label>Tip plate</label><span>${staff.wage_type === 'hourly' ? 'Po satu' : staff.wage_type === 'weekly' ? 'Sedmična' : 'Mjesečna'}</span></div>
+  <div class="field"><label>${t('stfStaffMember')}</label><span>${sName}</span></div>
+  <div class="field"><label>${t('profPosition')}</label><span>${staff.position || '—'}</span></div>
+  <div class="field"><label>${t('profContractType')}</label><span>${staff.contract_type === 'permanent' ? t('profContractPermanent') : staff.contract_type === 'temporary' ? t('profContractTemp') : staff.contract_type || '—'}</span></div>
+  <div class="field"><label>${t('stfWageType')}</label><span>${staff.wage_type === 'hourly' ? t('stfWageHourly') : staff.wage_type === 'weekly' ? t('stfWageWeekly') : t('stfWageMonthly')}</span></div>
 </div>
 
 <div class="kpi-row">
-  <div class="kpi-box"><div class="k-label">Osnovna plata</div><div class="k-val">€${base.toFixed(2)}</div></div>
-  <div class="kpi-box"><div class="k-label">Dodaci</div><div class="k-val" style="color:#0d7a52">+€${totalAdd.toFixed(2)}</div></div>
-  <div class="kpi-box"><div class="k-label">Odbitci</div><div class="k-val" style="color:#c0392b">-€${totalDed.toFixed(2)}</div></div>
+  <div class="kpi-box"><div class="k-label">${t('payBaseSalary')}</div><div class="k-val">€${base.toFixed(2)}</div></div>
+  <div class="kpi-box"><div class="k-label">${t('sppAdditions')}</div><div class="k-val" style="color:#0d7a52">+€${totalAdd.toFixed(2)}</div></div>
+  <div class="kpi-box"><div class="k-label">${t('payDeductions')}</div><div class="k-val" style="color:#c0392b">-€${totalDed.toFixed(2)}</div></div>
 </div>
 
 ${additions.length > 0 ? `
-<div class="section-title">Dodaci na zaradu</div>
+<div class="section-title">${t('profAdditionsToWage')}</div>
 <table>
-  <thead><tr><th>Tip</th><th>Napomena</th><th>Datum</th><th style="text-align:right">Iznos</th></tr></thead>
+  <thead><tr><th>${t('flType')}</th><th>${t('hkpNote')}</th><th>${t('htDateHead')}</th><th style="text-align:right">${t('htAmount')}</th></tr></thead>
   <tbody>
     ${additions.map(e => `<tr>
       <td>${typeLabel(e.type)}</td>
       <td style="color:#5a7a6a">${e.note || '—'}</td>
-      <td style="color:#5a7a6a">${new Date(e.date).toLocaleDateString('sr-Latn')}</td>
+      <td style="color:#5a7a6a">${new Date(e.date).toLocaleDateString(dl)}</td>
       <td class="amount-pos" style="text-align:right">+€${parseFloat(e.amount).toFixed(2)}</td>
     </tr>`).join('')}
   </tbody>
 </table>` : ''}
 
 ${deductions.length > 0 ? `
-<div class="section-title">Odbitci</div>
+<div class="section-title">${t('payDeductions')}</div>
 <table>
-  <thead><tr><th>Tip</th><th>Napomena</th><th>Datum</th><th style="text-align:right">Iznos</th></tr></thead>
+  <thead><tr><th>${t('flType')}</th><th>${t('hkpNote')}</th><th>${t('htDateHead')}</th><th style="text-align:right">${t('htAmount')}</th></tr></thead>
   <tbody>
     ${deductions.map(e => `<tr>
       <td>${typeLabel(e.type)}</td>
       <td style="color:#5a7a6a">${e.note || '—'}</td>
-      <td style="color:#5a7a6a">${new Date(e.date).toLocaleDateString('sr-Latn')}</td>
+      <td style="color:#5a7a6a">${new Date(e.date).toLocaleDateString(dl)}</td>
       <td class="amount-neg" style="text-align:right">-€${parseFloat(e.amount).toFixed(2)}</td>
     </tr>`).join('')}
   </tbody>
@@ -290,18 +293,18 @@ ${deductions.length > 0 ? `
 
 <div class="summary">
   <div>
-    <div class="label">Neto iznos za isplatu</div>
+    <div class="label">${t('profNetPayout')}</div>
     <div style="font-size:11px;color:rgba(255,255,255,0.5);margin-top:2px;">${period}</div>
   </div>
   <div class="val">€${neto.toFixed(2)}</div>
 </div>
 
 <div class="signatures">
-  <div class="sig">Potpis poslodavca<br><br><br>___________________________<br>${rName}</div>
-  <div class="sig">Potpis zaposlenika<br><br><br>___________________________<br>${sName}</div>
+  <div class="sig">${t('profEmployerSig')}<br><br><br>___________________________<br>${rName}</div>
+  <div class="sig">${t('profEmployeeSig')}<br><br><br>___________________________<br>${sName}</div>
 </div>
 
-<div class="footer">Generisano putem RestByMe platforme · ${generated}</div>
+<div class="footer">${t('profGeneratedVia', { date: generated })}</div>
 
 </body>
 </html>`
@@ -354,15 +357,15 @@ ${deductions.length > 0 ? `
   const yearsWorked = staff.start_date ? ((new Date() - new Date(staff.start_date)) / (1000*60*60*24*365)).toFixed(1) : null
 
   const TABS = [
-    { key:'basic', label:'Osnovne info' }, { key:'employ', label:'Zaposlenje' },
-    { key:'finance', label:'Finansije' }, { key:'absence', label:'Odsustva' }, { key:'history', label:'Istorija' }, { key:'payroll', label:'Zarade' },
+    { key:'basic', labelKey:'profTabBasic' }, { key:'employ', labelKey:'profTabEmploy' },
+    { key:'finance', labelKey:'profTabFinance' }, { key:'absence', labelKey:'sppTabAbsences' }, { key:'history', labelKey:'profTabHistory' }, { key:'payroll', labelKey:'payTitle' },
   ]
 
   return (
     <div className={styles.page}>
       {/* Breadcrumb */}
       <div className={styles.breadcrumb}>
-        <button className={styles.backBtn} onClick={() => navigate('/admin/hr/staff')}>← Zaposleni</button>
+        <button className={styles.backBtn} onClick={() => navigate('/admin/hr/staff')}>← {t('stfTitle')}</button>
         <span className={styles.breadSep}>/</span>
         <span>{displayName}</span>
       </div>
@@ -376,40 +379,40 @@ ${deductions.length > 0 ? `
           <div className={styles.profileBadges}>
             {staff.role?.name && <span className={styles.roleBadge}>{staff.role.name}</span>}
             {staff.position && <span className={styles.posBadge}>{staff.position}</span>}
-            {staff.contract_type && <span className={styles.contractBadge}>{CONTRACT_TYPES[staff.contract_type]}</span>}
+            {staff.contract_type && <span className={styles.contractBadge}>{CONTRACT_TYPE_KEYS[staff.contract_type] ? t(CONTRACT_TYPE_KEYS[staff.contract_type]) : staff.contract_type}</span>}
           </div>
         </div>
         <div className={styles.profileStats}>
           {yearsWorked && (
             <div className={styles.statItem}>
               <div className={styles.statVal}>{yearsWorked}</div>
-              <div className={styles.statLabel}>god. rada</div>
+              <div className={styles.statLabel}>{t('profYearsWork')}</div>
             </div>
           )}
           {staff.wage_amount > 0 && (
             <div className={styles.statItem}>
               <div className={styles.statVal}>€{parseFloat(staff.wage_amount).toFixed(0)}</div>
-              <div className={styles.statLabel}>{staff.wage_type==='hourly'?'po satu':staff.wage_type==='weekly'?'sedmično':'mjesečno'}</div>
+              <div className={styles.statLabel}>{staff.wage_type==='hourly'?t('profPerHour'):staff.wage_type==='weekly'?t('profPerWeek'):t('profPerMonth')}</div>
             </div>
           )}
           <div className={styles.statItem}>
             <div className={styles.statVal}>{vacationLeft}</div>
-            <div className={styles.statLabel}>dana odmora</div>
+            <div className={styles.statLabel}>{t('profVacDays')}</div>
           </div>
           <div className={styles.statItem}>
             <div className={styles.statVal} style={{color: staff.user_id ? '#0d7a52' : '#BA7517'}}>
               {staff.user_id ? '✓' : '⏳'}
             </div>
-            <div className={styles.statLabel}>{staff.user_id ? 'Aktivan' : 'Čeka'}</div>
+            <div className={styles.statLabel}>{staff.user_id ? t('htActive') : t('profWaiting')}</div>
           </div>
         </div>
       </div>
 
       {/* Tabovi */}
       <div className={styles.tabs}>
-        {TABS.map(t => (
-          <button key={t.key} className={`${styles.tab} ${activeTab===t.key?styles.tabActive:''}`} onClick={() => setActiveTab(t.key)}>
-            {t.label}
+        {TABS.map(tab => (
+          <button key={tab.key} className={`${styles.tab} ${activeTab===tab.key?styles.tabActive:''}`} onClick={() => setActiveTab(tab.key)}>
+            {t(tab.labelKey)}
           </button>
         ))}
       </div>
@@ -420,18 +423,18 @@ ${deductions.length > 0 ? `
         {/* OSNOVNE INFO */}
         {activeTab === 'basic' && (
           <div className={styles.card}>
-            <div className={styles.cardTitle}>Lični podaci</div>
+            <div className={styles.cardTitle}>{t('profPersonalData')}</div>
             <div className={styles.formGrid}>
-              <Field label="Ime"><input value={basicForm.first_name} onChange={e => setBasicForm(f=>({...f,first_name:e.target.value}))} placeholder="Ime" /></Field>
-              <Field label="Prezime"><input value={basicForm.last_name} onChange={e => setBasicForm(f=>({...f,last_name:e.target.value}))} placeholder="Prezime" /></Field>
-              <Field label="Telefon"><input value={basicForm.phone} onChange={e => setBasicForm(f=>({...f,phone:e.target.value}))} placeholder="+382 67 ..." /></Field>
-              <Field label="Datum rođenja"><input type="date" value={basicForm.date_of_birth} onChange={e => setBasicForm(f=>({...f,date_of_birth:e.target.value}))} /></Field>
-              <Field label="Adresa" full><input value={basicForm.address} onChange={e => setBasicForm(f=>({...f,address:e.target.value}))} placeholder="Ulica, grad" /></Field>
+              <Field label={t('profFirstName')}><input value={basicForm.first_name} onChange={e => setBasicForm(f=>({...f,first_name:e.target.value}))} placeholder={t('profFirstName')} /></Field>
+              <Field label={t('profLastName')}><input value={basicForm.last_name} onChange={e => setBasicForm(f=>({...f,last_name:e.target.value}))} placeholder={t('profLastName')} /></Field>
+              <Field label={t('htPhone')}><input value={basicForm.phone} onChange={e => setBasicForm(f=>({...f,phone:e.target.value}))} placeholder="+382 67 ..." /></Field>
+              <Field label={t('htDateOfBirth')}><input type="date" value={basicForm.date_of_birth} onChange={e => setBasicForm(f=>({...f,date_of_birth:e.target.value}))} /></Field>
+              <Field label={t('profAddress')} full><input value={basicForm.address} onChange={e => setBasicForm(f=>({...f,address:e.target.value}))} placeholder="Ulica, grad" /></Field>
             </div>
-            <div className={styles.divider}>Kontakt za hitne slučajeve</div>
+            <div className={styles.divider}>{t('profEmergencyContact')}</div>
             <div className={styles.formGrid}>
-              <Field label="Ime i prezime"><input value={basicForm.emergency_contact_name} onChange={e => setBasicForm(f=>({...f,emergency_contact_name:e.target.value}))} placeholder="npr. Marija Paunović" /></Field>
-              <Field label="Telefon"><input value={basicForm.emergency_contact_phone} onChange={e => setBasicForm(f=>({...f,emergency_contact_phone:e.target.value}))} placeholder="+382 ..." /></Field>
+              <Field label={t('htFullName')}><input value={basicForm.emergency_contact_name} onChange={e => setBasicForm(f=>({...f,emergency_contact_name:e.target.value}))} placeholder="npr. Marija Paunović" /></Field>
+              <Field label={t('htPhone')}><input value={basicForm.emergency_contact_phone} onChange={e => setBasicForm(f=>({...f,emergency_contact_phone:e.target.value}))} placeholder="+382 ..." /></Field>
             </div>
             <SaveRow onSave={() => saveTab(basicForm)} saving={saving} saved={saved} error={saveError} />
           </div>
@@ -440,21 +443,21 @@ ${deductions.length > 0 ? `
         {/* ZAPOSLENJE */}
         {activeTab === 'employ' && (
           <div className={styles.card}>
-            <div className={styles.cardTitle}>Podaci o zaposlenju</div>
+            <div className={styles.cardTitle}>{t('profEmployData')}</div>
             <div className={styles.formGrid}>
-              <Field label="Pozicija"><input value={employForm.position} onChange={e => setEmployForm(f=>({...f,position:e.target.value}))} placeholder="npr. Šef kuhinje" /></Field>
-              <Field label="Primarna rola">
+              <Field label={t('profPosition')}><input value={employForm.position} onChange={e => setEmployForm(f=>({...f,position:e.target.value}))} placeholder="npr. Šef kuhinje" /></Field>
+              <Field label={t('profPrimaryRole')}>
                 <select value={employForm.role_id} onChange={e => setEmployForm(f=>({...f,role_id:e.target.value}))}>
-                  <option value="">— Bez role —</option>
+                  <option value="">{t('stfNoRole')}</option>
                   {roles.map(r=><option key={r.id} value={r.id}>{r.name}</option>)}
                 </select>
               </Field>
               <div style={{ gridColumn: '1 / -1' }}>
                 <div style={{ fontSize: 12, fontWeight: 600, color: '#374151', marginBottom: 8 }}>
-                  Role u Staff portalu {staffRolesSaving && <span style={{ color: '#9ca3af', fontWeight: 400 }}> · čuvanje...</span>}
+                  {t('profPortalRoles')} {staffRolesSaving && <span style={{ color: '#9ca3af', fontWeight: 400 }}> · {t('profSavingDots')}</span>}
                 </div>
                 <div style={{ fontSize: 11, color: '#9ca3af', marginBottom: 10 }}>
-                  Odaberi sve role koje ovaj zaposlenik treba vidjeti u portalu (može biti više).
+                  {t('profSelectRoles')}
                 </div>
                 <div style={{ display: 'flex', flexWrap: 'wrap', gap: 8 }}>
                   {roles.map(r => (
@@ -474,27 +477,27 @@ ${deductions.length > 0 ? `
                   ))}
                 </div>
               </div>
-              <Field label="Vrsta ugovora">
+              <Field label={t('profContractTypeSel')}>
                 <select value={employForm.contract_type} onChange={e => setEmployForm(f=>({...f,contract_type:e.target.value}))}>
-                  {Object.entries(CONTRACT_TYPES).map(([k,v])=><option key={k} value={k}>{v}</option>)}
+                  {Object.entries(CONTRACT_TYPE_KEYS).map(([k,key])=><option key={k} value={k}>{t(key)}</option>)}
                 </select>
               </Field>
-              <Field label="Radno vrijeme">
+              <Field label={t('profWorkTime')}>
                 <select value={employForm.employment_type} onChange={e => setEmployForm(f=>({...f,employment_type:e.target.value}))}>
-                  {Object.entries(EMPLOYMENT_TYPES).map(([k,v])=><option key={k} value={k}>{v}</option>)}
+                  {Object.entries(EMPLOYMENT_TYPE_KEYS).map(([k,key])=><option key={k} value={k}>{t(key)}</option>)}
                 </select>
               </Field>
-              <Field label="Datum početka"><input type="date" value={employForm.start_date} onChange={e => setEmployForm(f=>({...f,start_date:e.target.value}))} /></Field>
-              <Field label="Datum završetka"><input type="date" value={employForm.end_date} onChange={e => setEmployForm(f=>({...f,end_date:e.target.value}))} /></Field>
-              <Field label="Tip plate">
+              <Field label={t('profStartDate')}><input type="date" value={employForm.start_date} onChange={e => setEmployForm(f=>({...f,start_date:e.target.value}))} /></Field>
+              <Field label={t('profEndDate')}><input type="date" value={employForm.end_date} onChange={e => setEmployForm(f=>({...f,end_date:e.target.value}))} /></Field>
+              <Field label={t('stfWageType')}>
                 <select value={employForm.wage_type} onChange={e => setEmployForm(f=>({...f,wage_type:e.target.value}))}>
-                  <option value="monthly">Mjesečna</option>
-                  <option value="weekly">Sedmična</option>
-                  <option value="hourly">Po satu</option>
+                  <option value="monthly">{t('stfWageMonthly')}</option>
+                  <option value="weekly">{t('stfWageWeekly')}</option>
+                  <option value="hourly">{t('stfWageHourly')}</option>
                 </select>
               </Field>
-              <Field label="Iznos plate (€)"><input type="number" min="0" step="0.01" value={employForm.wage_amount} onChange={e => setEmployForm(f=>({...f,wage_amount:e.target.value}))} placeholder="0.00" /></Field>
-              <Field label="Napomene" full><textarea rows={3} value={employForm.notes} onChange={e => setEmployForm(f=>({...f,notes:e.target.value}))} placeholder="Interne napomene..." /></Field>
+              <Field label={t('profWageAmount')}><input type="number" min="0" step="0.01" value={employForm.wage_amount} onChange={e => setEmployForm(f=>({...f,wage_amount:e.target.value}))} placeholder="0.00" /></Field>
+              <Field label={t('profNotes')} full><textarea rows={3} value={employForm.notes} onChange={e => setEmployForm(f=>({...f,notes:e.target.value}))} placeholder="Interne napomene..." /></Field>
             </div>
             <SaveRow onSave={() => saveTab({...employForm, wage_amount: parseFloat(employForm.wage_amount)||0})} saving={saving} saved={saved} error={saveError} />
           </div>
@@ -503,10 +506,10 @@ ${deductions.length > 0 ? `
         {/* FINANSIJE */}
         {activeTab === 'finance' && (
           <div className={styles.card}>
-            <div className={styles.cardTitle}>Finansijski podaci</div>
+            <div className={styles.cardTitle}>{t('profFinanceData')}</div>
             <div className={styles.formGrid}>
-              <Field label="Broj bankovnog računa" full><input value={financeForm.bank_account} onChange={e => setFinanceForm(f=>({...f,bank_account:e.target.value}))} placeholder="ME25 ..." /></Field>
-              <Field label="Porezni broj / JMBG" full><input value={financeForm.tax_id} onChange={e => setFinanceForm(f=>({...f,tax_id:e.target.value}))} placeholder="Poreski identifikacioni broj" /></Field>
+              <Field label={t('profBankAccount')} full><input value={financeForm.bank_account} onChange={e => setFinanceForm(f=>({...f,bank_account:e.target.value}))} placeholder="ME25 ..." /></Field>
+              <Field label={t('profTaxId')} full><input value={financeForm.tax_id} onChange={e => setFinanceForm(f=>({...f,tax_id:e.target.value}))} placeholder="Poreski identifikacioni broj" /></Field>
             </div>
 
             <SaveRow onSave={() => saveTab(financeForm)} saving={saving} saved={saved} error={saveError} />
@@ -518,7 +521,7 @@ ${deductions.length > 0 ? `
           <div className={styles.card}>
             <div className={styles.vacationTracker}>
               <div className={styles.vacTrackerTitle}>
-                Godišnji odmor
+                {t('sppVacation')}
                 <select
                   value={vacationYear}
                   onChange={e => setVacationYear(parseInt(e.target.value))}
@@ -530,64 +533,64 @@ ${deductions.length > 0 ? `
                 </select>
               </div>
               <div className={styles.vacTrackerRow}>
-                <div className={styles.vacCard}><div className={styles.vacNum}>{financeForm.vacation_days_total}</div><div className={styles.vacLabel}>Ukupno dana</div></div>
-                <div className={styles.vacCard}><div className={styles.vacNum} style={{color:'#BA7517'}}>{vacationDaysUsed}</div><div className={styles.vacLabel}>Iskorišteno</div></div>
-                <div className={styles.vacCard}><div className={styles.vacNum} style={{color:'#0d7a52'}}>{vacationLeft}</div><div className={styles.vacLabel}>Preostalo</div></div>
+                <div className={styles.vacCard}><div className={styles.vacNum}>{financeForm.vacation_days_total}</div><div className={styles.vacLabel}>{t('sppTotalDays')}</div></div>
+                <div className={styles.vacCard}><div className={styles.vacNum} style={{color:'#BA7517'}}>{vacationDaysUsed}</div><div className={styles.vacLabel}>{t('htUsed')}</div></div>
+                <div className={styles.vacCard}><div className={styles.vacNum} style={{color:'#0d7a52'}}>{vacationLeft}</div><div className={styles.vacLabel}>{t('sppRemaining')}</div></div>
                 <div className={styles.vacEditField}>
-                  <label>Ukupno dana odmora</label>
+                  <label>{t('profVacTotalDays')}</label>
                   <input type="number" min="0" value={financeForm.vacation_days_total} onChange={e => setFinanceForm(f=>({...f,vacation_days_total:parseInt(e.target.value)||0}))} />
-                  <button className={styles.btnSaveSmall} onClick={() => saveTab({vacation_days_total: financeForm.vacation_days_total})}>Sačuvaj</button>
+                  <button className={styles.btnSaveSmall} onClick={() => saveTab({vacation_days_total: financeForm.vacation_days_total})}>{t('save')}</button>
                 </div>
               </div>
             </div>
             <div className={styles.cardHeader}>
-              <div className={styles.cardTitle}>Evidencija odsustva</div>
-              <button className={styles.btnPrimary} onClick={() => setShowAbsenceForm(v=>!v)}>+ Dodaj</button>
+              <div className={styles.cardTitle}>{t('sppAbsenceRecord')}</div>
+              <button className={styles.btnPrimary} onClick={() => setShowAbsenceForm(v=>!v)}>+ {t('rplAddShort')}</button>
             </div>
             {showAbsenceForm && (
               <form onSubmit={saveAbsence} className={styles.inlineForm}>
                 <div className={styles.formGrid}>
-                  <Field label="Tip">
+                  <Field label={t('flType')}>
                     <select value={absenceForm.absence_type} onChange={e=>setAbsenceForm(f=>({...f,absence_type:e.target.value}))}>
-                      {Object.entries(ABSENCE_TYPES).map(([k,v])=><option key={k} value={k}>{v.label}</option>)}
+                      {Object.entries(ABSENCE_TYPES).map(([k,v])=><option key={k} value={k}>{t(v.labelKey)}</option>)}
                     </select>
                   </Field>
-                  <Field label="Odobreno">
+                  <Field label={t('sppApproved')}>
                     <select value={absenceForm.approved} onChange={e=>setAbsenceForm(f=>({...f,approved:e.target.value==='true'}))}>
-                      <option value="true">Da</option><option value="false">Ne</option>
+                      <option value="true">{t('profYes')}</option><option value="false">{t('profNo')}</option>
                     </select>
                   </Field>
-                  <Field label="Od datuma"><input type="date" required value={absenceForm.start_date} onChange={e=>setAbsenceForm(f=>({...f,start_date:e.target.value}))} /></Field>
-                  <Field label="Do datuma"><input type="date" required value={absenceForm.end_date} onChange={e=>setAbsenceForm(f=>({...f,end_date:e.target.value}))} /></Field>
-                  <Field label="Napomena" full><input value={absenceForm.notes} onChange={e=>setAbsenceForm(f=>({...f,notes:e.target.value}))} placeholder="Opcionalno" /></Field>
+                  <Field label={t('profFromDate')}><input type="date" required value={absenceForm.start_date} onChange={e=>setAbsenceForm(f=>({...f,start_date:e.target.value}))} /></Field>
+                  <Field label={t('profToDate')}><input type="date" required value={absenceForm.end_date} onChange={e=>setAbsenceForm(f=>({...f,end_date:e.target.value}))} /></Field>
+                  <Field label={t('hkpNote')} full><input value={absenceForm.notes} onChange={e=>setAbsenceForm(f=>({...f,notes:e.target.value}))} placeholder="Opcionalno" /></Field>
                 </div>
                 <div className={styles.saveRow}>
-                  <button type="button" className={styles.btnSecondary} onClick={() => setShowAbsenceForm(false)}>Odustani</button>
-                  <button type="submit" className={styles.btnPrimary}>Sačuvaj</button>
+                  <button type="button" className={styles.btnSecondary} onClick={() => setShowAbsenceForm(false)}>{t('cancel')}</button>
+                  <button type="submit" className={styles.btnPrimary}>{t('save')}</button>
                 </div>
               </form>
             )}
-            {absences.length === 0 ? <div className={styles.empty}>Nema evidentiranih odsustva</div> : (
+            {absences.length === 0 ? <div className={styles.empty}>{t('sppNoAbsences')}</div> : (
               <div className={styles.absenceList}>
                 {absences.map(a => (
                   <div key={a.id} className={styles.absenceItem}>
-                    <span className={styles.absenceTag} style={{background:ABSENCE_TYPES[a.absence_type]?.bg,color:ABSENCE_TYPES[a.absence_type]?.color}}>{ABSENCE_TYPES[a.absence_type]?.label}</span>
+                    <span className={styles.absenceTag} style={{background:ABSENCE_TYPES[a.absence_type]?.bg,color:ABSENCE_TYPES[a.absence_type]?.color}}>{ABSENCE_TYPES[a.absence_type] && t(ABSENCE_TYPES[a.absence_type].labelKey)}</span>
                     <div className={styles.absenceDates}>
-                      {new Date(a.start_date).toLocaleDateString('sr-Latn')} — {new Date(a.end_date).toLocaleDateString('sr-Latn')}
-                      <span className={styles.absenceDays}> · {a.days} {a.days===1?'dan':'dana'}</span>
+                      {new Date(a.start_date).toLocaleDateString(dl)} — {new Date(a.end_date).toLocaleDateString(dl)}
+                      <span className={styles.absenceDays}> · {a.days===1?t('sppDayOne',{n:a.days}):t('sppDayOther',{n:a.days})}</span>
                     </div>
                     <div className={styles.absenceActions}>
-                      {a.approved === true  && <span className={styles.approvedBadge}>✓ Odobreno</span>}
-                      {a.approved === null  && <span className={styles.pendingBadge}>Na čekanju</span>}
-                      {a.approved === false && <span className={styles.rejectedBadge}>✗ Odbijeno</span>}
+                      {a.approved === true  && <span className={styles.approvedBadge}>✓ {t('sppApproved')}</span>}
+                      {a.approved === null  && <span className={styles.pendingBadge}>{t('htPayPending')}</span>}
+                      {a.approved === false && <span className={styles.rejectedBadge}>✗ {t('profRejected')}</span>}
                       {a.approved === null && (
-                        <button className={styles.btnApprove} onClick={() => approveAbsence(a)}>Odobri</button>
+                        <button className={styles.btnApprove} onClick={() => approveAbsence(a)}>{t('payApprove')}</button>
                       )}
                       {a.approved === null && (
-                        <button className={styles.btnReject} onClick={() => rejectAbsence(a.id)}>Odbij</button>
+                        <button className={styles.btnReject} onClick={() => rejectAbsence(a.id)}>{t('profReject')}</button>
                       )}
                       {a.approved === true && (
-                        <button className={styles.btnReject} onClick={() => rejectAbsence(a.id)}>Poništi</button>
+                        <button className={styles.btnReject} onClick={() => rejectAbsence(a.id)}>{t('profCancel2')}</button>
                       )}
                       <button className={styles.delBtn} onClick={() => deleteAbsence(a.id)}>✕</button>
                     </div>
@@ -610,13 +613,13 @@ ${deductions.length > 0 ? `
                 <button
                   className={styles.btnSecondary}
                   onClick={() => generatePayslip()}
-                  title="Generiši platnu listu za odabrani period"
+                  title={t('profGeneratePayslipTitle')}
                 >
-                  📄 Platna lista
+                  📄 {t('profPayslip')}
                 </button>
                 <button className={styles.btnPrimary}
                   onClick={() => setShowPayrollForm(v => !v)}>
-                  + Dodaj stavku
+                  + {t('payAddEntry')}
                 </button>
               </div>
             </div>
@@ -634,10 +637,10 @@ ${deductions.length > 0 ? `
               return (
                 <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fill, minmax(130px,1fr))', gap: 10, marginBottom: 16 }}>
                   {[
-                    { label: 'Osnovna plata', val: `€${base.toFixed(2)}`, color: '#0d7a52' },
-                    { label: 'Dodaci', val: `+€${extras.toFixed(2)}`, color: '#378add' },
-                    { label: 'Odbitci', val: `-€${deductions.toFixed(2)}`, color: '#c0392b' },
-                    { label: 'Ukupno', val: `€${(base + extras - deductions).toFixed(2)}`, color: '#1a2e26' },
+                    { label: t('payBaseSalary'), val: `€${base.toFixed(2)}`, color: '#0d7a52' },
+                    { label: t('sppAdditions'), val: `+€${extras.toFixed(2)}`, color: '#378add' },
+                    { label: t('payDeductions'), val: `-€${deductions.toFixed(2)}`, color: '#c0392b' },
+                    { label: t('flTotal'), val: `€${(base + extras - deductions).toFixed(2)}`, color: '#1a2e26' },
                   ].map((k, i) => (
                     <div key={i} style={{ background: '#f8fbf9', borderRadius: 10, padding: '12px 14px', border: '1px solid #e0ece6' }}>
                       <div style={{ fontSize: 11, color: '#8a9e96', marginBottom: 4 }}>{k.label}</div>
@@ -653,35 +656,35 @@ ${deductions.length > 0 ? `
               <form onSubmit={savePayrollEntry} style={{ background: '#f0f8f4', borderRadius: 12, padding: '16px', marginBottom: 16, border: '1px solid #c8e8d8' }}>
                 <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr 1fr', gap: 10, marginBottom: 10 }}>
                   <div>
-                    <label style={{ fontSize: 12, color: '#5a7a6a', display: 'block', marginBottom: 4 }}>Tip</label>
+                    <label style={{ fontSize: 12, color: '#5a7a6a', display: 'block', marginBottom: 4 }}>{t('flType')}</label>
                     <select value={payrollForm.type} onChange={e => setPayrollForm(f => ({ ...f, type: e.target.value }))}
                       style={{ width: '100%', padding: '8px 10px', border: '1px solid #d0e4dc', borderRadius: 8, fontSize: 13, fontFamily: 'inherit' }}>
-                      {ENTRY_TYPES.map(t => <option key={t.key} value={t.key}>{t.label}</option>)}
+                      {ENTRY_TYPES.map(et => <option key={et.key} value={et.key}>{t(et.labelKey)}</option>)}
                     </select>
                   </div>
                   <div>
-                    <label style={{ fontSize: 12, color: '#5a7a6a', display: 'block', marginBottom: 4 }}>Iznos (€)</label>
+                    <label style={{ fontSize: 12, color: '#5a7a6a', display: 'block', marginBottom: 4 }}>{t('stfAmountEur')}</label>
                     <input type="number" min="0" step="0.01" required value={payrollForm.amount}
                       onChange={e => setPayrollForm(f => ({ ...f, amount: e.target.value }))}
                       style={{ width: '100%', padding: '8px 10px', border: '1px solid #d0e4dc', borderRadius: 8, fontSize: 13, fontFamily: 'inherit', boxSizing: 'border-box' }} />
                   </div>
                   <div>
-                    <label style={{ fontSize: 12, color: '#5a7a6a', display: 'block', marginBottom: 4 }}>Datum</label>
+                    <label style={{ fontSize: 12, color: '#5a7a6a', display: 'block', marginBottom: 4 }}>{t('htDateHead')}</label>
                     <input type="date" required value={payrollForm.date}
                       onChange={e => setPayrollForm(f => ({ ...f, date: e.target.value }))}
                       style={{ width: '100%', padding: '8px 10px', border: '1px solid #d0e4dc', borderRadius: 8, fontSize: 13, fontFamily: 'inherit', boxSizing: 'border-box' }} />
                   </div>
                 </div>
                 <div style={{ marginBottom: 10 }}>
-                  <label style={{ fontSize: 12, color: '#5a7a6a', display: 'block', marginBottom: 4 }}>Napomena</label>
+                  <label style={{ fontSize: 12, color: '#5a7a6a', display: 'block', marginBottom: 4 }}>{t('hkpNote')}</label>
                   <input value={payrollForm.note} onChange={e => setPayrollForm(f => ({ ...f, note: e.target.value }))}
                     placeholder="Opcionalno"
                     style={{ width: '100%', padding: '8px 10px', border: '1px solid #d0e4dc', borderRadius: 8, fontSize: 13, fontFamily: 'inherit', boxSizing: 'border-box' }} />
                 </div>
                 <div style={{ display: 'flex', gap: 8, justifyContent: 'flex-end' }}>
-                  <button type="button" className={styles.btnSecondary} onClick={() => setShowPayrollForm(false)}>Odustani</button>
+                  <button type="button" className={styles.btnSecondary} onClick={() => setShowPayrollForm(false)}>{t('cancel')}</button>
                   <button type="submit" className={styles.btnPrimary} disabled={payrollSaving}>
-                    {payrollSaving ? 'Čuvanje...' : 'Dodaj stavku'}
+                    {payrollSaving ? t('saving') : t('payAddEntry')}
                   </button>
                 </div>
               </form>
@@ -689,18 +692,18 @@ ${deductions.length > 0 ? `
 
             {/* Lista stavki */}
             {payrollLoading
-              ? <div style={{ color: '#8a9e96', fontSize: 13, padding: 16, textAlign: 'center' }}>Učitavanje...</div>
+              ? <div style={{ color: '#8a9e96', fontSize: 13, padding: 16, textAlign: 'center' }}>{t('loading')}</div>
               : payrollEntries.length === 0
-              ? <div className={styles.empty}>Nema stavki za odabrani period.</div>
+              ? <div className={styles.empty}>{t('payNoEntries')}</div>
               : (
                 <div>
                   {payrollEntries.map(entry => {
-                    const et = ENTRY_TYPES.find(t => t.key === entry.type)
+                    const et = ENTRY_TYPES.find(x => x.key === entry.type)
                     const isDeduction = ['deduction','advance'].includes(entry.type)
                     return (
                       <div key={entry.id} style={{ display: 'flex', alignItems: 'center', gap: 10, padding: '10px 0', borderBottom: '1px solid #f0f5f2' }}>
                         <span style={{ fontSize: 11, fontWeight: 600, padding: '3px 9px', borderRadius: 6, background: et?.color + '22', color: et?.color }}>
-                          {et?.label}
+                          {et && t(et.labelKey)}
                         </span>
                         <div style={{ flex: 1 }}>
                           <div style={{ fontSize: 13, fontWeight: 600, color: isDeduction ? '#c0392b' : '#0d7a52' }}>
@@ -709,11 +712,11 @@ ${deductions.length > 0 ? `
                           {entry.note && <div style={{ fontSize: 11, color: '#8a9e96' }}>{entry.note}</div>}
                         </div>
                         <div style={{ fontSize: 12, color: '#8a9e96' }}>
-                          {new Date(entry.date).toLocaleDateString('sr-Latn')}
+                          {new Date(entry.date).toLocaleDateString(dl)}
                         </div>
                         <button onClick={() => deletePayrollEntry(entry.id)}
                           style={{ background: 'none', border: 'none', color: '#c0b0b0', cursor: 'pointer', fontSize: 14, padding: '4px 6px', borderRadius: 4 }}
-                          title="Obriši">✕</button>
+                          title={t('htDelete')}>✕</button>
                       </div>
                     )
                   })}
@@ -727,39 +730,39 @@ ${deductions.length > 0 ? `
         {activeTab === 'history' && (
           <div className={styles.card}>
             <div className={styles.cardHeader}>
-              <div className={styles.cardTitle}>Istorija zaposlenja</div>
-              <button className={styles.btnPrimary} onClick={() => setShowHistoryForm(v=>!v)}>+ Dodaj zapis</button>
+              <div className={styles.cardTitle}>{t('profEmploymentHistory')}</div>
+              <button className={styles.btnPrimary} onClick={() => setShowHistoryForm(v=>!v)}>+ {t('profAddRecord')}</button>
             </div>
             {showHistoryForm && (
               <form onSubmit={saveHistoryEvent} className={styles.inlineForm}>
                 <div className={styles.formGrid}>
-                  <Field label="Tip događaja">
+                  <Field label={t('profEventType')}>
                     <select value={historyForm.event_type} onChange={e=>setHistoryForm(f=>({...f,event_type:e.target.value}))}>
-                      <option value="note">📝 Napomena</option>
-                      <option value="promoted">⬆️ Unaprijeđen</option>
-                      <option value="wage_change">💰 Promjena plate</option>
-                      <option value="position_change">🔄 Promjena pozicije</option>
-                      <option value="warning">⚠️ Upozorenje</option>
-                      <option value="terminated">🔚 Prestanak rada</option>
+                      <option value="note">📝 {t('profEvtNote')}</option>
+                      <option value="promoted">⬆️ {t('profEvtPromoted')}</option>
+                      <option value="wage_change">💰 {t('profEvtWage')}</option>
+                      <option value="position_change">🔄 {t('profEvtPosition')}</option>
+                      <option value="warning">⚠️ {t('profEvtWarning')}</option>
+                      <option value="terminated">🔚 {t('profEvtTerminated')}</option>
                     </select>
                   </Field>
-                  <Field label="Datum"><input type="date" value={historyForm.event_date} onChange={e=>setHistoryForm(f=>({...f,event_date:e.target.value}))} /></Field>
-                  <Field label="Opis *" full><input required value={historyForm.description} onChange={e=>setHistoryForm(f=>({...f,description:e.target.value}))} placeholder="Kratak opis..." /></Field>
+                  <Field label={t('htDateHead')}><input type="date" value={historyForm.event_date} onChange={e=>setHistoryForm(f=>({...f,event_date:e.target.value}))} /></Field>
+                  <Field label={`${t('flDesc')} *`} full><input required value={historyForm.description} onChange={e=>setHistoryForm(f=>({...f,description:e.target.value}))} placeholder="Kratak opis..." /></Field>
                 </div>
                 <div className={styles.saveRow}>
-                  <button type="button" className={styles.btnSecondary} onClick={() => setShowHistoryForm(false)}>Odustani</button>
-                  <button type="submit" className={styles.btnPrimary}>Sačuvaj</button>
+                  <button type="button" className={styles.btnSecondary} onClick={() => setShowHistoryForm(false)}>{t('cancel')}</button>
+                  <button type="submit" className={styles.btnPrimary}>{t('save')}</button>
                 </div>
               </form>
             )}
-            {history.length === 0 ? <div className={styles.empty}>Nema historije zaposlenja</div> : (
+            {history.length === 0 ? <div className={styles.empty}>{t('profNoHistory')}</div> : (
               <div className={styles.timeline}>
                 {history.map(h => (
                   <div key={h.id} className={styles.tlItem}>
                     <div className={styles.tlDot}>{HISTORY_ICONS[h.event_type]||'📝'}</div>
                     <div className={styles.tlContent}>
                       <div className={styles.tlDesc}>{h.description}</div>
-                      <div className={styles.tlDate}>{new Date(h.event_date).toLocaleDateString('sr-Latn', {day:'numeric', month:'long', year:'numeric'})}</div>
+                      <div className={styles.tlDate}>{new Date(h.event_date).toLocaleDateString(dl, {day:'numeric', month:'long', year:'numeric'})}</div>
                     </div>
                   </div>
                 ))}
@@ -782,14 +785,15 @@ function Field({ label, children, full }) {
 }
 
 function SaveRow({ onSave, saving, saved, error }) {
+  const { t } = useTranslation('admin')
   return (
     <div style={{ display:'flex', justifyContent:'flex-end', alignItems:'center', gap:12, marginTop:16, paddingTop:12, borderTop:'1px solid #f0f5f2' }}>
-      {error && <span style={{ color:'#c0392b', fontSize:12 }}>Greška: {error}</span>}
+      {error && <span style={{ color:'#c0392b', fontSize:12 }}>{t('htErr')}: {error}</span>}
       <button
         style={{ padding:'10px 20px', background: saving ? '#888' : '#0d7a52', color:'#fff', border:'none', borderRadius:9, fontSize:13, fontWeight:500, cursor: saving ? 'not-allowed' : 'pointer', fontFamily:'DM Sans, sans-serif' }}
         onClick={onSave} disabled={saving}
       >
-        {saving ? 'Čuvanje...' : saved ? '✓ Sačuvano' : 'Sačuvaj promjene'}
+        {saving ? t('saving') : saved ? `✓ ${t('profSaved')}` : t('profSaveChanges')}
       </button>
     </div>
   )
