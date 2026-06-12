@@ -1,5 +1,6 @@
 import { useState, useEffect } from 'react'
 import { useNavigate } from 'react-router-dom'
+import { useTranslation } from 'react-i18next'
 import { supabase } from '../../lib/supabase'
 import { usePlatform } from '../../context/PlatformContext'
 import styles from './NutritionAdmin.module.css'
@@ -17,6 +18,7 @@ const EMPTY = { nm: '', kcal: '', allergens: [] }
 export default function NutritionAdmin() {
   const { isSuperAdmin } = usePlatform()
   const navigate = useNavigate()
+  const { t } = useTranslation('admin')
 
   const [rows, setRows] = useState([])
   const [loading, setLoading] = useState(true)
@@ -52,8 +54,8 @@ export default function NutritionAdmin() {
   const save = async () => {
     const isNew = editing === 'new'
     const nm = (isNew ? form.nm : editing).trim().toLowerCase()
-    if (!nm) { setMsg('Naziv je obavezan.'); return }
-    if (form.kcal === '' || isNaN(parseFloat(form.kcal))) { setMsg('kcal mora biti broj.'); return }
+    if (!nm) { setMsg(t('saNameReqDot')); return }
+    if (form.kcal === '' || isNaN(parseFloat(form.kcal))) { setMsg(t('saKcalNumber')); return }
 
     setSaving(true)
     const payload = { nm, kcal: parseFloat(form.kcal), allergens: form.allergens }
@@ -61,56 +63,56 @@ export default function NutritionAdmin() {
     const { error } = await supabase.from('recipe_ingredient_nutrition')
       .upsert(payload, { onConflict: 'nm' })
     setSaving(false)
-    if (error) { setMsg('Greška: ' + error.message); return }
+    if (error) { setMsg(t('saErrPrefix') + error.message); return }
     close()
     await load()
   }
 
   const del = async (r) => {
-    if (!confirm(`Obrisati "${r.nm}" iz nutritivne tabele?`)) return
+    if (!confirm(t('saNutDeleteConfirm', { nm: r.nm }))) return
     const { error } = await supabase.from('recipe_ingredient_nutrition').delete().eq('nm', r.nm)
     if (!error) setRows(rs => rs.filter(x => x.nm !== r.nm))
   }
 
   if (!isSuperAdmin()) {
-    return <div className={styles.denied}><div>🔒</div><div>Nemate pristup ovoj stranici.</div></div>
+    return <div className={styles.denied}><div>🔒</div><div>{t('saNoAccess')}</div></div>
   }
 
   return (
     <div className={styles.wrap}>
       <div className={styles.header}>
         <div>
-          <div className={styles.title}>Nutritivna tabela sastojaka</div>
-          <div className={styles.sub}>kcal po jedinici + alergeni — koristi „Preračunaj" u biblioteci recepata</div>
+          <div className={styles.title}>{t('saNutTitle')}</div>
+          <div className={styles.sub}>{t('saNutSub')}</div>
         </div>
         <div className={styles.headerActions}>
-          <button className={styles.btnNew} onClick={openNew}>+ Novi sastojak</button>
-          <button className={styles.btnBack} onClick={() => navigate('/superadmin/recipes')}>← Recepti</button>
+          <button className={styles.btnNew} onClick={openNew}>+ {t('saNewIngredient')}</button>
+          <button className={styles.btnBack} onClick={() => navigate('/superadmin/recipes')}>← {t('saBackRecipes')}</button>
         </div>
       </div>
 
-      <input className={styles.search} placeholder="Pretraži sastojak…" value={search}
+      <input className={styles.search} placeholder={t('saSearchIngredient')} value={search}
         onChange={e => setSearch(e.target.value)} />
 
       {loading ? (
-        <div className={styles.loading}>Učitavanje…</div>
+        <div className={styles.loading}>{t('loading')}</div>
       ) : (
         <div className={styles.tableWrap}>
           <table className={styles.table}>
             <thead>
-              <tr><th>Sastojak</th><th>kcal / jed.</th><th>Alergeni</th><th></th></tr>
+              <tr><th>{t('saColIngredient')}</th><th>{t('saColKcal')}</th><th>{t('saColAllergens')}</th><th></th></tr>
             </thead>
             <tbody>
               {filtered.length === 0 && (
-                <tr><td colSpan={4} className={styles.empty}>Nema rezultata.</td></tr>
+                <tr><td colSpan={4} className={styles.empty}>{t('saNoResults')}</td></tr>
               )}
               {filtered.map(r => (
                 <tr key={r.nm}>
                   <td className={styles.nm}>{r.nm}</td>
-                  <td data-label="kcal / jed.">{Number(r.kcal)}</td>
-                  <td className={styles.alg} data-label="Alergeni">{(r.allergens || []).join(', ') || '—'}</td>
+                  <td data-label={t('saColKcal')}>{Number(r.kcal)}</td>
+                  <td className={styles.alg} data-label={t('saColAllergens')}>{(r.allergens || []).join(', ') || '—'}</td>
                   <td className={styles.actions}>
-                    <button className={styles.btnEdit} onClick={() => openEdit(r)}>Uredi</button>
+                    <button className={styles.btnEdit} onClick={() => openEdit(r)}>{t('htEdit')}</button>
                     <button className={styles.btnDel} onClick={() => del(r)}>✕</button>
                   </td>
                 </tr>
@@ -124,27 +126,27 @@ export default function NutritionAdmin() {
         <div className={styles.overlay} onClick={close}>
           <div className={styles.modal} onClick={e => e.stopPropagation()}>
             <div className={styles.modalHeader}>
-              <div className={styles.modalTitle}>{editing === 'new' ? 'Novi sastojak' : `Uredi: ${editing}`}</div>
+              <div className={styles.modalTitle}>{editing === 'new' ? t('saNewIngredient') : t('saEditName', { name: editing })}</div>
               <button className={styles.modalClose} onClick={close}>✕</button>
             </div>
             <div className={styles.modalBody}>
               {editing === 'new' ? (
                 <div className={styles.field}>
-                  <label>Naziv sastojka *</label>
+                  <label>{t('saIngredientNameReq')}</label>
                   <input value={form.nm} onChange={e => setForm(f => ({ ...f, nm: e.target.value }))}
-                    placeholder="npr. limeta (mala slova, kako se piše u receptu)" />
-                  <div className={styles.hint}>Mora se tačno poklapati s nazivom u sastojcima recepta (mala slova).</div>
+                    placeholder={t('saIngredientNamePh')} />
+                  <div className={styles.hint}>{t('saIngredientHint')}</div>
                 </div>
               ) : (
-                <div className={styles.field}><label>Naziv</label><div className={styles.nmFixed}>{editing}</div></div>
+                <div className={styles.field}><label>{t('saNameLabel')}</label><div className={styles.nmFixed}>{editing}</div></div>
               )}
               <div className={styles.field}>
-                <label>kcal po jedinici (ml / g / kom) *</label>
+                <label>{t('saKcalUnit')}</label>
                 <input type="number" step="0.01" value={form.kcal}
-                  onChange={e => setForm(f => ({ ...f, kcal: e.target.value }))} placeholder="npr. 2.3" />
+                  onChange={e => setForm(f => ({ ...f, kcal: e.target.value }))} placeholder={t('saKcalPh')} />
               </div>
               <div className={styles.field}>
-                <label>Alergeni</label>
+                <label>{t('saAllergens')}</label>
                 <div className={styles.algGrid}>
                   {ALLERGENS.map(a => (
                     <label key={a} className={`${styles.algChip} ${form.allergens.includes(a) ? styles.algChipOn : ''}`}>
@@ -157,9 +159,9 @@ export default function NutritionAdmin() {
             </div>
             <div className={styles.modalFooter}>
               {msg && <span className={styles.msg}>{msg}</span>}
-              <button className={styles.btnCancel} onClick={close}>Odustani</button>
+              <button className={styles.btnCancel} onClick={close}>{t('cancel')}</button>
               <button className={styles.btnSave} onClick={save} disabled={saving}>
-                {saving ? 'Čuvanje…' : 'Sačuvaj'}
+                {saving ? t('saving') : t('save')}
               </button>
             </div>
           </div>

@@ -1,4 +1,5 @@
 import { useState, useEffect } from 'react'
+import { useTranslation } from 'react-i18next'
 import { usePlatform } from '../../context/PlatformContext'
 import { supabase } from '../../lib/supabase'
 import LoadingSpinner from '../../components/shared/LoadingSpinner'
@@ -9,6 +10,7 @@ const BLANK = { question: '', answer: '', category: 'ostalo', sort_order: 0, is_
 
 export default function FaqAdmin() {
   const { isSuperAdmin } = usePlatform()
+  const { t } = useTranslation('admin')
   const [items, setItems] = useState([])
   const [loading, setLoading] = useState(true)
   const [showForm, setShowForm] = useState(false)
@@ -37,7 +39,7 @@ export default function FaqAdmin() {
   }
 
   const save = async () => {
-    if (!form.question.trim() || !form.answer.trim()) return flash('Pitanje i odgovor su obavezni')
+    if (!form.question.trim() || !form.answer.trim()) return flash(t('saQAreq'))
     setSaving(true)
     const payload = {
       question: form.question.trim(), answer: form.answer.trim(),
@@ -50,19 +52,19 @@ export default function FaqAdmin() {
       ;({ error } = await supabase.from('support_faq').insert({ ...payload, created_by: (await supabase.auth.getUser()).data.user?.id ?? null }))
     }
     setSaving(false)
-    if (error) return flash('Greška: ' + error.message)
-    reset(); flash(editingId ? 'Sačuvano' : 'Dodato'); load()
+    if (error) return flash(t('saErrPrefix') + error.message)
+    reset(); flash(editingId ? t('saSaved') : t('saAdded')); load()
   }
 
   const remove = async (id) => {
-    if (!window.confirm('Obrisati pitanje?')) return
+    if (!window.confirm(t('saFaqDeleteConfirm'))) return
     await supabase.from('support_faq').delete().eq('id', id)
     load()
   }
 
   if (!isSuperAdmin()) return (
     <div style={{ display: 'flex', flexDirection: 'column', alignItems: 'center', justifyContent: 'center', minHeight: '50vh', gap: 12, color: 'var(--c-text-muted)' }}>
-      <div style={{ fontSize: 40 }}>🔒</div><div>Nemate pristup ovoj stranici.</div>
+      <div style={{ fontSize: 40 }}>🔒</div><div>{t('saNoAccess')}</div>
     </div>
   )
 
@@ -70,62 +72,62 @@ export default function FaqAdmin() {
     <div className={styles.page}>
       <div className={styles.header}>
         <div>
-          <h1 className={styles.title}>📖 Baza znanja (FAQ)</h1>
-          <p className={styles.subtitle}>Česta pitanja koja admini vide na stranici Podrška</p>
+          <h1 className={styles.title}>📖 {t('saFaqTitle')}</h1>
+          <p className={styles.subtitle}>{t('saFaqSub')}</p>
         </div>
         <div style={{ display: 'flex', gap: 8 }}>
           {msg && <span style={{ alignSelf: 'center', color: 'var(--c-primary)', fontSize: 13 }}>✓ {msg}</span>}
-          {!showForm && <button className={styles.btnPrimary} onClick={openNew}>+ Novo pitanje</button>}
+          {!showForm && <button className={styles.btnPrimary} onClick={openNew}>+ {t('saNewQuestion')}</button>}
         </div>
       </div>
 
       {showForm && (
         <div style={{ background: 'var(--c-surface)', border: '1px solid var(--c-border)', borderRadius: 12, padding: 16, marginBottom: 24 }}>
-          <div style={{ fontWeight: 600, marginBottom: 12 }}>{editingId ? '✏️ Izmjena' : 'Novo pitanje'}</div>
+          <div style={{ fontWeight: 600, marginBottom: 12 }}>{editingId ? `✏️ ${t('saEdit2')}` : t('saNewQuestion')}</div>
           <div style={{ marginBottom: 10 }}>
-            <label style={{ fontSize: 12, color: 'var(--c-text-medium)', display: 'block', marginBottom: 4 }}>Pitanje *</label>
-            <input className={styles.input} style={{ width: '100%' }} value={form.question} onChange={e => upd('question', e.target.value)} placeholder="npr. Kako da zatvorim folio?" />
+            <label style={{ fontSize: 12, color: 'var(--c-text-medium)', display: 'block', marginBottom: 4 }}>{t('saQuestion')}</label>
+            <input className={styles.input} style={{ width: '100%' }} value={form.question} onChange={e => upd('question', e.target.value)} placeholder={t('saQuestionPh')} />
           </div>
           <div style={{ marginBottom: 10 }}>
-            <label style={{ fontSize: 12, color: 'var(--c-text-medium)', display: 'block', marginBottom: 4 }}>Odgovor *</label>
+            <label style={{ fontSize: 12, color: 'var(--c-text-medium)', display: 'block', marginBottom: 4 }}>{t('saAnswer')}</label>
             <textarea className={styles.input} style={{ width: '100%', minHeight: 110, resize: 'vertical' }} value={form.answer} onChange={e => upd('answer', e.target.value)} />
           </div>
           <div style={{ display: 'flex', gap: 12, flexWrap: 'wrap', alignItems: 'flex-end' }}>
             <div>
-              <label style={{ fontSize: 12, color: 'var(--c-text-medium)', display: 'block', marginBottom: 4 }}>Kategorija</label>
+              <label style={{ fontSize: 12, color: 'var(--c-text-medium)', display: 'block', marginBottom: 4 }}>{t('spaCategory')}</label>
               <select className={styles.input} value={form.category} onChange={e => upd('category', e.target.value)}>
                 {Object.entries(FAQ_CATS).map(([k, l]) => <option key={k} value={k}>{l}</option>)}
               </select>
             </div>
             <div style={{ width: 110 }}>
-              <label style={{ fontSize: 12, color: 'var(--c-text-medium)', display: 'block', marginBottom: 4 }}>Redoslijed</label>
+              <label style={{ fontSize: 12, color: 'var(--c-text-medium)', display: 'block', marginBottom: 4 }}>{t('saSortOrder')}</label>
               <input className={styles.input} type="number" value={form.sort_order} onChange={e => upd('sort_order', e.target.value)} />
             </div>
             <label style={{ display: 'flex', alignItems: 'center', gap: 8, paddingBottom: 8 }}>
               <input type="checkbox" checked={form.is_published} onChange={e => upd('is_published', e.target.checked)} />
-              <span style={{ fontSize: 13 }}>Objavljeno</span>
+              <span style={{ fontSize: 13 }}>{t('saPublished')}</span>
             </label>
-            <button className={styles.btnPrimary} onClick={save} disabled={saving}>{saving ? 'Čuvam…' : (editingId ? 'Sačuvaj' : 'Dodaj')}</button>
-            <button className={styles.btnSecondary} onClick={reset}>Odustani</button>
+            <button className={styles.btnPrimary} onClick={save} disabled={saving}>{saving ? t('saving') : (editingId ? t('save') : t('saAdd'))}</button>
+            <button className={styles.btnSecondary} onClick={reset}>{t('cancel')}</button>
           </div>
         </div>
       )}
 
       {loading ? <LoadingSpinner /> : items.length === 0 ? (
-        <div style={{ padding: 32, textAlign: 'center', color: 'var(--c-text-muted)' }}>Još nema pitanja. Dodaj prvo.</div>
+        <div style={{ padding: 32, textAlign: 'center', color: 'var(--c-text-muted)' }}>{t('saNoQuestions')}</div>
       ) : (
         <div style={{ display: 'flex', flexDirection: 'column', gap: 10 }}>
           {items.map(f => (
             <div key={f.id} style={{ background: 'var(--c-surface)', border: '1px solid var(--c-border)', borderRadius: 12, padding: '12px 16px', opacity: f.is_published ? 1 : 0.6 }}>
               <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-start', gap: 12 }}>
                 <div style={{ minWidth: 0 }}>
-                  <div style={{ fontWeight: 600 }}>{f.question}{!f.is_published && <span style={{ fontSize: 11, color: 'var(--c-text-muted)', fontWeight: 400 }}> (skriveno)</span>}</div>
+                  <div style={{ fontWeight: 600 }}>{f.question}{!f.is_published && <span style={{ fontSize: 11, color: 'var(--c-text-muted)', fontWeight: 400 }}> {t('saHidden')}</span>}</div>
                   <div style={{ fontSize: 13, color: 'var(--c-text-medium)', marginTop: 4, whiteSpace: 'pre-wrap' }}>{f.answer}</div>
                   <div style={{ fontSize: 11, color: 'var(--c-text-muted)', marginTop: 6 }}>{FAQ_CATS[f.category] || f.category} · #{f.sort_order}</div>
                 </div>
                 <div style={{ display: 'flex', gap: 6, flexShrink: 0 }}>
-                  <button className={styles.btnSecondary} style={{ fontSize: 12 }} onClick={() => openEdit(f)}>Uredi</button>
-                  <button style={{ padding: '5px 10px', fontSize: 12, background: 'transparent', color: 'var(--c-danger)', border: '1px solid var(--c-danger-border)', borderRadius: 7, cursor: 'pointer' }} onClick={() => remove(f.id)}>Obriši</button>
+                  <button className={styles.btnSecondary} style={{ fontSize: 12 }} onClick={() => openEdit(f)}>{t('htEdit')}</button>
+                  <button style={{ padding: '5px 10px', fontSize: 12, background: 'transparent', color: 'var(--c-danger)', border: '1px solid var(--c-danger-border)', borderRadius: 7, cursor: 'pointer' }} onClick={() => remove(f.id)}>{t('htDelete')}</button>
                 </div>
               </div>
             </div>

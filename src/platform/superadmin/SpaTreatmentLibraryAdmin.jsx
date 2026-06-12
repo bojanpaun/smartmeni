@@ -1,5 +1,6 @@
 import { useState, useEffect } from 'react'
 import { useNavigate } from 'react-router-dom'
+import { useTranslation } from 'react-i18next'
 import { usePlatform } from '../../context/PlatformContext'
 import { supabase } from '../../lib/supabase'
 import LoadingSpinner from '../../components/shared/LoadingSpinner'
@@ -7,7 +8,7 @@ import styles from '../../modules/hotel/pages/Hotel.module.css'
 import spa from '../../modules/spa/pages/Spa.module.css'
 
 const CATEGORIES = ['massage', 'facial', 'body', 'nail', 'wellness', 'group']
-const CAT_LABEL = { massage: 'Masaža', facial: 'Facial', body: 'Tijelo', nail: 'Nokti', wellness: 'Wellness', group: 'Grupni' }
+const CAT_KEYS = { massage: 'spaCatMassage', facial: 'spaCatFacial', body: 'spaCatBody', nail: 'spaCatNail', wellness: 'spaCatWellness', group: 'spaCatGroup' }
 
 const BLANK = {
   id: '', name: '', name_en: '', category: 'massage', description: '', description_en: '',
@@ -22,6 +23,8 @@ const slugify = (s) => (s || '').toLowerCase().trim()
 export default function SpaTreatmentLibraryAdmin() {
   const { isSuperAdmin } = usePlatform()
   const navigate = useNavigate()
+  const { t } = useTranslation('admin')
+  const catLabel = (c) => CAT_KEYS[c] ? t(CAT_KEYS[c]) : c
   const [items, setItems] = useState([])
   const [loading, setLoading] = useState(true)
   const [showForm, setShowForm] = useState(false)
@@ -52,9 +55,9 @@ export default function SpaTreatmentLibraryAdmin() {
   const flash = (m) => { setMsg(m); setTimeout(() => setMsg(''), 2500) }
 
   const handleSave = async () => {
-    if (!form.name.trim()) return flash('Naziv je obavezan')
+    if (!form.name.trim()) return flash(t('saNameReq'))
     const id = editing || slugify(form.id || form.name)
-    if (!id) return flash('ID/naziv obavezan')
+    if (!id) return flash(t('saIdNameReq'))
     setSaving(true)
     const payload = {
       id,
@@ -71,19 +74,19 @@ export default function SpaTreatmentLibraryAdmin() {
     }
     const { error } = await supabase.from('spa_treatment_library').upsert(payload, { onConflict: 'id' })
     setSaving(false)
-    if (error) return flash('Greška: ' + error.message)
-    close(); flash('Sačuvano'); load()
+    if (error) return flash(t('saErrPrefix') + error.message)
+    close(); flash(t('saSaved')); load()
   }
 
   const remove = async (id) => {
-    if (!window.confirm('Obrisati tretman iz biblioteke?')) return
+    if (!window.confirm(t('saSpaDeleteConfirm'))) return
     await supabase.from('spa_treatment_library').delete().eq('id', id)
     load()
   }
 
   if (!isSuperAdmin()) return (
     <div style={{ display: 'flex', flexDirection: 'column', alignItems: 'center', justifyContent: 'center', minHeight: '50vh', gap: 12, color: 'var(--c-text-muted)' }}>
-      <div style={{ fontSize: 40 }}>🔒</div><div>Nemate pristup ovoj stranici.</div>
+      <div style={{ fontSize: 40 }}>🔒</div><div>{t('saNoAccess')}</div>
     </div>
   )
 
@@ -91,87 +94,87 @@ export default function SpaTreatmentLibraryAdmin() {
     <div className={styles.page}>
       <div className={styles.header}>
         <div>
-          <h1 className={styles.title} style={{ fontSize: '1.3rem' }}>Biblioteka tretmana</h1>
-          <p className={styles.subtitle}>Predefinisani spa tretmani koje tenanti uvoze u svoj katalog</p>
+          <h1 className={styles.title} style={{ fontSize: '1.3rem' }}>{t('saSpaTitle')}</h1>
+          <p className={styles.subtitle}>{t('saSpaSub')}</p>
         </div>
         <div style={{ display: 'flex', gap: 8 }}>
           {msg && <span style={{ alignSelf: 'center', color: 'var(--c-primary)', fontSize: 13 }}>✓ {msg}</span>}
-          <button className={styles.btnSecondary} onClick={() => navigate('/superadmin')}>← Super admin</button>
-          <button className={styles.btnPrimary} onClick={openNew}>+ Novi tretman</button>
+          <button className={styles.btnSecondary} onClick={() => navigate('/superadmin')}>← {t('saBackSuper')}</button>
+          <button className={styles.btnPrimary} onClick={openNew}>+ {t('saNewTreatment')}</button>
         </div>
       </div>
 
       {showForm && (
         <div className={spa.formPanel}>
           <div className={spa.formPanelHeader}>
-            <span className={spa.formPanelTitle}>{editing ? `Uredi: ${form.name}` : 'Novi tretman'}</span>
+            <span className={spa.formPanelTitle}>{editing ? t('saEditName', { name: form.name }) : t('saNewTreatment')}</span>
             <button className={spa.formPanelClose} onClick={close}>✕</button>
           </div>
           <div className={spa.formGrid}>
             {!editing && (
               <div className={spa.formField}>
-                <label className={spa.formLabel}>ID (slug, auto iz naziva)</label>
+                <label className={spa.formLabel}>{t('saIdSlugAuto')}</label>
                 <input className={spa.formInput} value={form.id} onChange={e => upd('id', e.target.value)} placeholder="auto" />
               </div>
             )}
             <div className={spa.formField}>
-              <label className={spa.formLabel}>Naziv (ME) *</label>
+              <label className={spa.formLabel}>{t('saNameME')}</label>
               <input className={spa.formInput} value={form.name} onChange={e => upd('name', e.target.value)} />
             </div>
             <div className={spa.formField}>
-              <label className={spa.formLabel}>Naziv (EN)</label>
+              <label className={spa.formLabel}>{t('saNameEN')}</label>
               <input className={spa.formInput} value={form.name_en} onChange={e => upd('name_en', e.target.value)} />
             </div>
             <div className={spa.formField}>
-              <label className={spa.formLabel}>Kategorija</label>
+              <label className={spa.formLabel}>{t('spaCategory')}</label>
               <select className={spa.formSelect} value={form.category} onChange={e => upd('category', e.target.value)}>
-                {CATEGORIES.map(c => <option key={c} value={c}>{CAT_LABEL[c]}</option>)}
+                {CATEGORIES.map(c => <option key={c} value={c}>{catLabel(c)}</option>)}
               </select>
             </div>
             <div className={spa.formField}>
-              <label className={spa.formLabel}>Trajanje (min)</label>
+              <label className={spa.formLabel}>{t('spaDuration')}</label>
               <input className={spa.formInput} type="number" min="0" value={form.duration_minutes} onChange={e => upd('duration_minutes', e.target.value)} />
             </div>
             <div className={spa.formField}>
-              <label className={spa.formLabel}>Buffer (min)</label>
+              <label className={spa.formLabel}>{t('saBufferMin')}</label>
               <input className={spa.formInput} type="number" min="0" value={form.buffer_minutes} onChange={e => upd('buffer_minutes', e.target.value)} />
             </div>
             <div className={spa.formField}>
-              <label className={spa.formLabel}>Predložena cijena (€)</label>
+              <label className={spa.formLabel}>{t('saSuggestedPrice')}</label>
               <input className={spa.formInput} type="number" min="0" step="0.01" value={form.suggested_price} onChange={e => upd('suggested_price', e.target.value)} />
             </div>
             <div className={spa.formField}>
-              <label className={spa.formLabel}>Cijena za par (€)</label>
+              <label className={spa.formLabel}>{t('saPriceCouple2')}</label>
               <input className={spa.formInput} type="number" min="0" step="0.01" value={form.price_couple} onChange={e => upd('price_couple', e.target.value)} />
             </div>
             <div className={spa.formField}>
-              <label className={spa.formLabel}>Redoslijed</label>
+              <label className={spa.formLabel}>{t('saSortOrder')}</label>
               <input className={spa.formInput} type="number" value={form.sort_order} onChange={e => upd('sort_order', e.target.value)} />
             </div>
             <div className={spa.formField} style={{ gridColumn: '1 / -1' }}>
-              <label className={spa.formLabel}>Opis (ME)</label>
+              <label className={spa.formLabel}>{t('saDescME')}</label>
               <textarea className={spa.formTextarea} rows={2} value={form.description} onChange={e => upd('description', e.target.value)} />
             </div>
             <div className={spa.formField} style={{ gridColumn: '1 / -1' }}>
-              <label className={spa.formLabel}>Opis (EN)</label>
+              <label className={spa.formLabel}>{t('saDescEN')}</label>
               <textarea className={spa.formTextarea} rows={2} value={form.description_en} onChange={e => upd('description_en', e.target.value)} />
             </div>
             <div className={spa.formField} style={{ gridColumn: '1 / -1' }}>
-              <label className={spa.formLabel}>URL slike</label>
-              <input className={spa.formInput} value={form.image_url} onChange={e => upd('image_url', e.target.value)} placeholder="https://... (popunjava i Pexels skripta)" />
+              <label className={spa.formLabel}>{t('saImageUrl')}</label>
+              <input className={spa.formInput} value={form.image_url} onChange={e => upd('image_url', e.target.value)} placeholder={t('saImageUrlPh')} />
             </div>
             <div className={spa.formField} style={{ flexDirection: 'row', alignItems: 'center', gap: 10 }}>
               <input type="checkbox" checked={form.requires_consultation} onChange={e => upd('requires_consultation', e.target.checked)} />
-              <span className={spa.formLabel} style={{ margin: 0 }}>Zahtijeva konsultaciju</span>
+              <span className={spa.formLabel} style={{ margin: 0 }}>{t('saRequiresConsult')}</span>
             </div>
             <div className={spa.formField} style={{ flexDirection: 'row', alignItems: 'center', gap: 10 }}>
               <input type="checkbox" checked={form.is_active} onChange={e => upd('is_active', e.target.checked)} />
-              <span className={spa.formLabel} style={{ margin: 0 }}>Aktivan (vidljiv tenantima)</span>
+              <span className={spa.formLabel} style={{ margin: 0 }}>{t('saActiveVisible')}</span>
             </div>
           </div>
           <div className={spa.formActions}>
-            <button className={styles.btnSecondary} onClick={close}>Odustani</button>
-            <button className={styles.btnPrimary} onClick={handleSave} disabled={saving}>{saving ? 'Čuvanje...' : 'Sačuvaj'}</button>
+            <button className={styles.btnSecondary} onClick={close}>{t('cancel')}</button>
+            <button className={styles.btnPrimary} onClick={handleSave} disabled={saving}>{saving ? t('saving') : t('save')}</button>
           </div>
         </div>
       )}
@@ -179,20 +182,20 @@ export default function SpaTreatmentLibraryAdmin() {
       {loading ? <LoadingSpinner /> : (
         <table className={spa.table} style={{ background: 'var(--c-surface)', borderRadius: 14, overflow: 'hidden', border: '1px solid var(--c-border)' }}>
           <thead>
-            <tr><th>Tretman</th><th>Kategorija</th><th>Trajanje</th><th>Cijena</th><th>Aktivan</th><th></th></tr>
+            <tr><th>{t('saColTreatment')}</th><th>{t('spaCategory')}</th><th>{t('saColDuration')}</th><th>{t('spaPrice')}</th><th>{t('spaActiveM')}</th><th></th></tr>
           </thead>
           <tbody>
             {items.map(it => (
               <tr key={it.id}>
                 <td style={{ fontWeight: 600 }}>{it.name}<span style={{ marginLeft: 8, fontSize: 11, color: 'var(--c-text-muted)' }}>{it.id}</span></td>
-                <td>{CAT_LABEL[it.category] || it.category}</td>
-                <td>{it.duration_minutes} min</td>
+                <td>{catLabel(it.category)}</td>
+                <td>{it.duration_minutes} {t('spaMinUnit')}</td>
                 <td>{it.suggested_price != null ? `€${Number(it.suggested_price).toFixed(2)}` : '—'}</td>
                 <td>{it.is_active ? '✓' : '—'}</td>
                 <td>
                   <div style={{ display: 'flex', gap: 8 }}>
-                    <button className={styles.btnSecondary} style={{ fontSize: 12 }} onClick={() => openEdit(it)}>Uredi</button>
-                    <button style={{ padding: '5px 10px', fontSize: 12, background: 'transparent', color: 'var(--c-danger)', border: '1px solid var(--c-danger-border)', borderRadius: 7, cursor: 'pointer' }} onClick={() => remove(it.id)}>Obriši</button>
+                    <button className={styles.btnSecondary} style={{ fontSize: 12 }} onClick={() => openEdit(it)}>{t('htEdit')}</button>
+                    <button style={{ padding: '5px 10px', fontSize: 12, background: 'transparent', color: 'var(--c-danger)', border: '1px solid var(--c-danger-border)', borderRadius: 7, cursor: 'pointer' }} onClick={() => remove(it.id)}>{t('htDelete')}</button>
                   </div>
                 </td>
               </tr>

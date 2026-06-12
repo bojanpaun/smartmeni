@@ -1,5 +1,6 @@
 import { lazy, Suspense } from 'react'
 import { useParams, useNavigate, Navigate } from 'react-router-dom'
+import { useTranslation } from 'react-i18next'
 import styles from './LibrariesAdmin.module.css'
 
 // Objedinjuje tri biblioteke pod jedan sidebar tab „Biblioteke" sa pill navigacijom.
@@ -10,32 +11,33 @@ const SpaTreatmentLibraryAdmin = lazy(() => import('./SpaTreatmentLibraryAdmin')
 const MinibarLibraryAdmin = lazy(() => import('./MinibarLibraryAdmin'))
 
 const TABS = [
-  { key: 'recepti',  label: 'Recepti',  Comp: RecipeLibraryAdmin },
-  { key: 'tretmani', label: 'Tretmani', Comp: SpaTreatmentLibraryAdmin },
-  { key: 'minibar',  label: 'Minibar',  Comp: MinibarLibraryAdmin },
+  { key: 'recepti',  labelKey: 'saLibRecipes',    Comp: RecipeLibraryAdmin },
+  { key: 'tretmani', labelKey: 'saLibTreatments', Comp: SpaTreatmentLibraryAdmin },
+  { key: 'minibar',  labelKey: 'saLibMinibar',    Comp: MinibarLibraryAdmin },
 ]
 
 export default function LibrariesAdmin() {
   const { tab } = useParams()
   const navigate = useNavigate()
-  const active = TABS.find(t => t.key === tab)
+  const { t } = useTranslation('admin')
+  const active = TABS.find(x => x.key === tab)
   if (!active) return <Navigate to="/superadmin/libraries/recepti" replace />
   const Comp = active.Comp
 
   return (
     <div className={styles.wrap}>
       <div className={styles.pills}>
-        {TABS.map(t => (
+        {TABS.map(x => (
           <button
-            key={t.key}
-            className={`${styles.pill} ${t.key === tab ? styles.pillActive : ''}`}
-            onClick={() => navigate(`/superadmin/libraries/${t.key}`)}
+            key={x.key}
+            className={`${styles.pill} ${x.key === tab ? styles.pillActive : ''}`}
+            onClick={() => navigate(`/superadmin/libraries/${x.key}`)}
           >
-            {t.label}
+            {t(x.labelKey)}
           </button>
         ))}
       </div>
-      <Suspense fallback={<div className={styles.loading}>Učitavanje…</div>}>
+      <Suspense fallback={<div className={styles.loading}>{t('loading')}</div>}>
         <Comp />
       </Suspense>
     </div>

@@ -1,4 +1,5 @@
 import { useState, useEffect, useRef } from 'react'
+import { useTranslation } from 'react-i18next'
 import { usePlatform } from '../../context/PlatformContext'
 import { supabase } from '../../lib/supabase'
 import LoadingSpinner from '../../components/shared/LoadingSpinner'
@@ -6,13 +7,15 @@ import styles from '../../modules/hotel/pages/Hotel.module.css'
 
 // Superadmin support — svi tenanti (sadržaj bez page header-a). Koristi se u
 // /superadmin/komunikacija (tab Podrška).
-const fmt = (s) => new Date(s).toLocaleString('sr-Latn', { day: '2-digit', month: '2-digit', hour: '2-digit', minute: '2-digit' })
 const isUnreadForSuper = (c) =>
   c.last_sender_role === 'admin' &&
   (!c.superadmin_last_read_at || new Date(c.last_message_at) > new Date(c.superadmin_last_read_at))
 
 export default function SupportManager() {
   const { user } = usePlatform()
+  const { t, i18n } = useTranslation('admin')
+  const dl = i18n.language === 'en' ? 'en-US' : 'sr-Latn'
+  const fmt = (s) => new Date(s).toLocaleString(dl, { day: '2-digit', month: '2-digit', hour: '2-digit', minute: '2-digit' })
   const [conversations, setConversations] = useState([])
   const [loading, setLoading] = useState(true)
   const [filter, setFilter] = useState('open')
@@ -92,13 +95,13 @@ export default function SupportManager() {
         <div className={styles.header}>
           <div>
             <h2 className={styles.title} style={{ fontSize: 18 }}>{selected.subject}</h2>
-            <p className={styles.subtitle}>{selected.restaurants?.name ?? '—'} · {selected.status === 'closed' ? 'Zatvoreno' : 'Otvoreno'}</p>
+            <p className={styles.subtitle}>{selected.restaurants?.name ?? '—'} · {selected.status === 'closed' ? t('saClosed') : t('saOpen')}</p>
           </div>
           <div style={{ display: 'flex', gap: 8 }}>
             {selected.status === 'open'
-              ? <button className={styles.btnSecondary} onClick={() => setStatus('closed')}>Zatvori</button>
-              : <button className={styles.btnSecondary} onClick={() => setStatus('open')}>Ponovo otvori</button>}
-            <button className={styles.btnSecondary} onClick={() => { setSelected(null); reload() }}>← Nazad</button>
+              ? <button className={styles.btnSecondary} onClick={() => setStatus('closed')}>{t('saClose')}</button>
+              : <button className={styles.btnSecondary} onClick={() => setStatus('open')}>{t('saReopen')}</button>}
+            <button className={styles.btnSecondary} onClick={() => { setSelected(null); reload() }}>← {t('saBack')}</button>
           </div>
         </div>
 
@@ -114,7 +117,7 @@ export default function SupportManager() {
                   borderRadius: 12, padding: '9px 13px', fontSize: 14, whiteSpace: 'pre-wrap',
                 }}>{m.body}</div>
                 <div style={{ fontSize: 11, color: 'var(--c-text-muted)', marginTop: 3, textAlign: mine ? 'right' : 'left' }}>
-                  {mine ? 'Podrška' : (selected.restaurants?.name ?? 'Admin')} · {fmt(m.created_at)}
+                  {mine ? t('saSupportLabel') : (selected.restaurants?.name ?? t('saAdminLabel'))} · {fmt(m.created_at)}
                 </div>
               </div>
             )
@@ -125,9 +128,9 @@ export default function SupportManager() {
         {selected.status !== 'closed' && (
           <div style={{ display: 'flex', gap: 8, alignItems: 'flex-end' }}>
             <textarea className={styles.input} style={{ flex: 1, minHeight: 44, resize: 'vertical' }}
-              placeholder="Odgovor…" value={reply} onChange={e => setReply(e.target.value)}
+              placeholder={t('saReplyPh')} value={reply} onChange={e => setReply(e.target.value)}
               onKeyDown={e => { if (e.key === 'Enter' && (e.metaKey || e.ctrlKey)) sendReply() }} />
-            <button className={styles.btnPrimary} onClick={sendReply} disabled={sending || !reply.trim()}>Pošalji</button>
+            <button className={styles.btnPrimary} onClick={sendReply} disabled={sending || !reply.trim()}>{t('saSend')}</button>
           </div>
         )}
       </div>
@@ -145,13 +148,13 @@ export default function SupportManager() {
   return (
     <div>
       <div style={{ display: 'flex', gap: 8, marginBottom: 16, flexWrap: 'wrap' }}>
-        {[{ k: 'open', l: 'Otvoreni' }, { k: 'unread', l: `Nepročitani (${unreadTotal})` }, { k: 'all', l: 'Svi' }].map(f => (
+        {[{ k: 'open', l: t('saFilterOpen') }, { k: 'unread', l: `${t('saFilterUnread')} (${unreadTotal})` }, { k: 'all', l: t('saFilterAll') }].map(f => (
           <button key={f.k} className={filter === f.k ? styles.btnPrimary : styles.btnSecondary} style={{ fontSize: 13 }} onClick={() => setFilter(f.k)}>{f.l}</button>
         ))}
       </div>
 
       {loading ? <LoadingSpinner /> : filtered.length === 0 ? (
-        <div style={{ padding: 40, textAlign: 'center', color: 'var(--c-text-muted)' }}>Nema konverzacija.</div>
+        <div style={{ padding: 40, textAlign: 'center', color: 'var(--c-text-muted)' }}>{t('saNoConversations')}</div>
       ) : (
         <div style={{ display: 'flex', flexDirection: 'column', gap: 10 }}>
           {filtered.map(c => {
@@ -166,7 +169,7 @@ export default function SupportManager() {
                   <div style={{ fontWeight: 600, display: 'flex', alignItems: 'center', gap: 8 }}>
                     {unread && <span style={{ width: 8, height: 8, borderRadius: '50%', background: 'var(--c-danger)', flexShrink: 0 }} />}
                     {c.subject}
-                    {c.status === 'closed' && <span style={{ fontSize: 11, color: 'var(--c-text-muted)', fontWeight: 400 }}>(zatvoreno)</span>}
+                    {c.status === 'closed' && <span style={{ fontSize: 11, color: 'var(--c-text-muted)', fontWeight: 400 }}>{t('saClosedParen')}</span>}
                   </div>
                   <div style={{ fontSize: 12, color: 'var(--c-text-muted)', marginTop: 3 }}>
                     {c.restaurants?.name ?? '—'} · {fmt(c.last_message_at)}
