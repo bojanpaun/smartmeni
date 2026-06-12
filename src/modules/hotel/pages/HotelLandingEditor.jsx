@@ -1,4 +1,5 @@
 import { useState, useEffect, useRef } from 'react'
+import { useTranslation } from 'react-i18next'
 import { DndContext, closestCenter, PointerSensor, KeyboardSensor, useSensor, useSensors } from '@dnd-kit/core'
 import { SortableContext, verticalListSortingStrategy, arrayMove } from '@dnd-kit/sortable'
 import { usePlatform } from '../../../context/PlatformContext'
@@ -12,90 +13,90 @@ import styles from '../../../components/shared/LandingEditor.module.css'
 
 const BLOCK_DEFS = [
   {
-    type: 'hero', label: 'Hero sekcija', icon: '🖼️', hasLayout: true,
-    desc: 'Naslovna sekcija s pozadinskom slikom i CTA dugmetom', defaultEnabled: true,
+    type: 'hero', labelKey: 'hlHero', icon: '🖼️', hasLayout: true,
+    descKey: 'hlHeroD', defaultEnabled: true,
     fields: [
-      { key: 'title',        label: 'Naslov',             type: 'text',  placeholder: 'Npr. Hotel Mediteran' },
-      { key: 'subtitle',     label: 'Podnaslov',          type: 'text',  placeholder: 'Vaša oaza mira na Jadranskom moru' },
-      { key: 'bg_image_url', label: 'Pozadinska slika',   type: 'image' },
-      { key: 'cta_text',     label: 'Tekst CTA dugmeta',  type: 'text',  placeholder: 'Rezerviši sobu' },
+      { key: 'title',        labelKey: 'hlFTitle',     type: 'text',  placeholder: 'Npr. Hotel Mediteran' },
+      { key: 'subtitle',     labelKey: 'hlFSubtitle',  type: 'text',  placeholder: 'Vaša oaza mira na Jadranskom moru' },
+      { key: 'bg_image_url', labelKey: 'hlFBgImage',   type: 'image' },
+      { key: 'cta_text',     labelKey: 'hlFCta',       type: 'text',  placeholder: 'Rezerviši sobu' },
     ],
     defaultData: { title: '', subtitle: '', bg_image_url: '', cta_text: 'Rezerviši sobu', layout: 'fullscreen' },
   },
   {
-    type: 'about', label: 'O hotelu', icon: 'ℹ️', hasLayout: true, hasColSplit: true,
-    desc: 'Kratki opis hotela s opcionalnom fotografijom', defaultEnabled: false,
+    type: 'about', labelKey: 'hlAbout', icon: 'ℹ️', hasLayout: true, hasColSplit: true,
+    descKey: 'hlAboutD', defaultEnabled: false,
     fields: [
-      { key: 'text',      label: 'Tekst opisa',   type: 'textarea', placeholder: 'Napišite nešto o hotelu...' },
-      { key: 'image_url', label: 'Fotografija',    type: 'image' },
+      { key: 'text',      labelKey: 'hlFAboutText',  type: 'textarea', placeholder: 'Napišite nešto o hotelu...' },
+      { key: 'image_url', labelKey: 'hlFPhoto',      type: 'image' },
     ],
     defaultData: { text: '', image_url: '', layout: 'image-right', col_split: '50-50' },
   },
   {
-    type: 'rooms', label: 'Tipovi smještaja', icon: '🛏️',
-    desc: 'Automatski prikazuje tipove smještaja iz baze podataka', defaultEnabled: true,
+    type: 'rooms', labelKey: 'hlRooms', icon: '🛏️',
+    descKey: 'hlRoomsD', defaultEnabled: true,
     auto: true, fields: [], defaultData: {},
   },
   {
-    type: 'gallery', label: 'Galerija', icon: '🖼️', hasLayout: true,
-    desc: 'Grid s fotografijama hotela', defaultEnabled: false,
-    fields: [{ key: 'image_urls', label: 'Fotografije', type: 'image-gallery' }],
+    type: 'gallery', labelKey: 'hlGallery', icon: '🖼️', hasLayout: true,
+    descKey: 'hlGalleryD', defaultEnabled: false,
+    fields: [{ key: 'image_urls', labelKey: 'hlFPhotos', type: 'image-gallery' }],
     defaultData: { image_urls: '', layout: 'grid-3' },
   },
   {
-    type: 'amenities', label: 'Pogodnosti', icon: '✨', hasLayout: true,
-    desc: 'Lista pogodnosti hotela (bazen, parking, WiFi...)', defaultEnabled: false,
-    fields: [{ key: 'items', label: 'Pogodnosti (jedna po liniji)', type: 'textarea', placeholder: '🏊 Bazen\n🅿️ Besplatan parking\n📶 Besplatan WiFi\n🏋️ Teretana', rows: 6 }],
+    type: 'amenities', labelKey: 'hlAmenities', icon: '✨', hasLayout: true,
+    descKey: 'hlAmenitiesD', defaultEnabled: false,
+    fields: [{ key: 'items', labelKey: 'hlFAmenitiesItems', type: 'textarea', placeholder: '🏊 Bazen\n🅿️ Besplatan parking\n📶 Besplatan WiFi\n🏋️ Teretana', rows: 6 }],
     defaultData: { items: '', layout: 'icons-row' },
   },
   {
-    type: 'reviews', label: 'Recenzije', icon: '⭐', hasLayout: true,
-    desc: 'Recenzije gostiju sa zvjezdicama', defaultEnabled: false,
-    fields: [{ key: 'reviews', label: 'Recenzije', type: 'reviews-list' }],
+    type: 'reviews', labelKey: 'hlReviews', icon: '⭐', hasLayout: true,
+    descKey: 'hlReviewsD', defaultEnabled: false,
+    fields: [{ key: 'reviews', labelKey: 'hlFReviews', type: 'reviews-list' }],
     defaultData: { reviews: [], layout: 'cards' },
   },
   {
-    type: 'video', label: 'Video', icon: '🎬', hasLayout: true,
-    desc: 'YouTube ili Vimeo video embed', defaultEnabled: false,
+    type: 'video', labelKey: 'hlVideo', icon: '🎬', hasLayout: true,
+    descKey: 'hlVideoD', defaultEnabled: false,
     fields: [
-      { key: 'title',     label: 'Naslov (opcionalno)',    type: 'text',      placeholder: 'Pogledajte naš hotel' },
-      { key: 'video_url', label: 'YouTube ili Vimeo URL', type: 'video-url' },
+      { key: 'title',     labelKey: 'hlFVideoTitle', type: 'text',      placeholder: 'Pogledajte naš hotel' },
+      { key: 'video_url', labelKey: 'hlFVideoUrl',   type: 'video-url' },
     ],
     defaultData: { title: '', video_url: '', layout: 'full' },
   },
   {
-    type: 'faq', label: 'FAQ', icon: '❓', hasLayout: true,
-    desc: 'Česta pitanja i odgovori', defaultEnabled: false,
-    fields: [{ key: 'faq', label: 'Pitanja i odgovori', type: 'faq-list' }],
+    type: 'faq', labelKey: 'hlFaq', icon: '❓', hasLayout: true,
+    descKey: 'hlFaqD', defaultEnabled: false,
+    fields: [{ key: 'faq', labelKey: 'hlFFaq', type: 'faq-list' }],
     defaultData: { faq: [], layout: 'default' },
   },
   {
-    type: 'cta_banner', label: 'CTA Banner', icon: '📢', hasLayout: true,
-    desc: 'Promotivni strip sa pozivom na akciju', defaultEnabled: false,
+    type: 'cta_banner', labelKey: 'hlCtaBanner', icon: '📢', hasLayout: true,
+    descKey: 'hlCtaBannerD', defaultEnabled: false,
     fields: [
-      { key: 'title',    label: 'Naslov',           type: 'text', placeholder: 'Posebna ponuda!' },
-      { key: 'subtitle', label: 'Opis (opcionalno)', type: 'text', placeholder: 'Rezerviši do 15. juna i uštedi 20%' },
-      { key: 'btn_text', label: 'Tekst dugmeta',    type: 'text', placeholder: 'Rezerviši sada' },
-      { key: 'btn_link', label: 'Link dugmeta',     type: 'url',  placeholder: 'https://...' },
+      { key: 'title',    labelKey: 'hlFTitle',    type: 'text', placeholder: 'Posebna ponuda!' },
+      { key: 'subtitle', labelKey: 'hlFCtaSub',   type: 'text', placeholder: 'Rezerviši do 15. juna i uštedi 20%' },
+      { key: 'btn_text', labelKey: 'hlFBtnText',  type: 'text', placeholder: 'Rezerviši sada' },
+      { key: 'btn_link', labelKey: 'hlFBtnLink',  type: 'url',  placeholder: 'https://...' },
     ],
     defaultData: { title: '', subtitle: '', btn_text: '', btn_link: '', layout: 'centered' },
   },
   {
-    type: 'location', label: 'Lokacija', icon: '📍', hasLayout: true,
-    desc: 'Adresa hotela i opcioni Google Maps embed', defaultEnabled: false,
+    type: 'location', labelKey: 'hlLocation', icon: '📍', hasLayout: true,
+    descKey: 'hlLocationD', defaultEnabled: false,
     fields: [
-      { key: 'address',        label: 'Adresa',               type: 'text', placeholder: 'Primorska bb, 85310 Budva' },
-      { key: 'maps_embed_url', label: 'Google Maps embed URL', type: 'url',  placeholder: 'https://www.google.com/maps/embed?pb=...', hint: 'Google Maps → Share → Embed a map → kopirajte URL iz src="…"' },
+      { key: 'address',        labelKey: 'hlFAddress', type: 'text', placeholder: 'Primorska bb, 85310 Budva' },
+      { key: 'maps_embed_url', labelKey: 'hlFMapsUrl', type: 'url',  placeholder: 'https://www.google.com/maps/embed?pb=...', hintKey: 'hlHMaps' },
     ],
     defaultData: { address: '', maps_embed_url: '', layout: 'card-with-map' },
   },
   {
-    type: 'contact', label: 'Kontakt', icon: '📞', hasLayout: true,
-    desc: 'Telefon, email i radno vrijeme recepcije', defaultEnabled: true,
+    type: 'contact', labelKey: 'hlContact', icon: '📞', hasLayout: true,
+    descKey: 'hlContactD', defaultEnabled: true,
     fields: [
-      { key: 'phone', label: 'Telefon',       type: 'tel',   placeholder: '+382 69 123 456' },
-      { key: 'email', label: 'Email',         type: 'email', placeholder: 'info@hotel.me' },
-      { key: 'hours', label: 'Radno vrijeme', type: 'text',  placeholder: 'Recepcija 0–24h' },
+      { key: 'phone', labelKey: 'htPhone',  type: 'tel',   placeholder: '+382 69 123 456' },
+      { key: 'email', labelKey: 'htEmail',  type: 'email', placeholder: 'info@hotel.me' },
+      { key: 'hours', labelKey: 'hlFHours', type: 'text',  placeholder: 'Recepcija 0–24h' },
     ],
     defaultData: { phone: '', email: '', hours: '', layout: 'card' },
   },
@@ -121,6 +122,7 @@ function mergeWithDefaults(saved) {
 
 export default function HotelLandingEditor() {
   const { restaurant } = usePlatform()
+  const { t } = useTranslation('admin')
   const [blocks, setBlocks] = useState([])
   const [pageId, setPageId] = useState(null)
   const [seoTitle, setSeoTitle] = useState('')
@@ -221,11 +223,11 @@ export default function HotelLandingEditor() {
       if (created) setPageId(created.id)
     }
     setSaving(false)
-    if (error) { console.error(error); toast.error('Greška pri čuvanju') }
-    else toast.success('Sajt hotela sačuvan')
+    if (error) { console.error(error); toast.error(t('htSaveErr')) }
+    else toast.success(t('htHotelSiteSaved'))
   }
 
-  if (loading) return <div className={styles.loadWrap}>Učitavanje...</div>
+  if (loading) return <div className={styles.loadWrap}>{t('loading')}</div>
 
   const previewSrc = restaurant ? `/${restaurant.slug}/hotel?preview=true` : null
 
@@ -235,8 +237,8 @@ export default function HotelLandingEditor() {
       <div className={styles.formPanel} style={{ width: showPreview ? panelWidth : undefined, maxWidth: showPreview ? undefined : 760 }}>
         <div className={styles.header}>
           <div>
-            <h1 className={styles.title}>Sajt hotela</h1>
-            <p className={styles.subtitle}>Uređujte blokove i pratite promjene u realnom vremenu</p>
+            <h1 className={styles.title}>{t('htHotelSite')}</h1>
+            <p className={styles.subtitle}>{t('rleSubtitle')}</p>
           </div>
           <div className={styles.headerActions}>
             {previewSrc && (
@@ -245,7 +247,7 @@ export default function HotelLandingEditor() {
                   className={`${styles.previewToggleBtn} ${showPreview ? styles.previewToggleBtnOn : ''}`}
                   onClick={() => setShowPreview(v => !v)}
                 >
-                  {showPreview ? '✕ Preview' : '👁 Preview'}
+                  {showPreview ? `✕ ${t('tsPreview')}` : `👁 ${t('tsPreview')}`}
                 </button>
                 <a
                   href={previewSrc.replace('?preview=true', '')}
@@ -253,12 +255,12 @@ export default function HotelLandingEditor() {
                   rel="noreferrer"
                   className={styles.mobilePreviewLink}
                 >
-                  👁 Vidi sajt
+                  👁 {t('rleViewSite')}
                 </a>
               </>
             )}
             <button className={styles.saveBtn} onClick={handleSave} disabled={saving}>
-              {saving ? 'Čuvanje...' : 'Sačuvaj'}
+              {saving ? t('saving') : t('save')}
             </button>
           </div>
         </div>
@@ -278,18 +280,18 @@ export default function HotelLandingEditor() {
                           onClick={() => toggleCollapse(block.type)}
                           style={{ cursor: 'pointer' }}
                         >
-                          <span className={styles.dragHandle} {...dragHandleProps} title="Prevuci za reorder" onClick={e => e.stopPropagation()}>⠿</span>
+                          <span className={styles.dragHandle} {...dragHandleProps} title={t('rleDragReorder')} onClick={e => e.stopPropagation()}>⠿</span>
                           <span className={styles.blockIcon}>{def.icon}</span>
                           <div className={styles.blockMeta}>
-                            <div className={styles.blockLabel}>{def.label}</div>
-                            <div className={styles.blockDesc}>{def.desc}</div>
+                            <div className={styles.blockLabel}>{t(def.labelKey)}</div>
+                            <div className={styles.blockDesc}>{t(def.descKey)}</div>
                           </div>
                           <div className={styles.blockActions}>
                             <button
                               className={`${styles.toggleBtn} ${block.enabled ? styles.toggleBtnOn : ''}`}
                               onClick={e => { e.stopPropagation(); toggleBlock(block.type) }}
                             >
-                              {block.enabled ? 'Aktivan' : 'Isključen'}
+                              {block.enabled ? t('rleActive') : t('rleDisabled')}
                             </button>
                             <button className={styles.collapseBtn} onClick={e => { e.stopPropagation(); toggleCollapse(block.type) }}>
                               <span className={`${styles.chevron} ${!collapsed.has(block.type) ? styles.chevronOpen : ''}`}>›</span>
@@ -314,19 +316,19 @@ export default function HotelLandingEditor() {
                             )}
                             {def.auto ? (
                               <p className={styles.autoNote}>
-                                ℹ️ Ovaj blok automatski generiše sadržaj iz baze podataka.
+                                ℹ️ {t('rleAutoNote')}
                               </p>
                             ) : (
                               def.fields.map(field => (
                                 <div key={field.key} className={styles.formRow}>
-                                  {field.label && <label className={styles.label}>{field.label}</label>}
+                                  {field.labelKey && <label className={styles.label}>{t(field.labelKey)}</label>}
                                   <BlockFieldRenderer
                                     field={field}
                                     value={block.data[field.key]}
                                     onChange={val => updateField(block.type, field.key, val)}
                                     restaurantId={restaurant?.id}
                                   />
-                                  {field.hint && <p className={styles.fieldHint}>{field.hint}</p>}
+                                  {field.hintKey && <p className={styles.fieldHint}>{t(field.hintKey)}</p>}
                                 </div>
                               ))
                             )}
@@ -342,20 +344,20 @@ export default function HotelLandingEditor() {
         </DndContext>
 
         <div className={styles.seoSection}>
-          <h2 className={styles.seoHeading}>SEO postavke</h2>
+          <h2 className={styles.seoHeading}>{t('rleSeoSection')}</h2>
           <div className={styles.formRow}>
-            <label className={styles.label}>SEO naslov (title tag)</label>
-            <input type="text" className={styles.input} value={seoTitle} onChange={e => setSeoTitle(e.target.value)} placeholder={`${restaurant?.name || 'Hotel'} — Rezervacije i smještaj`} />
+            <label className={styles.label}>{t('rleSeoTitleLabel')}</label>
+            <input type="text" className={styles.input} value={seoTitle} onChange={e => setSeoTitle(e.target.value)} placeholder={t('htSeoTitlePh', { name: restaurant?.name || 'Hotel' })} />
           </div>
           <div className={styles.formRow}>
-            <label className={styles.label}>SEO opis (meta description, do 160 znakova)</label>
-            <textarea className={styles.textarea} value={seoDesc} onChange={e => setSeoDesc(e.target.value)} placeholder="Kratki opis hotela za pretraživače..." rows={3} />
+            <label className={styles.label}>{t('rleSeoDescLabel')}</label>
+            <textarea className={styles.textarea} value={seoDesc} onChange={e => setSeoDesc(e.target.value)} placeholder={t('htSeoDescPh')} rows={3} />
           </div>
         </div>
 
         <div className={styles.saveRow}>
           <button className={styles.saveBtn} onClick={handleSave} disabled={saving}>
-            {saving ? 'Čuvanje...' : 'Sačuvaj sve promjene'}
+            {saving ? t('saving') : t('rleSaveAll')}
           </button>
         </div>
       </div>
