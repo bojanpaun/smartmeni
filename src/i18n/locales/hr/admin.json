@@ -635,5 +635,17 @@
   "htCheckoutErr": "Greška pri check-outu",
   "htCheckinSuccess": "{{name}} — check-in uspješan",
   "htCheckoutSuccess": "{{name}} — check-out uspješan. Soba na čišćenje.",
-  "htBlacklistWarn": "⚠️ UPOZORENJE: {{name}} je na CRNOJ LISTI!\n\nNastavi s check-inom?"
+  "htBlacklistWarn": "⚠️ UPOZORENJE: {{name}} je na CRNOJ LISTI!\n\nNastavi s check-inom?",
+  "htGuestsCrmSub": "CRM — pregled i upravljanje profilima gostiju",
+  "htSearchNameEmail": "Pretraži po imenu ili e-mailu...",
+  "htNoGuestsSearch": "Nema gostiju koji odgovaraju pretrazi.",
+  "htNoGuests": "Nema evidentiranih gostiju. Gosti se automatski dodaju pri prvoj rezervaciji.",
+  "htStayOne": "boravak",
+  "htStayOther": "boravaka",
+  "htLastStay": "Zadnji",
+  "htNationality": "Nacionalnost",
+  "htDateOfBirth": "Datum rođenja",
+  "htDocNumber": "Broj dokumenta",
+  "htVipGuest": "VIP gost",
+  "htGuestSaved": "Podaci gosta spremljeni"
 }

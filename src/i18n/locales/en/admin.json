@@ -635,5 +635,17 @@
   "htCheckoutErr": "Check-out error",
   "htCheckinSuccess": "{{name}} — check-in successful",
   "htCheckoutSuccess": "{{name}} — check-out successful. Room set to cleaning.",
-  "htBlacklistWarn": "⚠️ WARNING: {{name}} is on the BLACKLIST!\n\nContinue with check-in?"
+  "htBlacklistWarn": "⚠️ WARNING: {{name}} is on the BLACKLIST!\n\nContinue with check-in?",
+  "htGuestsCrmSub": "CRM — view and manage guest profiles",
+  "htSearchNameEmail": "Search by name or e-mail...",
+  "htNoGuestsSearch": "No guests match your search.",
+  "htNoGuests": "No guests recorded yet. Guests are added automatically on first reservation.",
+  "htStayOne": "stay",
+  "htStayOther": "stays",
+  "htLastStay": "Last",
+  "htNationality": "Nationality",
+  "htDateOfBirth": "Date of birth",
+  "htDocNumber": "Document number",
+  "htVipGuest": "VIP guest",
+  "htGuestSaved": "Guest details saved"
 }

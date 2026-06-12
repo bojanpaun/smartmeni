@@ -1,4 +1,5 @@
 import { useState } from 'react'
+import { useTranslation } from 'react-i18next'
 import { usePlatform } from '../../../context/PlatformContext'
 import { useGuests } from '../hooks/useGuests'
 import { supabase } from '../../../lib/supabase'
@@ -7,9 +8,9 @@ import LoadingSpinner from '../../../components/shared/LoadingSpinner'
 import styles from './Hotel.module.css'
 import g from './GuestsPage.module.css'
 
-function formatDate(d) {
+function formatDate(d, dl) {
   if (!d) return '—'
-  return new Date(d).toLocaleDateString('sr-Latn', { day: '2-digit', month: 'short', year: 'numeric' })
+  return new Date(d).toLocaleDateString(dl, { day: '2-digit', month: 'short', year: 'numeric' })
 }
 
 function getLastStay(reservations) {
@@ -20,6 +21,8 @@ function getLastStay(reservations) {
 
 export default function GuestsPage() {
   const { restaurant } = usePlatform()
+  const { t, i18n } = useTranslation('admin')
+  const dl = i18n.language === 'en' ? 'en-US' : 'sr-Latn'
   const [search, setSearch] = useState('')
   const { guests, loading, refetch } = useGuests(restaurant?.id, search)
 
@@ -60,8 +63,8 @@ export default function GuestsPage() {
       })
       .eq('id', guestId)
     setSaving(false)
-    if (error) return toast.error('Greška pri čuvanju: ' + error.message)
-    toast.success('Podaci gosta sačuvani')
+    if (error) return toast.error(t('htSaveErr') + ': ' + error.message)
+    toast.success(t('htGuestSaved'))
     setExpandedId(null)
     setEditData({})
     refetch()
@@ -73,15 +76,15 @@ export default function GuestsPage() {
     <div className={styles.page}>
       <div className={styles.header}>
         <div>
-          <h1 className={styles.title}>Gosti</h1>
-          <p className={styles.subtitle}>CRM — pregled i upravljanje profilima gostiju</p>
+          <h1 className={styles.title}>{t('htNavGuests')}</h1>
+          <p className={styles.subtitle}>{t('htGuestsCrmSub')}</p>
         </div>
       </div>
 
       <input
         className={g.searchBar}
         type="search"
-        placeholder="Pretraži po imenu ili e-mailu..."
+        placeholder={t('htSearchNameEmail')}
         value={search}
         onChange={e => setSearch(e.target.value)}
       />
@@ -89,7 +92,7 @@ export default function GuestsPage() {
       {guests.length === 0 ? (
         <div className={g.emptyState}>
           <div className={g.emptyIcon}>👤</div>
-          <p>{search ? 'Nema gostiju koji odgovaraju pretrazi.' : 'Nema evidentiranih gostiju. Gosti se automatski dodaju pri prvoj rezervaciji.'}</p>
+          <p>{search ? t('htNoGuestsSearch') : t('htNoGuests')}</p>
         </div>
       ) : (
         <div className={g.guestList}>
@@ -116,8 +119,8 @@ export default function GuestsPage() {
                     </div>
                   </div>
                   <div className={g.guestCardRight}>
-                    <span className={g.stayCount}>{stayCount} {stayCount === 1 ? 'boravak' : 'boravaka'}</span>
-                    {lastStay && <span className={g.lastStay}>Zadnji: {formatDate(lastStay)}</span>}
+                    <span className={g.stayCount}>{stayCount} {stayCount === 1 ? t('htStayOne') : t('htStayOther')}</span>
+                    {lastStay && <span className={g.lastStay}>{t('htLastStay')}: {formatDate(lastStay, dl)}</span>}
                   </div>
                 </div>
 
@@ -125,7 +128,7 @@ export default function GuestsPage() {
                   <div className={g.editForm} onClick={e => e.stopPropagation()}>
                     <div className={g.editFormGrid}>
                       <div className={g.editField}>
-                        <label>Ime i prezime</label>
+                        <label>{t('htFullName')}</label>
                         <input
                           value={editData.name}
                           onChange={e => setEditData(p => ({ ...p, name: e.target.value }))}
@@ -133,7 +136,7 @@ export default function GuestsPage() {
                         />
                       </div>
                       <div className={g.editField}>
-                        <label>Telefon</label>
+                        <label>{t('htPhone')}</label>
                         <input
                           value={editData.phone}
                           onChange={e => setEditData(p => ({ ...p, phone: e.target.value }))}
@@ -141,7 +144,7 @@ export default function GuestsPage() {
                         />
                       </div>
                       <div className={g.editField}>
-                        <label>Nacionalnost</label>
+                        <label>{t('htNationality')}</label>
                         <input
                           value={editData.nationality}
                           onChange={e => setEditData(p => ({ ...p, nationality: e.target.value }))}
@@ -149,7 +152,7 @@ export default function GuestsPage() {
                         />
                       </div>
                       <div className={g.editField}>
-                        <label>Datum rođenja</label>
+                        <label>{t('htDateOfBirth')}</label>
                         <input
                           type="date"
                           value={editData.date_of_birth}
@@ -157,7 +160,7 @@ export default function GuestsPage() {
                         />
                       </div>
                       <div className={g.editField}>
-                        <label>Broj dokumenta</label>
+                        <label>{t('htDocNumber')}</label>
                         <input
                           value={editData.document_number}
                           onChange={e => setEditData(p => ({ ...p, document_number: e.target.value }))}
@@ -165,7 +168,7 @@ export default function GuestsPage() {
                         />
                       </div>
                       <div className={`${g.editField} ${g.editFieldFull}`}>
-                        <label>Napomene</label>
+                        <label>{t('htNotes')}</label>
                         <textarea
                           rows={2}
                           value={editData.notes}
@@ -180,14 +183,14 @@ export default function GuestsPage() {
                         checked={editData.vip_status}
                         onChange={e => setEditData(p => ({ ...p, vip_status: e.target.checked }))}
                       />
-                      VIP gost
+                      {t('htVipGuest')}
                     </label>
                     <div className={g.editActions}>
                       <button className={g.btnCancel} onClick={() => { setExpandedId(null); setEditData({}) }}>
-                        Odustani
+                        {t('cancel')}
                       </button>
                       <button className={g.btnSave} onClick={() => handleSave(guest.id)} disabled={saving}>
-                        {saving ? 'Čuvanje...' : 'Sačuvaj'}
+                        {saving ? t('saving') : t('save')}
                       </button>
                     </div>
                   </div>

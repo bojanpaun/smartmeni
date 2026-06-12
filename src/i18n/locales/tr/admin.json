@@ -635,5 +635,17 @@
   "htCheckoutErr": "Çıkış hatası",
   "htCheckinSuccess": "{{name}} — giriş başarılı",
   "htCheckoutSuccess": "{{name}} — çıkış başarılı. Oda temizliğe alındı.",
-  "htBlacklistWarn": "⚠️ UYARI: {{name}} KARA LİSTEDE!\n\nGirişe devam edilsin mi?"
+  "htBlacklistWarn": "⚠️ UYARI: {{name}} KARA LİSTEDE!\n\nGirişe devam edilsin mi?",
+  "htGuestsCrmSub": "CRM — misafir profillerini görüntüle ve yönet",
+  "htSearchNameEmail": "İsim veya e-posta ile ara...",
+  "htNoGuestsSearch": "Aramanızla eşleşen misafir yok.",
+  "htNoGuests": "Henüz kayıtlı misafir yok. Misafirler ilk rezervasyonda otomatik eklenir.",
+  "htStayOne": "konaklama",
+  "htStayOther": "konaklama",
+  "htLastStay": "Son",
+  "htNationality": "Uyruk",
+  "htDateOfBirth": "Doğum tarihi",
+  "htDocNumber": "Belge numarası",
+  "htVipGuest": "VIP misafir",
+  "htGuestSaved": "Misafir bilgileri kaydedildi"
 }

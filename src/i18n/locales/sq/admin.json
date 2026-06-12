@@ -635,5 +635,17 @@
   "htCheckoutErr": "Gabim në check-out",
   "htCheckinSuccess": "{{name}} — check-in i suksesshëm",
   "htCheckoutSuccess": "{{name}} — check-out i suksesshëm. Dhoma në pastrim.",
-  "htBlacklistWarn": "⚠️ KUJDES: {{name}} është në LISTËN E ZEZË!\n\nVazhdo me check-in?"
+  "htBlacklistWarn": "⚠️ KUJDES: {{name}} është në LISTËN E ZEZË!\n\nVazhdo me check-in?",
+  "htGuestsCrmSub": "CRM — shiko dhe menaxho profilet e mysafirëve",
+  "htSearchNameEmail": "Kërko sipas emrit ose e-mailit...",
+  "htNoGuestsSearch": "Asnjë mysafir nuk përputhet me kërkimin.",
+  "htNoGuests": "Ende nuk ka mysafirë të regjistruar. Mysafirët shtohen automatikisht në rezervimin e parë.",
+  "htStayOne": "qëndrim",
+  "htStayOther": "qëndrime",
+  "htLastStay": "I fundit",
+  "htNationality": "Kombësia",
+  "htDateOfBirth": "Data e lindjes",
+  "htDocNumber": "Numri i dokumentit",
+  "htVipGuest": "Mysafir VIP",
+  "htGuestSaved": "Të dhënat e mysafirit u ruajtën"
 }

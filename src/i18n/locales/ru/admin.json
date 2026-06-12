@@ -635,5 +635,17 @@
   "htCheckoutErr": "Ошибка выезда",
   "htCheckinSuccess": "{{name}} — заезд выполнен",
   "htCheckoutSuccess": "{{name}} — выезд выполнен. Номер отправлен на уборку.",
-  "htBlacklistWarn": "⚠️ ВНИМАНИЕ: {{name}} в ЧЁРНОМ СПИСКЕ!\n\nПродолжить заезд?"
+  "htBlacklistWarn": "⚠️ ВНИМАНИЕ: {{name}} в ЧЁРНОМ СПИСКЕ!\n\nПродолжить заезд?",
+  "htGuestsCrmSub": "CRM — просмотр и управление профилями гостей",
+  "htSearchNameEmail": "Поиск по имени или e-mail...",
+  "htNoGuestsSearch": "Нет гостей по вашему запросу.",
+  "htNoGuests": "Гости ещё не зарегистрированы. Гости добавляются автоматически при первом бронировании.",
+  "htStayOne": "пребывание",
+  "htStayOther": "пребываний",
+  "htLastStay": "Последний",
+  "htNationality": "Гражданство",
+  "htDateOfBirth": "Дата рождения",
+  "htDocNumber": "Номер документа",
+  "htVipGuest": "VIP-гость",
+  "htGuestSaved": "Данные гостя сохранены"
 }
