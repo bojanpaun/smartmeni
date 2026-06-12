@@ -1,16 +1,17 @@
 import { useState, useEffect } from 'react'
 import { useNavigate, useParams } from 'react-router-dom'
+import { useTranslation } from 'react-i18next'
 import { usePlatform } from '../../../context/PlatformContext'
 import { supabase } from '../../../lib/supabase'
 import toast from 'react-hot-toast'
 import styles from './Hotel.module.css'
 
 const STATUS_OPTIONS = [
-  { value: 'available',   label: 'Slobodna' },
-  { value: 'occupied',    label: 'Zauzeta' },
-  { value: 'cleaning',    label: 'Čišćenje' },
-  { value: 'maintenance', label: 'Servis' },
-  { value: 'blocked',     label: 'Blokirana' },
+  { value: 'available',   labelKey: 'htStAvailable' },
+  { value: 'occupied',    labelKey: 'htStOccupied' },
+  { value: 'cleaning',    labelKey: 'htStCleaning' },
+  { value: 'maintenance', labelKey: 'htStMaintenance' },
+  { value: 'blocked',     labelKey: 'htStBlocked' },
 ]
 
 const EMPTY = {
@@ -23,6 +24,7 @@ const EMPTY = {
 
 export default function RoomFormPage() {
   const { restaurant } = usePlatform()
+  const { t } = useTranslation('admin')
   const navigate = useNavigate()
   const { id } = useParams()
   const isEdit = Boolean(id)
@@ -52,7 +54,7 @@ export default function RoomFormPage() {
           .eq('restaurant_id', restaurant.id)
           .single()
         if (error || !room) {
-          toast.error('Soba nije pronađena')
+          toast.error(t('htRoomNotFound'))
           navigate('/admin/hotel/rooms')
           return
         }
@@ -73,7 +75,7 @@ export default function RoomFormPage() {
 
   const handleSubmit = async (e) => {
     e.preventDefault()
-    if (!form.room_number.trim()) return toast.error('Broj sobe je obavezan')
+    if (!form.room_number.trim()) return toast.error(t('htRoomNumberRequired'))
 
     setSaving(true)
     const payload = {
@@ -94,18 +96,18 @@ export default function RoomFormPage() {
 
     setSaving(false)
     if (error) {
-      if (error.code === '23505') return toast.error('Soba s tim brojem već postoji')
-      return toast.error('Greška pri čuvanju: ' + error.message)
+      if (error.code === '23505') return toast.error(t('htRoomNumberExists'))
+      return toast.error(t('htSaveErr') + ': ' + error.message)
     }
-    toast.success(isEdit ? 'Soba ažurirana' : 'Soba dodana')
+    toast.success(isEdit ? t('htRoomUpdated') : t('htRoomAdded'))
     navigate('/admin/hotel/rooms')
   }
 
   const handleDelete = async () => {
-    if (!window.confirm('Obrisati ovu sobu? Ova akcija se ne može poništiti.')) return
+    if (!window.confirm(t('htRoomDeleteConfirm'))) return
     const { error } = await supabase.from('rooms').delete().eq('id', id)
-    if (error) return toast.error('Greška pri brisanju: ' + error.message)
-    toast.success('Soba obrisana')
+    if (error) return toast.error(t('htDeleteErr') + ': ' + error.message)
+    toast.success(t('htRoomDeleted'))
     navigate('/admin/hotel/rooms')
   }
 
@@ -115,21 +117,21 @@ export default function RoomFormPage() {
     <div className={styles.page}>
       <div className={styles.header}>
         <div>
-          <h1 className={styles.title}>{isEdit ? 'Uredi sobu' : 'Nova soba'}</h1>
+          <h1 className={styles.title}>{isEdit ? t('htEditRoom') : t('htNewRoom')}</h1>
           <p className={styles.subtitle}>
-            {isEdit ? `Soba ${form.room_number}` : 'Dodaj novu smještajnu jedinicu'}
+            {isEdit ? t('htRoomNum', { num: form.room_number }) : t('htAddRoomUnitSub')}
           </p>
         </div>
         <button className={styles.btnSecondary} onClick={() => navigate('/admin/hotel/rooms')}>
-          ← Nazad
+          ← {t('htBack')}
         </button>
       </div>
 
       <form className={styles.formSections} onSubmit={handleSubmit}>
         <section className={styles.formSection}>
-          <h3 className={styles.sectionTitle}>Podaci o sobi</h3>
+          <h3 className={styles.sectionTitle}>{t('htRoomData')}</h3>
           <div className={styles.formGrid}>
-            <label className={styles.formLabel}>Broj sobe *
+            <label className={styles.formLabel}>{t('htFieldRoomNumber')} *
               <input
                 className={styles.input}
                 type="text"
@@ -140,25 +142,25 @@ export default function RoomFormPage() {
               />
             </label>
 
-            <label className={styles.formLabel}>Tip smještaja
+            <label className={styles.formLabel}>{t('htFieldRoomType')}
               <select
                 className={styles.input}
                 value={form.room_type_id}
                 onChange={e => set('room_type_id', e.target.value)}
               >
-                <option value="">— Izaberi tip —</option>
+                <option value="">{t('htSelectType')}</option>
                 {roomTypes.map(rt => (
                   <option key={rt.id} value={rt.id}>{rt.name}</option>
                 ))}
               </select>
               {roomTypes.length === 0 && (
                 <span style={{ fontSize: 11, color: 'var(--c-text-muted)', marginTop: 4 }}>
-                  Nema aktivnih tipova. <a href="/admin/hotel/room-types" style={{ color: 'var(--c-primary)' }}>Dodaj tip →</a>
+                  {t('htNoActiveTypes')} <a href="/admin/hotel/room-types" style={{ color: 'var(--c-primary)' }}>{t('htAddTypeLink')}</a>
                 </span>
               )}
             </label>
 
-            <label className={styles.formLabel}>Sprat
+            <label className={styles.formLabel}>{t('htFieldFloor')}
               <input
                 className={styles.input}
                 type="number"
@@ -169,14 +171,14 @@ export default function RoomFormPage() {
               />
             </label>
 
-            <label className={styles.formLabel}>Status
+            <label className={styles.formLabel}>{t('htFieldStatus')}
               <select
                 className={styles.input}
                 value={form.status}
                 onChange={e => set('status', e.target.value)}
               >
                 {STATUS_OPTIONS.map(o => (
-                  <option key={o.value} value={o.value}>{o.label}</option>
+                  <option key={o.value} value={o.value}>{t(o.labelKey)}</option>
                 ))}
               </select>
             </label>
@@ -184,9 +186,9 @@ export default function RoomFormPage() {
         </section>
 
         <section className={styles.formSection}>
-          <h3 className={styles.sectionTitle}>Napomene</h3>
+          <h3 className={styles.sectionTitle}>{t('htNotes')}</h3>
           <div className={styles.formGrid} style={{ gridTemplateColumns: '1fr' }}>
-            <label className={styles.formLabel}>Interne napomene
+            <label className={styles.formLabel}>{t('htInternalNotes')}
               <textarea
                 className={`${styles.input} ${styles.textarea}`}
                 rows={3}
@@ -201,15 +203,15 @@ export default function RoomFormPage() {
         <div className={styles.formActions}>
           {isEdit && (
             <button type="button" className={styles.btnDanger} onClick={handleDelete}>
-              Obriši sobu
+              {t('htDeleteRoom')}
             </button>
           )}
           <div style={{ flex: 1 }} />
           <button type="button" className={styles.btnSecondary} onClick={() => navigate('/admin/hotel/rooms')}>
-            Otkaži
+            {t('cancel')}
           </button>
           <button type="submit" className={styles.btnPrimary} disabled={saving}>
-            {saving ? 'Čuvanje...' : isEdit ? 'Sačuvaj izmjene' : 'Dodaj sobu'}
+            {saving ? t('saving') : isEdit ? t('htSaveChanges') : t('htAddRoom')}
           </button>
         </div>
       </form>

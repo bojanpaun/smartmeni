@@ -1,4 +1,5 @@
 import { useState } from 'react'
+import { useTranslation } from 'react-i18next'
 import { usePlatform } from '../../../context/PlatformContext'
 import { useRooms } from '../hooks/useRooms'
 import { supabase } from '../../../lib/supabase'
@@ -10,6 +11,7 @@ const AMENITY_OPTIONS = ['WiFi', 'Klima', 'Balkon', 'Minibar', 'Sef', 'TV', 'Kad
 
 export default function RoomTypesPage() {
   const { restaurant } = usePlatform()
+  const { t } = useTranslation('admin')
   const { roomTypes, loading, refetch } = useRooms(restaurant?.id)
   const [showForm, setShowForm] = useState(false)
   const [editing, setEditing] = useState(null)
@@ -22,23 +24,23 @@ export default function RoomTypesPage() {
   const toggleAmenity = (a) => setForm(f => ({ ...f, amenities: f.amenities.includes(a) ? f.amenities.filter(x => x !== a) : [...f.amenities, a] }))
 
   const handleSave = async () => {
-    if (!form.name.trim()) return toast.error('Naziv je obavezan')
+    if (!form.name.trim()) return toast.error(t('htNameRequired'))
     setSaving(true)
     const payload = { ...form, base_price: parseFloat(form.base_price) || null, restaurant_id: restaurant.id }
     const { error } = editing
       ? await supabase.from('room_types').update(payload).eq('id', editing.id)
       : await supabase.from('room_types').insert(payload)
     setSaving(false)
-    if (error) return toast.error('Greška pri čuvanju')
-    toast.success(editing ? 'Tip ažuriran' : 'Tip dodan')
+    if (error) return toast.error(t('htSaveErr'))
+    toast.success(editing ? t('htTypeUpdated') : t('htTypeAdded'))
     setShowForm(false)
     refetch()
   }
 
   const handleDelete = async (id) => {
-    if (!window.confirm('Obrisati ovaj tip sobe?')) return
+    if (!window.confirm(t('htTypeDeleteConfirm'))) return
     await supabase.from('room_types').delete().eq('id', id)
-    toast.success('Tip obrisan')
+    toast.success(t('htTypeDeleted'))
     refetch()
   }
 
@@ -48,15 +50,15 @@ export default function RoomTypesPage() {
     <div className={styles.page}>
       <div className={styles.header}>
         <div>
-          <h1 className={styles.title}>Tipovi soba</h1>
-          <p className={styles.subtitle}>{roomTypes.length} tipova</p>
+          <h1 className={styles.title}>{t('navRoomTypes')}</h1>
+          <p className={styles.subtitle}>{t('htTypesCount', { n: roomTypes.length })}</p>
         </div>
-        <button className={styles.btnPrimary} onClick={openNew}>+ Novi tip</button>
+        <button className={styles.btnPrimary} onClick={openNew}>+ {t('htNewType')}</button>
       </div>
 
       {roomTypes.length === 0 && !showForm && (
         <div className={styles.empty}>
-          <p>Nema tipova soba. Dodajte prvi tip da biste mogli kreirati sobe.</p>
+          <p>{t('htNoTypes')}</p>
         </div>
       )}
 
@@ -65,7 +67,7 @@ export default function RoomTypesPage() {
           <div key={rt.id} className={styles.typeCard}>
             <div className={styles.typeInfo}>
               <div className={styles.typeName}>{rt.name}</div>
-              <div className={styles.typeMeta}>Max {rt.max_occupancy} gosta{rt.base_price ? ` · €${rt.base_price}/noć` : ''}</div>
+              <div className={styles.typeMeta}>{t('htTypeMaxGuests', { n: rt.max_occupancy })}{rt.base_price ? ` · ${t('htPerNight', { price: rt.base_price })}` : ''}</div>
               {rt.description && <div className={styles.typeDesc}>{rt.description}</div>}
               {rt.amenities?.length > 0 && (
                 <div className={styles.amenities}>{rt.amenities.map(a => <span key={a} className={styles.amenity}>{a}</span>)}</div>
@@ -82,22 +84,22 @@ export default function RoomTypesPage() {
       {showForm && (
         <div className={styles.formOverlay}>
           <div className={styles.formCard}>
-            <h3 className={styles.formTitle}>{editing ? 'Uredi tip sobe' : 'Novi tip sobe'}</h3>
+            <h3 className={styles.formTitle}>{editing ? t('htEditType') : t('htNewTypeTitle')}</h3>
             <div className={styles.formGrid}>
-              <label className={styles.formLabel}>Naziv *
+              <label className={styles.formLabel}>{t('htFieldName')} *
                 <input className={styles.input} value={form.name} onChange={e => setForm(f => ({ ...f, name: e.target.value }))} placeholder="Standard, Deluxe, Suite..." />
               </label>
-              <label className={styles.formLabel}>Max gostiju
+              <label className={styles.formLabel}>{t('htFieldMaxGuests')}
                 <input className={styles.input} type="number" min={1} max={20} value={form.max_occupancy} onChange={e => setForm(f => ({ ...f, max_occupancy: parseInt(e.target.value) }))} />
               </label>
-              <label className={styles.formLabel}>Cijena po noći (€)
+              <label className={styles.formLabel}>{t('htFieldPricePerNight')}
                 <input className={styles.input} type="number" min={0} value={form.base_price} onChange={e => setForm(f => ({ ...f, base_price: e.target.value }))} placeholder="0.00" />
               </label>
-              <label className={styles.formLabel} style={{ gridColumn: '1/-1' }}>Opis
+              <label className={styles.formLabel} style={{ gridColumn: '1/-1' }}>{t('htFieldDesc')}
                 <textarea className={`${styles.input} ${styles.textarea}`} value={form.description} onChange={e => setForm(f => ({ ...f, description: e.target.value }))} rows={2} placeholder="Opis tipa sobe..." />
               </label>
             </div>
-            <div className={styles.formLabel}>Sadržaj
+            <div className={styles.formLabel}>{t('htFieldAmenities')}
               <div className={styles.amenityGrid}>
                 {AMENITY_OPTIONS.map(a => (
                   <button key={a} type="button"
@@ -108,8 +110,8 @@ export default function RoomTypesPage() {
               </div>
             </div>
             <div className={styles.formActions}>
-              <button className={styles.btnSecondary} onClick={() => setShowForm(false)}>Otkaži</button>
-              <button className={styles.btnPrimary} onClick={handleSave} disabled={saving}>{saving ? 'Čuvanje...' : 'Sačuvaj'}</button>
+              <button className={styles.btnSecondary} onClick={() => setShowForm(false)}>{t('cancel')}</button>
+              <button className={styles.btnPrimary} onClick={handleSave} disabled={saving}>{saving ? t('saving') : t('save')}</button>
             </div>
           </div>
         </div>

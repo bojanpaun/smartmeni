@@ -1,4 +1,5 @@
 import { useNavigate } from 'react-router-dom'
+import { useTranslation } from 'react-i18next'
 import styles from './RoomCard.module.css'
 
 const STATUS_ACTIONS = {
@@ -9,15 +10,16 @@ const STATUS_ACTIONS = {
   blocked:     ['available'],
 }
 
-const ACTION_LABELS = {
-  available:   'Označi slobodnom',
-  cleaning:    'Na čišćenje',
-  maintenance: 'Na servis',
-  blocked:     'Blokiraj',
+const ACTION_LABEL_KEYS = {
+  available:   'htActMarkAvailable',
+  cleaning:    'htActToCleaning',
+  maintenance: 'htActToMaintenance',
+  blocked:     'htActBlock',
 }
 
 export default function RoomCard({ room, isCheckedIn, hasCleaning, hasMaintenance, onStatusChange }) {
   const navigate = useNavigate()
+  const { t } = useTranslation('admin')
 
   const actions = STATUS_ACTIONS[room.status] ?? []
 
@@ -34,17 +36,17 @@ export default function RoomCard({ room, isCheckedIn, hasCleaning, hasMaintenanc
 
   // Primarni badge — dostupnost
   const primaryBadge = isCheckedIn
-    ? <span className={styles.badgeOccupied}>Zauzeta</span>
+    ? <span className={styles.badgeOccupied}>{t('htStOccupied')}</span>
     : room.status === 'blocked'
-    ? <span className={styles.badgeBlocked}>Blokirana</span>
-    : <span className={styles.badgeAvailable}>Slobodna</span>
+    ? <span className={styles.badgeBlocked}>{t('htStBlocked')}</span>
+    : <span className={styles.badgeAvailable}>{t('htStAvailable')}</span>
 
   // Sekundarni badge-ovi — task u bazi ILI rooms.status
   const cleaningBadge = showCleaning
-    ? <span className={styles.badgeCleaning}>🧹 Čišćenje u toku</span>
+    ? <span className={styles.badgeCleaning}>🧹 {t('htCleaningInProgress')}</span>
     : null
   const maintBadge = showMaintenance
-    ? <span className={styles.badgeMaintenance}>🔧 Servis u toku</span>
+    ? <span className={styles.badgeMaintenance}>🔧 {t('htMaintInProgress')}</span>
     : null
 
   return (
@@ -69,7 +71,7 @@ export default function RoomCard({ room, isCheckedIn, hasCleaning, hasMaintenanc
       )}
 
       {room.floor != null && (
-        <div className={styles.floor}>{room.floor}. sprat</div>
+        <div className={styles.floor}>{t('htFloorN', { n: room.floor })}</div>
       )}
 
       {room.notes && (
@@ -84,7 +86,7 @@ export default function RoomCard({ room, isCheckedIn, hasCleaning, hasMaintenanc
               className={`${styles.btn} ${styles[`btn_${a}`]}`}
               onClick={() => onStatusChange(room.id, a, room.status)}
             >
-              {ACTION_LABELS[a]}
+              {t(ACTION_LABEL_KEYS[a])}
             </button>
           ))}
         </div>

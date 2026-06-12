@@ -1,5 +1,6 @@
 import { useState, useEffect } from 'react'
 import { useNavigate } from 'react-router-dom'
+import { useTranslation } from 'react-i18next'
 import { usePlatform } from '../../../context/PlatformContext'
 import { useAdminBadgeRefresh } from '../../../layouts/AdminLayout'
 import { useRooms } from '../hooks/useRooms'
@@ -11,18 +12,19 @@ import styles from './Hotel.module.css'
 
 // Filter: "Zauzete" se sada provjerava prema rezervacijama (checked_in), ne prema rooms.status
 const STATUS_FILTERS = [
-  { value: '',            label: 'Sve sobe'   },
-  { value: 'available',   label: 'Slobodne'   },
-  { value: 'occupied',    label: 'Zauzete'    },
-  { value: 'cleaning',    label: 'Čišćenje'   },
-  { value: 'maintenance', label: 'Servis'     },
-  { value: 'blocked',     label: 'Blokirane'  },
+  { value: '',            labelKey: 'htFilterAll'      },
+  { value: 'available',   labelKey: 'htOccFree'        },
+  { value: 'occupied',    labelKey: 'htOccOccupied'    },
+  { value: 'cleaning',    labelKey: 'htStCleaning'     },
+  { value: 'maintenance', labelKey: 'htStMaintenance'  },
+  { value: 'blocked',     labelKey: 'htFilterBlocked'  },
 ]
 
 export default function RoomsPage() {
   const { restaurant } = usePlatform()
   const { refreshCounts } = useAdminBadgeRefresh()
   const navigate = useNavigate()
+  const { t } = useTranslation('admin')
   const { rooms, roomTypes, loading, updateRoomStatus } = useRooms(restaurant?.id, refreshCounts)
   const [filter, setFilter] = useState('')
 
@@ -61,7 +63,7 @@ export default function RoomsPage() {
 
   const handleStatusChange = async (roomId, status, prevStatus) => {
     await updateRoomStatus(roomId, status, prevStatus)
-    toast.success('Status sobe ažuriran')
+    toast.success(t('htRoomStatusUpdated'))
     // Reload taskova da badge-ovi budu tačni
     loadTaskSets(restaurant?.id)
   }
@@ -87,15 +89,15 @@ export default function RoomsPage() {
     <div className={styles.page}>
       <div className={styles.header}>
         <div>
-          <h1 className={styles.title}>Sobe</h1>
-          <p className={styles.subtitle}>{rooms.length} soba ukupno</p>
+          <h1 className={styles.title}>{t('navRooms')}</h1>
+          <p className={styles.subtitle}>{t('htRoomsTotal', { n: rooms.length })}</p>
         </div>
         <div className={styles.headerActions}>
           <button className={styles.btnSecondary} onClick={() => navigate('/admin/hotel/room-types')}>
-            Tipovi soba
+            {t('navRoomTypes')}
           </button>
           <button className={styles.btnPrimary} onClick={() => navigate('/admin/hotel/rooms/new')}>
-            + Dodaj sobu
+            + {t('htAddRoom')}
           </button>
         </div>
       </div>
@@ -107,7 +109,7 @@ export default function RoomsPage() {
             className={`${styles.filterBtn} ${filter === f.value ? styles.filterBtnActive : ''}`}
             onClick={() => setFilter(f.value)}
           >
-            {f.label}
+            {t(f.labelKey)}
             {f.value && (
               <span className={styles.filterCount}>{countFor(f.value)}</span>
             )}
@@ -117,10 +119,10 @@ export default function RoomsPage() {
 
       {filtered.length === 0 ? (
         <div className={styles.empty}>
-          <p>Nema soba{filter ? ' sa ovim statusom' : ''}.</p>
+          <p>{filter ? t('htNoRoomsFiltered') : t('htNoRooms')}</p>
           {!filter && (
             <button className={styles.btnPrimary} onClick={() => navigate('/admin/hotel/rooms/new')}>
-              Dodaj prvu sobu
+              {t('htAddFirstRoom')}
             </button>
           )}
         </div>
