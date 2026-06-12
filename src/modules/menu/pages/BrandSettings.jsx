@@ -1,4 +1,5 @@
 import { useState, useEffect } from 'react'
+import { useTranslation } from 'react-i18next'
 import { supabase } from '../../../lib/supabase'
 import { usePlatform } from '../../../context/PlatformContext'
 import { deriveShades } from '../../../lib/brandPalette'
@@ -13,6 +14,7 @@ import styles from './BrandSettings.module.css'
 // Sve ostaje nadjačivo u Postavke → Tema, odn. Meni → Predlošci.
 
 export default function BrandSettings() {
+  const { t } = useTranslation('admin')
   const { restaurant, setRestaurant } = usePlatform()
   const [color, setColor] = useState('#0d7a52')
   const [saving, setSaving] = useState(false)
@@ -25,7 +27,7 @@ export default function BrandSettings() {
   }, [restaurant?.color])
 
   const isDirty = !!restaurant && color !== (restaurant.color || '#0d7a52')
-  const showMsg = (t) => { setMsg(t); setTimeout(() => setMsg(''), 3500) }
+  const showMsg = (m) => { setMsg(m); setTimeout(() => setMsg(''), 3500) }
 
   const saveColor = async () => {
     if (!restaurant || !isDirty) return
@@ -44,9 +46,9 @@ export default function BrandSettings() {
     setBusy('admin')
     const { error } = await supabase.from('restaurants').update({ color, admin_theme: 'brand' }).eq('id', restaurant.id)
     setBusy(null)
-    if (error) { showMsg('Greška: ' + error.message); return }
+    if (error) { showMsg(t('bsErrorPrefix') + error.message); return }
     setRestaurant({ ...restaurant, color, admin_theme: 'brand' })
-    showMsg('✓ Admin tema usklađena sa brendom. (Promjenljivo u Postavke → Tema.)')
+    showMsg(t('bsAdminApplied'))
   }
 
   const applyMenuTemplate = async () => {
@@ -55,9 +57,9 @@ export default function BrandSettings() {
     // 'brand' predložak — meni izvodi boje iz brend boje (vidi getTemplate/deriveMenuTemplate).
     const { error } = await supabase.from('restaurants').update({ color, template: 'brand' }).eq('id', restaurant.id)
     setBusy(null)
-    if (error) { showMsg('Greška: ' + error.message); return }
+    if (error) { showMsg(t('bsErrorPrefix') + error.message); return }
     setRestaurant({ ...restaurant, color, template: 'brand' })
-    showMsg('✓ Meni usklađen — „Brend" predložak (boje iz brenda). (Promjenljivo u Meni → Predlošci.)')
+    showMsg(t('bsMenuApplied'))
   }
 
   const previewLight = deriveShades(color).light
@@ -68,10 +70,9 @@ export default function BrandSettings() {
   return (
     <div className={styles.page}>
       <div className={styles.header}>
-        <h1 className={styles.title}>Brend</h1>
+        <h1 className={styles.title}>{t('navBrand')}</h1>
         <p className={styles.subtitle}>
-          Logo i boja brenda tvog objekta — jedinstveni vizuelni identitet. Koriste se na portalu
-          zaposlenih, QR kodovima i u email porukama, a mogu se primijeniti i na admin temu i meni.
+          {t('bsSubtitle')}
         </p>
       </div>
 
@@ -79,17 +80,17 @@ export default function BrandSettings() {
 
       {/* Boja brenda */}
       <div className={styles.card}>
-        <div className={styles.cardTitle}>Boja brenda</div>
-        <div className={styles.cardDesc}>Glavna boja tvog brenda. Bira se kao boja ili upisuje kao hex.</div>
+        <div className={styles.cardTitle}>{t('bsColorTitle')}</div>
+        <div className={styles.cardDesc}>{t('bsColorDesc')}</div>
         <div className={styles.colorRow}>
-          <input type="color" value={color} onChange={e => setColor(e.target.value)} className={styles.colorSwatch} aria-label="Boja brenda" />
+          <input type="color" value={color} onChange={e => setColor(e.target.value)} className={styles.colorSwatch} aria-label={t('bsColorTitle')} />
           <input value={color} onChange={e => setColor(e.target.value)} className={styles.colorHex} spellCheck={false} />
           <span className={styles.colorPreview} style={{ background: color }} />
           <span style={{ flex: 1 }} />
-          {saved && !isDirty && <span className={styles.savedMsg}>✓ Sačuvano</span>}
+          {saved && !isDirty && <span className={styles.savedMsg}>✓ {t('saved')}</span>}
           {isDirty && (
             <button className={styles.saveBtn} onClick={saveColor} disabled={saving}>
-              {saving ? 'Čuvanje…' : 'Sačuvaj boju'}
+              {saving ? t('saving') : t('bsSaveColor')}
             </button>
           )}
         </div>
@@ -97,10 +98,9 @@ export default function BrandSettings() {
 
       {/* Uskladi sa brendom (opciono, jednosmjerno) */}
       <div className={styles.card}>
-        <div className={styles.cardTitle}>Primijeni brend</div>
+        <div className={styles.cardTitle}>{t('bsApplyBrand')}</div>
         <div className={styles.cardDesc}>
-          Iskoristi boju brenda kao polaznu tačku za admin temu i izgled menija. Sve ostaje
-          ručno promjenljivo kasnije (Postavke → Tema, Meni → Predlošci).
+          {t('bsApplyBrandDesc')}
         </div>
 
         {/* Admin tema */}
@@ -112,11 +112,11 @@ export default function BrandSettings() {
             <span className={styles.swatch} style={{ background: previewLight.primary }} />
           </div>
           <div className={styles.actionInfo}>
-            <div className={styles.actionTitle}>Admin tema iz brenda {adminActive && <span className={styles.activeTag}>aktivno</span>}</div>
-            <div className={styles.actionDesc}>Generiše paletu admin panela (light + dark) iz boje brenda.</div>
+            <div className={styles.actionTitle}>{t('bsAdminThemeTitle')} {adminActive && <span className={styles.activeTag}>{t('bsActive')}</span>}</div>
+            <div className={styles.actionDesc}>{t('bsAdminThemeDesc')}</div>
           </div>
           <button className={styles.actionBtn} onClick={applyAdminTheme} disabled={busy === 'admin'}>
-            {busy === 'admin' ? 'Primjena…' : 'Uskladi admin temu'}
+            {busy === 'admin' ? t('bsApplying') : t('bsApplyAdminTheme')}
           </button>
         </div>
 
@@ -127,18 +127,18 @@ export default function BrandSettings() {
             <span className={styles.swatch} style={{ background: menuPreview.catBg }} />
           </div>
           <div className={styles.actionInfo}>
-            <div className={styles.actionTitle}>Meni iz brenda {menuActive && <span className={styles.activeTag}>aktivno</span>}</div>
-            <div className={styles.actionDesc}>Postavlja „Brend" predložak — boje menija se izvode iz brend boje.</div>
+            <div className={styles.actionTitle}>{t('bsMenuTitle')} {menuActive && <span className={styles.activeTag}>{t('bsActive')}</span>}</div>
+            <div className={styles.actionDesc}>{t('bsMenuDesc')}</div>
           </div>
           <button className={styles.actionBtn} onClick={applyMenuTemplate} disabled={busy === 'menu'}>
-            {busy === 'menu' ? 'Primjena…' : 'Uskladi meni'}
+            {busy === 'menu' ? t('bsApplying') : t('bsApplyMenu')}
           </button>
         </div>
       </div>
 
       {/* Logo */}
       <div className={styles.card}>
-        <div className={styles.cardTitle}>Logo</div>
+        <div className={styles.cardTitle}>{t('bsLogo')}</div>
         <LogoUpload embedded />
       </div>
     </div>

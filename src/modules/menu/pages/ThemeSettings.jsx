@@ -1,4 +1,5 @@
 import { useState, useEffect } from 'react'
+import { useTranslation } from 'react-i18next'
 import { supabase } from '../../../lib/supabase'
 import { usePlatform } from '../../../context/PlatformContext'
 import { deriveShades } from '../../../lib/brandPalette'
@@ -15,12 +16,13 @@ const BUILTIN_KEYS = ['green', 'blue', 'purple']
 
 // Light preview boje ugrađenih paleta (izvor: index.css :root i [data-theme="..."]).
 const BUILTIN_THEMES = [
-  { key: 'green',  name: 'Zelena',     light: { primary: '#0d7a52', primaryLight: '#e0f5ec', sbBg: '#0d2b1e', sbAccent: '#5dcaa5' } },
-  { key: 'blue',   name: 'Plava',      light: { primary: '#2563eb', primaryLight: '#eff6ff', sbBg: '#0c1938', sbAccent: '#60a5fa' } },
-  { key: 'purple', name: 'Ljubičasta', light: { primary: '#7c3aed', primaryLight: '#f3effe', sbBg: '#1e1340', sbAccent: '#a78bfa' } },
+  { key: 'green',  nameKey: 'thGreen',  light: { primary: '#0d7a52', primaryLight: '#e0f5ec', sbBg: '#0d2b1e', sbAccent: '#5dcaa5' } },
+  { key: 'blue',   nameKey: 'thBlue',   light: { primary: '#2563eb', primaryLight: '#eff6ff', sbBg: '#0c1938', sbAccent: '#60a5fa' } },
+  { key: 'purple', nameKey: 'thPurple', light: { primary: '#7c3aed', primaryLight: '#f3effe', sbBg: '#1e1340', sbAccent: '#a78bfa' } },
 ]
 
 export default function ThemeSettings() {
+  const { t } = useTranslation('admin')
   const { restaurant, setRestaurant, palettes } = usePlatform()
   const [selected, setSelected] = useState('green')
   const [savedTheme, setSavedTheme] = useState('green')
@@ -64,7 +66,7 @@ export default function ThemeSettings() {
   }
 
   // Brend paleta (izvedena iz boje objekta) + ugrađene (uz override) + custom palete.
-  const brandTheme = { key: 'brand', name: 'Brend', light: deriveShades(restaurant?.color || '#0d7a52').light }
+  const brandTheme = { key: 'brand', nameKey: 'navBrand', light: deriveShades(restaurant?.color || '#0d7a52').light }
   const themes = [
     brandTheme,
     ...BUILTIN_THEMES.map(b => {
@@ -94,23 +96,22 @@ export default function ThemeSettings() {
   return (
     <div className={styles.page}>
       <div className={styles.header}>
-        <h1 className={styles.title}>Izgled / Tema</h1>
+        <h1 className={styles.title}>{t('navTheme')}</h1>
         <p className={styles.subtitle}>
-          Izaberi paletu boja admin panela. Tema se primjenjuje odmah nakon čuvanja.
-          Svijetli/tamni način mijenjaš dugmetom ☀️/🌙 u gornjoj traci — radi sa svakom paletom.
+          {t('thSubtitle')}
         </p>
       </div>
 
       <div className={styles.grid}>
-        {themes.map(t => {
-          const active = selected === t.key
-          const light = t.light || {}
+        {themes.map(th => {
+          const active = selected === th.key
+          const light = th.light || {}
           return (
             <button
-              key={t.key}
+              key={th.key}
               type="button"
               className={`${styles.card} ${active ? styles.cardActive : ''}`}
-              onClick={() => setSelected(t.key)}
+              onClick={() => setSelected(th.key)}
             >
               {active && <span className={styles.check}>✓</span>}
               <div className={styles.preview}>
@@ -126,28 +127,26 @@ export default function ThemeSettings() {
                   <span className={styles.previewLineShort} />
                 </div>
               </div>
-              <div className={styles.cardName}>{t.name}</div>
+              <div className={styles.cardName}>{th.nameKey ? t(th.nameKey) : th.name}</div>
             </button>
           )
         })}
       </div>
 
       <div className={styles.actions}>
-        {saved && !isDirty && <span className={styles.savedMsg}>✓ Sačuvano</span>}
+        {saved && !isDirty && <span className={styles.savedMsg}>✓ {t('saved')}</span>}
         {isDirty && (
           <button className={styles.saveBtn} onClick={save} disabled={saving}>
-            {saving ? 'Čuvanje…' : 'Sačuvaj temu'}
+            {saving ? t('saving') : t('thSaveTheme')}
           </button>
         )}
       </div>
 
       {/* ── Jezik admin panela (per-tenant default) ── */}
       <div className={styles.header} style={{ marginTop: 40 }}>
-        <h1 className={styles.title}>Jezik admin panela</h1>
+        <h1 className={styles.title}>{t('thLangTitle')}</h1>
         <p className={styles.subtitle}>
-          Glavni jezik admin panela za cijeli nalog. Svako u timu može privremeno
-          promijeniti jezik za svoju sesiju izbornikom u gornjoj traci — ovaj izbor je
-          podrazumijevani.
+          {t('thLangSubtitle')}
         </p>
       </div>
       <div className={styles.actions} style={{ justifyContent: 'flex-start', gap: 12 }}>
@@ -161,10 +160,10 @@ export default function ThemeSettings() {
             <option key={l.code} value={l.code}>{l.native}</option>
           ))}
         </select>
-        {langSaved && !langDirty && <span className={styles.savedMsg}>✓ Sačuvano</span>}
+        {langSaved && !langDirty && <span className={styles.savedMsg}>✓ {t('saved')}</span>}
         {langDirty && (
           <button className={styles.saveBtn} onClick={saveLang} disabled={langSaving}>
-            {langSaving ? 'Čuvanje…' : 'Sačuvaj jezik'}
+            {langSaving ? t('saving') : t('thSaveLang')}
           </button>
         )}
       </div>

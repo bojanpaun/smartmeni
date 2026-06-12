@@ -1,4 +1,5 @@
 import { useState, useEffect } from 'react'
+import { useTranslation } from 'react-i18next'
 import { supabase } from '../../../lib/supabase'
 import { usePlatform } from '../../../context/PlatformContext'
 import { TEMPLATES, getTemplate } from '../../../lib/templates'
@@ -67,6 +68,7 @@ function MenuPreview({ template: t }) {
 }
 
 export default function TemplateSettings() {
+  const { t } = useTranslation('admin')
   const { restaurant } = usePlatform()
   const [selected, setSelected] = useState('modern_minimal')
   const [saving, setSaving] = useState(false)
@@ -97,9 +99,9 @@ export default function TemplateSettings() {
   return (
     <div className={styles.page}>
       <div className={styles.header}>
-        <h1 className={styles.title}>Predlošci</h1>
+        <h1 className={styles.title}>{t('msTabTemplates')}</h1>
         <p className={styles.subtitle}>
-          Odaberi vizualni stil guest menija. Promjena je vidljiva gostima odmah.
+          {t('tsSubtitle')}
         </p>
       </div>
 
@@ -118,8 +120,8 @@ export default function TemplateSettings() {
                   onClick={() => setSelected('brand')}
                 >
                   <div className={styles.tswatch} style={{ background: bt.brand }} />
-                  <div className={styles.tname}>Brend</div>
-                  <div className={styles.tdesc}>Boje iz tvog brenda</div>
+                  <div className={styles.tname}>{t('navBrand')}</div>
+                  <div className={styles.tdesc}>{t('tsBrandDesc')}</div>
                   {selected === 'brand' && <div className={styles.tcheck}>✓</div>}
                 </button>
               )
@@ -146,7 +148,7 @@ export default function TemplateSettings() {
               onClick={handleSave}
               disabled={saving}
             >
-              {saving ? 'Čuvanje...' : saved ? '✓ Primijenjeno!' : 'Primijeni predložak'}
+              {saving ? t('saving') : saved ? `✓ ${t('tsApplied')}` : t('tsApply')}
             </button>
             {restaurant && (
               <a
@@ -155,7 +157,7 @@ export default function TemplateSettings() {
                 rel="noreferrer"
                 className={styles.previewLink}
               >
-                👁 Otvori live meni →
+                👁 {t('tsOpenLive')} →
               </a>
             )}
           </div>
@@ -163,7 +165,7 @@ export default function TemplateSettings() {
 
         {/* Desno — live preview */}
         <div className={styles.previewCol}>
-          <div className={styles.previewLabel}>Preview</div>
+          <div className={styles.previewLabel}>{t('tsPreview')}</div>
           <MenuPreview template={activeTemplate} />
           <div className={styles.previewInfo}>
             <div className={styles.previewName}>{activeTemplate.name}</div>
