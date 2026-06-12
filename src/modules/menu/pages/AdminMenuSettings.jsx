@@ -1,4 +1,5 @@
 import { useState, useRef } from 'react'
+import { useTranslation } from 'react-i18next'
 import { supabase } from '../../../lib/supabase'
 import { stripAccountFields } from '../../../lib/planUtils'
 import { usePlatform } from '../../../context/PlatformContext'
@@ -25,16 +26,16 @@ const DEFAULT_REJECTION_MESSAGES = [
 const ICONS = ['🔔','🧾','🥤','🍽️','☕','🍷','🧂','❓','👋','🛎️']
 
 const VIS_OPTIONS = [
-  { value: 'off',        label: 'Isključeno' },
-  { value: 'registered', label: 'Registrovani' },
-  { value: 'all',        label: 'Svi' },
+  { value: 'off',        labelKey: 'visOff' },
+  { value: 'registered', labelKey: 'visRegistered' },
+  { value: 'all',        labelKey: 'visAll' },
 ]
 
 const TABS = [
-  { id: 'opste',      label: 'Opšte' },
-  { id: 'vidljivost', label: 'Vidljivost' },
-  { id: 'poruke',     label: 'Poruke' },
-  { id: 'predlosci',  label: 'Predlošci' },
+  { id: 'opste',      labelKey: 'msTabGeneral' },
+  { id: 'vidljivost', labelKey: 'msTabVisibility' },
+  { id: 'poruke',     labelKey: 'msTabMessages' },
+  { id: 'predlosci',  labelKey: 'msTabTemplates' },
 ]
 
 // ── Sub-komponente ─────────────────────────────────────────
@@ -68,6 +69,7 @@ function DraggableList({ items, onReorder, children }) {
 }
 
 function WaiterMessagesEditor({ restaurant, setRestaurant }) {
+  const { t } = useTranslation('admin')
   const [messages, setMessages] = useState(restaurant.waiter_messages || DEFAULT_WAITER_MESSAGES)
   const [saving, setSaving] = useState(false)
   const [msg, setMsg] = useState('')
@@ -82,15 +84,15 @@ function WaiterMessagesEditor({ restaurant, setRestaurant }) {
     await supabase.from('restaurants').update({ waiter_messages: messages }).eq('id', restaurant.id)
     setRestaurant(r => ({ ...r, waiter_messages: messages }))
     setSaving(false)
-    setMsg('Sačuvano!')
+    setMsg(t('saved'))
     setTimeout(() => setMsg(''), 2000)
   }
 
   return (
     <div className={menuStyles.card} style={{ marginBottom: 16 }}>
-      <div className={menuStyles.cardTitle}>🔔 Poruke za poziv konobara</div>
+      <div className={menuStyles.cardTitle}>🔔 {t('amWaiterMsgTitle')}</div>
       <div style={{ fontSize: 12, color: '#8a9e96', marginBottom: 14 }}>
-        Gosti biraju jednu od ovih poruka kada pozivaju konobara. Povuci za promjenu redosljeda.
+        {t('msWaiterHintDrag')}
       </div>
       <DraggableList items={messages} onReorder={setMessages}>
         {(m, i) => (
@@ -99,9 +101,9 @@ function WaiterMessagesEditor({ restaurant, setRestaurant }) {
               style={{ width: 54, padding: '7px 4px', border: '1px solid #d0e4dc', borderRadius: 8, fontSize: 18, textAlign: 'center' }}>
               {ICONS.map(ic => <option key={ic} value={ic}>{ic}</option>)}
             </select>
-            <input value={m.sr} onChange={e => update(i, 'sr', e.target.value)} placeholder="Tekst (SR)"
+            <input value={m.sr} onChange={e => update(i, 'sr', e.target.value)} placeholder={`${t('amTextField')} (SR)`}
               style={{ flex: 1, minWidth: 130, padding: '8px 10px', border: '1px solid #d0e4dc', borderRadius: 8, fontSize: 13, fontFamily: 'DM Sans, sans-serif', outline: 'none' }} />
-            <input value={m.en} onChange={e => update(i, 'en', e.target.value)} placeholder="Text (EN)"
+            <input value={m.en} onChange={e => update(i, 'en', e.target.value)} placeholder={`${t('amTextField')} (EN)`}
               style={{ flex: 1, minWidth: 130, padding: '8px 10px', border: '1px solid #d0e4dc', borderRadius: 8, fontSize: 13, fontFamily: 'DM Sans, sans-serif', outline: 'none' }} />
             <button onClick={() => remove(i)}
               style={{ padding: '7px 10px', background: 'transparent', border: '1px solid #f5b0b0', borderRadius: 8, color: '#c0392b', cursor: 'pointer', fontSize: 13 }}>✕</button>
@@ -111,10 +113,10 @@ function WaiterMessagesEditor({ restaurant, setRestaurant }) {
       <div style={{ display: 'flex', gap: 10, marginTop: 12, alignItems: 'center' }}>
         <button onClick={add}
           style={{ padding: '8px 14px', background: '#f0f5f2', border: '1px solid #d0e4dc', borderRadius: 8, fontSize: 13, cursor: 'pointer', fontFamily: 'DM Sans, sans-serif' }}>
-          + Dodaj poruku
+          + {t('amAddMessage')}
         </button>
         <button onClick={save} className={menuStyles.btnSave} disabled={saving}>
-          {saving ? 'Čuvanje...' : 'Sačuvaj poruke'}
+          {saving ? t('saving') : t('amSaveMessages')}
         </button>
         {msg && <span style={{ color: '#0d7a52', fontSize: 13 }}>✓ {msg}</span>}
       </div>
@@ -123,6 +125,7 @@ function WaiterMessagesEditor({ restaurant, setRestaurant }) {
 }
 
 function RejectionMessagesEditor({ restaurant, setRestaurant }) {
+  const { t } = useTranslation('admin')
   const [messages, setMessages] = useState(restaurant.rejection_messages || DEFAULT_REJECTION_MESSAGES)
   const [saving, setSaving] = useState(false)
   const [msg, setMsg] = useState('')
@@ -137,15 +140,15 @@ function RejectionMessagesEditor({ restaurant, setRestaurant }) {
     await supabase.from('restaurants').update({ rejection_messages: messages }).eq('id', restaurant.id)
     setRestaurant(r => ({ ...r, rejection_messages: messages }))
     setSaving(false)
-    setMsg('Sačuvano!')
+    setMsg(t('saved'))
     setTimeout(() => setMsg(''), 2000)
   }
 
   return (
     <div className={menuStyles.card}>
-      <div className={menuStyles.cardTitle}>✕ Poruke odbijanja narudžbe</div>
+      <div className={menuStyles.cardTitle}>✕ {t('msRejectTitle')}</div>
       <div style={{ fontSize: 12, color: '#8a9e96', marginBottom: 14 }}>
-        Konobar bira jednu od ovih poruka kad odbija narudžbu. Gost je vidi na trackeru. Povuci za promjenu redosljeda.
+        {t('msRejectHint')}
       </div>
       <DraggableList items={messages} onReorder={setMessages}>
         {(m, i) => (
@@ -159,16 +162,16 @@ function RejectionMessagesEditor({ restaurant, setRestaurant }) {
       </DraggableList>
       <div style={{ display: 'flex', gap: 8, marginTop: 10 }}>
         <input value={newMsg} onChange={e => setNewMsg(e.target.value)} onKeyDown={e => e.key === 'Enter' && add()}
-          placeholder="Nova poruka odbijanja..."
+          placeholder={t('msNewRejectPlaceholder')}
           style={{ flex: 1, padding: '8px 10px', border: '1px solid #d0e4dc', borderRadius: 8, fontSize: 13, fontFamily: 'DM Sans, sans-serif', outline: 'none' }} />
         <button onClick={add}
           style={{ padding: '8px 14px', background: '#f0f5f2', border: '1px solid #d0e4dc', borderRadius: 8, fontSize: 13, cursor: 'pointer', fontFamily: 'DM Sans, sans-serif' }}>
-          + Dodaj
+          + {t('add')}
         </button>
       </div>
       <div style={{ display: 'flex', gap: 10, marginTop: 12, alignItems: 'center' }}>
         <button onClick={save} className={menuStyles.btnSave} disabled={saving}>
-          {saving ? 'Čuvanje...' : 'Sačuvaj poruke'}
+          {saving ? t('saving') : t('amSaveMessages')}
         </button>
         {msg && <span style={{ color: '#0d7a52', fontSize: 13 }}>✓ {msg}</span>}
       </div>
@@ -177,6 +180,7 @@ function RejectionMessagesEditor({ restaurant, setRestaurant }) {
 }
 
 function VisibilityControl({ value, onChange, label, icon, desc }) {
+  const { t } = useTranslation('admin')
   return (
     <div className={styles.orderingCard}>
       <div className={styles.orderingInfo}>
@@ -197,7 +201,7 @@ function VisibilityControl({ value, onChange, label, icon, desc }) {
             ].join(' ')}
             onClick={() => onChange(opt.value)}
           >
-            {opt.label}
+            {t(opt.labelKey)}
           </button>
         ))}
       </div>
@@ -206,6 +210,7 @@ function VisibilityControl({ value, onChange, label, icon, desc }) {
 }
 
 function BookingButtonToggle({ restaurant, setRestaurant }) {
+  const { t } = useTranslation('admin')
   const [enabled, setEnabled] = useState(restaurant.show_booking_button ?? false)
   const [saving, setSaving] = useState(false)
 
@@ -223,9 +228,9 @@ function BookingButtonToggle({ restaurant, setRestaurant }) {
   return (
     <div className={styles.orderingCard}>
       <div className={styles.orderingInfo}>
-        <div className={styles.orderingTitle}>🏨 Online rezervacija smještaja</div>
+        <div className={styles.orderingTitle}>🏨 {t('msBookingTitle')}</div>
         <div className={styles.orderingDesc}>
-          Plovuće dugme "Rezerviši" na meniju koje vodi na stranicu za rezervaciju.
+          {t('msBookingDesc')}
           <div style={{ marginTop: 4, fontSize: 12, color: 'var(--c-primary)' }}>
             🔗 <a href={bookingUrl} target="_blank" rel="noreferrer" style={{ color: 'inherit' }}>{bookingUrl}</a>
           </div>
@@ -253,6 +258,7 @@ function BookingButtonToggle({ restaurant, setRestaurant }) {
 // ── Glavna komponenta ──────────────────────────────────────
 
 export default function AdminMenuSettings() {
+  const { t } = useTranslation('admin')
   const { restaurant, setRestaurant, hasAddon, hasVertical } = usePlatform()
   // Hotel/spa/booking opcije se nude SAMO ako nalog ima hotel vertikalu (šta vodi),
   // a ne na osnovu addona — addon je pod beta modom svima true, pa bi se inače
@@ -265,7 +271,7 @@ export default function AdminMenuSettings() {
   const [saving, setSaving] = useState(false)
   const [msg, setMsg]       = useState('')
 
-  if (!restaurant || !form) return <div className={styles.loading}>Učitavanje...</div>
+  if (!restaurant || !form) return <div className={styles.loading}>{t('loading')}</div>
 
   const saveForm = async (e) => {
     e.preventDefault()
@@ -275,7 +281,7 @@ export default function AdminMenuSettings() {
     await supabase.from('restaurants').update(stripAccountFields(rest)).eq('id', restaurant.id)
     setRestaurant({ ...restaurant, ...rest })
     setSaving(false)
-    setMsg('Sačuvano!')
+    setMsg(t('saved'))
     setTimeout(() => setMsg(''), 2000)
   }
 
@@ -289,8 +295,8 @@ export default function AdminMenuSettings() {
   return (
     <div className={styles.page}>
       <div className={styles.header}>
-        <h1 className={styles.title}>Postavke menija</h1>
-        <p className={styles.subtitle}>Upravljanje digitalnim menijem, vidljivošću i porukama.</p>
+        <h1 className={styles.title}>{t('navMenuSettings')}</h1>
+        <p className={styles.subtitle}>{t('msSubtitle')}</p>
       </div>
 
       {/* ── Tab navigacija ── */}
@@ -301,7 +307,7 @@ export default function AdminMenuSettings() {
             className={`${styles.tab} ${activeTab === tab.id ? styles.tabActive : ''}`}
             onClick={() => setActiveTab(tab.id)}
           >
-            {tab.label}
+            {t(tab.labelKey)}
           </button>
         ))}
       </div>
@@ -309,58 +315,58 @@ export default function AdminMenuSettings() {
       {/* ── Tab: Opšte ── */}
       {activeTab === 'opste' && (
         <div className={menuStyles.card}>
-          <div className={menuStyles.cardTitle}>Podaci o restoranu</div>
+          <div className={menuStyles.cardTitle}>{t('amRestaurantData')}</div>
           <form onSubmit={saveForm} className={menuStyles.settingsForm}>
             <div className={menuStyles.modalGrid}>
               <div className={menuStyles.field}>
-                <label>Naziv restorana</label>
+                <label>{t('amRestaurantName')}</label>
                 <input value={form.name || ''} onChange={e => setForm(f => ({ ...f, name: e.target.value }))} />
               </div>
               <div className={menuStyles.field}>
-                <label>Lokacija</label>
+                <label>{t('amLocation')}</label>
                 <input value={form.location || ''} onChange={e => setForm(f => ({ ...f, location: e.target.value }))} />
               </div>
               <div className={menuStyles.field}>
-                <label>Telefon</label>
+                <label>{t('amPhone')}</label>
                 <input value={form.phone || ''} onChange={e => setForm(f => ({ ...f, phone: e.target.value }))} />
               </div>
               <div className={menuStyles.field}>
-                <label>Radno vrijeme</label>
+                <label>{t('amHours')}</label>
                 <input value={form.hours || ''} onChange={e => setForm(f => ({ ...f, hours: e.target.value }))} />
               </div>
               <div className={menuStyles.field} style={{ gridColumn: '1 / -1' }}>
-                <label>Opis restorana</label>
+                <label>{t('msDescLabel')}</label>
                 <textarea
                   value={form.description || ''}
                   onChange={e => setForm(f => ({ ...f, description: e.target.value }))}
-                  placeholder="Kratki opis restorana koji gosti vide u meniju..."
+                  placeholder={t('msDescPlaceholder')}
                   rows={3}
                   className={styles.textarea}
                 />
-                <div className={styles.fieldHint}>Prikazuje se ispod naziva restorana u guest meniju. Max 200 karaktera.</div>
+                <div className={styles.fieldHint}>{t('msDescHint')}</div>
               </div>
               <div className={menuStyles.field} style={{ gridColumn: '1 / -1' }}>
-                <label>📱 Trajanje QR sesije</label>
+                <label>📱 {t('msQrSession')}</label>
                 <select
                   value={form.qr_session_minutes || 30}
                   onChange={e => setForm(f => ({ ...f, qr_session_minutes: parseInt(e.target.value) }))}
                   style={{ padding: '8px 10px', border: '1px solid #d0e4dc', borderRadius: 8, fontSize: 13, fontFamily: 'DM Sans, sans-serif', outline: 'none' }}
                 >
-                  <option value={10}>10 minuta</option>
-                  <option value={15}>15 minuta</option>
-                  <option value={20}>20 minuta</option>
-                  <option value={30}>30 minuta (preporučeno)</option>
-                  <option value={45}>45 minuta</option>
-                  <option value={60}>60 minuta</option>
-                  <option value={90}>90 minuta</option>
-                  <option value={120}>2 sata</option>
+                  <option value={10}>10 {t('msMinutes')}</option>
+                  <option value={15}>15 {t('msMinutes')}</option>
+                  <option value={20}>20 {t('msMinutes')}</option>
+                  <option value={30}>30 {t('msMinutes')} ({t('msRecommended')})</option>
+                  <option value={45}>45 {t('msMinutes')}</option>
+                  <option value={60}>60 {t('msMinutes')}</option>
+                  <option value={90}>90 {t('msMinutes')}</option>
+                  <option value={120}>{t('msTwoHours')}</option>
                 </select>
-                <div className={styles.fieldHint}>Nakon isteka, gost mora ponovo skenirati QR kod da bi mogao naručivati i zvati konobara.</div>
+                <div className={styles.fieldHint}>{t('msQrSessionHint')}</div>
               </div>
             </div>
             <div style={{ display: 'flex', alignItems: 'center', gap: 12, marginTop: 8 }}>
               <button type="submit" className={menuStyles.btnSave} disabled={saving}>
-                {saving ? 'Čuvanje...' : 'Sačuvaj promjene'}
+                {saving ? t('saving') : t('amSaveChanges')}
               </button>
               {msg && <span style={{ color: '#0d7a52', fontSize: 13 }}>✓ {msg}</span>}
             </div>
@@ -371,30 +377,30 @@ export default function AdminMenuSettings() {
       {/* ── Tab: Vidljivost ── */}
       {activeTab === 'vidljivost' && (
         <>
-          <div className={styles.sectionLabel}>Vidljivost u digitalnom meniju</div>
-          <div className={styles.visDesc}>Za svaku opciju odaberi ko je može vidjeti u guest meniju</div>
+          <div className={styles.sectionLabel}>{t('msVisSection')}</div>
+          <div className={styles.visDesc}>{t('msVisDesc')}</div>
 
-          <VisibilityControl icon="🛒" label="Digitalno naručivanje" desc="Ko može naručivati iz menija"
+          <VisibilityControl icon="🛒" label={t('msVisOrderingLabel')} desc={t('msVisOrderingDesc')}
             value={form.ordering_visibility || 'all'} onChange={val => toggleVis('ordering_visibility', val)} />
-          <VisibilityControl icon="🔔" label="Poziv konobara" desc="Ko može pozvati konobara"
+          <VisibilityControl icon="🔔" label={t('msVisWaiterLabel')} desc={t('msVisWaiterDesc')}
             value={form.waiter_visibility || 'all'} onChange={val => toggleVis('waiter_visibility', val)} />
-          <VisibilityControl icon="📅" label="Online rezervacije" desc="Ko može rezervisati sto"
+          <VisibilityControl icon="📅" label={t('msVisReservationLabel')} desc={t('msVisReservationDesc')}
             value={form.reservation_visibility || 'all'} onChange={val => toggleVis('reservation_visibility', val)} />
-          <VisibilityControl icon="🎟️" label="Registracija gostiju" desc="Ko vidi dugme Postani naš gost i Prijava"
+          <VisibilityControl icon="🎟️" label={t('msVisRegistrationLabel')} desc={t('msVisRegistrationDesc')}
             value={form.registration_visibility || 'all'} onChange={val => toggleVis('registration_visibility', val)} />
           {hasHotel && (
-            <VisibilityControl icon="🏨" label="Hotel — info i smještaj" desc="Ko vidi link prema hotelskoj stranici u meniju"
+            <VisibilityControl icon="🏨" label={t('msVisHotelLabel')} desc={t('msVisHotelDesc')}
               value={form.hotel_visibility || 'off'} onChange={val => toggleVis('hotel_visibility', val)} />
           )}
           {hasSpa && (
-            <VisibilityControl icon="✨" label="Spa & Wellness" desc="Ko vidi link prema spa booking stranici u meniju"
+            <VisibilityControl icon="✨" label={t('modSpa')} desc={t('msVisSpaDesc')}
               value={form.spa_visibility || 'off'} onChange={val => toggleVis('spa_visibility', val)} />
           )}
 
           {hasHotel && (
             <>
-              <div className={styles.sectionLabel} style={{ marginTop: 28 }}>Rezervacija smještaja</div>
-              <div className={styles.visDesc}>Dugme za online booking koje se prikazuje na gostovoj stranici</div>
+              <div className={styles.sectionLabel} style={{ marginTop: 28 }}>{t('msAccomReservation')}</div>
+              <div className={styles.visDesc}>{t('msBookingToggleDesc')}</div>
               <BookingButtonToggle restaurant={restaurant} setRestaurant={setRestaurant} />
             </>
           )}

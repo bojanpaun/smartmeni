@@ -1,13 +1,15 @@
 // src/modules/menu/pages/AdminMenuQR.jsx
 import { useState } from 'react'
+import { useTranslation } from 'react-i18next'
 import { usePlatform } from '../../../context/PlatformContext'
 import styles from './GeneralSettings.module.css'
 
 export default function AdminMenuQR() {
+  const { t } = useTranslation('admin')
   const { restaurant } = usePlatform()
   const [copied, setCopied] = useState(false)
 
-  if (!restaurant) return <div className={styles.loading}>Učitavanje...</div>
+  if (!restaurant) return <div className={styles.loading}>{t('loading')}</div>
 
   // Uvijek koristi trenutni origin — radi i na localhost i na produkciji
   const guestUrl = `${window.location.origin}/${restaurant.slug}?qr=1`
@@ -21,8 +23,8 @@ export default function AdminMenuQR() {
   return (
     <div className={styles.page}>
       <div className={styles.header}>
-        <h1 className={styles.title}>QR kod</h1>
-        <p className={styles.subtitle}>Podijelite link ili odštampajte QR kod za stolove.</p>
+        <h1 className={styles.title}>{t('navQr')}</h1>
+        <p className={styles.subtitle}>{t('amQrPageSubtitle')}</p>
       </div>
 
       <div style={{
@@ -30,7 +32,7 @@ export default function AdminMenuQR() {
         padding: '28px 32px', maxWidth: 640,
       }}>
         <div style={{ fontSize: 14, fontWeight: 600, color: '#0e1a14', marginBottom: 24 }}>
-          Vaš QR kod i link
+          {t('amQrTitle')}
         </div>
 
         <div style={{ display: 'flex', gap: 32, alignItems: 'flex-start', flexWrap: 'wrap' }}>
@@ -66,7 +68,7 @@ export default function AdminMenuQR() {
           {/* Info */}
           <div style={{ flex: 1, minWidth: 220 }}>
             <div style={{ fontSize: 12, fontWeight: 500, color: '#8a9e96', marginBottom: 6 }}>
-              Link za goste
+              {t('amLinkForGuests')}
             </div>
             <div style={{
               display: 'flex', alignItems: 'center', gap: 10,
@@ -85,12 +87,12 @@ export default function AdminMenuQR() {
                   transition: 'all 0.2s',
                 }}
               >
-                {copied ? '✓ Kopirano' : 'Kopiraj'}
+                {copied ? `✓ ${t('amCopied')}` : t('amCopy')}
               </button>
             </div>
 
             <p style={{ fontSize: 13, color: '#5a7a6a', lineHeight: 1.6, marginBottom: 18 }}>
-              Odštampajte QR kod i zalijepite na svaki sto. Gosti skeniraju i meni se odmah otvara na telefonu bez instalacije aplikacije.
+              {t('amQrNoteLong')}
             </p>
 
             <div style={{ display: 'flex', gap: 10, flexWrap: 'wrap' }}>
@@ -105,7 +107,7 @@ export default function AdminMenuQR() {
                   fontSize: 13, fontWeight: 600, textDecoration: 'none',
                 }}
               >
-                Otvori meni →
+                {t('amOpenMenu')}
               </a>
               <button
                 onClick={() => window.print()}
@@ -116,7 +118,7 @@ export default function AdminMenuQR() {
                   fontFamily: 'DM Sans, sans-serif',
                 }}
               >
-                🖨️ Štampaj
+                🖨️ {t('amPrint')}
               </button>
             </div>
           </div>
