@@ -104,8 +104,8 @@ export default function ControlPanel() {
   // 2b/Faza: dodavanje biznisa (vertikale) naknadno. Restoran besplatno (odmah);
   // hotel plaćeno (aktivira vertikalu pa vodi na pretplatu).
   const ALL_VERTICALS = [
-    { key: 'restaurant', emoji: '🍽️', title: 'Restoran', desc: 'Digitalni meni i stolovi · besplatno' },
-    { key: 'hotel',      emoji: '🏨', title: 'Hotel',    desc: 'Sobe, rezervacije, folio · plaćeno' },
+    { key: 'restaurant', emoji: '🍽️', titleKey: 'liveRestaurant', descKey: 'vertRestaurantDesc' },
+    { key: 'hotel',      emoji: '🏨', titleKey: 'modHotel',        descKey: 'vertHotelDesc' },
   ]
   const missingVerticals = ALL_VERTICALS.filter(v => !hasVertical(v.key))
   const addVertical = async (v) => {
@@ -124,12 +124,12 @@ export default function ControlPanel() {
   const adminMods       = MODULES.filter(m => m.adminOnly)
 
   const QUICK = [
-    { label: 'Narudžbe', icon: '🧾', path: '/admin/orders',  badge: badges.waiter,    perm: 'view_orders' },
-    { label: 'Kuhinja',  icon: '🧑‍🍳', path: '/admin/kitchen', badge: badges.kitchen,   perm: 'view_orders' },
-    { label: 'Bar',      icon: '🍷', path: '/admin/bar',     badge: badges.bar,       perm: 'view_orders' },
-    { label: 'Zahtjevi', icon: '🔔', path: '/admin/waiter',  badge: badges.waiterReq, perm: 'view_waiter_req' },
-    ...(hasHotel ? [{ label: 'Front Desk', icon: '🛎️', path: '/admin/hotel/frontdesk', badge: kpi.checkinsToday || 0 }] : []),
-    ...(hasSpa   ? [{ label: 'Spa danas',  icon: '💆', path: '/admin/spa/appointments', badge: kpi.spaToday || 0 }] : []),
+    { labelKey: 'navOrders', icon: '🧾', path: '/admin/orders',  badge: badges.waiter,    perm: 'view_orders' },
+    { labelKey: 'navKitchen',  icon: '🧑‍🍳', path: '/admin/kitchen', badge: badges.kitchen,   perm: 'view_orders' },
+    { labelKey: 'navBar',      icon: '🍷', path: '/admin/bar',     badge: badges.bar,       perm: 'view_orders' },
+    { labelKey: 'navWaiterReq', icon: '🔔', path: '/admin/waiter',  badge: badges.waiterReq, perm: 'view_waiter_req' },
+    ...(hasHotel ? [{ labelKey: 'navFrontDesk', icon: '🛎️', path: '/admin/hotel/frontdesk', badge: kpi.checkinsToday || 0 }] : []),
+    ...(hasSpa   ? [{ labelKey: 'quickSpaToday',  icon: '💆', path: '/admin/spa/appointments', badge: kpi.spaToday || 0 }] : []),
   ]
 
   const renderCard = (mod) => {
@@ -156,10 +156,10 @@ export default function ControlPanel() {
         </div>
         {!isSys && (
           <div className={styles.cardStatus}>
-            {!accessible ? <span className={`${styles.badge} ${styles.badgeLocked}`}>Nema pristup</span>
-              : !active  ? <span className={`${styles.badge} ${styles.badgeAddon}`}>Addon →</span>
-              : mod.active ? <span className={`${styles.badge} ${styles.badgeActive}`}>Aktivan</span>
-              : <span className={`${styles.badge} ${styles.badgeSoon}`}>Uskoro</span>}
+            {!accessible ? <span className={`${styles.badge} ${styles.badgeLocked}`}>{t('badgeNoAccess')}</span>
+              : !active  ? <span className={`${styles.badge} ${styles.badgeAddon}`}>{t('badgeAddon')} →</span>
+              : mod.active ? <span className={`${styles.badge} ${styles.badgeActive}`}>{t('badgeActive')}</span>
+              : <span className={`${styles.badge} ${styles.badgeSoon}`}>{t('badgeSoon')}</span>}
           </div>
         )}
       </button>
@@ -177,8 +177,8 @@ export default function ControlPanel() {
 
       {/* ── Header ── */}
       <div className={styles.header}>
-        <h1 className={styles.title}>{restaurant ? restaurant.name : 'Kontrolna tabla'}</h1>
-        <p className={styles.subtitle}>Pregled i brzi pristup svim modulima</p>
+        <h1 className={styles.title}>{restaurant ? restaurant.name : t('controlPanel')}</h1>
+        <p className={styles.subtitle}>{t('cpSubtitle')}</p>
       </div>
 
       {/* ── KPI row ── */}
@@ -187,14 +187,14 @@ export default function ControlPanel() {
           <div className={styles.kpiIcon}>🧾</div>
           <div>
             <div className={styles.kpiValue}>{kpi.ordersToday ?? '—'}</div>
-            <div className={styles.kpiLabel}>Narudžbe danas</div>
+            <div className={styles.kpiLabel}>{t('kpiOrdersToday')}</div>
           </div>
         </div>
         <div className={styles.kpiCard}>
           <div className={styles.kpiIcon}>💰</div>
           <div>
             <div className={styles.kpiValue}>{fmtRevenue(kpi.revenueToday)}</div>
-            <div className={styles.kpiLabel}>Prihod danas</div>
+            <div className={styles.kpiLabel}>{t('kpiRevenueToday')}</div>
           </div>
         </div>
         {hasHotel && (
@@ -202,7 +202,7 @@ export default function ControlPanel() {
             <div className={styles.kpiIcon}>🏨</div>
             <div>
               <div className={styles.kpiValue}>{kpi.checkinsToday ?? '—'}</div>
-              <div className={styles.kpiLabel}>Check-in danas</div>
+              <div className={styles.kpiLabel}>{t('kpiCheckinsToday')}</div>
             </div>
           </div>
         )}
@@ -211,7 +211,7 @@ export default function ControlPanel() {
             <div className={styles.kpiIcon}>📊</div>
             <div>
               <div className={styles.kpiValue}>{kpi.occupancy !== null ? `${kpi.occupancy}%` : '—'}</div>
-              <div className={styles.kpiLabel}>Popunjenost</div>
+              <div className={styles.kpiLabel}>{t('kpiOccupancy')}</div>
             </div>
           </div>
         )}
@@ -220,7 +220,7 @@ export default function ControlPanel() {
             <div className={styles.kpiIcon}>🛏️</div>
             <div>
               <div className={styles.kpiValue}>{kpi.freeRooms ?? '—'}</div>
-              <div className={styles.kpiLabel}>Slobodne sobe</div>
+              <div className={styles.kpiLabel}>{t('kpiFreeRooms')}</div>
             </div>
           </div>
         )}
@@ -229,7 +229,7 @@ export default function ControlPanel() {
             <div className={styles.kpiIcon}>💆</div>
             <div>
               <div className={styles.kpiValue}>{kpi.spaToday ?? '—'}</div>
-              <div className={styles.kpiLabel}>Spa termini danas</div>
+              <div className={styles.kpiLabel}>{t('kpiSpaToday')}</div>
             </div>
           </div>
         )}
@@ -240,7 +240,7 @@ export default function ControlPanel() {
         {QUICK.filter(a => canSee(a.perm)).map(a => (
           <button key={a.path} className={styles.quickBtn} onClick={() => navigate(a.path)}>
             <span className={styles.quickIcon}>{a.icon}</span>
-            <span className={styles.quickLabel}>{a.label}</span>
+            <span className={styles.quickLabel}>{t(a.labelKey)}</span>
             {a.badge > 0 && <span className={styles.quickBadge}>{a.badge}</span>}
           </button>
         ))}
@@ -252,13 +252,13 @@ export default function ControlPanel() {
           <div className={styles.verticalHead}>
             <span className={styles.verticalEmoji}>🍽️</span>
             <div>
-              <div className={styles.verticalTitle}>Restoran</div>
-              <div className={styles.verticalSub}>Digitalni meni i stolovi</div>
+              <div className={styles.verticalTitle}>{t('liveRestaurant')}</div>
+              <div className={styles.verticalSub}>{t('vertRestaurantSub')}</div>
             </div>
             {(isOwner() || isSuperAdmin()) && (
               <button onClick={() => setShowOnboarding(true)}
                 style={{ marginLeft: 12, alignSelf: 'center', background: 'none', border: 'none', color: 'var(--c-primary)', fontSize: 13, fontWeight: 600, cursor: 'pointer', whiteSpace: 'nowrap' }}>
-                📋 Vodič →
+                📋 {t('guide')} →
               </button>
             )}
           </div>
@@ -273,13 +273,13 @@ export default function ControlPanel() {
           <div className={styles.verticalHead}>
             <span className={styles.verticalEmoji}>🏨</span>
             <div>
-              <div className={styles.verticalTitle}>Hotel</div>
-              <div className={styles.verticalSub}>Sobe, rezervacije i spa</div>
+              <div className={styles.verticalTitle}>{t('modHotel')}</div>
+              <div className={styles.verticalSub}>{t('vertHotelSub')}</div>
             </div>
             {(isOwner() || isSuperAdmin()) && (
               <button onClick={() => { setHotelAuto(false); setShowHotelOnboarding(true) }}
                 style={{ marginLeft: 12, alignSelf: 'center', background: 'none', border: 'none', color: 'var(--c-primary)', fontSize: 13, fontWeight: 600, cursor: 'pointer', whiteSpace: 'nowrap' }}>
-                📋 Vodič →
+                📋 {t('guide')} →
               </button>
             )}
           </div>
@@ -293,8 +293,8 @@ export default function ControlPanel() {
           <div className={styles.verticalHead}>
             <span className={styles.verticalEmoji}>📋</span>
             <div>
-              <div className={styles.verticalTitle}>Upravljanje</div>
-              <div className={styles.verticalSub}>HR, zalihe, gosti i analitika — zajednički za restoran i hotel</div>
+              <div className={styles.verticalTitle}>{t('vertManage')}</div>
+              <div className={styles.verticalSub}>{t('vertManageSub')}</div>
             </div>
           </div>
           <div className={styles.grid}>
@@ -303,8 +303,8 @@ export default function ControlPanel() {
               <button className={`${styles.card} ${styles.cardActive}`} onClick={() => navigate('/admin/notifications')}>
                 <div className={styles.cardIcon}>📣</div>
                 <div className={styles.cardBody}>
-                  <div className={styles.cardName}>Obavještenja <CardBadge n={unreadAnn.length} /></div>
-                  <div className={styles.cardDesc}>Najave platforme i oglasna tabla osoblja</div>
+                  <div className={styles.cardName}>{t('modNotifications')} <CardBadge n={unreadAnn.length} /></div>
+                  <div className={styles.cardDesc}>{t('annDesc')}</div>
                 </div>
               </button>
             )}
@@ -318,8 +318,8 @@ export default function ControlPanel() {
           <div className={styles.verticalHead}>
             <span className={styles.verticalEmoji}>➕</span>
             <div>
-              <div className={styles.verticalTitle}>Dodaj biznis</div>
-              <div className={styles.verticalSub}>Proširi nalog novom vertikalom</div>
+              <div className={styles.verticalTitle}>{t('addBusiness')}</div>
+              <div className={styles.verticalSub}>{t('addBusinessSub')}</div>
             </div>
           </div>
           <div className={styles.grid}>
@@ -327,8 +327,8 @@ export default function ControlPanel() {
               <button key={v.key} className={`${styles.card} ${styles.cardActive}`} onClick={() => addVertical(v.key)}>
                 <div className={styles.cardIcon}>{v.emoji}</div>
                 <div className={styles.cardBody}>
-                  <div className={styles.cardName}>Dodaj {v.title}</div>
-                  <div className={styles.cardDesc}>{v.desc}</div>
+                  <div className={styles.cardName}>{t('add')} {t(v.titleKey)}</div>
+                  <div className={styles.cardDesc}>{t(v.descKey)}</div>
                 </div>
               </button>
             ))}
@@ -339,21 +339,21 @@ export default function ControlPanel() {
       {/* ── Sistem ── */}
       {(isOwner() || isSuperAdmin()) && (
         <div className={styles.section}>
-          <div className={styles.sysTitle}>Sistem</div>
+          <div className={styles.sysTitle}>{t('sysTitle')}</div>
           <div className={`${styles.grid} ${styles.gridSys}`}>
             <button className={`${styles.card} ${styles.cardSys} ${styles.cardActive}`} onClick={() => navigate('/admin/staff/roles')}>
               <div className={styles.cardIcon}>🔑</div>
               <div className={styles.cardBody}>
-                <div className={styles.cardName}>Role i permisije</div>
-                <div className={styles.cardDesc}>Upravljanje rolama i pristupima osoblja</div>
+                <div className={styles.cardName}>{t('navRolesPerms')}</div>
+                <div className={styles.cardDesc}>{t('rolesDesc')}</div>
               </div>
             </button>
             {(isOwner() || isSuperAdmin()) && (
               <button className={`${styles.card} ${styles.cardSys} ${styles.cardActive}`} onClick={() => navigate('/admin/support')}>
                 <div className={styles.cardIcon}>💬</div>
                 <div className={styles.cardBody}>
-                  <div className={styles.cardName}>Podrška <CardBadge n={unreadSupport} /></div>
-                  <div className={styles.cardDesc}>Pitanja i pomoć tima rest.by.me</div>
+                  <div className={styles.cardName}>{t('modSupport')} <CardBadge n={unreadSupport} /></div>
+                  <div className={styles.cardDesc}>{t('supportDesc')}</div>
                 </div>
               </button>
             )}
@@ -362,8 +362,8 @@ export default function ControlPanel() {
               <button className={`${styles.card} ${styles.cardSys} ${styles.cardActive}`} onClick={() => navigate('/superadmin')}>
                 <div className={styles.cardIcon}>🔧</div>
                 <div className={styles.cardBody}>
-                  <div className={styles.cardName}>Super admin panel</div>
-                  <div className={styles.cardDesc}>Upravljanje restoranima, planovima i temama</div>
+                  <div className={styles.cardName}>{t('superadminPanel')}</div>
+                  <div className={styles.cardDesc}>{t('superadminPanelDesc')}</div>
                 </div>
               </button>
             )}
