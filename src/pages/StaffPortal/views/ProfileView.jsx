@@ -1,8 +1,10 @@
 import { useState } from 'react'
+import { useTranslation } from 'react-i18next'
 import { supabase } from '../../../lib/supabase'
 import s from '../StaffPortal.module.css'
 
 export default function ProfileView({ staff, staffId, brand }) {
+  const { t } = useTranslation('staffportal')
   const [form, setForm] = useState({
     phone:                  staff?.phone                  || '',
     address:                staff?.address                || '',
@@ -34,8 +36,8 @@ export default function ProfileView({ staff, staffId, brand }) {
   const changePassword = async (e) => {
     e.preventDefault()
     setPwError('')
-    if (pw.new !== pw.confirm) { setPwError('Lozinke se ne poklapaju.'); return }
-    if (pw.new.length < 6)    { setPwError('Lozinka mora imati najmanje 6 karaktera.'); return }
+    if (pw.new !== pw.confirm) { setPwError(t('errPasswordMismatch')); return }
+    if (pw.new.length < 6)    { setPwError(t('errPasswordShort')); return }
     setPwSaving(true)
     const { error } = await supabase.auth.updateUser({ password: pw.new })
     setPwSaving(false)
@@ -46,13 +48,13 @@ export default function ProfileView({ staff, staffId, brand }) {
 
   const displayName = [staff?.first_name, staff?.last_name].filter(Boolean).join(' ') || staff?.email || ''
   const initial     = displayName[0]?.toUpperCase() || '?'
-  const roleName    = staff?.role?.name || 'Osoblje'
+  const roleName    = staff?.role?.name || t('roleFallback')
 
   return (
     <div>
       {/* Osnovno */}
       <div className={s.card}>
-        <div className={s.cardTitle}>Moj profil</div>
+        <div className={s.cardTitle}>{t('myProfile')}</div>
         <div className={s.profileRow}>
           <div className={s.profileAvatar} style={{ background: brand }}>{initial}</div>
           <div className={s.profileInfo}>
@@ -63,71 +65,71 @@ export default function ProfileView({ staff, staffId, brand }) {
         </div>
         {staff?.start_date && (
           <div className={s.profileMeta}>
-            Zaposlen/a od {new Date(staff.start_date).toLocaleDateString('sr-Latn', { day: 'numeric', month: 'long', year: 'numeric' })}
+            {t('employedSince', { date: new Date(staff.start_date).toLocaleDateString('sr-Latn', { day: 'numeric', month: 'long', year: 'numeric' }) })}
           </div>
         )}
       </div>
 
       {/* Kontakt i hitni kontakt */}
       <div className={s.card}>
-        <div className={s.cardTitle}>Kontakt podaci</div>
+        <div className={s.cardTitle}>{t('contactInfo')}</div>
         <form onSubmit={saveContact}>
           <div className={s.absenceFormField}>
-            <label>Telefon</label>
+            <label>{t('phone')}</label>
             <input type="tel" value={form.phone}
               onChange={e => setForm(f => ({ ...f, phone: e.target.value }))}
               placeholder="+382 67 000 000" />
           </div>
           <div className={s.absenceFormField}>
-            <label>Adresa</label>
+            <label>{t('address')}</label>
             <input value={form.address}
               onChange={e => setForm(f => ({ ...f, address: e.target.value }))}
-              placeholder="Ulica i broj, grad" />
+              placeholder={t('phAddress')} />
           </div>
-          <div className={s.profileSectionLabel}>U slučaju nužde</div>
+          <div className={s.profileSectionLabel}>{t('emergencySection')}</div>
           <div className={s.absenceFormRow}>
             <div className={s.absenceFormField}>
-              <label>Ime kontakta</label>
+              <label>{t('contactName')}</label>
               <input value={form.emergency_contact_name}
                 onChange={e => setForm(f => ({ ...f, emergency_contact_name: e.target.value }))}
-                placeholder="Ime i prezime" />
+                placeholder={t('phFullName')} />
             </div>
             <div className={s.absenceFormField}>
-              <label>Telefon</label>
+              <label>{t('phone')}</label>
               <input type="tel" value={form.emergency_contact_phone}
                 onChange={e => setForm(f => ({ ...f, emergency_contact_phone: e.target.value }))}
                 placeholder="+382 ..." />
             </div>
           </div>
-          {saved && <div className={s.profileSaved}>✓ Sačuvano</div>}
+          {saved && <div className={s.profileSaved}>✓ {t('saved')}</div>}
           <button type="submit" className={s.profileSaveBtn} style={{ background: brand }} disabled={saving}>
-            {saving ? 'Čuvanje...' : 'Sačuvaj promjene'}
+            {saving ? t('saving') : t('saveChanges')}
           </button>
         </form>
       </div>
 
       {/* Promjena lozinke */}
       <div className={s.card}>
-        <div className={s.cardTitle}>Promjena lozinke</div>
+        <div className={s.cardTitle}>{t('changePassword')}</div>
         {pwDone ? (
-          <div className={s.profileSaved}>✓ Lozinka je uspješno promijenjena.</div>
+          <div className={s.profileSaved}>✓ {t('passwordChanged')}</div>
         ) : (
           <form onSubmit={changePassword}>
             <div className={s.absenceFormField}>
-              <label>Nova lozinka</label>
+              <label>{t('newPassword')}</label>
               <input type="password" value={pw.new}
                 onChange={e => setPw(p => ({ ...p, new: e.target.value }))}
-                placeholder="najmanje 6 karaktera" required minLength={6} autoComplete="new-password" />
+                placeholder={t('phMin6')} required minLength={6} autoComplete="new-password" />
             </div>
             <div className={s.absenceFormField}>
-              <label>Potvrdi novu lozinku</label>
+              <label>{t('confirmNewPassword')}</label>
               <input type="password" value={pw.confirm}
                 onChange={e => setPw(p => ({ ...p, confirm: e.target.value }))}
-                placeholder="ponovi lozinku" required autoComplete="new-password" />
+                placeholder={t('phRepeatPassword')} required autoComplete="new-password" />
             </div>
             {pwError && <div className={s.profilePwError}>{pwError}</div>}
             <button type="submit" className={s.profileSaveBtn} style={{ background: brand }} disabled={pwSaving}>
-              {pwSaving ? 'Promjena...' : 'Promijeni lozinku'}
+              {pwSaving ? t('changing') : t('changePasswordBtn')}
             </button>
           </form>
         )}

@@ -1,54 +1,45 @@
 import { useState, useEffect, useCallback, useRef } from 'react'
+import { useTranslation } from 'react-i18next'
 import { supabase } from '../../../lib/supabase'
 import s from '../StaffPortal.module.css'
 
-async function findOpenFolio(restaurantId, roomNum) {
+async function findOpenFolio(restaurantId, roomNum, t) {
   const { data: room } = await supabase.from('rooms').select('id')
     .eq('restaurant_id', restaurantId).ilike('room_number', roomNum.trim()).single()
-  if (!room) return { error: 'Soba nije pronađena.' }
+  if (!room) return { error: t('errRoomNotFound') }
 
   const { data: res } = await supabase.from('hotel_reservations').select('id')
     .eq('room_id', room.id).eq('status', 'checked_in').maybeSingle()
-  if (!res) return { error: 'Gost nije prijavljen u sobu.' }
+  if (!res) return { error: t('errGuestNotCheckedIn') }
 
   const { data: folio } = await supabase.from('folios').select('id, total_amount')
     .eq('reservation_id', res.id).eq('status', 'open').single()
-  if (!folio) return { error: 'Folio nije pronađen ili je zatvoren.' }
+  if (!folio) return { error: t('errFolioNotFound') }
 
   return { folio }
 }
 
 const NEXT_STATUS = {
-  pending:   { next: 'received',  label: 'Prihvati',       cls: 'btnStart' },
-  received:  { next: 'preparing', label: 'Počni pripremu', cls: 'btnStart' },
-  preparing: { next: 'ready',     label: 'Gotovo',          cls: 'btnDone'  },
-  ready:     { next: 'served',    label: 'Serviraj gostu',  cls: 'btnDone'  },
-  served:    { next: 'closed',    label: 'Zatvori',         cls: 'btnDone'  },
+  pending:   { next: 'received',  labelKey: 'nsAccept',       cls: 'btnStart' },
+  received:  { next: 'preparing', labelKey: 'nsStartPrep', cls: 'btnStart' },
+  preparing: { next: 'ready',     labelKey: 'nsReady',          cls: 'btnDone'  },
+  ready:     { next: 'served',    labelKey: 'nsServe',  cls: 'btnDone'  },
+  served:    { next: 'closed',    labelKey: 'nsClose',         cls: 'btnDone'  },
 }
 
 const STATUS_STYLE = {
-  pending:   { bg: '#fef3c7', color: '#92400e', label: 'Na čekanju' },
-  received:  { bg: '#eff6ff', color: '#2563eb', label: 'Primljeno'  },
-  preparing: { bg: '#fef3c7', color: '#b45309', label: 'Priprema'   },
-  ready:     { bg: '#f0fdf4', color: '#15803d', label: 'Gotovo'     },
-  served:    { bg: '#f3f4f6', color: '#6b7280', label: 'Servirano'  },
+  pending:   { bg: '#fef3c7', color: '#92400e', labelKey: 'ssPending' },
+  received:  { bg: '#eff6ff', color: '#2563eb', labelKey: 'ssReceived'  },
+  preparing: { bg: '#fef3c7', color: '#b45309', labelKey: 'ssPreparing'   },
+  ready:     { bg: '#f0fdf4', color: '#15803d', labelKey: 'ssReady'     },
+  served:    { bg: '#f3f4f6', color: '#6b7280', labelKey: 'ssServed'  },
 }
 
-const QUICK_RESPONSES = [
-  'Dolazim odmah!',
-  'Za minut sam kod vas.',
-  'Za 2-3 minute.',
-  'Primljeno, hvala!',
-]
-
-const DEFAULT_REJECT = [
-  'Žao nam je, ovaj artikal trenutno nije dostupan.',
-  'Kuhinja je zauzeta, molimo pokušajte malo kasnije.',
-  'Narudžba je primljena greškom, molimo naručite ponovo.',
-  'Restoran se zatvara, narudžba nije moguća.',
-]
+const QUICK_RESPONSE_KEYS = ['quickResp1', 'quickResp2', 'quickResp3', 'quickResp4']
+const DEFAULT_REJECT_KEYS = ['reject1', 'reject2', 'reject3', 'reject4']
 
 export default function WaiterView({ restaurant, activeTab, onRefresh, hotelEnabled }) {
+  const { t } = useTranslation('staffportal')
   const restaurantId = restaurant?.id
   const [orders, setOrders]         = useState([])
   const [requests, setRequests]     = useState([])
@@ -56,8 +47,10 @@ export default function WaiterView({ restaurant, activeTab, onRefresh, hotelEnab
   const [roomChargeMap, setRoomChargeMap] = useState({})
   const barCatIdsRef = useRef(null)
 
-  // Isti pristup kao /admin/orders (WaiterDashboard) — direktno iz restaurant prop
-  const rejectMessages = restaurant?.rejection_messages || DEFAULT_REJECT
+  // Isti pristup kao /admin/orders (WaiterDashboard) — direktno iz restaurant prop.
+  // Tenant rejection_messages (ako postoje) ostaju kako ih je tenant unio; inače
+  // prevedeni default-i.
+  const rejectMessages = restaurant?.rejection_messages || DEFAULT_REJECT_KEYS.map(k => t(k))
 
   const getBarCatIds = useCallback(async () => {
     if (!barCatIdsRef.current) {
@@ -136,14 +129,14 @@ export default function WaiterView({ restaurant, activeTab, onRefresh, hotelEnab
     if (!state?.roomNum?.trim()) return
     setRoomChargeMap(p => ({ ...p, [order.id]: { ...p[order.id], loading: true, error: '' } }))
 
-    const { folio, error } = await findOpenFolio(restaurant.id, state.roomNum)
+    const { folio, error } = await findOpenFolio(restaurant.id, state.roomNum, t)
     if (error) {
       setRoomChargeMap(p => ({ ...p, [order.id]: { ...p[order.id], loading: false, error } }))
       return
     }
 
     const amount = parseFloat(order.total) || 0
-    const desc = (order.order_items || []).map(i => `${i.quantity}× ${i.name}`).join(', ') || 'Restoran narudžba'
+    const desc = (order.order_items || []).map(i => `${i.quantity}× ${i.name}`).join(', ') || t('restaurantOrder')
 
     const { error: fiErr } = await supabase.from('folio_items').insert({
       folio_id: folio.id, restaurant_id: restaurant.id,
@@ -152,7 +145,7 @@ export default function WaiterView({ restaurant, activeTab, onRefresh, hotelEnab
       date: new Date().toISOString().slice(0, 10), order_id: order.id,
     })
     if (fiErr) {
-      setRoomChargeMap(p => ({ ...p, [order.id]: { ...p[order.id], loading: false, error: 'Greška pri upisu na folio.' } }))
+      setRoomChargeMap(p => ({ ...p, [order.id]: { ...p[order.id], loading: false, error: t('errFolioWrite') } }))
       return
     }
 
@@ -177,7 +170,7 @@ export default function WaiterView({ restaurant, activeTab, onRefresh, hotelEnab
     setRequests(prev => prev.filter(r => r.id !== reqId))
   }
 
-  if (loading) return <div className={s.loadingInline}>Učitavanje...</div>
+  if (loading) return <div className={s.loadingInline}>{t('loading')}</div>
 
   // ── Zahtjevi tab ─────────────────────────────────────────────────
   if (activeTab === 'requests') return (
@@ -185,7 +178,7 @@ export default function WaiterView({ restaurant, activeTab, onRefresh, hotelEnab
       {requests.length === 0 ? (
         <div className={s.empty}>
           <div className={s.emptyIcon}>🔔</div>
-          <div className={s.emptyText}>Nema neriješenih zahtjeva.</div>
+          <div className={s.emptyText}>{t('noRequests')}</div>
         </div>
       ) : requests.map(req => {
         const isOnline = req.table_number === 'Online' || !req.table_number
@@ -195,7 +188,7 @@ export default function WaiterView({ restaurant, activeTab, onRefresh, hotelEnab
               <div className={s.reqCardMeta}>
                 <div className={s.reqSource}>
                   <span className={s.sourceIcon}>{isOnline ? '🌐' : '🪑'}</span>
-                  {isOnline ? 'Online' : `Sto ${req.table_number}`}
+                  {isOnline ? t('online') : `${t('table')} ${req.table_number}`}
                 </div>
                 <div className={s.reqRef}>#{req.id.slice(-6).toUpperCase()}</div>
               </div>
@@ -207,16 +200,19 @@ export default function WaiterView({ restaurant, activeTab, onRefresh, hotelEnab
             <div className={s.reqTypeText}>{req.request_type}</div>
 
             <div className={s.quickRespRow}>
-              {QUICK_RESPONSES.map(resp => (
-                <button key={resp} className={s.quickRespBtn}
-                  onClick={() => resolveRequest(req.id, resp)}>
-                  {resp}
-                </button>
-              ))}
+              {QUICK_RESPONSE_KEYS.map(k => {
+                const resp = t(k)
+                return (
+                  <button key={k} className={s.quickRespBtn}
+                    onClick={() => resolveRequest(req.id, resp)}>
+                    {resp}
+                  </button>
+                )
+              })}
             </div>
 
             <button className={s.reqResolveBtn} onClick={() => resolveRequest(req.id, null)}>
-              ✓ Riješeno
+              ✓ {t('resolved')}
             </button>
           </div>
         )
@@ -230,7 +226,7 @@ export default function WaiterView({ restaurant, activeTab, onRefresh, hotelEnab
       {orders.length === 0 ? (
         <div className={s.empty}>
           <div className={s.emptyIcon}>🍽️</div>
-          <div className={s.emptyText}>Nema aktivnih narudžbi.</div>
+          <div className={s.emptyText}>{t('noOrders')}</div>
         </div>
       ) : orders.map(order => {
         const st     = STATUS_STYLE[order.status] || STATUS_STYLE.received
@@ -244,12 +240,12 @@ export default function WaiterView({ restaurant, activeTab, onRefresh, hotelEnab
               <div className={s.orderMeta}>
                 <div className={s.orderTable}>
                   <span className={s.sourceIcon}>{isOnline ? '🌐' : '🪑'}</span>
-                  {isOnline ? 'Online' : `Sto ${order.table_number}`}
+                  {isOnline ? t('online') : `${t('table')} ${order.table_number}`}
                 </div>
                 <div className={s.orderRef}>#{order.id.slice(-6).toUpperCase()}</div>
               </div>
               <span className={s.statusBadge} style={{ background: st.bg, color: st.color }}>
-                {st.label}
+                {t(st.labelKey)}
               </span>
             </div>
 
@@ -265,7 +261,7 @@ export default function WaiterView({ restaurant, activeTab, onRefresh, hotelEnab
               ))}
               {order.total && (
                 <div className={s.orderTotalRow}>
-                  <span>Ukupno</span>
+                  <span>{t('total')}</span>
                   <span>€{parseFloat(order.total).toFixed(2)}</span>
                 </div>
               )}
@@ -281,24 +277,24 @@ export default function WaiterView({ restaurant, activeTab, onRefresh, hotelEnab
             <div className={s.orderActionsCol}>
               {order.status === 'preparing' && (order.kitchen_status || order.bar_status) ? (
                 <div className={s.preparingInfo}>
-                  {order.kitchen_status === 'preparing' && <span>🧑‍🍳 Kuhinja priprema</span>}
-                  {order.bar_status     === 'preparing' && <span>🍷 Bar priprema</span>}
-                  {order.kitchen_status === 'ready'     && <span className={s.stationDone}>🧑‍🍳 Kuhinja gotova</span>}
-                  {order.bar_status     === 'ready'     && <span className={s.stationDone}>🍷 Bar gotov</span>}
+                  {order.kitchen_status === 'preparing' && <span>🧑‍🍳 {t('kitchenPreparing')}</span>}
+                  {order.bar_status     === 'preparing' && <span>🍷 {t('barPreparing')}</span>}
+                  {order.kitchen_status === 'ready'     && <span className={s.stationDone}>🧑‍🍳 {t('kitchenReady')}</span>}
+                  {order.bar_status     === 'ready'     && <span className={s.stationDone}>🍷 {t('barReady')}</span>}
                 </div>
               ) : action && (
                 <button className={s[action.cls]} onClick={() => updateOrderStatus(order.id, action.next)}>
-                  {action.label}
+                  {t(action.labelKey)}
                 </button>
               )}
               {order.status === 'served' && hotelEnabled && !roomChargeMap[order.id] && (
                 <button className={s.roomChargeBtn} onClick={() => openRoomCharge(order.id)}>
-                  🏨 Naplati na sobu
+                  🏨 {t('chargeToRoom')}
                 </button>
               )}
               {['pending', 'received'].includes(order.status) && (
                 <div className={s.rejectWrap}>
-                  <div className={s.rejectLabel}>Odbij uz poruku:</div>
+                  <div className={s.rejectLabel}>{t('rejectWithMsg')}</div>
                   <div className={s.rejectMessages}>
                     {rejectMessages.map(msg => (
                       <button key={msg} className={s.rejectMsgBtn}
@@ -313,11 +309,11 @@ export default function WaiterView({ restaurant, activeTab, onRefresh, hotelEnab
 
             {order.status === 'served' && roomChargeMap[order.id] && (
               <div className={s.roomChargePanel}>
-                <div className={s.roomChargePanelTitle}>🏨 Broj sobe:</div>
+                <div className={s.roomChargePanelTitle}>🏨 {t('roomNumber')}</div>
                 <div className={s.roomChargeRow}>
                   <input
                     className={s.roomChargeInput}
-                    placeholder="npr. 101"
+                    placeholder={t('phRoomExample')}
                     value={roomChargeMap[order.id].roomNum}
                     onChange={e => setRoomChargeMap(p => ({ ...p, [order.id]: { ...p[order.id], roomNum: e.target.value } }))}
                     onKeyDown={e => e.key === 'Enter' && chargeToRoom(order)}
@@ -328,10 +324,10 @@ export default function WaiterView({ restaurant, activeTab, onRefresh, hotelEnab
                     onClick={() => chargeToRoom(order)}
                     disabled={roomChargeMap[order.id].loading}
                   >
-                    {roomChargeMap[order.id].loading ? '...' : 'Potvrdi'}
+                    {roomChargeMap[order.id].loading ? '...' : t('confirm')}
                   </button>
                   <button className={s.roomChargeCancel} onClick={() => cancelRoomCharge(order.id)}>
-                    Odustani
+                    {t('cancel')}
                   </button>
                 </div>
                 {roomChargeMap[order.id].error && (

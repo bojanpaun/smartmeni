@@ -1,10 +1,13 @@
 import { useState, useEffect, useRef } from 'react'
+import { useTranslation } from 'react-i18next'
 import { supabase } from '../../../lib/supabase'
 import s from '../StaffPortal.module.css'
 
 const TODAY = new Date().toISOString().slice(0, 10)
 
 export default function HomeView({ staffId, restaurantId, staffInfo, brand }) {
+  const { t, i18n } = useTranslation('staffportal')
+  const dl = i18n.language === 'en' ? 'en-US' : dl
   const [schedule, setSchedule]           = useState(null)
   const [clockEntry, setClockEntry]       = useState(null)
   const [pendingCount, setPendingCount]   = useState(0)
@@ -112,10 +115,10 @@ export default function HomeView({ staffId, restaurantId, staffInfo, brand }) {
     setClocking(false)
   }
 
-  if (loading) return <div className={s.loadingInline}>Učitavanje...</div>
+  if (loading) return <div className={s.loadingInline}>{t('loading')}</div>
 
   const name = staffInfo?.first_name || staffInfo?.email?.split('@')[0] || ''
-  const today = new Date().toLocaleDateString('sr-Latn', { weekday: 'long', day: 'numeric', month: 'long' })
+  const today = new Date().toLocaleDateString(dl, { weekday: 'long', day: 'numeric', month: 'long' })
   const isWorking = !!clockEntry
   const vacRemaining = Math.max(0, vacTotal - vacUsed)
   const vacPct = vacTotal > 0 ? Math.min(100, (vacUsed / vacTotal) * 100) : 0
@@ -125,20 +128,20 @@ export default function HomeView({ staffId, restaurantId, staffInfo, brand }) {
       {/* Obavijesti (zatvorene se skrivaju; sve su dostupne u tabu Profil) */}
       {announcements.filter(a => !dismissed.has(a.id)).map(ann => (
         <div key={ann.id} className={s.announcementCard} style={{ position: 'relative' }}>
-          <button onClick={() => dismissAnn(ann.id)} title="Zatvori"
+          <button onClick={() => dismissAnn(ann.id)} title={t('close')}
             style={{ position: 'absolute', top: 8, right: 8, background: 'none', border: 'none', fontSize: 16, lineHeight: 1, color: 'var(--c-text-muted)', cursor: 'pointer' }}>✕</button>
           <div className={s.announcementTitle} style={{ paddingRight: 20 }}>📢 {ann.title}</div>
           {ann.body && <div className={s.announcementBody}>{ann.body}</div>}
           <div className={s.announcementDate}>
-            {new Date(ann.created_at).toLocaleDateString('sr-Latn', { day: 'numeric', month: 'long' })}
-            {ann.edited_at && ' · izmijenjeno'}
+            {new Date(ann.created_at).toLocaleDateString(dl, { day: 'numeric', month: 'long' })}
+            {ann.edited_at && ` · ${t('edited')}`}
           </div>
         </div>
       ))}
 
       {/* Pozdrav */}
       <div className={s.homeGreeting}>
-        <div className={s.homeGreetText}>Dobro jutro{name ? `, ${name}` : ''}!</div>
+        <div className={s.homeGreetText}>{t('greeting')}{name ? `, ${name}` : ''}!</div>
         <div className={s.homeDate}>{today}</div>
       </div>
 
@@ -148,25 +151,25 @@ export default function HomeView({ staffId, restaurantId, staffInfo, brand }) {
           <>
             <div className={s.clockStatus}>
               <div className={s.clockDot} style={{ background: '#16a34a' }} />
-              <span className={s.clockStatusText}>Na poslu</span>
+              <span className={s.clockStatusText}>{t('working')}</span>
             </div>
             <div className={s.clockTimer}>{elapsed}</div>
             <div className={s.clockSince}>
-              od {new Date(clockEntry.clock_in).toLocaleTimeString('sr-Latn', { hour: '2-digit', minute: '2-digit' })}
+              {t('since')} {new Date(clockEntry.clock_in).toLocaleTimeString(dl, { hour: '2-digit', minute: '2-digit' })}
             </div>
             <button
               className={s.clockBtnOut}
               onClick={handleClockOut}
               disabled={clocking}
             >
-              {clocking ? 'Čuvanje...' : '⬆ Prijavi odlazak'}
+              {clocking ? t('saving') : `⬆ ${t('clockOut')}`}
             </button>
           </>
         ) : (
           <>
             <div className={s.clockStatus}>
               <div className={s.clockDot} style={{ background: '#d1d5db' }} />
-              <span className={s.clockStatusText}>Niste prijavljeni</span>
+              <span className={s.clockStatusText}>{t('notClockedIn')}</span>
             </div>
             <button
               className={s.clockBtnIn}
@@ -174,7 +177,7 @@ export default function HomeView({ staffId, restaurantId, staffInfo, brand }) {
               onClick={handleClockIn}
               disabled={clocking}
             >
-              {clocking ? 'Čuvanje...' : '⬇ Prijavi dolazak'}
+              {clocking ? t('saving') : `⬇ ${t('clockIn')}`}
             </button>
           </>
         )}
@@ -182,35 +185,35 @@ export default function HomeView({ staffId, restaurantId, staffInfo, brand }) {
 
       {/* Smjena danas */}
       <div className={s.card}>
-        <div className={s.cardTitle}>Smjena danas</div>
+        <div className={s.cardTitle}>{t('shiftToday')}</div>
         {schedule ? (
           <div className={s.shiftRow} style={{ borderBottom: 'none', padding: '4px 0 0' }}>
             <div className={s.shiftDay}>
-              {new Date(schedule.date + 'T00:00').toLocaleDateString('sr-Latn', { weekday: 'long' })}
+              {new Date(schedule.date + 'T00:00').toLocaleDateString(dl, { weekday: 'long' })}
               {schedule.note && <div style={{ fontSize: 11, color: '#9ca3af', marginTop: 2 }}>{schedule.note}</div>}
             </div>
             <div className={s.shiftTime}>{schedule.start_time?.slice(0,5)} – {schedule.end_time?.slice(0,5)}</div>
           </div>
         ) : (
-          <div style={{ color: '#9ca3af', fontSize: 13, padding: '8px 0' }}>Nema zakazane smjene za danas</div>
+          <div style={{ color: '#9ca3af', fontSize: 13, padding: '8px 0' }}>{t('noShiftToday')}</div>
         )}
       </div>
 
       {/* Godišnji odmor */}
       <div className={s.card}>
-        <div className={s.cardTitle}>Godišnji odmor</div>
+        <div className={s.cardTitle}>{t('vacation')}</div>
         <div className={s.vacRow} style={{ marginBottom: 10 }}>
           <div className={s.vacCard}>
             <div className={s.vacNum}>{vacTotal}</div>
-            <div className={s.vacLabel}>Ukupno</div>
+            <div className={s.vacLabel}>{t('vacTotal')}</div>
           </div>
           <div className={s.vacCard} style={{ background: '#fef3c7' }}>
             <div className={s.vacNum} style={{ color: '#92400e' }}>{vacUsed}</div>
-            <div className={s.vacLabel}>Iskorišteno</div>
+            <div className={s.vacLabel}>{t('vacUsed')}</div>
           </div>
           <div className={s.vacCard}>
             <div className={s.vacNum} style={{ color: '#0d7a52' }}>{vacRemaining}</div>
-            <div className={s.vacLabel}>Preostalo</div>
+            <div className={s.vacLabel}>{t('vacRemaining')}</div>
           </div>
         </div>
         <div style={{ height: 6, background: '#f3f4f6', borderRadius: 3, overflow: 'hidden' }}>
@@ -227,7 +230,7 @@ export default function HomeView({ staffId, restaurantId, staffInfo, brand }) {
         <div className={s.homePendingBanner}>
           <span>⏳</span>
           <span>
-            {pendingCount} zahtjev{pendingCount === 1 ? '' : 'a'} za odsustvo čeka odobrenje
+            {pendingCount === 1 ? t('pendingAbsenceOne', { count: pendingCount }) : t('pendingAbsenceOther', { count: pendingCount })}
           </span>
         </div>
       )}

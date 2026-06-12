@@ -1,33 +1,35 @@
 import { useState, useEffect, useCallback, useRef } from 'react'
+import { useTranslation } from 'react-i18next'
 import { supabase } from '../../../lib/supabase'
 import s from '../StaffPortal.module.css'
 
 const TODAY = new Date().toISOString().slice(0, 10)
 const TASK_TYPES = {
-  checkout_clean: { label: 'Checkout čišćenje', icon: '🚪' },
-  stayover_clean: { label: 'Svakodnevno',        icon: '🧹' },
-  turndown:       { label: 'Turndown servis',     icon: '🌙' },
-  inspection:     { label: 'Inspekcija',          icon: '🔍' },
-  deep_clean:     { label: 'Dubinsko čišćenje',   icon: '✨' },
+  checkout_clean: { labelKey: 'taskCheckoutClean', icon: '🚪' },
+  stayover_clean: { labelKey: 'taskStayover',        icon: '🧹' },
+  turndown:       { labelKey: 'taskTurndown',     icon: '🌙' },
+  inspection:     { labelKey: 'taskInspection',          icon: '🔍' },
+  deep_clean:     { labelKey: 'taskDeepClean',   icon: '✨' },
 }
 const PRIORITY_COLOR = { urgent: '#c0392b', high: '#e67e22', normal: '#0d7a52', low: '#9ca3af' }
 const MAINT_CATS = [
-  { value: 'plumbing',   label: 'Vodoinstalacije', icon: '🔧' },
-  { value: 'electrical', label: 'Elektrika',        icon: '⚡' },
-  { value: 'ac',         label: 'Klima',            icon: '❄️' },
-  { value: 'furniture',  label: 'Namještaj',        icon: '🪑' },
-  { value: 'internet',   label: 'Internet / TV',    icon: '📡' },
-  { value: 'other',      label: 'Ostalo',           icon: '🔩' },
+  { value: 'plumbing',   labelKey: 'maintCatPlumbing', icon: '🔧' },
+  { value: 'electrical', labelKey: 'maintCatElectrical', icon: '⚡' },
+  { value: 'ac',         labelKey: 'maintCatAc',            icon: '❄️' },
+  { value: 'furniture',  labelKey: 'maintCatFurniture',     icon: '🪑' },
+  { value: 'internet',   labelKey: 'maintCatInternet',    icon: '📡' },
+  { value: 'other',      labelKey: 'maintCatOther',           icon: '🔩' },
 ]
 
 const FILTERS = [
-  { key: 'pending',     label: 'Čeka',         color: '#e67e22' },
-  { key: 'in_progress', label: 'U toku',        color: '#2563eb' },
-  { key: 'done',        label: 'Završeno',      color: '#0d7a52' },
-  { key: 'verified',    label: 'Verifikovano',  color: '#7c3aed' },
+  { key: 'pending',     labelKey: 'filterPending',         color: '#e67e22' },
+  { key: 'in_progress', labelKey: 'filterInProgress',        color: '#2563eb' },
+  { key: 'done',        labelKey: 'filterDone',      color: '#0d7a52' },
+  { key: 'verified',    labelKey: 'filterVerified',  color: '#7c3aed' },
 ]
 
 export default function HousekeepingView({ staffId, restaurantId, onRefresh }) {
+  const { t } = useTranslation('staffportal')
   const [tasks, setTasks]         = useState([])
   const [rooms, setRooms]         = useState([])
   const [loading, setLoading]     = useState(true)
@@ -107,7 +109,7 @@ export default function HousekeepingView({ staffId, restaurantId, onRefresh }) {
     setTimeout(() => { setMaintDone(false); setShowMaint(false) }, 2500)
   }
 
-  if (loading) return <div className={s.loadingInline}>Učitavanje zadataka...</div>
+  if (loading) return <div className={s.loadingInline}>{t('loadingTasks')}</div>
 
   const counts = {
     pending:     tasks.filter(t => t.status === 'pending').length,
@@ -141,7 +143,7 @@ export default function HousekeepingView({ staffId, restaurantId, onRefresh }) {
               }}
             >
               <div className={s.statNum} style={{ color: f.color }}>{counts[f.key]}</div>
-              <div className={s.statLabel}>{f.label}</div>
+              <div className={s.statLabel}>{t(f.labelKey)}</div>
             </button>
           )
         })}
@@ -152,8 +154,8 @@ export default function HousekeepingView({ staffId, restaurantId, onRefresh }) {
           <div className={s.emptyIcon}>✅</div>
           <div className={s.emptyText}>
             {filterStatus
-              ? `Nema zadataka u statusu "${FILTERS.find(f => f.key === filterStatus)?.label}".`
-              : 'Nema zadataka za danas.'
+              ? t('noTasksInStatus', { status: t(FILTERS.find(f => f.key === filterStatus)?.labelKey) })
+              : t('noTasksToday')
             }
           </div>
         </div>
@@ -169,18 +171,18 @@ export default function HousekeepingView({ staffId, restaurantId, onRefresh }) {
                 <div className={s.taskRoom}>
                   <span style={{ fontSize: 22 }}>{typeInfo.icon}</span>
                   <div>
-                    <div className={s.taskRoomNum}>Soba {task.rooms?.room_number ?? '—'}</div>
+                    <div className={s.taskRoomNum}>{t('room')} {task.rooms?.room_number ?? '—'}</div>
                     {task.rooms?.room_types?.name && <div className={s.taskRoomType}>{task.rooms.room_types.name}</div>}
                   </div>
-                  {task.priority === 'urgent' && <span className={s.urgentBadge}>HITNO</span>}
+                  {task.priority === 'urgent' && <span className={s.urgentBadge}>{t('urgent')}</span>}
                 </div>
-                <div className={s.taskTypeLabel}>{typeInfo.label}</div>
+                <div className={s.taskTypeLabel}>{t(typeInfo.labelKey)}</div>
                 {task.notes && <div className={s.taskNotes}>{task.notes}</div>}
                 <div className={s.taskActionRow}>
-                  {task.status === 'pending'     && <button className={s.btnStart}  onClick={() => updateStatus(task.id, 'in_progress')}>▶ Počni</button>}
-                  {task.status === 'in_progress' && <button className={s.btnDone}   onClick={() => updateStatus(task.id, 'done')}>✓ Završi</button>}
-                  {task.status === 'done'        && <button className={s.btnVerify} onClick={() => updateStatus(task.id, 'verified')}>⭐ Verifikuj</button>}
-                  {isVerified                    && <span   className={s.verifiedLabel}>⭐ Verifikovano</span>}
+                  {task.status === 'pending'     && <button className={s.btnStart}  onClick={() => updateStatus(task.id, 'in_progress')}>▶ {t('start')}</button>}
+                  {task.status === 'in_progress' && <button className={s.btnDone}   onClick={() => updateStatus(task.id, 'done')}>✓ {t('finish')}</button>}
+                  {task.status === 'done'        && <button className={s.btnVerify} onClick={() => updateStatus(task.id, 'verified')}>⭐ {t('verify')}</button>}
+                  {isVerified                    && <span   className={s.verifiedLabel}>⭐ {t('verifiedLabel')}</span>}
                 </div>
               </div>
             </div>
@@ -190,22 +192,22 @@ export default function HousekeepingView({ staffId, restaurantId, onRefresh }) {
 
       <div style={{ marginTop: 12 }}>
         {!showMaint ? (
-          <button className={s.maintToggle} onClick={() => setShowMaint(true)}>🔧 Prijavi kvar ili problem</button>
+          <button className={s.maintToggle} onClick={() => setShowMaint(true)}>🔧 {t('reportIssue')}</button>
         ) : (
           <form onSubmit={handleMaintSubmit} className={s.maintForm}>
-            <div className={s.maintFormTitle}>Prijava problema</div>
+            <div className={s.maintFormTitle}>{t('reportTitle')}</div>
             <select className={s.maintSelect} value={maintForm.room_id} onChange={e => setMaintForm(f => ({ ...f, room_id: e.target.value }))}>
-              <option value="">— Soba (opcionalno) —</option>
-              {rooms.map(r => <option key={r.id} value={r.id}>Soba {r.room_number}</option>)}
+              <option value="">{t('roomOptional')}</option>
+              {rooms.map(r => <option key={r.id} value={r.id}>{t('room')} {r.room_number}</option>)}
             </select>
             <select className={s.maintSelect} value={maintForm.category} onChange={e => setMaintForm(f => ({ ...f, category: e.target.value }))}>
-              {MAINT_CATS.map(c => <option key={c.value} value={c.value}>{c.icon} {c.label}</option>)}
+              {MAINT_CATS.map(c => <option key={c.value} value={c.value}>{c.icon} {t(c.labelKey)}</option>)}
             </select>
-            <textarea className={s.maintTextarea} placeholder="Opišite problem..." value={maintForm.description}
+            <textarea className={s.maintTextarea} placeholder={t('describeProblem')} value={maintForm.description}
               onChange={e => setMaintForm(f => ({ ...f, description: e.target.value }))} rows={3} required />
             {maintDone
-              ? <div className={s.maintSuccess}>✅ Problem prijavljen!</div>
-              : <button type="submit" className={s.btnPrimary} disabled={maintSaving}>{maintSaving ? 'Slanje...' : 'Pošalji prijavu'}</button>
+              ? <div className={s.maintSuccess}>✅ {t('issueReported')}</div>
+              : <button type="submit" className={s.btnPrimary} disabled={maintSaving}>{maintSaving ? t('sending') : t('sendReport')}</button>
             }
           </form>
         )}

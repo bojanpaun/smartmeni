@@ -1,4 +1,5 @@
 import { useState, useEffect, useCallback, useRef } from 'react'
+import { useTranslation } from 'react-i18next'
 import { supabase } from '../../../lib/supabase'
 import s from '../StaffPortal.module.css'
 
@@ -7,6 +8,7 @@ function ageMin(createdAt) {
 }
 
 export default function KitchenView({ restaurantId, onRefresh }) {
+  const { t } = useTranslation('staffportal')
   const [orders, setOrders]   = useState([])
   const [barCatIds, setBarCatIds] = useState(new Set())
   const [loading, setLoading] = useState(true)
@@ -60,14 +62,14 @@ export default function KitchenView({ restaurantId, onRefresh }) {
     setOrders(prev => prev.filter(o => o.id !== orderId))
   }
 
-  if (loading) return <div className={s.loadingInline}>Učitavanje...</div>
+  if (loading) return <div className={s.loadingInline}>{t('loading')}</div>
 
   return (
     <div>
       {orders.length === 0 ? (
         <div className={s.empty}>
           <div className={s.emptyIcon}>🍳</div>
-          <div className={s.emptyText}>Sve narudžbe su odrađene!</div>
+          <div className={s.emptyText}>{t('allOrdersDone')}</div>
         </div>
       ) : (
         <div className={s.kitchenGrid}>
@@ -78,7 +80,7 @@ export default function KitchenView({ restaurantId, onRefresh }) {
               <div key={order.id} className={`${s.ticket} ${s.ticketPreparing} ${age > 15 ? s.ticketUrgent : ''}`}>
                 <div className={s.ticketHeader}>
                   <div className={s.ticketTable}>
-                    {order.table_number === 'Online' || !order.table_number ? '🌐 Online' : `🪑 Sto ${order.table_number}`}
+                    {order.table_number === 'Online' || !order.table_number ? `🌐 ${t('online')}` : `🪑 ${t('table')} ${order.table_number}`}
                   </div>
                   <div className={s.ticketAge} style={{ color: age > 15 ? '#c0392b' : '#9ca3af' }}>{age}min</div>
                 </div>
@@ -92,7 +94,7 @@ export default function KitchenView({ restaurantId, onRefresh }) {
                   </div>
                 ))}
                 <div className={s.ticketActions}>
-                  <button className={s.btnDone} onClick={() => markReady(order.id)}>✓ Gotovo</button>
+                  <button className={s.btnDone} onClick={() => markReady(order.id)}>✓ {t('done')}</button>
                 </div>
               </div>
             )

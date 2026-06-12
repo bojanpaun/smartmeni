@@ -1,17 +1,19 @@
 import { useState, useEffect, useCallback, useRef } from 'react'
+import { useTranslation } from 'react-i18next'
 import { supabase } from '../../../lib/supabase'
 import s from '../StaffPortal.module.css'
 
 const TODAY = new Date().toISOString().slice(0, 10)
 const STATUS_MAP = {
-  confirmed:   { label: 'Potvrđen',  color: '#2563eb' },
-  checked_in:  { label: 'Aktivan',   color: '#0d7a52' },
-  completed:   { label: 'Završen',   color: '#9ca3af' },
-  cancelled:   { label: 'Otkazan',   color: '#c0392b' },
-  no_show:     { label: 'No-show',   color: '#ef9f27' },
+  confirmed:   { labelKey: 'statusConfirmed',  color: '#2563eb' },
+  checked_in:  { labelKey: 'statusActive',     color: '#0d7a52' },
+  completed:   { labelKey: 'statusCompleted',  color: '#9ca3af' },
+  cancelled:   { labelKey: 'statusCancelled',  color: '#c0392b' },
+  no_show:     { labelKey: 'statusNoShow',      color: '#ef9f27' },
 }
 
 export default function SpaView({ staffId, restaurantId, onRefresh }) {
+  const { t } = useTranslation('staffportal')
   const [appointments, setAppointments] = useState([])
   const [therapistId, setTherapistId]   = useState(null)
   const [loading, setLoading] = useState(true)
@@ -68,12 +70,12 @@ export default function SpaView({ staffId, restaurantId, onRefresh }) {
     onRefresh?.()
   }
 
-  if (loading) return <div className={s.loadingInline}>Učitavanje termina...</div>
+  if (loading) return <div className={s.loadingInline}>{t('loadingAppointments')}</div>
 
   if (!therapistId) return (
     <div className={s.empty}>
       <div className={s.emptyIcon}>💆</div>
-      <div className={s.emptyText}>Niste registrovani kao terapeut.</div>
+      <div className={s.emptyText}>{t('notTherapist')}</div>
     </div>
   )
 
@@ -82,11 +84,11 @@ export default function SpaView({ staffId, restaurantId, onRefresh }) {
       {appointments.length === 0 ? (
         <div className={s.empty}>
           <div className={s.emptyIcon}>💆</div>
-          <div className={s.emptyText}>Nemate termina za danas.</div>
+          <div className={s.emptyText}>{t('noAppointmentsToday')}</div>
         </div>
       ) : appointments.map(appt => {
         const st = STATUS_MAP[appt.status] || STATUS_MAP.confirmed
-        const guestName = appt.external_guest_name || (appt.guest_id ? 'Hotelski gost' : '—')
+        const guestName = appt.external_guest_name || (appt.guest_id ? t('hotelGuest') : '—')
         const isDone = appt.status === 'completed'
         return (
           <div key={appt.id} className={`${s.apptCard} ${isDone ? s.completed : ''}`}>
@@ -98,24 +100,24 @@ export default function SpaView({ staffId, restaurantId, onRefresh }) {
             <div className={s.apptMeta}>
               <span className={s.apptDuration}>⏱ {appt.duration_minutes} min</span>
               {appt.spa_rooms?.name && <span className={s.apptRoom}>🚪 {appt.spa_rooms.name}</span>}
-              <span className={s.badge} style={{ background: '#f3f4f6', color: st.color }}>{st.label}</span>
+              <span className={s.badge} style={{ background: '#f3f4f6', color: st.color }}>{t(st.labelKey)}</span>
             </div>
             {appt.guest_notes && (
               <div className={s.taskNotes} style={{ marginTop: 8 }}>💬 {appt.guest_notes}</div>
             )}
             <div className={s.taskActionRow} style={{ marginTop: 10 }}>
               {appt.status === 'confirmed' && (
-                <button className={s.btnStart} onClick={() => updateStatus(appt.id, 'checked_in')}>▶ Počni</button>
+                <button className={s.btnStart} onClick={() => updateStatus(appt.id, 'checked_in')}>▶ {t('start')}</button>
               )}
               {appt.status === 'checked_in' && (
-                <button className={s.btnDone} onClick={() => updateStatus(appt.id, 'completed')}>✓ Završi</button>
+                <button className={s.btnDone} onClick={() => updateStatus(appt.id, 'completed')}>✓ {t('finish')}</button>
               )}
               {!isDone && (
                 <button
                   style={{ background: 'none', border: '1px solid #e5e7eb', borderRadius: 8, padding: '7px 12px', fontSize: 12, color: '#9ca3af', cursor: 'pointer' }}
                   onClick={() => updateStatus(appt.id, 'no_show')}
                 >
-                  No-show
+                  {t('noShow')}
                 </button>
               )}
             </div>

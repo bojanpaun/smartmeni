@@ -1,14 +1,15 @@
 import { useState, useEffect, useCallback, useRef } from 'react'
+import { useTranslation } from 'react-i18next'
 import { supabase } from '../../../lib/supabase'
 import s from '../StaffPortal.module.css'
 
 const MAINT_CATS = [
-  { value: 'plumbing',   label: 'Vodoinstalacije', icon: '🔧' },
-  { value: 'electrical', label: 'Elektrika',        icon: '⚡' },
-  { value: 'ac',         label: 'Klima',            icon: '❄️' },
-  { value: 'furniture',  label: 'Namještaj',        icon: '🪑' },
-  { value: 'internet',   label: 'Internet / TV',    icon: '📡' },
-  { value: 'other',      label: 'Ostalo',           icon: '🔩' },
+  { value: 'plumbing',   labelKey: 'maintCatPlumbing', icon: '🔧' },
+  { value: 'electrical', labelKey: 'maintCatElectrical', icon: '⚡' },
+  { value: 'ac',         labelKey: 'maintCatAc',            icon: '❄️' },
+  { value: 'furniture',  labelKey: 'maintCatFurniture',     icon: '🪑' },
+  { value: 'internet',   labelKey: 'maintCatInternet',    icon: '📡' },
+  { value: 'other',      labelKey: 'maintCatOther',           icon: '🔩' },
 ]
 
 const PRIORITY_COLOR = {
@@ -19,13 +20,14 @@ const PRIORITY_COLOR = {
 }
 
 const FILTERS = [
-  { key: 'open',        label: 'Otvoreno',     color: '#c0392b' },
-  { key: 'in_progress', label: 'U toku',        color: '#e67e22' },
-  { key: 'done',        label: 'Završeno',      color: '#0d7a52' },
-  { key: 'verified',    label: 'Verifikovano',  color: '#7c3aed' },
+  { key: 'open',        labelKey: 'filterOpen',     color: '#c0392b' },
+  { key: 'in_progress', labelKey: 'filterInProgress',        color: '#e67e22' },
+  { key: 'done',        labelKey: 'filterDone',      color: '#0d7a52' },
+  { key: 'verified',    labelKey: 'filterVerified',  color: '#7c3aed' },
 ]
 
 export default function MaintenanceView({ staffId, restaurantId, onRefresh }) {
+  const { t } = useTranslation('staffportal')
   const [items, setItems]         = useState([])
   const [rooms, setRooms]         = useState([])
   const [loading, setLoading]     = useState(true)
@@ -111,7 +113,7 @@ export default function MaintenanceView({ staffId, restaurantId, onRefresh }) {
     onRefresh?.()
   }
 
-  if (loading) return <div className={s.loadingInline}>Učitavanje zahtjeva...</div>
+  if (loading) return <div className={s.loadingInline}>{t('loadingRequests')}</div>
 
   const counts = {
     open:        items.filter(m => m.status === 'open').length,
@@ -145,7 +147,7 @@ export default function MaintenanceView({ staffId, restaurantId, onRefresh }) {
               }}
             >
               <div className={s.statNum} style={{ color: f.color }}>{counts[f.key]}</div>
-              <div className={s.statLabel}>{f.label}</div>
+              <div className={s.statLabel}>{t(f.labelKey)}</div>
             </button>
           )
         })}
@@ -153,34 +155,34 @@ export default function MaintenanceView({ staffId, restaurantId, onRefresh }) {
 
       {!showForm ? (
         <button className={s.maintToggle} onClick={() => setShowForm(true)}>
-          🔧 Prijavi novi kvar ili problem
+          🔧 {t('reportNewIssue')}
         </button>
       ) : (
         <form onSubmit={handleSubmit} className={s.maintForm}>
-          <div className={s.maintFormTitle}>Nova prijava kvara</div>
+          <div className={s.maintFormTitle}>{t('newIssueTitle')}</div>
           <select className={s.maintSelect} value={form.room_id}
             onChange={e => setForm(f => ({ ...f, room_id: e.target.value }))}>
-            <option value="">— Soba (opcionalno) —</option>
-            {rooms.map(r => <option key={r.id} value={r.id}>Soba {r.room_number}</option>)}
+            <option value="">{t('roomOptional')}</option>
+            {rooms.map(r => <option key={r.id} value={r.id}>{t('room')} {r.room_number}</option>)}
           </select>
           <select className={s.maintSelect} value={form.category}
             onChange={e => setForm(f => ({ ...f, category: e.target.value }))}>
-            {MAINT_CATS.map(c => <option key={c.value} value={c.value}>{c.icon} {c.label}</option>)}
+            {MAINT_CATS.map(c => <option key={c.value} value={c.value}>{c.icon} {t(c.labelKey)}</option>)}
           </select>
-          <textarea className={s.maintTextarea} placeholder="Opišite problem..."
+          <textarea className={s.maintTextarea} placeholder={t('describeProblem')}
             value={form.description}
             onChange={e => setForm(f => ({ ...f, description: e.target.value }))}
             rows={3} required />
           {saved
-            ? <div className={s.maintSuccess}>✅ Kvar prijavljen!</div>
+            ? <div className={s.maintSuccess}>✅ {t('faultReported')}</div>
             : (
               <div style={{ display: 'flex', gap: 8 }}>
                 <button type="button" className={s.btnSecondary}
                   onClick={() => { setShowForm(false); setForm({ room_id: '', category: 'other', description: '' }) }}>
-                  Odustani
+                  {t('cancel')}
                 </button>
                 <button type="submit" className={s.btnPrimary} disabled={saving} style={{ flex: 2 }}>
-                  {saving ? 'Slanje...' : 'Pošalji prijavu'}
+                  {saving ? t('sending') : t('sendReport')}
                 </button>
               </div>
             )
@@ -193,8 +195,8 @@ export default function MaintenanceView({ staffId, restaurantId, onRefresh }) {
           <div className={s.emptyIcon}>✅</div>
           <div className={s.emptyText}>
             {filterStatus
-              ? `Nema zahtjeva u statusu "${FILTERS.find(f => f.key === filterStatus)?.label}".`
-              : 'Nema aktivnih zahtjeva za održavanje.'
+              ? t('noRequestsInStatus', { status: t(FILTERS.find(f => f.key === filterStatus)?.labelKey) })
+              : t('noActiveRequests')
             }
           </div>
         </div>
@@ -216,22 +218,22 @@ export default function MaintenanceView({ staffId, restaurantId, onRefresh }) {
                     <span style={{ fontSize: 22 }}>{cat.icon}</span>
                     <div>
                       {m.rooms?.room_number
-                        ? <div className={s.taskRoomNum}>Soba {m.rooms.room_number}</div>
-                        : <div className={s.taskRoomNum}>Zajednički prostor</div>
+                        ? <div className={s.taskRoomNum}>{t('room')} {m.rooms.room_number}</div>
+                        : <div className={s.taskRoomNum}>{t('commonArea')}</div>
                       }
-                      <div className={s.taskRoomType}>{cat.label}</div>
+                      <div className={s.taskRoomType}>{t(cat.labelKey)}</div>
                     </div>
-                    {m.priority === 'urgent' && <span className={s.urgentBadge}>HITNO</span>}
+                    {m.priority === 'urgent' && <span className={s.urgentBadge}>{t('urgent')}</span>}
                   </div>
                   <div className={s.taskNotes}>{m.description}</div>
                   {reporter && (
-                    <div className={s.taskTypeLabel}>Prijavio/la: {reporter}</div>
+                    <div className={s.taskTypeLabel}>{t('reportedBy', { name: reporter })}</div>
                   )}
                   <div className={s.taskActionRow}>
-                    {m.status === 'open'        && <button className={s.btnStart}  onClick={() => updateStatus(m.id, 'in_progress')}>▶ U rad</button>}
-                    {m.status === 'in_progress' && <button className={s.btnDone}   onClick={() => updateStatus(m.id, 'done')}>✓ Završi</button>}
-                    {m.status === 'done'        && <button className={s.btnVerify} onClick={() => updateStatus(m.id, 'verified')}>⭐ Verifikuj</button>}
-                    {isVerified                 && <span   className={s.verifiedLabel}>⭐ Verifikovano</span>}
+                    {m.status === 'open'        && <button className={s.btnStart}  onClick={() => updateStatus(m.id, 'in_progress')}>▶ {t('toWork')}</button>}
+                    {m.status === 'in_progress' && <button className={s.btnDone}   onClick={() => updateStatus(m.id, 'done')}>✓ {t('finish')}</button>}
+                    {m.status === 'done'        && <button className={s.btnVerify} onClick={() => updateStatus(m.id, 'verified')}>⭐ {t('verify')}</button>}
+                    {isVerified                 && <span   className={s.verifiedLabel}>⭐ {t('verifiedLabel')}</span>}
                   </div>
                 </div>
               </div>

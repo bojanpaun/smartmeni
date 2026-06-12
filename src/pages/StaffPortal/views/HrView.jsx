@@ -1,20 +1,21 @@
 import { useState, useEffect } from 'react'
+import { useTranslation } from 'react-i18next'
 import { supabase } from '../../../lib/supabase'
 import s from '../StaffPortal.module.css'
 
 const ENTRY_TYPES = {
-  salary:    { label: 'Zarada',       color: '#0d7a52' },
-  daily:     { label: 'Dnevnica',     color: '#3aaa70' },
-  bonus:     { label: 'Bonus',        color: '#378add' },
-  overtime:  { label: 'Prekovremeni', color: '#7f77dd' },
-  deduction: { label: 'Odbitak',      color: '#c0392b' },
-  advance:   { label: 'Akontacija',   color: '#ef9f27' },
+  salary:    { labelKey: 'entrySalary',       color: '#0d7a52' },
+  daily:     { labelKey: 'entryDaily',     color: '#3aaa70' },
+  bonus:     { labelKey: 'entryBonus',        color: '#378add' },
+  overtime:  { labelKey: 'entryOvertime', color: '#7f77dd' },
+  deduction: { labelKey: 'entryDeduction',      color: '#c0392b' },
+  advance:   { labelKey: 'entryAdvance',   color: '#ef9f27' },
 }
 const ABSENCE_TYPES = {
-  vacation: { label: 'Godišnji odmor', color: '#0d7a52', bg: '#e0f5ec' },
-  sick:     { label: 'Bolovanje',      color: '#378add', bg: '#e6f1fb' },
-  personal: { label: 'Lični razlog',   color: '#ef9f27', bg: '#faeeda' },
-  other:    { label: 'Ostalo',         color: '#8a9e96', bg: '#f0f5f2' },
+  vacation: { labelKey: 'absVacation', color: '#0d7a52', bg: '#e0f5ec' },
+  sick:     { labelKey: 'absSick',      color: '#378add', bg: '#e6f1fb' },
+  personal: { labelKey: 'absPersonal',   color: '#ef9f27', bg: '#faeeda' },
+  other:    { labelKey: 'absOther',         color: '#8a9e96', bg: '#f0f5f2' },
 }
 const TODAY = new Date().toISOString().slice(0, 10)
 function mStart() {
@@ -27,6 +28,8 @@ function mEnd() {
 }
 
 export default function HrView({ staffId, activeTab }) {
+  const { t, i18n } = useTranslation('staffportal')
+  const dl = i18n.language === 'en' ? 'en-US' : dl
   const [schedules, setSchedules]   = useState([])
   const [attendance, setAttendance] = useState([])
   const [payroll, setPayroll]       = useState([])
@@ -108,19 +111,19 @@ export default function HrView({ staffId, activeTab }) {
     return d >= mon && d <= sun
   })
 
-  if (loading) return <div className={s.loadingInline}>Učitavanje...</div>
+  if (loading) return <div className={s.loadingInline}>{t('loading')}</div>
 
   // ── Raspored ─────────────────────────────────────────────────────
   if (activeTab === 'schedule') return (
     <div>
       {thisWeek.length > 0 && (
         <div className={s.card}>
-          <div className={s.cardTitle}>Ova sedmica</div>
+          <div className={s.cardTitle}>{t('thisWeek')}</div>
           {thisWeek.map(sh => (
             <div key={sh.id} className={s.shiftRow}>
               <div className={s.shiftDay}>
-                {new Date(sh.date).toLocaleDateString('sr-Latn', { weekday: 'long', day: 'numeric', month: 'numeric' })}
-                {sh.date === TODAY && <span className={s.todayBadge}>Danas</span>}
+                {new Date(sh.date).toLocaleDateString(dl, { weekday: 'long', day: 'numeric', month: 'numeric' })}
+                {sh.date === TODAY && <span className={s.todayBadge}>{t('today')}</span>}
               </div>
               <div className={s.shiftTime}>{sh.start_time?.slice(0,5)} – {sh.end_time?.slice(0,5)}</div>
             </div>
@@ -128,14 +131,14 @@ export default function HrView({ staffId, activeTab }) {
         </div>
       )}
       <div className={s.card}>
-        <div className={s.cardTitle}>Sve smjene — {new Date().toLocaleDateString('sr-Latn', { month: 'long', year: 'numeric' })}</div>
+        <div className={s.cardTitle}>{t('allShifts', { month: new Date().toLocaleDateString(dl, { month: 'long', year: 'numeric' }) })}</div>
         {schedules.length === 0
-          ? <div className={s.empty}><div className={s.emptyIcon}>📅</div><div className={s.emptyText}>Nema zakazanih smjena.</div></div>
+          ? <div className={s.empty}><div className={s.emptyIcon}>📅</div><div className={s.emptyText}>{t('noShifts')}</div></div>
           : schedules.map(sh => (
             <div key={sh.id} className={s.shiftRow}>
               <div className={s.shiftDay}>
-                {new Date(sh.date).toLocaleDateString('sr-Latn', { weekday: 'short', day: 'numeric', month: 'numeric' })}
-                {sh.date === TODAY && <span className={s.todayBadge}>Danas</span>}
+                {new Date(sh.date).toLocaleDateString(dl, { weekday: 'short', day: 'numeric', month: 'numeric' })}
+                {sh.date === TODAY && <span className={s.todayBadge}>{t('today')}</span>}
               </div>
               <div className={s.shiftTime}>{sh.start_time?.slice(0,5)} – {sh.end_time?.slice(0,5)}</div>
             </div>
@@ -148,15 +151,15 @@ export default function HrView({ staffId, activeTab }) {
   // ── Dolasci ──────────────────────────────────────────────────────
   if (activeTab === 'attendance') return (
     <div className={s.card}>
-      <div className={s.cardTitle}>Dolasci — {new Date().toLocaleDateString('sr-Latn', { month: 'long', year: 'numeric' })}</div>
+      <div className={s.cardTitle}>{t('attendanceTitle', { month: new Date().toLocaleDateString(dl, { month: 'long', year: 'numeric' }) })}</div>
       {attendance.length === 0
-        ? <div className={s.empty}><div className={s.emptyIcon}>🕐</div><div className={s.emptyText}>Nema evidentiranih dolazaka.</div></div>
+        ? <div className={s.empty}><div className={s.emptyIcon}>🕐</div><div className={s.emptyText}>{t('noAttendance')}</div></div>
         : attendance.map(a => (
           <div key={a.id} className={s.attRow}>
-            <div className={s.attDate}>{new Date(a.date).toLocaleDateString('sr-Latn', { weekday: 'short', day: 'numeric', month: 'numeric' })}</div>
+            <div className={s.attDate}>{new Date(a.date).toLocaleDateString(dl, { weekday: 'short', day: 'numeric', month: 'numeric' })}</div>
             <div className={s.attTimes}>
-              <span>↓ {a.clock_in ? new Date(a.clock_in).toLocaleTimeString('sr-Latn', { hour: '2-digit', minute: '2-digit' }) : '—'}</span>
-              <span>↑ {a.clock_out ? new Date(a.clock_out).toLocaleTimeString('sr-Latn', { hour: '2-digit', minute: '2-digit' }) : 'na poslu'}</span>
+              <span>↓ {a.clock_in ? new Date(a.clock_in).toLocaleTimeString(dl, { hour: '2-digit', minute: '2-digit' }) : '—'}</span>
+              <span>↑ {a.clock_out ? new Date(a.clock_out).toLocaleTimeString(dl, { hour: '2-digit', minute: '2-digit' }) : t('atWork')}</span>
             </div>
             {a.hours_worked && <div className={s.attHours} style={{ color: '#0d7a52' }}>{parseFloat(a.hours_worked).toFixed(1)}h</div>}
           </div>
@@ -176,28 +179,28 @@ export default function HrView({ staffId, activeTab }) {
     return (
       <div>
         <div className={s.monthPicker}>
-          <label>Mjesec:</label>
+          <label>{t('month')}</label>
           <input type="month" value={payrollMonth} onChange={e => setPayrollMonth(e.target.value)} />
         </div>
         <div className={s.kpiGrid}>
-          <div className={s.kpiCard}><div className={s.kpiLabel}>Osnovna</div><div className={s.kpiVal}>€{base.toFixed(0)}</div></div>
-          <div className={s.kpiCard}><div className={s.kpiLabel}>Dodaci</div><div className={s.kpiVal} style={{ color: '#0d7a52' }}>+€{adds.toFixed(0)}</div></div>
-          <div className={s.kpiCard}><div className={s.kpiLabel}>Odbitci</div><div className={s.kpiVal} style={{ color: '#c0392b' }}>-€{deds.toFixed(0)}</div></div>
-          <div className={s.kpiCard}><div className={s.kpiLabel}>Neto</div><div className={s.kpiVal} style={{ color: '#0d7a52' }}>€{(base+adds-deds).toFixed(0)}</div></div>
+          <div className={s.kpiCard}><div className={s.kpiLabel}>{t('payBase')}</div><div className={s.kpiVal}>€{base.toFixed(0)}</div></div>
+          <div className={s.kpiCard}><div className={s.kpiLabel}>{t('payAdds')}</div><div className={s.kpiVal} style={{ color: '#0d7a52' }}>+€{adds.toFixed(0)}</div></div>
+          <div className={s.kpiCard}><div className={s.kpiLabel}>{t('payDeds')}</div><div className={s.kpiVal} style={{ color: '#c0392b' }}>-€{deds.toFixed(0)}</div></div>
+          <div className={s.kpiCard}><div className={s.kpiLabel}>{t('payNet')}</div><div className={s.kpiVal} style={{ color: '#0d7a52' }}>€{(base+adds-deds).toFixed(0)}</div></div>
         </div>
         <div className={s.card}>
           {payroll.length === 0
-            ? <div className={s.empty}><div className={s.emptyText}>Nema stavki za ovaj mjesec.</div></div>
+            ? <div className={s.empty}><div className={s.emptyText}>{t('noPayrollItems')}</div></div>
             : payroll.map(e => {
               const et = ENTRY_TYPES[e.type] || ENTRY_TYPES.salary
               const isDed = ['deduction','advance'].includes(e.type)
               return (
                 <div key={e.id} className={s.payRow}>
-                  <span className={s.badge} style={{ background: '#f3f4f6', color: et.color }}>{et.label}</span>
+                  <span className={s.badge} style={{ background: '#f3f4f6', color: et.color }}>{t(et.labelKey)}</span>
                   <div className={s.payAmount} style={{ color: isDed ? '#c0392b' : '#0d7a52' }}>
                     {isDed ? '-' : '+'}€{parseFloat(e.amount).toFixed(2)}
                   </div>
-                  <div className={s.payMeta}>{new Date(e.date).toLocaleDateString('sr-Latn')}{e.note ? ` · ${e.note}` : ''}</div>
+                  <div className={s.payMeta}>{new Date(e.date).toLocaleDateString(dl)}{e.note ? ` · ${e.note}` : ''}</div>
                 </div>
               )
             })
@@ -217,67 +220,67 @@ export default function HrView({ staffId, activeTab }) {
     return (
       <div>
         <div className={s.vacRow}>
-          <div className={s.vacCard}><div className={s.vacNum}>{vacTotal}</div><div className={s.vacLabel}>Ukupno dana</div></div>
-          <div className={s.vacCard}><div className={s.vacNum} style={{ color: '#ba7517' }}>{vacUsed}</div><div className={s.vacLabel}>Iskorišteno</div></div>
-          <div className={s.vacCard}><div className={s.vacNum}>{Math.max(0, vacTotal - vacUsed)}</div><div className={s.vacLabel}>Preostalo</div></div>
+          <div className={s.vacCard}><div className={s.vacNum}>{vacTotal}</div><div className={s.vacLabel}>{t('vacTotalDays')}</div></div>
+          <div className={s.vacCard}><div className={s.vacNum} style={{ color: '#ba7517' }}>{vacUsed}</div><div className={s.vacLabel}>{t('vacUsed')}</div></div>
+          <div className={s.vacCard}><div className={s.vacNum}>{Math.max(0, vacTotal - vacUsed)}</div><div className={s.vacLabel}>{t('vacRemaining')}</div></div>
         </div>
 
         {/* Forma za novi zahtjev */}
         {!showAbsenceForm ? (
           <button className={s.btnAddAbsence} onClick={() => setShowAbsenceForm(true)}>
-            + Zatraži odsustvo
+            + {t('requestAbsence')}
           </button>
         ) : (
           <form className={s.absenceForm} onSubmit={submitAbsence}>
-            <div className={s.absenceFormTitle}>Novi zahtjev za odsustvo</div>
+            <div className={s.absenceFormTitle}>{t('newAbsenceTitle')}</div>
             <div className={s.absenceFormField}>
-              <label>Tip odsustva</label>
+              <label>{t('absenceType')}</label>
               <select value={absenceForm.absence_type} onChange={e => setAbsenceForm(f => ({ ...f, absence_type: e.target.value }))}>
-                {Object.entries(ABSENCE_TYPES).map(([k, v]) => <option key={k} value={k}>{v.label}</option>)}
+                {Object.entries(ABSENCE_TYPES).map(([k, v]) => <option key={k} value={k}>{t(v.labelKey)}</option>)}
               </select>
             </div>
             <div className={s.absenceFormRow}>
               <div className={s.absenceFormField}>
-                <label>Od</label>
+                <label>{t('from')}</label>
                 <input type="date" required min={TODAY} value={absenceForm.start_date}
                   onChange={e => setAbsenceForm(f => ({ ...f, start_date: e.target.value, end_date: f.end_date < e.target.value ? e.target.value : f.end_date }))} />
               </div>
               <div className={s.absenceFormField}>
-                <label>Do</label>
+                <label>{t('to')}</label>
                 <input type="date" required min={absenceForm.start_date || TODAY} value={absenceForm.end_date}
                   onChange={e => setAbsenceForm(f => ({ ...f, end_date: e.target.value }))} />
               </div>
             </div>
             <div className={s.absenceFormField}>
-              <label>Napomena (opciono)</label>
-              <textarea rows={2} placeholder="Razlog, napomena..." value={absenceForm.notes}
+              <label>{t('noteOptional')}</label>
+              <textarea rows={2} placeholder={t('reasonPlaceholder')} value={absenceForm.notes}
                 onChange={e => setAbsenceForm(f => ({ ...f, notes: e.target.value }))} />
             </div>
             <div className={s.absenceFormActions}>
-              <button type="button" className={s.btnSecondary} onClick={() => setShowAbsenceForm(false)}>Odustani</button>
+              <button type="button" className={s.btnSecondary} onClick={() => setShowAbsenceForm(false)}>{t('cancel')}</button>
               <button type="submit" className={s.btnPrimary} style={{ flex: 2 }} disabled={absenceSaving}>
-                {absenceSaving ? 'Slanje...' : 'Pošalji zahtjev'}
+                {absenceSaving ? t('sending') : t('sendRequest')}
               </button>
             </div>
           </form>
         )}
 
         <div className={s.card}>
-          <div className={s.cardTitle}>Evidencija odsustva</div>
+          <div className={s.cardTitle}>{t('absenceLog')}</div>
           {absences.length === 0
-            ? <div className={s.empty}><div className={s.emptyText}>Nema evidentiranih odsustva.</div></div>
+            ? <div className={s.empty}><div className={s.emptyText}>{t('noAbsences')}</div></div>
             : absences.map(a => {
               const at = ABSENCE_TYPES[a.absence_type] || ABSENCE_TYPES.other
               return (
                 <div key={a.id} className={s.absRow}>
-                  <span className={s.badge} style={{ background: at.bg, color: at.color }}>{at.label}</span>
+                  <span className={s.badge} style={{ background: at.bg, color: at.color }}>{t(at.labelKey)}</span>
                   <div className={s.absDates}>
-                    {new Date(a.start_date).toLocaleDateString('sr-Latn')} – {new Date(a.end_date).toLocaleDateString('sr-Latn')}
-                    <span style={{ color: '#9ca3af' }}> · {a.days} {a.days === 1 ? 'dan' : 'dana'}</span>
+                    {new Date(a.start_date).toLocaleDateString(dl)} – {new Date(a.end_date).toLocaleDateString(dl)}
+                    <span style={{ color: '#9ca3af' }}> · {a.days} {a.days === 1 ? t('dayOne') : t('dayOther')}</span>
                   </div>
-                  {a.approved === true  && <span className={s.approvedBadge}>✓ Odobreno</span>}
-                  {a.approved === null  && <span className={s.pendingBadge}>Na čekanju</span>}
-                  {a.approved === false && <span className={s.rejectedBadge}>✗ Odbijeno</span>}
+                  {a.approved === true  && <span className={s.approvedBadge}>✓ {t('approved')}</span>}
+                  {a.approved === null  && <span className={s.pendingBadge}>{t('pending')}</span>}
+                  {a.approved === false && <span className={s.rejectedBadge}>✗ {t('rejected')}</span>}
                 </div>
               )
             })
