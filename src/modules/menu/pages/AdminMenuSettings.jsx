@@ -2,6 +2,7 @@ import { useState, useRef } from 'react'
 import { useTranslation } from 'react-i18next'
 import { supabase } from '../../../lib/supabase'
 import { stripAccountFields } from '../../../lib/planUtils'
+import { translateContent } from '../../../lib/contentTranslate'
 import { usePlatform } from '../../../context/PlatformContext'
 import TemplateSettings from './TemplateSettings'
 import styles from './GeneralSettings.module.css'
@@ -70,19 +71,28 @@ function DraggableList({ items, onReorder, children }) {
 
 function WaiterMessagesEditor({ restaurant, setRestaurant }) {
   const { t } = useTranslation('admin')
-  const [messages, setMessages] = useState(restaurant.waiter_messages || DEFAULT_WAITER_MESSAGES)
+  // Stabilan id po poruci (ključ za content_translations); stara forma {sr,en} →
+  // {id,icon,sr}, `sr` izvor, `en` se odbacuje (prevodi AI).
+  const newId = () => (crypto.randomUUID?.() ?? `${Date.now()}-${Math.random().toString(36).slice(2)}`)
+  const [messages, setMessages] = useState(() =>
+    (restaurant.waiter_messages || DEFAULT_WAITER_MESSAGES).map(m => ({
+      id: m.id || newId(), icon: m.icon || '🔔', sr: m.sr ?? m.text ?? '',
+    }))
+  )
   const [saving, setSaving] = useState(false)
   const [msg, setMsg] = useState('')
 
   const update = (i, field, val) =>
     setMessages(prev => prev.map((m, idx) => idx === i ? { ...m, [field]: val } : m))
   const remove = (i) => setMessages(prev => prev.filter((_, idx) => idx !== i))
-  const add = () => setMessages(prev => [...prev, { sr: '', en: '', icon: '🔔' }])
+  const add = () => setMessages(prev => [...prev, { id: newId(), sr: '', icon: '🔔' }])
 
   const save = async () => {
     setSaving(true)
     await supabase.from('restaurants').update({ waiter_messages: messages }).eq('id', restaurant.id)
     setRestaurant(r => ({ ...r, waiter_messages: messages }))
+    const items = messages.filter(m => m.sr?.trim()).map(m => ({ entity_type: 'waiter_message', entity_id: m.id, field: 'text', text: m.sr }))
+    translateContent(restaurant.id, items).catch(() => {})
     setSaving(false)
     setMsg(t('saved'))
     setTimeout(() => setMsg(''), 2000)
@@ -92,7 +102,7 @@ function WaiterMessagesEditor({ restaurant, setRestaurant }) {
     <div className={menuStyles.card} style={{ marginBottom: 16 }}>
       <div className={menuStyles.cardTitle}>🔔 {t('amWaiterMsgTitle')}</div>
       <div style={{ fontSize: 12, color: '#8a9e96', marginBottom: 14 }}>
-        {t('msWaiterHintDrag')}
+        {t('msWaiterHintDrag')} {t('amWaiterMsgNote')}
       </div>
       <DraggableList items={messages} onReorder={setMessages}>
         {(m, i) => (
@@ -101,10 +111,8 @@ function WaiterMessagesEditor({ restaurant, setRestaurant }) {
               style={{ width: 54, padding: '7px 4px', border: '1px solid #d0e4dc', borderRadius: 8, fontSize: 18, textAlign: 'center' }}>
               {ICONS.map(ic => <option key={ic} value={ic}>{ic}</option>)}
             </select>
-            <input value={m.sr} onChange={e => update(i, 'sr', e.target.value)} placeholder={`${t('amTextField')} (SR)`}
-              style={{ flex: 1, minWidth: 130, padding: '8px 10px', border: '1px solid #d0e4dc', borderRadius: 8, fontSize: 13, fontFamily: 'DM Sans, sans-serif', outline: 'none' }} />
-            <input value={m.en} onChange={e => update(i, 'en', e.target.value)} placeholder={`${t('amTextField')} (EN)`}
-              style={{ flex: 1, minWidth: 130, padding: '8px 10px', border: '1px solid #d0e4dc', borderRadius: 8, fontSize: 13, fontFamily: 'DM Sans, sans-serif', outline: 'none' }} />
+            <input value={m.sr} onChange={e => update(i, 'sr', e.target.value)} placeholder={t('amTextField')}
+              style={{ flex: 1, minWidth: 160, padding: '8px 10px', border: '1px solid #d0e4dc', borderRadius: 8, fontSize: 13, fontFamily: 'DM Sans, sans-serif', outline: 'none' }} />
             <button onClick={() => remove(i)}
               style={{ padding: '7px 10px', background: 'transparent', border: '1px solid #f5b0b0', borderRadius: 8, color: '#c0392b', cursor: 'pointer', fontSize: 13 }}>✕</button>
           </>
