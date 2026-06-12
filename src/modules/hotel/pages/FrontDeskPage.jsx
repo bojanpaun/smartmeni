@@ -1,5 +1,6 @@
 import { useState, useEffect, useCallback } from 'react'
 import { useNavigate } from 'react-router-dom'
+import { useTranslation } from 'react-i18next'
 import { usePlatform } from '../../../context/PlatformContext'
 import { useAdminBadgeRefresh } from '../../../layouts/AdminLayout'
 import { useReservations } from '../hooks/useReservations'
@@ -12,9 +13,9 @@ import toast from 'react-hot-toast'
 import styles from './Hotel.module.css'
 
 const REQ_STATUS = {
-  pending:     { label: 'Primljeno',  color: '#e67e22', bg: '#fff7ed' },
-  in_progress: { label: 'U toku',     color: '#2563eb', bg: '#eff6ff' },
-  resolved:    { label: 'Riješeno',   color: '#0d7a52', bg: '#ecfdf5' },
+  pending:     { labelKey: 'htReqPending',    color: '#e67e22', bg: '#fff7ed' },
+  in_progress: { labelKey: 'htReqInProgress', color: '#2563eb', bg: '#eff6ff' },
+  resolved:    { labelKey: 'htReqResolved',   color: '#0d7a52', bg: '#ecfdf5' },
 }
 
 const REQ_CAT_ICON = {
@@ -24,6 +25,8 @@ const REQ_CAT_ICON = {
 
 export default function FrontDeskPage() {
   const { restaurant } = usePlatform()
+  const { t, i18n } = useTranslation('admin')
+  const dl = i18n.language === 'en' ? 'en-US' : 'sr-Latn'
   const { refreshCounts } = useAdminBadgeRefresh()
   const navigate = useNavigate()
   const [tab, setTab] = useState('checkin')
@@ -93,14 +96,14 @@ export default function FrontDeskPage() {
     if (res.guest_id) {
       const { data: g } = await supabase.from('guests').select('status, first_name, last_name').eq('id', res.guest_id).single()
       if (g?.status === 'blacklist') {
-        if (!window.confirm(`⚠️ UPOZORENJE: ${g.first_name} ${g.last_name} je na CRNOJ LISTI!\n\nNastavi sa check-inom?`)) return
+        if (!window.confirm(t('htBlacklistWarn', { name: `${g.first_name} ${g.last_name}` }))) return
       }
     }
     const { error } = await supabase.from('hotel_reservations').update({
       status: 'checked_in',
       actual_check_in: new Date().toISOString(),
     }).eq('id', res.id)
-    if (error) return toast.error('Greška pri check-inu')
+    if (error) return toast.error(t('htCheckinErr'))
 
     if (res.room_id) {
       await supabase.from('rooms').update({ status: 'occupied' }).eq('id', res.room_id)
@@ -110,7 +113,7 @@ export default function FrontDeskPage() {
     // pun od check-ina i poklapa se sa iznosom rezervacije. Noćni audit je idempotentan.
     await supabase.rpc('post_stay_room_charges', { p_reservation_id: res.id })
 
-    toast.success(`${res.guest_name} — check-in uspješan`)
+    toast.success(t('htCheckinSuccess', { name: res.guest_name }))
     supabase.functions.invoke('send-booking-email', {
       body: { reservation_id: res.id, type: 'checkin' },
     }).catch(() => {})
@@ -126,7 +129,7 @@ export default function FrontDeskPage() {
       status: 'checked_out',
       actual_check_out: nowIso,
     }).eq('id', res.id)
-    if (error) return toast.error('Greška pri check-outu')
+    if (error) return toast.error(t('htCheckoutErr'))
 
     if (res.room_id) {
       await supabase.from('rooms').update({ status: 'cleaning' }).eq('id', res.room_id)
@@ -148,7 +151,7 @@ export default function FrontDeskPage() {
     await supabase.from('folios').update({ status: 'closed', updated_at: nowIso })
       .eq('reservation_id', res.id)
 
-    toast.success(`${res.guest_name} — check-out uspješan. Soba na čišćenje.`)
+    toast.success(t('htCheckoutSuccess', { name: res.guest_name }))
     supabase.functions.invoke('send-booking-email', {
       body: { reservation_id: res.id, type: 'checkout' },
     }).catch(() => {})
@@ -188,21 +191,21 @@ export default function FrontDeskPage() {
     <div className={styles.page}>
       <div className={styles.header}>
         <div>
-          <h1 className={styles.title}>Front Desk</h1>
-          <p className={styles.subtitle}>{new Date().toLocaleDateString('sr-Latn', { weekday: 'long', day: 'numeric', month: 'long' })}</p>
+          <h1 className={styles.title}>{t('navFrontDesk')}</h1>
+          <p className={styles.subtitle}>{new Date().toLocaleDateString(dl, { weekday: 'long', day: 'numeric', month: 'long' })}</p>
         </div>
-        <button className={styles.btnPrimary} onClick={() => navigate('/admin/hotel/reservations/new')}>+ Nova rezervacija</button>
+        <button className={styles.btnPrimary} onClick={() => navigate('/admin/hotel/reservations/new')}>+ {t('htNewReservation')}</button>
       </div>
 
       <div className={styles.filterBar}>
         <button className={`${styles.filterBtn} ${tab === 'checkin' ? styles.filterBtnActive : ''}`} onClick={() => setTab('checkin')}>
-          Check-in <span className={styles.filterCount}>{arrivals.length}</span>
+          {t('htCheckin')} <span className={styles.filterCount}>{arrivals.length}</span>
         </button>
         <button className={`${styles.filterBtn} ${tab === 'checkout' ? styles.filterBtnActive : ''}`} onClick={() => setTab('checkout')}>
-          Check-out <span className={styles.filterCount}>{departures.length}</span>
+          {t('htCheckout')} <span className={styles.filterCount}>{departures.length}</span>
         </button>
         <button className={`${styles.filterBtn} ${tab === 'requests' ? styles.filterBtnActive : ''}`} onClick={() => setTab('requests')}>
-          Zahtjevi gostiju
+          {t('htGuestRequestsTab')}
           {pendingCount > 0 && <span className={`${styles.filterCount} ${styles.filterCountAlert}`}>{pendingCount}</span>}
         </button>
       </div>
@@ -217,7 +220,7 @@ export default function FrontDeskPage() {
           showFuture={true}
           showMonth={true}
           allowAll={true}
-          placeholder="Pretraži gosta ili sobu..."
+          placeholder={t('htSearchGuestRoom')}
         />
       )}
 
@@ -230,42 +233,42 @@ export default function FrontDeskPage() {
           onSearch={setSearch}
           showFuture={true}
           hidePeriod={true}
-          placeholder="Pretraži gosta ili poruku..."
+          placeholder={t('htSearchGuestMsg')}
         />
       )}
 
       {/* ── Check-in tab ── */}
       {tab === 'checkin' && (
         loading ? <LoadingSpinner /> : filteredArrivals.length === 0 ? (
-          <div className={styles.empty}><p>Nema dolazaka za odabrani period.</p></div>
+          <div className={styles.empty}><p>{t('htNoArrivals')}</p></div>
         ) : (<>
           {/* Desktop */}
           <div className={styles.fdDesktopTable}>
             <div className={styles.table}>
               <div className={styles.tableHead} style={{ gridTemplateColumns: '2.5fr 1fr 1fr 60px 2fr 160px' }}>
-                <SortableHead col="guest_name"     label="Gost"          sortBy={ciSort.sortBy} sortDir={ciSort.sortDir} onSort={ciSort.onSort} />
-                <SortableHead col="rooms.room_number" label="Soba / Tip" sortBy={ciSort.sortBy} sortDir={ciSort.sortDir} onSort={ciSort.onSort} />
-                <SortableHead col="check_out_date" label="Check-out"     sortBy={ciSort.sortBy} sortDir={ciSort.sortDir} onSort={ciSort.onSort} />
-                <SortableHead col="adults"         label="Gosti"         sortBy={ciSort.sortBy} sortDir={ciSort.sortDir} onSort={ciSort.onSort} />
-                <span>Spec. zahtjevi</span>
+                <SortableHead col="guest_name"     label={t('htGuest')}          sortBy={ciSort.sortBy} sortDir={ciSort.sortDir} onSort={ciSort.onSort} />
+                <SortableHead col="rooms.room_number" label={t('htRoomType2')} sortBy={ciSort.sortBy} sortDir={ciSort.sortDir} onSort={ciSort.onSort} />
+                <SortableHead col="check_out_date" label={t('htCheckout')}     sortBy={ciSort.sortBy} sortDir={ciSort.sortDir} onSort={ciSort.onSort} />
+                <SortableHead col="adults"         label={t('htGuestsHead')}         sortBy={ciSort.sortBy} sortDir={ciSort.sortDir} onSort={ciSort.onSort} />
+                <span>{t('htSpecRequests')}</span>
                 <span></span>
               </div>
               {ciSort.sort(filteredArrivals).map(res => (
                 <div key={res.id} className={styles.tableRow} style={{ gridTemplateColumns: '2.5fr 1fr 1fr 60px 2fr 160px', cursor: 'default' }}>
                   <span className={styles.bold} style={{ display: 'flex', alignItems: 'center', gap: 6 }}>
                     {res.guest_name}
-                    {res.guest_id && <button className={styles.guestProfileBtn} title="Profil gosta" onClick={e => { e.stopPropagation(); navigate(`/admin/guests/${res.guest_id}`) }}>👤</button>}
+                    {res.guest_id && <button className={styles.guestProfileBtn} title={t('htGuestProfile')} onClick={e => { e.stopPropagation(); navigate(`/admin/guests/${res.guest_id}`) }}>👤</button>}
                   </span>
                   <span>
-                    <div>{res.rooms?.room_number ? `Soba ${res.rooms.room_number}` : 'Nije dodijeljena'}</div>
+                    <div>{res.rooms?.room_number ? t('htRoomNum', { num: res.rooms.room_number }) : t('htNotAssigned')}</div>
                     {res.room_types?.name && <div style={{ fontSize: 11, color: 'var(--c-text-muted)' }}>{res.room_types.name}</div>}
                   </span>
-                  <span>{new Date(res.check_out_date).toLocaleDateString('sr-Latn')}</span>
+                  <span>{new Date(res.check_out_date).toLocaleDateString(dl)}</span>
                   <span>{(res.adults || 1) + (res.children || 0)}</span>
                   <span style={{ fontSize: 12, color: res.special_requests ? 'var(--c-warning)' : 'var(--c-text-muted)' }}>{res.special_requests || '—'}</span>
                   <span style={{ display: 'flex', gap: 6, justifyContent: 'flex-end' }}>
-                    <button className={styles.btnSecondary} onClick={() => navigate(`/admin/hotel/reservations/${res.id}`)}>Detalji</button>
-                    <button className={styles.btnPrimary} onClick={() => handleCheckIn(res)}>Check-in ✓</button>
+                    <button className={styles.btnSecondary} onClick={() => navigate(`/admin/hotel/reservations/${res.id}`)}>{t('htDetails')}</button>
+                    <button className={styles.btnPrimary} onClick={() => handleCheckIn(res)}>{t('htCheckin')} ✓</button>
                   </span>
                 </div>
               ))}
@@ -278,19 +281,19 @@ export default function FrontDeskPage() {
                 <div className={styles.fdCardTop}>
                   <div className={styles.fdCardGuest}>
                     {res.guest_name}
-                    {res.guest_id && <button className={styles.guestProfileBtn} title="Profil gosta" onClick={() => navigate(`/admin/guests/${res.guest_id}`)}>👤</button>}
+                    {res.guest_id && <button className={styles.guestProfileBtn} title={t('htGuestProfile')} onClick={() => navigate(`/admin/guests/${res.guest_id}`)}>👤</button>}
                   </div>
-                  <div className={styles.fdCardRoom}>{res.rooms?.room_number ? `Soba ${res.rooms.room_number}` : '—'}</div>
+                  <div className={styles.fdCardRoom}>{res.rooms?.room_number ? t('htRoomNum', { num: res.rooms.room_number }) : '—'}</div>
                 </div>
                 <div className={styles.fdCardMeta}>
                   {res.room_types?.name && <span>{res.room_types.name}</span>}
-                  <span>Check-out: {new Date(res.check_out_date).toLocaleDateString('sr-Latn')}</span>
-                  <span>👥 {(res.adults || 1) + (res.children || 0)} gosta</span>
+                  <span>{t('htCheckout')}: {new Date(res.check_out_date).toLocaleDateString(dl)}</span>
+                  <span>👥 {t('htGuestsShort', { n: (res.adults || 1) + (res.children || 0) })}</span>
                 </div>
                 {res.special_requests && <div className={styles.fdCardNote}>💬 {res.special_requests}</div>}
                 <div className={styles.fdCardActions}>
-                  <button className={styles.btnSecondary} onClick={() => navigate(`/admin/hotel/reservations/${res.id}`)}>Detalji</button>
-                  <button className={styles.btnPrimary} onClick={() => handleCheckIn(res)}>Check-in ✓</button>
+                  <button className={styles.btnSecondary} onClick={() => navigate(`/admin/hotel/reservations/${res.id}`)}>{t('htDetails')}</button>
+                  <button className={styles.btnPrimary} onClick={() => handleCheckIn(res)}>{t('htCheckin')} ✓</button>
                 </div>
               </div>
             ))}
@@ -301,30 +304,30 @@ export default function FrontDeskPage() {
       {/* ── Check-out tab ── */}
       {tab === 'checkout' && (
         loading ? <LoadingSpinner /> : filteredDepartures.length === 0 ? (
-          <div className={styles.empty}><p>Nema odjava za odabrani period.</p></div>
+          <div className={styles.empty}><p>{t('htNoDepartures')}</p></div>
         ) : (<>
           {/* Desktop */}
           <div className={styles.fdDesktopTable}>
             <div className={styles.table}>
               <div className={styles.tableHead} style={{ gridTemplateColumns: '2fr 1fr 1fr 80px 140px' }}>
-                <SortableHead col="guest_name"        label="Gost"     sortBy={coSort.sortBy} sortDir={coSort.sortDir} onSort={coSort.onSort} />
-                <SortableHead col="rooms.room_number" label="Soba"     sortBy={coSort.sortBy} sortDir={coSort.sortDir} onSort={coSort.onSort} />
-                <SortableHead col="check_in_date"     label="Check-in" sortBy={coSort.sortBy} sortDir={coSort.sortDir} onSort={coSort.onSort} />
-                <SortableHead col="total_amount"      label="Iznos"    sortBy={coSort.sortBy} sortDir={coSort.sortDir} onSort={coSort.onSort} />
+                <SortableHead col="guest_name"        label={t('htGuest')}     sortBy={coSort.sortBy} sortDir={coSort.sortDir} onSort={coSort.onSort} />
+                <SortableHead col="rooms.room_number" label={t('htRoomSingular')}     sortBy={coSort.sortBy} sortDir={coSort.sortDir} onSort={coSort.onSort} />
+                <SortableHead col="check_in_date"     label={t('htCheckin')} sortBy={coSort.sortBy} sortDir={coSort.sortDir} onSort={coSort.onSort} />
+                <SortableHead col="total_amount"      label={t('htAmount')}    sortBy={coSort.sortBy} sortDir={coSort.sortDir} onSort={coSort.onSort} />
                 <span></span>
               </div>
               {coSort.sort(filteredDepartures).map(res => (
                 <div key={res.id} className={styles.tableRow} style={{ gridTemplateColumns: '2fr 1fr 1fr 80px 140px', cursor: 'default' }}>
                   <span className={styles.bold} style={{ display: 'flex', alignItems: 'center', gap: 6 }}>
                     {res.guest_name}
-                    {res.guest_id && <button className={styles.guestProfileBtn} title="Profil gosta" onClick={e => { e.stopPropagation(); navigate(`/admin/guests/${res.guest_id}`) }}>👤</button>}
+                    {res.guest_id && <button className={styles.guestProfileBtn} title={t('htGuestProfile')} onClick={e => { e.stopPropagation(); navigate(`/admin/guests/${res.guest_id}`) }}>👤</button>}
                   </span>
-                  <span>{res.rooms?.room_number ? `Soba ${res.rooms.room_number}` : '—'}</span>
-                  <span>{new Date(res.check_in_date).toLocaleDateString('sr-Latn')}</span>
+                  <span>{res.rooms?.room_number ? t('htRoomNum', { num: res.rooms.room_number }) : '—'}</span>
+                  <span>{new Date(res.check_in_date).toLocaleDateString(dl)}</span>
                   <span style={{ fontWeight: 600 }}>{res.total_amount ? `€${Number(res.total_amount).toFixed(2)}` : '—'}</span>
                   <span style={{ display: 'flex', gap: 6, justifyContent: 'flex-end' }}>
-                    <button className={styles.btnSecondary} onClick={() => navigate(`/admin/hotel/reservations/${res.id}/folio`)}>Folio</button>
-                    <button className={styles.btnPrimary} onClick={() => handleCheckOut(res)}>Check-out ✓</button>
+                    <button className={styles.btnSecondary} onClick={() => navigate(`/admin/hotel/reservations/${res.id}/folio`)}>{t('htFolio')}</button>
+                    <button className={styles.btnPrimary} onClick={() => handleCheckOut(res)}>{t('htCheckout')} ✓</button>
                   </span>
                 </div>
               ))}
@@ -337,17 +340,17 @@ export default function FrontDeskPage() {
                 <div className={styles.fdCardTop}>
                   <div className={styles.fdCardGuest}>
                     {res.guest_name}
-                    {res.guest_id && <button className={styles.guestProfileBtn} title="Profil gosta" onClick={() => navigate(`/admin/guests/${res.guest_id}`)}>👤</button>}
+                    {res.guest_id && <button className={styles.guestProfileBtn} title={t('htGuestProfile')} onClick={() => navigate(`/admin/guests/${res.guest_id}`)}>👤</button>}
                   </div>
-                  <div className={styles.fdCardRoom}>{res.rooms?.room_number ? `Soba ${res.rooms.room_number}` : '—'}</div>
+                  <div className={styles.fdCardRoom}>{res.rooms?.room_number ? t('htRoomNum', { num: res.rooms.room_number }) : '—'}</div>
                 </div>
                 <div className={styles.fdCardMeta}>
-                  <span>Check-in: {new Date(res.check_in_date).toLocaleDateString('sr-Latn')}</span>
+                  <span>{t('htCheckin')}: {new Date(res.check_in_date).toLocaleDateString(dl)}</span>
                   {res.total_amount && <span style={{ fontWeight: 600, color: 'var(--c-text)' }}>€{Number(res.total_amount).toFixed(2)}</span>}
                 </div>
                 <div className={styles.fdCardActions}>
-                  <button className={styles.btnSecondary} onClick={() => navigate(`/admin/hotel/reservations/${res.id}/folio`)}>Folio</button>
-                  <button className={styles.btnPrimary} onClick={() => handleCheckOut(res)}>Check-out ✓</button>
+                  <button className={styles.btnSecondary} onClick={() => navigate(`/admin/hotel/reservations/${res.id}/folio`)}>{t('htFolio')}</button>
+                  <button className={styles.btnPrimary} onClick={() => handleCheckOut(res)}>{t('htCheckout')} ✓</button>
                 </div>
               </div>
             ))}
@@ -368,22 +371,22 @@ export default function FrontDeskPage() {
                 onSearch={setSearch}
                 showFuture={true}
                 hidePeriod={true}
-                placeholder="Pretraži gosta ili poruku..."
+                placeholder={t('htSearchGuestMsg')}
               />
             </div>
           )}
           {loadingReq ? <LoadingSpinner /> : filteredRequests.length === 0 ? (
-            <div className={styles.empty}><p>Nema aktivnih zahtjeva gostiju.</p></div>
+            <div className={styles.empty}><p>{t('htNoRequests')}</p></div>
           ) : (<>
             {/* Desktop */}
             <div className={styles.fdDesktopTable}>
               <div className={styles.table}>
                 <div className={styles.tableHead} style={{ gridTemplateColumns: '2fr 1fr 2fr 70px 100px 160px' }}>
-                  <SortableHead col="hotel_reservations.guest_name"        label="Gost"    sortBy={reqSort.sortBy} sortDir={reqSort.sortDir} onSort={reqSort.onSort} />
-                  <SortableHead col="hotel_reservations.rooms.room_number" label="Soba"    sortBy={reqSort.sortBy} sortDir={reqSort.sortDir} onSort={reqSort.onSort} />
-                  <span>Poruka</span>
-                  <SortableHead col="created_at" label="Vrijeme" sortBy={reqSort.sortBy} sortDir={reqSort.sortDir} onSort={reqSort.onSort} />
-                  <SortableHead col="status"     label="Status"  sortBy={reqSort.sortBy} sortDir={reqSort.sortDir} onSort={reqSort.onSort} />
+                  <SortableHead col="hotel_reservations.guest_name"        label={t('htGuest')}    sortBy={reqSort.sortBy} sortDir={reqSort.sortDir} onSort={reqSort.onSort} />
+                  <SortableHead col="hotel_reservations.rooms.room_number" label={t('htRoomSingular')}    sortBy={reqSort.sortBy} sortDir={reqSort.sortDir} onSort={reqSort.onSort} />
+                  <span>{t('htMessage')}</span>
+                  <SortableHead col="created_at" label={t('htTime')} sortBy={reqSort.sortBy} sortDir={reqSort.sortDir} onSort={reqSort.onSort} />
+                  <SortableHead col="status"     label={t('htFieldStatus')}  sortBy={reqSort.sortBy} sortDir={reqSort.sortDir} onSort={reqSort.onSort} />
                   <span></span>
                 </div>
                 {reqSort.sort(filteredRequests).map(req => {
@@ -393,13 +396,13 @@ export default function FrontDeskPage() {
                   return (
                     <div key={req.id} className={styles.tableRow} style={{ gridTemplateColumns: '2fr 1fr 2fr 70px 100px 160px', cursor: 'default' }}>
                       <span><div style={{ fontWeight: 600 }}>{REQ_CAT_ICON[req.category] ?? '📋'} {guestName}</div></span>
-                      <span>{roomNum ? `Soba ${roomNum}` : '—'}</span>
+                      <span>{roomNum ? t('htRoomNum', { num: roomNum }) : '—'}</span>
                       <span style={{ fontSize: 12, color: 'var(--c-text-muted)' }}>{req.message}</span>
-                      <span style={{ fontSize: 11, color: 'var(--c-text-muted)' }}>{new Date(req.created_at).toLocaleTimeString('sr-Latn', { hour: '2-digit', minute: '2-digit' })}</span>
-                      <span style={{ color: st.color, fontWeight: 600, fontSize: 12 }}>{st.label}</span>
+                      <span style={{ fontSize: 11, color: 'var(--c-text-muted)' }}>{new Date(req.created_at).toLocaleTimeString(dl, { hour: '2-digit', minute: '2-digit' })}</span>
+                      <span style={{ color: st.color, fontWeight: 600, fontSize: 12 }}>{t(st.labelKey)}</span>
                       <span style={{ display: 'flex', gap: 6, justifyContent: 'flex-end' }}>
-                        {req.status === 'pending' && <button className={styles.btnSecondary} disabled={updatingId === req.id} onClick={() => handleStatusChange(req.id, 'in_progress')}>U toku</button>}
-                        {req.status !== 'resolved' && <button className={styles.btnPrimary} disabled={updatingId === req.id} onClick={() => handleStatusChange(req.id, 'resolved')}>Riješeno ✓</button>}
+                        {req.status === 'pending' && <button className={styles.btnSecondary} disabled={updatingId === req.id} onClick={() => handleStatusChange(req.id, 'in_progress')}>{t('htReqInProgress')}</button>}
+                        {req.status !== 'resolved' && <button className={styles.btnPrimary} disabled={updatingId === req.id} onClick={() => handleStatusChange(req.id, 'resolved')}>{t('htReqResolved')} ✓</button>}
                       </span>
                     </div>
                   )
@@ -416,16 +419,16 @@ export default function FrontDeskPage() {
                   <div key={req.id} className={styles.fdCard}>
                     <div className={styles.fdCardTop}>
                       <div className={styles.fdCardGuest}>{REQ_CAT_ICON[req.category] ?? '📋'} {guestName}</div>
-                      {roomNum && <div className={styles.fdCardRoom}>Soba {roomNum}</div>}
+                      {roomNum && <div className={styles.fdCardRoom}>{t('htRoomNum', { num: roomNum })}</div>}
                     </div>
                     <div className={styles.fdCardMsg}>{req.message}</div>
                     <div className={styles.fdCardMeta}>
-                      <span>{new Date(req.created_at).toLocaleTimeString('sr-Latn', { hour: '2-digit', minute: '2-digit' })}</span>
-                      <span className={styles.fdCardStatus} style={{ background: st.bg, color: st.color }}>{st.label}</span>
+                      <span>{new Date(req.created_at).toLocaleTimeString(dl, { hour: '2-digit', minute: '2-digit' })}</span>
+                      <span className={styles.fdCardStatus} style={{ background: st.bg, color: st.color }}>{t(st.labelKey)}</span>
                     </div>
                     <div className={styles.fdCardActions}>
-                      {req.status === 'pending' && <button className={styles.btnSecondary} disabled={updatingId === req.id} onClick={() => handleStatusChange(req.id, 'in_progress')}>U toku</button>}
-                      {req.status !== 'resolved' && <button className={styles.btnPrimary} disabled={updatingId === req.id} onClick={() => handleStatusChange(req.id, 'resolved')}>Riješeno ✓</button>}
+                      {req.status === 'pending' && <button className={styles.btnSecondary} disabled={updatingId === req.id} onClick={() => handleStatusChange(req.id, 'in_progress')}>{t('htReqInProgress')}</button>}
+                      {req.status !== 'resolved' && <button className={styles.btnPrimary} disabled={updatingId === req.id} onClick={() => handleStatusChange(req.id, 'resolved')}>{t('htReqResolved')} ✓</button>}
                     </div>
                   </div>
                 )
