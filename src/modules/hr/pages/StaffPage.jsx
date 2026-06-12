@@ -2,6 +2,7 @@
 
 import { useState, useEffect } from 'react'
 import { useNavigate } from 'react-router-dom'
+import { useTranslation } from 'react-i18next'
 import { supabase } from '../../../lib/supabase'
 import { usePlatform } from '../../../context/PlatformContext'
 import { useSortable } from '../../../hooks/useSortable'
@@ -11,6 +12,7 @@ import gsStyles from '../../menu/pages/GeneralSettings.module.css'
 
 export default function StaffPage() {
   const { restaurant } = usePlatform()
+  const { t } = useTranslation('admin')
   const navigate = useNavigate()
   const [staff, setStaff] = useState([])
   const [roles, setRoles] = useState([])
@@ -89,7 +91,7 @@ export default function StaffPage() {
     e.preventDefault(); setSaving(true); setAddError('')
     const email = form.email.trim().toLowerCase()
     if (staff.find(s => s.email.toLowerCase() === email)) {
-      setAddError('Zaposlenik sa ovim emailom već postoji.'); setSaving(false); return
+      setAddError(t('stfEmailExists')); setSaving(false); return
     }
 
     // Edge funkcija kreira Auth nalog + staff zapis (service_role, bypassuje RLS)
@@ -108,7 +110,7 @@ export default function StaffPage() {
       let msg = data?.error
       if (!msg && error) {
         try { const b = await error.context?.json(); msg = b?.error } catch {}
-        msg = msg || error.message || 'Greška pri kreiranju.'
+        msg = msg || error.message || t('stfCreateErr')
       }
       setAddError(msg); setSaving(false); return
     }
@@ -118,7 +120,7 @@ export default function StaffPage() {
       setStaff(prev => [...prev, data.staff])
     }
     setSaving(false)
-    setAddSuccess(addMethod === 'invite' ? 'Pozivnica poslana!' : 'Zaposlenik dodan!')
+    setAddSuccess(addMethod === 'invite' ? t('stfInviteSent') : t('stfStaffAdded'))
     setTimeout(() => { setShowForm(false); setAddSuccess('') }, 1500)
   }
 
@@ -130,7 +132,7 @@ export default function StaffPage() {
 
   const removeStaff = async (e, id) => {
     e.stopPropagation()
-    if (!confirm('Ukloniti zaposlenika?')) return
+    if (!confirm(t('stfRemoveConfirm'))) return
     await supabase.from('staff').delete().eq('id', id)
     setStaff(prev => prev.filter(x => x.id !== id))
   }
@@ -138,30 +140,30 @@ export default function StaffPage() {
   const active = staff.filter(s => s.is_active)
   const inactive = staff.filter(s => !s.is_active)
 
-  if (loading) return <div className={styles.loading}>Učitavanje...</div>
+  if (loading) return <div className={styles.loading}>{t('loading')}</div>
 
   return (
     <div className={gsStyles.page} style={{ maxWidth: 960 }}>
       <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-start', marginBottom: 24 }}>
         <div>
-          <h1 className={gsStyles.title}>Zaposleni</h1>
-          <p className={gsStyles.subtitle}>Pregled i upravljanje zaposlenicima.</p>
+          <h1 className={gsStyles.title}>{t('stfTitle')}</h1>
+          <p className={gsStyles.subtitle}>{t('stfSubtitle')}</p>
         </div>
-        <button className={styles.btnPrimary} onClick={openForm}>+ Dodaj zaposlenika</button>
+        <button className={styles.btnPrimary} onClick={openForm}>+ {t('stfAddStaff')}</button>
       </div>
 
       {staff.length === 0 ? (
         <div className={styles.empty}>
           <div className={styles.emptyIcon}>👤</div>
-          <div className={styles.emptyTitle}>Nema zaposlenih</div>
-          <div className={styles.emptyDesc}>Dodaj prvog zaposlenika da počneš koristiti HR modul</div>
-          <button className={styles.btnPrimary} onClick={openForm}>+ Dodaj zaposlenika</button>
+          <div className={styles.emptyTitle}>{t('stfNoStaff')}</div>
+          <div className={styles.emptyDesc}>{t('stfNoStaffDesc')}</div>
+          <button className={styles.btnPrimary} onClick={openForm}>+ {t('stfAddStaff')}</button>
         </div>
       ) : (
         <div className={styles.content}>
           {active.length > 0 && (
             <div className={styles.section}>
-              <div className={styles.sectionLabel}>AKTIVNI ({active.length})</div>
+              <div className={styles.sectionLabel}>{t('stfActiveN', { n: active.length })}</div>
               <StaffTable
                 staff={active}
                 onEdit={(id) => navigate(`/admin/hr/staff/${id}`)}
@@ -172,7 +174,7 @@ export default function StaffPage() {
           )}
           {inactive.length > 0 && (
             <div className={styles.section}>
-              <div className={styles.sectionLabel}>NEAKTIVNI ({inactive.length})</div>
+              <div className={styles.sectionLabel}>{t('stfInactiveN', { n: inactive.length })}</div>
               <StaffTable
                 staff={inactive}
                 onEdit={(id) => navigate(`/admin/hr/staff/${id}`)}
@@ -190,26 +192,26 @@ export default function StaffPage() {
         <div className={styles.overlay} onClick={() => setShowForm(false)}>
           <div className={styles.modal} onClick={e => e.stopPropagation()}>
             <div className={styles.modalHeader}>
-              <div className={styles.modalTitle}>Dodaj zaposlenika</div>
+              <div className={styles.modalTitle}>{t('stfAddStaff')}</div>
               <button className={styles.modalClose} onClick={() => setShowForm(false)}>✕</button>
             </div>
             <div className={styles.methodToggle}>
-              <button className={`${styles.methodBtn} ${addMethod === 'create' ? styles.methodActive : ''}`} onClick={() => setAddMethod('create')}>Kreiraj nalog</button>
-              <button className={`${styles.methodBtn} ${addMethod === 'invite' ? styles.methodActive : ''}`} onClick={() => setAddMethod('invite')}>Pošalji pozivnicu</button>
+              <button className={`${styles.methodBtn} ${addMethod === 'create' ? styles.methodActive : ''}`} onClick={() => setAddMethod('create')}>{t('stfCreateAccount')}</button>
+              <button className={`${styles.methodBtn} ${addMethod === 'invite' ? styles.methodActive : ''}`} onClick={() => setAddMethod('invite')}>{t('stfSendInvite')}</button>
             </div>
             <form onSubmit={saveStaff}>
-              <div className={styles.field}><label>Email adresa *</label><input type="email" value={form.email} onChange={e => setForm(f => ({ ...f, email: e.target.value }))} required /></div>
-              {addMethod === 'create' && <div className={styles.field}><label>Lozinka *</label><input type="password" value={form.password} onChange={e => setForm(f => ({ ...f, password: e.target.value }))} required minLength={6} /></div>}
-              <div className={styles.field}><label>Rola</label><select value={form.role_id} onChange={e => setForm(f => ({ ...f, role_id: e.target.value }))}><option value="">— Bez role —</option>{roles.map(r => <option key={r.id} value={r.id}>{r.name}</option>)}</select></div>
+              <div className={styles.field}><label>{t('stfEmailLabel')} *</label><input type="email" value={form.email} onChange={e => setForm(f => ({ ...f, email: e.target.value }))} required /></div>
+              {addMethod === 'create' && <div className={styles.field}><label>{t('stfPassword')} *</label><input type="password" value={form.password} onChange={e => setForm(f => ({ ...f, password: e.target.value }))} required minLength={6} /></div>}
+              <div className={styles.field}><label>{t('stfRole')}</label><select value={form.role_id} onChange={e => setForm(f => ({ ...f, role_id: e.target.value }))}><option value="">{t('stfNoRole')}</option>{roles.map(r => <option key={r.id} value={r.id}>{r.name}</option>)}</select></div>
               <div className={styles.fieldRow}>
-                <div className={styles.field}><label>Tip plate</label><select value={form.wage_type} onChange={e => setForm(f => ({ ...f, wage_type: e.target.value }))}><option value="monthly">Mjesečna</option><option value="weekly">Sedmična</option><option value="hourly">Po satu</option></select></div>
-                <div className={styles.field}><label>Iznos (€)</label><input type="number" min="0" step="0.01" value={form.wage_amount} onChange={e => setForm(f => ({ ...f, wage_amount: e.target.value }))} placeholder="0.00" /></div>
+                <div className={styles.field}><label>{t('stfWageType')}</label><select value={form.wage_type} onChange={e => setForm(f => ({ ...f, wage_type: e.target.value }))}><option value="monthly">{t('stfWageMonthly')}</option><option value="weekly">{t('stfWageWeekly')}</option><option value="hourly">{t('stfWageHourly')}</option></select></div>
+                <div className={styles.field}><label>{t('stfAmountEur')}</label><input type="number" min="0" step="0.01" value={form.wage_amount} onChange={e => setForm(f => ({ ...f, wage_amount: e.target.value }))} placeholder="0.00" /></div>
               </div>
               {addError && <div className={styles.error}>{addError}</div>}
               {addSuccess && <div className={styles.success}>✓ {addSuccess}</div>}
               <div className={styles.modalActions}>
-                <button type="button" className={styles.btnSecondary} onClick={() => setShowForm(false)}>Odustani</button>
-                <button type="submit" className={styles.btnPrimary} disabled={saving}>{saving ? 'Dodavanje...' : 'Dodaj zaposlenika'}</button>
+                <button type="button" className={styles.btnSecondary} onClick={() => setShowForm(false)}>{t('cancel')}</button>
+                <button type="submit" className={styles.btnPrimary} disabled={saving}>{saving ? t('stfAdding') : t('stfAddStaff')}</button>
               </div>
             </form>
           </div>
@@ -220,6 +222,7 @@ export default function StaffPage() {
 }
 
 function StaffTable({ staff, onEdit, onToggle, onRemove }) {
+  const { t } = useTranslation('admin')
   const sort = useSortable('_displayName', 'asc')
   const staffWithNames = staff.map(s => ({
     ...s,
@@ -231,11 +234,11 @@ function StaffTable({ staff, onEdit, onToggle, onRemove }) {
       <table className={styles.table}>
         <thead>
           <tr>
-            <th><SortableHead col="_displayName" label="Zaposlenik" sortBy={sort.sortBy} sortDir={sort.sortDir} onSort={sort.onSort} /></th>
-            <th><SortableHead col="role.name"    label="Rola"       sortBy={sort.sortBy} sortDir={sort.sortDir} onSort={sort.onSort} /></th>
-            <th>Danas</th>
-            <th><SortableHead col="is_active"    label="Status"     sortBy={sort.sortBy} sortDir={sort.sortDir} onSort={sort.onSort} /></th>
-            <th style={{ textAlign: 'right' }}>Akcije</th>
+            <th><SortableHead col="_displayName" label={t('stfStaffMember')} sortBy={sort.sortBy} sortDir={sort.sortDir} onSort={sort.onSort} /></th>
+            <th><SortableHead col="role.name"    label={t('stfRole')}       sortBy={sort.sortBy} sortDir={sort.sortDir} onSort={sort.onSort} /></th>
+            <th>{t('stfToday')}</th>
+            <th><SortableHead col="is_active"    label={t('htFieldStatus')}     sortBy={sort.sortBy} sortDir={sort.sortDir} onSort={sort.onSort} /></th>
+            <th style={{ textAlign: 'right' }}>{t('stfActions')}</th>
           </tr>
         </thead>
         <tbody>
@@ -245,7 +248,7 @@ function StaffTable({ staff, onEdit, onToggle, onRemove }) {
               : s.email[0].toUpperCase()
             const displayName = s._displayName
             const wage = s.wage_amount > 0
-              ? `€${parseFloat(s.wage_amount).toFixed(0)}/${s.wage_type === 'hourly' ? 'h' : s.wage_type === 'weekly' ? 'sed.' : 'mj.'}`
+              ? `€${parseFloat(s.wage_amount).toFixed(0)}/${s.wage_type === 'hourly' ? t('stfPerHour') : s.wage_type === 'weekly' ? t('stfPerWeek') : t('stfPerMonth')}`
               : '—'
 
             return (
@@ -258,14 +261,14 @@ function StaffTable({ staff, onEdit, onToggle, onRemove }) {
                         {displayName}
                         {s._pendingAbsences > 0 && (
                           <span style={{ background: '#fef3c7', color: '#92400e', fontSize: 10, fontWeight: 700, padding: '1px 6px', borderRadius: 20 }}>
-                            {s._pendingAbsences} zahtjev{s._pendingAbsences === 1 ? '' : 'a'}
+                            {s._pendingAbsences === 1 ? t('stfReqOne', { n: s._pendingAbsences }) : t('stfReqOther', { n: s._pendingAbsences })}
                           </span>
                         )}
                       </div>
                       {s.first_name && <div className={styles.staffEmail}>{s.email}</div>}
                       <div className={styles.mobileInfo}>
                         {s.role?.name && <span className={styles.roleBadge}>{s.role.name}</span>}
-                        {s._present && <span className={styles.connectedBadge}>Na poslu</span>}
+                        {s._present && <span className={styles.connectedBadge}>{t('stfAtWork')}</span>}
                       </div>
                     </div>
                   </div>
@@ -278,23 +281,23 @@ function StaffTable({ staff, onEdit, onToggle, onRemove }) {
                 </td>
                 <td>
                   {s._present
-                    ? <span className={styles.connectedBadge}>Na poslu</span>
+                    ? <span className={styles.connectedBadge}>{t('stfAtWork')}</span>
                     : <span style={{ fontSize: 12, color: 'var(--color-text-secondary, #8a9e96)' }}>—</span>
                   }
                 </td>
                 <td>
                   {s.user_id
-                    ? <span className={styles.connectedBadge}>Povezan</span>
-                    : <span className={styles.pendingBadge}>Čeka registraciju</span>
+                    ? <span className={styles.connectedBadge}>{t('stfConnected')}</span>
+                    : <span className={styles.pendingBadge}>{t('stfPendingReg')}</span>
                   }
                 </td>
                 <td onClick={e => e.stopPropagation()}>
                   <div className={styles.actions}>
-                    <button className={styles.btnEdit} onClick={() => onEdit(s.id)}>Uredi</button>
+                    <button className={styles.btnEdit} onClick={() => onEdit(s.id)}>{t('htEdit')}</button>
                     <button className={`${styles.btnAction} ${s.is_active ? styles.btnWarn : styles.btnOk}`} onClick={e => onToggle(e, s)}>
-                      {s.is_active ? 'Deaktiviraj' : 'Aktiviraj'}
+                      {s.is_active ? t('psDeactivate') : t('psActivate')}
                     </button>
-                    <button className={`${styles.btnAction} ${styles.btnDanger}`} onClick={e => onRemove(e, s.id)}>Ukloni</button>
+                    <button className={`${styles.btnAction} ${styles.btnDanger}`} onClick={e => onRemove(e, s.id)}>{t('stfRemove')}</button>
                   </div>
                 </td>
               </tr>
