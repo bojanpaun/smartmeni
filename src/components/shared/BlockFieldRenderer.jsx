@@ -1,3 +1,4 @@
+import { useTranslation } from 'react-i18next'
 import ImageUpload from './ImageUpload'
 import { toEmbedUrl } from '../../utils/videoUrl'
 import styles from './LandingEditor.module.css'
@@ -15,6 +16,7 @@ function StarRating({ value = 5, onChange }) {
 }
 
 function ReviewsList({ value, onChange }) {
+  const { t } = useTranslation('admin')
   const items = Array.isArray(value) ? value : []
   const update = (idx, field, val) => onChange(items.map((it, i) => i === idx ? { ...it, [field]: val } : it))
   const add = () => { if (items.length >= 6) return; onChange([...items, { name: '', rating: 5, text: '', date: '' }]) }
@@ -25,33 +27,34 @@ function ReviewsList({ value, onChange }) {
       {items.map((item, idx) => (
         <div key={idx} className={styles.listItemCard}>
           <div className={styles.listItemHeader}>
-            <span className={styles.listItemNum}>Recenzija {idx + 1}</span>
-            <button className={styles.removeItemBtn} onClick={() => remove(idx)}>Ukloni</button>
+            <span className={styles.listItemNum}>{t('bfrReviewN', { n: idx + 1 })}</span>
+            <button className={styles.removeItemBtn} onClick={() => remove(idx)}>{t('shRemove')}</button>
           </div>
           <div className={styles.formRow}>
-            <label className={styles.label}>Ime gosta</label>
-            <input className={styles.input} value={item.name || ''} onChange={e => update(idx, 'name', e.target.value)} placeholder="Npr. Ana P." />
+            <label className={styles.label}>{t('bfrGuestName')}</label>
+            <input className={styles.input} value={item.name || ''} onChange={e => update(idx, 'name', e.target.value)} placeholder={t('bfrGuestNamePh')} />
           </div>
           <div className={styles.formRow}>
-            <label className={styles.label}>Ocjena</label>
+            <label className={styles.label}>{t('bfrRating')}</label>
             <StarRating value={item.rating || 5} onChange={v => update(idx, 'rating', v)} />
           </div>
           <div className={styles.formRow}>
-            <label className={styles.label}>Tekst recenzije</label>
-            <textarea className={styles.textarea} rows={3} value={item.text || ''} onChange={e => update(idx, 'text', e.target.value)} placeholder="Odličan hotel, preporučujem..." />
+            <label className={styles.label}>{t('bfrReviewText')}</label>
+            <textarea className={styles.textarea} rows={3} value={item.text || ''} onChange={e => update(idx, 'text', e.target.value)} placeholder={t('bfrReviewTextPh')} />
           </div>
           <div className={styles.formRow}>
-            <label className={styles.label}>Datum (opcionalno)</label>
-            <input className={styles.input} value={item.date || ''} onChange={e => update(idx, 'date', e.target.value)} placeholder="Maj 2025" />
+            <label className={styles.label}>{t('bfrDate')}</label>
+            <input className={styles.input} value={item.date || ''} onChange={e => update(idx, 'date', e.target.value)} placeholder={t('bfrDatePh')} />
           </div>
         </div>
       ))}
-      {items.length < 6 && <button className={styles.addItemBtn} onClick={add}>+ Dodaj recenziju</button>}
+      {items.length < 6 && <button className={styles.addItemBtn} onClick={add}>{t('bfrAddReview')}</button>}
     </div>
   )
 }
 
 function FaqList({ value, onChange }) {
+  const { t } = useTranslation('admin')
   const items = Array.isArray(value) ? value : []
   const update = (idx, field, val) => onChange(items.map((it, i) => i === idx ? { ...it, [field]: val } : it))
   const add = () => { if (items.length >= 10) return; onChange([...items, { question: '', answer: '' }]) }
@@ -62,25 +65,26 @@ function FaqList({ value, onChange }) {
       {items.map((item, idx) => (
         <div key={idx} className={styles.listItemCard}>
           <div className={styles.listItemHeader}>
-            <span className={styles.listItemNum}>Pitanje {idx + 1}</span>
-            <button className={styles.removeItemBtn} onClick={() => remove(idx)}>Ukloni</button>
+            <span className={styles.listItemNum}>{t('bfrQuestionN', { n: idx + 1 })}</span>
+            <button className={styles.removeItemBtn} onClick={() => remove(idx)}>{t('shRemove')}</button>
           </div>
           <div className={styles.formRow}>
-            <label className={styles.label}>Pitanje</label>
-            <input className={styles.input} value={item.question || ''} onChange={e => update(idx, 'question', e.target.value)} placeholder="Npr. Imate li bazen?" />
+            <label className={styles.label}>{t('bfrQuestion')}</label>
+            <input className={styles.input} value={item.question || ''} onChange={e => update(idx, 'question', e.target.value)} placeholder={t('bfrQuestionPh')} />
           </div>
           <div className={styles.formRow}>
-            <label className={styles.label}>Odgovor</label>
-            <textarea className={styles.textarea} rows={3} value={item.answer || ''} onChange={e => update(idx, 'answer', e.target.value)} placeholder="Da, bazen je dostupan od 8–22h..." />
+            <label className={styles.label}>{t('bfrAnswer')}</label>
+            <textarea className={styles.textarea} rows={3} value={item.answer || ''} onChange={e => update(idx, 'answer', e.target.value)} placeholder={t('bfrAnswerPh')} />
           </div>
         </div>
       ))}
-      {items.length < 10 && <button className={styles.addItemBtn} onClick={add}>+ Dodaj pitanje</button>}
+      {items.length < 10 && <button className={styles.addItemBtn} onClick={add}>{t('bfrAddQuestion')}</button>}
     </div>
   )
 }
 
 function SpecialsList({ value, onChange, restaurantId }) {
+  const { t } = useTranslation('admin')
   const items = Array.isArray(value) ? value : []
   const update = (idx, field, val) => onChange(items.map((it, i) => i === idx ? { ...it, [field]: val } : it))
   const add = () => { if (items.length >= 3) return; onChange([...items, { name: '', description: '', price: '', image_url: '' }]) }
@@ -91,28 +95,28 @@ function SpecialsList({ value, onChange, restaurantId }) {
       {items.map((item, idx) => (
         <div key={idx} className={styles.listItemCard}>
           <div className={styles.listItemHeader}>
-            <span className={styles.listItemNum}>Specijalitet {idx + 1}</span>
-            <button className={styles.removeItemBtn} onClick={() => remove(idx)}>Ukloni</button>
+            <span className={styles.listItemNum}>{t('bfrSpecialN', { n: idx + 1 })}</span>
+            <button className={styles.removeItemBtn} onClick={() => remove(idx)}>{t('shRemove')}</button>
           </div>
           <div className={styles.formRow}>
-            <label className={styles.label}>Naziv jela</label>
-            <input className={styles.input} value={item.name || ''} onChange={e => update(idx, 'name', e.target.value)} placeholder="Grilled brancin" />
+            <label className={styles.label}>{t('bfrDishName')}</label>
+            <input className={styles.input} value={item.name || ''} onChange={e => update(idx, 'name', e.target.value)} placeholder={t('bfrDishNamePh')} />
           </div>
           <div className={styles.formRow}>
-            <label className={styles.label}>Kratki opis</label>
-            <input className={styles.input} value={item.description || ''} onChange={e => update(idx, 'description', e.target.value)} placeholder="Svježi morski specijalitet..." />
+            <label className={styles.label}>{t('bfrShortDesc')}</label>
+            <input className={styles.input} value={item.description || ''} onChange={e => update(idx, 'description', e.target.value)} placeholder={t('bfrShortDescPh')} />
           </div>
           <div className={styles.formRow}>
-            <label className={styles.label}>Cijena</label>
-            <input className={styles.input} value={item.price || ''} onChange={e => update(idx, 'price', e.target.value)} placeholder="18€" />
+            <label className={styles.label}>{t('bfrPrice')}</label>
+            <input className={styles.input} value={item.price || ''} onChange={e => update(idx, 'price', e.target.value)} placeholder={t('bfrPricePh')} />
           </div>
           <div className={styles.formRow}>
-            <label className={styles.label}>Fotografija</label>
+            <label className={styles.label}>{t('bfrPhoto')}</label>
             <ImageUpload value={item.image_url || ''} onChange={url => update(idx, 'image_url', url)} restaurantId={restaurantId} />
           </div>
         </div>
       ))}
-      {items.length < 3 && <button className={styles.addItemBtn} onClick={add}>+ Dodaj specijalitet</button>}
+      {items.length < 3 && <button className={styles.addItemBtn} onClick={add}>{t('bfrAddSpecial')}</button>}
     </div>
   )
 }

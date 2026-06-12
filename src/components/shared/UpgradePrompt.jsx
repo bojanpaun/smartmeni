@@ -1,10 +1,11 @@
 import { useNavigate } from 'react-router-dom'
+import { useTranslation } from 'react-i18next'
 import styles from './UpgradePrompt.module.css'
 
-const CATEGORY_LABEL = {
-  restaurant: 'Restoran',
-  hotel: 'Hotel',
-  enterprise: 'Enterprise',
+const CATEGORY_KEY = {
+  restaurant: 'upgCatRestaurant',
+  hotel: 'upgCatHotel',
+  enterprise: 'upgCatEnterprise',
 }
 
 export default function UpgradePrompt({
@@ -18,6 +19,7 @@ export default function UpgradePrompt({
   fullPage = false,
 }) {
   const navigate = useNavigate()
+  const { t } = useTranslation('admin')
 
   return (
     <div className={`${styles.container} ${fullPage ? styles.fullPage : ''}`}>
@@ -30,7 +32,7 @@ export default function UpgradePrompt({
 
       {category && (
         <span className={`${styles.categoryBadge} ${styles[`category_${category}`]}`}>
-          {CATEGORY_LABEL[category] ?? category}
+          {CATEGORY_KEY[category] ? t(CATEGORY_KEY[category]) : category}
         </span>
       )}
 
@@ -49,18 +51,18 @@ export default function UpgradePrompt({
 
       {dependsOn.length > 0 && (
         <p className={styles.dependsNote}>
-          Zahtijeva: <strong>{dependsOn.join(', ')}</strong>
+          {t('upgRequires')} <strong>{dependsOn.join(', ')}</strong>
         </p>
       )}
 
       <div className={styles.priceRow}>
         {price ? (
           <>
-            <span className={styles.priceAmount}>od {price}€</span>
-            <span className={styles.pricePeriod}>/godišnje</span>
+            <span className={styles.priceAmount}>{t('upgPriceFrom', { price })}</span>
+            <span className={styles.pricePeriod}>{t('upgPerYear')}</span>
           </>
         ) : (
-          <span className={styles.priceTbd}>Cijena na upit</span>
+          <span className={styles.priceTbd}>{t('upgPriceTbd')}</span>
         )}
       </div>
 
@@ -68,10 +70,10 @@ export default function UpgradePrompt({
         className={styles.ctaBtn}
         onClick={() => navigate('/admin/billing')}
       >
-        Aktiviraj modul
+        {t('upgActivate')}
       </button>
 
-      <p className={styles.trialNote}>14 dana besplatno probno razdoblje</p>
+      <p className={styles.trialNote}>{t('upgTrial')}</p>
     </div>
   )
 }

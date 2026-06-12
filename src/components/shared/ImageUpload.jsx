@@ -1,4 +1,5 @@
 import { useRef, useState } from 'react'
+import { useTranslation } from 'react-i18next'
 import { supabase } from '../../lib/supabase'
 import { toast } from 'react-hot-toast'
 import styles from './ImageUpload.module.css'
@@ -7,9 +8,9 @@ const MAX_BYTES = 5 * 1024 * 1024
 const ACCEPT = 'image/jpeg,image/png,image/webp,image/gif'
 const BUCKET = 'landing-images'
 
-async function uploadOne(file, restaurantId) {
+async function uploadOne(file, restaurantId, t) {
   if (file.size > MAX_BYTES) {
-    toast.error(`Slika "${file.name}" je prevelika (max 5MB)`)
+    toast.error(t('iuTooLarge', { name: file.name }))
     return null
   }
   const ext = file.name.split('.').pop().toLowerCase()
@@ -18,7 +19,7 @@ async function uploadOne(file, restaurantId) {
     .from(BUCKET)
     .upload(path, file, { upsert: false, contentType: file.type })
   if (error) {
-    toast.error('Greška pri uploadu slike')
+    toast.error(t('iuUploadErr'))
     return null
   }
   const { data } = supabase.storage.from(BUCKET).getPublicUrl(path)
@@ -27,13 +28,14 @@ async function uploadOne(file, restaurantId) {
 
 // Single image upload
 function SingleUpload({ value, onChange, restaurantId }) {
+  const { t } = useTranslation('admin')
   const [uploading, setUploading] = useState(false)
   const inputRef = useRef()
 
   const handle = async (files) => {
     if (!files?.length || !restaurantId) return
     setUploading(true)
-    const url = await uploadOne(files[0], restaurantId)
+    const url = await uploadOne(files[0], restaurantId, t)
     if (url) onChange(url)
     setUploading(false)
   }
@@ -49,10 +51,10 @@ function SingleUpload({ value, onChange, restaurantId }) {
             onClick={() => inputRef.current.click()}
             disabled={uploading}
           >
-            {uploading ? <span className={styles.spinner} /> : 'Zamijeni'}
+            {uploading ? <span className={styles.spinner} /> : t('iuReplace')}
           </button>
           <button type="button" className={styles.removeBtn} onClick={() => onChange('')}>
-            Ukloni
+            {t('shRemove')}
           </button>
         </div>
         <input
@@ -77,8 +79,8 @@ function SingleUpload({ value, onChange, restaurantId }) {
         ? <span className={styles.spinner} />
         : <>
             <span className={styles.dropzoneIcon}>🖼️</span>
-            <span className={styles.dropzoneText}>Kliknite ili prevucite sliku</span>
-            <span className={styles.dropzoneHint}>JPG, PNG, WebP, GIF · max 5MB</span>
+            <span className={styles.dropzoneText}>{t('iuDropText')}</span>
+            <span className={styles.dropzoneHint}>{t('iuDropHint')}</span>
           </>
       }
       <input
@@ -94,6 +96,7 @@ function SingleUpload({ value, onChange, restaurantId }) {
 
 // Multi-image upload (gallery)
 function MultiUpload({ value, onChange, restaurantId }) {
+  const { t } = useTranslation('admin')
   const [uploading, setUploading] = useState(false)
   const inputRef = useRef()
 
@@ -107,7 +110,7 @@ function MultiUpload({ value, onChange, restaurantId }) {
     setUploading(true)
     const newUrls = []
     for (const file of Array.from(files)) {
-      const url = await uploadOne(file, restaurantId)
+      const url = await uploadOne(file, restaurantId, t)
       if (url) newUrls.push(url)
     }
     if (newUrls.length) onChange([...urls, ...newUrls].join('\n'))

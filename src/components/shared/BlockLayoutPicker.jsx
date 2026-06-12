@@ -1,21 +1,23 @@
+import { useTranslation } from 'react-i18next'
 import styles from './LandingEditor.module.css'
 
+// l = ključ u `admin` namespace-u (blkLo*); i = ikona; v = vrijednost layout-a
 const OPTIONS = {
-  hero:            [{ v: 'fullscreen', l: 'Fullscreen', i: '⬛' }, { v: 'compact', l: 'Kompaktan', i: '▬' }, { v: 'split', l: 'Split', i: '◫' }],
-  about:           [{ v: 'image-right', l: 'Slika desno', i: '◧' }, { v: 'image-left', l: 'Slika lijevo', i: '◨' }, { v: 'text-only', l: 'Samo tekst', i: '≡' }],
-  story:           [{ v: 'image-right', l: 'Slika desno', i: '◧' }, { v: 'image-left', l: 'Slika lijevo', i: '◨' }, { v: 'text-only', l: 'Samo tekst', i: '≡' }, { v: 'image-above', l: 'Slika gore', i: '⊟' }],
-  gallery:         [{ v: 'grid-3', l: '3 kolone', i: '⊞' }, { v: 'grid-2', l: '2 kolone', i: '⊟' }, { v: 'masonry', l: 'Masonry', i: '▦' }],
-  amenities:       [{ v: 'icons-row', l: 'Ikone', i: '◈' }, { v: 'list', l: 'Lista', i: '≡' }, { v: 'cards', l: 'Kartice', i: '⊞' }],
-  contact:         [{ v: 'card', l: 'Kartica', i: '▭' }, { v: 'minimal', l: 'Minimalan', i: '—' }, { v: 'two-column', l: '2 kolone', i: '◫' }],
-  location:        [{ v: 'card-with-map', l: 'Sa mapom', i: '▤' }, { v: 'card-only', l: 'Bez mape', i: '▭' }],
-  hours_location:  [{ v: 'card-with-map', l: 'Sa mapom', i: '▤' }, { v: 'card-only', l: 'Bez mape', i: '▭' }],
-  reservation_cta: [{ v: 'banner', l: 'Banner', i: '▬' }, { v: 'card', l: 'Kartica', i: '▭' }, { v: 'minimal', l: 'Minimalan', i: '—' }],
-  reviews:         [{ v: 'cards', l: 'Kartice', i: '⊞' }, { v: 'list', l: 'Lista', i: '≡' }, { v: 'featured', l: 'Istaknuto', i: '★' }],
-  video:           [{ v: 'full', l: 'Puni width', i: '▬' }, { v: 'centered', l: 'Centrirano', i: '▭' }],
-  cta_banner:      [{ v: 'centered', l: 'Centrirano', i: '▬' }, { v: 'left-aligned', l: 'Lijevo', i: '▭' }],
-  faq:             [{ v: 'default', l: 'Jedna kol.', i: '≡' }, { v: 'two-column', l: 'Dvije kol.', i: '◫' }],
-  specials:        [{ v: 'cards', l: 'Kartice', i: '⊞' }, { v: 'list', l: 'Lista', i: '≡' }],
-  menu_preview:    [{ v: 'grid', l: 'Grid', i: '⊞' }, { v: 'list', l: 'Lista', i: '≡' }, { v: 'cards', l: 'Kartice', i: '▭' }],
+  hero:            [{ v: 'fullscreen', l: 'blkLoFullscreen', i: '⬛' }, { v: 'compact', l: 'blkLoCompact', i: '▬' }, { v: 'split', l: 'blkLoSplit', i: '◫' }],
+  about:           [{ v: 'image-right', l: 'blkLoImageRight', i: '◧' }, { v: 'image-left', l: 'blkLoImageLeft', i: '◨' }, { v: 'text-only', l: 'blkLoTextOnly', i: '≡' }],
+  story:           [{ v: 'image-right', l: 'blkLoImageRight', i: '◧' }, { v: 'image-left', l: 'blkLoImageLeft', i: '◨' }, { v: 'text-only', l: 'blkLoTextOnly', i: '≡' }, { v: 'image-above', l: 'blkLoImageAbove', i: '⊟' }],
+  gallery:         [{ v: 'grid-3', l: 'blkLoGrid3', i: '⊞' }, { v: 'grid-2', l: 'blkLoGrid2', i: '⊟' }, { v: 'masonry', l: 'blkLoMasonry', i: '▦' }],
+  amenities:       [{ v: 'icons-row', l: 'blkLoIcons', i: '◈' }, { v: 'list', l: 'blkLoList', i: '≡' }, { v: 'cards', l: 'blkLoCards', i: '⊞' }],
+  contact:         [{ v: 'card', l: 'blkLoCard', i: '▭' }, { v: 'minimal', l: 'blkLoMinimal', i: '—' }, { v: 'two-column', l: 'blkLoGrid2', i: '◫' }],
+  location:        [{ v: 'card-with-map', l: 'blkLoMapYes', i: '▤' }, { v: 'card-only', l: 'blkLoMapNo', i: '▭' }],
+  hours_location:  [{ v: 'card-with-map', l: 'blkLoMapYes', i: '▤' }, { v: 'card-only', l: 'blkLoMapNo', i: '▭' }],
+  reservation_cta: [{ v: 'banner', l: 'blkLoBanner', i: '▬' }, { v: 'card', l: 'blkLoCard', i: '▭' }, { v: 'minimal', l: 'blkLoMinimal', i: '—' }],
+  reviews:         [{ v: 'cards', l: 'blkLoCards', i: '⊞' }, { v: 'list', l: 'blkLoList', i: '≡' }, { v: 'featured', l: 'blkLoFeatured', i: '★' }],
+  video:           [{ v: 'full', l: 'blkLoFullWidth', i: '▬' }, { v: 'centered', l: 'blkLoCentered', i: '▭' }],
+  cta_banner:      [{ v: 'centered', l: 'blkLoCentered', i: '▬' }, { v: 'left-aligned', l: 'blkLoLeft', i: '▭' }],
+  faq:             [{ v: 'default', l: 'blkLoOneCol', i: '≡' }, { v: 'two-column', l: 'blkLoTwoCol', i: '◫' }],
+  specials:        [{ v: 'cards', l: 'blkLoCards', i: '⊞' }, { v: 'list', l: 'blkLoList', i: '≡' }],
+  menu_preview:    [{ v: 'grid', l: 'blkLoGrid', i: '⊞' }, { v: 'list', l: 'blkLoList', i: '≡' }, { v: 'cards', l: 'blkLoCards', i: '▭' }],
 }
 
 const COL_SPLITS = [
@@ -27,9 +29,10 @@ const COL_SPLITS = [
 ]
 
 export function ColSplitPicker({ value, onChange }) {
+  const { t } = useTranslation('admin')
   return (
     <div className={styles.formRow}>
-      <div className={styles.layoutPickerLabel}>Širina kolona (tekst / slika)</div>
+      <div className={styles.layoutPickerLabel}>{t('blkColWidth')}</div>
       <div className={styles.layoutPicker}>
         {COL_SPLITS.map(opt => (
           <button
@@ -47,11 +50,12 @@ export function ColSplitPicker({ value, onChange }) {
 }
 
 export default function BlockLayoutPicker({ blockType, value, onChange }) {
+  const { t } = useTranslation('admin')
   const opts = OPTIONS[blockType]
   if (!opts) return null
   return (
     <div className={styles.formRow}>
-      <div className={styles.layoutPickerLabel}>Izgled bloka</div>
+      <div className={styles.layoutPickerLabel}>{t('blkBlockLayout')}</div>
       <div className={styles.layoutPicker}>
         {opts.map(opt => (
           <button
@@ -61,7 +65,7 @@ export default function BlockLayoutPicker({ blockType, value, onChange }) {
             onClick={() => onChange(opt.v)}
           >
             <span className={styles.layoutIcon}>{opt.i}</span>
-            <span className={styles.layoutLabel}>{opt.l}</span>
+            <span className={styles.layoutLabel}>{t(opt.l)}</span>
           </button>
         ))}
       </div>

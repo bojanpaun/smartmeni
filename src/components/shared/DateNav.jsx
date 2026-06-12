@@ -1,4 +1,5 @@
 import { useState, useEffect } from 'react'
+import { useTranslation } from 'react-i18next'
 import styles from './DateNav.module.css'
 
 const _t = new Date()
@@ -14,8 +15,9 @@ export default function DateNav({
   hidePeriod = false,
   showMonth  = false,   // dugme Mjesec + month picker
   allowAll   = false,   // dugme Sve (briše datumski filter)
-  placeholder = 'Pretraži...',
+  placeholder,
 }) {
+  const { t } = useTranslation('admin')
   const isAll = from == null && to == null
 
   // month picker ili range ili single
@@ -82,15 +84,15 @@ export default function DateNav({
   return (
     <div className={styles.nav}>
       <div className={styles.left}>
-        <button className={`${styles.btn} ${isYesterday ? styles.active : ''}`} onClick={() => setQuick(YESTERDAY)}>Juče</button>
-        <button className={`${styles.btn} ${isToday     ? styles.active : ''}`} onClick={() => setQuick(TODAY)}>Danas</button>
+        <button className={`${styles.btn} ${isYesterday ? styles.active : ''}`} onClick={() => setQuick(YESTERDAY)}>{t('dnYesterday')}</button>
+        <button className={`${styles.btn} ${isToday     ? styles.active : ''}`} onClick={() => setQuick(TODAY)}>{t('dnToday')}</button>
         {showFuture && (
-          <button className={`${styles.btn} ${isTomorrow ? styles.active : ''}`} onClick={() => setQuick(TOMORROW)}>Sutra</button>
+          <button className={`${styles.btn} ${isTomorrow ? styles.active : ''}`} onClick={() => setQuick(TOMORROW)}>{t('dnTomorrow')}</button>
         )}
 
         {/* Month picker dugme */}
         {showMonth && (
-          <button className={`${styles.btn} ${monthMode ? styles.active : ''}`} onClick={toggleMonth}>Mjesec</button>
+          <button className={`${styles.btn} ${monthMode ? styles.active : ''}`} onClick={toggleMonth}>{t('dnMonth')}</button>
         )}
 
         {/* Prikaz inputa zavisno od moda */}
@@ -120,12 +122,12 @@ export default function DateNav({
 
         {/* Period dugme */}
         {!hidePeriod && (
-          <button className={`${styles.btn} ${rangeMode ? styles.active : ''}`} onClick={togglePeriod}>Period</button>
+          <button className={`${styles.btn} ${rangeMode ? styles.active : ''}`} onClick={togglePeriod}>{t('dnPeriod')}</button>
         )}
 
         {/* Sve dugme */}
         {allowAll && (
-          <button className={`${styles.btn} ${isAll ? styles.active : ''}`} onClick={setAll}>Sve</button>
+          <button className={`${styles.btn} ${isAll ? styles.active : ''}`} onClick={setAll}>{t('dnAll')}</button>
         )}
       </div>
 
@@ -137,7 +139,7 @@ export default function DateNav({
             className={styles.searchInput}
             value={search}
             onChange={e => onSearch(e.target.value)}
-            placeholder={placeholder}
+            placeholder={placeholder ?? t('dnSearchPh')}
           />
           {search && <button className={styles.clearBtn} onClick={() => onSearch('')}>✕</button>}
         </div>

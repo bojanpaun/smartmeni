@@ -1,4 +1,5 @@
 import { useRef, useEffect, useState } from 'react'
+import { useTranslation } from 'react-i18next'
 import styles from './LandingEditor.module.css'
 
 const DEVICES = [
@@ -8,6 +9,7 @@ const DEVICES = [
 ]
 
 export default function LandingPreview({ src, blocks, onClose }) {
+  const { t } = useTranslation('admin')
   const iframeRef = useRef()
   const [device, setDevice] = useState('desktop')
   const [ready, setReady] = useState(false)
@@ -41,7 +43,7 @@ export default function LandingPreview({ src, blocks, onClose }) {
   return (
     <div className={styles.previewPanel}>
       <div className={styles.previewToolbar}>
-        <span className={styles.previewLabel}>Preview</span>
+        <span className={styles.previewLabel}>{t('lpPreview')}</span>
         <div className={styles.deviceToggle}>
           {DEVICES.map(({ key, icon }) => (
             <button
@@ -55,10 +57,10 @@ export default function LandingPreview({ src, blocks, onClose }) {
           ))}
         </div>
         <a href={publicUrl} target="_blank" rel="noreferrer" className={styles.openLink}>
-          ↗ Otvori
+          {t('lpOpen')}
         </a>
         {onClose && (
-          <button className={styles.closePreviewBtn} onClick={onClose} title="Zatvori preview">
+          <button className={styles.closePreviewBtn} onClick={onClose} title={t('lpClosePreview')}>
             ✕
           </button>
         )}
