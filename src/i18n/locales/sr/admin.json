@@ -2588,5 +2588,6 @@
   "amTransAi": "AI",
   "amTransSave": "Sačuvaj",
   "amTransSaving": "Čuvam…",
-  "amTransSaved": "Sačuvano"
+  "amTransSaved": "Sačuvano",
+  "amTransAutoNote": "AI automatski prevodi naziv i opis na ostale jezike. Pojedinačnu korekciju radiš preko 🌐 u listi jela."
 }

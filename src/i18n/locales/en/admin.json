@@ -2588,5 +2588,6 @@
   "amTransAi": "AI",
   "amTransSave": "Save",
   "amTransSaving": "Saving…",
-  "amTransSaved": "Saved"
+  "amTransSaved": "Saved",
+  "amTransAutoNote": "AI automatically translates the name and description into the other languages. Fine-tune individually via 🌐 in the item list."
 }

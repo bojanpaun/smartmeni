@@ -2588,5 +2588,6 @@
   "amTransAi": "AI",
   "amTransSave": "Kaydet",
   "amTransSaving": "Kaydediliyor…",
-  "amTransSaved": "Kaydedildi"
+  "amTransSaved": "Kaydedildi",
+  "amTransAutoNote": "AI adı ve açıklamayı diğer dillere otomatik çevirir. Tek tek düzeltmeyi yemek listesindeki 🌐 ile yaparsın."
 }

@@ -91,7 +91,7 @@ export default function AdminMenu() {
       setEditItem(item)
     } else {
       setItemForm({
-        name: '', name_en: '', description: '', description_en: '',
+        name: '', description: '',
         price: '', emoji: '🍽️', allergens: '', calories: '',
         prep_time: '', category_id: activeCategory || '', is_special: false, tags: []
       })
@@ -515,21 +515,16 @@ export default function AdminMenu() {
             </div>
             <form onSubmit={saveItem} className={styles.modalForm}>
               <div className={styles.modalGrid}>
-                <div className={styles.field}>
-                  <label>{t('fName')} (SR) *</label>
+                <div className={`${styles.field} ${styles.fullWidth}`}>
+                  <label>{t('fName')} *</label>
                   <input value={itemForm.name} onChange={e => setItemForm(f => ({...f, name: e.target.value}))} required />
                 </div>
-                <div className={styles.field}>
-                  <label>{t('fName')} (EN)</label>
-                  <input value={itemForm.name_en} onChange={e => setItemForm(f => ({...f, name_en: e.target.value}))} />
-                </div>
                 <div className={`${styles.field} ${styles.fullWidth}`}>
-                  <label>{t('fDesc')} (SR)</label>
+                  <label>{t('fDesc')}</label>
                   <textarea value={itemForm.description} onChange={e => setItemForm(f => ({...f, description: e.target.value}))} rows={2} />
                 </div>
-                <div className={`${styles.field} ${styles.fullWidth}`}>
-                  <label>{t('fDesc')} (EN)</label>
-                  <textarea value={itemForm.description_en} onChange={e => setItemForm(f => ({...f, description_en: e.target.value}))} rows={2} />
+                <div className={`${styles.field} ${styles.fullWidth}`} style={{ fontSize: 12, color: 'var(--c-text-muted)', marginTop: -4 }}>
+                  {t('amTransAutoNote')}
                 </div>
                 <div className={styles.field}>
                   <label>{t('amPriceLabel')} *</label>
