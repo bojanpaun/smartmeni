@@ -1,18 +1,19 @@
 import { useState, useEffect, useRef } from 'react'
 import { useLocation } from 'react-router-dom'
+import { useTranslation } from 'react-i18next'
 import { supabase } from '../../../lib/supabase'
 import { usePlatform } from '../../../context/PlatformContext'
 import { useAdminBadgeRefresh } from '../../../layouts/AdminLayout'
 import styles from './WaiterDashboard.module.css'
 
-async function findOpenFolio(restaurantId, roomNum) {
+async function findOpenFolio(restaurantId, roomNum, t) {
   const { data: room } = await supabase
     .from('rooms')
     .select('id')
     .eq('restaurant_id', restaurantId)
     .ilike('room_number', roomNum.trim())
     .single()
-  if (!room) return { error: 'Soba nije pronađena.' }
+  if (!room) return { error: t('wdRoomNotFound') }
 
   const { data: res } = await supabase
     .from('hotel_reservations')
@@ -20,7 +21,7 @@ async function findOpenFolio(restaurantId, roomNum) {
     .eq('room_id', room.id)
     .eq('status', 'checked_in')
     .maybeSingle()
-  if (!res) return { error: 'Gost nije prijavljen u sobu.' }
+  if (!res) return { error: t('wdGuestNotIn') }
 
   const { data: folio } = await supabase
     .from('folios')
@@ -28,21 +29,33 @@ async function findOpenFolio(restaurantId, roomNum) {
     .eq('reservation_id', res.id)
     .eq('status', 'open')
     .single()
-  if (!folio) return { error: 'Folio nije pronađen ili je zatvoren.' }
+  if (!folio) return { error: t('wdFolioNotFound') }
 
   return { folio }
 }
 
 const STATUS_CONFIG = {
-  pending:   { label: 'Nova',        color: '#0d7a52', bg: '#E1F5EE' },
-  received:  { label: 'Primljeno',   color: '#1D9E75', bg: '#E1F5EE' },
-  preparing: { label: 'U pripremi',  color: '#BA7517', bg: '#FAEEDA' },
-  ready:     { label: 'Gotovo',      color: '#534AB7', bg: '#EEEDFE' },
-  served:    { label: 'Servirano',   color: '#888780', bg: '#F1EFE8' },
-  closed:    { label: 'Zatvoreno',   color: '#888780', bg: '#F1EFE8' },
+  pending:   { labelKey: 'wsNew',        color: '#0d7a52', bg: '#E1F5EE' },
+  received:  { labelKey: 'wsReceived',   color: '#1D9E75', bg: '#E1F5EE' },
+  preparing: { labelKey: 'wsPreparing',  color: '#BA7517', bg: '#FAEEDA' },
+  ready:     { labelKey: 'wsReady',      color: '#534AB7', bg: '#EEEDFE' },
+  served:    { labelKey: 'wsServed',     color: '#888780', bg: '#F1EFE8' },
+  closed:    { labelKey: 'wsClosed',     color: '#888780', bg: '#F1EFE8' },
+}
+
+const QUICK_RESPONSE_KEYS = ['wQuick1', 'wQuick2', 'wQuick3', 'wQuick4']
+const DEFAULT_REJECT_KEYS = ['wReject1', 'wReject2', 'wReject3', 'wReject4']
+const NEXT_LABEL_KEYS = {
+  pending: 'nlPending',
+  received: 'nlReceived',
+  preparing: 'nlPreparing',
+  ready: 'nlReady',
+  served: 'nlServed',
 }
 
 export default function WaiterDashboard() {
+  const { t, i18n } = useTranslation('admin')
+  const dl = i18n.language === 'en' ? 'en-US' : 'sr-Latn'
   const { restaurant, hasAddon } = usePlatform()
   const { refreshCounts } = useAdminBadgeRefresh()
   const hotelEnabled = hasAddon('hotel_core')
@@ -134,20 +147,8 @@ export default function WaiterDashboard() {
     setWaiterReqs(prev => prev.filter(r => r.id !== id))
   }
 
-  const QUICK_RESPONSES = [
-    'Dolazim odmah!',
-    'Za minut sam kod vas.',
-    'Za 2-3 minute.',
-    'Primljeno, hvala!',
-  ]
-
-  const DEFAULT_REJECT = [
-    'Žao nam je, ovaj artikal trenutno nije dostupan.',
-    'Kuhinja je zauzeta, molimo pokušajte malo kasnije.',
-    'Narudžba je primljena greškom, molimo naručite ponovo.',
-    'Restoran se zatvara, narudžba nije moguća.',
-  ]
-  const REJECT_MESSAGES = restaurant?.rejection_messages || DEFAULT_REJECT
+  // Tenant rejection_messages (ako postoje) ostaju kako ih je tenant unio; inače prevedeni default-i.
+  const REJECT_MESSAGES = restaurant?.rejection_messages || DEFAULT_REJECT_KEYS.map(k => t(k))
 
   const NEXT_STATUS = {
     pending: 'received',
@@ -155,14 +156,6 @@ export default function WaiterDashboard() {
     preparing: 'ready',
     ready: 'served',
     served: 'closed',
-  }
-
-  const NEXT_LABEL = {
-    pending: 'Prihvati narudžbu',
-    received: 'Počni pripremu',
-    preparing: 'Označi kao gotovo',
-    ready: 'Serviraj gostu',
-    served: 'Zatvori narudžbu',
   }
 
   const openRoomCharge = (orderId) =>
@@ -176,14 +169,14 @@ export default function WaiterDashboard() {
     if (!state?.roomNum?.trim()) return
     setRoomChargeMap(p => ({ ...p, [order.id]: { ...p[order.id], loading: true, error: '' } }))
 
-    const { folio, error } = await findOpenFolio(restaurant.id, state.roomNum)
+    const { folio, error } = await findOpenFolio(restaurant.id, state.roomNum, t)
     if (error) {
       setRoomChargeMap(p => ({ ...p, [order.id]: { ...p[order.id], loading: false, error } }))
       return
     }
 
     const amount = parseFloat(order.total) || 0
-    const desc = (order.order_items || []).map(i => `${i.quantity}× ${i.name}`).join(', ') || 'Restoran narudžba'
+    const desc = (order.order_items || []).map(i => `${i.quantity}× ${i.name}`).join(', ') || t('wdRestaurantOrder')
 
     const { error: fiErr } = await supabase.from('folio_items').insert({
       folio_id: folio.id, restaurant_id: restaurant.id,
@@ -192,7 +185,7 @@ export default function WaiterDashboard() {
       date: new Date().toISOString().slice(0, 10), order_id: order.id,
     })
     if (fiErr) {
-      setRoomChargeMap(p => ({ ...p, [order.id]: { ...p[order.id], loading: false, error: 'Greška pri upisu na folio.' } }))
+      setRoomChargeMap(p => ({ ...p, [order.id]: { ...p[order.id], loading: false, error: t('wdFolioWriteErr') } }))
       return
     }
 
@@ -209,15 +202,15 @@ export default function WaiterDashboard() {
   const newOrdersCount = orders.filter(o => o.status === 'pending' || o.status === 'received').length
   const newReqsCount = waiterReqs.filter(r => !r.is_resolved).length
 
-  if (loading) return <div className={styles.loading}>Učitavanje...</div>
+  if (loading) return <div className={styles.loading}>{t('loading')}</div>
 
   return (
     <div>
       <div className={styles.topbar}>
-        <div className={styles.topbarTitle}>Narudžbe i zahtjevi</div>
+        <div className={styles.topbarTitle}>{t('wdTitle')}</div>
         <div className={styles.liveBadge}>
           <div className={styles.liveDot}></div>
-          Realtime
+          {t('realtime')}
         </div>
       </div>
 
@@ -230,7 +223,7 @@ export default function WaiterDashboard() {
             {orders.length === 0 ? (
               <div className={styles.empty}>
                 <div className={styles.emptyIcon}>🍽️</div>
-                <div>Nema aktivnih narudžbi</div>
+                <div>{t('wdNoOrders')}</div>
               </div>
             ) : orders.map(order => {
               const isOnline = order.table_number === 'Online' || !order.table_number
@@ -245,7 +238,7 @@ export default function WaiterDashboard() {
                   <div className={styles.orderMeta}>
                     <div className={styles.tableNum}>
                       <span className={styles.sourceIcon}>{isOnline ? '🌐' : '🪑'}</span>
-                      {isOnline ? 'Online' : `Sto ${order.table_number}`}
+                      {isOnline ? t('online') : `${t('kdTable')} ${order.table_number}`}
                     </div>
                     <div className={styles.orderRef}>#{order.id.slice(-6).toUpperCase()}</div>
                   </div>
@@ -253,7 +246,7 @@ export default function WaiterDashboard() {
                     className={styles.statusPill}
                     style={{ background: statusCfg.bg, color: statusCfg.color }}
                   >
-                    {statusCfg.label}
+                    {statusCfg.labelKey ? t(statusCfg.labelKey) : ''}
                   </span>
                 </div>
 
@@ -277,17 +270,17 @@ export default function WaiterDashboard() {
                 <div className={styles.orderFooter}>
                   <span className={styles.orderTotal}>€{parseFloat(order.total).toFixed(2)}</span>
                   <span className={styles.orderTime}>
-                    {new Date(order.created_at).toLocaleTimeString('sr', { hour: '2-digit', minute: '2-digit' })}
+                    {new Date(order.created_at).toLocaleTimeString(dl, { hour: '2-digit', minute: '2-digit' })}
                   </span>
                 </div>
 
                 <div className={styles.orderActions}>
                   {order.status === 'preparing' && (order.kitchen_status || order.bar_status) ? (
                     <div className={styles.preparingInfo}>
-                      {order.kitchen_status === 'preparing' && <span>🧑‍🍳 Kuhinja priprema</span>}
-                      {order.bar_status     === 'preparing' && <span>🍷 Bar priprema</span>}
-                      {order.kitchen_status === 'ready'     && <span className={styles.stationDone}>🧑‍🍳 Kuhinja gotova</span>}
-                      {order.bar_status     === 'ready'     && <span className={styles.stationDone}>🍷 Bar gotov</span>}
+                      {order.kitchen_status === 'preparing' && <span>🧑‍🍳 {t('wdKitchenPreparing')}</span>}
+                      {order.bar_status     === 'preparing' && <span>🍷 {t('wdBarPreparing')}</span>}
+                      {order.kitchen_status === 'ready'     && <span className={styles.stationDone}>🧑‍🍳 {t('wdKitchenReady')}</span>}
+                      {order.bar_status     === 'ready'     && <span className={styles.stationDone}>🍷 {t('wdBarReady')}</span>}
                     </div>
                   ) : NEXT_STATUS[order.status] && (
                     <button
@@ -295,17 +288,17 @@ export default function WaiterDashboard() {
                       style={{ background: restaurant?.color || '#0d7a52' }}
                       onClick={() => updateOrderStatus(order.id, NEXT_STATUS[order.status])}
                     >
-                      {NEXT_LABEL[order.status]}
+                      {t(NEXT_LABEL_KEYS[order.status])}
                     </button>
                   )}
                   {order.status === 'served' && hotelEnabled && !roomChargeMap[order.id] && (
                     <button className={styles.roomChargeBtn} onClick={() => openRoomCharge(order.id)}>
-                      🏨 Naplati na sobu
+                      🏨 {t('wdChargeToRoom')}
                     </button>
                   )}
                   {(order.status === 'received' || order.status === 'pending') && (
                     <div className={styles.rejectWrap}>
-                      <div className={styles.rejectLabel}>Odbij uz poruku:</div>
+                      <div className={styles.rejectLabel}>{t('wdRejectWithMsg')}</div>
                       <div className={styles.rejectMessages}>
                         {REJECT_MESSAGES.map(msg => (
                           <button key={msg} className={styles.rejectMsgBtn}
@@ -320,11 +313,11 @@ export default function WaiterDashboard() {
 
                 {order.status === 'served' && roomChargeMap[order.id] && (
                   <div className={styles.roomChargePanel}>
-                    <div className={styles.roomChargePanelTitle}>🏨 Broj sobe:</div>
+                    <div className={styles.roomChargePanelTitle}>🏨 {t('wdRoomNumber')}</div>
                     <div className={styles.roomChargeRow}>
                       <input
                         className={styles.roomChargeInput}
-                        placeholder="npr. 101"
+                        placeholder={t('wdRoomPlaceholder')}
                         value={roomChargeMap[order.id].roomNum}
                         onChange={e => setRoomChargeMap(p => ({ ...p, [order.id]: { ...p[order.id], roomNum: e.target.value } }))}
                         onKeyDown={e => e.key === 'Enter' && chargeToRoom(order)}
@@ -335,10 +328,10 @@ export default function WaiterDashboard() {
                         onClick={() => chargeToRoom(order)}
                         disabled={roomChargeMap[order.id].loading}
                       >
-                        {roomChargeMap[order.id].loading ? '...' : 'Potvrdi'}
+                        {roomChargeMap[order.id].loading ? '...' : t('confirm')}
                       </button>
                       <button className={styles.roomChargeCancel} onClick={() => cancelRoomCharge(order.id)}>
-                        Odustani
+                        {t('cancel')}
                       </button>
                     </div>
                     {roomChargeMap[order.id].error && (
@@ -357,7 +350,7 @@ export default function WaiterDashboard() {
             {waiterReqs.length === 0 ? (
               <div className={styles.empty}>
                 <div className={styles.emptyIcon}>🔔</div>
-                <div>Nema aktivnih poziva</div>
+                <div>{t('wdNoReqs')}</div>
               </div>
             ) : waiterReqs.map(req => (
               <div key={req.id} className={`${styles.reqCard} ${!req.is_resolved ? styles.reqNew : ''}`}>
@@ -365,29 +358,32 @@ export default function WaiterDashboard() {
                   <div className={styles.reqMeta}>
                     <div className={styles.reqTable}>
                       <span className={styles.sourceIcon}>🔔</span>
-                      Sto {req.table_number}
+                      {t('kdTable')} {req.table_number}
                     </div>
                     <div className={styles.reqRef}>#{req.id.slice(-6).toUpperCase()}</div>
                   </div>
                   <div className={styles.reqTime}>
-                    {new Date(req.created_at).toLocaleTimeString('sr', { hour: '2-digit', minute: '2-digit' })}
+                    {new Date(req.created_at).toLocaleTimeString(dl, { hour: '2-digit', minute: '2-digit' })}
                   </div>
                 </div>
                 <div className={styles.reqType}>{req.request_type}</div>
                 <div className={styles.quickResponses}>
-                  {QUICK_RESPONSES.map(r => (
-                    <button key={r} className={styles.quickRespBtn}
-                      onClick={() => resolveWaiterReq(req.id, r)}>
-                      {r}
-                    </button>
-                  ))}
+                  {QUICK_RESPONSE_KEYS.map(k => {
+                    const r = t(k)
+                    return (
+                      <button key={k} className={styles.quickRespBtn}
+                        onClick={() => resolveWaiterReq(req.id, r)}>
+                        {r}
+                      </button>
+                    )
+                  })}
                 </div>
                 <button
                   className={styles.resolveBtn}
                   style={{ background: restaurant?.color || '#0d7a52' }}
                   onClick={() => resolveWaiterReq(req.id, null)}
                 >
-                  Završeno ✓
+                  {t('wdResolved')} ✓
                 </button>
               </div>
             ))}

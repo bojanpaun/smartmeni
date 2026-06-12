@@ -1,4 +1,5 @@
 import { useState, useEffect, useMemo } from 'react'
+import { useTranslation } from 'react-i18next'
 import { supabase } from '../../../lib/supabase'
 import { usePlatform } from '../../../context/PlatformContext'
 import { useAdminBadgeRefresh } from '../../../layouts/AdminLayout'
@@ -12,6 +13,8 @@ function endOfDay(dateStr) { return `${dateStr}T23:59:59.999Z` }
 
 // mode: 'kitchen' | 'bar'
 export default function KitchenDashboard({ mode = 'kitchen' }) {
+  const { t, i18n } = useTranslation('admin')
+  const dl = i18n.language === 'en' ? 'en-US' : 'sr-Latn'
   const { restaurant } = usePlatform()
   const [orders, setOrders] = useState([])
   const [barCatIds, setBarCatIds] = useState(new Set())
@@ -103,10 +106,10 @@ export default function KitchenDashboard({ mode = 'kitchen' }) {
   }
 
   const formatTime = (dateStr) =>
-    new Date(dateStr).toLocaleTimeString('sr-Latn', { hour: '2-digit', minute: '2-digit' })
+    new Date(dateStr).toLocaleTimeString(dl, { hour: '2-digit', minute: '2-digit' })
 
   const formatDate = (dateStr) =>
-    new Date(dateStr).toLocaleDateString('sr-Latn', { day: '2-digit', month: '2-digit' })
+    new Date(dateStr).toLocaleDateString(dl, { day: '2-digit', month: '2-digit' })
 
   const isUrgent = (dateStr) =>
     (Date.now() - new Date(dateStr)) > 10 * 60 * 1000
@@ -133,18 +136,18 @@ export default function KitchenDashboard({ mode = 'kitchen' }) {
     visibleOrders.reduce((sum, o) => sum + (o.order_items?.length || 0), 0)
   , [visibleOrders])
 
-  if (loading) return <div className={styles.loading}>Učitavanje...</div>
+  if (loading) return <div className={styles.loading}>{t('loading')}</div>
 
   return (
     <div>
       <div className={`${styles.topbar} ${isBar ? styles.topbarBar : ''}`}>
         <div className={styles.topbarTitle}>
-          {isBar ? '🍷 Bar' : '🧑‍🍳 Kuhinja'}
+          {isBar ? `🍷 ${t('navBar')}` : `🧑‍🍳 ${t('navKitchen')}`}
         </div>
         {!isDone && (
           <div className={styles.liveBadge}>
             <div className={styles.liveDot}></div>
-            Realtime
+            {t('realtime')}
           </div>
         )}
       </div>
@@ -155,19 +158,19 @@ export default function KitchenDashboard({ mode = 'kitchen' }) {
             className={`${styles.filterBtn} ${statusFilter === 'active' ? styles.filterActive : ''}`}
             onClick={() => setStatusFilter('active')}
           >
-            Aktivne{statusFilter === 'active' ? ` (${visibleOrders.length})` : ''}
+            {t('kdActive')}{statusFilter === 'active' ? ` (${visibleOrders.length})` : ''}
           </button>
           <button
             className={`${styles.filterBtn} ${statusFilter === 'ready' ? styles.filterActive : ''}`}
             onClick={() => setStatusFilter('ready')}
           >
-            Gotove{statusFilter === 'ready' ? ` (${visibleOrders.length})` : ''}
+            {t('kdReady')}{statusFilter === 'ready' ? ` (${visibleOrders.length})` : ''}
           </button>
           <button
             className={`${styles.filterBtn} ${isDone ? styles.filterActive : ''}`}
             onClick={() => setStatusFilter('done')}
           >
-            Završene
+            {t('kdDone')}
           </button>
         </div>
 
@@ -180,15 +183,15 @@ export default function KitchenDashboard({ mode = 'kitchen' }) {
           showFuture={false}
           showMonth={true}
           allowAll={true}
-          placeholder="Pretraži sto ili stavku..."
+          placeholder={t('kdSearchPlaceholder')}
         />
 
         {isDone && visibleOrders.length > 0 && (
           <div className={styles.periodBar}>
             <div className={styles.doneSummary}>
-              <span>{visibleOrders.length} narudžbi</span>
+              <span>{t('kdOrdersCount', { count: visibleOrders.length })}</span>
               <span>·</span>
-              <span>{totalItems} stavki</span>
+              <span>{t('kdItemsCount', { count: totalItems })}</span>
             </div>
           </div>
         )}
@@ -197,17 +200,17 @@ export default function KitchenDashboard({ mode = 'kitchen' }) {
           <div className={styles.empty}>
             <div className={styles.emptyIcon}>{isBar ? '🍷' : statusFilter === 'done' ? '📋' : '✓'}</div>
             <div className={styles.emptyText}>
-              {statusFilter === 'active' ? (isBar ? 'Nema aktivnih narudžbi za bar.' : 'Sve narudžbe su odrađene!') : 'Nema narudžbi'}
+              {statusFilter === 'active' ? (isBar ? t('kdEmptyBarActive') : t('kdEmptyKitchenActive')) : t('kdEmptyOther')}
             </div>
           </div>
         ) : isDone ? (
           <div className={styles.doneTable}>
             <div className={styles.doneTableHead}>
-              <span>Sto</span>
-              <span>Stavke</span>
-              <span>Datum</span>
-              <span>Vrijeme</span>
-              <span>Trajanje</span>
+              <span>{t('kdTable')}</span>
+              <span>{t('thItems')}</span>
+              <span>{t('thDate')}</span>
+              <span>{t('thTime')}</span>
+              <span>{t('thDuration')}</span>
             </div>
             {visibleOrders.map(order => {
               const itemCount = order.order_items?.length || 0
@@ -217,7 +220,7 @@ export default function KitchenDashboard({ mode = 'kitchen' }) {
               const durationMin = updatedAt ? Math.round((updatedAt - createdAt) / 60000) : null
               return (
                 <div key={order.id} className={styles.doneRow}>
-                  <span className={styles.doneRowTable}>Sto {order.table_number || '—'}</span>
+                  <span className={styles.doneRowTable}>{t('kdTable')} {order.table_number || '—'}</span>
                   <span className={styles.doneRowItems} title={names}>
                     <span className={styles.doneItemCount}>{itemCount}</span>
                     <span className={styles.doneItemNames}>{names}</span>
@@ -239,10 +242,10 @@ export default function KitchenDashboard({ mode = 'kitchen' }) {
                   ${isUrgent(order.created_at) && order.status !== 'ready' ? styles.ticketUrgent : ''}`}
               >
                 <div className={styles.ticketHeader}>
-                  <div className={styles.ticketTable}>Sto {order.table_number}</div>
+                  <div className={styles.ticketTable}>{t('kdTable')} {order.table_number}</div>
                   <div className={styles.ticketMeta}>
                     <span className={`${styles.ticketStatus} ${styles[`status_${order.status}`]}`}>
-                      {order.status === 'received' ? 'NOVO' : order.status === 'preparing' ? 'U PRIPREMI' : 'GOTOVO'}
+                      {order.status === 'received' ? t('stNew') : order.status === 'preparing' ? t('stPreparing') : t('stDone')}
                     </span>
                     <span className={`${styles.ticketTime} ${isUrgent(order.created_at) ? styles.urgent : ''}`}>
                       {timeAgo(order.created_at)}
@@ -266,16 +269,16 @@ export default function KitchenDashboard({ mode = 'kitchen' }) {
 
                 <div className={styles.ticketActions}>
                   {order.status === 'received' && (
-                    <div className={styles.ticketWaiting}>Čeka konobara...</div>
+                    <div className={styles.ticketWaiting}>{t('kdWaiting')}</div>
                   )}
                   {order.status === 'preparing' && (
                     <button className={`${styles.ticketBtn} ${styles.ticketBtnSuccess}`}
                       onClick={() => markReady(order.id)}>
-                      Gotovo! ✓
+                      {t('kdDoneBtn')} ✓
                     </button>
                   )}
                   {order.status === 'ready' && (
-                    <div className={styles.ticketReady}>Čeka konobara...</div>
+                    <div className={styles.ticketReady}>{t('kdWaiting')}</div>
                   )}
                 </div>
               </div>
