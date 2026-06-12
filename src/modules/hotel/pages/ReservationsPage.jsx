@@ -1,5 +1,6 @@
 import { useState, useEffect, useMemo } from 'react'
 import { useNavigate } from 'react-router-dom'
+import { useTranslation } from 'react-i18next'
 import { usePlatform } from '../../../context/PlatformContext'
 import { useReservations } from '../hooks/useReservations'
 import { useReservationCounts } from '../hooks/useReservationCounts'
@@ -73,9 +74,9 @@ const STATUS_CLASS = {
   cancelled:   'sBadgeCancelled',
   no_show:     'sBadgeNoShow',
 }
-const STATUS_LABELS = {
-  inquiry: 'Upit', confirmed: 'Potvrđena', checked_in: 'Prisutna',
-  checked_out: 'Odjavljena', cancelled: 'Otkazana', no_show: 'No-show',
+const STATUS_LABEL_KEYS = {
+  inquiry: 'htResInquiry', confirmed: 'htResConfirmed', checked_in: 'htResCheckedIn',
+  checked_out: 'htResCheckedOut', cancelled: 'htResCancelled', no_show: 'htResNoShow',
 }
 const STATUS_FILTERS = ['', 'inquiry', 'confirmed', 'checked_in', 'checked_out', 'cancelled']
 
@@ -85,20 +86,19 @@ const CAL_STYLE = {
   checked_in:  { bg: '#dcfce7', color: '#166534', border: '#86efac' },
   checked_out: { bg: '#f1f5f9', color: '#64748b', border: '#cbd5e1' },
 }
-const CAL_LABELS = {
-  inquiry: 'Upit', confirmed: 'Potvrđena', checked_in: 'Prisutna', checked_out: 'Odjavljena',
-}
 
 const GRANULARITIES = [
-  { key: 'day',    label: 'Dan'     },
-  { key: 'week',   label: 'Sedmica' },
-  { key: 'month',  label: 'Mjesec'  },
-  { key: 'period', label: 'Period'  },
+  { key: 'day',    labelKey: 'htGranDay'    },
+  { key: 'week',   labelKey: 'htGranWeek'   },
+  { key: 'month',  labelKey: 'htGranMonth'  },
+  { key: 'period', labelKey: 'htGranPeriod' },
 ]
 
 // ── Komponenta ───────────────────────────────────────────────────
 export default function ReservationsPage() {
   const { restaurant } = usePlatform()
+  const { t, i18n }    = useTranslation('admin')
+  const dl             = i18n.language === 'en' ? 'en-US' : 'sr-Latn'
   const navigate       = useNavigate()
   const [view, setView] = useState('list')
 
@@ -212,13 +212,13 @@ export default function ReservationsPage() {
     const first = calDates[0]
     const last  = calDates[CAL_DAYS - 1]
     if (calGranularity === 'day') {
-      return new Date(first).toLocaleDateString('sr-Latn', { weekday: 'long', day: 'numeric', month: 'long', year: 'numeric' })
+      return new Date(first).toLocaleDateString(dl, { weekday: 'long', day: 'numeric', month: 'long', year: 'numeric' })
     }
     if (calGranularity === 'month') {
-      return new Date(first).toLocaleDateString('sr-Latn', { month: 'long', year: 'numeric' })
+      return new Date(first).toLocaleDateString(dl, { month: 'long', year: 'numeric' })
     }
-    return `${new Date(first).toLocaleDateString('sr-Latn', { day: 'numeric', month: 'short' })} — ${new Date(last).toLocaleDateString('sr-Latn', { day: 'numeric', month: 'short', year: 'numeric' })}`
-  }, [calDates, calGranularity, CAL_DAYS])
+    return `${new Date(first).toLocaleDateString(dl, { day: 'numeric', month: 'short' })} — ${new Date(last).toLocaleDateString(dl, { day: 'numeric', month: 'short', year: 'numeric' })}`
+  }, [calDates, calGranularity, CAL_DAYS, dl])
 
   // ── Render ────────────────────────────────────────────────────
   return (
@@ -227,9 +227,9 @@ export default function ReservationsPage() {
       {/* ── Header ─────────────────────────────────────────── */}
       <div className={styles.header}>
         <div>
-          <h1 className={styles.title}>Rezervacije</h1>
+          <h1 className={styles.title}>{t('navReservations')}</h1>
           <p className={styles.subtitle}>
-            {view === 'list' ? `${filteredReservations.length} rezervacija` : calSubtitle}
+            {view === 'list' ? t('htReservationsCount', { n: filteredReservations.length }) : calSubtitle}
           </p>
         </div>
         <div className={styles.headerActions}>
@@ -238,14 +238,14 @@ export default function ReservationsPage() {
             <button
               className={`${navStyles.toggleBtn} ${view === 'list'     ? navStyles.toggleBtnActive : ''}`}
               onClick={() => setView('list')}
-            >☰ Lista</button>
+            >☰ {t('htViewList')}</button>
             <button
               className={`${navStyles.toggleBtn} ${view === 'calendar' ? navStyles.toggleBtnActive : ''}`}
               onClick={() => setView('calendar')}
-            >📆 Kalendar</button>
+            >📆 {t('htViewCalendar')}</button>
           </div>
           <button className={styles.btnPrimary} onClick={() => navigate('/admin/hotel/reservations/new')}>
-            + Nova rezervacija
+            + {t('htNewReservation')}
           </button>
         </div>
       </div>
@@ -262,7 +262,7 @@ export default function ReservationsPage() {
             showFuture={true}
             showMonth={true}
             allowAll={true}
-            placeholder="Pretraži gosta ili sobu..."
+            placeholder={t('htSearchGuestRoom')}
           />
 
           <div className={styles.filterBar}>
@@ -272,7 +272,7 @@ export default function ReservationsPage() {
                 className={`${styles.filterBtn} ${statusFilter === s ? styles.filterBtnActive : ''}`}
                 onClick={() => setStatusFilter(s)}
               >
-                {s ? STATUS_LABELS[s] : 'Svi statusi'}
+                {s ? t(STATUS_LABEL_KEYS[s]) : t('htAllStatuses')}
                 {statusCounts[s] > 0 && (
                   <span className={styles.filterCount}>{statusCounts[s]}</span>
                 )}
@@ -281,19 +281,19 @@ export default function ReservationsPage() {
           </div>
 
           {loading ? <LoadingSpinner /> : filteredReservations.length === 0 ? (
-            <div className={styles.empty}><p>Nema rezervacija za odabrani period.</p></div>
+            <div className={styles.empty}><p>{t('htNoReservationsPeriod')}</p></div>
           ) : (<>
             {/* Desktop */}
             <div className={styles.fdDesktopTable}>
               <div className={styles.table}>
                 <div className={styles.tableHead}>
-                  <SortableHead col="guest_name"        label="Gost"      sortBy={sortBy} sortDir={sortDir} onSort={onSort} />
-                  <SortableHead col="rooms.room_number" label="Soba"      sortBy={sortBy} sortDir={sortDir} onSort={onSort} />
-                  <SortableHead col="check_in_date"     label="Check-in"  sortBy={sortBy} sortDir={sortDir} onSort={onSort} />
-                  <SortableHead col="check_out_date"    label="Check-out" sortBy={sortBy} sortDir={sortDir} onSort={onSort} />
-                  <span>Noći</span>
-                  <SortableHead col="total_amount"      label="Iznos"     sortBy={sortBy} sortDir={sortDir} onSort={onSort} />
-                  <SortableHead col="status"            label="Status"    sortBy={sortBy} sortDir={sortDir} onSort={onSort} />
+                  <SortableHead col="guest_name"        label={t('htGuest')}      sortBy={sortBy} sortDir={sortDir} onSort={onSort} />
+                  <SortableHead col="rooms.room_number" label={t('htRoomSingular')} sortBy={sortBy} sortDir={sortDir} onSort={onSort} />
+                  <SortableHead col="check_in_date"     label={t('htCheckin')}  sortBy={sortBy} sortDir={sortDir} onSort={onSort} />
+                  <SortableHead col="check_out_date"    label={t('htCheckout')} sortBy={sortBy} sortDir={sortDir} onSort={onSort} />
+                  <span>{t('htNightsHead')}</span>
+                  <SortableHead col="total_amount"      label={t('htAmount')}     sortBy={sortBy} sortDir={sortDir} onSort={onSort} />
+                  <SortableHead col="status"            label={t('htFieldStatus')}    sortBy={sortBy} sortDir={sortDir} onSort={onSort} />
                 </div>
                 {sort(filteredReservations).map(res => {
                   const nights = Math.ceil((new Date(res.check_out_date) - new Date(res.check_in_date)) / 86400000)
@@ -301,11 +301,11 @@ export default function ReservationsPage() {
                     <div key={res.id} className={styles.tableRow} onClick={() => navigate(`/admin/hotel/reservations/${res.id}`)}>
                       <span className={styles.bold}>{res.guest_name}</span>
                       <span>{res.rooms?.room_number ?? res.room_types?.name ?? '—'}</span>
-                      <span>{new Date(res.check_in_date).toLocaleDateString('sr-Latn')}</span>
-                      <span>{new Date(res.check_out_date).toLocaleDateString('sr-Latn')}</span>
+                      <span>{new Date(res.check_in_date).toLocaleDateString(dl)}</span>
+                      <span>{new Date(res.check_out_date).toLocaleDateString(dl)}</span>
                       <span>{nights}</span>
                       <span>{res.total_amount ? `€${Number(res.total_amount).toFixed(0)}` : '—'}</span>
-                      <span><span className={`${styles.sBadge} ${styles[STATUS_CLASS[res.status] ?? 'sBadgeConfirmed']}`}>{STATUS_LABELS[res.status] ?? res.status}</span></span>
+                      <span><span className={`${styles.sBadge} ${styles[STATUS_CLASS[res.status] ?? 'sBadgeConfirmed']}`}>{STATUS_LABEL_KEYS[res.status] ? t(STATUS_LABEL_KEYS[res.status]) : res.status}</span></span>
                     </div>
                   )
                 })}
@@ -319,17 +319,17 @@ export default function ReservationsPage() {
                   <div key={res.id} className={styles.fdCard} onClick={() => navigate(`/admin/hotel/reservations/${res.id}`)} style={{ cursor: 'pointer' }}>
                     <div className={styles.fdCardTop}>
                       <div className={styles.fdCardGuest}>{res.guest_name}</div>
-                      <span className={`${styles.sBadge} ${styles[STATUS_CLASS[res.status] ?? 'sBadgeConfirmed']}`}>{STATUS_LABELS[res.status] ?? res.status}</span>
+                      <span className={`${styles.sBadge} ${styles[STATUS_CLASS[res.status] ?? 'sBadgeConfirmed']}`}>{STATUS_LABEL_KEYS[res.status] ? t(STATUS_LABEL_KEYS[res.status]) : res.status}</span>
                     </div>
                     {(res.rooms?.room_number || res.room_types?.name) && (
                       <div className={styles.fdCardRoom} style={{ alignSelf: 'flex-start' }}>
-                        {res.rooms?.room_number ? `Soba ${res.rooms.room_number}` : res.room_types?.name}
+                        {res.rooms?.room_number ? t('htRoomNum', { num: res.rooms.room_number }) : res.room_types?.name}
                       </div>
                     )}
                     <div className={styles.fdCardMeta}>
-                      <span>↓ {new Date(res.check_in_date).toLocaleDateString('sr-Latn')}</span>
-                      <span>↑ {new Date(res.check_out_date).toLocaleDateString('sr-Latn')}</span>
-                      <span>{nights} noći</span>
+                      <span>↓ {new Date(res.check_in_date).toLocaleDateString(dl)}</span>
+                      <span>↑ {new Date(res.check_out_date).toLocaleDateString(dl)}</span>
+                      <span>{t('htNights', { n: nights })}</span>
                       {res.total_amount && <span style={{ fontWeight: 600, color: 'var(--c-text)' }}>€{Number(res.total_amount).toFixed(0)}</span>}
                     </div>
                   </div>
@@ -353,7 +353,7 @@ export default function ReservationsPage() {
                   className={`${dnStyles.btn} ${calGranularity === g.key ? dnStyles.active : ''}`}
                   onClick={() => handleGranularityChange(g.key)}
                 >
-                  {g.label}
+                  {t(g.labelKey)}
                 </button>
               ))}
 
@@ -397,15 +397,15 @@ export default function ReservationsPage() {
                 className={`${dnStyles.btn} ${calGranularity === 'period' ? dnStyles.active : ''}`}
                 onClick={() => handleGranularityChange('period')}
               >
-                Period
+                {t('htGranPeriod')}
               </button>
 
               {/* Navigacija — samo za day/week/month */}
               {calGranularity !== 'period' && (
                 <>
-                  <button className={dnStyles.btnNav} onClick={() => handleCalShift(-1)}>‹ Nazad</button>
-                  <button className={dnStyles.btnNav} onClick={goToday}>Danas</button>
-                  <button className={dnStyles.btnNav} onClick={() => handleCalShift(1)}>Naprijed ›</button>
+                  <button className={dnStyles.btnNav} onClick={() => handleCalShift(-1)}>‹ {t('htBack')}</button>
+                  <button className={dnStyles.btnNav} onClick={goToday}>{t('htToday')}</button>
+                  <button className={dnStyles.btnNav} onClick={() => handleCalShift(1)}>{t('htForward')} ›</button>
                 </>
               )}
             </div>
@@ -418,7 +418,7 @@ export default function ReservationsPage() {
                   className={dnStyles.searchInput}
                   value={calSearch}
                   onChange={e => setCalSearch(e.target.value)}
-                  placeholder="Pretraži sobu..."
+                  placeholder={t('htSearchRoom')}
                 />
                 {calSearch && <button className={dnStyles.clearBtn} onClick={() => setCalSearch('')}>✕</button>}
               </div>
@@ -427,8 +427,8 @@ export default function ReservationsPage() {
 
           {calLoading || roomsLoading ? <LoadingSpinner /> : rooms.length === 0 ? (
             <div className={styles.empty}>
-              <p>Nema soba. Dodajte sobe u upravljanju sobama.</p>
-              <button className={styles.btnPrimary} onClick={() => navigate('/admin/hotel/rooms')}>Upravljanje sobama</button>
+              <p>{t('htNoRoomsCalendar')}</p>
+              <button className={styles.btnPrimary} onClick={() => navigate('/admin/hotel/rooms')}>{t('htManageRooms')}</button>
             </div>
           ) : (
             <div className={styles.calendarWrap}>
@@ -437,7 +437,7 @@ export default function ReservationsPage() {
                 className={styles.calendarHeader}
                 style={{ gridTemplateColumns: `100px repeat(${CAL_DAYS}, minmax(${calGranularity === 'month' ? 28 : calGranularity === 'day' ? 1 : 44}px, 1fr))` }}
               >
-                <div className={styles.calendarRoomHeader}>Soba</div>
+                <div className={styles.calendarRoomHeader}>{t('htRoomSingular')}</div>
                 {calDates.map(d => (
                   <div
                     key={toDate(d)}
@@ -449,13 +449,13 @@ export default function ReservationsPage() {
                   >
                     {calGranularity !== 'day' && (
                       <span className={styles.calendarDayName}>
-                        {new Date(d).toLocaleDateString('sr-Latn', { weekday: 'short' })}
+                        {new Date(d).toLocaleDateString(dl, { weekday: 'short' })}
                       </span>
                     )}
                     <span className={styles.calendarDayNum}>{new Date(d).getDate()}</span>
                     {(calGranularity === 'month' || new Date(d).getDate() === 1 || d === calDates[0]) && (
                       <span className={styles.calendarMonthLabel}>
-                        {new Date(d).toLocaleDateString('sr-Latn', { month: 'short' })}
+                        {new Date(d).toLocaleDateString(dl, { month: 'short' })}
                       </span>
                     )}
                   </div>
@@ -479,7 +479,7 @@ export default function ReservationsPage() {
                           isWeekend(d) ? styles.calendarSlotWeekend : '',
                         ].join(' ')}
                         onClick={() => navigate('/admin/hotel/reservations/new')}
-                        title={`Dodaj rezervaciju — soba ${room.room_number}`}
+                        title={t('htAddResForRoom', { num: room.room_number })}
                       />
                     ))}
                     {(resByRoom[room.id] ?? []).map(res => {
@@ -505,7 +505,7 @@ export default function ReservationsPage() {
                 {Object.entries(CAL_STYLE).map(([status, s]) => (
                   <div key={status} className={styles.calendarLegendItem}>
                     <span className={styles.calendarLegendDot} style={{ background: s.bg, borderColor: s.border }} />
-                    <span>{CAL_LABELS[status]}</span>
+                    <span>{t(STATUS_LABEL_KEYS[status])}</span>
                   </div>
                 ))}
               </div>
