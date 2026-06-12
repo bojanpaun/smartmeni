@@ -1,4 +1,5 @@
 import { useState, useEffect } from 'react'
+import { useTranslation } from 'react-i18next'
 import { supabase } from '../../../lib/supabase'
 import { usePlatform } from '../../../context/PlatformContext'
 import DateNav from '../../../components/shared/DateNav'
@@ -55,6 +56,8 @@ function HBar({ value, max, label, sub, color = '#0d7a52' }) {
 
 // ── Per-zaposlenik detalji ───────────────────────────────────────
 function StaffDetailModal({ staff, attendance, schedules, dateFrom, dateTo, onClose }) {
+  const { t, i18n } = useTranslation('admin')
+  const dl = i18n.language === 'en' ? 'en-US' : 'sr-Latn'
   const days = []
   const d = new Date(dateFrom)
   const end = new Date(dateTo)
@@ -67,7 +70,7 @@ function StaffDetailModal({ staff, attendance, schedules, dateFrom, dateTo, onCl
 
   const toLocalHM = iso => {
     if (!iso) return null
-    return new Date(iso).toLocaleTimeString('sr-Latn', { hour: '2-digit', minute: '2-digit' })
+    return new Date(iso).toLocaleTimeString(dl, { hour: '2-digit', minute: '2-digit' })
   }
 
   const rows = days.map(date => {
@@ -97,10 +100,10 @@ function StaffDetailModal({ staff, attendance, schedules, dateFrom, dateTo, onCl
   const absentCount = rows.filter(r => r.status === 'absent').length
 
   const statusBadge = {
-    present: { bg: '#e1f5ee', color: '#0d7a52', label: 'Prisutan' },
-    late:    { bg: '#faeeda', color: '#ba7517', label: 'Kasnio' },
-    absent:  { bg: '#fce8e8', color: '#a32d2d', label: 'Odsutan' },
-    off:     { bg: '#f0f5f2', color: '#8a9e96', label: 'Slobodan' },
+    present: { bg: '#e1f5ee', color: '#0d7a52', label: t('hrrPresent') },
+    late:    { bg: '#faeeda', color: '#ba7517', label: t('hrrLate') },
+    absent:  { bg: '#fce8e8', color: '#a32d2d', label: t('hrrAbsent') },
+    off:     { bg: '#f0f5f2', color: '#8a9e96', label: t('hrrOff') },
   }
 
   return (
@@ -116,49 +119,49 @@ function StaffDetailModal({ staff, attendance, schedules, dateFrom, dateTo, onCl
         <div className={styles.modalKpi}>
           <div className={styles.modalKpiItem}>
             <div className={styles.modalKpiVal}>{totalH.toFixed(1)}h</div>
-            <div className={styles.modalKpiLbl}>Sati rada</div>
+            <div className={styles.modalKpiLbl}>{t('payHoursWorked')}</div>
           </div>
           <div className={styles.modalKpiItem}>
             <div className={styles.modalKpiVal}>{rows.filter(r => r.status !== 'absent').length}</div>
-            <div className={styles.modalKpiLbl}>Dana rada</div>
+            <div className={styles.modalKpiLbl}>{t('payDaysWorked')}</div>
           </div>
           <div className={styles.modalKpiItem}>
             <div className={styles.modalKpiVal} style={{ color: lateCount > 0 ? '#ba7517' : '#0d7a52' }}>{lateCount}</div>
-            <div className={styles.modalKpiLbl}>Kašnjenja</div>
+            <div className={styles.modalKpiLbl}>{t('hrrLates')}</div>
           </div>
           <div className={styles.modalKpiItem}>
             <div className={styles.modalKpiVal} style={{ color: absentCount > 0 ? '#a32d2d' : '#0d7a52' }}>{absentCount}</div>
-            <div className={styles.modalKpiLbl}>Izostanaka</div>
+            <div className={styles.modalKpiLbl}>{t('hrrAbsences')}</div>
           </div>
         </div>
 
         {/* Dnevni pregled */}
         <div className={styles.modalDays}>
-          {rows.length === 0 && <div className={styles.empty}>Nema zakazanih smjena u ovom periodu.</div>}
+          {rows.length === 0 && <div className={styles.empty}>{t('hrrNoShifts')}</div>}
           {rows.map(r => {
             const sb = statusBadge[r.status]
             return (
               <div key={r.date} className={styles.modalDayRow}>
                 <div className={styles.modalDayDate}>
-                  {new Date(r.date).toLocaleDateString('sr-Latn', { weekday: 'short', day: 'numeric', month: 'numeric' })}
+                  {new Date(r.date).toLocaleDateString(dl, { weekday: 'short', day: 'numeric', month: 'numeric' })}
                 </div>
                 <span className={styles.modalBadge} style={{ background: sb.bg, color: sb.color }}>
                   {sb.label}
                 </span>
                 {r.sch && (
                   <div className={styles.modalDayShift}>
-                    Smjena: {r.sch.start_time?.slice(0,5)}–{r.sch.end_time?.slice(0,5)}
+                    {t('hrrShiftLabel')}: {r.sch.start_time?.slice(0,5)}–{r.sch.end_time?.slice(0,5)}
                   </div>
                 )}
                 {r.att?.clock_in && (
                   <div className={styles.modalDayAtt}>
-                    Dolazak: {new Date(r.att.clock_in).toLocaleTimeString('sr-Latn', { hour: '2-digit', minute: '2-digit' })}
-                    {r.att.clock_out && ` – Odlazak: ${new Date(r.att.clock_out).toLocaleTimeString('sr-Latn', { hour: '2-digit', minute: '2-digit' })}`}
+                    {t('hrrArrival')}: {new Date(r.att.clock_in).toLocaleTimeString(dl, { hour: '2-digit', minute: '2-digit' })}
+                    {r.att.clock_out && ` – ${t('hrrDeparture')}: ${new Date(r.att.clock_out).toLocaleTimeString(dl, { hour: '2-digit', minute: '2-digit' })}`}
                     {r.hours && ` · ${r.hours}h`}
                   </div>
                 )}
                 {r.lateMin > 5 && (
-                  <div className={styles.modalDayLate}>⚠️ Kasni {r.lateMin} min</div>
+                  <div className={styles.modalDayLate}>⚠️ {t('hrrLateMin', { n: r.lateMin })}</div>
                 )}
                 {r.att?.note && (
                   <div className={styles.modalDayNote}>📝 {r.att.note}</div>
@@ -175,6 +178,7 @@ function StaffDetailModal({ staff, attendance, schedules, dateFrom, dateTo, onCl
 // ── Glavna stranica ──────────────────────────────────────────────
 export default function HRReportsPage() {
   const { restaurant } = usePlatform()
+  const { t } = useTranslation('admin')
 
   const [loading, setLoading] = useState(true)
   const [dateFrom, setDateFrom] = useState(() => getPeriod('this_month')[0])
@@ -269,7 +273,7 @@ export default function HRReportsPage() {
   const exportCSV = () => {
     if (!data) return
     const rows = [
-      ['Zaposlenik', 'Sati rada', 'Dana rada', 'Zakazano', 'Izostanaka', 'Kašnjenja', 'Prisustvo %', 'Osnovna', 'Dnevnice', 'Bonusi', 'Odbitci', 'Ukupno €'],
+      [t('stfStaffMember'), t('payHoursWorked'), t('payDaysWorked'), t('hrrScheduled'), t('hrrAbsences'), t('hrrLates'), t('hrrAttendancePct'), t('hrrBase'), t('payDailies'), t('payBonuses'), t('payDeductions'), t('hrrTotalEur')],
       ...data.staffStats.map(s => [
         staffName(s),
         s.hoursWorked.toFixed(1),
@@ -293,7 +297,7 @@ export default function HRReportsPage() {
     a.click()
   }
 
-  if (loading && !data) return <div className={styles.loading}>Učitavanje...</div>
+  if (loading && !data) return <div className={styles.loading}>{t('loading')}</div>
 
   const maxHours = Math.max(...(data?.staffStats || []).map(s => s.hoursWorked), 1)
   const maxCost  = Math.max(...(data?.staffStats || []).map(s => s.totalCost), 1)
@@ -302,44 +306,44 @@ export default function HRReportsPage() {
     <div className={gsStyles.page} style={{ maxWidth: 960 }}>
       <div className={styles.pageHeader}>
         <div>
-          <h1 className={gsStyles.title}>Analitika HR</h1>
-          <p className={gsStyles.subtitle}>Detaljan izvještaj prisustva, kašnjenja i troškova rada.</p>
+          <h1 className={gsStyles.title}>{t('hrrTitle')}</h1>
+          <p className={gsStyles.subtitle}>{t('hrrSubtitle')}</p>
         </div>
-        <button className={styles.btnExport} onClick={exportCSV}>↓ Export CSV</button>
+        <button className={styles.btnExport} onClick={exportCSV}>↓ {t('hrrExportCsv')}</button>
       </div>
 
       <DateNav
         from={dateFrom}
         to={dateTo}
-        onChange={(f, t) => { setDateFrom(f); setDateTo(t) }}
+        onChange={(f, dt) => { setDateFrom(f); setDateTo(dt) }}
         onSearch={() => {}}
         showFuture={false}
         showMonth={true}
         allowAll={false}
       />
 
-      {loading && <div className={styles.loadingInline}>Učitavanje...</div>}
+      {loading && <div className={styles.loadingInline}>{t('loading')}</div>}
 
       {data && !loading && (
         <>
           {/* KPI */}
           <div className={styles.kpiGrid}>
             <div className={styles.kpiCard}>
-              <div className={styles.kpiLabel}>Ukupno sati</div>
+              <div className={styles.kpiLabel}>{t('attTotalHours')}</div>
               <div className={styles.kpiVal}>{data.totalHours.toFixed(1)}h</div>
             </div>
             <div className={styles.kpiCard}>
-              <div className={styles.kpiLabel}>Trošak rada</div>
+              <div className={styles.kpiLabel}>{t('hrrLaborCost')}</div>
               <div className={styles.kpiVal}>€{data.totalLaborCost.toFixed(2)}</div>
             </div>
             <div className={styles.kpiCard}>
-              <div className={styles.kpiLabel}>Prosj. prisustvo</div>
+              <div className={styles.kpiLabel}>{t('hrrAvgAttendance')}</div>
               <div className={styles.kpiVal} style={{ color: data.avgAttendance < 70 ? '#a32d2d' : '#0d7a52' }}>
                 {data.avgAttendance.toFixed(0)}%
               </div>
             </div>
             <div className={styles.kpiCard}>
-              <div className={styles.kpiLabel}>Ukupno kašnjenja</div>
+              <div className={styles.kpiLabel}>{t('hrrTotalLates')}</div>
               <div className={styles.kpiVal} style={{ color: data.totalLate > 0 ? '#ba7517' : '#0d7a52' }}>
                 {data.totalLate}×
               </div>
@@ -348,7 +352,7 @@ export default function HRReportsPage() {
 
           {/* Detaljna tabela */}
           <div className={styles.section}>
-            <div className={styles.sectionTitle}>Pregled po zaposleniku</div>
+            <div className={styles.sectionTitle}>{t('hrrPerStaff')}</div>
 
             {/* Desktop tabela */}
             <div className={styles.hrDesktopTable}>
@@ -356,19 +360,19 @@ export default function HRReportsPage() {
                 <table className={styles.table}>
                   <thead>
                     <tr>
-                      <th>Zaposlenik</th>
-                      <th>Sati</th>
-                      <th>Dana</th>
-                      <th>Izostanaka</th>
-                      <th>Kašnjenja</th>
-                      <th>Prisustvo</th>
-                      <th>Ukupno €</th>
+                      <th>{t('stfStaffMember')}</th>
+                      <th>{t('hrrHours')}</th>
+                      <th>{t('hrrDays')}</th>
+                      <th>{t('hrrAbsences')}</th>
+                      <th>{t('hrrLates')}</th>
+                      <th>{t('hrrAttendance')}</th>
+                      <th>{t('hrrTotalEur')}</th>
                       <th></th>
                     </tr>
                   </thead>
                   <tbody>
                     {data.staffStats.length === 0 && (
-                      <tr><td colSpan={8} className={styles.empty}>Nema podataka za odabrani period.</td></tr>
+                      <tr><td colSpan={8} className={styles.empty}>{t('hrrNoData')}</td></tr>
                     )}
                     {data.staffStats.map((s, i) => (
                       <tr key={i} className={styles.tableRow}>
@@ -396,7 +400,7 @@ export default function HRReportsPage() {
                             className={styles.btnDetail}
                             onClick={() => setSelectedStaff(s)}
                           >
-                            Detalji →
+                            {t('htDetails')} →
                           </button>
                         </td>
                       </tr>
@@ -404,7 +408,7 @@ export default function HRReportsPage() {
                   </tbody>
                   <tfoot>
                     <tr className={styles.tableFooter}>
-                      <td>Ukupno</td>
+                      <td>{t('flTotal')}</td>
                       <td>{data.totalHours.toFixed(1)}h</td>
                       <td></td>
                       <td></td>
@@ -421,7 +425,7 @@ export default function HRReportsPage() {
             {/* Mobile kartice */}
             <div className={styles.hrMobileList}>
               {data.staffStats.length === 0 && (
-                <div className={styles.empty}>Nema podataka za odabrani period.</div>
+                <div className={styles.empty}>{t('hrrNoData')}</div>
               )}
               {data.staffStats.map((s, i) => (
                 <div key={i} className={styles.hrCard}>
@@ -430,29 +434,29 @@ export default function HRReportsPage() {
                     <span className={styles.hrCardTotal}>€{s.totalCost.toFixed(2)}</span>
                   </div>
                   <div className={styles.hrCardRow}>
-                    {s.hoursWorked.toFixed(1)}h · {s.daysWorked}/{s.daysScheduled} dana
+                    {s.hoursWorked.toFixed(1)}h · {t('hrrDaysCount', { w: s.daysWorked, s: s.daysScheduled })}
                   </div>
                   <div className={styles.hrCardBadges}>
                     <span className={s.absentCount > 0 ? styles.badgeRed : styles.badgeGreen}>
-                      {s.absentCount}× izost.
+                      {t('hrrAbsShort', { n: s.absentCount })}
                     </span>
                     <span className={s.lateCount > 0 ? styles.badgeYellow : styles.badgeGreen}>
-                      {s.lateCount}× kasni
+                      {t('hrrLateShort', { n: s.lateCount })}
                     </span>
                     {s.attendanceRate !== null && (
                       <span className={s.attendanceRate < 70 ? styles.badgeRed : styles.badgeGreen}>
-                        {s.attendanceRate.toFixed(0)}% prisutnost
+                        {t('hrrAttShort', { n: s.attendanceRate.toFixed(0) })}
                       </span>
                     )}
                   </div>
                   <button className={styles.btnDetailFull} onClick={() => setSelectedStaff(s)}>
-                    Detalji →
+                    {t('htDetails')} →
                   </button>
                 </div>
               ))}
               {data.staffStats.length > 0 && (
                 <div className={styles.hrCardFooter}>
-                  <span>{data.totalHours.toFixed(1)}h · {data.totalLate}× kasni · {data.avgAttendance.toFixed(0)}%</span>
+                  <span>{data.totalHours.toFixed(1)}h · {t('hrrLateShort', { n: data.totalLate })} · {data.avgAttendance.toFixed(0)}%</span>
                   <span className={styles.hrCardTotal}>€{data.totalLaborCost.toFixed(2)}</span>
                 </div>
               )}
@@ -461,24 +465,24 @@ export default function HRReportsPage() {
 
           {/* Bar charts */}
           <div className={styles.section}>
-            <div className={styles.sectionTitle}>Sati rada po zaposleniku</div>
+            <div className={styles.sectionTitle}>{t('hrrHoursPerStaff')}</div>
             <div className={styles.hBarList}>
               {data.staffStats.map((s, i) => (
                 <HBar key={i} value={s.hoursWorked} max={maxHours}
                   label={staffName(s)}
-                  sub={`${s.hoursWorked.toFixed(1)}h · ${s.daysWorked} dana · ${s.lateCount > 0 ? `${s.lateCount}× kasni` : 'bez kašnjenja'}`}
+                  sub={`${s.hoursWorked.toFixed(1)}h · ${s.daysWorked} ${t('hrrDaysWord')} · ${s.lateCount > 0 ? t('hrrLateShort', { n: s.lateCount }) : t('hrrNoLates')}`}
                   color="#0d7a52" />
               ))}
             </div>
           </div>
 
           <div className={styles.section}>
-            <div className={styles.sectionTitle}>Trošak rada po zaposleniku</div>
+            <div className={styles.sectionTitle}>{t('hrrCostPerStaff')}</div>
             <div className={styles.hBarList}>
               {data.staffStats.map((s, i) => (
                 <HBar key={i} value={s.totalCost} max={maxCost}
                   label={staffName(s)}
-                  sub={`€${s.totalCost.toFixed(2)} · osnova €${s.baseSalary.toFixed(2)} + dnevnice €${s.dailies.toFixed(2)}`}
+                  sub={t('hrrBarCostSub', { cost: s.totalCost.toFixed(2), base: s.baseSalary.toFixed(2), daily: s.dailies.toFixed(2) })}
                   color="#ef9f27" />
               ))}
             </div>
