@@ -1,5 +1,6 @@
 import { useState, useEffect } from 'react'
 import { useNavigate } from 'react-router-dom'
+import { useTranslation } from 'react-i18next'
 import { usePlatform } from '../../context/PlatformContext'
 import { supabase } from '../../lib/supabase'
 import { MODULES } from '../../layouts/AdminLayout'
@@ -64,6 +65,7 @@ function useDashboardData(restaurant, hasHotel, hasSpa) {
 }
 
 export default function ControlPanel() {
+  const { t } = useTranslation('admin')
   const { restaurant, setRestaurant, hasPermission, isOwner, isSuperAdmin, hasAddon, hasVertical } = usePlatform()
   const { unread: unreadAnn } = useAnnouncements()
   const { unreadCount: unreadSupport } = useSupport()
@@ -149,8 +151,8 @@ export default function ControlPanel() {
       >
         <div className={styles.cardIcon}>{mod.icon}</div>
         <div className={styles.cardBody}>
-          <div className={styles.cardName}>{mod.label}</div>
-          <div className={styles.cardDesc}>{mod.desc}</div>
+          <div className={styles.cardName}>{t(mod.labelKey)}</div>
+          <div className={styles.cardDesc}>{t(mod.descKey)}</div>
         </div>
         {!isSys && (
           <div className={styles.cardStatus}>

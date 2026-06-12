@@ -2,6 +2,7 @@
 
 import { useState, useEffect, createContext, useContext } from 'react'
 import { Link, useLocation, useNavigate } from 'react-router-dom'
+import { useTranslation } from 'react-i18next'
 import { usePlatform } from '../context/PlatformContext'
 import { supabase } from '../lib/supabase'
 import styles from './AdminLayout.module.css'
@@ -18,6 +19,7 @@ const SEV_BANNER = {
 
 // Banner ispod headera za nepročitane platform najave (jedna po jedna, može da se ugasi)
 function AnnouncementBanner() {
+  const { t } = useTranslation('admin')
   const { bannerUnread, dismissBanner } = useAnnouncements()
   const navigate = useNavigate()
   if (!bannerUnread?.length) return null
@@ -30,8 +32,8 @@ function AnnouncementBanner() {
         <span style={{ fontWeight: 700, color: c.text }}>{a.title}</span>
         {a.body && <span style={{ color: c.text, opacity: 0.85, fontSize: 13, marginLeft: 8 }}>{a.body}</span>}
       </div>
-      <button onClick={() => navigate('/admin/notifications')} style={{ background: 'none', border: `1px solid ${c.border}`, color: c.text, borderRadius: 7, padding: '4px 10px', fontSize: 12, fontWeight: 600, cursor: 'pointer', flexShrink: 0 }}>Detalji</button>
-      <button onClick={() => dismissBanner(a.id)} title="Zatvori" style={{ background: 'none', border: 'none', color: c.text, fontSize: 18, cursor: 'pointer', flexShrink: 0, lineHeight: 1 }}>✕</button>
+      <button onClick={() => navigate('/admin/notifications')} style={{ background: 'none', border: `1px solid ${c.border}`, color: c.text, borderRadius: 7, padding: '4px 10px', fontSize: 12, fontWeight: 600, cursor: 'pointer', flexShrink: 0 }}>{t('bannerDetails')}</button>
+      <button onClick={() => dismissBanner(a.id)} title={t('close')} style={{ background: 'none', border: 'none', color: c.text, fontSize: 18, cursor: 'pointer', flexShrink: 0, lineHeight: 1 }}>✕</button>
     </div>
   )
 }
@@ -40,215 +42,217 @@ function AnnouncementBanner() {
 export const AdminBadgeContext = createContext({ refreshCounts: () => {} })
 export const useAdminBadgeRefresh = () => useContext(AdminBadgeContext)
 
+// Nav config — labelKey/descKey se rješavaju kroz t('admin:…') u renderu (Faza 2).
+// MODULES je export (čita ga i ControlPanel) — i tamo se labelKey/descKey rješava t-om.
 export const MODULES = [
   {
     key: 'menu',
-    label: 'Digitalni meni',
+    labelKey: 'modMenu',
     icon: '🍽️',
-    desc: 'Narudžbe, zahtjevi konobara i upravljanje digitalnim menijem',
+    descKey: 'descMenu',
     path: '/admin/menu',
     active: true,
     perm: 'view_menu',
     interactive: {
-      label: 'Digitalni meni',
+      labelKey: 'modMenu',
       links: [
-        { label: 'Narudžbe', icon: '🧾', path: '/admin/orders',  perm: 'view_orders' },
-        { label: 'Zahtjevi', icon: '🔔', path: '/admin/waiter',  perm: 'view_waiter_req' },
-        { label: 'Kuhinja',  icon: '🧑‍🍳', path: '/admin/kitchen', perm: 'view_kitchen_orders' },
-        { label: 'Bar',      icon: '🍷', path: '/admin/bar',     perm: 'view_bar_orders' },
+        { labelKey: 'navOrders', icon: '🧾', path: '/admin/orders',  perm: 'view_orders' },
+        { labelKey: 'navWaiterReq', icon: '🔔', path: '/admin/waiter',  perm: 'view_waiter_req' },
+        { labelKey: 'navKitchen',  icon: '🧑‍🍳', path: '/admin/kitchen', perm: 'view_kitchen_orders' },
+        { labelKey: 'navBar',      icon: '🍷', path: '/admin/bar',     perm: 'view_bar_orders' },
       ],
     },
     admin: {
-      label: 'Administracija menija',
+      labelKey: 'segMenuAdmin',
       links: [
-        { label: 'Analitika',         icon: '📊', path: '/admin/menu/analytics' },
-        { label: 'Uređivanje menija', icon: '🍽️', path: '/admin/menu',           exact: true },
-        { label: 'Postavke menija',   icon: '⚙️', path: '/admin/menu/settings' },
-        { label: 'Sajt restorana',    icon: '🌐', path: '/admin/menu/landing' },
-        { label: 'QR kod',            icon: '📱', path: '/admin/menu/qr' },
+        { labelKey: 'navAnalytics',         icon: '📊', path: '/admin/menu/analytics' },
+        { labelKey: 'navMenuEdit', icon: '🍽️', path: '/admin/menu',           exact: true },
+        { labelKey: 'navMenuSettings',   icon: '⚙️', path: '/admin/menu/settings' },
+        { labelKey: 'navRestaurantSite',    icon: '🌐', path: '/admin/menu/landing' },
+        { labelKey: 'navQr',            icon: '📱', path: '/admin/menu/qr' },
       ],
     },
   },
   {
     key: 'tables',
-    label: 'Stolovi',
+    labelKey: 'modTables',
     icon: '🪑',
-    desc: 'Pregled stolova, rezervacije i upravljanje kapacitetom',
+    descKey: 'descTables',
     path: '/admin/tables',
     active: true,
     perm: 'view_tables',
     interactive: {
-      label: 'Pregled stolova',
+      labelKey: 'segTablesInteractive',
       links: [
-        { label: 'Pregled stolova', icon: '👁',  path: '/admin/tables/view' },
-        { label: 'Rezervacije',     icon: '📅', path: '/admin/reservations' },
+        { labelKey: 'navTablesView', icon: '👁',  path: '/admin/tables/view' },
+        { labelKey: 'navReservations',     icon: '📅', path: '/admin/reservations' },
       ],
     },
     admin: {
-      label: 'Administracija stolova',
+      labelKey: 'segTablesAdmin',
       links: [
-        { label: 'Analitika',        icon: '📊', path: '/admin/tables/analytics' },
-        { label: 'Postavke stolova', icon: '🗺️', path: '/admin/tables', exact: true },
+        { labelKey: 'navAnalytics',        icon: '📊', path: '/admin/tables/analytics' },
+        { labelKey: 'navTablesSettings', icon: '🗺️', path: '/admin/tables', exact: true },
       ],
     },
   },
   {
     key: 'inventory',
-    label: 'Zalihe',
+    labelKey: 'modInventory',
     icon: '📦',
-    desc: 'Inventar, promjene zaliha i recepture',
+    descKey: 'descInventory',
     path: '/admin/inventory',
     active: true,
     perm: 'view_inventory',
     interactive: null,
     admin: {
-      label: 'Administracija zaliha',
+      labelKey: 'segInventoryAdmin',
       links: [
-        { label: 'Analitika',       icon: '📊', path: '/admin/inventory/analytics' },
-        { label: 'Inventar',        icon: '📦', path: '/admin/inventory',             exact: true },
-        { label: 'Promjene zaliha', icon: '📋', path: '/admin/inventory/movements' },
-        { label: 'Recepture',       icon: '🧪', path: '/admin/inventory/recipes' },
+        { labelKey: 'navAnalytics',       icon: '📊', path: '/admin/inventory/analytics' },
+        { labelKey: 'navInventoryList',        icon: '📦', path: '/admin/inventory',             exact: true },
+        { labelKey: 'navStockMovements', icon: '📋', path: '/admin/inventory/movements' },
+        { labelKey: 'navRecipes',       icon: '🧪', path: '/admin/inventory/recipes' },
       ],
     },
   },
   {
     key: 'hr',
-    label: 'HR',
+    labelKey: 'modHr',
     icon: '👥',
-    desc: 'Rasporedi, dolasci, zarade i izvještaji osoblja',
+    descKey: 'descHr',
     path: '/admin/hr',
     active: true,
     perm: 'view_hr',
     interactive: {
-      label: 'HR',
+      labelKey: 'modHr',
       links: [
-        { label: 'Dolasci', icon: '🕐', path: '/admin/hr/attendance' },
+        { labelKey: 'navAttendance', icon: '🕐', path: '/admin/hr/attendance' },
       ],
     },
     admin: {
-      label: 'Administracija HR',
+      labelKey: 'segHrAdmin',
       links: [
-        { label: 'Analitika', icon: '📊', path: '/admin/hr/reports' },
-        { label: 'Zaposleni',  icon: '👤', path: '/admin/hr/staff' },
-        { label: 'Raspored',  icon: '📅', path: '/admin/hr/schedule' },
-        { label: 'Zarade',    icon: '💰', path: '/admin/hr/payroll' },
-        { label: 'Staff portal', icon: '📱', path: '/admin/hr/staff-portal-info' },
+        { labelKey: 'navAnalytics', icon: '📊', path: '/admin/hr/reports' },
+        { labelKey: 'navStaff',  icon: '👤', path: '/admin/hr/staff' },
+        { labelKey: 'navSchedule',  icon: '📅', path: '/admin/hr/schedule' },
+        { labelKey: 'navPayroll',    icon: '💰', path: '/admin/hr/payroll' },
+        { labelKey: 'navStaffPortal', icon: '📱', path: '/admin/hr/staff-portal-info' },
       ],
     },
   },
   {
     key: 'guests',
-    label: 'Gosti',
+    labelKey: 'modGuests',
     icon: '🎟️',
-    desc: 'Evidencija gostiju, VIP lista, istorija posjeta i potrošnja',
+    descKey: 'descGuests',
     path: '/admin/guests',
     active: true,
     perm: 'view_analytics',
     interactive: null,
     admin: {
-      label: 'Gosti',
+      labelKey: 'modGuests',
       links: [
-        { label: 'Lista gostiju', icon: '👤', path: '/admin/guests', exact: true },
+        { labelKey: 'navGuestList', icon: '👤', path: '/admin/guests', exact: true },
       ],
     },
   },
   {
     key: 'analytics',
-    label: 'Analitika',
+    labelKey: 'modAnalytics',
     icon: '📊',
-    desc: 'Prihod, najprodavanija jela i najprometniji sati',
+    descKey: 'descAnalytics',
     path: '/admin/analytics',
     active: true,
     perm: 'view_analytics',
     interactive: null,
     admin: {
-      label: 'Analitika',
+      labelKey: 'modAnalytics',
       links: [
-        { label: 'Pregled', icon: '📊', path: '/admin/analytics', exact: true },
+        { labelKey: 'navOverview', icon: '📊', path: '/admin/analytics', exact: true },
       ],
     },
   },
   {
     key: 'hotel',
-    label: 'Hotel',
+    labelKey: 'modHotel',
     icon: '🏨',
-    desc: 'Sobe, rezervacije, front desk i folio sistem',
+    descKey: 'descHotel',
     path: '/admin/hotel',
     active: true,
     addonId: 'hotel_core',
     perm: null,
     interactive: {
-      label: 'Hotel operacije',
+      labelKey: 'segHotelInteractive',
       links: [
-        { label: 'Front Desk',   icon: '🛎️', path: '/admin/hotel/frontdesk' },
-        { label: 'Rezervacije', icon: '📅', path: '/admin/hotel/reservations' },
-        { label: 'Sobe',        icon: '🛏️', path: '/admin/hotel/rooms' },
-        { label: 'Domaćinstvo', icon: '🧹', path: '/admin/hotel/housekeeping' },
-        { label: 'Minibar',     icon: '🥤', path: '/admin/hotel/minibar' },
-        { label: 'Doručak',     icon: '🍳', path: '/admin/hotel/breakfast' },
-        { label: 'Noćni audit', icon: '🌙', path: '/admin/hotel/night-audit' },
+        { labelKey: 'navFrontDesk',   icon: '🛎️', path: '/admin/hotel/frontdesk' },
+        { labelKey: 'navReservations', icon: '📅', path: '/admin/hotel/reservations' },
+        { labelKey: 'navRooms',        icon: '🛏️', path: '/admin/hotel/rooms' },
+        { labelKey: 'navHousekeeping', icon: '🧹', path: '/admin/hotel/housekeeping' },
+        { labelKey: 'navMinibar',     icon: '🥤', path: '/admin/hotel/minibar' },
+        { labelKey: 'navBreakfast',     icon: '🍳', path: '/admin/hotel/breakfast' },
+        { labelKey: 'navNightAudit', icon: '🌙', path: '/admin/hotel/night-audit' },
       ],
     },
     admin: {
-      label: 'Administracija hotela',
+      labelKey: 'segHotelAdmin',
       links: [
-        { label: 'Dashboard',             icon: '📊', path: '/admin/hotel',                   exact: true },
-        { label: 'Upravljanje prihodima', icon: '💹', path: '/admin/hotel/revenue' },
-        { label: 'Tipovi soba',           icon: '🪑', path: '/admin/hotel/room-types' },
-        { label: 'Cjenovni planovi',      icon: '🏷️', path: '/admin/hotel/rate-plans' },
-        { label: 'Online booking',        icon: '🔗', path: '/admin/hotel/booking-settings' },
-        { label: 'Plaćanja',              icon: '💳', path: '/admin/hotel/payment' },
-        { label: 'Sajt hotela',           icon: '🌐', path: '/admin/hotel/landing' },
+        { labelKey: 'navDashboard',             icon: '📊', path: '/admin/hotel',                   exact: true },
+        { labelKey: 'navRevenue', icon: '💹', path: '/admin/hotel/revenue' },
+        { labelKey: 'navRoomTypes',           icon: '🪑', path: '/admin/hotel/room-types' },
+        { labelKey: 'navRatePlans',      icon: '🏷️', path: '/admin/hotel/rate-plans' },
+        { labelKey: 'navOnlineBooking',        icon: '🔗', path: '/admin/hotel/booking-settings' },
+        { labelKey: 'navPayments',              icon: '💳', path: '/admin/hotel/payment' },
+        { labelKey: 'navHotelSite',           icon: '🌐', path: '/admin/hotel/landing' },
       ],
     },
   },
   {
     key: 'spa',
-    label: 'Spa & Wellness',
+    labelKey: 'modSpa',
     icon: '💆',
-    desc: 'Tretmani, terapeuti, kalendar i booking',
+    descKey: 'descSpa',
     path: '/admin/spa',
     active: true,
     addonId: 'spa_wellness',
     perm: null,
     interactive: {
-      label: 'Spa operacije',
+      labelKey: 'segSpaInteractive',
       links: [
-        { label: 'Kalendar',    icon: '📅', path: '/admin/spa/calendar' },
-        { label: 'Termini',     icon: '🗓️', path: '/admin/spa/appointments' },
+        { labelKey: 'navCalendar',    icon: '📅', path: '/admin/spa/calendar' },
+        { labelKey: 'navAppointments',     icon: '🗓️', path: '/admin/spa/appointments' },
       ],
     },
     admin: {
-      label: 'Spa administracija',
+      labelKey: 'segSpaAdmin',
       links: [
-        { label: 'Dashboard',   icon: '📊', path: '/admin/spa',              exact: true },
-        { label: 'Tretmani',    icon: '💆', path: '/admin/spa/services' },
-        { label: 'Terapeuti',   icon: '👤', path: '/admin/spa/therapists' },
-        { label: 'Kabine',      icon: '🚪', path: '/admin/spa/rooms' },
-        { label: 'Retail',      icon: '🛍️', path: '/admin/spa/retail' },
-        { label: 'Paketi',      icon: '🎁', path: '/admin/spa/packages' },
-        { label: 'Analitika',   icon: '📊', path: '/admin/spa/analytics' },
-        { label: 'Postavke',    icon: '⚙️', path: '/admin/spa/settings' },
+        { labelKey: 'navDashboard',   icon: '📊', path: '/admin/spa',              exact: true },
+        { labelKey: 'navTreatments',    icon: '💆', path: '/admin/spa/services' },
+        { labelKey: 'navTherapists',   icon: '👤', path: '/admin/spa/therapists' },
+        { labelKey: 'navCabins',      icon: '🚪', path: '/admin/spa/rooms' },
+        { labelKey: 'navRetail',      icon: '🛍️', path: '/admin/spa/retail' },
+        { labelKey: 'navPackages',      icon: '🎁', path: '/admin/spa/packages' },
+        { labelKey: 'navAnalytics',   icon: '📊', path: '/admin/spa/analytics' },
+        { labelKey: 'navSettings',    icon: '⚙️', path: '/admin/spa/settings' },
       ],
     },
   },
   {
     key: 'settings',
-    label: 'Postavke',
+    labelKey: 'modSettings',
     icon: '⚙️',
     adminOnly: true,
-    desc: 'Predlošci, logo i podešavanja restorana',
+    descKey: 'descSettings',
     path: '/admin/settings',
     active: true,
     perm: null,
     interactive: null,
     admin: {
-      label: 'Postavke sistema',
+      labelKey: 'segSettingsAdmin',
       links: [
-        { label: 'Brend',          icon: '🖼️', path: '/admin/settings/brand' },
-        { label: 'Osnovni podaci', icon: '📋', path: '/admin/settings/general' },
-        { label: 'Izgled / Tema',  icon: '🎨', path: '/admin/settings/theme' },
-        { label: 'Pretplata',      icon: '💳', path: '/admin/billing' },
+        { labelKey: 'navBrand',          icon: '🖼️', path: '/admin/settings/brand' },
+        { labelKey: 'navGeneral', icon: '📋', path: '/admin/settings/general' },
+        { labelKey: 'navTheme',  icon: '🎨', path: '/admin/settings/theme' },
+        { labelKey: 'navSubscription',      icon: '💳', path: '/admin/billing' },
       ],
     },
   },
@@ -256,77 +260,78 @@ export const MODULES = [
     // Nije kategorisan (RESTAURANT/HOTEL/UPRAVLJANJE/adminOnly) → ne renderuje se kao
     // dashboard kartica; služi da sidebar prikaže linkove kad si na /admin/notifications.
     key: 'notifications',
-    label: 'Obavještenja',
+    labelKey: 'modNotifications',
     icon: '📣',
-    desc: 'Najave platforme i oglasna tabla',
+    descKey: 'descNotifications',
     path: '/admin/notifications',
     active: true,
     perm: null,
     noHelp: true,
     interactive: null,
     admin: {
-      label: 'Obavještenja',
+      labelKey: 'modNotifications',
       links: [
-        { label: 'Najave platforme', icon: '📣', path: '/admin/notifications/najave' },
-        { label: 'Oglasna tabla',    icon: '📌', path: '/admin/notifications/tabla' },
+        { labelKey: 'navPlatformAnnounce', icon: '📣', path: '/admin/notifications/najave' },
+        { labelKey: 'navBulletinBoard',    icon: '📌', path: '/admin/notifications/tabla' },
       ],
     },
   },
   {
     // Podrška — sidebar Poruke | Česta pitanja. Nije dashboard kartica (postoji Sistem kartica).
     key: 'support',
-    label: 'Podrška',
+    labelKey: 'modSupport',
     icon: '💬',
-    desc: 'Pomoć i česta pitanja',
+    descKey: 'descSupport',
     path: '/admin/support',
     active: true,
     perm: null,
     noHelp: true,
     interactive: null,
     admin: {
-      label: 'Podrška',
+      labelKey: 'modSupport',
       links: [
-        { label: 'Poruke', icon: '💬', path: '/admin/support', exact: true },
-        { label: 'FAQ',    icon: '📖', path: '/admin/support/faq' },
+        { labelKey: 'navMessages', icon: '💬', path: '/admin/support', exact: true },
+        { labelKey: 'navFaq',    icon: '📖', path: '/admin/support/faq' },
       ],
     },
   },
   {
     // Superadmin — kompletna navigacija u sidebar-u (na /superadmin* aktivno). Nije dashboard kartica.
     key: 'superadmin',
-    label: 'Super admin',
+    labelKey: 'modSuperadmin',
     icon: '🔧',
-    desc: 'Upravljanje platformom',
+    descKey: 'descSuperadmin',
     path: '/superadmin',
     active: true,
     perm: null,
     noHelp: true,
     interactive: null,
     admin: {
-      label: 'Super admin',
+      labelKey: 'modSuperadmin',
       links: [
-        { label: 'Restorani',          icon: '🏢', path: '/superadmin', exact: true },
-        { label: 'Podrška',            icon: '💬', path: '/superadmin/podrska' },
-        { label: 'Baza znanja (FAQ)',  icon: '📖', path: '/superadmin/faq' },
-        { label: 'Obavještenja',       icon: '📣', path: '/superadmin/obavestenja' },
-        { label: 'Naplata i cijene',   icon: '💶', path: '/superadmin/billing' },
-        { label: 'Custom palete',      icon: '🎨', path: '/superadmin/theme' },
-        { label: 'Biblioteke',         icon: '📚', path: '/superadmin/libraries' },
+        { labelKey: 'navRestaurants',          icon: '🏢', path: '/superadmin', exact: true },
+        { labelKey: 'navSupport',            icon: '💬', path: '/superadmin/podrska' },
+        { labelKey: 'navKnowledgeBase',  icon: '📖', path: '/superadmin/faq' },
+        { labelKey: 'navNotifications',       icon: '📣', path: '/superadmin/obavestenja' },
+        { labelKey: 'navBillingPrices',   icon: '💶', path: '/superadmin/billing' },
+        { labelKey: 'navCustomPalettes',      icon: '🎨', path: '/superadmin/theme' },
+        { labelKey: 'navLibraries',         icon: '📚', path: '/superadmin/libraries' },
       ],
     },
   },
 ]
 
 const BOTTOM_NAV = [
-  { path: '/admin',          label: 'Početna',  icon: '⊞', exact: true },
-  { path: '/admin/orders',   label: 'Narudžbe', icon: '🧾', perm: 'view_orders' },
-  { path: '/admin/waiter',   label: 'Zahtjevi', icon: '🔔', perm: 'view_waiter_req' },
-  { path: '/admin/kitchen',  label: 'Kuhinja',  icon: '🧑‍🍳', perm: 'view_kitchen_orders' },
-  { path: '/admin/tables',   label: 'Stolovi',  icon: '🪑', perm: 'view_tables' },
-  { path: '/admin/settings', label: 'Postavke', icon: '⚙️' },
+  { path: '/admin',          labelKey: 'navHome',  icon: '⊞', exact: true },
+  { path: '/admin/orders',   labelKey: 'navOrders', icon: '🧾', perm: 'view_orders' },
+  { path: '/admin/waiter',   labelKey: 'navWaiterReq', icon: '🔔', perm: 'view_waiter_req' },
+  { path: '/admin/kitchen',  labelKey: 'navKitchen',  icon: '🧑‍🍳', perm: 'view_kitchen_orders' },
+  { path: '/admin/tables',   labelKey: 'modTables',  icon: '🪑', perm: 'view_tables' },
+  { path: '/admin/settings', labelKey: 'modSettings', icon: '⚙️' },
 ]
 
 export default function AdminLayout({ children }) {
+  const { t } = useTranslation('admin')
   const { restaurant, logout, isOwner, isSuperAdmin, hasPermission, hasAddon, hasVertical } = usePlatform()
   const location = useLocation()
   const navigate = useNavigate()
@@ -350,10 +355,10 @@ export default function AdminLayout({ children }) {
       : location.pathname.startsWith('/admin/hotel')
       ? MODULES.find(m => m.key === 'hotel')
       : location.pathname.startsWith('/admin/staff')
-      ? { key: 'staff', label: 'Role i permisije', path: '/admin/staff', icon: '🔑',
+      ? { key: 'staff', labelKey: 'modStaff', path: '/admin/staff', icon: '🔑',
           interactive: null,
-          admin: { label: 'Administracija', links: [
-            { label: 'Role i permisije', icon: '🔑', path: '/admin/staff/roles', exact: true },
+          admin: { labelKey: 'segStaffAdmin', links: [
+            { labelKey: 'navRolesPerms', icon: '🔑', path: '/admin/staff/roles', exact: true },
           ]}}
       : null
   )
@@ -375,8 +380,8 @@ export default function AdminLayout({ children }) {
 
   const canAccess = (perm) => !perm || isOwner() || isSuperAdmin() || hasPermission(perm)
 
-  const restName = restaurant?.name || 'Admin'
-  const restRole = isSuperAdmin() ? 'Super admin' : isOwner() ? 'Vlasnik' : 'Osoblje'
+  const restName = restaurant?.name || t('adminFallback')
+  const restRole = isSuperAdmin() ? t('modSuperadmin') : isOwner() ? t('roleOwner') : t('roleStaff')
 
   const renderSegment = (segment, forceExpanded = false, onLinkClick = null) => {
     if (!segment) return null
@@ -386,7 +391,7 @@ export default function AdminLayout({ children }) {
     return (
       <div className={styles.navSegment}>
         {expanded && (
-          <div className={styles.navSegmentTitle}>{segment.label}</div>
+          <div className={styles.navSegmentTitle}>{t(segment.labelKey)}</div>
         )}
         {visibleLinks.map((link, i) => {
           const badge = badges[link.path] || 0
@@ -395,11 +400,11 @@ export default function AdminLayout({ children }) {
               key={i}
               to={link.path}
               className={`${styles.navItem} ${isActive(link.path, link.exact) ? styles.navItemActive : ''}`}
-              title={link.label}
+              title={t(link.labelKey)}
               onClick={onLinkClick}
             >
               <span className={styles.navIcon}>{link.icon}</span>
-              {expanded && <span className={styles.navLinkLabel}>{link.label}</span>}
+              {expanded && <span className={styles.navLinkLabel}>{t(link.labelKey)}</span>}
               {badge > 0 && (
                 <span className={styles.navBadge}>{badge}</span>
               )}
@@ -418,12 +423,12 @@ export default function AdminLayout({ children }) {
           <div className={styles.hubHeaderRight}>
             {restaurant && hasVertical('restaurant') && (
               <a href={`/${restaurant.slug}`} target="_blank" rel="noreferrer" className={styles.hubLiveBtn}>
-                👁 Restoran
+                👁 {t('liveRestaurant')}
               </a>
             )}
             {restaurant && hasVertical('hotel') && (
               <a href={`/${restaurant.slug}/hotel`} target="_blank" rel="noreferrer" className={styles.hubLiveBtn}>
-                🏨 Hotel sajt
+                🏨 {t('liveHotelSite')}
               </a>
             )}
             <div className={styles.hubRestIcon}>
@@ -434,7 +439,7 @@ export default function AdminLayout({ children }) {
             <span className={styles.hubRole}>{restRole}</span>
             <LanguageSwitcher variant="dark" />
             <ThemeToggle variant="dark" />
-            <button className={styles.hubLogoutBtn} onClick={handleLogout}>Odjava</button>
+            <button className={styles.hubLogoutBtn} onClick={handleLogout}>{t('logout')}</button>
           </div>
         </header>
         <AnnouncementBanner />
@@ -457,7 +462,7 @@ export default function AdminLayout({ children }) {
         <div className={styles.sbTop}>
           {!collapsed && <Link to="/admin" className={styles.sbRestTitle}>{restName}</Link>}
           <button className={styles.collapseBtn} onClick={() => setCollapsed(c => !c)}
-            title={collapsed ? 'Otvori sidebar' : 'Zatvori sidebar'}>
+            title={collapsed ? t('openSidebar') : t('closeSidebar')}>
             {collapsed ? '›' : '‹'}
           </button>
         </div>
@@ -477,9 +482,9 @@ export default function AdminLayout({ children }) {
         )}
 
         <nav className={styles.nav}>
-          <Link to="/admin" className={styles.navBackItem} title="Kontrolna tabla">
+          <Link to="/admin" className={styles.navBackItem} title={t('controlPanel')}>
             <span className={styles.navIcon}>←</span>
-            {!collapsed && <span>Kontrolna tabla</span>}
+            {!collapsed && <span>{t('controlPanel')}</span>}
           </Link>
 
           <div className={styles.navDivider} />
@@ -499,10 +504,10 @@ export default function AdminLayout({ children }) {
               <Link
                 to={`${activeModule.path}/help`}
                 className={`${styles.navItem} ${isActive(`${activeModule.path}/help`) ? styles.navItemActive : ''}`}
-                title="Uputstvo"
+                title={t('help')}
               >
                 <span className={styles.navIcon}>❓</span>
-                {!collapsed && <span>Uputstvo</span>}
+                {!collapsed && <span>{t('help')}</span>}
               </Link>
             </>
           )}
@@ -512,9 +517,9 @@ export default function AdminLayout({ children }) {
               <div className={styles.navDivider} />
               <Link to="/superadmin"
                 className={`${styles.navItem} ${isActive('/superadmin') ? styles.navItemActive : ''}`}
-                title="Super admin">
+                title={t('modSuperadmin')}>
                 <span className={styles.navIcon}>🔧</span>
-                {!collapsed && <span>Super admin</span>}
+                {!collapsed && <span>{t('modSuperadmin')}</span>}
               </Link>
             </>
           )}
@@ -523,22 +528,22 @@ export default function AdminLayout({ children }) {
         <div className={styles.sbBottom}>
           {restaurant && !collapsed && (
             <a href={`/${restaurant.slug}`} target="_blank" rel="noreferrer" className={styles.viewMenuBtn}>
-              👁 Restoran
+              👁 {t('liveRestaurant')}
             </a>
           )}
           {restaurant && !collapsed && hasAddon('hotel_core') && (
             <a href={`/${restaurant.slug}/hotel`} target="_blank" rel="noreferrer" className={styles.viewMenuBtn}>
-              🏨 Hotel sajt
+              🏨 {t('liveHotelSite')}
             </a>
           )}
           <Link to="/admin/account"
             className={`${styles.navItem} ${isActive('/admin/account') ? styles.navItemActive : ''}`}
-            title="Moj nalog">
+            title={t('myAccount')}>
             <span className={styles.navIcon}>👤</span>
-            {!collapsed && <span>Moj nalog</span>}
+            {!collapsed && <span>{t('myAccount')}</span>}
           </Link>
-          <button className={styles.logoutBtn} onClick={handleLogout} title="Odjava">
-            {collapsed ? '↩' : 'Odjava'}
+          <button className={styles.logoutBtn} onClick={handleLogout} title={t('logout')}>
+            {collapsed ? '↩' : t('logout')}
           </button>
           {!collapsed && <a href="/" className={styles.sbBrand}>rest.by.me</a>}
         </div>
@@ -548,21 +553,21 @@ export default function AdminLayout({ children }) {
         <header className={styles.topbar}>
           {/* Desktop breadcrumb */}
           <div className={styles.breadcrumbDesktop}>
-            <Link to="/admin" className={styles.breadcrumbLink}>Kontrolna tabla</Link>
+            <Link to="/admin" className={styles.breadcrumbLink}>{t('controlPanel')}</Link>
             <span className={styles.breadcrumbSep}>/</span>
-            <span className={styles.breadcrumbCurrent}>{activeModule ? activeModule.label : 'Admin'}</span>
+            <span className={styles.breadcrumbCurrent}>{activeModule ? t(activeModule.labelKey) : t('adminFallback')}</span>
           </div>
 
           {/* Mobile topbar */}
           <div className={styles.mobileTopbar}>
             <Link to="/admin" className={styles.mobileBackBtn}>
-              ← Nazad
+              ← {t('back')}
             </Link>
-            <span className={styles.mobileModuleTitle}>{activeModule ? activeModule.label : 'Admin'}</span>
+            <span className={styles.mobileModuleTitle}>{activeModule ? t(activeModule.labelKey) : t('adminFallback')}</span>
             <button
               className={styles.hamburger}
               onClick={() => setMobileMenuOpen(true)}
-              aria-label="Otvori meni"
+              aria-label={t('openMenu')}
             >
               ☰
             </button>
@@ -608,7 +613,7 @@ export default function AdminLayout({ children }) {
             <nav className={styles.nav} style={{ flex: 1, overflowY: 'auto' }}>
               <Link to="/admin" className={styles.navBackItem} onClick={() => setMobileMenuOpen(false)}>
                 <span className={styles.navIcon}>←</span>
-                <span>Kontrolna tabla</span>
+                <span>{t('controlPanel')}</span>
               </Link>
               <div className={styles.navDivider} />
 
@@ -625,7 +630,7 @@ export default function AdminLayout({ children }) {
                   <div className={styles.navDivider} />
                   <Link to={`${activeModule.path}/help`} className={styles.navItem} onClick={() => setMobileMenuOpen(false)}>
                     <span className={styles.navIcon}>❓</span>
-                    <span>Uputstvo</span>
+                    <span>{t('help')}</span>
                   </Link>
                 </>
               )}
@@ -634,7 +639,7 @@ export default function AdminLayout({ children }) {
                   <div className={styles.navDivider} />
                   <Link to="/superadmin" className={styles.navItem} onClick={() => setMobileMenuOpen(false)}>
                     <span className={styles.navIcon}>🔧</span>
-                    <span>Super admin</span>
+                    <span>{t('modSuperadmin')}</span>
                   </Link>
                 </>
               )}
@@ -643,12 +648,12 @@ export default function AdminLayout({ children }) {
             <div className={styles.sbBottom}>
               {restaurant && (
                 <a href={`/${restaurant.slug}`} target="_blank" rel="noreferrer" className={styles.viewMenuBtn}>
-                  👁 Meni uživo
+                  👁 {t('liveMenu')}
                 </a>
               )}
               <LanguageSwitcher variant="dark" />
               <ThemeToggle variant="dark" />
-              <button className={styles.logoutBtn} onClick={handleLogout}>Odjava</button>
+              <button className={styles.logoutBtn} onClick={handleLogout}>{t('logout')}</button>
               <a href="/" className={styles.sbBrand}>rest.by.me</a>
             </div>
           </aside>
