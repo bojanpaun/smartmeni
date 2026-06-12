@@ -1,26 +1,30 @@
 // ▶ Zamijeniti: src/modules/analytics/pages/AnalyticsPage.jsx
 
 import { useState, useEffect } from 'react'
+import { useTranslation } from 'react-i18next'
 import { supabase } from '../../../lib/supabase'
 import { usePlatform } from '../../../context/PlatformContext'
 import styles from './AnalyticsPage.module.css'
 import nav from '../../../styles/nav.module.css'
 
+// i18nKey → prevodni ključ; spaToday/spaPeriod* reuse iz spa modula.
 const PERIODS = [
-  { key: 'today',   label: 'Danas' },
-  { key: 'week',    label: '7 dana' },
-  { key: 'month',   label: '30 dana' },
-  { key: 'quarter', label: '90 dana' },
-  { key: 'custom',  label: 'Prilagođeno' },
+  { key: 'today',   i18nKey: 'spaToday' },
+  { key: 'week',    i18nKey: 'spaPeriod7' },
+  { key: 'month',   i18nKey: 'spaPeriod30' },
+  { key: 'quarter', i18nKey: 'spaPeriod90' },
+  { key: 'custom',  i18nKey: 'anaPeriodCustom' },
 ]
 
-const DAYS_SR = ['Ned', 'Pon', 'Uto', 'Sri', 'Čet', 'Pet', 'Sub']
+// Indeks dana (0=Ned) → prevodni ključ (reuse spaDay* iz spa modula).
+const DAY_KEYS = ['spaDaySun', 'spaDayMon', 'spaDayTue', 'spaDayWed', 'spaDayThu', 'spaDayFri', 'spaDaySat']
 
+// Menu-engineering termini (Star/Plow/Puzzle/Dog) ostaju standardni engleski; descKey se prevodi.
 const MATRIX_COLORS = {
-  star:      { bg: '#e0f5ec', border: '#0d7a52', text: '#0a6343', label: '⭐ Star' },
-  plow:      { bg: '#e8f0fe', border: '#378add', text: '#185fa5', label: '🐎 Plow Horse' },
-  puzzle:    { bg: '#fff8e0', border: '#f5c400', text: '#7a5c00', label: '🧩 Puzzle' },
-  dog:       { bg: '#fde0e0', border: '#f57a7a', text: '#c0392b', label: '🐕 Dog' },
+  star:      { bg: '#e0f5ec', border: '#0d7a52', text: '#0a6343', label: '⭐ Star',        descKey: 'anaMatrixStarDesc' },
+  plow:      { bg: '#e8f0fe', border: '#378add', text: '#185fa5', label: '🐎 Plow Horse',  descKey: 'anaMatrixPlowDesc' },
+  puzzle:    { bg: '#fff8e0', border: '#f5c400', text: '#7a5c00', label: '🧩 Puzzle',      descKey: 'anaMatrixPuzzleDesc' },
+  dog:       { bg: '#fde0e0', border: '#f57a7a', text: '#c0392b', label: '🐕 Dog',         descKey: 'anaMatrixDogDesc' },
 }
 
 function getDateRange(period, customStart, customEnd) {
@@ -90,7 +94,8 @@ function Trend({ current, prev }) {
 }
 
 function BarChart({ data, valueKey, labelKey, color = '#0d7a52', formatValue }) {
-  if (!data || data.length === 0) return <div className={styles.chartEmpty}>Nema podataka</div>
+  const { t } = useTranslation('admin')
+  if (!data || data.length === 0) return <div className={styles.chartEmpty}>{t('anaNoData')}</div>
   const max = Math.max(...data.map(d => d[valueKey] || 0))
   return (
     <div className={styles.barChart}>
@@ -130,6 +135,7 @@ function HBar({ value, max, label, sub, color = '#0d7a52', badge }) {
 
 // Menu Engineering matrica
 function MenuMatrix({ items }) {
+  const { t } = useTranslation('admin')
   if (!items || items.length === 0) return null
   const stars = items.filter(i => i.category === 'star')
   const plows = items.filter(i => i.category === 'plow')
@@ -142,18 +148,15 @@ function MenuMatrix({ items }) {
         {MATRIX_COLORS[cat].label}
       </div>
       <div className={styles.matrixCellDesc} style={{ color: MATRIX_COLORS[cat].text }}>
-        {cat === 'star' && 'Visoka popularnost + visoka marža → Zadrži i promoviši'}
-        {cat === 'plow' && 'Visoka popularnost + niska marža → Povećaj cijenu ili smanji trošak'}
-        {cat === 'puzzle' && 'Niska popularnost + visoka marža → Bolje pozicioniraj u meniju'}
-        {cat === 'dog' && 'Niska popularnost + niska marža → Razmotri uklanjanje'}
+        {t(MATRIX_COLORS[cat].descKey)}
       </div>
       {list.length === 0
-        ? <div className={styles.matrixEmpty}>Nema jela</div>
+        ? <div className={styles.matrixEmpty}>{t('anaNoDishes')}</div>
         : list.map((item, i) => (
           <div key={i} className={styles.matrixItem}>
             <span className={styles.matrixItemName}>{item.name}</span>
             <span className={styles.matrixItemStats} style={{ color: MATRIX_COLORS[cat].text }}>
-              {item.quantity} kom · {item.marginPct.toFixed(0)}% marža
+              {item.quantity} {t('anaPieces')} · {item.marginPct.toFixed(0)}% {t('anaMargin')}
             </span>
           </div>
         ))
@@ -163,21 +166,23 @@ function MenuMatrix({ items }) {
 
   return (
     <div className={styles.matrixGrid}>
-      <div className={styles.matrixAxisY}>← Niska marža &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; Visoka marža →</div>
-      <div className={styles.matrixAxisX}>↑ Visoka popularnost</div>
+      <div className={styles.matrixAxisY}>← {t('anaLowMargin')} &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; {t('anaHighMargin')} →</div>
+      <div className={styles.matrixAxisX}>↑ {t('anaHighPop')}</div>
       <div className={styles.matrixCells}>
         <Section cat="plow" list={plows} />
         <Section cat="star" list={stars} />
         <Section cat="dog" list={dogs} />
         <Section cat="puzzle" list={puzzles} />
       </div>
-      <div className={styles.matrixAxisXBottom}>↓ Niska popularnost</div>
+      <div className={styles.matrixAxisXBottom}>↓ {t('anaLowPop')}</div>
     </div>
   )
 }
 
 export default function AnalyticsPage() {
   const { restaurant } = usePlatform()
+  const { t, i18n } = useTranslation('admin')
+  const dl = i18n.language === 'en' ? 'en-US' : 'sr-Latn'
   const [period, setPeriod] = useState('month')
   const [customStart, setCustomStart] = useState('')
   const [customEnd, setCustomEnd] = useState('')
@@ -290,7 +295,7 @@ export default function AnalyticsPage() {
     ordersData.forEach(o => {
       const day = o.created_at.slice(0, 10)
       if (!dayMap[day]) dayMap[day] = { day: '', revenue: 0, orders: 0 }
-      dayMap[day].day = new Date(day + 'T12:00:00').toLocaleDateString('sr-Latn', { day: '2-digit', month: '2-digit' })
+      dayMap[day].day = new Date(day + 'T12:00:00').toLocaleDateString(dl, { day: '2-digit', month: '2-digit' })
       dayMap[day].revenue += parseFloat(o.total) || 0
       dayMap[day].orders++
     })
@@ -305,7 +310,7 @@ export default function AnalyticsPage() {
       .filter(d => d.h >= 7 && d.h <= 23)
 
     const weekdayMap = {}
-    DAYS_SR.forEach((d, i) => { weekdayMap[i] = { day: d, count: 0, revenue: 0 } })
+    DAY_KEYS.forEach((dk, i) => { weekdayMap[i] = { day: t(dk), count: 0, revenue: 0 } })
     ordersData.forEach(o => {
       const wd = new Date(o.created_at).getDay()
       weekdayMap[wd].count++
@@ -440,15 +445,15 @@ export default function AnalyticsPage() {
     // ── STOLOVI ───────────────────────────────────────────────
     const tableMap = {}
     ordersData.forEach(o => {
-      const t = o.table_number ? `Sto ${o.table_number}` : 'Nepoznat'
-      if (!tableMap[t]) tableMap[t] = { table: t, orders: 0, revenue: 0, reservations: 0 }
-      tableMap[t].orders++
-      tableMap[t].revenue += parseFloat(o.total) || 0
+      const tbl = o.table_number ? `${t('anaTable')} ${o.table_number}` : t('anaUnknown')
+      if (!tableMap[tbl]) tableMap[tbl] = { table: tbl, orders: 0, revenue: 0, reservations: 0 }
+      tableMap[tbl].orders++
+      tableMap[tbl].revenue += parseFloat(o.total) || 0
     })
     resData.filter(r => r.status === 'confirmed').forEach(r => {
-      const t = r.table_number ? `Sto ${r.table_number}` : 'Nepoznat'
-      if (!tableMap[t]) tableMap[t] = { table: t, orders: 0, revenue: 0, reservations: 0 }
-      tableMap[t].reservations++
+      const tbl = r.table_number ? `${t('anaTable')} ${r.table_number}` : t('anaUnknown')
+      if (!tableMap[tbl]) tableMap[tbl] = { table: tbl, orders: 0, revenue: 0, reservations: 0 }
+      tableMap[tbl].reservations++
     })
     const topTables = Object.values(tableMap).sort((a, b) => b.revenue - a.revenue).slice(0, 8)
     const uniqueOccupiedTables = new Set(ordersData.map(o => o.table_number)).size
@@ -492,14 +497,14 @@ export default function AnalyticsPage() {
   }
 
   const SECTIONS = [
-    { key: 'overview',  label: 'Pregled' },
-    { key: 'menu',      label: 'Meni' },
-    { key: 'inventory', label: 'Namirnice' },
-    { key: 'tables',    label: 'Stolovi' },
-    { key: 'staff',     label: 'Osoblje' },
+    { key: 'overview',  labelKey: 'anaSecOverview' },
+    { key: 'menu',      labelKey: 'anaSecMenu' },
+    { key: 'inventory', labelKey: 'anaSecInventory' },
+    { key: 'tables',    labelKey: 'anaSecTables' },
+    { key: 'staff',     labelKey: 'anaSecStaff' },
   ]
 
-  if (loading && !data) return <div className={styles.loading}>Učitavanje analitike...</div>
+  if (loading && !data) return <div className={styles.loading}>{t('anaLoading')}</div>
   if (!data) return null
 
   const d = data
@@ -515,12 +520,12 @@ export default function AnalyticsPage() {
 
       {/* Header */}
       <div className={styles.header}>
-        <div className={styles.headerTitle}>Analitika</div>
+        <div className={styles.headerTitle}>{t('anaTitle')}</div>
         <div className={nav.pillBar}>
           {PERIODS.map(p => (
             <button key={p.key}
               className={`${nav.pillBtn} ${period === p.key ? nav.pillBtnActive : ''}`}
-              onClick={() => setPeriod(p.key)}>{p.label}</button>
+              onClick={() => setPeriod(p.key)}>{t(p.i18nKey)}</button>
           ))}
         </div>
       </div>
@@ -528,11 +533,11 @@ export default function AnalyticsPage() {
       {period === 'custom' && (
         <div className={styles.customPicker}>
           <div className={styles.customPickerField}>
-            <label>Od</label>
+            <label>{t('anaFrom')}</label>
             <input type="date" value={customStart} max={customEnd || undefined} onChange={e => setCustomStart(e.target.value)} />
           </div>
           <div className={styles.customPickerField}>
-            <label>Do</label>
+            <label>{t('anaTo')}</label>
             <input type="date" value={customEnd} min={customStart || undefined} onChange={e => setCustomEnd(e.target.value)} />
           </div>
         </div>
@@ -542,7 +547,7 @@ export default function AnalyticsPage() {
         {SECTIONS.map(s => (
           <button key={s.key}
             className={`${nav.pillBtn} ${activeSection === s.key ? nav.pillBtnActive : ''}`}
-            onClick={() => setActiveSection(s.key)}>{s.label}</button>
+            onClick={() => setActiveSection(s.key)}>{t(s.labelKey)}</button>
         ))}
       </div>
 
@@ -551,83 +556,83 @@ export default function AnalyticsPage() {
         <>
           {/* Operativna profitabilnost */}
           <div className={styles.profitCard}>
-            <div className={styles.profitTitle}>Operativna profitabilnost</div>
+            <div className={styles.profitTitle}>{t('anaOpProfitability')}</div>
             <div className={styles.profitRow}>
               <div className={styles.profitItem}>
-                <div className={styles.profitLabel}>Ukupan prihod</div>
+                <div className={styles.profitLabel}>{t('anaTotalRevenue')}</div>
                 <div className={styles.profitValue}>€{d.totalRevenue.toFixed(2)}</div>
                 <Trend current={d.totalRevenue} prev={d.prevRevenue} />
               </div>
               <div className={styles.profitMinus}>−</div>
               <div className={styles.profitItem}>
-                <div className={styles.profitLabel}>Trošak namirnica</div>
+                <div className={styles.profitLabel}>{t('anaIngredientCost')}</div>
                 <div className={styles.profitValue}>€{d.ingredientCost.toFixed(2)}</div>
-                {d.foodCostPct !== null && <div className={styles.profitPct}>{d.foodCostPct.toFixed(1)}% prihoda</div>}
+                {d.foodCostPct !== null && <div className={styles.profitPct}>{t('anaOfRevenue', { pct: d.foodCostPct.toFixed(1) })}</div>}
               </div>
               <div className={styles.profitMinus}>−</div>
               <div className={styles.profitItem}>
-                <div className={styles.profitLabel}>Trošak rada</div>
+                <div className={styles.profitLabel}>{t('anaLaborCost')}</div>
                 <div className={styles.profitValue}>€{d.laborCost.toFixed(2)}</div>
-                {d.laborPct !== null && <div className={styles.profitPct}>{d.laborPct.toFixed(1)}% prihoda</div>}
+                {d.laborPct !== null && <div className={styles.profitPct}>{t('anaOfRevenue', { pct: d.laborPct.toFixed(1) })}</div>}
               </div>
               <div className={styles.profitEquals}>=</div>
               <div className={`${styles.profitItem} ${styles.profitResult}`}>
-                <div className={styles.profitLabel}>Operativni profit</div>
+                <div className={styles.profitLabel}>{t('anaOpProfit')}</div>
                 <div className={`${styles.profitValue} ${d.operatingProfit >= 0 ? styles.profitPos : styles.profitNeg}`}>
                   €{d.operatingProfit.toFixed(2)}
                 </div>
                 {d.operatingMargin !== null && (
                   <div className={`${styles.profitPct} ${d.operatingMargin >= 0 ? styles.profitPos : styles.profitNeg}`}>
-                    {d.operatingMargin.toFixed(1)}% marža
+                    {t('anaMarginPct', { pct: d.operatingMargin.toFixed(1) })}
                   </div>
                 )}
               </div>
             </div>
             {!d.hasWageData && (
               <div className={styles.profitNote}>
-                ℹ️ Plate zaposlenih nijesu definisane.
-                <button className={styles.linkBtn} onClick={() => setActiveSection('staff')}>Unesi ručno →</button>
+                ℹ️ {t('anaNoWages')}
+                <button className={styles.linkBtn} onClick={() => setActiveSection('staff')}>{t('anaEnterManually')} →</button>
               </div>
             )}
           </div>
 
           <div className={styles.kpiGrid}>
             <div className={styles.kpiCard}>
-              <div className={styles.kpiLabel}>Broj narudžbi</div>
+              <div className={styles.kpiLabel}>{t('anaOrderCount')}</div>
               <div className={styles.kpiValue}>{d.totalOrders}</div>
               <Trend current={d.totalOrders} prev={d.prevOrdersCount} />
             </div>
             <div className={styles.kpiCard}>
-              <div className={styles.kpiLabel}>Prosječna narudžba</div>
+              <div className={styles.kpiLabel}>{t('anaAvgOrder')}</div>
               <div className={styles.kpiValue}>€{d.avgOrder.toFixed(2)}</div>
               <Trend current={d.avgOrder} prev={d.prevAvg} />
             </div>
             <div className={styles.kpiCard}>
-              <div className={styles.kpiLabel}>Popunjenost stolova</div>
+              <div className={styles.kpiLabel}>{t('anaTableOccupancy')}</div>
               <div className={styles.kpiValue}>{d.occupancyRate.toFixed(0)}%</div>
-              <div className={styles.kpiSub}>{d.uniqueOccupiedTables} od {d.numTables} stolova</div>
+              <div className={styles.kpiSub}>{t('anaTablesOfTotal', { occupied: d.uniqueOccupiedTables, total: d.numTables })}</div>
             </div>
             <div className={styles.kpiCard}>
-              <div className={styles.kpiLabel}>Prosj. čekanje</div>
-              <div className={styles.kpiValue}>{d.avgServiceTime !== null ? `${d.avgServiceTime.toFixed(0)} min` : '—'}</div>
-              <div className={styles.kpiSub}>od narudžbe do servisa</div>
+              <div className={styles.kpiLabel}>{t('anaAvgWait')}</div>
+              <div className={styles.kpiValue}>{d.avgServiceTime !== null ? `${d.avgServiceTime.toFixed(0)} ${t('spaMinUnit')}` : '—'}</div>
+              <div className={styles.kpiSub}>{t('anaFromOrderToService')}</div>
             </div>
           </div>
 
           {d.dailyData.length > 1 && (
             <div className={styles.section}>
-              <div className={styles.sectionTitle}>Prihod po danima</div>
+              <div className={styles.sectionTitle}>{t('anaRevenuePerDay')}</div>
               <BarChart data={d.dailyData} valueKey="revenue" labelKey="day" color="#0d7a52" formatValue={v => `€${v.toFixed(2)}`} />
             </div>
           )}
 
           <div className={styles.twoCol}>
             <div className={styles.section}>
-              <div className={styles.sectionTitle}>Najprometniji sati</div>
+              <div className={styles.sectionTitle}>{t('anaBusiestHours')}</div>
               <BarChart data={d.hourlyData} valueKey="count" labelKey="hour" color="#378add" />
             </div>
             <div className={styles.section}>
-              <div className={styles.sectionTitle}>Aktivnost po danima sedmice</div>
+              <div className={styles.sectionTitle}>{t('anaWeekdayActivity')}</div>
               <BarChart data={d.weekdayData} valueKey="count" labelKey="day" color="#7f77dd" />
             </div>
           </div>
@@ -639,19 +644,19 @@ export default function AnalyticsPage() {
         <>
           {/* Menu Engineering matrica */}
           <div className={styles.section}>
-            <div className={styles.sectionTitle}>Menu Engineering matrica (Plow Horse / Star / Dog / Puzzle)</div>
+            <div className={styles.sectionTitle}>{t('anaMenuMatrixTitle')}</div>
             <div className={styles.sectionDesc}>
-              Matrica kategorizuje jela prema popularnosti (broj prodaja) i marži (profitabilnosti). Samo jela sa definisanim recepturama.
+              {t('anaMenuMatrixDesc')}
             </div>
             {!d.hasMenuMatrix ? (
               <div className={styles.warningBox}>
-                ⚠️ Nema jela sa definisanim recepturama. Definiši recepture u modulu <strong>Zalihe → Recepture</strong> da biste koristili menu engineering.
+                ⚠️ {t('anaNoRecipesWarn1')}<strong>{t('anaInventoryRecipes')}</strong>{t('anaNoRecipesWarn2')}
               </div>
             ) : (
               <>
                 {d.noRecipeItems.length > 0 && (
                   <div className={styles.infoBox}>
-                    ℹ️ {d.noRecipeItems.length} {d.noRecipeItems.length === 1 ? 'jelo nema' : 'jela nemaju'} definisanu recepturu i nijesu uključena u matricu:
+                    ℹ️ {t('anaDishesNoRecipe', { count: d.noRecipeItems.length })}
                     {' '}{d.noRecipeItems.map(i => i.name).join(', ')}
                   </div>
                 )}
@@ -662,17 +667,17 @@ export default function AnalyticsPage() {
 
           {/* Top jela */}
           <div className={styles.section}>
-            <div className={styles.sectionTitle}>Najprodavanija jela</div>
-            {d.topItems.length === 0 ? <div className={styles.empty}>Nema podataka.</div> : (
+            <div className={styles.sectionTitle}>{t('anaTopDishes')}</div>
+            {d.topItems.length === 0 ? <div className={styles.empty}>{t('anaNoDataDot')}</div> : (
               <div className={styles.itemsTable}>
                 <div className={styles.itemsHeader}>
-                  <span>#</span><span>Naziv</span><span>Prodano</span><span>Prihod</span><span></span>
+                  <span>#</span><span>{t('anaColName')}</span><span>{t('anaColSold')}</span><span>{t('anaColRevenue')}</span><span></span>
                 </div>
                 {d.topItems.map((item, i) => (
                   <div key={i} className={styles.itemRow}>
                     <span className={`${styles.itemRank} ${i < 3 ? styles[`rank${i+1}`] : ''}`}>{i + 1}</span>
                     <span className={styles.itemName}>{item.name}</span>
-                    <span className={styles.itemQty}>{item.quantity} kom</span>
+                    <span className={styles.itemQty}>{item.quantity} {t('anaPieces')}</span>
                     <span className={styles.itemRevenue}>€{item.revenue.toFixed(2)}</span>
                     <div className={styles.itemBar}>
                       <div className={styles.itemBarFill} style={{ width: `${(item.quantity / maxItem) * 100}%` }} />
@@ -686,11 +691,11 @@ export default function AnalyticsPage() {
           {/* Kategorije */}
           {d.catData.length > 0 && (
             <div className={styles.section}>
-              <div className={styles.sectionTitle}>Prihod po kategoriji</div>
+              <div className={styles.sectionTitle}>{t('anaRevenueByCategory')}</div>
               <div className={styles.hBarList}>
                 {d.catData.map((cat, i) => (
                   <HBar key={i} value={cat.revenue} max={d.catData[0]?.revenue || 1}
-                    label={cat.name} sub={`€${cat.revenue.toFixed(2)} · ${cat.quantity} prodano`} color="#0d7a52" />
+                    label={cat.name} sub={`€${cat.revenue.toFixed(2)} · ${cat.quantity} ${t('anaSold')}`} color="#0d7a52" />
                 ))}
               </div>
             </div>
@@ -703,22 +708,22 @@ export default function AnalyticsPage() {
         <>
           <div className={styles.twoCol}>
             <div className={styles.kpiCard}>
-              <div className={styles.kpiLabel}>Ukupni trošak namirnica</div>
+              <div className={styles.kpiLabel}>{t('anaTotalIngredientCost')}</div>
               <div className={styles.kpiValue}>€{d.ingredientCost.toFixed(2)}</div>
-              {d.foodCostPct !== null && <div className={styles.kpiSub}>{d.foodCostPct.toFixed(1)}% od prihoda</div>}
+              {d.foodCostPct !== null && <div className={styles.kpiSub}>{t('anaPctOfRevenue2', { pct: d.foodCostPct.toFixed(1) })}</div>}
             </div>
             <div className={styles.kpiCard}>
-              <div className={styles.kpiLabel}>Zarobljeni kapital</div>
+              <div className={styles.kpiLabel}>{t('anaFrozenCapital')}</div>
               <div className={styles.kpiValue}>€{d.frozenCapital.reduce((s, i) => s + i.value, 0).toFixed(2)}</div>
-              <div className={styles.kpiSub}>{d.frozenCapital.length} stavki bez potrošnje u periodu</div>
+              <div className={styles.kpiSub}>{t('anaItemsNoConsumption', { count: d.frozenCapital.length })}</div>
             </div>
           </div>
 
           {/* Najpopularnije namirnice */}
           <div className={styles.section}>
-            <div className={styles.sectionTitle}>Najpopularnije namirnice (po trošku)</div>
+            <div className={styles.sectionTitle}>{t('anaTopIngredients')}</div>
             {d.topConsumed.length === 0
-              ? <div className={styles.empty}>Nema podataka — definišite recepture u modulu Zalihe.</div>
+              ? <div className={styles.empty}>{t('anaNoDataRecipes')}</div>
               : <div className={styles.hBarList}>
                   {d.topConsumed.map((ing, i) => (
                     <HBar key={i} value={ing.cost} max={maxConsumed}
@@ -733,9 +738,9 @@ export default function AnalyticsPage() {
           <div className={styles.twoCol}>
             {/* Dopune zaliha */}
             <div className={styles.section}>
-              <div className={styles.sectionTitle}>Dopune zaliha (ulazi)</div>
+              <div className={styles.sectionTitle}>{t('anaReplenishment')}</div>
               {d.topReplenish.length === 0
-                ? <div className={styles.empty}>Nema ulaza u odabranom periodu.</div>
+                ? <div className={styles.empty}>{t('anaNoInflows')}</div>
                 : <div className={styles.hBarList}>
                     {d.topReplenish.map((ing, i) => (
                       <HBar key={i} value={ing.cost} max={maxReplenish}
@@ -749,9 +754,9 @@ export default function AnalyticsPage() {
 
             {/* Rashodi */}
             <div className={styles.section}>
-              <div className={styles.sectionTitle}>Rashodi i ručni izlazi</div>
+              <div className={styles.sectionTitle}>{t('anaWasteTitle')}</div>
               {d.topWaste.length === 0
-                ? <div className={styles.empty}>Nema ručnih izlaza u odabranom periodu.</div>
+                ? <div className={styles.empty}>{t('anaNoManualOut')}</div>
                 : <div className={styles.hBarList}>
                     {d.topWaste.map((ing, i) => (
                       <HBar key={i} value={ing.cost} max={maxWaste}
@@ -767,8 +772,8 @@ export default function AnalyticsPage() {
           {/* Zarobljeni kapital */}
           {d.frozenCapital.length > 0 && (
             <div className={styles.section}>
-              <div className={styles.sectionTitle}>Zarobljeni kapital — stavke bez potrošnje</div>
-              <div className={styles.sectionDesc}>Namirnice koje su na zalihama ali se nisu trošile u odabranom periodu.</div>
+              <div className={styles.sectionTitle}>{t('anaFrozenNoConsumption')}</div>
+              <div className={styles.sectionDesc}>{t('anaFrozenDesc')}</div>
               <div className={styles.frozenList}>
                 {d.frozenCapital.map((item, i) => (
                   <div key={i} className={styles.frozenItem}>
@@ -778,7 +783,7 @@ export default function AnalyticsPage() {
                   </div>
                 ))}
                 <div className={styles.frozenTotal}>
-                  <span>Ukupno zarobljeno</span>
+                  <span>{t('anaTotalFrozen')}</span>
                   <span></span>
                   <span className={styles.frozenTotalVal}>
                     €{d.frozenCapital.reduce((s, i) => s + i.value, 0).toFixed(2)}
@@ -791,11 +796,11 @@ export default function AnalyticsPage() {
           {/* Brzina potrošnje */}
           {d.inventoryTurnover.length > 0 && (
             <div className={styles.section}>
-              <div className={styles.sectionTitle}>Brzina potrošnje — dani do isteka</div>
-              <div className={styles.sectionDesc}>Na osnovu prosječne dnevne potrošnje u periodu.</div>
+              <div className={styles.sectionTitle}>{t('anaConsumptionSpeed')}</div>
+              <div className={styles.sectionDesc}>{t('anaConsumptionSpeedDesc')}</div>
               <div className={styles.turnoverTable}>
                 <div className={styles.turnoverHeader}>
-                  <span>Namirnica</span><span>Na zalihi</span><span>Potrošeno</span><span>Dani do isteka</span>
+                  <span>{t('anaColIngredient')}</span><span>{t('anaColInStock')}</span><span>{t('anaColConsumed')}</span><span>{t('anaColDaysToEmpty')}</span>
                 </div>
                 {d.inventoryTurnover
                   .filter(i => i.consumed > 0)
@@ -807,7 +812,7 @@ export default function AnalyticsPage() {
                       <span>{parseFloat(item.quantity).toFixed(2)} {item.unit}</span>
                       <span>{item.consumed.toFixed(2)} {item.unit}</span>
                       <span className={item.daysToEmpty !== null && item.daysToEmpty < 3 ? styles.lowDays : ''}>
-                        {item.daysToEmpty !== null ? `~${item.daysToEmpty.toFixed(0)} dana` : '—'}
+                        {item.daysToEmpty !== null ? `~${item.daysToEmpty.toFixed(0)} ${t('anaDays')}` : '—'}
                       </span>
                     </div>
                   ))
@@ -823,25 +828,25 @@ export default function AnalyticsPage() {
         <>
           <div className={styles.kpiGrid}>
             <div className={styles.kpiCard}>
-              <div className={styles.kpiLabel}>Stopa popunjenosti</div>
+              <div className={styles.kpiLabel}>{t('anaOccupancyRate')}</div>
               <div className={styles.kpiValue}>{d.occupancyRate.toFixed(0)}%</div>
-              <div className={styles.kpiSub}>{d.uniqueOccupiedTables} od {d.numTables} stolova</div>
+              <div className={styles.kpiSub}>{t('anaTablesOfTotal', { occupied: d.uniqueOccupiedTables, total: d.numTables })}</div>
             </div>
             <div className={styles.kpiCard}>
-              <div className={styles.kpiLabel}>Rezervacije ukupno</div>
+              <div className={styles.kpiLabel}>{t('anaTotalReservations')}</div>
               <div className={styles.kpiValue}>{d.totalRes}</div>
-              <div className={styles.kpiSub}>{d.onlineRes} online · {d.adminRes} lično</div>
+              <div className={styles.kpiSub}>{d.onlineRes} {t('anaOnline')} · {d.adminRes} {t('anaInPerson')}</div>
             </div>
           </div>
           <div className={styles.section}>
-            <div className={styles.sectionTitle}>Prihod i rezervacije po stolu</div>
-            {d.topTables.length === 0 ? <div className={styles.empty}>Nema podataka.</div> : (
+            <div className={styles.sectionTitle}>{t('anaRevenueReservByTable')}</div>
+            {d.topTables.length === 0 ? <div className={styles.empty}>{t('anaNoDataDot')}</div> : (
               <div className={styles.hBarList}>
-                {d.topTables.map((t, i) => (
-                  <HBar key={i} value={t.revenue} max={maxTable}
-                    label={t.table}
-                    sub={`€${t.revenue.toFixed(2)} · ${t.orders} narudžbi`}
-                    badge={t.reservations > 0 ? `${t.reservations} rez.` : null}
+                {d.topTables.map((tbl, i) => (
+                  <HBar key={i} value={tbl.revenue} max={maxTable}
+                    label={tbl.table}
+                    sub={`€${tbl.revenue.toFixed(2)} · ${tbl.orders} ${t('anaOrders')}`}
+                    badge={tbl.reservations > 0 ? `${tbl.reservations} ${t('anaResShort')}` : null}
                     color="#0d7a52" />
                 ))}
               </div>
@@ -855,13 +860,13 @@ export default function AnalyticsPage() {
         <>
           {/* Trošak rada */}
           <div className={styles.section}>
-            <div className={styles.sectionTitle}>Trošak rada za period ({d.days} dana)</div>
+            <div className={styles.sectionTitle}>{t('anaLaborCostForPeriod', { days: d.days })}</div>
             {d.staff.length === 0 ? (
-              <div className={styles.empty}>Nema aktivnog osoblja. Dodaj zaposlenike u modulu Osoblje.</div>
+              <div className={styles.empty}>{t('anaNoActiveStaff')}</div>
             ) : (
               <div className={styles.staffTable}>
                 <div className={styles.staffHeader}>
-                  <span>Zaposlenik</span><span>Tip plate</span><span>Iznos</span><span>Za period</span>
+                  <span>{t('anaColEmployee')}</span><span>{t('anaColWageType')}</span><span>{t('anaColAmount')}</span><span>{t('anaColForPeriod')}</span>
                 </div>
                 {d.staff.map((emp, i) => {
                   const amt = parseFloat(emp.wage_amount || 0)
@@ -873,7 +878,7 @@ export default function AnalyticsPage() {
                     <div key={i} className={styles.staffRow}>
                       <span>{emp.email}</span>
                       <span className={styles.staffWageType}>
-                        {emp.wage_type === 'hourly' ? 'Po satu' : emp.wage_type === 'weekly' ? 'Sedmično' : 'Mjesečno'}
+                        {emp.wage_type === 'hourly' ? t('anaWageHourly') : emp.wage_type === 'weekly' ? t('anaWageWeekly') : t('anaWageMonthly')}
                       </span>
                       <span>€{amt.toFixed(2)}</span>
                       <span className={styles.staffForPeriod}>€{forPeriod.toFixed(2)}</span>
@@ -881,7 +886,7 @@ export default function AnalyticsPage() {
                   )
                 })}
                 <div className={styles.staffTotal}>
-                  <span>Ukupno za period</span><span></span><span></span>
+                  <span>{t('anaTotalForPeriod')}</span><span></span><span></span>
                   <span>€{d.laborCost.toFixed(2)}</span>
                 </div>
               </div>
@@ -890,21 +895,21 @@ export default function AnalyticsPage() {
             {/* Ručni unos ako nema plata */}
             {!d.hasWageData && (
               <div className={styles.manualLaborWrap}>
-                <div className={styles.manualLaborTitle}>Ručni unos troška rada</div>
+                <div className={styles.manualLaborTitle}>{t('anaManualLaborTitle')}</div>
                 <div className={styles.manualLaborRow}>
                   <input
                     type="number" min="0" step="0.01"
                     className={styles.manualLaborInput}
-                    placeholder="Ukupni trošak rada (€)"
+                    placeholder={t('anaManualLaborPh')}
                     value={manualLaborCost}
                     onChange={e => setManualLaborCost(e.target.value)}
                   />
                   <button className={styles.manualLaborBtn} onClick={() => loadData()}>
-                    Primijeni
+                    {t('anaApply')}
                   </button>
                 </div>
                 <div className={styles.manualLaborNote}>
-                  Ili definiši plate zaposlenika u modulu <strong>Osoblje → Zaposleni</strong> (uredi zaposlenika → tip i iznos plate).
+                  {t('anaManualLaborNote1')}<strong>{t('anaStaffEmployees')}</strong>{t('anaManualLaborNote2')}
                 </div>
               </div>
             )}
@@ -912,9 +917,9 @@ export default function AnalyticsPage() {
             {d.laborPct !== null && d.laborCost > 0 && (
               <div className={styles.laborMetrics}>
                 <div className={styles.kpiCard}>
-                  <div className={styles.kpiLabel}>Trošak rada / prihod</div>
+                  <div className={styles.kpiLabel}>{t('anaLaborPerRevenue')}</div>
                   <div className={styles.kpiValue}>{d.laborPct.toFixed(1)}%</div>
-                  <div className={styles.kpiSub}>{d.laborPct < 30 ? 'Odlično (ispod 30%)' : d.laborPct < 35 ? 'Prihvatljivo (30–35%)' : 'Visoko (iznad 35%)'}</div>
+                  <div className={styles.kpiSub}>{d.laborPct < 30 ? t('anaLaborExcellent') : d.laborPct < 35 ? t('anaLaborAcceptable') : t('anaLaborHigh')}</div>
                 </div>
               </div>
             )}
@@ -923,31 +928,31 @@ export default function AnalyticsPage() {
           {/* Zahtjevi konobara */}
           <div className={styles.kpiGrid}>
             <div className={styles.kpiCard}>
-              <div className={styles.kpiLabel}>Ukupno zahtjeva</div>
+              <div className={styles.kpiLabel}>{t('anaTotalRequests')}</div>
               <div className={styles.kpiValue}>{d.totalReqs}</div>
             </div>
             <div className={styles.kpiCard}>
-              <div className={styles.kpiLabel}>Riješeno</div>
+              <div className={styles.kpiLabel}>{t('anaResolved')}</div>
               <div className={styles.kpiValue}>{d.resolvedReqs}</div>
-              <div className={styles.kpiSub}>{d.totalReqs > 0 ? `${((d.resolvedReqs/d.totalReqs)*100).toFixed(0)}% stopa` : '—'}</div>
+              <div className={styles.kpiSub}>{d.totalReqs > 0 ? `${((d.resolvedReqs/d.totalReqs)*100).toFixed(0)}% ${t('anaRate')}` : '—'}</div>
             </div>
             <div className={styles.kpiCard}>
-              <div className={styles.kpiLabel}>Prosj. odgovor</div>
-              <div className={styles.kpiValue}>{d.avgResolveTime > 0 ? `${d.avgResolveTime.toFixed(0)} min` : '—'}</div>
+              <div className={styles.kpiLabel}>{t('anaAvgResponse')}</div>
+              <div className={styles.kpiValue}>{d.avgResolveTime > 0 ? `${d.avgResolveTime.toFixed(0)} ${t('spaMinUnit')}` : '—'}</div>
             </div>
             <div className={styles.kpiCard}>
-              <div className={styles.kpiLabel}>Prosj. serviranje</div>
-              <div className={styles.kpiValue}>{d.avgServiceTime !== null ? `${d.avgServiceTime.toFixed(0)} min` : '—'}</div>
+              <div className={styles.kpiLabel}>{t('anaAvgServing')}</div>
+              <div className={styles.kpiValue}>{d.avgServiceTime !== null ? `${d.avgServiceTime.toFixed(0)} ${t('spaMinUnit')}` : '—'}</div>
             </div>
           </div>
 
           {d.topReqTypes.length > 0 && (
             <div className={styles.section}>
-              <div className={styles.sectionTitle}>Najčešći zahtjevi</div>
+              <div className={styles.sectionTitle}>{t('anaTopRequests')}</div>
               <div className={styles.hBarList}>
                 {d.topReqTypes.map((r, i) => (
                   <HBar key={i} value={r.count} max={maxReqType}
-                    label={r.type} sub={`${r.count} zahtjeva`} color="#534ab7" />
+                    label={r.type} sub={`${r.count} ${t('anaRequests')}`} color="#534ab7" />
                 ))}
               </div>
             </div>
