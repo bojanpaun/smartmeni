@@ -6,6 +6,7 @@ import { usePlatform } from '../../../context/PlatformContext'
 import { stripAccountFields } from '../../../lib/planUtils'
 import { translateContent, menuItemFields } from '../../../lib/contentTranslate'
 import RecipeLibraryPicker from '../components/RecipeLibraryPicker'
+import MenuItemTranslations from '../components/MenuItemTranslations'
 import styles from './AdminMenu.module.css'
 import gsStyles from './GeneralSettings.module.css'
 
@@ -31,6 +32,7 @@ export default function AdminMenu() {
 
   const [showItemForm, setShowItemForm] = useState(false)
   const [editItem, setEditItem] = useState(null)
+  const [transItem, setTransItem] = useState(null) // jelo čiji editor prevoda je otvoren
   const [itemForm, setItemForm] = useState({
     name: '', name_en: '', description: '', description_en: '',
     price: '', emoji: '🍽️', allergens: '', calories: '',
@@ -436,6 +438,7 @@ export default function AdminMenu() {
                         </td>
                         <td>
                           <button className={styles.actionBtn} onClick={() => openItemForm(item)}>{t('amEdit')}</button>
+                          <button className={styles.actionBtn} onClick={() => setTransItem(item)} title={t('amTransTitle')}>🌐</button>
                           <button className={styles.actionBtn} onClick={() => deleteItem(item.id)}>{t('amDelete')}</button>
                         </td>
                       </tr>
@@ -590,6 +593,10 @@ export default function AdminMenu() {
             </form>
           </div>
         </div>
+      )}
+
+      {transItem && restaurant && (
+        <MenuItemTranslations item={transItem} restaurantId={restaurant.id} onClose={() => setTransItem(null)} />
       )}
     </div>
   )

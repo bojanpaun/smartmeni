@@ -2579,5 +2579,14 @@
   "sapTranslateAllConfirm": "TÜM kiracıların ({{count}}) içeriği 6 dile çevrilsin mi? Biraz sürebilir.",
   "sapTranslating": "Çevriliyor…",
   "sapTranslateDone": "Çevrildi: {{count}} alan.",
-  "sapTranslateErr": "Çeviri hatası (ANTHROPIC_API_KEY kontrol et)."
+  "sapTranslateErr": "Çeviri hatası (ANTHROPIC_API_KEY kontrol et).",
+  "amTransTitle": "Çeviriler",
+  "amTransSub": "AI adı ve açıklamayı otomatik çevirir. Burada tek bir dili düzelt — senin sürümün kilitlenir ve AI değiştirmez. Bir alanı temizleyip kaydet, AI çevirisini geri getir.",
+  "amTransName": "Ad",
+  "amTransDesc": "Açıklama",
+  "amTransManual": "el ile",
+  "amTransAi": "AI",
+  "amTransSave": "Kaydet",
+  "amTransSaving": "Kaydediliyor…",
+  "amTransSaved": "Kaydedildi"
 }

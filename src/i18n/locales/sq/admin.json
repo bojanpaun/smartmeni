@@ -2579,5 +2579,14 @@
   "sapTranslateAllConfirm": "Të përkthehet përmbajtja e TË GJITHË tenantëve ({{count}}) në 6 gjuhë? Mund të zgjasë.",
   "sapTranslating": "Po përkthej…",
   "sapTranslateDone": "U përkthyen: {{count}} fusha.",
-  "sapTranslateErr": "Gabim në përkthim (kontrollo ANTHROPIC_API_KEY)."
+  "sapTranslateErr": "Gabim në përkthim (kontrollo ANTHROPIC_API_KEY).",
+  "amTransTitle": "Përkthimet",
+  "amTransSub": "AI përkthen automatikisht emrin dhe përshkrimin. Korrigjo një gjuhë këtu — versioni yt kyçet dhe AI nuk e ndryshon. Fshi fushën dhe ruaj për të rikthyer përkthimin AI.",
+  "amTransName": "Emri",
+  "amTransDesc": "Përshkrimi",
+  "amTransManual": "manual",
+  "amTransAi": "AI",
+  "amTransSave": "Ruaj",
+  "amTransSaving": "Po ruaj…",
+  "amTransSaved": "U ruajt"
 }

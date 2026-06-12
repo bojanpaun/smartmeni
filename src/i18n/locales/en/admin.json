@@ -2579,5 +2579,14 @@
   "sapTranslateAllConfirm": "Translate content of ALL tenants ({{count}}) into 6 languages? This may take a while.",
   "sapTranslating": "Translating…",
   "sapTranslateDone": "Translated: {{count}} fields.",
-  "sapTranslateErr": "Translation error (check ANTHROPIC_API_KEY)."
+  "sapTranslateErr": "Translation error (check ANTHROPIC_API_KEY).",
+  "amTransTitle": "Translations",
+  "amTransSub": "AI translates the name and description automatically. Correct an individual language here — your version gets locked and AI won’t change it. Clear a field and save to restore the AI translation.",
+  "amTransName": "Name",
+  "amTransDesc": "Description",
+  "amTransManual": "manual",
+  "amTransAi": "AI",
+  "amTransSave": "Save",
+  "amTransSaving": "Saving…",
+  "amTransSaved": "Saved"
 }

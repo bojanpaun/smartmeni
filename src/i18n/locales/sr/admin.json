@@ -2579,5 +2579,14 @@
   "sapTranslateAllConfirm": "Prevesti sadržaj SVIH tenanata ({{count}}) na 6 jezika? Može potrajati.",
   "sapTranslating": "Prevodim…",
   "sapTranslateDone": "Prevedeno: {{count}} polja.",
-  "sapTranslateErr": "Greška pri prevođenju (proveri ANTHROPIC_API_KEY)."
+  "sapTranslateErr": "Greška pri prevođenju (proveri ANTHROPIC_API_KEY).",
+  "amTransTitle": "Prevodi",
+  "amTransSub": "AI automatski prevodi naziv i opis. Ovde ručno ispravi pojedini jezik — tvoja verzija se zaključava i AI je ne menja. Obriši polje i sačuvaj da vratiš AI prevod.",
+  "amTransName": "Naziv",
+  "amTransDesc": "Opis",
+  "amTransManual": "ručno",
+  "amTransAi": "AI",
+  "amTransSave": "Sačuvaj",
+  "amTransSaving": "Čuvam…",
+  "amTransSaved": "Sačuvano"
 }
