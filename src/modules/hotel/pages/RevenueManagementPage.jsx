@@ -1,4 +1,5 @@
 import { useState } from 'react'
+import { useTranslation } from 'react-i18next'
 import { usePlatform } from '../../../context/PlatformContext'
 import { useRevenueMetrics } from '../hooks/useRevenueMetrics'
 import { supabase } from '../../../lib/supabase'
@@ -13,26 +14,26 @@ import rv from './RevenueManagement.module.css'
 
 // ── Export helpers ────────────────────────────────────────────
 
-function exportCSV(data, kpis, periodDays, restaurantName) {
-  const today = new Date().toLocaleDateString('sr-Latn')
+function exportCSV(data, kpis, periodDays, restaurantName, t, dl) {
+  const today = new Date().toLocaleDateString(dl)
   const pct = (v) => v != null ? (v >= 0 ? '+' : '') + v.toFixed(1) + '%' : 'N/A'
   const eur = (v) => '€' + Number(v || 0).toFixed(2)
 
   const lines = [
-    'RestByMe — Analitika prihoda',
-    `Objekat:;${restaurantName}`,
-    `Period:;zadnjih ${periodDays} dana`,
-    `Generisano:;${today}`,
+    `RestByMe — ${t('rvAnalyticsTitle')}`,
+    `${t('rvObject')}:;${restaurantName}`,
+    `${t('rvPeriod')}:;${t('rvLastDays', { n: periodDays })}`,
+    `${t('rvGenerated')}:;${today}`,
     '',
-    'KPI PREGLED',
-    'Metrika;Vrijednost;Promjena vs prethodni period',
-    `Ukupni prihod;${eur(kpis.totalRevenue)};${pct(kpis.pctRevenue)}`,
-    `ADR (prosj. cijena/noć);${eur(kpis.adr)};${pct(kpis.pctAdr)}`,
+    t('rvKpiOverview'),
+    `${t('rvMetric')};${t('rvValue')};${t('rvChangeVsPrev')}`,
+    `${t('rvTotalRevenue')};${eur(kpis.totalRevenue)};${pct(kpis.pctRevenue)}`,
+    `${t('rvAdrFull')};${eur(kpis.adr)};${pct(kpis.pctAdr)}`,
     `RevPAR;${eur(kpis.revpar)};${pct(kpis.pctRevpar)}`,
-    `Popunjenost;${Number(kpis.occupancy || 0).toFixed(1)}%;${pct(kpis.pctOcc)}`,
+    `${t('kpiOccupancy')};${Number(kpis.occupancy || 0).toFixed(1)}%;${pct(kpis.pctOcc)}`,
     '',
-    'DNEVNI PODACI',
-    'Datum;Prihod (€);ADR (€);Rezervacije;Noćenja',
+    t('rvDailyData'),
+    `${t('htDateHead')};${t('rvRevenueEur')};${t('rvAdrEur')};${t('rvReservations')};${t('rvNights')}`,
     ...(data.daily || []).map(d =>
       `${d.date};${Number(d.total_revenue).toFixed(2)};${Number(d.adr).toFixed(2)};${d.reservations_count};${d.room_nights_sold}`
     ),
@@ -50,8 +51,8 @@ function exportCSV(data, kpis, periodDays, restaurantName) {
   URL.revokeObjectURL(url)
 }
 
-function printRevenuePDF(data, kpis, periodDays, restaurantName, suggestions) {
-  const today = new Date().toLocaleDateString('sr-Latn')
+function printRevenuePDF(data, kpis, periodDays, restaurantName, suggestions, t, dl) {
+  const today = new Date().toLocaleDateString(dl)
   const eur = (v) => '€' + Number(v || 0).toFixed(2)
   const pctStr = (v) => v != null ? `<span style="color:${v >= 0 ? '#0d7a52' : '#c0392b'}">${v >= 0 ? '▲' : '▼'} ${Math.abs(v).toFixed(1)}%</span>` : '—'
 
@@ -65,7 +66,7 @@ function printRevenuePDF(data, kpis, periodDays, restaurantName, suggestions) {
     </tr>`).join('')
 
   const sugRows = suggestions.length === 0
-    ? '<tr><td colspan="5" style="text-align:center;color:#6b7280">Nema prijedloga — cijene su optimalne.</td></tr>'
+    ? `<tr><td colspan="5" style="text-align:center;color:#6b7280">${t('rvNoSuggestionsShort')}</td></tr>`
     : suggestions.map(s => `
       <tr>
         <td>${s.date}</td>
@@ -79,7 +80,7 @@ function printRevenuePDF(data, kpis, periodDays, restaurantName, suggestions) {
 <html lang="bs">
 <head>
   <meta charset="UTF-8">
-  <title>Analitika prihoda — ${restaurantName}</title>
+  <title>${t('rvAnalyticsTitle')} — ${restaurantName}</title>
   <style>
     * { box-sizing: border-box; margin: 0; padding: 0; }
     body { font-family: Arial, sans-serif; font-size: 13px; color: #111; padding: 32px 40px; }
@@ -100,26 +101,26 @@ function printRevenuePDF(data, kpis, periodDays, restaurantName, suggestions) {
   </style>
 </head>
 <body>
-  <h1>Analitika prihoda — ${restaurantName}</h1>
-  <p class="sub">Period: zadnjih ${periodDays} dana &nbsp;·&nbsp; Generisano: ${today}</p>
+  <h1>${t('rvAnalyticsTitle')} — ${restaurantName}</h1>
+  <p class="sub">${t('rvPeriod')}: ${t('rvLastDays', { n: periodDays })} &nbsp;·&nbsp; ${t('rvGenerated')}: ${today}</p>
 
-  <h2>KPI pregled</h2>
+  <h2>${t('rvKpiOverview')}</h2>
   <div class="kpis">
-    <div class="kpi"><div class="kpi-label">Ukupni prihod</div><div class="kpi-val">${eur(kpis.totalRevenue)}</div><div class="kpi-pct">${pctStr(kpis.pctRevenue)}</div></div>
+    <div class="kpi"><div class="kpi-label">${t('rvTotalRevenue')}</div><div class="kpi-val">${eur(kpis.totalRevenue)}</div><div class="kpi-pct">${pctStr(kpis.pctRevenue)}</div></div>
     <div class="kpi"><div class="kpi-label">ADR</div><div class="kpi-val">${eur(kpis.adr)}</div><div class="kpi-pct">${pctStr(kpis.pctAdr)}</div></div>
     <div class="kpi"><div class="kpi-label">RevPAR</div><div class="kpi-val">${eur(kpis.revpar)}</div><div class="kpi-pct">${pctStr(kpis.pctRevpar)}</div></div>
-    <div class="kpi"><div class="kpi-label">Popunjenost</div><div class="kpi-val">${Number(kpis.occupancy || 0).toFixed(1)}%</div><div class="kpi-pct">${pctStr(kpis.pctOcc)}</div></div>
+    <div class="kpi"><div class="kpi-label">${t('kpiOccupancy')}</div><div class="kpi-val">${Number(kpis.occupancy || 0).toFixed(1)}%</div><div class="kpi-pct">${pctStr(kpis.pctOcc)}</div></div>
   </div>
 
-  <h2>Dnevni podaci</h2>
+  <h2>${t('rvDailyData')}</h2>
   <table>
-    <thead><tr><th>Datum</th><th>Prihod</th><th>ADR</th><th>Rezervacije</th><th>Noćenja</th></tr></thead>
+    <thead><tr><th>${t('htDateHead')}</th><th>${t('rvRevenue')}</th><th>ADR</th><th>${t('rvReservations')}</th><th>${t('rvNights')}</th></tr></thead>
     <tbody>${dailyRows}</tbody>
   </table>
 
-  <h2>Prijedlozi cijena — narednih 14 dana</h2>
+  <h2>${t('rvSuggestionsTitle')}</h2>
   <table>
-    <thead><tr><th>Datum</th><th>Popunjenost</th><th>Rezervisano</th><th>Osnovna cijena</th><th>Preporučena</th></tr></thead>
+    <thead><tr><th>${t('htDateHead')}</th><th>${t('kpiOccupancy')}</th><th>${t('rvBooked')}</th><th>${t('rvBasePrice')}</th><th>${t('rvSuggested')}</th></tr></thead>
     <tbody>${sugRows}</tbody>
   </table>
 
@@ -129,16 +130,16 @@ function printRevenuePDF(data, kpis, periodDays, restaurantName, suggestions) {
 </html>`
 
   const win = window.open('', '_blank', 'width=900,height=700')
-  if (!win) { toast.error('Dozvoli iskačuće prozore u browseru'); return }
+  if (!win) { toast.error(t('rvAllowPopups')); return }
   win.document.write(html)
   win.document.close()
 }
 
 const PERIODS = [
-  { label: '7 dana',   days: 7 },
-  { label: '30 dana',  days: 30 },
-  { label: '90 dana',  days: 90 },
-  { label: '365 dana', days: 365 },
+  { days: 7 },
+  { days: 30 },
+  { days: 90 },
+  { days: 365 },
 ]
 
 function fmt(n) { return Number(n || 0).toFixed(2) }
@@ -213,6 +214,8 @@ function aggregateWeekly(daily) {
 
 export default function RevenueManagementPage() {
   const { restaurant } = usePlatform()
+  const { t, i18n } = useTranslation('admin')
+  const dl = i18n.language === 'en' ? 'en-US' : 'sr-Latn'
   const [periodDays, setPeriodDays] = useState(30)
   const [applyingDate, setApplyingDate] = useState(null)
   const { data, suggestions, loading, error, refetch, cancel } = useRevenueMetrics(restaurant?.id, periodDays)
@@ -226,8 +229,8 @@ export default function RevenueManagementPage() {
   const kpis = data?.kpis
   const prevDays = data?.prevDays ?? periodDays
   const prevLabel = prevDays < periodDays
-    ? `prethodnih ${prevDays} dana`
-    : 'prethodnog perioda'
+    ? t('rvPrevDays', { n: prevDays })
+    : t('rvPrevPeriod')
 
   const handleApplySuggestion = async (sug) => {
     setApplyingDate(sug.date)
@@ -239,7 +242,7 @@ export default function RevenueManagementPage() {
       .eq('is_active', true)
 
     if (!rts?.length) {
-      toast.error('Nema aktivnih tipova soba')
+      toast.error(t('rvNoActiveRoomTypes'))
       setApplyingDate(null)
       return
     }
@@ -255,7 +258,7 @@ export default function RevenueManagementPage() {
       .limit(1)
 
     if (!rp?.length) {
-      toast.error('Nema aktivnih cjenovnih planova')
+      toast.error(t('rvNoActiveRatePlans'))
       setApplyingDate(null)
       return
     }
@@ -264,15 +267,15 @@ export default function RevenueManagementPage() {
     const { error } = await supabase.from('seasonal_rates').upsert({
       rate_plan_id: rp[0].id,
       restaurant_id: restaurant.id,
-      label: `Prijedlog cijene ${sug.date}`,
+      label: t('rvSuggestionLabel', { date: sug.date }),
       start_date: sug.date,
       end_date: sug.date,
       price_per_night: sug.suggested,
     }, { onConflict: 'rate_plan_id,start_date,end_date' })
 
     setApplyingDate(null)
-    if (error) return toast.error('Greška pri primjeni')
-    toast.success(`Cijena za ${sug.date} postavljena na €${sug.suggested}`)
+    if (error) return toast.error(t('rvApplyErr'))
+    toast.success(t('rvPriceSetMsg', { date: sug.date, price: sug.suggested }))
     refetch()
   }
 
@@ -281,8 +284,8 @@ export default function RevenueManagementPage() {
       {/* Header */}
       <div className={styles.header}>
         <div>
-          <h1 className={styles.title}>Upravljanje prihodima</h1>
-          <p className={styles.subtitle}>ADR · RevPAR · Popunjenost · Dinamičke cijene</p>
+          <h1 className={styles.title}>{t('rvTitle')}</h1>
+          <p className={styles.subtitle}>{t('rvSubtitle')}</p>
         </div>
         <div className={styles.headerActions}>
           <div className={rv.periodBar}>
@@ -292,7 +295,7 @@ export default function RevenueManagementPage() {
                 className={`${rv.periodBtn} ${periodDays === p.days ? rv.periodBtnActive : ''}`}
                 onClick={() => setPeriodDays(p.days)}
               >
-                {p.label}
+                {t('rvDaysN', { n: p.days })}
               </button>
             ))}
           </div>
@@ -300,15 +303,15 @@ export default function RevenueManagementPage() {
             <div className={rv.exportBar}>
               <button
                 className={rv.btnExport}
-                onClick={() => exportCSV(data, data.kpis, periodDays, restaurant.name)}
-                title="Preuzmi CSV (otvara se u Excelu)"
+                onClick={() => exportCSV(data, data.kpis, periodDays, restaurant.name, t, dl)}
+                title={t('rvCsvTitle2')}
               >
                 ⬇ CSV
               </button>
               <button
                 className={rv.btnExport}
-                onClick={() => printRevenuePDF(data, data.kpis, periodDays, restaurant.name, suggestions)}
-                title="Štampaj ili sačuvaj kao PDF"
+                onClick={() => printRevenuePDF(data, data.kpis, periodDays, restaurant.name, suggestions, t, dl)}
+                title={t('rvPdfTitle')}
               >
                 🖨 PDF
               </button>
@@ -320,24 +323,22 @@ export default function RevenueManagementPage() {
       {loading ? (
         <div className={rv.loadingWrap}>
           <LoadingSpinner />
-          <p className={rv.loadingMsg}>Učitavanje podataka za {periodDays} dana…</p>
+          <p className={rv.loadingMsg}>{t('rvLoadingData', { n: periodDays })}</p>
           <button className={rv.btnCancel} onClick={cancel} type="button">
-            Otkaži učitavanje
+            {t('rvCancelLoading')}
           </button>
         </div>
       ) : error ? (
         <div className={rv.errorWrap}>
           <div className={rv.errorIcon}>⚠️</div>
           <div className={rv.errorTitle}>
-            {error === 'timeout' ? 'Prekoračeno vrijeme čekanja (15s)' : 'Greška pri učitavanju'}
+            {error === 'timeout' ? t('rvTimeout') : t('rvLoadError')}
           </div>
           <div className={rv.errorSub}>
-            {error === 'timeout'
-              ? 'Supabase nije odgovorio na vrijeme. Provjeri konekciju ili pokušaj sa kraćim periodom.'
-              : 'Neočekivana greška. Pogledaj konzolu za detalje.'}
+            {error === 'timeout' ? t('rvTimeoutSub') : t('rvUnexpectedErr')}
           </div>
           <button className={rv.btnRetry} onClick={refetch} type="button">
-            Pokušaj ponovo
+            {t('rvRetry')}
           </button>
         </div>
       ) : (
@@ -345,45 +346,45 @@ export default function RevenueManagementPage() {
           {/* KPI Cards */}
           <div className={rv.kpiGrid}>
             <KpiCard
-              label="Ukupni prihod"
+              label={t('rvTotalRevenue')}
               value={kpis?.totalRevenue}
               pct={kpis?.pctRevenue}
               prevLabel={prevLabel}
             />
             <KpiCard
-              label="ADR (prosječna cijena/noć)"
+              label={t('rvAdrFull')}
               value={kpis?.adr}
               pct={kpis?.pctAdr}
-              sub="Prosječna dnevna stopa"
+              sub={t('rvAdrSubCard')}
               prevLabel={prevLabel}
             />
             <KpiCard
               label="RevPAR"
               value={kpis?.revpar}
               pct={kpis?.pctRevpar}
-              sub={`${data?.totalRooms ?? 0} soba ukupno`}
+              sub={t('htRoomsTotal', { n: data?.totalRooms ?? 0 })}
               prevLabel={prevLabel}
             />
             <KpiCard
-              label="Popunjenost"
+              label={t('kpiOccupancy')}
               value={kpis?.occupancy}
               prefix=""
               pct={kpis?.pctOcc}
-              sub="% zauzetosti"
+              sub={t('rvOccSub')}
               prevLabel={prevLabel}
             />
           </div>
 
           {/* Revenue chart */}
           <div className={rv.chartCard}>
-            <div className={rv.chartTitle}>Prihod po {periodDays <= 30 ? 'danu' : 'sedmici'}</div>
+            <div className={rv.chartTitle}>{t('rvRevenuePer', { unit: periodDays <= 30 ? t('rvUnitDay') : t('rvUnitWeek') })}</div>
             <ResponsiveContainer width="100%" height={220}>
               <BarChart data={chartData} margin={{ top: 4, right: 16, left: 0, bottom: 0 }}>
                 <CartesianGrid strokeDasharray="3 3" stroke="var(--c-border)" />
                 <XAxis dataKey="date" tick={{ fontSize: 11, fill: 'var(--c-text-muted)' }} />
                 <YAxis tick={{ fontSize: 11, fill: 'var(--c-text-muted)' }} tickFormatter={v => `€${v}`} width={56} />
                 <Tooltip content={<CustomTooltip />} />
-                <Bar dataKey="total_revenue" name="Prihod" fill="var(--c-primary)" radius={[4, 4, 0, 0]} />
+                <Bar dataKey="total_revenue" name={t('rvRevenue')} fill="var(--c-primary)" radius={[4, 4, 0, 0]} />
               </BarChart>
             </ResponsiveContainer>
           </div>
@@ -391,7 +392,7 @@ export default function RevenueManagementPage() {
           {/* ADR + Occupancy chart */}
           <div className={rv.chartRow}>
             <div className={rv.chartCard}>
-              <div className={rv.chartTitle}>ADR trend</div>
+              <div className={rv.chartTitle}>{t('rvAdrTrend')}</div>
               <ResponsiveContainer width="100%" height={180}>
                 <LineChart data={chartData} margin={{ top: 4, right: 16, left: 0, bottom: 0 }}>
                   <CartesianGrid strokeDasharray="3 3" stroke="var(--c-border)" />
@@ -407,14 +408,14 @@ export default function RevenueManagementPage() {
             </div>
 
             <div className={rv.chartCard}>
-              <div className={rv.chartTitle}>Rezervacije po {periodDays <= 30 ? 'danu' : 'sedmici'}</div>
+              <div className={rv.chartTitle}>{t('rvReservationsPer', { unit: periodDays <= 30 ? t('rvUnitDay') : t('rvUnitWeek') })}</div>
               <ResponsiveContainer width="100%" height={180}>
                 <BarChart data={chartData} margin={{ top: 4, right: 16, left: 0, bottom: 0 }}>
                   <CartesianGrid strokeDasharray="3 3" stroke="var(--c-border)" />
                   <XAxis dataKey="date" tick={{ fontSize: 11, fill: 'var(--c-text-muted)' }} />
                   <YAxis tick={{ fontSize: 11, fill: 'var(--c-text-muted)' }} allowDecimals={false} width={32} />
                   <Tooltip content={<CustomTooltip />} />
-                  <Bar dataKey="reservations_count" name="Rezervacije" fill="var(--c-primary-medium)" radius={[4, 4, 0, 0]} />
+                  <Bar dataKey="reservations_count" name={t('rvReservations')} fill="var(--c-primary-medium)" radius={[4, 4, 0, 0]} />
                 </BarChart>
               </ResponsiveContainer>
             </div>
@@ -424,9 +425,9 @@ export default function RevenueManagementPage() {
           <div className={rv.sugSection}>
             <div className={rv.sugHeader}>
               <div>
-                <div className={rv.sugTitle}>💡 Prijedlozi cijena — narednih 14 dana</div>
+                <div className={rv.sugTitle}>💡 {t('rvSuggestionsTitle')}</div>
                 <div className={rv.sugSub}>
-                  Algoritam analizira trenutnu popunjenost i preporučuje korekcije. Primjenom se kreira sezonska stopa u aktivnom planu.
+                  {t('rvSuggestionsSub')}
                 </div>
               </div>
             </div>
@@ -434,19 +435,19 @@ export default function RevenueManagementPage() {
             {suggestions.length === 0 ? (
               <div className={rv.sugEmpty}>
                 <span>✅</span>
-                <p>Nema prijedloga — cijene su optimalne za narednih 14 dana, ili nema dovoljno podataka.</p>
+                <p>{t('rvNoSuggestions')}</p>
               </div>
             ) : (<>
               {/* Desktop */}
               <div className={rv.sugDesktopTable}>
                 <div className={rv.sugTable}>
                   <div className={rv.sugTableHead}>
-                    <span>Datum</span>
-                    <span>Popunjenost</span>
-                    <span>Rezervisano</span>
-                    <span>Osnovna cijena</span>
-                    <span>Preporučena cijena</span>
-                    <span>Razlika</span>
+                    <span>{t('htDateHead')}</span>
+                    <span>{t('kpiOccupancy')}</span>
+                    <span>{t('rvBooked')}</span>
+                    <span>{t('rvBasePrice')}</span>
+                    <span>{t('rvSuggestedPrice')}</span>
+                    <span>{t('rvDiff')}</span>
                     <span></span>
                   </div>
                   {suggestions.map(sug => {
@@ -454,7 +455,7 @@ export default function RevenueManagementPage() {
                     const isApplying = applyingDate === sug.date
                     return (
                       <div key={sug.date} className={rv.sugRow}>
-                        <span className={rv.sugDate}>{new Date(sug.date).toLocaleDateString('sr-Latn', { weekday: 'short', day: 'numeric', month: 'short' })}</span>
+                        <span className={rv.sugDate}>{new Date(sug.date).toLocaleDateString(dl, { weekday: 'short', day: 'numeric', month: 'short' })}</span>
                         <span>
                           <div className={rv.occBar}><div className={rv.occFill} style={{ width: `${sug.occupancy}%`, background: sug.occupancy > 70 ? '#0d7a52' : sug.occupancy > 40 ? '#e67e22' : '#c0392b' }} /></div>
                           <span className={rv.occLabel}>{sug.occupancy}%</span>
@@ -463,7 +464,7 @@ export default function RevenueManagementPage() {
                         <span className={rv.sugNum}>€{sug.basePrice}</span>
                         <span className={rv.sugPrice}>€{sug.suggested}</span>
                         <span className={`${rv.sugDiff} ${diff > 0 ? rv.sugDiffUp : rv.sugDiffDown}`}>{diff > 0 ? '+' : ''}€{diff}</span>
-                        <button className={rv.btnApply} onClick={() => handleApplySuggestion(sug)} disabled={!!applyingDate}>{isApplying ? '...' : 'Primijeni'}</button>
+                        <button className={rv.btnApply} onClick={() => handleApplySuggestion(sug)} disabled={!!applyingDate}>{isApplying ? '...' : t('rvApply')}</button>
                       </div>
                     )
                   })}
@@ -478,19 +479,19 @@ export default function RevenueManagementPage() {
                   return (
                     <div key={sug.date} className={rv.sugCard}>
                       <div className={rv.sugCardTop}>
-                        <div className={rv.sugCardDate}>{new Date(sug.date).toLocaleDateString('sr-Latn', { weekday: 'short', day: 'numeric', month: 'short' })}</div>
+                        <div className={rv.sugCardDate}>{new Date(sug.date).toLocaleDateString(dl, { weekday: 'short', day: 'numeric', month: 'short' })}</div>
                         <span className={`${rv.sugCardDiff} ${diff > 0 ? rv.sugDiffUp : rv.sugDiffDown}`}>{diff > 0 ? '+' : ''}€{diff}</span>
                       </div>
                       <div>
                         <div className={rv.occBar}><div className={rv.occFill} style={{ width: `${sug.occupancy}%`, background: occColor }} /></div>
-                        <span className={rv.occLabel} style={{ color: occColor }}>{sug.occupancy}% popunjeno · {sug.booked}/{sug.totalRooms} soba</span>
+                        <span className={rv.occLabel} style={{ color: occColor }}>{t('rvOccBooked', { occ: sug.occupancy, booked: sug.booked, total: sug.totalRooms })}</span>
                       </div>
                       <div className={rv.sugCardPrices}>
-                        <div><div className={rv.sugCardPriceLabel}>Osnovna</div><div className={rv.sugCardPriceVal}>€{sug.basePrice}</div></div>
-                        <div><div className={rv.sugCardPriceLabel}>Preporučena</div><div className={`${rv.sugCardPriceVal} ${rv.sugCardPriceValHigh}`}>€{sug.suggested}</div></div>
-                        <div><div className={rv.sugCardPriceLabel}>Rezervisano</div><div className={rv.sugCardPriceVal}>{sug.booked}/{sug.totalRooms}</div></div>
+                        <div><div className={rv.sugCardPriceLabel}>{t('rvBasePrice')}</div><div className={rv.sugCardPriceVal}>€{sug.basePrice}</div></div>
+                        <div><div className={rv.sugCardPriceLabel}>{t('rvSuggested')}</div><div className={`${rv.sugCardPriceVal} ${rv.sugCardPriceValHigh}`}>€{sug.suggested}</div></div>
+                        <div><div className={rv.sugCardPriceLabel}>{t('rvBooked')}</div><div className={rv.sugCardPriceVal}>{sug.booked}/{sug.totalRooms}</div></div>
                       </div>
-                      <button className={rv.btnApply} style={{ width: '100%' }} onClick={() => handleApplySuggestion(sug)} disabled={!!applyingDate}>{isApplying ? '...' : 'Primijeni cijenu'}</button>
+                      <button className={rv.btnApply} style={{ width: '100%' }} onClick={() => handleApplySuggestion(sug)} disabled={!!applyingDate}>{isApplying ? '...' : t('rvApplyPrice')}</button>
                     </div>
                   )
                 })}
