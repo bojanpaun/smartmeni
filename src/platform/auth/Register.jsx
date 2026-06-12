@@ -1,5 +1,6 @@
 import { useState } from 'react'
 import { useNavigate, Link } from 'react-router-dom'
+import { useTranslation } from 'react-i18next'
 import { supabase } from '../../lib/supabase'
 import { usePlatform } from '../../context/PlatformContext'
 import styles from './Auth.module.css'
@@ -12,6 +13,7 @@ const REGISTRATION_OPEN = true
 export default function Register() {
   const navigate = useNavigate()
   const { loadProfile } = usePlatform()
+  const { t } = useTranslation('auth')
   const [step, setStep] = useState(1)
   const [loading, setLoading] = useState(false)
   const [error, setError] = useState('')
@@ -46,7 +48,7 @@ export default function Register() {
     e.preventDefault()
     setError('')
     if (form.password.length < 6) {
-      setError('Lozinka mora imati najmanje 6 karaktera.')
+      setError(t('pwMin6'))
       return
     }
     setStep(2)
@@ -60,7 +62,7 @@ export default function Register() {
     if (verticals.restaurant) activeVerticals.push('restaurant')
     if (verticals.hotel) activeVerticals.push('hotel')
     if (activeVerticals.length === 0) {
-      setError('Izaberite bar jedan biznis (restoran i/ili hotel).')
+      setError(t('chooseBiz'))
       return
     }
 
@@ -88,7 +90,7 @@ export default function Register() {
           password: form.password,
         })
         if (signInError) {
-          setError('Ovaj email već ima nalog. Unesite tačnu lozinku tog naloga da dodate biznis — ili se prijavite pa dodajte biznis iz panela.')
+          setError(t('emailHasAccount'))
           setLoading(false)
           return
         }
@@ -132,7 +134,7 @@ export default function Register() {
       await loadProfile({ id: userId })
       navigate('/admin')
     } catch (err) {
-      setError(err.message || 'Greška pri registraciji. Pokušajte ponovo.')
+      setError(err.message || t('regError'))
     } finally {
       setLoading(false)
     }
@@ -145,13 +147,12 @@ export default function Register() {
           <Link to="/" className={styles.logo}>
             rest.by.me
           </Link>
-          <h1 className={styles.title}>Registracija na poziv</h1>
+          <h1 className={styles.title}>{t('regInviteTitle')}</h1>
           <p className={styles.sub}>
-            Trenutno primamo nove objekte uz odobrenje. Pošaljite nam poruku na{' '}
-            <a href="mailto:info@restby.me">info@restby.me</a> i javićemo vam se sa pristupom.
+            {t('regInviteDescPre')}<a href="mailto:info@restby.me">info@restby.me</a>{t('regInviteDescPost')}
           </p>
           <p className={styles.loginLink}>
-            Već imate nalog? <Link to="/login">Prijavite se</Link>
+            {t('haveAccount')} <Link to="/login">{t('loginLink')}</Link>
           </p>
         </div>
       </div>
@@ -173,24 +174,24 @@ export default function Register() {
 
         {step === 1 && (
           <>
-            <h1 className={styles.title}>Kreirajte nalog</h1>
-            <p className={styles.sub}>Besplatno tokom beta testnog perioda.</p>
+            <h1 className={styles.title}>{t('createAccount')}</h1>
+            <p className={styles.sub}>{t('createAccountSub')}</p>
             <form onSubmit={handleStep1} className={styles.form}>
               <div className={styles.field}>
-                <label>Email adresa</label>
+                <label>{t('emailLabel')}</label>
                 <input
                   type="email"
-                  placeholder="vas@email.com"
+                  placeholder={t('emailPh')}
                   value={form.email}
                   onChange={e => set('email', e.target.value)}
                   required
                 />
               </div>
               <div className={styles.field}>
-                <label>Lozinka</label>
+                <label>{t('passwordLabel')}</label>
                 <input
                   type="password"
-                  placeholder="Minimum 6 karaktera"
+                  placeholder={t('passwordPh6')}
                   value={form.password}
                   onChange={e => set('password', e.target.value)}
                   required
@@ -198,7 +199,7 @@ export default function Register() {
               </div>
               {error && <div className={styles.error}>{error}</div>}
               <button type="submit" className={styles.btn}>
-                Nastavi →
+                {t('continueBtn')} →
               </button>
             </form>
           </>
@@ -206,35 +207,35 @@ export default function Register() {
 
         {step === 2 && (
           <>
-            <h1 className={styles.title}>Vaš biznis</h1>
-            <p className={styles.sub}>Izaberite šta vodite — kasnije možete dodati još.</p>
+            <h1 className={styles.title}>{t('yourBiz')}</h1>
+            <p className={styles.sub}>{t('yourBizSub')}</p>
             <form onSubmit={handleSubmit} className={styles.form}>
               <div className={styles.field}>
-                <label>Šta vodite?</label>
+                <label>{t('whatRun')}</label>
                 <div className={styles.bizChoices}>
                   <label className={`${styles.bizChoice} ${verticals.restaurant ? styles.bizChoiceOn : ''}`}>
                     <input type="checkbox" checked={verticals.restaurant} onChange={() => toggleVertical('restaurant')} />
                     <span className={styles.bizIcon}>🍽️</span>
                     <span className={styles.bizText}>
-                      <span className={styles.bizName}>Restoran</span>
-                      <span className={styles.bizDesc}>Digitalni meni i stolovi · besplatno</span>
+                      <span className={styles.bizName}>{t('bizRestaurant')}</span>
+                      <span className={styles.bizDesc}>{t('bizRestaurantDesc')}</span>
                     </span>
                   </label>
                   <label className={`${styles.bizChoice} ${verticals.hotel ? styles.bizChoiceOn : ''}`}>
                     <input type="checkbox" checked={verticals.hotel} onChange={() => toggleVertical('hotel')} />
                     <span className={styles.bizIcon}>🏨</span>
                     <span className={styles.bizText}>
-                      <span className={styles.bizName}>Hotel</span>
-                      <span className={styles.bizDesc}>Sobe, rezervacije, folio · plaćeno</span>
+                      <span className={styles.bizName}>{t('bizHotel')}</span>
+                      <span className={styles.bizDesc}>{t('bizHotelDesc')}</span>
                     </span>
                   </label>
                 </div>
               </div>
               <div className={styles.field}>
-                <label>{verticals.restaurant ? 'Naziv restorana *' : 'Naziv objekta *'}</label>
+                <label>{verticals.restaurant ? t('restNameReq') : t('objNameReq')}</label>
                 <input
                   type="text"
-                  placeholder={verticals.restaurant ? 'npr. Restoran Mornar' : 'npr. Hotel Mornar'}
+                  placeholder={verticals.restaurant ? t('restNamePh') : t('objNamePh')}
                   value={form.name}
                   onChange={e => {
                     set('name', e.target.value)
@@ -244,41 +245,41 @@ export default function Register() {
                 />
               </div>
               <div className={styles.field}>
-                <label>Vaš URL na RestByMeju</label>
+                <label>{t('yourUrl')}</label>
                 <div className={styles.slugWrap}>
                   <span className={styles.slugPrefix}>restby.me/</span>
                   <input
                     type="text"
                     value={form.slug}
                     onChange={e => set('slug', e.target.value)}
-                    placeholder="restoran-mornar"
+                    placeholder={t('slugPh')}
                   />
                 </div>
               </div>
               <div className={styles.field}>
-                <label>Lokacija</label>
+                <label>{t('location')}</label>
                 <input
                   type="text"
-                  placeholder="npr. Budva, Crna Gora"
+                  placeholder={t('locationPh')}
                   value={form.location}
                   onChange={e => set('location', e.target.value)}
                 />
               </div>
               <div className={styles.fieldRow}>
                 <div className={styles.field}>
-                  <label>Telefon</label>
+                  <label>{t('phone')}</label>
                   <input
                     type="text"
-                    placeholder="+382 xx xxx xxx"
+                    placeholder={t('phonePh')}
                     value={form.phone}
                     onChange={e => set('phone', e.target.value)}
                   />
                 </div>
                 <div className={styles.field}>
-                  <label>Radno vrijeme</label>
+                  <label>{t('hours')}</label>
                   <input
                     type="text"
-                    placeholder="08:00 – 23:00"
+                    placeholder={t('hoursPh')}
                     value={form.hours}
                     onChange={e => set('hours', e.target.value)}
                   />
@@ -286,17 +287,17 @@ export default function Register() {
               </div>
               {error && <div className={styles.error}>{error}</div>}
               <button type="submit" className={styles.btn} disabled={loading}>
-                {loading ? 'Kreiranje naloga...' : 'Kreiraj restoran besplatno →'}
+                {loading ? t('creatingAccount') : `${t('createRestFree')} →`}
               </button>
               <button type="button" className={styles.btnBack} onClick={() => setStep(1)}>
-                ← Nazad
+                ← {t('back')}
               </button>
             </form>
           </>
         )}
 
         <p className={styles.loginLink}>
-          Već imate nalog? <Link to="/login">Prijavite se</Link>
+          {t('haveAccount')} <Link to="/login">{t('loginLink')}</Link>
         </p>
       </div>
     </div>

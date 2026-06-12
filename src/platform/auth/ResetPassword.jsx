@@ -1,10 +1,12 @@
 import { useState, useEffect } from 'react'
 import { useNavigate, Link } from 'react-router-dom'
+import { useTranslation } from 'react-i18next'
 import { supabase } from '../../lib/supabase'
 import styles from './Auth.module.css'
 
 export default function ResetPassword() {
   const navigate = useNavigate()
+  const { t } = useTranslation('auth')
   const [ready, setReady] = useState(false)   // imamo li recovery sesiju iz linka
   const [password, setPassword] = useState('')
   const [confirm, setConfirm] = useState('')
@@ -28,17 +30,17 @@ export default function ResetPassword() {
     e.preventDefault()
     setError('')
     if (password.length < 6) {
-      setError('Lozinka mora imati najmanje 6 karaktera.')
+      setError(t('pwMin6'))
       return
     }
     if (password !== confirm) {
-      setError('Lozinke se ne poklapaju.')
+      setError(t('pwMismatch'))
       return
     }
     setLoading(true)
     const { error } = await supabase.auth.updateUser({ password })
     setLoading(false)
-    if (error) setError(error.message || 'Greška pri promjeni lozinke.')
+    if (error) setError(error.message || t('pwChangeErr'))
     else setDone(true)
   }
 
@@ -49,44 +51,43 @@ export default function ResetPassword() {
           rest.by.me
         </Link>
 
-        <h1 className={styles.title}>Nova lozinka</h1>
+        <h1 className={styles.title}>{t('newPwTitle')}</h1>
 
         {done ? (
           <>
-            <p className={styles.sub}>✓ Lozinka je promijenjena. Sada ste prijavljeni.</p>
+            <p className={styles.sub}>{t('pwChangedNow')}</p>
             <button type="button" className={styles.btn} onClick={() => navigate('/admin')}>
-              Idi na panel →
+              {t('goToPanel')} →
             </button>
           </>
         ) : !ready ? (
           <>
             <p className={styles.sub}>
-              Otvorite link za resetovanje iz emaila da biste postavili novu lozinku.
-              Ako ste već kliknuli, sačekajte trenutak…
+              {t('openResetLink')}
             </p>
             <p className={styles.loginLink}>
-              <Link to="/login">← Nazad na prijavu</Link>
+              <Link to="/login">← {t('backToLogin')}</Link>
             </p>
           </>
         ) : (
           <>
-            <p className={styles.sub}>Unesite novu lozinku za vaš nalog.</p>
+            <p className={styles.sub}>{t('enterNewPw')}</p>
             <form onSubmit={handleSubmit} className={styles.form}>
               <div className={styles.field}>
-                <label>Nova lozinka</label>
+                <label>{t('newPwLabel')}</label>
                 <input
                   type="password"
-                  placeholder="Minimum 6 karaktera"
+                  placeholder={t('passwordPh6')}
                   value={password}
                   onChange={e => setPassword(e.target.value)}
                   required
                 />
               </div>
               <div className={styles.field}>
-                <label>Potvrdi lozinku</label>
+                <label>{t('confirmPwLabel')}</label>
                 <input
                   type="password"
-                  placeholder="Ponovi lozinku"
+                  placeholder={t('confirmPwPh')}
                   value={confirm}
                   onChange={e => setConfirm(e.target.value)}
                   required
@@ -94,7 +95,7 @@ export default function ResetPassword() {
               </div>
               {error && <div className={styles.error}>{error}</div>}
               <button type="submit" className={styles.btn} disabled={loading}>
-                {loading ? 'Čuvanje...' : 'Sačuvaj novu lozinku →'}
+                {loading ? t('savingPw') : `${t('saveNewPw')} →`}
               </button>
             </form>
           </>

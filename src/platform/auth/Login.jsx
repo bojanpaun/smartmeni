@@ -1,10 +1,12 @@
 import { useState } from 'react'
 import { useNavigate, Link } from 'react-router-dom'
+import { useTranslation } from 'react-i18next'
 import { supabase } from '../../lib/supabase'
 import styles from './Auth.module.css'
 
 export default function Login() {
   const navigate = useNavigate()
+  const { t } = useTranslation('auth')
   const [loading, setLoading] = useState(false)
   const [error, setError] = useState('')
   const [email, setEmail] = useState('')
@@ -20,7 +22,7 @@ export default function Login() {
     const { error } = await supabase.auth.signInWithPassword({ email, password })
 
     if (error) {
-      setError('Pogrešan email ili lozinka.')
+      setError(t('wrongCredentials'))
       setLoading(false)
     } else {
       navigate('/admin')
@@ -39,7 +41,7 @@ export default function Login() {
     )
 
     setLoading(false)
-    if (error) setError('Nije moguće poslati link. Pokušajte ponovo.')
+    if (error) setError(t('forgotSendErr'))
     else setForgotSent(true)
   }
 
@@ -58,31 +60,31 @@ export default function Login() {
 
         {mode === 'login' && (
           <>
-            <h1 className={styles.title}>Dobrodošli nazad</h1>
-            <p className={styles.sub}>Prijavite se na vaš nalog.</p>
+            <h1 className={styles.title}>{t('welcomeBack')}</h1>
+            <p className={styles.sub}>{t('loginSub')}</p>
 
             <form onSubmit={handleSubmit} className={styles.form}>
               <div className={styles.field}>
-                <label htmlFor="login-email">Email adresa</label>
+                <label htmlFor="login-email">{t('emailLabel')}</label>
                 <input
                   id="login-email"
                   name="email"
                   type="email"
                   autoComplete="email"
-                  placeholder="vas@email.com"
+                  placeholder={t('emailPh')}
                   value={email}
                   onChange={e => setEmail(e.target.value)}
                   required
                 />
               </div>
               <div className={styles.field}>
-                <label htmlFor="login-password">Lozinka</label>
+                <label htmlFor="login-password">{t('passwordLabel')}</label>
                 <input
                   id="login-password"
                   name="password"
                   type="password"
                   autoComplete="current-password"
-                  placeholder="Vaša lozinka"
+                  placeholder={t('passwordPh')}
                   value={password}
                   onChange={e => setPassword(e.target.value)}
                   required
@@ -90,47 +92,46 @@ export default function Login() {
               </div>
               {error && <div className={styles.error}>{error}</div>}
               <button type="submit" className={styles.btn} disabled={loading}>
-                {loading ? 'Prijava...' : 'Prijavi se →'}
+                {loading ? t('loggingIn') : `${t('loginBtn')} →`}
               </button>
             </form>
 
             <p className={styles.loginLink}>
               <button type="button" className={styles.linkBtn} onClick={() => switchMode('forgot')}>
-                Zaboravili ste lozinku?
+                {t('forgotPw')}
               </button>
             </p>
 
             <p className={styles.loginLink}>
-              Nemate nalog? <Link to="/registracija">Registrujte se besplatno</Link>
+              {t('noAccount')} <Link to="/registracija">{t('registerFree')}</Link>
             </p>
           </>
         )}
 
         {mode === 'forgot' && (
           <>
-            <h1 className={styles.title}>Resetovanje lozinke</h1>
+            <h1 className={styles.title}>{t('resetTitle')}</h1>
             {forgotSent ? (
               <>
                 <p className={styles.sub}>
-                  ✓ Poslali smo link za resetovanje na <strong>{email}</strong>.
-                  Provjerite inbox (i spam) i kliknite na link.
+                  {t('resetSentPre')}<strong>{email}</strong>{t('resetSentPost')}
                 </p>
                 <button type="button" className={styles.btn} onClick={() => switchMode('login')}>
-                  ← Nazad na prijavu
+                  ← {t('backToLogin')}
                 </button>
               </>
             ) : (
               <>
-                <p className={styles.sub}>Unesite email — poslaćemo vam link za novu lozinku.</p>
+                <p className={styles.sub}>{t('resetEnterEmail')}</p>
                 <form onSubmit={handleForgot} className={styles.form}>
                   <div className={styles.field}>
-                    <label htmlFor="forgot-email">Email adresa</label>
+                    <label htmlFor="forgot-email">{t('emailLabel')}</label>
                     <input
                       id="forgot-email"
                       name="email"
                       type="email"
                       autoComplete="email"
-                      placeholder="vas@email.com"
+                      placeholder={t('emailPh')}
                       value={email}
                       onChange={e => setEmail(e.target.value)}
                       required
@@ -138,10 +139,10 @@ export default function Login() {
                   </div>
                   {error && <div className={styles.error}>{error}</div>}
                   <button type="submit" className={styles.btn} disabled={loading}>
-                    {loading ? 'Slanje...' : 'Pošalji link →'}
+                    {loading ? t('sending') : `${t('sendLink')} →`}
                   </button>
                   <button type="button" className={styles.btnBack} onClick={() => switchMode('login')}>
-                    ← Nazad na prijavu
+                    ← {t('backToLogin')}
                   </button>
                 </form>
               </>
