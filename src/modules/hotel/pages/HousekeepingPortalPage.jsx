@@ -1,36 +1,37 @@
 import { useState, useEffect } from 'react'
 import { useParams } from 'react-router-dom'
+import { useTranslation } from 'react-i18next'
 import { supabase } from '../../../lib/supabase'
 import styles from './HousekeepingPortal.module.css'
 
 const TODAY = new Date().toISOString().slice(0, 10)
 
-const TASK_TYPES = {
-  checkout_clean: { label: 'Checkout čišćenje', icon: '🚪' },
-  stayover_clean: { label: 'Svakodnevno čišćenje', icon: '🧹' },
-  turndown:       { label: 'Turndown servis', icon: '🌙' },
-  inspection:     { label: 'Inspekcija', icon: '🔍' },
-  deep_clean:     { label: 'Dubinsko čišćenje', icon: '✨' },
+const TASK_TYPE_KEYS = {
+  checkout_clean: { labelKey: 'hkpTypeCheckout',   icon: '🚪' },
+  stayover_clean: { labelKey: 'hkpTypeStayover',   icon: '🧹' },
+  turndown:       { labelKey: 'hkpTypeTurndown',   icon: '🌙' },
+  inspection:     { labelKey: 'hkpTypeInspection', icon: '🔍' },
+  deep_clean:     { labelKey: 'hkpTypeDeep',       icon: '✨' },
 }
 
 const PRIORITY_COLOR = { urgent: '#c0392b', high: '#e67e22', normal: '#0d7a52', low: '#8a9e96' }
-const PRIORITY_LABEL = { urgent: 'HITNO', high: 'Visok', normal: 'Normalan', low: 'Nizak' }
 
 const MAINT_CATS = [
-  { value: 'plumbing',   label: 'Vodoinstalacije', icon: '🔧' },
-  { value: 'electrical', label: 'Elektrika',        icon: '⚡' },
-  { value: 'ac',         label: 'Klima',            icon: '❄️' },
-  { value: 'furniture',  label: 'Namještaj',         icon: '🪑' },
-  { value: 'internet',   label: 'Internet / TV',    icon: '📡' },
-  { value: 'other',      label: 'Ostalo',           icon: '🔩' },
+  { value: 'plumbing',   labelKey: 'hkpCatPlumbing',   icon: '🔧' },
+  { value: 'electrical', labelKey: 'hkpCatElectrical', icon: '⚡' },
+  { value: 'ac',         labelKey: 'hkpCatAc',         icon: '❄️' },
+  { value: 'furniture',  labelKey: 'hkpCatFurniture',  icon: '🪑' },
+  { value: 'internet',   labelKey: 'hkpCatInternet',   icon: '📡' },
+  { value: 'other',      labelKey: 'htTypeOther',      icon: '🔩' },
 ]
-
-const TODAY_LABEL = new Date().toLocaleDateString('sr-Latn', {
-  weekday: 'long', day: 'numeric', month: 'long', year: 'numeric',
-})
 
 export default function HousekeepingPortalPage() {
   const { slug } = useParams()
+  const { t, i18n } = useTranslation('admin')
+  const dl = i18n.language === 'en' ? 'en-US' : 'sr-Latn'
+  const TODAY_LABEL = new Date().toLocaleDateString(dl, {
+    weekday: 'long', day: 'numeric', month: 'long', year: 'numeric',
+  })
 
   const [restaurant, setRestaurant] = useState(null)
   const [loadingRest, setLoadingRest] = useState(true)
@@ -77,7 +78,7 @@ export default function HousekeepingPortalPage() {
       .eq('restaurant_id', restaurant.id)
       .single()
 
-    if (!s) { setAuthError('Niste pronađeni kao osoblje ovog objekta.'); setTasksLoading(false); return }
+    if (!s) { setAuthError(t('hkppNotStaff')); setTasksLoading(false); return }
     setStaffMember(s)
 
     const [{ data: t }, { data: r }] = await Promise.all([
@@ -105,7 +106,7 @@ export default function HousekeepingPortalPage() {
     setAuthLoading(true)
     const { data, error } = await supabase.auth.signInWithPassword({ email, password })
     if (error || !data.user) {
-      setAuthError('Pogrešan email ili lozinka.')
+      setAuthError(t('hkppWrongCreds'))
       setAuthLoading(false)
       return
     }
@@ -160,7 +161,7 @@ export default function HousekeepingPortalPage() {
   if (!restaurant) {
     return (
       <div className={styles.loadWrap}>
-        <p className={styles.notFound}>Objekat nije pronađen.</p>
+        <p className={styles.notFound}>{t('hkppObjectNotFound')}</p>
       </div>
     )
   }
@@ -174,13 +175,13 @@ export default function HousekeepingPortalPage() {
             <img src={restaurant.logo_url} alt={restaurant.name} className={styles.loginLogo} />
           )}
           <h1 className={styles.loginTitle}>{restaurant.name}</h1>
-          <p className={styles.loginSub}>🧹 Portal osoblja — Domaćinstvo</p>
+          <p className={styles.loginSub}>🧹 {t('hkppStaffPortal')}</p>
 
           <form onSubmit={handleLogin} className={styles.loginForm}>
             <input
               type="email"
               className={styles.loginInput}
-              placeholder="Email adresa"
+              placeholder={t('hkppEmailPh')}
               value={email}
               onChange={e => setEmail(e.target.value)}
               required
@@ -189,7 +190,7 @@ export default function HousekeepingPortalPage() {
             <input
               type="password"
               className={styles.loginInput}
-              placeholder="Lozinka"
+              placeholder={t('hkppPasswordPh')}
               value={password}
               onChange={e => setPassword(e.target.value)}
               required
@@ -197,7 +198,7 @@ export default function HousekeepingPortalPage() {
             />
             {authError && <p className={styles.loginError}>{authError}</p>}
             <button type="submit" className={styles.loginBtn} disabled={authLoading}>
-              {authLoading ? 'Prijava...' : 'Prijavi se'}
+              {authLoading ? t('hkppLoggingIn') : t('hkppLogin')}
             </button>
           </form>
         </div>
@@ -218,22 +219,22 @@ export default function HousekeepingPortalPage() {
           <div className={styles.portalName}>{staffMember.first_name} {staffMember.last_name}</div>
           <div className={styles.portalDate}>{TODAY_LABEL}</div>
         </div>
-        <button className={styles.logoutBtn} onClick={handleLogout}>Odjava</button>
+        <button className={styles.logoutBtn} onClick={handleLogout}>{t('hkppLogout')}</button>
       </div>
 
       {/* Stats bar */}
       <div className={styles.statsBar}>
         <div className={styles.statItem}>
           <div className={styles.statNum} style={{ color: '#e67e22' }}>{pending}</div>
-          <div className={styles.statLbl}>Čeka</div>
+          <div className={styles.statLbl}>{t('hkppWaiting')}</div>
         </div>
         <div className={styles.statItem}>
           <div className={styles.statNum} style={{ color: '#2563eb' }}>{inProgress}</div>
-          <div className={styles.statLbl}>U toku</div>
+          <div className={styles.statLbl}>{t('htReqInProgress')}</div>
         </div>
         <div className={styles.statItem}>
           <div className={styles.statNum} style={{ color: '#0d7a52' }}>{done}</div>
-          <div className={styles.statLbl}>Završeno</div>
+          <div className={styles.statLbl}>{t('hkpStDone')}</div>
         </div>
       </div>
 
@@ -243,12 +244,12 @@ export default function HousekeepingPortalPage() {
       ) : tasks.length === 0 ? (
         <div className={styles.empty}>
           <div className={styles.emptyIcon}>✅</div>
-          <p>Nemate zadataka za danas.</p>
+          <p>{t('hkppNoTasksToday')}</p>
         </div>
       ) : (
         <div className={styles.taskList}>
           {tasks.map(task => {
-            const typeInfo = TASK_TYPES[task.type] || TASK_TYPES.stayover_clean
+            const typeInfo = TASK_TYPE_KEYS[task.type] || TASK_TYPE_KEYS.stayover_clean
             const isDone = task.status === 'done' || task.status === 'verified'
             return (
               <div
@@ -266,18 +267,18 @@ export default function HousekeepingPortalPage() {
                     <span className={styles.taskIcon}>{typeInfo.icon}</span>
                     <div>
                       <div className={styles.taskRoomNum}>
-                        Soba {task.rooms?.room_number ?? '—'}
+                        {t('htRoomNum', { num: task.rooms?.room_number ?? '—' })}
                       </div>
                       {task.rooms?.room_types?.name && (
                         <div className={styles.taskRoomType}>{task.rooms.room_types.name}</div>
                       )}
                     </div>
                     {task.priority === 'urgent' && (
-                      <span className={styles.urgentBadge}>HITNO</span>
+                      <span className={styles.urgentBadge}>{t('hkppUrgent')}</span>
                     )}
                   </div>
 
-                  <div className={styles.taskTypeLabel}>{typeInfo.label}</div>
+                  <div className={styles.taskTypeLabel}>{t(typeInfo.labelKey)}</div>
                   {task.notes && <div className={styles.taskNotes}>{task.notes}</div>}
 
                   {/* Action button */}
@@ -287,7 +288,7 @@ export default function HousekeepingPortalPage() {
                         className={`${styles.actionBtn} ${styles.actionBtnStart}`}
                         onClick={() => updateStatus(task.id, 'in_progress')}
                       >
-                        ▶ Počni
+                        ▶ {t('hkpStart')}
                       </button>
                     )}
                     {task.status === 'in_progress' && (
@@ -295,11 +296,11 @@ export default function HousekeepingPortalPage() {
                         className={`${styles.actionBtn} ${styles.actionBtnDone}`}
                         onClick={() => updateStatus(task.id, 'done')}
                       >
-                        ✓ Završi
+                        ✓ {t('hkpFinish')}
                       </button>
                     )}
                     {isDone && (
-                      <span className={styles.doneLabel}>✅ Završeno</span>
+                      <span className={styles.doneLabel}>✅ {t('hkpStDone')}</span>
                     )}
                   </div>
                 </div>
@@ -313,12 +314,12 @@ export default function HousekeepingPortalPage() {
       <div className={styles.maintSection}>
         {!showMaint ? (
           <button className={styles.maintToggleBtn} onClick={() => setShowMaint(true)}>
-            🔧 Prijavi kvar ili problem
+            🔧 {t('hkppReportIssue')}
           </button>
         ) : (
           <form onSubmit={handleMaintSubmit} className={styles.maintForm}>
             <div className={styles.maintFormHeader}>
-              <span className={styles.maintFormTitle}>Prijava problema</span>
+              <span className={styles.maintFormTitle}>{t('hkppReportTitle')}</span>
               <button type="button" className={styles.maintFormClose} onClick={() => setShowMaint(false)}>✕</button>
             </div>
 
@@ -327,8 +328,8 @@ export default function HousekeepingPortalPage() {
               value={maintForm.room_id}
               onChange={e => setMaintForm(f => ({ ...f, room_id: e.target.value }))}
             >
-              <option value="">— Soba (opcionalno) —</option>
-              {rooms.map(r => <option key={r.id} value={r.id}>Soba {r.room_number}</option>)}
+              <option value="">{t('hkppRoomOpt')}</option>
+              {rooms.map(r => <option key={r.id} value={r.id}>{t('htRoomNum', { num: r.room_number })}</option>)}
             </select>
 
             <select
@@ -336,7 +337,7 @@ export default function HousekeepingPortalPage() {
               value={maintForm.category}
               onChange={e => setMaintForm(f => ({ ...f, category: e.target.value }))}
             >
-              {MAINT_CATS.map(c => <option key={c.value} value={c.value}>{c.icon} {c.label}</option>)}
+              {MAINT_CATS.map(c => <option key={c.value} value={c.value}>{c.icon} {t(c.labelKey)}</option>)}
             </select>
 
             <textarea
@@ -349,10 +350,10 @@ export default function HousekeepingPortalPage() {
             />
 
             {maintDone ? (
-              <div className={styles.maintSuccess}>✅ Problem prijavljen!</div>
+              <div className={styles.maintSuccess}>✅ {t('hkppReported')}</div>
             ) : (
               <button type="submit" className={styles.maintSubmitBtn} disabled={maintSaving}>
-                {maintSaving ? 'Slanje...' : 'Pošalji prijavu'}
+                {maintSaving ? t('hkppSending') : t('hkppSubmit')}
               </button>
             )}
           </form>
