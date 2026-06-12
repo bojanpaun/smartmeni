@@ -1,6 +1,7 @@
 // ▶ Zamijeniti: src/platform/superadmin/StaffRoles.jsx
 
 import { useState, useEffect } from 'react'
+import { useTranslation } from 'react-i18next'
 import { supabase } from '../../lib/supabase'
 import { usePlatform } from '../../context/PlatformContext'
 import { PERMISSIONS, ROLE_TEMPLATES } from '../../lib/permissions'
@@ -8,6 +9,7 @@ import styles from './StaffRoles.module.css'
 
 export default function StaffRoles() {
   const { restaurant } = usePlatform()
+  const { t } = useTranslation('admin')
 
   const [roles, setRoles] = useState([])
   const [staffCount, setStaffCount] = useState({})
@@ -83,30 +85,30 @@ export default function StaffRoles() {
   const deleteRole = async (id) => {
     const count = staffCount[id] || 0
     if (count > 0) {
-      alert(`Ova rola je dodijeljena ${count} zaposleniku. Prvo promijenite rolu u HR → Zaposleni.`)
+      alert(t('sroleAssignedAlert', { count }))
       return
     }
-    if (!confirm('Obrisati ovu rolu?')) return
+    if (!confirm(t('sroleDeleteConfirm'))) return
     await supabase.from('roles').delete().eq('id', id)
     setRoles(prev => prev.filter(r => r.id !== id))
   }
 
-  if (loading) return <div className={styles.loading}>Učitavanje...</div>
+  if (loading) return <div className={styles.loading}>{t('loading')}</div>
 
   return (
     <div className={styles.wrap}>
 
       <div className={styles.topbar}>
-        <div className={styles.topbarTitle}>Role i permisije</div>
-        <button className={styles.btnPrimary} onClick={() => openRoleForm()}>+ Nova rola</button>
+        <div className={styles.topbarTitle}>{t('sroleTitle')}</div>
+        <button className={styles.btnPrimary} onClick={() => openRoleForm()}>+ {t('sroleNewRole')}</button>
       </div>
 
       {roles.length === 0 ? (
         <div className={styles.emptyState}>
           <div className={styles.emptyIcon}>🔑</div>
-          <div className={styles.emptyTitle}>Nema definisanih rola</div>
+          <div className={styles.emptyTitle}>{t('sroleNoneTitle')}</div>
           <div className={styles.emptyDesc}>
-            Role definišu šta svaki zaposlenik može da vidi i radi u aplikaciji. Počnite od predloška ili kreirajte vlastitu rolu.
+            {t('sroleNoneDesc')}
           </div>
           <div className={styles.templates}>
             {Object.entries(ROLE_TEMPLATES).map(([key, tmpl]) => (
@@ -124,8 +126,8 @@ export default function StaffRoles() {
                 <div className={styles.roleCardHeader}>
                   <div className={styles.roleName}>{role.name}</div>
                   <div className={styles.roleActions}>
-                    <button className={styles.actionBtn} onClick={() => openRoleForm(role)}>Uredi</button>
-                    <button className={`${styles.actionBtn} ${styles.actionBtnDanger}`} onClick={() => deleteRole(role.id)}>Briši</button>
+                    <button className={styles.actionBtn} onClick={() => openRoleForm(role)}>{t('htEdit')}</button>
+                    <button className={`${styles.actionBtn} ${styles.actionBtnDanger}`} onClick={() => deleteRole(role.id)}>{t('invDelete')}</button>
                   </div>
                 </div>
                 <div className={styles.rolePerms}>
@@ -133,27 +135,27 @@ export default function StaffRoles() {
                     <span key={p} className={styles.permPill}>{p}</span>
                   ))}
                   {(role.permissions || []).length > 6 && (
-                    <span className={styles.permPillMore}>+{role.permissions.length - 6} još</span>
+                    <span className={styles.permPillMore}>+{role.permissions.length - 6} {t('sroleMore')}</span>
                   )}
                   {(role.permissions || []).length === 0 && (
-                    <span className={styles.permPillNone}>Bez permisija</span>
+                    <span className={styles.permPillNone}>{t('sroleNoPerms')}</span>
                   )}
                 </div>
                 <div className={styles.roleFooter}>
                   <span className={styles.roleStaffCount}>
-                    {staffCount[role.id] || 0} aktivnih zaposlenih
+                    {staffCount[role.id] || 0} {t('sroleActiveStaff')}
                   </span>
                 </div>
               </div>
             ))}
             <button className={styles.addRoleCard} onClick={() => openRoleForm()}>
               <span className={styles.addRoleIcon}>+</span>
-              <span>Nova rola</span>
+              <span>{t('sroleNewRole')}</span>
             </button>
           </div>
 
           <div className={styles.templateRow}>
-            <span className={styles.templateRowLabel}>Dodaj iz predloška:</span>
+            <span className={styles.templateRowLabel}>{t('sroleAddFromTemplate')}</span>
             {Object.entries(ROLE_TEMPLATES).map(([key, tmpl]) => (
               <button key={key} className={styles.templateBtn} onClick={() => openRoleForm(null, tmpl)}>+ {tmpl.name}</button>
             ))}
@@ -165,17 +167,17 @@ export default function StaffRoles() {
         <div className={styles.overlay} onClick={() => setShowRoleForm(false)}>
           <div className={styles.modal} onClick={e => e.stopPropagation()}>
             <div className={styles.modalHeader}>
-              <div className={styles.modalTitle}>{editRole ? `Uredi: ${editRole.name}` : 'Nova rola'}</div>
+              <div className={styles.modalTitle}>{editRole ? t('saEditName', { name: editRole.name }) : t('sroleNewRole')}</div>
               <button className={styles.modalClose} onClick={() => setShowRoleForm(false)}>✕</button>
             </div>
             <form onSubmit={saveRole}>
               <div className={styles.field}>
-                <label>Naziv role *</label>
-                <input value={roleForm.name} onChange={e => setRoleForm(f => ({ ...f, name: e.target.value }))} placeholder="npr. Konobar, Kuhinja, Šef smjene..." required />
+                <label>{t('sroleRoleNameReq')}</label>
+                <input value={roleForm.name} onChange={e => setRoleForm(f => ({ ...f, name: e.target.value }))} placeholder={t('sroleRoleNamePh')} required />
               </div>
               <div className={styles.permSection}>
-                <div className={styles.permSectionTitle}>Permisije</div>
-                <div className={styles.permSectionDesc}>Odaberite šta zaposlenik sa ovom rolom može da vidi i radi.</div>
+                <div className={styles.permSectionTitle}>{t('srolePermissions')}</div>
+                <div className={styles.permSectionDesc}>{t('srolePermDesc')}</div>
 
                 {/* ── Horizontalna tab navigacija po modulu ── */}
                 <div className={styles.permTabBar}>
@@ -218,7 +220,7 @@ export default function StaffRoles() {
                           onClick={() => selectAllInModule(moduleKey)}
                           disabled={allSelected}
                         >
-                          ✓ Odaberi sve
+                          ✓ {t('sroleSelectAll')}
                         </button>
                         <button
                           type="button"
@@ -226,7 +228,7 @@ export default function StaffRoles() {
                           onClick={() => clearAllInModule(moduleKey)}
                           disabled={noneSelected}
                         >
-                          ✕ Obriši sve
+                          ✕ {t('sroleClearAll')}
                         </button>
                       </div>
                       <div className={styles.permList}>
@@ -255,11 +257,11 @@ export default function StaffRoles() {
                 })}
               </div>
               <div className={styles.permCount}>
-                Ukupno odabrano: {roleForm.permissions.length} permisija
+                {t('sroleTotalSelected', { count: roleForm.permissions.length })}
               </div>
               <div className={styles.modalActions}>
-                <button type="button" className={styles.btnSecondary} onClick={() => setShowRoleForm(false)}>Odustani</button>
-                <button type="submit" className={styles.btnPrimary} disabled={saving}>{saving ? 'Čuvanje...' : 'Sačuvaj rolu'}</button>
+                <button type="button" className={styles.btnSecondary} onClick={() => setShowRoleForm(false)}>{t('cancel')}</button>
+                <button type="submit" className={styles.btnPrimary} disabled={saving}>{saving ? t('saving') : t('sroleSaveRole')}</button>
               </div>
             </form>
           </div>

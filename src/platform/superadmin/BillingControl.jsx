@@ -1,13 +1,14 @@
 import { useState, useEffect } from 'react'
 import { useNavigate } from 'react-router-dom'
+import { useTranslation } from 'react-i18next'
 import { supabase } from '../../lib/supabase'
 import { usePlatform } from '../../context/PlatformContext'
 import styles from './BillingControl.module.css'
 
-const CATEGORY_LABELS = {
-  restaurant: '🍽️ Restoran',
-  hotel:      '🏨 Hotel',
-  enterprise: '🏢 Enterprise',
+const CATEGORY_KEYS = {
+  restaurant: 'bcCatRestaurant',
+  hotel:      'bcCatHotel',
+  enterprise: 'bcCatEnterprise',
 }
 
 function numOrNull(v) {
@@ -24,8 +25,10 @@ const slugifyId = (s) => (s || '').toLowerCase().trim()
 export default function BillingControl() {
   const { isSuperAdmin, user } = usePlatform()
   const navigate = useNavigate()
+  const { t } = useTranslation('admin')
 
   const [settings, setSettings] = useState({ beta_free_mode: false, beta_note: '' })
+  const [msgErr, setMsgErr] = useState(false)
   const [addons, setAddons] = useState([])
   const [plans, setPlans] = useState([])
   const [loading, setLoading] = useState(true)
@@ -56,7 +59,7 @@ export default function BillingControl() {
     setLoading(false)
   }
 
-  const flash = (m) => { setMsg(m); setTimeout(() => setMsg(''), 2800) }
+  const flash = (m, isErr = false) => { setMsg(m); setMsgErr(isErr); setTimeout(() => setMsg(''), 2800) }
 
   const saveBeta = async (patch) => {
     const next = { ...settings, ...patch }
@@ -70,8 +73,8 @@ export default function BillingControl() {
       })
       .eq('id', true)
       .select('id')
-    if (!error && (!data || data.length === 0)) return flash('Greška: nije sačuvano (nedovoljna prava).')
-    flash(error ? 'Greška: ' + error.message : 'Sačuvano.')
+    if (!error && (!data || data.length === 0)) return flash(t('saErrPrefix') + t('bcRightsLong'), true)
+    flash(error ? t('saErrPrefix') + error.message : t('bcSavedDot'), !!error)
   }
 
   const patchAddon = (id, patch) => setAddons(list => list.map(a => a.id === id ? { ...a, ...patch } : a))
@@ -87,8 +90,8 @@ export default function BillingControl() {
       .eq('id', a.id)
       .select('id')
     setSavingId(null)
-    if (!error && (!data || data.length === 0)) return flash('Greška: nije sačuvano (prava).')
-    flash(error ? 'Greška: ' + error.message : `Sačuvano: ${a.name}`)
+    if (!error && (!data || data.length === 0)) return flash(t('saErrPrefix') + t('bcRightsShort'), true)
+    flash(error ? t('saErrPrefix') + error.message : t('bcSavedName', { name: a.name }), !!error)
   }
 
   const patchPlan = (id, patch) => setPlans(list => list.map(p => p.id === id ? { ...p, ...patch } : p))
@@ -104,8 +107,8 @@ export default function BillingControl() {
       .eq('id', p.id)
       .select('id')
     setSavingId(null)
-    if (!error && (!data || data.length === 0)) return flash('Greška: nije sačuvano (prava).')
-    flash(error ? 'Greška: ' + error.message : `Sačuvano: ${p.name}`)
+    if (!error && (!data || data.length === 0)) return flash(t('saErrPrefix') + t('bcRightsShort'), true)
+    flash(error ? t('saErrPrefix') + error.message : t('bcSavedName', { name: p.name }), !!error)
   }
 
   // ─── Plan editor (kreiranje / puno uređivanje) ───────────────────────────
@@ -145,8 +148,8 @@ export default function BillingControl() {
   const savePlanFull = async () => {
     const f = planForm
     const id = planIsNew ? slugifyId(f.id || f.name) : f.id
-    if (!id) return flash('Greška: ID/naziv je obavezan.')
-    if (!f.name.trim()) return flash('Greška: naziv je obavezan.')
+    if (!id) return flash(t('saErrPrefix') + t('bcIdNameReq'), true)
+    if (!f.name.trim()) return flash(t('saErrPrefix') + t('bcNameReq'), true)
     setModalSaving(true)
     const payload = {
       id, name: f.name.trim(), description: f.description || null,
@@ -163,10 +166,10 @@ export default function BillingControl() {
     }
     const { data, error } = await supabase.from('plans').upsert(payload, { onConflict: 'id' }).select('id')
     setModalSaving(false)
-    if (error) return flash('Greška: ' + error.message)
-    if (!data?.length) return flash('Greška: nije sačuvano (prava).')
+    if (error) return flash(t('saErrPrefix') + error.message, true)
+    if (!data?.length) return flash(t('saErrPrefix') + t('bcRightsShort'), true)
     setPlanForm(null)
-    flash(`Sačuvano: ${payload.name}`)
+    flash(t('bcSavedName', { name: payload.name }))
     load()
   }
 
@@ -181,10 +184,10 @@ export default function BillingControl() {
       .update({ description: f.description || null, features: linesToArr(f.featuresText) })
       .eq('id', f.id).select('id')
     setModalSaving(false)
-    if (error) return flash('Greška: ' + error.message)
-    if (!data?.length) return flash('Greška: nije sačuvano (prava).')
+    if (error) return flash(t('saErrPrefix') + error.message, true)
+    if (!data?.length) return flash(t('saErrPrefix') + t('bcRightsShort'), true)
     setAddonForm(null)
-    flash(`Sačuvano: ${f.name}`)
+    flash(t('bcSavedName', { name: f.name }))
     load()
   }
 
@@ -192,11 +195,11 @@ export default function BillingControl() {
     return (
       <div className={styles.accessDenied}>
         <div>🔒</div>
-        <div>Nemate pristup ovoj stranici.</div>
+        <div>{t('saNoAccess')}</div>
       </div>
     )
   }
-  if (loading) return <div className={styles.loading}>Učitavanje cijena…</div>
+  if (loading) return <div className={styles.loading}>{t('bcLoading')}</div>
 
   const addonsByCat = addons.reduce((acc, a) => {
     const c = a.category || 'restaurant'
@@ -208,40 +211,39 @@ export default function BillingControl() {
     <div className={styles.wrap}>
       <div className={styles.header}>
         <div>
-          <div className={styles.headerTitle}>Naplata i cijene</div>
-          <div className={styles.headerSub}>Cijene planova i addona · beta-free prekidači</div>
+          <div className={styles.headerTitle}>{t('bcTitle')}</div>
+          <div className={styles.headerSub}>{t('bcSub')}</div>
         </div>
-        <button className={styles.btnGhost} onClick={() => navigate('/superadmin')}>← Super admin</button>
+        <button className={styles.btnGhost} onClick={() => navigate('/superadmin')}>← {t('saBackSuper')}</button>
       </div>
 
       {msg && (
-        <div className={msg.startsWith('Greška') ? styles.toastErr : styles.toastOk}>{msg}</div>
+        <div className={msgErr ? styles.toastErr : styles.toastOk}>{msg}</div>
       )}
 
       {/* ─── GLOBALNI BETA PREKIDAČ ─────────────────────────────── */}
       <section className={`${styles.card} ${settings.beta_free_mode ? styles.cardBetaOn : ''}`}>
         <div className={styles.betaHead}>
           <div>
-            <div className={styles.cardTitle}>🧪 Beta — sve besplatno</div>
+            <div className={styles.cardTitle}>🧪 {t('bcBetaTitle')}</div>
             <div className={styles.cardSub}>
-              Dok je uključeno, <strong>svi tenanti</strong> koriste sve module besplatno
-              (ograničeno samo izabranim vertikalama). Paywall se ne prikazuje.
+              {t('bcBetaDescPre')}<strong>{t('bcBetaDescStrong')}</strong>{t('bcBetaDescPost')}
             </div>
           </div>
           <Toggle on={settings.beta_free_mode} onClick={() => saveBeta({ beta_free_mode: !settings.beta_free_mode })} big />
         </div>
         {settings.beta_free_mode && (
-          <div className={styles.betaLiveWarn}>⚠️ Beta je AKTIVNA — naplata je trenutno isključena za sve.</div>
+          <div className={styles.betaLiveWarn}>{t('bcBetaActiveWarn')}</div>
         )}
         <div className={styles.field}>
-          <label>Napomena (interna)</label>
+          <label>{t('bcInternalNote')}</label>
           <div className={styles.noteRow}>
             <input
-              placeholder="npr. Beta period do kraja jula 2026"
+              placeholder={t('bcBetaNotePh')}
               value={settings.beta_note || ''}
               onChange={e => setSettings(s => ({ ...s, beta_note: e.target.value }))}
             />
-            <button className={styles.btnSave} onClick={() => saveBeta({})}>Sačuvaj</button>
+            <button className={styles.btnSave} onClick={() => saveBeta({})}>{t('save')}</button>
           </div>
         </div>
       </section>
@@ -250,20 +252,20 @@ export default function BillingControl() {
       <section className={styles.card}>
         <div className={styles.cardHead}>
           <div>
-            <div className={styles.cardTitle}>📦 Planovi</div>
-            <div className={styles.cardSub}>Brza izmjena cijene/aktivnosti u tabeli; „Uredi" za opis, funkcije i uključene module.</div>
+            <div className={styles.cardTitle}>📦 {t('bcPlansTitle')}</div>
+            <div className={styles.cardSub}>{t('bcPlansSub')}</div>
           </div>
-          <button className={styles.btnNew} onClick={openNewPlan}>+ Novi plan</button>
+          <button className={styles.btnNew} onClick={openNewPlan}>+ {t('bcNewPlan')}</button>
         </div>
         <div className={styles.tableScroll}>
           <table className={styles.table}>
             <thead>
               <tr>
-                <th>Plan</th>
-                <th>€/mj</th>
-                <th>€/mj (godišnje)</th>
-                <th>€ godišnje ukupno</th>
-                <th>Aktivan</th>
+                <th>{t('bcColPlan')}</th>
+                <th>{t('bcColPerMonth')}</th>
+                <th>{t('bcColPerMonthYear')}</th>
+                <th>{t('bcColYearTotal')}</th>
+                <th>{t('bcColActive')}</th>
                 <th></th>
               </tr>
             </thead>
@@ -271,15 +273,15 @@ export default function BillingControl() {
               {plans.map(p => (
                 <tr key={p.id}>
                   <td className={styles.nameCell}>{p.name}<span className={styles.idTag}>{p.id}</span></td>
-                  <td data-label="€/mj"><PriceInput value={p.price_monthly} onChange={v => patchPlan(p.id, { price_monthly: v })} /></td>
-                  <td data-label="€/mj (godišnje)"><PriceInput value={p.price_annual_per_month} onChange={v => patchPlan(p.id, { price_annual_per_month: v })} /></td>
-                  <td data-label="€ godišnje ukupno"><PriceInput value={p.price_annual_total} onChange={v => patchPlan(p.id, { price_annual_total: v })} /></td>
-                  <td data-label="Aktivan"><Toggle on={p.is_active} onClick={() => patchPlan(p.id, { is_active: !p.is_active })} /></td>
+                  <td data-label={t('bcColPerMonth')}><PriceInput value={p.price_monthly} onChange={v => patchPlan(p.id, { price_monthly: v })} /></td>
+                  <td data-label={t('bcColPerMonthYear')}><PriceInput value={p.price_annual_per_month} onChange={v => patchPlan(p.id, { price_annual_per_month: v })} /></td>
+                  <td data-label={t('bcColYearTotal')}><PriceInput value={p.price_annual_total} onChange={v => patchPlan(p.id, { price_annual_total: v })} /></td>
+                  <td data-label={t('bcColActive')}><Toggle on={p.is_active} onClick={() => patchPlan(p.id, { is_active: !p.is_active })} /></td>
                   <td className={styles.saveCell}>
                     <div className={styles.rowBtns}>
-                      <button className={styles.btnEdit} onClick={() => openEditPlan(p)}>Uredi</button>
+                      <button className={styles.btnEdit} onClick={() => openEditPlan(p)}>{t('htEdit')}</button>
                       <button className={styles.btnSave} disabled={savingId === p.id} onClick={() => savePlan(p)}>
-                        {savingId === p.id ? '…' : 'Sačuvaj'}
+                        {savingId === p.id ? '…' : t('save')}
                       </button>
                     </div>
                   </td>
@@ -292,23 +294,22 @@ export default function BillingControl() {
 
       {/* ─── ADDONI ─────────────────────────────────────────────── */}
       <section className={styles.card}>
-        <div className={styles.cardTitle}>🧩 Addoni</div>
+        <div className={styles.cardTitle}>🧩 {t('bcAddonsTitle')}</div>
         <div className={styles.cardSub}>
-          <strong>Aktivan</strong> = nudi se i naplaćuje. <strong>Beta-free</strong> = besplatan
-          tokom bete (nezavisno od globalnog prekidača).
+          <strong>{t('bcAddonActive')}</strong>{t('bcAddonActiveDesc')}<strong>{t('bcBetaFree')}</strong>{t('bcBetaFreeDesc')}
         </div>
         {Object.entries(addonsByCat).map(([cat, list]) => (
           <div key={cat} className={styles.catGroup}>
-            <div className={styles.catLabel}>{CATEGORY_LABELS[cat] ?? cat}</div>
+            <div className={styles.catLabel}>{CATEGORY_KEYS[cat] ? t(CATEGORY_KEYS[cat]) : cat}</div>
             <div className={styles.tableScroll}>
               <table className={styles.table}>
                 <thead>
                   <tr>
-                    <th>Addon</th>
-                    <th>€/mj</th>
-                    <th>€/god</th>
-                    <th>Aktivan</th>
-                    <th>Beta-free</th>
+                    <th>{t('bcColAddon')}</th>
+                    <th>{t('bcColPerMonth')}</th>
+                    <th>{t('bcColPerYear')}</th>
+                    <th>{t('bcColActive')}</th>
+                    <th>{t('bcColBetaFree')}</th>
                     <th></th>
                   </tr>
                 </thead>
@@ -316,15 +317,15 @@ export default function BillingControl() {
                   {list.map(a => (
                     <tr key={a.id} className={a.beta_free ? styles.rowBeta : ''}>
                       <td className={styles.nameCell}>{a.name}<span className={styles.idTag}>{a.id}</span></td>
-                      <td data-label="€/mj"><PriceInput value={a.price_monthly} onChange={v => patchAddon(a.id, { price_monthly: v })} /></td>
-                      <td data-label="€/god"><PriceInput value={a.price_yearly} onChange={v => patchAddon(a.id, { price_yearly: v })} /></td>
-                      <td data-label="Aktivan"><Toggle on={a.is_active} onClick={() => patchAddon(a.id, { is_active: !a.is_active })} /></td>
-                      <td data-label="Beta-free"><Toggle on={a.beta_free} onClick={() => patchAddon(a.id, { beta_free: !a.beta_free })} /></td>
+                      <td data-label={t('bcColPerMonth')}><PriceInput value={a.price_monthly} onChange={v => patchAddon(a.id, { price_monthly: v })} /></td>
+                      <td data-label={t('bcColPerYear')}><PriceInput value={a.price_yearly} onChange={v => patchAddon(a.id, { price_yearly: v })} /></td>
+                      <td data-label={t('bcColActive')}><Toggle on={a.is_active} onClick={() => patchAddon(a.id, { is_active: !a.is_active })} /></td>
+                      <td data-label={t('bcColBetaFree')}><Toggle on={a.beta_free} onClick={() => patchAddon(a.id, { beta_free: !a.beta_free })} /></td>
                       <td className={styles.saveCell}>
                         <div className={styles.rowBtns}>
-                          <button className={styles.btnEdit} onClick={() => openEditAddon(a)}>Uredi</button>
+                          <button className={styles.btnEdit} onClick={() => openEditAddon(a)}>{t('htEdit')}</button>
                           <button className={styles.btnSave} disabled={savingId === a.id} onClick={() => saveAddon(a)}>
-                            {savingId === a.id ? '…' : 'Sačuvaj'}
+                            {savingId === a.id ? '…' : t('save')}
                           </button>
                         </div>
                       </td>
@@ -342,72 +343,71 @@ export default function BillingControl() {
         <div className={styles.overlay} onClick={() => setPlanForm(null)}>
           <div className={styles.modal} onClick={e => e.stopPropagation()}>
             <div className={styles.modalHead}>
-              <div className={styles.modalTitle}>{planIsNew ? 'Novi plan' : `Uredi plan: ${planForm.name}`}</div>
+              <div className={styles.modalTitle}>{planIsNew ? t('bcNewPlan') : t('bcEditPlanTitle', { name: planForm.name })}</div>
               <button className={styles.modalClose} onClick={() => setPlanForm(null)}>✕</button>
             </div>
             <div className={styles.modalBody}>
               <div className={styles.formRow}>
                 <div className={styles.field}>
-                  <label>ID {planIsNew ? '(slug)' : ''}</label>
+                  <label>{t('bcIdLabel')} {planIsNew ? t('bcSlugSuffix') : ''}</label>
                   {planIsNew
-                    ? <input value={planForm.id} placeholder="npr. bistro" onChange={e => pf({ id: e.target.value })} />
+                    ? <input value={planForm.id} placeholder={t('bcIdPh')} onChange={e => pf({ id: e.target.value })} />
                     : <div className={styles.idFixed}>{planForm.id}</div>}
                 </div>
                 <div className={styles.field}>
-                  <label>Naziv</label>
+                  <label>{t('saNameLabel')}</label>
                   <input value={planForm.name} onChange={e => pf({ name: e.target.value })} />
                 </div>
               </div>
 
               <div className={styles.field}>
-                <label>Kratak opis</label>
-                <input value={planForm.description} placeholder="npr. Profesionalni alati za restoran" onChange={e => pf({ description: e.target.value })} />
+                <label>{t('bcShortDesc')}</label>
+                <input value={planForm.description} placeholder={t('bcShortDescPh')} onChange={e => pf({ description: e.target.value })} />
               </div>
 
               <div className={styles.field}>
-                <label>Funkcije (jedna po redu)</label>
+                <label>{t('bcFeatures')}</label>
                 <textarea rows={6} value={planForm.featuresText}
-                  placeholder={'Sve iz Starter\nNapredna analitika\nHR Pro'}
                   onChange={e => pf({ featuresText: e.target.value })} />
               </div>
 
               <div className={styles.formRow}>
                 <div className={styles.field}>
-                  <label>€/mj</label>
+                  <label>{t('bcColPerMonth')}</label>
                   <PriceInput value={planForm.price_monthly} onChange={v => pf({ price_monthly: v })} />
                 </div>
                 <div className={styles.field}>
-                  <label>€/mj (godišnje)</label>
+                  <label>{t('bcColPerMonthYear')}</label>
                   <PriceInput value={planForm.price_annual_per_month} onChange={v => pf({ price_annual_per_month: v })} />
                 </div>
                 <div className={styles.field}>
-                  <label>€ godišnje ukupno</label>
+                  <label>{t('bcColYearTotal')}</label>
                   <PriceInput value={planForm.price_annual_total} onChange={v => pf({ price_annual_total: v })} />
                 </div>
               </div>
 
               <div className={styles.formRow}>
                 <div className={styles.field}>
-                  <label>Boja</label>
+                  <label>{t('bcColor')}</label>
                   <input type="color" value={planForm.color} onChange={e => pf({ color: e.target.value })} />
                 </div>
                 <div className={styles.field}>
-                  <label>Redoslijed</label>
+                  <label>{t('saSortOrder')}</label>
                   <input type="number" value={planForm.sort_order} onChange={e => pf({ sort_order: e.target.value })} />
                 </div>
               </div>
 
               <div className={styles.toggleRow}>
-                <Toggle on={planForm.is_active} onClick={() => pf({ is_active: !planForm.is_active })} /> <span>Aktivan</span>
-                <Toggle on={planForm.is_popular} onClick={() => pf({ is_popular: !planForm.is_popular })} /> <span>Popularno</span>
-                <Toggle on={planForm.coming_soon} onClick={() => pf({ coming_soon: !planForm.coming_soon })} /> <span>Uskoro</span>
+                <Toggle on={planForm.is_active} onClick={() => pf({ is_active: !planForm.is_active })} /> <span>{t('spaActiveM')}</span>
+                <Toggle on={planForm.is_popular} onClick={() => pf({ is_popular: !planForm.is_popular })} /> <span>{t('bcPopular')}</span>
+                <Toggle on={planForm.coming_soon} onClick={() => pf({ coming_soon: !planForm.coming_soon })} /> <span>{t('bcComingSoon')}</span>
               </div>
 
               <div className={styles.field}>
-                <label>Uključeni moduli (addoni)</label>
+                <label>{t('bcIncludedModules')}</label>
                 <label className={styles.allInc}>
                   <input type="checkbox" checked={planForm.allIncluded} onChange={e => pf({ allIncluded: e.target.checked })} />
-                  Uključuje SVE addonе (enterprise)
+                  {t('bcAllAddons')}
                 </label>
                 {!planForm.allIncluded && (
                   <div className={styles.incGrid}>
@@ -422,27 +422,27 @@ export default function BillingControl() {
               </div>
 
               <div className={styles.providerBox}>
-                <div className={styles.providerTitle}>💳 Kupovina (Nivo B) — ostavi prazno dok proizvod nije napravljen kod provajdera</div>
+                <div className={styles.providerTitle}>{t('bcProviderTitle')}</div>
                 <div className={styles.field}>
-                  <label>PayPal plan ID</label>
+                  <label>{t('bcPaypalId')}</label>
                   <input value={planForm.paypal_plan_id} placeholder="P-XXXXXXXX" onChange={e => pf({ paypal_plan_id: e.target.value })} />
                 </div>
                 <div className={styles.formRow}>
                   <div className={styles.field}>
-                    <label>Stripe price ID (mj)</label>
+                    <label>{t('bcStripeMonthly')}</label>
                     <input value={planForm.stripe_price_id_monthly} placeholder="price_..." onChange={e => pf({ stripe_price_id_monthly: e.target.value })} />
                   </div>
                   <div className={styles.field}>
-                    <label>Stripe price ID (god)</label>
+                    <label>{t('bcStripeYearly')}</label>
                     <input value={planForm.stripe_price_id_yearly} placeholder="price_..." onChange={e => pf({ stripe_price_id_yearly: e.target.value })} />
                   </div>
                 </div>
               </div>
             </div>
             <div className={styles.modalFoot}>
-              <button className={styles.btnGhost} onClick={() => setPlanForm(null)}>Odustani</button>
+              <button className={styles.btnGhost} onClick={() => setPlanForm(null)}>{t('cancel')}</button>
               <button className={styles.btnSave} disabled={modalSaving} onClick={savePlanFull}>
-                {modalSaving ? 'Čuvanje…' : 'Sačuvaj plan'}
+                {modalSaving ? t('saving') : t('bcSavePlan')}
               </button>
             </div>
           </div>
@@ -454,25 +454,25 @@ export default function BillingControl() {
         <div className={styles.overlay} onClick={() => setAddonForm(null)}>
           <div className={styles.modal} onClick={e => e.stopPropagation()}>
             <div className={styles.modalHead}>
-              <div className={styles.modalTitle}>Uredi addon: {addonForm.name}</div>
+              <div className={styles.modalTitle}>{t('bcEditAddonTitle', { name: addonForm.name })}</div>
               <button className={styles.modalClose} onClick={() => setAddonForm(null)}>✕</button>
             </div>
             <div className={styles.modalBody}>
               <div className={styles.field}>
-                <label>Opis</label>
+                <label>{t('bcDescLabel')}</label>
                 <textarea rows={3} value={addonForm.description}
                   onChange={e => setAddonForm(f => ({ ...f, description: e.target.value }))} />
               </div>
               <div className={styles.field}>
-                <label>Funkcije (jedna po redu)</label>
+                <label>{t('bcFeatures')}</label>
                 <textarea rows={6} value={addonForm.featuresText}
                   onChange={e => setAddonForm(f => ({ ...f, featuresText: e.target.value }))} />
               </div>
             </div>
             <div className={styles.modalFoot}>
-              <button className={styles.btnGhost} onClick={() => setAddonForm(null)}>Odustani</button>
+              <button className={styles.btnGhost} onClick={() => setAddonForm(null)}>{t('cancel')}</button>
               <button className={styles.btnSave} disabled={modalSaving} onClick={saveAddonFull}>
-                {modalSaving ? 'Čuvanje…' : 'Sačuvaj'}
+                {modalSaving ? t('saving') : t('save')}
               </button>
             </div>
           </div>

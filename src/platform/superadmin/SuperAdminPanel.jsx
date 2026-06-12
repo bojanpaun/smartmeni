@@ -1,5 +1,6 @@
 import { useState, useEffect } from 'react'
 import { useNavigate } from 'react-router-dom'
+import { useTranslation } from 'react-i18next'
 import { supabase } from '../../lib/supabase'
 import { usePlatform } from '../../context/PlatformContext'
 import { planStatus } from '../../lib/planUtils'
@@ -7,29 +8,33 @@ import { useSortable } from '../../hooks/useSortable'
 import SortableHead from '../../components/shared/SortableHead'
 import styles from './SuperAdminPanel.module.css'
 
+// labelKey reuse iz ThemePalettesAdmin (tpPal*); label fallback za skladištenje.
 const ADMIN_THEMES = [
-  { key: 'green',  label: 'Zelena',     color: '#0d7a52' },
-  { key: 'blue',   label: 'Plava',      color: '#2563eb' },
-  { key: 'purple', label: 'Ljubičasta', color: '#7c3aed' },
+  { key: 'green',  label: 'Zelena',     labelKey: 'tpPalGreen',  color: '#0d7a52' },
+  { key: 'blue',   label: 'Plava',      labelKey: 'tpPalBlue',   color: '#2563eb' },
+  { key: 'purple', label: 'Ljubičasta', labelKey: 'tpPalPurple', color: '#7c3aed' },
 ]
 
-const CATEGORY_LABELS = {
-  restaurant: '🍽️ Restoran',
-  hotel:      '🏨 Hotel',
-  enterprise: '🏢 Enterprise',
+const CATEGORY_KEYS = {
+  restaurant: 'bcCatRestaurant',
+  hotel:      'bcCatHotel',
+  enterprise: 'bcCatEnterprise',
 }
 
 export default function SuperAdminPanel() {
   const { isSuperAdmin, palettes, restaurant, setRestaurant, setTenant } = usePlatform()
   const navigate = useNavigate()
+  const { t, i18n } = useTranslation('admin')
+  const dl = i18n.language === 'en' ? 'en-US' : 'sr-Latn'
   // Ugrađene + custom palete (iz theme_palettes) za picker. theme_palettes može
   // sadržati i override redove za ugrađene palete (isti key) — ne dupliraj ih, samo
   // preuzmi prikazanu boju iz override-a.
-  const builtinKeys = ADMIN_THEMES.map(t => t.key)
+  const builtinKeys = ADMIN_THEMES.map(th => th.key)
   const themeChoices = [
-    ...ADMIN_THEMES.map(t => {
-      const ov = (palettes ?? []).find(p => p.key === t.key)
-      return ov ? { ...t, color: ov.light?.primary || t.color } : t
+    ...ADMIN_THEMES.map(th => {
+      const ov = (palettes ?? []).find(p => p.key === th.key)
+      const label = t(th.labelKey)
+      return ov ? { key: th.key, label, color: ov.light?.primary || th.color } : { key: th.key, label, color: th.color }
     }),
     ...(palettes ?? [])
       .filter(p => !builtinKeys.includes(p.key))
@@ -56,6 +61,7 @@ export default function SuperAdminPanel() {
   })
   const [saving, setSaving] = useState(false)
   const [saveMsg, setSaveMsg] = useState('')
+  const [saveErr, setSaveErr] = useState(false)
   const sort = useSortable('name', 'asc')
 
   useEffect(() => {
@@ -157,7 +163,7 @@ export default function SuperAdminPanel() {
     if (!error && (!updated || updated.length === 0)) {
       // RLS je propustio UPDATE bez greške ali bez pogođenih redova —
       // ne tvrdi da je sačuvano, jer u bazi nema promjene.
-      setSaveMsg('Greška: izmjena nije sačuvana (nedovoljna prava).')
+      setSaveMsg(t('sapSaveErrRights')); setSaveErr(true)
       setSaving(false)
       return
     }
@@ -181,10 +187,10 @@ export default function SuperAdminPanel() {
         setTenant(t => t ? { ...t, ...payload } : t)
       }
 
-      setSaveMsg('Sačuvano!')
+      setSaveMsg(t('sapSavedExcl')); setSaveErr(false)
       setTimeout(() => setSaveMsg(''), 2500)
     } else {
-      setSaveMsg('Greška: ' + error.message)
+      setSaveMsg(t('saErrPrefix') + error.message); setSaveErr(true)
     }
     setSaving(false)
   }
@@ -192,8 +198,8 @@ export default function SuperAdminPanel() {
   const toggleSuspend = async (rest) => {
     const isSuspended = !!rest.suspended_at
     const msg = isSuspended
-      ? `Reaktivirati nalog "${rest.name}"?`
-      : `Suspendovati nalog "${rest.name}"? Korisnik neće moći pristupiti admin panelu.`
+      ? t('sapReactivateConfirm', { name: rest.name })
+      : t('sapSuspendConfirm', { name: rest.name })
     if (!confirm(msg)) return
 
     const payload = { suspended_at: isSuspended ? null : new Date().toISOString() }
@@ -202,13 +208,15 @@ export default function SuperAdminPanel() {
   }
 
   const setApproval = async (rest, status) => {
-    const label = status === 'approved' ? 'Odobriti' : 'Odbiti'
-    if (!confirm(`${label} nalog "${rest.name}"? Vlasnik dobija email obavijest. ${status === 'approved' ? 'Vlasnik dobija pristup, stranica postaje aktivna.' : 'Vlasnik neće moći pristupiti.'}`)) return
+    const confirmMsg = status === 'approved'
+      ? t('sapApproveConfirm', { name: rest.name })
+      : t('sapRejectConfirm', { name: rest.name })
+    if (!confirm(confirmMsg)) return
     await supabase.from('restaurants').update({ approval_status: status }).eq('id', rest.id)
     setRestaurants(rs => rs.map(r => r.id === rest.id ? { ...r, approval_status: status } : r))
     // Email obavijest vlasniku (fire-and-forget — ne blokira UI)
     supabase.functions.invoke('send-approval-email', { body: { restaurant_id: rest.id, status } })
-      .then(({ error }) => { setSaveMsg(error ? 'Status promijenjen (email nije poslat)' : 'Status promijenjen — email poslat vlasniku'); setTimeout(() => setSaveMsg(''), 3000) })
+      .then(({ error }) => { setSaveMsg(error ? t('sapStatusChangedNoEmail') : t('sapStatusChangedEmail')); setSaveErr(false); setTimeout(() => setSaveMsg(''), 3000) })
       .catch(() => {})
   }
 
@@ -247,43 +255,43 @@ export default function SuperAdminPanel() {
     return (
       <div className={styles.accessDenied}>
         <div>🔒</div>
-        <div>Nemate pristup ovoj stranici.</div>
+        <div>{t('saNoAccess')}</div>
       </div>
     )
   }
 
-  if (loading) return <div className={styles.loading}>Učitavanje restorana...</div>
+  if (loading) return <div className={styles.loading}>{t('sapLoading')}</div>
 
   return (
     <div className={styles.wrap}>
 
       <div className={styles.header}>
         <div>
-          <div className={styles.headerTitle}>Super admin panel</div>
-          <div className={styles.headerSub}>Upravljanje restoranima i planovima</div>
+          <div className={styles.headerTitle}>{t('sapTitle')}</div>
+          <div className={styles.headerSub}>{t('sapSub')}</div>
         </div>
         <div className={styles.headerActions}>
           {/* Navigacija je sada u lijevom sidebar-u (Super admin modul) */}
-          <button className={styles.btnRefresh} onClick={loadRestaurants}>↻ Osvježi</button>
+          <button className={styles.btnRefresh} onClick={loadRestaurants}>↻ {t('sapRefresh')}</button>
         </div>
       </div>
 
       <div className={styles.stats}>
         <div className={styles.stat}>
           <div className={styles.statVal}>{stats.total}</div>
-          <div className={styles.statLabel}>Ukupno restorana</div>
+          <div className={styles.statLabel}>{t('sapTotalRest')}</div>
         </div>
         <div className={styles.stat}>
           <div className={styles.statVal}>{stats.pro}</div>
-          <div className={styles.statLabel}>Pro (plaćeni)</div>
+          <div className={styles.statLabel}>{t('sapProPaid')}</div>
         </div>
         <div className={`${styles.stat} ${styles.statComplimentary}`}>
           <div className={styles.statVal}>{stats.complimentary}</div>
-          <div className={styles.statLabel}>Complimentary</div>
+          <div className={styles.statLabel}>{t('sapComplimentary')}</div>
         </div>
         <div className={`${styles.stat} ${styles.statSuspended}`}>
           <div className={styles.statVal}>{stats.suspended}</div>
-          <div className={styles.statLabel}>Suspendirani</div>
+          <div className={styles.statLabel}>{t('sapSuspended')}</div>
         </div>
         <div
           className={`${styles.stat} ${styles.statSuspended}`}
@@ -291,25 +299,25 @@ export default function SuperAdminPanel() {
           onClick={() => stats.pending > 0 && setFilterPlan('pending')}
         >
           <div className={styles.statVal} style={stats.pending > 0 ? { color: 'var(--c-warning)' } : undefined}>{stats.pending}</div>
-          <div className={styles.statLabel}>⏳ Na čekanju</div>
+          <div className={styles.statLabel}>⏳ {t('sapPending')}</div>
         </div>
       </div>
 
       <div className={styles.toolbar}>
         <input
           className={styles.searchInput}
-          placeholder="Pretraži po nazivu ili slug-u..."
+          placeholder={t('sapSearchPh')}
           value={search}
           onChange={e => setSearch(e.target.value)}
         />
         <div className={styles.filterBtns}>
           {[
-            { key: 'all',           label: 'Svi' },
-            { key: 'paid',          label: '💳 Plaćeni' },
-            { key: 'complimentary', label: '🎁 Complimentary' },
-            { key: 'starter',       label: 'Starter' },
-            { key: 'suspended',     label: '⚠️ Suspendirani' },
-            { key: 'pending',       label: '⏳ Na čekanju' },
+            { key: 'all',           label: t('sapFilterAll') },
+            { key: 'paid',          label: t('sapFilterPaid') },
+            { key: 'complimentary', label: t('sapFilterComp') },
+            { key: 'starter',       label: t('sapFilterStarter') },
+            { key: 'suspended',     label: t('sapFilterSuspended') },
+            { key: 'pending',       label: t('sapFilterPending') },
           ].map(f => (
             <button
               key={f.key}
@@ -326,17 +334,17 @@ export default function SuperAdminPanel() {
         <table className={styles.table}>
           <thead>
             <tr>
-              <th><SortableHead col="name"       label="Restoran"    sortBy={sort.sortBy} sortDir={sort.sortDir} onSort={sort.onSort} /></th>
-              <th><SortableHead col="plan"       label="Plan"        sortBy={sort.sortBy} sortDir={sort.sortDir} onSort={sort.onSort} /></th>
-              <th><SortableHead col="_status"    label="Status"      sortBy={sort.sortBy} sortDir={sort.sortDir} onSort={sort.onSort} /></th>
-              <th><SortableHead col="created_at" label="Registrovan" sortBy={sort.sortBy} sortDir={sort.sortDir} onSort={sort.onSort} /></th>
-              <th>Akcije</th>
+              <th><SortableHead col="name"       label={t('sapColRest')}       sortBy={sort.sortBy} sortDir={sort.sortDir} onSort={sort.onSort} /></th>
+              <th><SortableHead col="plan"       label={t('sapColPlan')}       sortBy={sort.sortBy} sortDir={sort.sortDir} onSort={sort.onSort} /></th>
+              <th><SortableHead col="_status"    label={t('sapColStatus')}     sortBy={sort.sortBy} sortDir={sort.sortDir} onSort={sort.onSort} /></th>
+              <th><SortableHead col="created_at" label={t('sapColRegistered')} sortBy={sort.sortBy} sortDir={sort.sortDir} onSort={sort.onSort} /></th>
+              <th>{t('sapColActions')}</th>
             </tr>
           </thead>
           <tbody>
             {filtered.length === 0 && (
               <tr>
-                <td colSpan={5} className={styles.emptyRow}>Nema rezultata.</td>
+                <td colSpan={5} className={styles.emptyRow}>{t('saNoResults')}</td>
               </tr>
             )}
             {sort.sort(filtered).map(rest => (
@@ -345,10 +353,10 @@ export default function SuperAdminPanel() {
                     <div className={styles.restName}>
                       {rest.name}
                       {rest.approval_status === 'pending' && (
-                        <span style={{ marginLeft: 8, fontSize: 11, fontWeight: 600, color: 'var(--c-warning)', background: 'var(--c-warning-bg)', border: '1px solid var(--c-warning-border)', borderRadius: 12, padding: '1px 8px' }}>⏳ čeka odobrenje</span>
+                        <span style={{ marginLeft: 8, fontSize: 11, fontWeight: 600, color: 'var(--c-warning)', background: 'var(--c-warning-bg)', border: '1px solid var(--c-warning-border)', borderRadius: 12, padding: '1px 8px' }}>⏳ {t('sapPendingBadge')}</span>
                       )}
                       {rest.approval_status === 'rejected' && (
-                        <span style={{ marginLeft: 8, fontSize: 11, fontWeight: 600, color: 'var(--c-danger)', background: 'var(--c-danger-bg)', border: '1px solid var(--c-danger-border)', borderRadius: 12, padding: '1px 8px' }}>✕ odbijen</span>
+                        <span style={{ marginLeft: 8, fontSize: 11, fontWeight: 600, color: 'var(--c-danger)', background: 'var(--c-danger-bg)', border: '1px solid var(--c-danger-border)', borderRadius: 12, padding: '1px 8px' }}>✕ {t('sapRejectedBadge')}</span>
                       )}
                     </div>
                     <div className={styles.restSlug}>restby.me/{rest.slug}</div>
@@ -361,7 +369,7 @@ export default function SuperAdminPanel() {
                   <td><PlanBadge rest={rest} /></td>
                   <td><StatusBadge status={rest._status} /></td>
                   <td className={styles.dateCell}>
-                    {new Date(rest.created_at).toLocaleDateString('sr-Latn', {
+                    {new Date(rest.created_at).toLocaleDateString(dl, {
                       day: '2-digit', month: '2-digit', year: 'numeric'
                     })}
                   </td>
@@ -374,13 +382,13 @@ export default function SuperAdminPanel() {
                             style={{ background: 'var(--c-success)', color: '#fff', borderColor: 'var(--c-success)' }}
                             onClick={() => setApproval(rest, 'approved')}
                           >
-                            ✓ Odobri
+                            ✓ {t('sapApprove')}
                           </button>
                           <button
                             className={styles.btnSuspend}
                             onClick={() => setApproval(rest, 'rejected')}
                           >
-                            ✕ Odbij
+                            ✕ {t('sapReject')}
                           </button>
                         </>
                       )}
@@ -390,20 +398,20 @@ export default function SuperAdminPanel() {
                           style={{ background: 'var(--c-success)', color: '#fff', borderColor: 'var(--c-success)' }}
                           onClick={() => setApproval(rest, 'approved')}
                         >
-                          ✓ Odobri ipak
+                          ✓ {t('sapApproveAnyway')}
                         </button>
                       )}
                       <button
                         className={styles.btnEdit}
                         onClick={() => editingId === rest.id ? closeEdit() : openEdit(rest)}
                       >
-                        {editingId === rest.id ? 'Zatvori' : 'Uredi plan'}
+                        {editingId === rest.id ? t('sapClose') : t('sapEditPlan')}
                       </button>
                       <button
                         className={`${styles.btnSuspend} ${rest.suspended_at ? styles.btnUnsuspend : ''}`}
                         onClick={() => toggleSuspend(rest)}
                       >
-                        {rest.suspended_at ? '✓ Reaktiviraj' : '⊘ Suspenduj'}
+                        {rest.suspended_at ? `✓ ${t('sapReactivate')}` : `⊘ ${t('sapSuspend')}`}
                       </button>
                     </div>
                   </td>
@@ -417,7 +425,7 @@ export default function SuperAdminPanel() {
         <div className={styles.editPanel}>
           <div className={styles.editPanelHeader}>
             <div className={styles.editPanelTitle}>
-              Uredi plan — <strong>{restaurants.find(r => r.id === editingId)?.name}</strong>
+              {t('sapEditPlanFor')} <strong>{restaurants.find(r => r.id === editingId)?.name}</strong>
             </div>
             <button className={styles.editPanelClose} onClick={closeEdit}>✕</button>
           </div>
@@ -426,7 +434,7 @@ export default function SuperAdminPanel() {
 
             {/* Complimentary toggle */}
             <div className={styles.editSection}>
-              <div className={styles.editSectionTitle}>🎁 Besplatni Pro pristup</div>
+              <div className={styles.editSectionTitle}>🎁 {t('sapFreePro')}</div>
               <label className={styles.toggleLabel}>
                 <div
                   className={`${styles.toggle} ${editForm.is_complimentary ? styles.toggleOn : styles.toggleOff}`}
@@ -434,21 +442,21 @@ export default function SuperAdminPanel() {
                 />
                 <span>
                   {editForm.is_complimentary
-                    ? 'Aktivan — korisnik ima puni Pro pristup besplatno'
-                    : 'Nije aktivan'}
+                    ? t('sapCompActive')
+                    : t('sapCompInactive')}
                 </span>
               </label>
 
               {editForm.is_complimentary && (
                 <div className={styles.field}>
-                  <label>Razlog (napomena)</label>
+                  <label>{t('sapReasonNote')}</label>
                   <input
-                    placeholder="npr. Beta tester, Partner restoran, Nagradni period..."
+                    placeholder={t('sapReasonPh')}
                     value={editForm.complimentary_note}
                     onChange={e => setEditForm(f => ({ ...f, complimentary_note: e.target.value }))}
                   />
                   <div className={styles.fieldHint}>
-                    Napomena je vidljiva korisniku na Billing stranici.
+                    {t('sapReasonHint')}
                   </div>
                 </div>
               )}
@@ -456,62 +464,62 @@ export default function SuperAdminPanel() {
 
             {/* Tema admin panela */}
             <div className={styles.editSection}>
-              <div className={styles.editSectionTitle}>🎨 Tema admin panela</div>
+              <div className={styles.editSectionTitle}>🎨 {t('sapTheme')}</div>
               <div className={styles.themeOptions}>
                 {/* Brend — izvedeno uživo iz boje brenda ovog tenanta (restaurants.color) */}
                 <button
                   key="brand"
                   className={`${styles.themeOption} ${editForm.admin_theme === 'brand' ? styles.themeOptionActive : ''}`}
                   onClick={() => setEditForm(f => ({ ...f, admin_theme: 'brand' }))}
-                  title="Izvedeno iz boje brenda tenanta"
+                  title={t('sapBrandTitle')}
                 >
                   <span className={styles.themeOptionDot} style={{ background: restaurants.find(r => r.id === editingId)?.color || '#0d7a52' }} />
-                  Brend
+                  {t('sapBrand')}
                 </button>
-                {themeChoices.map(t => (
+                {themeChoices.map(th => (
                   <button
-                    key={t.key}
-                    className={`${styles.themeOption} ${editForm.admin_theme === t.key ? styles.themeOptionActive : ''}`}
-                    onClick={() => setEditForm(f => ({ ...f, admin_theme: t.key }))}
+                    key={th.key}
+                    className={`${styles.themeOption} ${editForm.admin_theme === th.key ? styles.themeOptionActive : ''}`}
+                    onClick={() => setEditForm(f => ({ ...f, admin_theme: th.key }))}
                   >
-                    <span className={styles.themeOptionDot} style={{ background: t.color }} />
-                    {t.label}
+                    <span className={styles.themeOptionDot} style={{ background: th.color }} />
+                    {th.label}
                   </button>
                 ))}
               </div>
               <button onClick={() => navigate('/superadmin/theme')}
                 style={{ marginTop: 8, background: 'none', border: 'none', color: 'var(--c-primary)', fontSize: 12, cursor: 'pointer', padding: 0 }}>
-                + Upravljaj custom paletama →
+                + {t('sapManageCustom')} →
               </button>
             </div>
 
             {/* Plan override */}
             <div className={styles.editSection}>
-              <div className={styles.editSectionTitle}>📋 Plan override</div>
+              <div className={styles.editSectionTitle}>📋 {t('sapPlanOverride')}</div>
               <div className={styles.field}>
-                <label>Aktivan plan</label>
+                <label>{t('sapActivePlan')}</label>
                 <select
                   value={editForm.plan}
                   onChange={e => setEditForm(f => ({ ...f, plan: e.target.value }))}
                 >
                   {plans.map(pl => (
                     <option key={pl.id} value={pl.id}>
-                      {pl.name}{pl.price_monthly ? ` — €${pl.price_monthly}/mj` : pl.id === 'starter' ? ' (besplatan)' : ''}
+                      {pl.name}{pl.price_monthly ? ` — €${pl.price_monthly}${t('sapPerMonthShort')}` : pl.id === 'starter' ? ` ${t('sapFree')}` : ''}
                     </option>
                   ))}
                 </select>
               </div>
               <div className={styles.field}>
-                <label>Pro ističe</label>
+                <label>{t('sapProExpires')}</label>
                 <input
                   type="date"
                   value={editForm.plan_expires_at}
                   onChange={e => setEditForm(f => ({ ...f, plan_expires_at: e.target.value }))}
                 />
-                <div className={styles.fieldHint}>Ostavi prazno ako nema expiry datuma.</div>
+                <div className={styles.fieldHint}>{t('sapNoExpiryHint')}</div>
               </div>
               <div className={styles.field}>
-                <label>Trial ističe</label>
+                <label>{t('sapTrialExpires')}</label>
                 <input
                   type="date"
                   value={editForm.trial_ends_at}
@@ -522,19 +530,19 @@ export default function SuperAdminPanel() {
 
             {/* Addon override — spans full width */}
             <div className={`${styles.editSection} ${styles.addonSection}`}>
-              <div className={styles.editSectionTitle}>🧩 Addon moduli override</div>
+              <div className={styles.editSectionTitle}>🧩 {t('sapAddonOverride')}</div>
               <div className={styles.fieldHint} style={{ marginBottom: 16 }}>
-                Uključeni addoni bit će dostupni tenantu bez plaćanja, bez obzira na plan. Korisno za testiranje i beta pristup pojedinih modula.
+                {t('sapAddonHint')}
               </div>
 
               {loadingEdit ? (
-                <div className={styles.addonLoading}>Učitavanje...</div>
+                <div className={styles.addonLoading}>{t('loading')}</div>
               ) : (
                 <div className={styles.addonCategories}>
                   {Object.entries(catalogByCategory).map(([category, addons]) => (
                     <div key={category} className={styles.addonCategoryGroup}>
                       <div className={styles.addonCategoryLabel}>
-                        {CATEGORY_LABELS[category] ?? category}
+                        {CATEGORY_KEYS[category] ? t(CATEGORY_KEYS[category]) : category}
                       </div>
                       <div className={styles.addonToggles}>
                         {addons.map(addon => {
@@ -547,7 +555,7 @@ export default function SuperAdminPanel() {
                             >
                               <div className={`${styles.toggle} ${isActive ? styles.toggleOn : styles.toggleOff}`} />
                               <span className={styles.addonToggleName}>{addon.name}</span>
-                              <span className={styles.addonTogglePrice}>€{addon.price_monthly}/mj</span>
+                              <span className={styles.addonTogglePrice}>€{addon.price_monthly}{t('sapPerMonthShort')}</span>
                             </label>
                           )
                         })}
@@ -561,12 +569,12 @@ export default function SuperAdminPanel() {
           </div>
 
           <div className={styles.editActions}>
-            <button className={styles.btnCancel} onClick={closeEdit}>Odustani</button>
+            <button className={styles.btnCancel} onClick={closeEdit}>{t('cancel')}</button>
             <button className={styles.btnSave} onClick={saveEdit} disabled={saving}>
-              {saving ? 'Čuvanje...' : 'Sačuvaj izmjene'}
+              {saving ? t('saving') : t('spaSaveChanges')}
             </button>
             {saveMsg && (
-              <span className={saveMsg.startsWith('Greška') ? styles.msgError : styles.msgOk}>
+              <span className={saveErr ? styles.msgError : styles.msgOk}>
                 {saveMsg}
               </span>
             )}
@@ -579,47 +587,50 @@ export default function SuperAdminPanel() {
 }
 
 function ThemeDot({ theme, color }) {
+  const { t } = useTranslation('admin')
   // 'brand' = izvedeno iz boje brenda tenanta; ostalo = ugrađene palete.
   if (theme === 'brand') {
-    return <span className={styles.themeDot} style={{ background: color || '#0d7a52' }} title="Tema: Brend" />
+    return <span className={styles.themeDot} style={{ background: color || '#0d7a52' }} title={t('sapThemeBrand')} />
   }
-  const t = ADMIN_THEMES.find(x => x.key === (theme || 'green')) || ADMIN_THEMES[0]
+  const th = ADMIN_THEMES.find(x => x.key === (theme || 'green')) || ADMIN_THEMES[0]
   return (
-    <span className={styles.themeDot} style={{ background: t.color }} title={`Tema: ${t.label}`} />
+    <span className={styles.themeDot} style={{ background: th.color }} title={t('sapThemeTitle', { name: t(th.labelKey) })} />
   )
 }
 
-const PLAN_LABELS = {
-  starter:    'Starter',
-  restaurant: 'Restoran',
-  hotel:      'Hotel',
-  hotel_pro:  'Hotel Pro',
-  enterprise: 'Enterprise',
-  pro:        'Restoran', // backward compat
+const PLAN_LABEL_KEYS = {
+  starter:    'sapPlanStarter',
+  restaurant: 'sapPlanRestaurant',
+  hotel:      'sapPlanHotel',
+  hotel_pro:  'sapPlanHotelPro',
+  enterprise: 'sapPlanEnterprise',
+  pro:        'sapPlanRestaurant', // backward compat
 }
 
 function PlanBadge({ rest }) {
+  const { t } = useTranslation('admin')
   if (rest.is_complimentary) {
-    return <span className={`${styles.badge} ${styles.badgeComplimentary}`}>🎁 Complimentary</span>
+    return <span className={`${styles.badge} ${styles.badgeComplimentary}`}>🎁 {t('sapComplimentary')}</span>
   }
   const plan = rest.plan || 'starter'
   const isPaid = ['restaurant', 'hotel', 'hotel_pro', 'enterprise', 'pro'].includes(plan)
   return (
     <span className={`${styles.badge} ${isPaid ? styles.badgePro : styles.badgeStarter}`}>
-      {PLAN_LABELS[plan] || plan}
+      {PLAN_LABEL_KEYS[plan] ? t(PLAN_LABEL_KEYS[plan]) : plan}
     </span>
   )
 }
 
 function StatusBadge({ status }) {
+  const { t } = useTranslation('admin')
   const map = {
-    complimentary: { label: 'Aktivan',     cls: styles.statusActive },
-    pro:           { label: 'Aktivan',     cls: styles.statusActive },
-    trial:         { label: 'Trial',       cls: styles.statusTrial },
-    expired:       { label: 'Istekao',     cls: styles.statusExpired },
-    suspended:     { label: 'Suspendovan', cls: styles.statusSuspended },
-    starter:       { label: 'Starter',     cls: styles.statusStarter },
+    complimentary: { labelKey: 'sapStActive',    cls: styles.statusActive },
+    pro:           { labelKey: 'sapStActive',    cls: styles.statusActive },
+    trial:         { labelKey: 'sapStTrial',     cls: styles.statusTrial },
+    expired:       { labelKey: 'sapStExpired',   cls: styles.statusExpired },
+    suspended:     { labelKey: 'sapStSuspended', cls: styles.statusSuspended },
+    starter:       { labelKey: 'sapStStarter',   cls: styles.statusStarter },
   }
-  const { label, cls } = map[status] || map.starter
-  return <span className={`${styles.statusPill} ${cls}`}>{label}</span>
+  const { labelKey, cls } = map[status] || map.starter
+  return <span className={`${styles.statusPill} ${cls}`}>{t(labelKey)}</span>
 }
