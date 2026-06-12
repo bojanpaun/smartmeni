@@ -1,4 +1,5 @@
 import { useState, useRef } from 'react'
+import { useTranslation } from 'react-i18next'
 import { supabase } from '../../../lib/supabase'
 import { usePlatform } from '../../../context/PlatformContext'
 import styles from './LogoUpload.module.css'
@@ -6,6 +7,7 @@ import styles from './LogoUpload.module.css'
 // `embedded` — kad se renderuje unutar druge stranice (npr. Brend), sakrij vlastiti
 // header i page padding (kontejner ih daje).
 export default function LogoUpload({ embedded = false }) {
+  const { t } = useTranslation('admin')
   const { restaurant, setRestaurant } = usePlatform()
   const [preview, setPreview] = useState(null)
   const [file, setFile] = useState(null)
@@ -22,11 +24,11 @@ export default function LogoUpload({ embedded = false }) {
     const f = e.target.files[0]
     if (!f) return
     if (!['image/jpeg', 'image/png', 'image/webp'].includes(f.type)) {
-      setError('Podržani formati: JPG, PNG, WebP')
+      setError(t('luErrFormat'))
       return
     }
     if (f.size > 2 * 1024 * 1024) {
-      setError('Maksimalna veličina fajla je 2MB')
+      setError(t('luErrSize'))
       return
     }
     setError(null)
@@ -58,14 +60,14 @@ export default function LogoUpload({ embedded = false }) {
       setSaved(true)
       setTimeout(() => setSaved(false), 3000)
     } catch (err) {
-      setError('Greška pri uploadu. Pokušaj ponovo.')
+      setError(t('luErrUpload'))
     } finally {
       setUploading(false)
     }
   }
 
   const handleRemove = async () => {
-    if (!restaurant || !confirm('Ukloniti logo?')) return
+    if (!restaurant || !confirm(t('luConfirmRemove'))) return
     await supabase.from('restaurants').update({ logo_url: null }).eq('id', restaurant.id)
     setRestaurant({ ...restaurant, logo_url: null })
     setPreview(null)
@@ -83,9 +85,9 @@ export default function LogoUpload({ embedded = false }) {
     <div className={`${styles.page} ${embedded ? styles.embedded : ''}`}>
       {!embedded && (
         <div className={styles.header}>
-          <h1 className={styles.title}>Logo restorana</h1>
+          <h1 className={styles.title}>{t('luTitle')}</h1>
           <p className={styles.subtitle}>
-            Logo se prikazuje u guest meniju i admin panelu. Preporučen format: kvadratni, min 200×200px.
+            {t('luSubtitle')}
           </p>
         </div>
       )}
@@ -95,46 +97,46 @@ export default function LogoUpload({ embedded = false }) {
 
           {/* Preview — uvijek vidljiv, sa oba oblika */}
           <div className={styles.previewSection}>
-            <div className={styles.sectionLabel}>Kako će izgledati</div>
+            <div className={styles.sectionLabel}>{t('luHowItLooks')}</div>
             <div className={styles.previewRow}>
               <div className={styles.previewItem}>
-                <div className={styles.previewLabel}>Guest meni</div>
+                <div className={styles.previewLabel}>{t('luGuestMenu')}</div>
                 <div className={styles.previewCircle}>
                   {displayImg
                     ? <img src={displayImg} alt="Logo" className={styles.previewImg} />
                     : <span className={styles.previewInitial}>{restInitial}</span>
                   }
                 </div>
-                <div className={styles.previewHint}>Krug u headeru</div>
+                <div className={styles.previewHint}>{t('luCircleHeader')}</div>
               </div>
               <div className={styles.previewItem}>
-                <div className={styles.previewLabel}>Admin panel</div>
+                <div className={styles.previewLabel}>{t('luAdminPanel')}</div>
                 <div className={styles.previewSquare}>
                   {displayImg
                     ? <img src={displayImg} alt="Logo" className={styles.previewImg} />
                     : <span className={styles.previewInitial}>{restInitial}</span>
                   }
                 </div>
-                <div className={styles.previewHint}>Kvadrat u sidebaru</div>
+                <div className={styles.previewHint}>{t('luSquareSidebar')}</div>
               </div>
               <div className={styles.previewItem}>
-                <div className={styles.previewLabel}>Topbar (mali)</div>
+                <div className={styles.previewLabel}>{t('luTopbarSmall')}</div>
                 <div className={styles.previewTiny}>
                   {displayImg
                     ? <img src={displayImg} alt="Logo" className={styles.previewImg} />
                     : <span className={styles.previewInitialTiny}>{restInitial}</span>
                   }
                 </div>
-                <div className={styles.previewHint}>26px u headeru</div>
+                <div className={styles.previewHint}>{t('lu26Header')}</div>
               </div>
             </div>
 
             {/* Badge koji pokazuje da je ovo novi preview */}
             {preview && (
-              <div className={styles.previewBadge}>👆 Preview novog loga — još nije sačuvan</div>
+              <div className={styles.previewBadge}>👆 {t('luPreviewBadge')}</div>
             )}
             {currentLogo && !preview && (
-              <div className={styles.currentBadge}>✓ Trenutni logo je aktivan</div>
+              <div className={styles.currentBadge}>✓ {t('luCurrentActive')}</div>
             )}
           </div>
 
@@ -142,10 +144,10 @@ export default function LogoUpload({ embedded = false }) {
           {preview ? (
             <div className={styles.actionRow}>
               <button className={styles.saveBtn} onClick={handleUpload} disabled={uploading}>
-                {uploading ? 'Upload u toku...' : 'Sačuvaj logo'}
+                {uploading ? t('amUploadInProgress') : t('luSaveLogo')}
               </button>
               <button className={styles.cancelBtn} onClick={handleCancel}>
-                Odustani
+                {t('cancel')}
               </button>
             </div>
           ) : (
@@ -161,9 +163,9 @@ export default function LogoUpload({ embedded = false }) {
             >
               <div className={styles.dropIcon}>🖼️</div>
               <div className={styles.dropText}>
-                {currentLogo ? 'Klikni da promijeniš logo' : 'Klikni ili prevuci fajl ovdje'}
+                {currentLogo ? t('luClickChange') : t('luClickDrop')}
               </div>
-              <div className={styles.dropHint}>JPG, PNG, WebP · Max 2MB</div>
+              <div className={styles.dropHint}>{t('luFormats')}</div>
               <input
                 ref={inputRef}
                 type="file"
@@ -176,48 +178,48 @@ export default function LogoUpload({ embedded = false }) {
 
           {currentLogo && !preview && (
             <button className={styles.removeBtn} onClick={handleRemove}>
-              × Ukloni trenutni logo
+              × {t('luRemoveCurrent')}
             </button>
           )}
 
           {error && <div className={styles.error}>{error}</div>}
-          {saved && <div className={styles.success}>✓ Logo je sačuvan i odmah je vidljiv gostima!</div>}
+          {saved && <div className={styles.success}>✓ {t('luSaved')}</div>}
         </div>
 
         {/* Info kolona */}
         <div className={styles.infoCol}>
           <div className={styles.infoCard}>
-            <div className={styles.infoTitle}>Gdje se logo koristi</div>
+            <div className={styles.infoTitle}>{t('luWhereUsed')}</div>
             <div className={styles.infoItem}>
               <span className={styles.infoIcon}>🍽️</span>
               <div>
-                <div className={styles.infoItemTitle}>Guest meni</div>
-                <div className={styles.infoItemDesc}>Krug u zaglavlju menija koji gosti vide na telefonu</div>
+                <div className={styles.infoItemTitle}>{t('luGuestMenu')}</div>
+                <div className={styles.infoItemDesc}>{t('luGuestMenuDesc')}</div>
               </div>
             </div>
             <div className={styles.infoItem}>
               <span className={styles.infoIcon}>⚙️</span>
               <div>
-                <div className={styles.infoItemTitle}>Admin panel</div>
-                <div className={styles.infoItemDesc}>Kvadrat pored naziva restorana u sidebaru i headeru</div>
+                <div className={styles.infoItemTitle}>{t('luAdminPanel')}</div>
+                <div className={styles.infoItemDesc}>{t('luAdminPanelDesc')}</div>
               </div>
             </div>
             <div className={styles.infoItem}>
               <span className={styles.infoIcon}>📧</span>
               <div>
-                <div className={styles.infoItemTitle}>Email notifikacije</div>
-                <div className={styles.infoItemDesc}>Uključuje se u email porukama koje šalje sistem</div>
+                <div className={styles.infoItemTitle}>{t('luEmailNotif')}</div>
+                <div className={styles.infoItemDesc}>{t('luEmailNotifDesc')}</div>
               </div>
             </div>
           </div>
 
           <div className={styles.tipsCard}>
-            <div className={styles.tipsTitle}>💡 Savjeti</div>
+            <div className={styles.tipsTitle}>💡 {t('luTips')}</div>
             <ul className={styles.tipsList}>
-              <li>Kvadratni format (1:1) izgleda najbolje</li>
-              <li>Bijela ili providna pozadina preporučena</li>
-              <li>Minimum 200×200px za oštar prikaz</li>
-              <li>Logo se automatski prilagođava veličini</li>
+              <li>{t('luTip1')}</li>
+              <li>{t('luTip2')}</li>
+              <li>{t('luTip3')}</li>
+              <li>{t('luTip4')}</li>
             </ul>
           </div>
         </div>
