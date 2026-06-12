@@ -4,11 +4,21 @@ import { LANGUAGE_CODES, DEFAULT_LANG, isReady } from './languages'
 
 const STORAGE_KEY = 'sm_lang'
 
-// Primarni jezici (me/en) su EAGER (bundlovani → instant prvi paint, svaki namespace).
-// Ostali jezici su LAZY (zaseban Vite chunk po fajlu → bundle budžet ostaje mali).
-// Dodavanje namespace-a = samo dodaj locale JSON fajlove; ništa se ovdje ne mijenja.
-const eager = import.meta.glob(['./locales/me/*.json', './locales/en/*.json'], { eager: true })
-const lazy = import.meta.glob(['./locales/*/*.json', '!./locales/me/*.json', '!./locales/en/*.json'])
+// Primarni jezici (me/en) su EAGER (bundlovani → instant prvi paint) — ALI samo javni
+// namespace-i. `admin` je velik (~1100 ključeva) i treba se SAMO na /admin rutama, pa ide
+// LAZY i za me/en — inače bi naduvao inicijalni JS koji se učitava na SVAKOJ (i javnoj)
+// stranici i probio size-limit budžet. Ostali jezici su LAZY u cjelini (chunk po fajlu).
+// Dodavanje javnog namespace-a = samo dodaj locale JSON; ništa se ovdje ne mijenja.
+// Dodavanje NOVOG velikog admin-only namespace-a = dodaj ga u oba `!...` izuzetka ispod
+// (eager) i u `lazyAdmin` (lazy), po uzoru na `admin`.
+const eager = import.meta.glob(
+  ['./locales/me/*.json', './locales/en/*.json', '!./locales/me/admin.json', '!./locales/en/admin.json'],
+  { eager: true },
+)
+// Lazy mapa: svi ne-me/en fajlovi + eksplicitno me/admin i en/admin (koji su izbačeni iz eager-a).
+const lazyOthers = import.meta.glob(['./locales/*/*.json', '!./locales/me/*.json', '!./locales/en/*.json'])
+const lazyAdmin = import.meta.glob(['./locales/me/admin.json', './locales/en/admin.json'])
+const lazy = { ...lazyOthers, ...lazyAdmin }
 
 // Sastavi statičke resurse iz eager mape: { me: { common, booking, ... }, en: {...} }.
 const resources = {}
