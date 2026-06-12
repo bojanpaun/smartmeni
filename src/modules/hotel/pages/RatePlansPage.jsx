@@ -1,4 +1,5 @@
 import { useState, useEffect } from 'react'
+import { useTranslation } from 'react-i18next'
 import { usePlatform } from '../../../context/PlatformContext'
 import { useRatePlans } from '../hooks/useRatePlans'
 import { supabase } from '../../../lib/supabase'
@@ -8,10 +9,10 @@ import styles from './Hotel.module.css'
 import rp from './RatePlans.module.css'
 
 const CANCEL_OPTIONS = [
-  { value: 'flexible',       label: 'Fleksibilna — besplatno do 24h' },
-  { value: 'moderate',       label: 'Umjerena — besplatno do 5 dana' },
-  { value: 'strict',         label: 'Stroga — 50% refund do 7 dana' },
-  { value: 'non_refundable', label: 'Bez povrata' },
+  { value: 'flexible',       labelKey: 'rplCancelFlexible' },
+  { value: 'moderate',       labelKey: 'rplCancelModerate' },
+  { value: 'strict',         labelKey: 'rplCancelStrict' },
+  { value: 'non_refundable', labelKey: 'rplCancelNone' },
 ]
 
 const BLANK_PLAN = {
@@ -35,6 +36,7 @@ const BLANK_PLAN = {
 
 export default function RatePlansPage() {
   const { restaurant } = usePlatform()
+  const { t } = useTranslation('admin')
   const { ratePlans, loading, refetch } = useRatePlans(restaurant?.id)
 
   const [roomTypes, setRoomTypes] = useState([])
@@ -114,13 +116,13 @@ export default function RatePlansPage() {
   }
 
   const handleSave = async () => {
-    if (!form.name.trim()) return toast.error('Naziv je obavezan')
+    if (!form.name.trim()) return toast.error(t('htNameRequired'))
     if (form.plan_type === 'package') {
-      if (!form.room_type_id) return toast.error('Odaberite tip sobe')
-      if (!form.price_per_night) return toast.error('Cijena je obavezna')
+      if (!form.room_type_id) return toast.error(t('rplSelectRoomTypeErr'))
+      if (!form.price_per_night) return toast.error(t('rplPriceRequired'))
     }
     if (form.plan_type === 'seasonal') {
-      if (!form.multiplier || isNaN(parseFloat(form.multiplier))) return toast.error('Multiplikator je obavezan')
+      if (!form.multiplier || isNaN(parseFloat(form.multiplier))) return toast.error(t('rplMultiplierRequired'))
       const { data: existing } = await supabase
         .from('rate_plans')
         .select('id, name, applies_from, applies_until')
@@ -135,7 +137,7 @@ export default function RatePlansPage() {
         return (eu === null || nf === null || nf <= eu) &&
                (nu === null || ef === null || ef <= nu)
       })
-      if (conflict) toast(`Upozorenje: Preklapanje sa "${conflict.name}". Primjenjivaće se viši multiplikator.`, { icon: '⚠️', duration: 5000 })
+      if (conflict) toast(t('rplOverlapWarn', { name: conflict.name }), { icon: '⚠️', duration: 5000 })
     }
 
     setSaving(true)
@@ -186,7 +188,7 @@ export default function RatePlansPage() {
     }
 
     setSaving(false)
-    if (saveError) return toast.error(saveError.message ?? 'Greška pri čuvanju')
+    if (saveError) return toast.error(saveError.message ?? t('htSaveErr'))
 
     // Sinhronizuj rate_plan_rooms (samo za package planove)
     if (form.plan_type === 'package' && planId) {
@@ -198,16 +200,16 @@ export default function RatePlansPage() {
       }
     }
 
-    toast.success(editing ? 'Plan ažuriran' : 'Plan dodan')
+    toast.success(editing ? t('rplPlanUpdated') : t('rplPlanAdded'))
     setShowForm(false)
     refetch()
   }
 
   const handleDelete = async (id) => {
-    if (!window.confirm('Obrisati ovaj plan?')) return
+    if (!window.confirm(t('rplDeletePlanConfirm'))) return
     const { error } = await supabase.from('rate_plans').delete().eq('id', id)
-    if (error) return toast.error('Greška pri brisanju')
-    toast.success('Plan obrisan')
+    if (error) return toast.error(t('htDeleteErr'))
+    toast.success(t('rplPlanDeleted'))
     refetch()
   }
 
@@ -220,21 +222,21 @@ export default function RatePlansPage() {
 
   const handleSaveSeason = async () => {
     const { planId, data, editing: sid } = seasonForm
-    if (!data.start_date || !data.end_date || !data.price_per_night) return toast.error('Datum i cijena su obavezni')
+    if (!data.start_date || !data.end_date || !data.price_per_night) return toast.error(t('rplSeasonRequired'))
     const payload = { ...data, price_per_night: parseFloat(data.price_per_night), rate_plan_id: planId, restaurant_id: restaurant.id }
     const { error } = sid
       ? await supabase.from('seasonal_rates').update(payload).eq('id', sid)
       : await supabase.from('seasonal_rates').insert(payload)
-    if (error) return toast.error('Greška pri čuvanju')
-    toast.success(sid ? 'Sezona ažurirana' : 'Sezona dodana')
+    if (error) return toast.error(t('htSaveErr'))
+    toast.success(sid ? t('rplSeasonUpdated') : t('rplSeasonAdded'))
     setSeasonForm(null)
     refetch()
   }
 
   const handleDeleteSeason = async (id) => {
-    if (!window.confirm('Obrisati ovu sezonu?')) return
+    if (!window.confirm(t('rplDeleteSeasonConfirm'))) return
     await supabase.from('seasonal_rates').delete().eq('id', id)
-    toast.success('Sezona obrisana')
+    toast.success(t('rplSeasonDeleted'))
     refetch()
   }
 
@@ -247,17 +249,17 @@ export default function RatePlansPage() {
     <div className={styles.page}>
       <div className={styles.header}>
         <div>
-          <h1 className={styles.title}>Cjenovni planovi</h1>
-          <p className={styles.subtitle}>Paketi po tipu sobe i sezonski multiplikatori</p>
+          <h1 className={styles.title}>{t('rplTitle')}</h1>
+          <p className={styles.subtitle}>{t('rplSubtitle')}</p>
         </div>
-        <button className={styles.btnPrimary} onClick={openNew}>+ Novi plan</button>
+        <button className={styles.btnPrimary} onClick={openNew}>+ {t('rplNewPlan')}</button>
       </div>
 
       {/* ── FORM ── */}
       {showForm && (
         <div className={rp.formPanel}>
           <div className={rp.formHeader}>
-            <span className={rp.formTitle}>{editing ? `Uredi: ${editing.name}` : 'Novi plan'}</span>
+            <span className={rp.formTitle}>{editing ? t('rplEditPlan', { name: editing.name }) : t('rplNewPlan')}</span>
             <button className={rp.formClose} onClick={() => setShowForm(false)}>✕</button>
           </div>
 
@@ -268,47 +270,47 @@ export default function RatePlansPage() {
               onClick={() => f('plan_type', 'package')}
               type="button"
             >
-              Paket (fiksna cijena)
+              {t('rplTypePackage')}
             </button>
             <button
               className={`${rp.typeBtn} ${form.plan_type === 'seasonal' ? rp.typeBtnActive : ''}`}
               onClick={() => f('plan_type', 'seasonal')}
               type="button"
             >
-              Sezonski multiplikator
+              {t('rplTypeSeasonal')}
             </button>
           </div>
 
           {form.plan_type === 'seasonal' && (
             <p className={rp.typeHint}>
-              Multiplikator 1.3 = sve cijene +30% za odabrani period. Primjenjuje se na base_price i sve pakete.
+              {t('rplSeasonalHint')}
             </p>
           )}
 
           <div className={rp.formGrid}>
             <div className={rp.field}>
-              <label>Naziv</label>
+              <label>{t('htFieldName')}</label>
               <input value={form.name} onChange={e => f('name', e.target.value)}
                 placeholder={form.plan_type === 'package' ? 'npr. Sa doručkom' : 'npr. Ljetna sezona'} />
             </div>
             <div className={rp.field}>
-              <label>Opis (opciono)</label>
+              <label>{t('rplDescOptional')}</label>
               <input value={form.description} onChange={e => f('description', e.target.value)} />
             </div>
 
             {/* Package fields */}
             {form.plan_type === 'package' && (<>
               <div className={rp.field}>
-                <label>Tip sobe *</label>
+                <label>{t('htRoomTypeShort')} *</label>
                 <select value={form.room_type_id} onChange={e => { f('room_type_id', e.target.value); f('selected_rooms', []) }}>
-                  <option value="">— Odaberi tip sobe —</option>
+                  <option value="">{t('rplSelectRoomType')}</option>
                   {roomTypes.map(rt => (
                     <option key={rt.id} value={rt.id}>{rt.name}</option>
                   ))}
                 </select>
               </div>
               <div className={rp.field}>
-                <label>Cijena po noći (€) *</label>
+                <label>{t('htFieldPricePerNight')} *</label>
                 <input type="number" min="0" step="0.01" value={form.price_per_night}
                   onChange={e => f('price_per_night', e.target.value)} placeholder="0.00" />
               </div>
@@ -317,11 +319,11 @@ export default function RatePlansPage() {
               {form.room_type_id && roomsForType.length > 0 && (
                 <div className={rp.fieldFull}>
                   <label>
-                    Ograniči na specifične sobe
-                    <span className={rp.labelOptional}> (opciono)</span>
+                    {t('rplLimitRooms')}
+                    <span className={rp.labelOptional}> {t('rplOptional')}</span>
                   </label>
                   <p className={rp.fieldHint}>
-                    Ako nijedna soba nije odabrana, plan važi za sve sobe tipa. Ako su odabrane sobe sve zauzete — plan se ne nudi na online bookingu.
+                    {t('rplLimitRoomsHint')}
                   </p>
                   <div className={rp.roomCheckboxes}>
                     {roomsForType.map(room => (
@@ -334,7 +336,7 @@ export default function RatePlansPage() {
                           checked={form.selected_rooms.includes(room.id)}
                           onChange={() => toggleRoom(room.id)}
                         />
-                        <span>Soba {room.room_number}{room.floor ? `, sprat ${room.floor}` : ''}</span>
+                        <span>{t('htRoomNum', { num: room.room_number })}{room.floor ? t('rplFloorSuffix', { n: room.floor }) : ''}</span>
                       </label>
                     ))}
                   </div>
@@ -342,28 +344,28 @@ export default function RatePlansPage() {
               )}
 
               <div className={rp.field}>
-                <label>Min. boravak (noći)</label>
+                <label>{t('rplMinStay')}</label>
                 <input type="number" min="1" value={form.min_stay} onChange={e => f('min_stay', e.target.value)} />
               </div>
               <div className={rp.field}>
-                <label>Max. boravak (opciono)</label>
-                <input type="number" min="1" value={form.max_stay} onChange={e => f('max_stay', e.target.value)} placeholder="Neograničeno" />
+                <label>{t('rplMaxStay')}</label>
+                <input type="number" min="1" value={form.max_stay} onChange={e => f('max_stay', e.target.value)} placeholder={t('rplUnlimited')} />
               </div>
               <div className={rp.field}>
-                <label>Politika otkazivanja</label>
+                <label>{t('rplCancelPolicy')}</label>
                 <select value={form.cancellation_policy} onChange={e => f('cancellation_policy', e.target.value)}>
-                  {CANCEL_OPTIONS.map(o => <option key={o.value} value={o.value}>{o.label}</option>)}
+                  {CANCEL_OPTIONS.map(o => <option key={o.value} value={o.value}>{t(o.labelKey)}</option>)}
                 </select>
               </div>
               <div className={rp.field}>
-                <label>Način plaćanja</label>
+                <label>{t('rplPaymentMethod')}</label>
                 <select value={form.payment_type} onChange={e => f('payment_type', e.target.value)}>
-                  <option value="online">Online (PayPal)</option>
-                  <option value="on_arrival">Na recepciji</option>
+                  <option value="online">{t('rplPayOnline')}</option>
+                  <option value="on_arrival">{t('rplPayOnArrival')}</option>
                 </select>
               </div>
               <div className={rp.field}>
-                <label>Min. dana unaprijed (opciono)</label>
+                <label>{t('rplAdvanceDays')}</label>
                 <input type="number" min="0" value={form.advance_booking_days}
                   onChange={e => f('advance_booking_days', e.target.value)} placeholder="0 = odmah" />
               </div>
@@ -371,7 +373,7 @@ export default function RatePlansPage() {
                 <label className={rp.toggleRow} style={{ marginTop: 4 }}>
                   <span className={`${rp.toggle} ${form.breakfast_included ? rp.toggleOn : rp.toggleOff}`}
                     onClick={() => f('breakfast_included', !form.breakfast_included)} />
-                  <span>🍳 Doručak uključen u cijenu</span>
+                  <span>🍳 {t('rplBreakfastIncluded')}</span>
                 </label>
               </div>
             </>)}
@@ -379,17 +381,17 @@ export default function RatePlansPage() {
             {/* Seasonal fields */}
             {form.plan_type === 'seasonal' && (<>
               <div className={rp.field}>
-                <label>Multiplikator *</label>
+                <label>{t('rplMultiplier')}</label>
                 <input type="number" min="0.1" max="10" step="0.01" value={form.multiplier}
                   onChange={e => f('multiplier', e.target.value)} placeholder="1.30" />
               </div>
               <div className={rp.field} />
               <div className={rp.field}>
-                <label>Važi od (opciono)</label>
+                <label>{t('rplAppliesFrom')}</label>
                 <input type="date" value={form.applies_from} onChange={e => f('applies_from', e.target.value)} />
               </div>
               <div className={rp.field}>
-                <label>Važi do (opciono)</label>
+                <label>{t('rplAppliesUntil')}</label>
                 <input type="date" value={form.applies_until} onChange={e => f('applies_until', e.target.value)} />
               </div>
             </>)}
@@ -398,13 +400,13 @@ export default function RatePlansPage() {
           <label className={rp.toggleRow}>
             <span className={`${rp.toggle} ${form.is_active ? rp.toggleOn : rp.toggleOff}`}
               onClick={() => f('is_active', !form.is_active)} />
-            <span>Plan aktivan</span>
+            <span>{t('rplPlanActive')}</span>
           </label>
 
           <div className={rp.formActions}>
-            <button className={styles.btnSecondary} onClick={() => setShowForm(false)}>Odustani</button>
+            <button className={styles.btnSecondary} onClick={() => setShowForm(false)}>{t('cancel')}</button>
             <button className={styles.btnPrimary} onClick={handleSave} disabled={saving}>
-              {saving ? 'Čuvanje...' : 'Sačuvaj'}
+              {saving ? t('saving') : t('save')}
             </button>
           </div>
         </div>
@@ -412,14 +414,14 @@ export default function RatePlansPage() {
 
       {/* ── PACKAGES section ── */}
       <div className={rp.sectionHeader}>
-        <span className={rp.sectionTitle}>Paketi</span>
-        <span className={rp.sectionHint}>Fiksna cijena po tipu sobe</span>
+        <span className={rp.sectionTitle}>{t('rplPackages')}</span>
+        <span className={rp.sectionHint}>{t('rplPackagesHint')}</span>
       </div>
 
       {packages.length === 0 && !showForm ? (
         <div className={rp.empty}>
           <div className={rp.emptyIcon}>🏷️</div>
-          <p>Nema paketa. Dodajte "Samo soba", "Sa doručkom" i sl. po svakom tipu sobe.</p>
+          <p>{t('rplNoPackages')}</p>
         </div>
       ) : (
         <div className={rp.planList}>
@@ -434,67 +436,67 @@ export default function RatePlansPage() {
                   <div className={rp.planInfo}>
                     <div className={rp.planName}>
                       {plan.name}
-                      {!plan.room_type_id && <span className={rp.badgeWarn}>Nije vezano za sobu</span>}
-                      {!plan.is_active && <span className={rp.badge}>Neaktivan</span>}
+                      {!plan.room_type_id && <span className={rp.badgeWarn}>{t('rplNotLinkedRoom')}</span>}
+                      {!plan.is_active && <span className={rp.badge}>{t('psInactive')}</span>}
                     </div>
                     {plan.description && <div className={rp.planDesc}>{plan.description}</div>}
                     <div className={rp.planMeta}>
                       {rtName && <span className={rp.planRoomType}>{rtName}</span>}
                       {linkedRooms && (
-                        <span className={rp.planRooms}>Sobe: {linkedRooms}</span>
+                        <span className={rp.planRooms}>{t('rplRoomsList', { rooms: linkedRooms })}</span>
                       )}
-                      <span className={rp.planPrice}>€{Number(plan.price_per_night).toFixed(2)}/noć</span>
+                      <span className={rp.planPrice}>{t('htPerNight', { price: Number(plan.price_per_night).toFixed(2) })}</span>
                       <span className={rp.planDot}>·</span>
-                      <span>Min. {plan.min_stay} {plan.min_stay === 1 ? 'noć' : 'noći'}</span>
+                      <span>{plan.min_stay === 1 ? t('rplMinNight', { n: plan.min_stay }) : t('rplMinNights', { n: plan.min_stay })}</span>
                       <span className={rp.planDot}>·</span>
-                      <span>{CANCEL_OPTIONS.find(o => o.value === plan.cancellation_policy)?.label.split('—')[0].trim()}</span>
+                      <span>{(() => { const o = CANCEL_OPTIONS.find(o => o.value === plan.cancellation_policy); return o ? t(o.labelKey).split('—')[0].trim() : '' })()}</span>
                     </div>
                   </div>
                   <div className={rp.planActions}>
-                    <button className={rp.btnEdit} onClick={() => openEdit(plan)}>Uredi</button>
+                    <button className={rp.btnEdit} onClick={() => openEdit(plan)}>{t('htEdit')}</button>
                     <button className={rp.btnExpand} onClick={() => setExpandedPlan(expandedPlan === plan.id ? null : plan.id)}>
-                      {expandedPlan === plan.id ? 'Zatvori' : `Sezone (${plan.seasonal_rates?.length ?? 0})`}
+                      {expandedPlan === plan.id ? t('rplClose') : t('rplSeasons', { n: plan.seasonal_rates?.length ?? 0 })}
                     </button>
-                    <button className={rp.btnDelete} onClick={() => handleDelete(plan.id)}>Obriši</button>
+                    <button className={rp.btnDelete} onClick={() => handleDelete(plan.id)}>{t('htDelete')}</button>
                   </div>
                 </div>
 
                 {expandedPlan === plan.id && (
                   <div className={rp.seasonSection}>
                     <div className={rp.seasonHeader}>
-                      <span className={rp.seasonTitle}>Sezonske cijene (override)</span>
-                      <button className={rp.btnAddSeason} onClick={() => openNewSeason(plan.id)}>+ Dodaj</button>
+                      <span className={rp.seasonTitle}>{t('rplSeasonalPrices')}</span>
+                      <button className={rp.btnAddSeason} onClick={() => openNewSeason(plan.id)}>+ {t('rplAddShort')}</button>
                     </div>
                     {seasonForm?.planId === plan.id && (
                       <div className={rp.seasonForm}>
                         <div className={rp.seasonFormGrid}>
-                          <div className={rp.field}><label>Naziv</label>
+                          <div className={rp.field}><label>{t('htFieldName')}</label>
                             <input value={seasonForm.data.label} onChange={e => setSeasonForm(f => ({ ...f, data: { ...f.data, label: e.target.value } }))} placeholder="Ljetna sezona" /></div>
-                          <div className={rp.field}><label>Cijena/noć (€)</label>
+                          <div className={rp.field}><label>{t('rplPriceNight')}</label>
                             <input type="number" min="0" step="0.01" value={seasonForm.data.price_per_night} onChange={e => setSeasonForm(f => ({ ...f, data: { ...f.data, price_per_night: e.target.value } }))} /></div>
-                          <div className={rp.field}><label>Od</label>
+                          <div className={rp.field}><label>{t('rplFrom')}</label>
                             <input type="date" value={seasonForm.data.start_date} onChange={e => setSeasonForm(f => ({ ...f, data: { ...f.data, start_date: e.target.value } }))} /></div>
-                          <div className={rp.field}><label>Do</label>
+                          <div className={rp.field}><label>{t('rplTo')}</label>
                             <input type="date" value={seasonForm.data.end_date} onChange={e => setSeasonForm(f => ({ ...f, data: { ...f.data, end_date: e.target.value } }))} /></div>
                         </div>
                         <div className={rp.seasonFormActions}>
-                          <button className={styles.btnSecondary} onClick={() => setSeasonForm(null)}>Odustani</button>
-                          <button className={styles.btnPrimary} onClick={handleSaveSeason}>Sačuvaj</button>
+                          <button className={styles.btnSecondary} onClick={() => setSeasonForm(null)}>{t('cancel')}</button>
+                          <button className={styles.btnPrimary} onClick={handleSaveSeason}>{t('save')}</button>
                         </div>
                       </div>
                     )}
                     {plan.seasonal_rates?.length === 0 && !seasonForm && (
-                      <p className={rp.seasonEmpty}>Nema sezonskih override-a.</p>
+                      <p className={rp.seasonEmpty}>{t('rplNoSeasonOverrides')}</p>
                     )}
                     {plan.seasonal_rates?.map(s => (
                       <div key={s.id} className={rp.seasonRow}>
                         <div className={rp.seasonRowInfo}>
-                          <span className={rp.seasonRowLabel}>{s.label || 'Sezona'}</span>
+                          <span className={rp.seasonRowLabel}>{s.label || t('rplSeason')}</span>
                           <span className={rp.seasonRowDates}>{s.start_date} — {s.end_date}</span>
                         </div>
-                        <span className={rp.seasonRowPrice}>€{Number(s.price_per_night).toFixed(2)}/noć</span>
+                        <span className={rp.seasonRowPrice}>{t('htPerNight', { price: Number(s.price_per_night).toFixed(2) })}</span>
                         <div className={rp.seasonRowActions}>
-                          <button className={rp.btnEdit} onClick={() => openEditSeason(plan.id, s)}>Uredi</button>
+                          <button className={rp.btnEdit} onClick={() => openEditSeason(plan.id, s)}>{t('htEdit')}</button>
                           <button className={rp.btnDelete} onClick={() => handleDeleteSeason(s.id)}>✕</button>
                         </div>
                       </div>
@@ -509,14 +511,14 @@ export default function RatePlansPage() {
 
       {/* ── SEASONAL MULTIPLIERS section ── */}
       <div className={rp.sectionHeader} style={{ marginTop: 32 }}>
-        <span className={rp.sectionTitle}>Sezonski multiplikatori</span>
-        <span className={rp.sectionHint}>Hotel-wide — primjenjuje se na sve sobe i pakete</span>
+        <span className={rp.sectionTitle}>{t('rplSeasonalMultipliers')}</span>
+        <span className={rp.sectionHint}>{t('rplSeasonalMultHint')}</span>
       </div>
 
       {seasonals.length === 0 ? (
         <div className={rp.empty}>
           <div className={rp.emptyIcon}>📅</div>
-          <p>Nema sezonskih multiplikatora. Bez multiplikatora koriste se osnovne cijene.</p>
+          <p>{t('rplNoSeasonalMult')}</p>
         </div>
       ) : (
         <div className={rp.planList}>
@@ -526,7 +528,7 @@ export default function RatePlansPage() {
                 <div className={rp.planInfo}>
                   <div className={rp.planName}>
                     {plan.name}
-                    {!plan.is_active && <span className={rp.badge}>Neaktivan</span>}
+                    {!plan.is_active && <span className={rp.badge}>{t('psInactive')}</span>}
                   </div>
                   {plan.description && <div className={rp.planDesc}>{plan.description}</div>}
                   <div className={rp.planMeta}>
@@ -543,13 +545,13 @@ export default function RatePlansPage() {
                       </>
                     )}
                     {!plan.applies_from && !plan.applies_until && (
-                      <><span className={rp.planDot}>·</span><span>Uvijek aktivan</span></>
+                      <><span className={rp.planDot}>·</span><span>{t('rplAlwaysActive')}</span></>
                     )}
                   </div>
                 </div>
                 <div className={rp.planActions}>
-                  <button className={rp.btnEdit} onClick={() => openEdit(plan)}>Uredi</button>
-                  <button className={rp.btnDelete} onClick={() => handleDelete(plan.id)}>Obriši</button>
+                  <button className={rp.btnEdit} onClick={() => openEdit(plan)}>{t('htEdit')}</button>
+                  <button className={rp.btnDelete} onClick={() => handleDelete(plan.id)}>{t('htDelete')}</button>
                 </div>
               </div>
             </div>
