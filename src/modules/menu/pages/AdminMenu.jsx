@@ -660,8 +660,13 @@ function WaiterMessagesEditor({ restaurant, setRestaurant }) {
     { sr: 'Skloni prazne tanjire', en: 'Clear the table', icon: '🍽️' },
   ]
 
-  const [messages, setMessages] = useState(
-    restaurant.waiter_messages || DEFAULT_MESSAGES
+  // Stabilan id po poruci (ključ za content_translations). Normalizuj staru formu
+  // ({sr,en} bez id) → {id, icon, sr}; `sr` je izvor (crnogorski), `en` se odbacuje.
+  const newId = () => (crypto.randomUUID?.() ?? `${Date.now()}-${Math.random().toString(36).slice(2)}`)
+  const [messages, setMessages] = useState(() =>
+    (restaurant.waiter_messages || DEFAULT_MESSAGES).map(m => ({
+      id: m.id || newId(), icon: m.icon || '🔔', sr: m.sr ?? m.text ?? '',
+    }))
   )
   const [saving, setSaving] = useState(false)
   const [msg, setMsg] = useState('')
@@ -673,7 +678,7 @@ function WaiterMessagesEditor({ restaurant, setRestaurant }) {
   }
 
   const add = () => {
-    setMessages(prev => [...prev, { sr: '', en: '', icon: '🔔' }])
+    setMessages(prev => [...prev, { id: newId(), sr: '', icon: '🔔' }])
   }
 
   const remove = (i) => {
@@ -684,6 +689,9 @@ function WaiterMessagesEditor({ restaurant, setRestaurant }) {
     setSaving(true)
     await supabase.from('restaurants').update({ waiter_messages: messages }).eq('id', restaurant.id)
     setRestaurant(r => ({ ...r, waiter_messages: messages }))
+    // AI prevod poruka na ostale jezike (fire-and-forget; gost vidi prevod čim stigne).
+    const items = messages.filter(m => m.sr?.trim()).map(m => ({ entity_type: 'waiter_message', entity_id: m.id, field: 'text', text: m.sr }))
+    translateContent(restaurant.id, items).catch(() => {})
     setSaving(false)
     setMsg(t('saved'))
     setTimeout(() => setMsg(''), 2000)
@@ -693,7 +701,7 @@ function WaiterMessagesEditor({ restaurant, setRestaurant }) {
     <div className={styles.card} style={{ marginTop: 16 }}>
       <div className={styles.cardTitle}>{t('amWaiterMsgTitle')}</div>
       <div style={{ fontSize: 12, color: '#8a9e96', marginBottom: 14 }}>
-        {t('amWaiterMsgHint')}
+        {t('amWaiterMsgHint')} {t('amWaiterMsgNote')}
       </div>
       <div style={{ display: 'flex', flexDirection: 'column', gap: 8 }}>
         {messages.map((m, i) => (
@@ -708,13 +716,7 @@ function WaiterMessagesEditor({ restaurant, setRestaurant }) {
             <input
               value={m.sr}
               onChange={e => update(i, 'sr', e.target.value)}
-              placeholder={`${t('amTextField')} (SR)`}
-              style={{ flex: 1, padding: '8px 10px', border: '1px solid #d0e4dc', borderRadius: 8, fontSize: 13, fontFamily: 'DM Sans, sans-serif', outline: 'none' }}
-            />
-            <input
-              value={m.en}
-              onChange={e => update(i, 'en', e.target.value)}
-              placeholder={`${t('amTextField')} (EN)`}
+              placeholder={t('amTextField')}
               style={{ flex: 1, padding: '8px 10px', border: '1px solid #d0e4dc', borderRadius: 8, fontSize: 13, fontFamily: 'DM Sans, sans-serif', outline: 'none' }}
             />
             <button

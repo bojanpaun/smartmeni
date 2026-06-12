@@ -2589,5 +2589,6 @@
   "amTransSave": "Ruaj",
   "amTransSaving": "Po ruaj…",
   "amTransSaved": "U ruajt",
-  "amTransAutoNote": "AI përkthen automatikisht emrin dhe përshkrimin në gjuhët e tjera. Korrigjimin individual e bën përmes 🌐 në listën e pjatave."
+  "amTransAutoNote": "AI përkthen automatikisht emrin dhe përshkrimin në gjuhët e tjera. Korrigjimin individual e bën përmes 🌐 në listën e pjatave.",
+  "amWaiterMsgNote": "Shkruan vetëm në malazisht — AI përkthen për mysafirët në gjuhët e tjera."
 }

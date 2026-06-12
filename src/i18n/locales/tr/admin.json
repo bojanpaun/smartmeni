@@ -2589,5 +2589,6 @@
   "amTransSave": "Kaydet",
   "amTransSaving": "Kaydediliyor…",
   "amTransSaved": "Kaydedildi",
-  "amTransAutoNote": "AI adı ve açıklamayı diğer dillere otomatik çevirir. Tek tek düzeltmeyi yemek listesindeki 🌐 ile yaparsın."
+  "amTransAutoNote": "AI adı ve açıklamayı diğer dillere otomatik çevirir. Tek tek düzeltmeyi yemek listesindeki 🌐 ile yaparsın.",
+  "amWaiterMsgNote": "Sadece Karadağca gir — AI misafirler için diğer dillere çevirir."
 }

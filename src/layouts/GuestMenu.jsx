@@ -836,7 +836,7 @@ export default function Menu() {
                 onClick={() => sendWaiterRequest(opt.sr)}
               >
                 <span className={styles.waiterOptIcon}>{opt.icon}</span>
-                <span>{isEn ? (opt.en || opt.sr) : opt.sr}</span>
+                <span>{tr('waiter_message', opt.id, 'text', isEn ? (opt.en || opt.sr) : opt.sr)}</span>
               </button>
             ))}
           </div>

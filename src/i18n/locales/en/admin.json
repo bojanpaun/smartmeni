@@ -2589,5 +2589,6 @@
   "amTransSave": "Save",
   "amTransSaving": "Saving…",
   "amTransSaved": "Saved",
-  "amTransAutoNote": "AI automatically translates the name and description into the other languages. Fine-tune individually via 🌐 in the item list."
+  "amTransAutoNote": "AI automatically translates the name and description into the other languages. Fine-tune individually via 🌐 in the item list.",
+  "amWaiterMsgNote": "Enter only in Montenegrin — AI translates to other languages for guests."
 }

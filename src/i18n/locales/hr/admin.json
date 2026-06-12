@@ -2589,5 +2589,6 @@
   "amTransSave": "Spremi",
   "amTransSaving": "Spremam…",
   "amTransSaved": "Spremljeno",
-  "amTransAutoNote": "AI automatski prevodi naziv i opis na ostale jezike. Pojedinačnu korekciju radiš preko 🌐 u listi jela."
+  "amTransAutoNote": "AI automatski prevodi naziv i opis na ostale jezike. Pojedinačnu korekciju radiš preko 🌐 u listi jela.",
+  "amWaiterMsgNote": "Unosiš samo na crnogorskom — AI prevodi gostima na ostale jezike."
 }
