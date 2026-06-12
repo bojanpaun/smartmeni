@@ -1,4 +1,5 @@
 import { useState, useEffect } from 'react'
+import { useTranslation } from 'react-i18next'
 import { supabase } from '../../../lib/supabase'
 import styles from './GuestApp.module.css'
 
@@ -19,7 +20,9 @@ const APPT_STATUS = {
   no_show:    { label: 'No-show',   labelEn: 'No-show',    color: '#ef9f27' },
 }
 
-export default function GuestSpaTab({ restaurantId, session, isEn }) {
+export default function GuestSpaTab({ restaurantId, session }) {
+  const { t, i18n } = useTranslation('guestapp')
+  const isEn = i18n.language === 'en' // za fmtDateEn/CAT_LABEL_EN/APPT_STATUS lookupe
   const [view, setView] = useState('overview') // overview | book
   const [step, setStep] = useState(0)
 
@@ -140,7 +143,7 @@ export default function GuestSpaTab({ restaurantId, session, isEn }) {
 
     setBooking(false)
     if (error || data?.error) {
-      setBookError(data?.error || (isEn ? 'Booking error. Please try again.' : 'Greška pri rezervaciji. Pokušajte ponovo.'))
+      setBookError(data?.error || t('spaBookingError'))
       return
     }
     setConfirmation({ service: selectedService, slot: selectedSlot, date })
@@ -159,10 +162,10 @@ export default function GuestSpaTab({ restaurantId, session, isEn }) {
     <div>
       <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', marginBottom: 16 }}>
         <div style={{ fontSize: 16, fontWeight: 700, color: '#111827' }}>
-          {isEn ? '✨ Spa & Wellness' : '✨ Spa & Wellness'}
+          ✨ Spa & Wellness
         </div>
         <button className={styles.btnPrimary} onClick={startBooking} style={{ padding: '9px 18px', fontSize: 13 }}>
-          {isEn ? '+ Book treatment' : '+ Rezerviši tretman'}
+          {t('spaBookTreatment')}
         </button>
       </div>
 
@@ -172,13 +175,13 @@ export default function GuestSpaTab({ restaurantId, session, isEn }) {
         <div className={styles.emptyState}>
           <div style={{ fontSize: 40, marginBottom: 10 }}>💆</div>
           <div style={{ fontWeight: 600, color: '#374151', marginBottom: 6 }}>
-            {isEn ? 'No spa appointments yet' : 'Nemate spa termina'}
+            {t('spaNoAppts')}
           </div>
           <div style={{ fontSize: 13, color: '#9ca3af', marginBottom: 16 }}>
-            {isEn ? 'Book a treatment and enjoy your stay.' : 'Rezervišite tretman i uživajte u boravku.'}
+            {t('spaNoApptsDesc')}
           </div>
           <button className={styles.btnPrimary} onClick={startBooking} style={{ padding: '10px 24px' }}>
-            {isEn ? 'Browse treatments' : 'Pogledaj tretmane'}
+            {t('spaBrowse')}
           </button>
         </div>
       ) : (
@@ -205,12 +208,11 @@ export default function GuestSpaTab({ restaurantId, session, isEn }) {
                   <div style={{ fontSize: 13, color: '#6b7280', marginTop: 2 }}>🚪 {appt.spa_rooms.name}</div>
                 )}
                 <div style={{ fontSize: 13, color: '#0d7a52', fontWeight: 600, marginTop: 6 }}>
-                  €{parseFloat(appt.price).toFixed(2)} — {isEn ? 'billed to folio' : 'na hotelski folio'}
+                  €{parseFloat(appt.price).toFixed(2)} — {t('spaBilledToFolio')}
                 </div>
                 {appt.status === 'completed' && (
                   <ReviewRow
                     apptId={appt.id}
-                    isEn={isEn}
                     done={reviewedIds.has(appt.id)}
                     onDone={() => setReviewedIds(s => new Set(s).add(appt.id))}
                   />
@@ -219,7 +221,7 @@ export default function GuestSpaTab({ restaurantId, session, isEn }) {
             )
           })}
           <button className={styles.btnSecondary} onClick={startBooking} style={{ width: '100%', marginTop: 8, padding: '11px' }}>
-            {isEn ? '+ Book another treatment' : '+ Rezerviši još jedan tretman'}
+            {t('spaBookAnother')}
           </button>
         </div>
       )}
@@ -233,7 +235,7 @@ export default function GuestSpaTab({ restaurantId, session, isEn }) {
     <div className={styles.emptyState} style={{ padding: '32px 16px' }}>
       <div style={{ fontSize: 52, marginBottom: 12 }}>✅</div>
       <div style={{ fontWeight: 700, fontSize: 18, color: '#111827', marginBottom: 8 }}>
-        {isEn ? 'Treatment booked!' : 'Termin rezervisan!'}
+        {t('spaBooked')}
       </div>
       <div style={{ fontSize: 14, color: '#374151', marginBottom: 4 }}>
         {confirmation.service.name}
@@ -242,10 +244,10 @@ export default function GuestSpaTab({ restaurantId, session, isEn }) {
         {isEn ? fmtDateEn(confirmation.date) : fmtDate(confirmation.date)} · {confirmation.slot.slot_start?.slice(0,5)}
       </div>
       <div style={{ fontSize: 13, color: '#0d7a52', fontWeight: 600, marginBottom: 24 }}>
-        {isEn ? 'Added to your folio.' : 'Dodano na vaš hotelski folio.'}
+        {t('spaAddedToFolio')}
       </div>
       <button className={styles.btnPrimary} onClick={cancelBooking} style={{ padding: '11px 28px' }}>
-        {isEn ? '← Back to spa' : '← Nazad na spa'}
+        {t('spaBackToSpa')}
       </button>
     </div>
   )
@@ -262,7 +264,7 @@ export default function GuestSpaTab({ restaurantId, session, isEn }) {
           ←
         </button>
         <div style={{ fontWeight: 700, fontSize: 15, color: '#111827' }}>
-          {isEn ? 'Book a treatment' : 'Rezerviši tretman'}
+          {t('spaBookTreatmentTitle')}
         </div>
       </div>
 
@@ -281,7 +283,7 @@ export default function GuestSpaTab({ restaurantId, session, isEn }) {
       {step === 0 && (
         <div>
           <div style={{ fontSize: 14, fontWeight: 600, color: '#374151', marginBottom: 12 }}>
-            {isEn ? 'Choose a treatment' : 'Odaberite tretman'}
+            {t('spaChooseTreatment')}
           </div>
           {/* Category filter */}
           <div style={{ display: 'flex', gap: 6, flexWrap: 'wrap', marginBottom: 14 }}>
@@ -295,7 +297,7 @@ export default function GuestSpaTab({ restaurantId, session, isEn }) {
                   color: catFilter === cat ? '#0d7a52' : '#6b7280',
                   fontSize: 12, fontWeight: 600, cursor: 'pointer', fontFamily: 'inherit',
                 }}>
-                {cat === 'all' ? (isEn ? 'All' : 'Sve') : `${CAT_ICON[cat] || '✨'} ${isEn ? CAT_LABEL_EN[cat] || cat : CAT_LABEL[cat] || cat}`}
+                {cat === 'all' ? t('spaAll') : `${CAT_ICON[cat] || '✨'} ${isEn ? CAT_LABEL_EN[cat] || cat : CAT_LABEL[cat] || cat}`}
               </button>
             ))}
           </div>
@@ -322,7 +324,7 @@ export default function GuestSpaTab({ restaurantId, session, isEn }) {
             style={{ width: '100%', marginTop: 8, padding: '13px', opacity: selectedService ? 1 : 0.4 }}
             disabled={!selectedService}
             onClick={() => setStep(1)}>
-            {isEn ? 'Continue →' : 'Nastavi →'}
+            {`${t('continue')} →`}
           </button>
         </div>
       )}
@@ -331,12 +333,12 @@ export default function GuestSpaTab({ restaurantId, session, isEn }) {
       {step === 1 && (
         <div>
           <div style={{ fontSize: 14, fontWeight: 600, color: '#374151', marginBottom: 12 }}>
-            {isEn ? 'Select date & therapist' : 'Odaberite datum i terapeuta'}
+            {t('spaSelectDateTherapist')}
           </div>
 
           <div style={{ background: '#fff', border: '1px solid #e5e7eb', borderRadius: 12, padding: 16, marginBottom: 12 }}>
             <div style={{ fontSize: 12, fontWeight: 600, color: '#6b7280', marginBottom: 8 }}>
-              {isEn ? 'DATE' : 'DATUM'}
+              {t('spaDate')}
             </div>
             <input type="date" value={date} min={addDays(TODAY, 1)}
               onChange={e => setDate(e.target.value)}
@@ -346,15 +348,15 @@ export default function GuestSpaTab({ restaurantId, session, isEn }) {
 
           <div style={{ background: '#fff', border: '1px solid #e5e7eb', borderRadius: 12, padding: 16, marginBottom: 16 }}>
             <div style={{ fontSize: 12, fontWeight: 600, color: '#6b7280', marginBottom: 8 }}>
-              {isEn ? 'THERAPIST PREFERENCE' : 'TERAPEUT (opciono)'}
+              {t('spaTherapistPref')}
             </div>
             <select value={therapistPref} onChange={e => setTherapistPref(e.target.value)}
               style={{ width: '100%', padding: '10px 12px', border: '1.5px solid #e5e7eb',
                 borderRadius: 10, fontSize: 14, fontFamily: 'inherit', outline: 'none', background: '#fff' }}>
-              <option value="any">{isEn ? 'No preference (first available)' : 'Bez preferencije (prvi slobodni)'}</option>
-              {therapists.map(t => (
-                <option key={t.id} value={t.id}>
-                  {t.staff?.first_name} {t.staff?.last_name}
+              <option value="any">{t('spaNoPref')}</option>
+              {therapists.map(th => (
+                <option key={th.id} value={th.id}>
+                  {th.staff?.first_name} {th.staff?.last_name}
                 </option>
               ))}
             </select>
@@ -363,13 +365,13 @@ export default function GuestSpaTab({ restaurantId, session, isEn }) {
           {/* Summary */}
           <div style={{ background: '#f0fdf4', border: '1px solid #86efac', borderRadius: 12, padding: 14, marginBottom: 16 }}>
             <div style={{ fontSize: 13, fontWeight: 700, color: '#15803d', marginBottom: 4 }}>{selectedService.name}</div>
-            <div style={{ fontSize: 12, color: '#16a34a' }}>⏱ {selectedService.duration_minutes} min · €{parseFloat(selectedService.price).toFixed(2)} · {isEn ? 'folio' : 'folio'}</div>
+            <div style={{ fontSize: 12, color: '#16a34a' }}>⏱ {selectedService.duration_minutes} min · €{parseFloat(selectedService.price).toFixed(2)} · folio</div>
           </div>
 
           <div style={{ display: 'flex', gap: 10 }}>
-            <button className={styles.btnSecondary} style={{ flex: 1, padding: '12px' }} onClick={() => setStep(0)}>← {isEn ? 'Back' : 'Nazad'}</button>
+            <button className={styles.btnSecondary} style={{ flex: 1, padding: '12px' }} onClick={() => setStep(0)}>← {t('spaBack')}</button>
             <button className={styles.btnPrimary} style={{ flex: 2, padding: '12px' }} onClick={() => setStep(2)}>
-              {isEn ? 'See available times →' : 'Slobodni termini →'}
+              {t('spaSeeTimes')}
             </button>
           </div>
         </div>
@@ -379,7 +381,7 @@ export default function GuestSpaTab({ restaurantId, session, isEn }) {
       {step === 2 && (
         <div>
           <div style={{ fontSize: 14, fontWeight: 600, color: '#374151', marginBottom: 4 }}>
-            {isEn ? 'Available times' : 'Slobodni termini'}
+            {t('spaAvailableTimes')}
           </div>
           <div style={{ fontSize: 12, color: '#9ca3af', marginBottom: 14 }}>
             {isEn ? fmtDateEn(date) : fmtDate(date)}
@@ -387,16 +389,16 @@ export default function GuestSpaTab({ restaurantId, session, isEn }) {
 
           {slotsLoading ? (
             <div style={{ textAlign: 'center', padding: '32px 0', color: '#9ca3af' }}>
-              {isEn ? 'Loading...' : 'Učitavanje...'}
+              {t('spaLoading')}
             </div>
           ) : slots.length === 0 ? (
             <div className={styles.emptyState} style={{ padding: '24px 0' }}>
               <div style={{ fontSize: 32, marginBottom: 8 }}>🗓️</div>
               <div style={{ fontSize: 14, color: '#6b7280' }}>
-                {isEn ? 'No available times for this date.' : 'Nema slobodnih termina za ovaj datum.'}
+                {t('spaNoTimes')}
               </div>
               <button className={styles.btnSecondary} style={{ marginTop: 12, padding: '9px 20px' }} onClick={() => setStep(1)}>
-                {isEn ? 'Change date' : 'Promijeni datum'}
+                {t('spaChangeDate')}
               </button>
             </div>
           ) : (
@@ -420,10 +422,10 @@ export default function GuestSpaTab({ restaurantId, session, isEn }) {
 
           {slots.length > 0 && (
             <div style={{ display: 'flex', gap: 10 }}>
-              <button className={styles.btnSecondary} style={{ flex: 1, padding: '12px' }} onClick={() => setStep(1)}>← {isEn ? 'Back' : 'Nazad'}</button>
+              <button className={styles.btnSecondary} style={{ flex: 1, padding: '12px' }} onClick={() => setStep(1)}>← {t('spaBack')}</button>
               <button className={styles.btnPrimary} style={{ flex: 2, padding: '12px', opacity: selectedSlot ? 1 : 0.4 }}
                 disabled={!selectedSlot} onClick={() => setStep(3)}>
-                {isEn ? 'Continue →' : 'Nastavi →'}
+                {`${t('continue')} →`}
               </button>
             </div>
           )}
@@ -434,7 +436,7 @@ export default function GuestSpaTab({ restaurantId, session, isEn }) {
       {step === 3 && selectedSlot && (
         <div>
           <div style={{ fontSize: 14, fontWeight: 600, color: '#374151', marginBottom: 14 }}>
-            {isEn ? 'Confirm booking' : 'Potvrdite rezervaciju'}
+            {t('spaConfirmBooking')}
           </div>
 
           {/* Summary card */}
@@ -451,11 +453,11 @@ export default function GuestSpaTab({ restaurantId, session, isEn }) {
               display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
               <div>
                 <div style={{ fontWeight: 700, fontSize: 18, color: '#15803d' }}>€{parseFloat(selectedSlot.price || selectedService.price).toFixed(2)}</div>
-                <div style={{ fontSize: 11, color: '#16a34a' }}>🧾 {isEn ? 'Billed to room folio' : 'Na hotelski folio sobe'}</div>
+                <div style={{ fontSize: 11, color: '#16a34a' }}>🧾 {t('spaBilledToRoomFolio')}</div>
               </div>
               <div style={{ background: '#fff', border: '1px solid #86efac', borderRadius: 10, padding: '6px 14px',
                 fontSize: 12, fontWeight: 600, color: '#0d7a52' }}>
-                {isEn ? 'No upfront payment' : 'Bez plaćanja unaprijed'}
+                {t('spaNoUpfront')}
               </div>
             </div>
           </div>
@@ -463,7 +465,7 @@ export default function GuestSpaTab({ restaurantId, session, isEn }) {
           {/* Guest info */}
           <div style={{ background: '#fff', border: '1px solid #e5e7eb', borderRadius: 12, padding: 14, marginBottom: 14 }}>
             <div style={{ fontSize: 12, fontWeight: 600, color: '#6b7280', marginBottom: 8 }}>
-              {isEn ? 'GUEST' : 'GOST'}
+              {t('spaGuest')}
             </div>
             <div style={{ fontSize: 14, fontWeight: 600, color: '#111827' }}>{session.guest_name}</div>
           </div>
@@ -472,7 +474,7 @@ export default function GuestSpaTab({ restaurantId, session, isEn }) {
           <textarea
             value={guestNotes}
             onChange={e => setGuestNotes(e.target.value)}
-            placeholder={isEn ? 'Special requests or notes (optional)...' : 'Posebni zahtjevi ili napomene (opciono)...'}
+            placeholder={t('spaNotesPlaceholder')}
             rows={3}
             style={{ width: '100%', boxSizing: 'border-box', padding: '10px 12px',
               border: '1.5px solid #e5e7eb', borderRadius: 10, fontSize: 13,
@@ -487,10 +489,10 @@ export default function GuestSpaTab({ restaurantId, session, isEn }) {
           )}
 
           <div style={{ display: 'flex', gap: 10 }}>
-            <button className={styles.btnSecondary} style={{ flex: 1, padding: '12px' }} onClick={() => setStep(2)}>← {isEn ? 'Back' : 'Nazad'}</button>
+            <button className={styles.btnSecondary} style={{ flex: 1, padding: '12px' }} onClick={() => setStep(2)}>← {t('spaBack')}</button>
             <button className={styles.btnPrimary} style={{ flex: 2, padding: '12px' }}
               onClick={handleConfirm} disabled={booking}>
-              {booking ? (isEn ? 'Booking...' : 'Rezervacija...') : (isEn ? '✓ Confirm booking' : '✓ Potvrdi rezervaciju')}
+              {booking ? t('spaBookingProgress') : t('spaConfirmBookingBtn')}
             </button>
           </div>
         </div>
@@ -501,14 +503,15 @@ export default function GuestSpaTab({ restaurantId, session, isEn }) {
 
 // Ocjena završenog termina (gost). submit_spa_review je SECURITY DEFINER pa ne
 // treba write pristup spa_reviews tabeli.
-function ReviewRow({ apptId, isEn, done, onDone }) {
+function ReviewRow({ apptId, done, onDone }) {
+  const { t } = useTranslation('guestapp')
   const [rating, setRating] = useState(0)
   const [busy, setBusy] = useState(false)
   const [sent, setSent] = useState(done)
 
   if (sent) return (
     <div style={{ fontSize: 12, color: '#0d7a52', marginTop: 8 }}>
-      ★ {isEn ? 'Thanks for your rating!' : 'Hvala na ocjeni!'}
+      ★ {t('spaThanksRating')}
     </div>
   )
 
@@ -521,7 +524,7 @@ function ReviewRow({ apptId, isEn, done, onDone }) {
 
   return (
     <div style={{ marginTop: 8, display: 'flex', alignItems: 'center', gap: 4 }}>
-      <span style={{ fontSize: 12, color: '#6b7280', marginRight: 4 }}>{isEn ? 'Rate:' : 'Ocijeni:'}</span>
+      <span style={{ fontSize: 12, color: '#6b7280', marginRight: 4 }}>{t('spaRate')}</span>
       {[1, 2, 3, 4, 5].map(n => (
         <button
           key={n}

@@ -1,5 +1,6 @@
 import { useState, useEffect } from 'react'
 import { useParams } from 'react-router-dom'
+import { useTranslation } from 'react-i18next'
 import { supabase } from '../../../lib/supabase'
 import { goToPaymentSession } from '../../../lib/payments'
 import LanguageSwitcher from '../../../i18n/LanguageSwitcher'
@@ -40,8 +41,8 @@ function nightsBetween(ci, co) {
 
 export default function GuestAppPage() {
   const { slug } = useParams()
-  const [lang, setLang] = useState(() => localStorage.getItem('sm_lang') || 'me')
-  const isEn = lang === 'en'
+  const { t, i18n } = useTranslation('guestapp')
+  const isEn = i18n.language === 'en'
 
   const [restaurant, setRestaurant] = useState(null)
   const [loadingRest, setLoadingRest] = useState(true)
@@ -115,7 +116,7 @@ export default function GuestAppPage() {
   const handleLogin = async (e) => {
     e.preventDefault()
     if (!loginCode.trim() || !loginEmail.trim()) {
-      return setLoginError(isEn ? 'Please fill in all fields' : 'Popunite sva polja')
+      return setLoginError(t('errFillFields'))
     }
     setLoginLoading(true)
     setLoginError('')
@@ -128,9 +129,7 @@ export default function GuestAppPage() {
 
     setLoginLoading(false)
     if (error || !data?.length) {
-      return setLoginError(isEn
-        ? 'Reservation not found. Check your code and email.'
-        : 'Rezervacija nije pronađena. Provjerite kod i email.')
+      return setLoginError(t('errNotFound'))
     }
 
     const res = data[0]
@@ -170,7 +169,7 @@ export default function GuestAppPage() {
     })
     setFolioPayLoading(false)
     if (error || (!data?.redirectUrl && !data?.formPost)) {
-      alert(isEn ? 'Payment error. Please contact reception.' : 'Greška pri plaćanju. Obratite se recepciji.')
+      alert(t('paymentErrorAlert'))
       return
     }
     goToPaymentSession(data)
@@ -217,7 +216,7 @@ export default function GuestAppPage() {
     return (
       <div className={styles.notFound}>
         <div className={styles.notFoundIcon}>🏨</div>
-        <h2>{isEn ? 'Hotel not found' : 'Hotel nije pronađen'}</h2>
+        <h2>{t('notFoundHotel')}</h2>
       </div>
     )
   }
@@ -230,31 +229,23 @@ export default function GuestAppPage() {
           <div className={styles.loginHeaderTop}>
             {restaurant.logo_url && <img src={restaurant.logo_url} alt={restaurant.name} className={styles.loginLogo} />}
             <div className={styles.loginHotelName}>{restaurant.name}</div>
-            <button className={styles.langBtn} onClick={() => {
-              const next = lang === 'me' ? 'en' : 'me'
-              setLang(next)
-              localStorage.setItem('sm_lang', next)
-            }}>
-              🌐 {lang === 'me' ? 'ENG' : 'MNE'}
-            </button>
+            <LanguageSwitcher variant="dark" />
           </div>
           <p className={styles.loginSub}>
-            {isEn ? 'Guest App — Online Services' : 'Guest App — Online usluge'}
+            {t('loginSubtitle')}
           </p>
         </div>
 
         <div className={styles.loginCard}>
           <h2 className={styles.loginTitle}>
-            {isEn ? 'Access your reservation' : 'Pristupite svojoj rezervaciji'}
+            {t('loginTitle')}
           </h2>
           <p className={styles.loginHint}>
-            {isEn
-              ? 'Enter the 8-character code from your confirmation email and your email address.'
-              : 'Unesite 8-slovni kod iz e-maila potvrde i vašu email adresu.'}
+            {t('loginHint')}
           </p>
           <form onSubmit={handleLogin} className={styles.loginForm}>
             <div className={styles.field}>
-              <label>{isEn ? 'Reservation code' : 'Kod rezervacije'}</label>
+              <label>{t('reservationCode')}</label>
               <input
                 value={loginCode}
                 onChange={e => setLoginCode(e.target.value.toUpperCase())}
@@ -276,9 +267,7 @@ export default function GuestAppPage() {
             </div>
             {loginError && <p className={styles.loginError}>{loginError}</p>}
             <button className={styles.btnPrimary} type="submit" disabled={loginLoading}>
-              {loginLoading
-                ? (isEn ? 'Searching...' : 'Pretraga...')
-                : (isEn ? 'Continue →' : 'Nastavi →')}
+              {loginLoading ? t('searching') : `${t('continue')} →`}
             </button>
           </form>
         </div>
@@ -293,11 +282,11 @@ export default function GuestAppPage() {
   const isCheckedIn = session.status === 'checked_in'
 
   const TABS = [
-    { id: 'stay',     icon: '🏠', label: isEn ? 'Stay'     : 'Boravak'  },
-    { id: 'hotel',    icon: '🏨', label: isEn ? 'Hotel'    : 'Hotel'    },
-    { id: 'spa',      icon: '💆', label: isEn ? 'Spa'      : 'Spa'      },
-    { id: 'requests', icon: '📋', label: isEn ? 'Requests' : 'Zahtjevi' },
-    { id: 'folio',    icon: '🧾', label: isEn ? 'Folio'    : 'Folio'    },
+    { id: 'stay',     icon: '🏠', label: t('tabStay')     },
+    { id: 'hotel',    icon: '🏨', label: t('tabHotel')    },
+    { id: 'spa',      icon: '💆', label: t('tabSpa')      },
+    { id: 'requests', icon: '📋', label: t('tabRequests') },
+    { id: 'folio',    icon: '🧾', label: t('tabFolio')    },
   ]
 
   return (
@@ -312,14 +301,8 @@ export default function GuestAppPage() {
           </div>
         </div>
         <div className={styles.appHeaderRight}>
-          <button className={styles.langBtn} onClick={() => {
-            const next = lang === 'me' ? 'en' : 'me'
-            setLang(next)
-            localStorage.setItem('sm_lang', next)
-          }}>
-            🌐 {lang === 'me' ? 'ENG' : 'MNE'}
-          </button>
-          <button className={styles.logoutBtn} onClick={handleLogout} title={isEn ? 'Log out' : 'Odjava'}>✕</button>
+          <LanguageSwitcher />
+          <button className={styles.logoutBtn} onClick={handleLogout} title={t('logout')}>✕</button>
         </div>
       </div>
 
@@ -330,26 +313,24 @@ export default function GuestAppPage() {
         {tab === 'stay' && (
           <div className={styles.stayTab}>
             <div className={`${styles.statusBadge} ${isCheckedIn ? styles.statusIn : styles.statusPending}`}>
-              {isCheckedIn
-                ? (isEn ? '✅ Checked in' : '✅ Check-in obavljen')
-                : (isEn ? '⏳ Arriving soon' : '⏳ Dolazak uskoro')}
+              {isCheckedIn ? t('checkedIn') : t('arrivingSoon')}
             </div>
 
             <div className={styles.stayCard}>
               <div className={styles.stayRoomType}>{session.room_type_name ?? '—'}</div>
               {session.room_number && (
                 <div className={styles.stayRoomNum}>
-                  {isEn ? 'Room' : 'Soba'} <span>{session.room_number}</span>
+                  {t('room')} <span>{session.room_number}</span>
                 </div>
               )}
               <div className={styles.stayDates}>
                 <div className={styles.stayDate}>
-                  <div className={styles.stayDateLabel}>{isEn ? 'Check-in' : 'Dolazak'}</div>
+                  <div className={styles.stayDateLabel}>{t('checkIn')}</div>
                   <div className={styles.stayDateVal}>{fmt(session.check_in_date)}</div>
                 </div>
-                <div className={styles.stayNights}>{nights}<br /><span>{isEn ? (nights === 1 ? 'night' : 'nights') : (nights === 1 ? 'noć' : 'noći')}</span></div>
+                <div className={styles.stayNights}>{nights}<br /><span>{nights === 1 ? t('nightOne') : t('nightOther')}</span></div>
                 <div className={styles.stayDate}>
-                  <div className={styles.stayDateLabel}>{isEn ? 'Check-out' : 'Odlazak'}</div>
+                  <div className={styles.stayDateLabel}>{t('checkOut')}</div>
                   <div className={styles.stayDateVal}>{fmt(session.check_out_date)}</div>
                 </div>
               </div>
@@ -359,17 +340,17 @@ export default function GuestAppPage() {
               <div className={styles.infoItem}>
                 <span className={styles.infoIcon}>👥</span>
                 <div>
-                  <div className={styles.infoLabel}>{isEn ? 'Guests' : 'Gosti'}</div>
+                  <div className={styles.infoLabel}>{t('guests')}</div>
                   <div className={styles.infoVal}>
-                    {session.adults} {isEn ? 'adult(s)' : 'odrasli'}
-                    {session.children > 0 && ` + ${session.children} ${isEn ? 'child(ren)' : 'djece'}`}
+                    {session.adults} {t('adults')}
+                    {session.children > 0 && ` + ${session.children} ${t('children')}`}
                   </div>
                 </div>
               </div>
               <div className={styles.infoItem}>
                 <span className={styles.infoIcon}>💳</span>
                 <div>
-                  <div className={styles.infoLabel}>{isEn ? 'Total' : 'Ukupno'}</div>
+                  <div className={styles.infoLabel}>{t('total')}</div>
                   <div className={styles.infoVal}>€{Number(session.total_amount || 0).toFixed(2)}</div>
                 </div>
               </div>
@@ -377,7 +358,7 @@ export default function GuestAppPage() {
                 <div className={styles.infoItem} style={{ gridColumn: '1 / -1' }}>
                   <span className={styles.infoIcon}>📝</span>
                   <div>
-                    <div className={styles.infoLabel}>{isEn ? 'Special requests' : 'Posebni zahtjevi'}</div>
+                    <div className={styles.infoLabel}>{t('specialRequests')}</div>
                     <div className={styles.infoVal}>{session.special_requests}</div>
                   </div>
                 </div>
@@ -387,11 +368,11 @@ export default function GuestAppPage() {
             <div className={styles.quickActions}>
               <button className={styles.quickBtn} onClick={() => setTab('requests')}>
                 <span>📋</span>
-                {isEn ? 'Send request' : 'Pošalji zahtjev'}
+                {t('quickSendRequest')}
               </button>
               <button className={styles.quickBtn} onClick={() => setTab('folio')}>
                 <span>🧾</span>
-                {isEn ? 'View folio' : 'Pregled folija'}
+                {t('viewFolio')}
               </button>
             </div>
           </div>
@@ -403,7 +384,6 @@ export default function GuestAppPage() {
             <GuestSpaTab
               restaurantId={restaurant.id}
               session={session}
-              isEn={isEn}
             />
           </div>
         )}
@@ -417,7 +397,7 @@ export default function GuestAppPage() {
               <div className={styles.hotelInfoItem}>
                 <span className={styles.hotelInfoIcon}>🕐</span>
                 <div>
-                  <div className={styles.hotelInfoLabel}>{isEn ? 'Check-in / Check-out' : 'Check-in / Check-out'}</div>
+                  <div className={styles.hotelInfoLabel}>{t('hotelCheckInOut')}</div>
                   <div className={styles.hotelInfoVal}>14:00 / 11:00</div>
                 </div>
               </div>
@@ -425,13 +405,13 @@ export default function GuestAppPage() {
                 <span className={styles.hotelInfoIcon}>📶</span>
                 <div>
                   <div className={styles.hotelInfoLabel}>WiFi</div>
-                  <div className={styles.hotelInfoVal}>{isEn ? 'Available in all areas' : 'Dostupan u svim prostorima'}</div>
+                  <div className={styles.hotelInfoVal}>{t('wifiAvailable')}</div>
                 </div>
               </div>
               <div className={styles.hotelInfoItem}>
                 <span className={styles.hotelInfoIcon}>🛎️</span>
                 <div>
-                  <div className={styles.hotelInfoLabel}>{isEn ? 'Reception' : 'Recepcija'}</div>
+                  <div className={styles.hotelInfoLabel}>{t('reception')}</div>
                   <div className={styles.hotelInfoVal}>24/7</div>
                 </div>
               </div>
@@ -439,7 +419,7 @@ export default function GuestAppPage() {
                 <div className={styles.hotelInfoItem}>
                   <span className={styles.hotelInfoIcon}>📞</span>
                   <div>
-                    <div className={styles.hotelInfoLabel}>{isEn ? 'Contact' : 'Kontakt'}</div>
+                    <div className={styles.hotelInfoLabel}>{t('contact')}</div>
                     <div className={styles.hotelInfoVal}>
                       <a href={`tel:${restaurant.phone}`} className={styles.hotelLink}>{restaurant.phone}</a>
                     </div>
@@ -450,7 +430,7 @@ export default function GuestAppPage() {
                 <div className={styles.hotelInfoItem} style={{ alignItems: 'flex-start' }}>
                   <span className={styles.hotelInfoIcon}>ℹ️</span>
                   <div>
-                    <div className={styles.hotelInfoLabel}>{isEn ? 'About' : 'O hotelu'}</div>
+                    <div className={styles.hotelInfoLabel}>{t('about')}</div>
                     <div className={styles.hotelInfoVal}>{restaurant.description}</div>
                   </div>
                 </div>
@@ -462,7 +442,7 @@ export default function GuestAppPage() {
         {/* ── TAB: ZAHTJEVI ── */}
         {tab === 'requests' && (
           <div className={styles.requestsTab}>
-            <h2 className={styles.tabTitle}>{isEn ? 'Send a Request' : 'Pošaljite zahtjev'}</h2>
+            <h2 className={styles.tabTitle}>{t('sendARequest')}</h2>
 
             <form onSubmit={handleSubmitRequest} className={styles.reqForm}>
               <div className={styles.catGrid}>
@@ -483,18 +463,18 @@ export default function GuestAppPage() {
                 className={styles.reqTextarea}
                 value={newReqMsg}
                 onChange={e => setNewReqMsg(e.target.value)}
-                placeholder={isEn ? 'Describe your request...' : 'Opišite vaš zahtjev...'}
+                placeholder={t('describeRequest')}
                 rows={4}
               />
 
               {submitted && (
                 <div className={styles.reqSuccess}>
-                  ✅ {isEn ? 'Request sent! Our staff will respond shortly.' : 'Zahtjev poslan! Osoblje će odgovoriti uskoro.'}
+                  ✅ {t('requestSentMsg')}
                 </div>
               )}
 
               <button className={styles.btnPrimary} type="submit" disabled={submitting || !newReqMsg.trim()}>
-                {submitting ? '...' : (isEn ? 'Send Request' : 'Pošalji zahtjev')}
+                {submitting ? '...' : t('sendRequestBtn')}
               </button>
             </form>
 
@@ -502,7 +482,7 @@ export default function GuestAppPage() {
               <div className={styles.loading}><div className={styles.spinner} /></div>
             ) : requests.length > 0 && (
               <div className={styles.reqHistory}>
-                <div className={styles.reqHistoryTitle}>{isEn ? 'Your requests' : 'Vaši zahtjevi'}</div>
+                <div className={styles.reqHistoryTitle}>{t('yourRequests')}</div>
                 {requests.map(r => {
                   const cat = CATEGORIES.find(c => c.id === r.category)
                   const st = STATUS_CONFIG[r.status] ?? STATUS_CONFIG.pending
@@ -531,14 +511,14 @@ export default function GuestAppPage() {
         {/* ── TAB: FOLIO ── */}
         {tab === 'folio' && (
           <div className={styles.folioTab}>
-            <h2 className={styles.tabTitle}>{isEn ? 'Your Folio' : 'Vaš folio'}</h2>
+            <h2 className={styles.tabTitle}>{t('yourFolio')}</h2>
 
             {folioLoading ? (
               <div className={styles.loading}><div className={styles.spinner} /></div>
             ) : !folio || folio.length === 0 ? (
               <div className={styles.emptyFolio}>
                 <span>🧾</span>
-                <p>{isEn ? 'No charges yet.' : 'Nema stavki na foliju.'}</p>
+                <p>{t('noCharges')}</p>
               </div>
             ) : (
               <>
@@ -558,13 +538,13 @@ export default function GuestAppPage() {
                 </div>
 
                 <div className={styles.folioTotal}>
-                  <span>{isEn ? 'Total' : 'Ukupno'}</span>
+                  <span>{t('total')}</span>
                   <span>€{Number(folio[0]?.folio_total || 0).toFixed(2)}</span>
                 </div>
 
                 {folioPaidSuccess && (
                   <div className={styles.folioPaidBanner}>
-                    ✅ {isEn ? 'Payment received! Your folio has been updated.' : 'Plaćanje primljeno! Folio je ažuriran.'}
+                    ✅ {t('paymentReceived')}
                   </div>
                 )}
 
@@ -574,16 +554,12 @@ export default function GuestAppPage() {
                     onClick={handleFolioPayment}
                     disabled={folioPayLoading}
                   >
-                    {folioPayLoading
-                      ? (isEn ? 'Redirecting...' : 'Preusmjeravanje...')
-                      : (isEn ? '💳 Pay online' : '💳 Plati online')}
+                    {folioPayLoading ? t('redirecting') : t('payOnline')}
                   </button>
                 )}
 
                 <p className={styles.folioNote}>
-                  {isEn
-                    ? 'For questions about your folio, please contact reception.'
-                    : 'Za pitanja o foliju, obratite se recepciji.'}
+                  {t('folioNote')}
                 </p>
               </>
             )}
@@ -593,14 +569,14 @@ export default function GuestAppPage() {
 
       {/* Bottom tab bar */}
       <nav className={styles.bottomNav}>
-        {TABS.map(t => (
+        {TABS.map(tabItem => (
           <button
-            key={t.id}
-            className={`${styles.navBtn} ${tab === t.id ? styles.navBtnActive : ''}`}
-            onClick={() => setTab(t.id)}
+            key={tabItem.id}
+            className={`${styles.navBtn} ${tab === tabItem.id ? styles.navBtnActive : ''}`}
+            onClick={() => setTab(tabItem.id)}
           >
-            <span className={styles.navIcon}>{t.icon}</span>
-            <span className={styles.navLabel}>{t.label}</span>
+            <span className={styles.navIcon}>{tabItem.icon}</span>
+            <span className={styles.navLabel}>{tabItem.label}</span>
           </button>
         ))}
       </nav>
