@@ -2579,5 +2579,8 @@
   "sapTranslateAllConfirm": "Перевести контент ВСЕХ арендаторов ({{count}}) на 6 языков? Это может занять время.",
   "sapTranslating": "Перевожу…",
   "sapTranslateDone": "Переведено: {{count}} полей.",
-  "sapTranslateErr": "Ошибка перевода (проверь ANTHROPIC_API_KEY)."
+  "sapTranslateErr": "Ошибка перевода (проверь ANTHROPIC_API_KEY).",
+  "sapTransTestTitle": "Тест AI перевода (сравнение)",
+  "sapTransTestHint": "Введи пример текста и запусти провайдеры для сравнения качества. В базу не пишет.",
+  "sapTransTestPh": "Напр. Рыбный суп с домашними овощами"
 }

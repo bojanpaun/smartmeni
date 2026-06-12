@@ -2579,5 +2579,8 @@
   "sapTranslateAllConfirm": "Të përkthehet përmbajtja e TË GJITHË tenantëve ({{count}}) në 6 gjuhë? Mund të zgjasë.",
   "sapTranslating": "Po përkthej…",
   "sapTranslateDone": "U përkthyen: {{count}} fusha.",
-  "sapTranslateErr": "Gabim në përkthim (kontrollo ANTHROPIC_API_KEY)."
+  "sapTranslateErr": "Gabim në përkthim (kontrollo ANTHROPIC_API_KEY).",
+  "sapTransTestTitle": "Test i përkthimit AI (krahasim)",
+  "sapTransTestHint": "Shkruaj një tekst shembull dhe nis ofruesit për të krahasuar cilësinë. Nuk shkruan në bazë.",
+  "sapTransTestPh": "P.sh. Supë peshku me perime shtëpie"
 }

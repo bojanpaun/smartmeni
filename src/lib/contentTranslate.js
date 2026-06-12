@@ -31,6 +31,17 @@ export async function backfillTenant(restaurantId, langs) {
   return data
 }
 
+// Dry-run prevod jednog primjera zadatim provajderom (anthropic|gemini) — vraća
+// redove [{lang, value}] BEZ upisa u bazu. Superadmin alat za poređenje kvaliteta.
+export async function previewTranslation(text, provider) {
+  if (!text?.trim()) return []
+  const { data, error } = await supabase.functions.invoke('translate-content', {
+    body: { dryRun: true, provider, items: [{ entity_type: 'preview', entity_id: 'preview', field: 'name', text: text.trim() }] },
+  })
+  if (error) throw error
+  return data?.rows ?? []
+}
+
 // Pomoćnik: napravi items niz iz jednog menu_item reda (name + description).
 export function menuItemFields(item) {
   const out = []

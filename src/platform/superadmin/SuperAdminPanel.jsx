@@ -4,7 +4,7 @@ import { useTranslation } from 'react-i18next'
 import { supabase } from '../../lib/supabase'
 import { usePlatform } from '../../context/PlatformContext'
 import { planStatus } from '../../lib/planUtils'
-import { backfillTenant } from '../../lib/contentTranslate'
+import { backfillTenant, previewTranslation } from '../../lib/contentTranslate'
 import { useSortable } from '../../hooks/useSortable'
 import SortableHead from '../../components/shared/SortableHead'
 import styles from './SuperAdminPanel.module.css'
@@ -64,6 +64,11 @@ export default function SuperAdminPanel() {
   const [saveMsg, setSaveMsg] = useState('')
   const [saveErr, setSaveErr] = useState(false)
   const [translatingId, setTranslatingId] = useState(null) // restaurant_id u toku (ili 'all')
+  // Test/poređenje provajdera (dry-run)
+  const [testText, setTestText] = useState('')
+  const [testBusy, setTestBusy] = useState({ anthropic: false, gemini: false })
+  const [testRows, setTestRows] = useState({ anthropic: null, gemini: null })
+  const [testErr, setTestErr] = useState({ anthropic: null, gemini: null })
   const sort = useSortable('name', 'asc')
 
   useEffect(() => {
@@ -251,6 +256,21 @@ export default function SuperAdminPanel() {
     setTimeout(() => setSaveMsg(''), 5000)
   }
 
+  // Dry-run test jednog provajdera (ne upisuje) — za poređenje kvaliteta.
+  const runTest = async (provider) => {
+    if (!testText.trim()) return
+    setTestBusy(b => ({ ...b, [provider]: true }))
+    try {
+      const rows = await previewTranslation(testText, provider)
+      setTestRows(r => ({ ...r, [provider]: rows }))
+      setTestErr(e => ({ ...e, [provider]: null }))
+    } catch (err) {
+      setTestErr(e => ({ ...e, [provider]: String(err?.message || err) }))
+      setTestRows(r => ({ ...r, [provider]: null }))
+    }
+    setTestBusy(b => ({ ...b, [provider]: false }))
+  }
+
   const PAID_PLANS = ['restaurant', 'hotel', 'hotel_pro', 'enterprise', 'pro']
 
   const withStatus = restaurants.map(r => ({ ...r, _status: planStatus(r) }))
@@ -335,6 +355,46 @@ export default function SuperAdminPanel() {
           <div className={styles.statVal} style={stats.pending > 0 ? { color: 'var(--c-warning)' } : undefined}>{stats.pending}</div>
           <div className={styles.statLabel}>⏳ {t('sapPending')}</div>
         </div>
+      </div>
+
+      {/* Test/poređenje AI provajdera (dry-run, ne upisuje u bazu) */}
+      <div style={{ background: 'var(--c-surface)', border: '1px solid var(--c-border)', borderRadius: 12, padding: 16, marginBottom: 16 }}>
+        <div style={{ fontWeight: 600, marginBottom: 4 }}>🧪 {t('sapTransTestTitle')}</div>
+        <div style={{ fontSize: 12, color: 'var(--c-text-muted)', marginBottom: 10 }}>{t('sapTransTestHint')}</div>
+        <div style={{ display: 'flex', gap: 8, flexWrap: 'wrap', alignItems: 'center' }}>
+          <input
+            className={styles.searchInput}
+            style={{ flex: 1, minWidth: 220 }}
+            placeholder={t('sapTransTestPh')}
+            value={testText}
+            onChange={e => setTestText(e.target.value)}
+          />
+          <button className={styles.btnRefresh} onClick={() => runTest('anthropic')} disabled={testBusy.anthropic || !testText.trim()}>
+            {testBusy.anthropic ? t('sapTranslating') : 'Anthropic'}
+          </button>
+          <button className={styles.btnRefresh} onClick={() => runTest('gemini')} disabled={testBusy.gemini || !testText.trim()}>
+            {testBusy.gemini ? t('sapTranslating') : 'Gemini'}
+          </button>
+        </div>
+        {(testRows.anthropic || testRows.gemini || testErr.anthropic || testErr.gemini) && (
+          <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: 12, marginTop: 12 }}>
+            {['anthropic', 'gemini'].map(prov => (
+              <div key={prov} style={{ border: '1px solid var(--c-border)', borderRadius: 10, padding: 10 }}>
+                <div style={{ fontWeight: 600, fontSize: 13, marginBottom: 6, textTransform: 'capitalize' }}>{prov}</div>
+                {testErr[prov] && <div style={{ fontSize: 12, color: 'var(--c-danger)' }}>{testErr[prov]}</div>}
+                {testRows[prov] && testRows[prov].map(r => (
+                  <div key={r.lang} style={{ display: 'flex', gap: 8, fontSize: 13, padding: '2px 0' }}>
+                    <span style={{ fontWeight: 600, color: 'var(--c-text-muted)', minWidth: 28, textTransform: 'uppercase' }}>{r.lang}</span>
+                    <span>{r.value}</span>
+                  </div>
+                ))}
+                {testRows[prov] && testRows[prov].length === 0 && (
+                  <div style={{ fontSize: 12, color: 'var(--c-text-muted)' }}>—</div>
+                )}
+              </div>
+            ))}
+          </div>
+        )}
       </div>
 
       <div className={styles.toolbar}>
