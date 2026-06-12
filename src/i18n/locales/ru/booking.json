@@ -1,0 +1,99 @@
+{
+  "onlineBooking": "Онлайн-бронирование",
+  "hotelNotFound": "Отель не найден",
+  "hotelNotFoundSub": "Проверьте ссылку и попробуйте снова.",
+
+  "steps": {
+    "dates": "Даты",
+    "room": "Номер",
+    "guest": "Данные",
+    "payment": "Оплата",
+    "confirm": "Подтверждение"
+  },
+
+  "date": {
+    "title": "Выберите даты и количество гостей",
+    "checkIn": "Заезд",
+    "checkOut": "Выезд",
+    "adults": "Взрослые",
+    "children": "Дети",
+    "nights_one": "{{count}} ночь",
+    "nights_few": "{{count}} ночи",
+    "nights_other": "{{count}} ночей",
+    "errNoDates": "Выберите даты заезда и выезда",
+    "errCheckOut": "Дата выезда должна быть позже даты заезда",
+    "errSearch": "Ошибка при поиске. Попробуйте снова.",
+    "searching": "Поиск...",
+    "checkAvailability": "Проверить наличие →"
+  },
+
+  "room": {
+    "title": "Доступные номера",
+    "changeDates": "← Изменить даты",
+    "summary": "{{nights}} ночей · {{from}} — {{to}} · {{guests}} гость(ей)",
+    "noRooms": "Нет доступных номеров для выбранных дат и количества гостей.",
+    "changeSearch": "Изменить поиск",
+    "maxGuests": "До {{count}} гостей",
+    "perNight": "за ночь",
+    "total": "итого",
+    "select": "Забронировать →",
+    "selectPackage": "Выбрать пакет →",
+    "close": "Закрыть",
+    "from": "от",
+    "choosePackage": "Выберите пакет:",
+    "noPackages": "Нет доступных пакетов.",
+    "continue": "Продолжить →"
+  },
+
+  "guest": {
+    "title": "Данные гостя",
+    "name": "Имя и фамилия",
+    "nameRequired": "Имя и фамилия *",
+    "email": "E-mail",
+    "emailRequired": "E-mail *",
+    "phone": "Телефон",
+    "requests": "Особые пожелания",
+    "requestsPlaceholder": "Аллергии, поздний заезд, особые пожелания...",
+    "continue": "Перейти к оплате →",
+    "errName": "Имя гостя обязательно",
+    "errEmail": "Введите корректный адрес e-mail"
+  },
+
+  "payment": {
+    "title": "Сводка бронирования",
+    "accommodation": "Проживание",
+    "package": "Пакет",
+    "checkIn": "Заезд",
+    "checkOut": "Выезд",
+    "stay": "Пребывание",
+    "nights_one": "{{count}} ночь",
+    "nights_few": "{{count}} ночи",
+    "nights_other": "{{count}} ночей",
+    "guests": "Гости",
+    "adultsOnly": "{{adults}} взрослых",
+    "adultsAndChildren": "{{adults}} взрослых + {{children}} детей",
+    "guest": "Гость",
+    "email": "E-mail",
+    "total": "Итого",
+    "secureNote": "Оплата безопасна и защищена через PayPal.",
+    "paying": "Подготовка оплаты...",
+    "payNow": "💳  Оплатить через PayPal",
+    "payOnArrival": "🏨  Забронировать — оплатить на ресепшене"
+  },
+
+  "confirm": {
+    "processing": "Обработка платежа, пожалуйста, подождите...",
+    "errorTitle": "Ошибка оплаты",
+    "retry": "Попробуйте снова",
+    "title": "Бронирование подтверждено!",
+    "sub": "Спасибо, <strong>{{name}}</strong>! Подтверждение отправлено на <strong>{{email}}</strong>.",
+    "titleReceived": "Запрос получен!",
+    "subReceived": "Спасибо, <strong>{{name}}</strong>! Ваш запрос получен. Отель скоро подтвердит его — уведомление отправим на <strong>{{email}}</strong>.",
+    "refNum": "Номер брони",
+    "accommodation": "Проживание",
+    "checkIn": "Заезд",
+    "checkOut": "Выезд",
+    "paid": "Оплачено",
+    "backToMenu": "← Вернуться в меню"
+  }
+}

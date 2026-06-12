@@ -1,0 +1,99 @@
+{
+  "onlineBooking": "Online rezervasyon",
+  "hotelNotFound": "Otel bulunamadı",
+  "hotelNotFoundSub": "Bağlantıyı kontrol edip tekrar deneyin.",
+
+  "steps": {
+    "dates": "Tarihler",
+    "room": "Oda",
+    "guest": "Bilgiler",
+    "payment": "Ödeme",
+    "confirm": "Onay"
+  },
+
+  "date": {
+    "title": "Tarihleri ve misafir sayısını seçin",
+    "checkIn": "Giriş",
+    "checkOut": "Çıkış",
+    "adults": "Yetişkin",
+    "children": "Çocuk",
+    "nights_one": "{{count}} gece",
+    "nights_few": "{{count}} gece",
+    "nights_other": "{{count}} gece",
+    "errNoDates": "Giriş ve çıkış tarihlerini seçin",
+    "errCheckOut": "Çıkış tarihi giriş tarihinden sonra olmalıdır",
+    "errSearch": "Arama sırasında hata. Tekrar deneyin.",
+    "searching": "Aranıyor...",
+    "checkAvailability": "Müsaitliği kontrol et →"
+  },
+
+  "room": {
+    "title": "Müsait odalar",
+    "changeDates": "← Tarihleri değiştir",
+    "summary": "{{nights}} gece · {{from}} — {{to}} · {{guests}} misafir",
+    "noRooms": "Seçilen tarihler ve misafir sayısı için müsait oda yok.",
+    "changeSearch": "Aramayı değiştir",
+    "maxGuests": "{{count}} misafire kadar",
+    "perNight": "gecelik",
+    "total": "toplam",
+    "select": "Rezerve et →",
+    "selectPackage": "Paket seç →",
+    "close": "Kapat",
+    "from": "başlangıç",
+    "choosePackage": "Paketi seçin:",
+    "noPackages": "Müsait paket yok.",
+    "continue": "Devam et →"
+  },
+
+  "guest": {
+    "title": "Misafir bilgileri",
+    "name": "Ad ve soyad",
+    "nameRequired": "Ad ve soyad *",
+    "email": "E-posta",
+    "emailRequired": "E-posta *",
+    "phone": "Telefon",
+    "requests": "Özel istekler",
+    "requestsPlaceholder": "Alerjiler, geç giriş, özel istekler...",
+    "continue": "Ödemeye devam et →",
+    "errName": "Misafir adı zorunludur",
+    "errEmail": "Geçerli bir e-posta adresi girin"
+  },
+
+  "payment": {
+    "title": "Rezervasyon özeti",
+    "accommodation": "Konaklama",
+    "package": "Paket",
+    "checkIn": "Giriş",
+    "checkOut": "Çıkış",
+    "stay": "Konaklama süresi",
+    "nights_one": "{{count}} gece",
+    "nights_few": "{{count}} gece",
+    "nights_other": "{{count}} gece",
+    "guests": "Misafirler",
+    "adultsOnly": "{{adults}} yetişkin",
+    "adultsAndChildren": "{{adults}} yetişkin + {{children}} çocuk",
+    "guest": "Misafir",
+    "email": "E-posta",
+    "total": "Toplam",
+    "secureNote": "Ödeme PayPal aracılığıyla güvenli ve korumalıdır.",
+    "paying": "Ödeme hazırlanıyor...",
+    "payNow": "💳  PayPal ile öde",
+    "payOnArrival": "🏨  Rezerve et — resepsiyonda öde"
+  },
+
+  "confirm": {
+    "processing": "Ödeme işleniyor, lütfen bekleyin...",
+    "errorTitle": "Ödeme hatası",
+    "retry": "Tekrar deneyin",
+    "title": "Rezervasyon onaylandı!",
+    "sub": "Teşekkürler, <strong>{{name}}</strong>! Onay <strong>{{email}}</strong> adresine gönderildi.",
+    "titleReceived": "Talep alındı!",
+    "subReceived": "Teşekkürler, <strong>{{name}}</strong>! Talebiniz alındı. Otel yakında onaylayacak — bildirimi <strong>{{email}}</strong> adresine gönderiyoruz.",
+    "refNum": "Rezervasyon no.",
+    "accommodation": "Konaklama",
+    "checkIn": "Giriş",
+    "checkOut": "Çıkış",
+    "paid": "Ödendi",
+    "backToMenu": "← Menüye dön"
+  }
+}

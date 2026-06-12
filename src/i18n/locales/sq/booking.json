@@ -1,0 +1,99 @@
+{
+  "onlineBooking": "Rezervim online",
+  "hotelNotFound": "Hoteli nuk u gjet",
+  "hotelNotFoundSub": "Kontrolloni linkun dhe provoni përsëri.",
+
+  "steps": {
+    "dates": "Datat",
+    "room": "Dhoma",
+    "guest": "Të dhënat",
+    "payment": "Pagesa",
+    "confirm": "Konfirmimi"
+  },
+
+  "date": {
+    "title": "Zgjidhni datat dhe numrin e mysafirëve",
+    "checkIn": "Mbërritja",
+    "checkOut": "Largimi",
+    "adults": "Të rritur",
+    "children": "Fëmijë",
+    "nights_one": "{{count}} natë",
+    "nights_few": "{{count}} net",
+    "nights_other": "{{count}} net",
+    "errNoDates": "Zgjidhni datat e mbërritjes dhe largimit",
+    "errCheckOut": "Data e largimit duhet të jetë pas datës së mbërritjes",
+    "errSearch": "Gabim gjatë kërkimit. Provoni përsëri.",
+    "searching": "Po kërkohet...",
+    "checkAvailability": "Kontrollo disponueshmërinë →"
+  },
+
+  "room": {
+    "title": "Dhoma të disponueshme",
+    "changeDates": "← Ndrysho datat",
+    "summary": "{{nights}} net · {{from}} — {{to}} · {{guests}} mysafir(ë)",
+    "noRooms": "Nuk ka dhoma të disponueshme për datat dhe numrin e zgjedhur të mysafirëve.",
+    "changeSearch": "Ndrysho kërkimin",
+    "maxGuests": "Deri në {{count}} mysafirë",
+    "perNight": "për natë",
+    "total": "gjithsej",
+    "select": "Rezervo →",
+    "selectPackage": "Zgjidh paketën →",
+    "close": "Mbyll",
+    "from": "nga",
+    "choosePackage": "Zgjidhni paketën:",
+    "noPackages": "Nuk ka paketa të disponueshme.",
+    "continue": "Vazhdo →"
+  },
+
+  "guest": {
+    "title": "Të dhënat e mysafirit",
+    "name": "Emri dhe mbiemri",
+    "nameRequired": "Emri dhe mbiemri *",
+    "email": "E-mail",
+    "emailRequired": "E-mail *",
+    "phone": "Telefoni",
+    "requests": "Kërkesa të veçanta",
+    "requestsPlaceholder": "Alergji, check-in i vonë, kërkesa specifike...",
+    "continue": "Vazhdo te pagesa →",
+    "errName": "Emri i mysafirit është i detyrueshëm",
+    "errEmail": "Vendosni një adresë e-mail të saktë"
+  },
+
+  "payment": {
+    "title": "Përmbledhja e rezervimit",
+    "accommodation": "Akomodimi",
+    "package": "Paketa",
+    "checkIn": "Mbërritja",
+    "checkOut": "Largimi",
+    "stay": "Qëndrimi",
+    "nights_one": "{{count}} natë",
+    "nights_few": "{{count}} net",
+    "nights_other": "{{count}} net",
+    "guests": "Mysafirë",
+    "adultsOnly": "{{adults}} të rritur",
+    "adultsAndChildren": "{{adults}} të rritur + {{children}} fëmijë",
+    "guest": "Mysafir",
+    "email": "E-mail",
+    "total": "Gjithsej",
+    "secureNote": "Pagesa është e sigurt dhe e mbrojtur përmes PayPal-it.",
+    "paying": "Po përgatitet pagesa...",
+    "payNow": "💳  Paguaj me PayPal",
+    "payOnArrival": "🏨  Rezervo — paguaj në recepsion"
+  },
+
+  "confirm": {
+    "processing": "Po procesohet pagesa, ju lutemi prisni...",
+    "errorTitle": "Gabim gjatë pagesës",
+    "retry": "Provoni përsëri",
+    "title": "Rezervimi u konfirmua!",
+    "sub": "Faleminderit, <strong>{{name}}</strong>! Konfirmimi u dërgua te <strong>{{email}}</strong>.",
+    "titleReceived": "Kërkesa u pranua!",
+    "subReceived": "Faleminderit, <strong>{{name}}</strong>! Kërkesa juaj u pranua. Hoteli do ta konfirmojë së shpejti — njoftimin e dërgojmë te <strong>{{email}}</strong>.",
+    "refNum": "Nr. i rezervimit",
+    "accommodation": "Akomodimi",
+    "checkIn": "Mbërritja",
+    "checkOut": "Largimi",
+    "paid": "Paguar",
+    "backToMenu": "← Kthehu te menyja"
+  }
+}

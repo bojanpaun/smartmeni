@@ -16,11 +16,11 @@ export const DEFAULT_LANG = 'me'
 export const LANGUAGES = [
   { code: 'me', native: 'Crnogorski', label: 'MNE', ready: true },
   { code: 'en', native: 'English',    label: 'ENG', ready: true },
-  { code: 'sr', native: 'Srpski',     label: 'SRB', ready: false },
-  { code: 'hr', native: 'Hrvatski',   label: 'HRV', ready: false },
-  { code: 'sq', native: 'Shqip',      label: 'ALB', ready: false },
-  { code: 'tr', native: 'Türkçe',     label: 'TUR', ready: false },
-  { code: 'ru', native: 'Русский',    label: 'RUS', ready: false },
+  { code: 'sr', native: 'Srpski',     label: 'SRB', ready: true },
+  { code: 'hr', native: 'Hrvatski',   label: 'HRV', ready: true },
+  { code: 'sq', native: 'Shqip',      label: 'ALB', ready: true },
+  { code: 'tr', native: 'Türkçe',     label: 'TUR', ready: true },
+  { code: 'ru', native: 'Русский',    label: 'RUS', ready: true },
 ]
 
 export const LANGUAGE_CODES = LANGUAGES.map(l => l.code)
