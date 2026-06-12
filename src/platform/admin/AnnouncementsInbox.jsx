@@ -1,15 +1,18 @@
 import { useEffect, useRef, useState } from 'react'
+import { useTranslation } from 'react-i18next'
 import { useAnnouncements } from '../../context/AnnouncementsContext'
 import styles from '../../modules/hotel/pages/Hotel.module.css'
 
 const SEV = {
-  info:      { icon: 'ℹ️', label: 'Info',   color: 'var(--c-text-medium)' },
-  update:    { icon: '✨', label: 'Novost', color: 'var(--c-primary)' },
-  important: { icon: '⚠️', label: 'Važno',  color: 'var(--c-danger)' },
+  info:      { icon: 'ℹ️', labelKey: 'npSevInfo',      color: 'var(--c-text-medium)' },
+  update:    { icon: '✨', labelKey: 'npSevUpdate',    color: 'var(--c-primary)' },
+  important: { icon: '⚠️', labelKey: 'npSevImportant', color: 'var(--c-danger)' },
 }
 
 export default function AnnouncementsInbox() {
   const { visible, readIds, markAllRead } = useAnnouncements()
+  const { t, i18n } = useTranslation('admin')
+  const dl = i18n.language === 'en' ? 'en-US' : 'sr-Latn'
   // Zapamti šta je bilo nepročitano pri otvaranju (za „novo" oznaku), pa označi sve.
   const initialUnread = useRef(null)
   const [unreadSnapshot, setUnreadSnapshot] = useState(() => new Set())
@@ -27,14 +30,14 @@ export default function AnnouncementsInbox() {
     <div className={styles.page}>
       <div className={styles.header}>
         <div>
-          <h1 className={styles.title}>📣 Najave</h1>
-          <p className={styles.subtitle}>Obavijesti i novosti platforme rest.by.me</p>
+          <h1 className={styles.title}>📣 {t('aiTitle')}</h1>
+          <p className={styles.subtitle}>{t('aiSub')}</p>
         </div>
       </div>
 
       {visible.length === 0 ? (
         <div style={{ padding: 40, textAlign: 'center', color: 'var(--c-text-muted)' }}>
-          Trenutno nema najava.
+          {t('aiNoAnnouncements')}
         </div>
       ) : (
         <div style={{ display: 'flex', flexDirection: 'column', gap: 12 }}>
@@ -48,12 +51,12 @@ export default function AnnouncementsInbox() {
               }}>
                 <div style={{ display: 'flex', alignItems: 'center', gap: 8, flexWrap: 'wrap' }}>
                   <span style={{ fontWeight: 700 }}>{sev.icon} {a.title}</span>
-                  {isNew && <span style={{ fontSize: 11, fontWeight: 600, color: 'var(--c-primary)', background: 'var(--c-primary-light, #e8f5ee)', borderRadius: 12, padding: '1px 8px' }}>novo</span>}
+                  {isNew && <span style={{ fontSize: 11, fontWeight: 600, color: 'var(--c-primary)', background: 'var(--c-primary-light, #e8f5ee)', borderRadius: 12, padding: '1px 8px' }}>{t('npNew')}</span>}
                 </div>
                 {a.body && <div style={{ fontSize: 14, color: 'var(--c-text-medium)', marginTop: 8, whiteSpace: 'pre-wrap', lineHeight: 1.5 }}>{a.body}</div>}
                 <div style={{ fontSize: 12, color: 'var(--c-text-muted)', marginTop: 10 }}>
-                  {sev.label} · {new Date(a.published_at).toLocaleDateString('sr-Latn', { day: '2-digit', month: '2-digit', year: 'numeric' })}
-                  {a.edited_at && <span> · izmijenjeno</span>}
+                  {t(sev.labelKey)} · {new Date(a.published_at).toLocaleDateString(dl, { day: '2-digit', month: '2-digit', year: 'numeric' })}
+                  {a.edited_at && <span> · {t('saEditedSuffix')}</span>}
                 </div>
               </div>
             )

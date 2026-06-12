@@ -1,5 +1,6 @@
 import { useState, useEffect, useRef } from 'react'
 import { Navigate } from 'react-router-dom'
+import { useTranslation } from 'react-i18next'
 import { usePlatform } from '../../context/PlatformContext'
 import { useSupport } from '../../context/SupportContext'
 import { supabase } from '../../lib/supabase'
@@ -7,12 +8,13 @@ import LoadingSpinner from '../../components/shared/LoadingSpinner'
 import styles from '../../modules/hotel/pages/Hotel.module.css'
 import { FaqSuggestions } from './SupportFaq'
 
-const fmt = (s) => new Date(s).toLocaleString('sr-Latn', { day: '2-digit', month: '2-digit', hour: '2-digit', minute: '2-digit' })
-
 // Vlasnikov support inbox (superadmin upravlja iz /superadmin/komunikacija).
 export default function SupportPage() {
   const { user, restaurant, loading, isSuperAdmin } = usePlatform()
   const { conversations, reload, isUnreadForAdmin } = useSupport()
+  const { t, i18n } = useTranslation('admin')
+  const dl = i18n.language === 'en' ? 'en-US' : 'sr-Latn'
+  const fmt = (s) => new Date(s).toLocaleString(dl, { day: '2-digit', month: '2-digit', hour: '2-digit', minute: '2-digit' })
 
   const [selected, setSelected] = useState(null)   // conversation
   const [messages, setMessages] = useState([])
@@ -100,7 +102,7 @@ export default function SupportPage() {
     return (
       <div className={styles.page}>
         <div style={{ padding: 40, textAlign: 'center', color: 'var(--c-text-muted)' }}>
-          Podrška je dostupna iz vlasničkog naloga.
+          {t('spFromOwner')}
         </div>
       </div>
     )
@@ -113,9 +115,9 @@ export default function SupportPage() {
         <div className={styles.header}>
           <div>
             <h1 className={styles.title} style={{ fontSize: 20 }}>{selected.subject}</h1>
-            <p className={styles.subtitle}>{selected.status === 'closed' ? 'Zatvoreno' : 'Otvoreno'} · podrška rest.by.me</p>
+            <p className={styles.subtitle}>{selected.status === 'closed' ? t('saClosed') : t('saOpen')}{t('spSupportSuffix')}</p>
           </div>
-          <button className={styles.btnSecondary} onClick={() => { setSelected(null); reload() }}>← Nazad</button>
+          <button className={styles.btnSecondary} onClick={() => { setSelected(null); reload() }}>← {t('saBack')}</button>
         </div>
 
         <div style={{ display: 'flex', flexDirection: 'column', gap: 10, marginBottom: 16 }}>
@@ -130,7 +132,7 @@ export default function SupportPage() {
                   borderRadius: 12, padding: '9px 13px', fontSize: 14, whiteSpace: 'pre-wrap',
                 }}>{m.body}</div>
                 <div style={{ fontSize: 11, color: 'var(--c-text-muted)', marginTop: 3, textAlign: mine ? 'right' : 'left' }}>
-                  {mine ? 'Vi' : 'Podrška'} · {fmt(m.created_at)}
+                  {mine ? t('spYou') : t('saSupportLabel')} · {fmt(m.created_at)}
                 </div>
               </div>
             )
@@ -141,9 +143,9 @@ export default function SupportPage() {
         {selected.status !== 'closed' && (
           <div style={{ display: 'flex', gap: 8, alignItems: 'flex-end' }}>
             <textarea className={styles.input} style={{ flex: 1, minHeight: 44, resize: 'vertical' }}
-              placeholder="Napišite poruku…" value={reply} onChange={e => setReply(e.target.value)}
+              placeholder={t('spMsgPh')} value={reply} onChange={e => setReply(e.target.value)}
               onKeyDown={e => { if (e.key === 'Enter' && (e.metaKey || e.ctrlKey)) sendReply() }} />
-            <button className={styles.btnPrimary} onClick={sendReply} disabled={sending || !reply.trim()}>Pošalji</button>
+            <button className={styles.btnPrimary} onClick={sendReply} disabled={sending || !reply.trim()}>{t('saSend')}</button>
           </div>
         )}
       </div>
@@ -155,33 +157,33 @@ export default function SupportPage() {
     <div className={styles.page}>
       <div className={styles.header}>
         <div>
-          <h1 className={styles.title}>💬 Podrška</h1>
-          <p className={styles.subtitle}>Pitanja i pomoć tima rest.by.me</p>
+          <h1 className={styles.title}>💬 {t('spTitle')}</h1>
+          <p className={styles.subtitle}>{t('spSub')}</p>
         </div>
-        {!composing && <button className={styles.btnPrimary} onClick={() => setComposing(true)}>+ Nova poruka</button>}
+        {!composing && <button className={styles.btnPrimary} onClick={() => setComposing(true)}>+ {t('spNewMsg')}</button>}
       </div>
 
       {composing && (
         <div style={{ background: 'var(--c-surface)', border: '1px solid var(--c-border)', borderRadius: 12, padding: 16, marginBottom: 20 }}>
           <div style={{ marginBottom: 10 }}>
-            <label style={{ fontSize: 12, color: 'var(--c-text-medium)', display: 'block', marginBottom: 4 }}>Naslov *</label>
-            <input className={styles.input} style={{ width: '100%' }} value={subject} onChange={e => setSubject(e.target.value)} placeholder="npr. Pitanje o rezervacijama" />
+            <label style={{ fontSize: 12, color: 'var(--c-text-medium)', display: 'block', marginBottom: 4 }}>{t('saTitleLabel')}</label>
+            <input className={styles.input} style={{ width: '100%' }} value={subject} onChange={e => setSubject(e.target.value)} placeholder={t('spSubjectPh')} />
           </div>
           <div style={{ marginBottom: 12 }}>
-            <label style={{ fontSize: 12, color: 'var(--c-text-medium)', display: 'block', marginBottom: 4 }}>Poruka *</label>
-            <textarea className={styles.input} style={{ width: '100%', minHeight: 90, resize: 'vertical' }} value={firstMsg} onChange={e => setFirstMsg(e.target.value)} placeholder="Opišite pitanje ili problem…" />
+            <label style={{ fontSize: 12, color: 'var(--c-text-medium)', display: 'block', marginBottom: 4 }}>{t('spMsgReq')}</label>
+            <textarea className={styles.input} style={{ width: '100%', minHeight: 90, resize: 'vertical' }} value={firstMsg} onChange={e => setFirstMsg(e.target.value)} placeholder={t('spMsgComposePh')} />
           </div>
           <FaqSuggestions query={`${subject} ${firstMsg}`} />
           <div style={{ display: 'flex', gap: 8, justifyContent: 'flex-end' }}>
-            <button className={styles.btnSecondary} onClick={() => setComposing(false)}>Odustani</button>
-            <button className={styles.btnPrimary} onClick={createConversation} disabled={sending || !subject.trim() || !firstMsg.trim()}>Pošalji</button>
+            <button className={styles.btnSecondary} onClick={() => setComposing(false)}>{t('cancel')}</button>
+            <button className={styles.btnPrimary} onClick={createConversation} disabled={sending || !subject.trim() || !firstMsg.trim()}>{t('saSend')}</button>
           </div>
         </div>
       )}
 
       {conversations.length === 0 && !composing ? (
         <div style={{ padding: 40, textAlign: 'center', color: 'var(--c-text-muted)' }}>
-          Nemate poruka. Otvorite novu ako vam treba pomoć.
+          {t('spNoMessages')}
         </div>
       ) : (
         <div style={{ display: 'flex', flexDirection: 'column', gap: 10 }}>
@@ -197,7 +199,7 @@ export default function SupportPage() {
                   <div style={{ fontWeight: 600, display: 'flex', alignItems: 'center', gap: 8 }}>
                     {unread && <span style={{ width: 8, height: 8, borderRadius: '50%', background: 'var(--c-danger)', flexShrink: 0 }} />}
                     {c.subject}
-                    {c.status === 'closed' && <span style={{ fontSize: 11, color: 'var(--c-text-muted)', fontWeight: 400 }}>(zatvoreno)</span>}
+                    {c.status === 'closed' && <span style={{ fontSize: 11, color: 'var(--c-text-muted)', fontWeight: 400 }}>{t('saClosedParen')}</span>}
                   </div>
                   <div style={{ fontSize: 12, color: 'var(--c-text-muted)', marginTop: 3 }}>{fmt(c.last_message_at)}</div>
                 </div>

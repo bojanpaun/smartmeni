@@ -1,5 +1,6 @@
 import { useState, useEffect, useRef } from 'react'
 import { useParams } from 'react-router-dom'
+import { useTranslation } from 'react-i18next'
 import { usePlatform } from '../../context/PlatformContext'
 import { useAnnouncements } from '../../context/AnnouncementsContext'
 import { supabase } from '../../lib/supabase'
@@ -7,9 +8,9 @@ import LoadingSpinner from '../../components/shared/LoadingSpinner'
 import styles from '../../modules/hotel/pages/Hotel.module.css'
 
 const SEV = {
-  info:      { icon: 'ℹ️', label: 'Info',   color: 'var(--c-text-medium)' },
-  update:    { icon: '✨', label: 'Novost', color: 'var(--c-primary)' },
-  important: { icon: '⚠️', label: 'Važno',  color: 'var(--c-danger)' },
+  info:      { icon: 'ℹ️', labelKey: 'npSevInfo',      color: 'var(--c-text-medium)' },
+  update:    { icon: '✨', labelKey: 'npSevUpdate',    color: 'var(--c-primary)' },
+  important: { icon: '⚠️', labelKey: 'npSevImportant', color: 'var(--c-danger)' },
 }
 const BLANK = { title: '', body: '', expires_at: '' }
 
@@ -17,6 +18,7 @@ export default function NotificationsPage() {
   const { restaurant } = usePlatform()
   const { visible, readIds, markAllRead } = useAnnouncements()
   const { section } = useParams()
+  const { t } = useTranslation('admin')
   const tab = section === 'tabla' ? 'tabla' : 'najave'
 
   // Označi najave pročitanim pri otvaranju sekcije „Najave"
@@ -35,9 +37,9 @@ export default function NotificationsPage() {
     <div className={styles.page}>
       <div className={styles.header}>
         <div>
-          <h1 className={styles.title}>{tab === 'tabla' ? '📌 Oglasna tabla' : '📣 Najave platforme'}</h1>
+          <h1 className={styles.title}>{tab === 'tabla' ? `📌 ${t('npBoardTitle')}` : `📣 ${t('npAnnTitle')}`}</h1>
           <p className={styles.subtitle}>
-            {tab === 'tabla' ? 'Obavijesti za vaše osoblje (vidljive u Staff portalu)' : 'Novosti i obavijesti platforme rest.by.me'}
+            {tab === 'tabla' ? t('npBoardSub') : t('npAnnSub')}
           </p>
         </div>
       </div>
@@ -49,11 +51,12 @@ export default function NotificationsPage() {
   )
 }
 
-const SEV_FILTERS = [
-  { k: 'all', l: 'Sve' }, { k: 'important', l: '⚠️ Važno' }, { k: 'update', l: '✨ Novost' }, { k: 'info', l: 'ℹ️ Info' },
-]
-
 function NajaveTab({ visible, unreadSnapshot }) {
+  const { t, i18n } = useTranslation('admin')
+  const dl = i18n.language === 'en' ? 'en-US' : 'sr-Latn'
+  const SEV_FILTERS = [
+    { k: 'all', l: t('invCatAll') }, { k: 'important', l: `⚠️ ${t('npSevImportant')}` }, { k: 'update', l: `✨ ${t('npSevUpdate')}` }, { k: 'info', l: `ℹ️ ${t('npSevInfo')}` },
+  ]
   const [q, setQ] = useState('')
   const [sev, setSev] = useState('all')
 
@@ -69,7 +72,7 @@ function NajaveTab({ visible, unreadSnapshot }) {
   return (
     <div>
       <div style={{ display: 'flex', gap: 10, flexWrap: 'wrap', alignItems: 'center', marginBottom: 14 }}>
-        <input className={styles.input} placeholder="🔍 Pretraži najave…" value={q} onChange={e => setQ(e.target.value)} style={{ flex: 1, minWidth: 180 }} />
+        <input className={styles.input} placeholder={`🔍 ${t('npSearchAnn')}`} value={q} onChange={e => setQ(e.target.value)} style={{ flex: 1, minWidth: 180 }} />
         <div style={{ display: 'flex', gap: 6, flexWrap: 'wrap' }}>
           {SEV_FILTERS.map(f => (
             <button key={f.k} onClick={() => setSev(f.k)}
@@ -79,7 +82,7 @@ function NajaveTab({ visible, unreadSnapshot }) {
       </div>
 
       {filtered.length === 0 ? (
-        <div style={{ padding: 40, textAlign: 'center', color: 'var(--c-text-muted)' }}>{visible.length === 0 ? 'Trenutno nema najava.' : 'Nema rezultata za filter.'}</div>
+        <div style={{ padding: 40, textAlign: 'center', color: 'var(--c-text-muted)' }}>{visible.length === 0 ? t('aiNoAnnouncements') : t('npNoResults')}</div>
       ) : (
     <div style={{ display: 'flex', flexDirection: 'column', gap: 12 }}>
       {filtered.map(a => {
@@ -89,12 +92,12 @@ function NajaveTab({ visible, unreadSnapshot }) {
           <div key={a.id} style={{ background: 'var(--c-surface)', border: `1px solid ${isNew ? 'var(--c-primary)' : 'var(--c-border)'}`, borderLeft: `4px solid ${sev.color}`, borderRadius: 12, padding: '14px 18px' }}>
             <div style={{ display: 'flex', alignItems: 'center', gap: 8, flexWrap: 'wrap' }}>
               <span style={{ fontWeight: 700 }}>{sev.icon} {a.title}</span>
-              {isNew && <span style={{ fontSize: 11, fontWeight: 600, color: 'var(--c-primary)', background: 'var(--c-primary-light, #e8f5ee)', borderRadius: 12, padding: '1px 8px' }}>novo</span>}
+              {isNew && <span style={{ fontSize: 11, fontWeight: 600, color: 'var(--c-primary)', background: 'var(--c-primary-light, #e8f5ee)', borderRadius: 12, padding: '1px 8px' }}>{t('npNew')}</span>}
             </div>
             {a.body && <div style={{ fontSize: 14, color: 'var(--c-text-medium)', marginTop: 8, whiteSpace: 'pre-wrap', lineHeight: 1.5 }}>{a.body}</div>}
             <div style={{ fontSize: 12, color: 'var(--c-text-muted)', marginTop: 10 }}>
-              {sev.label} · {new Date(a.published_at).toLocaleDateString('sr-Latn', { day: '2-digit', month: '2-digit', year: 'numeric' })}
-              {a.edited_at && ' · izmijenjeno'}
+              {t(sev.labelKey)} · {new Date(a.published_at).toLocaleDateString(dl, { day: '2-digit', month: '2-digit', year: 'numeric' })}
+              {a.edited_at && ` · ${t('saEditedSuffix')}`}
             </div>
           </div>
         )
@@ -106,6 +109,8 @@ function NajaveTab({ visible, unreadSnapshot }) {
 }
 
 function OglasnaTablaTab({ restaurant }) {
+  const { t, i18n } = useTranslation('admin')
+  const dl = i18n.language === 'en' ? 'en-US' : 'sr-Latn'
   const [items, setItems] = useState([])
   const [loading, setLoading] = useState(true)
   const [showForm, setShowForm] = useState(false)
@@ -141,7 +146,7 @@ function OglasnaTablaTab({ restaurant }) {
   }
 
   const remove = async (id) => {
-    if (!window.confirm('Obrisati obavijest?')) return
+    if (!window.confirm(t('npDeleteConfirm'))) return
     await supabase.from('staff_announcements').delete().eq('id', id)
     load()
   }
@@ -149,37 +154,37 @@ function OglasnaTablaTab({ restaurant }) {
   return (
     <div>
       <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: 12 }}>
-        <div style={{ fontSize: 13, color: 'var(--c-text-muted)' }}>Obavijesti vidljive vašem osoblju u Staff portalu.</div>
-        {!showForm && <button className={styles.btnPrimary} onClick={() => { setForm(BLANK); setEditingId(null); setShowForm(true) }}>+ Nova obavijest</button>}
+        <div style={{ fontSize: 13, color: 'var(--c-text-muted)' }}>{t('npBoardInfo')}</div>
+        {!showForm && <button className={styles.btnPrimary} onClick={() => { setForm(BLANK); setEditingId(null); setShowForm(true) }}>+ {t('npNewNotice')}</button>}
       </div>
 
       {showForm && (
         <div style={{ background: 'var(--c-surface)', border: '1px solid var(--c-border)', borderRadius: 12, padding: 16, marginBottom: 16 }}>
-          <div style={{ fontWeight: 600, marginBottom: 10 }}>{editingId ? '✏️ Izmjena obavijesti' : 'Nova obavijest'}</div>
+          <div style={{ fontWeight: 600, marginBottom: 10 }}>{editingId ? `✏️ ${t('npEditNotice')}` : t('npNewNotice')}</div>
           <div style={{ marginBottom: 10 }}>
-            <label style={{ fontSize: 12, color: 'var(--c-text-medium)', display: 'block', marginBottom: 4 }}>Naslov *</label>
-            <input className={styles.input} style={{ width: '100%' }} value={form.title} onChange={e => setForm(f => ({ ...f, title: e.target.value }))} placeholder="npr. Promjena rasporeda u subotu" />
+            <label style={{ fontSize: 12, color: 'var(--c-text-medium)', display: 'block', marginBottom: 4 }}>{t('saTitleLabel')}</label>
+            <input className={styles.input} style={{ width: '100%' }} value={form.title} onChange={e => setForm(f => ({ ...f, title: e.target.value }))} placeholder={t('npTitlePh')} />
           </div>
           <div style={{ marginBottom: 10 }}>
-            <label style={{ fontSize: 12, color: 'var(--c-text-medium)', display: 'block', marginBottom: 4 }}>Tekst</label>
+            <label style={{ fontSize: 12, color: 'var(--c-text-medium)', display: 'block', marginBottom: 4 }}>{t('saText')}</label>
             <textarea className={styles.input} style={{ width: '100%', minHeight: 80, resize: 'vertical' }} value={form.body} onChange={e => setForm(f => ({ ...f, body: e.target.value }))} />
           </div>
           <div style={{ marginBottom: 12 }}>
-            <label style={{ fontSize: 12, color: 'var(--c-text-medium)', display: 'block', marginBottom: 4 }}>Ističe (opciono)</label>
+            <label style={{ fontSize: 12, color: 'var(--c-text-medium)', display: 'block', marginBottom: 4 }}>{t('saExpires')}</label>
             <input className={styles.input} type="datetime-local" value={form.expires_at} onChange={e => setForm(f => ({ ...f, expires_at: e.target.value }))} />
           </div>
           <div style={{ display: 'flex', gap: 8, justifyContent: 'flex-end' }}>
-            <button className={styles.btnSecondary} onClick={reset}>Odustani</button>
-            <button className={styles.btnPrimary} onClick={save} disabled={saving}>{saving ? 'Čuvam…' : (editingId ? 'Sačuvaj izmjene' : 'Objavi')}</button>
+            <button className={styles.btnSecondary} onClick={reset}>{t('cancel')}</button>
+            <button className={styles.btnPrimary} onClick={save} disabled={saving}>{saving ? t('saving') : (editingId ? t('spaSaveChanges') : t('npPublish'))}</button>
           </div>
         </div>
       )}
 
       {items.length > 0 && (
         <div style={{ display: 'flex', gap: 10, flexWrap: 'wrap', alignItems: 'center', marginBottom: 14 }}>
-          <input className={styles.input} placeholder="🔍 Pretraži obavijesti…" value={q} onChange={e => setQ(e.target.value)} style={{ flex: 1, minWidth: 180 }} />
+          <input className={styles.input} placeholder={`🔍 ${t('npSearchNotices')}`} value={q} onChange={e => setQ(e.target.value)} style={{ flex: 1, minWidth: 180 }} />
           <div style={{ display: 'flex', gap: 6, flexWrap: 'wrap' }}>
-            {[{ k: 'all', l: 'Sve' }, { k: 'active', l: 'Aktivne' }, { k: 'expired', l: 'Istekle' }].map(f => (
+            {[{ k: 'all', l: t('invCatAll') }, { k: 'active', l: t('npActive') }, { k: 'expired', l: t('npExpiredF') }].map(f => (
               <button key={f.k} onClick={() => setFilter(f.k)}
                 className={filter === f.k ? styles.btnPrimary : styles.btnSecondary} style={{ fontSize: 12, padding: '6px 10px' }}>{f.l}</button>
             ))}
@@ -199,8 +204,8 @@ function OglasnaTablaTab({ restaurant }) {
           }
           return true
         })
-        if (items.length === 0) return <div style={{ padding: 32, textAlign: 'center', color: 'var(--c-text-muted)' }}>Nema obavijesti. Dodaj prvu da je osoblje vidi u portalu.</div>
-        if (filtered.length === 0) return <div style={{ padding: 32, textAlign: 'center', color: 'var(--c-text-muted)' }}>Nema rezultata za filter.</div>
+        if (items.length === 0) return <div style={{ padding: 32, textAlign: 'center', color: 'var(--c-text-muted)' }}>{t('npNoNotices')}</div>
+        if (filtered.length === 0) return <div style={{ padding: 32, textAlign: 'center', color: 'var(--c-text-muted)' }}>{t('npNoResults')}</div>
         return (
         <div style={{ display: 'flex', flexDirection: 'column', gap: 10 }}>
           {filtered.map(a => {
@@ -208,16 +213,16 @@ function OglasnaTablaTab({ restaurant }) {
             return (
               <div key={a.id} style={{ background: 'var(--c-surface)', border: '1px solid var(--c-border)', borderRadius: 12, padding: '12px 16px', opacity: expired ? 0.6 : 1, display: 'flex', justifyContent: 'space-between', gap: 12 }}>
                 <div style={{ minWidth: 0 }}>
-                  <div style={{ fontWeight: 600 }}>📌 {a.title}{expired && <span style={{ fontSize: 11, color: 'var(--c-text-muted)', fontWeight: 400 }}> (isteklo)</span>}</div>
+                  <div style={{ fontWeight: 600 }}>📌 {a.title}{expired && <span style={{ fontSize: 11, color: 'var(--c-text-muted)', fontWeight: 400 }}> {t('saExpired')}</span>}</div>
                   {a.body && <div style={{ fontSize: 13, color: 'var(--c-text-medium)', marginTop: 4, whiteSpace: 'pre-wrap' }}>{a.body}</div>}
                   <div style={{ fontSize: 11, color: 'var(--c-text-muted)', marginTop: 6 }}>
-                    {new Date(a.created_at).toLocaleDateString('sr-Latn', { day: '2-digit', month: '2-digit', year: 'numeric' })}
-                    {a.edited_at && ' · izmijenjeno'}
+                    {new Date(a.created_at).toLocaleDateString(dl, { day: '2-digit', month: '2-digit', year: 'numeric' })}
+                    {a.edited_at && ` · ${t('saEditedSuffix')}`}
                   </div>
                 </div>
                 <div style={{ display: 'flex', gap: 6, flexShrink: 0 }}>
-                  <button className={styles.btnSecondary} style={{ fontSize: 12 }} onClick={() => openEdit(a)}>Uredi</button>
-                  <button style={{ padding: '5px 10px', fontSize: 12, background: 'transparent', color: 'var(--c-danger)', border: '1px solid var(--c-danger-border)', borderRadius: 7, cursor: 'pointer' }} onClick={() => remove(a.id)}>Obriši</button>
+                  <button className={styles.btnSecondary} style={{ fontSize: 12 }} onClick={() => openEdit(a)}>{t('htEdit')}</button>
+                  <button style={{ padding: '5px 10px', fontSize: 12, background: 'transparent', color: 'var(--c-danger)', border: '1px solid var(--c-danger-border)', borderRadius: 7, cursor: 'pointer' }} onClick={() => remove(a.id)}>{t('htDelete')}</button>
                 </div>
               </div>
             )

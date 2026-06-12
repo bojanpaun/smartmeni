@@ -1,6 +1,7 @@
 // ▶ Zamijeniti: src/platform/admin/TrialBanner.jsx
 
 import { useNavigate } from 'react-router-dom'
+import { useTranslation } from 'react-i18next'
 import { usePlatform } from '../../context/PlatformContext'
 import { planStatus, trialDaysLeft } from '../../lib/planUtils'
 import styles from './TrialBanner.module.css'
@@ -8,6 +9,7 @@ import styles from './TrialBanner.module.css'
 export default function TrialBanner() {
   const { restaurant, betaMode } = usePlatform()
   const navigate = useNavigate()
+  const { t } = useTranslation('admin')
 
   if (!restaurant) return null
 
@@ -16,7 +18,7 @@ export default function TrialBanner() {
   if (betaMode) {
     return (
       <div className={`${styles.banner} ${styles.bannerBeta}`}>
-        <span>🧪 <strong>Beta period</strong> — svi moduli su trenutno besplatni za funkcionalnosti koje koristiš.</span>
+        <span>🧪 <strong>{t('tbBetaStrong')}</strong>{t('tbBetaRest')}</span>
       </div>
     )
   }
@@ -31,9 +33,9 @@ export default function TrialBanner() {
   if (status === 'suspended') {
     return (
       <div className={`${styles.banner} ${styles.bannerDanger}`}>
-        <span>⚠️ Nalog je suspendovan zbog neuspješnog plaćanja.</span>
+        <span>{t('tbSuspended')}</span>
         <button className={styles.bannerBtn} onClick={() => navigate('/admin/billing')}>
-          Obnovi pretplatu
+          {t('tbRenew')}
         </button>
       </div>
     )
@@ -43,9 +45,9 @@ export default function TrialBanner() {
   if (status === 'expired') {
     return (
       <div className={`${styles.banner} ${styles.bannerExpired}`}>
-        <span>⏰ Trial period je istekao. Pređi na Pro da nastaviš koristiti sve funkcionalnosti.</span>
+        <span>{t('tbExpired')}</span>
         <button className={styles.bannerBtn} onClick={() => navigate('/admin/billing')}>
-          Pređi na Pro →
+          {t('tbToPro')} →
         </button>
       </div>
     )
@@ -55,9 +57,9 @@ export default function TrialBanner() {
   if (status === 'trial' && days !== null && days <= 7) {
     return (
       <div className={`${styles.banner} ${styles.bannerTrial}`}>
-        <span>🎁 Trial ističe za <strong>{days} {days === 1 ? 'dan' : 'dana'}</strong>.</span>
+        <span>{t('tbTrialEndsPre')}<strong>{days} {days === 1 ? t('tbDay') : t('tbDays')}</strong>{t('tbTrialEndsDot')}</span>
         <button className={styles.bannerBtn} onClick={() => navigate('/admin/billing')}>
-          Pređi na Pro →
+          {t('tbToPro')} →
         </button>
       </div>
     )

@@ -1,4 +1,5 @@
 import { useState, useEffect } from 'react'
+import { useTranslation } from 'react-i18next'
 import { supabase } from '../../lib/supabase'
 import styles from '../../modules/hotel/pages/Hotel.module.css'
 
@@ -16,6 +17,7 @@ export const FAQ_CATS = {
 
 // Prijedlozi FAQ-a dok admin kuca novi tiket (na osnovu unesenog teksta).
 export function FaqSuggestions({ query }) {
+  const { t } = useTranslation('admin')
   const [items, setItems] = useState([])
   const [openId, setOpenId] = useState(null)
 
@@ -35,7 +37,7 @@ export function FaqSuggestions({ query }) {
 
   return (
     <div style={{ background: 'var(--c-info-bg)', border: '1px solid var(--c-info-border)', borderRadius: 10, padding: '10px 14px', marginBottom: 12 }}>
-      <div style={{ fontSize: 13, fontWeight: 600, color: 'var(--c-info)', marginBottom: 6 }}>💡 Možda ovo pomaže?</div>
+      <div style={{ fontSize: 13, fontWeight: 600, color: 'var(--c-info)', marginBottom: 6 }}>💡 {t('fqMaybeHelps')}</div>
       <div style={{ display: 'flex', flexDirection: 'column', gap: 4 }}>
         {matches.map(f => {
           const open = openId === f.id
@@ -55,6 +57,7 @@ export function FaqSuggestions({ query }) {
 
 // FAQ / baza znanja na vrhu /admin/support — admin prvo traži odgovor.
 export default function SupportFaq() {
+  const { t } = useTranslation('admin')
   const [items, setItems] = useState([])
   const [loaded, setLoaded] = useState(false)
   const [q, setQ] = useState('')
@@ -82,30 +85,30 @@ export default function SupportFaq() {
     <div className={styles.page}>
       <div className={styles.header}>
         <div>
-          <h1 className={styles.title}>📖 FAQ</h1>
-          <p className={styles.subtitle}>Česta pitanja i odgovori o korišćenju platforme</p>
+          <h1 className={styles.title}>📖 {t('fqTitle')}</h1>
+          <p className={styles.subtitle}>{t('fqSub')}</p>
         </div>
       </div>
 
       {loaded && items.length === 0 && (
-        <div style={{ padding: 40, textAlign: 'center', color: 'var(--c-text-muted)' }}>Još nema objavljenih pitanja.</div>
+        <div style={{ padding: 40, textAlign: 'center', color: 'var(--c-text-muted)' }}>{t('fqNoQuestions')}</div>
       )}
 
       {items.length > 0 && (<>
       <div style={{ display: 'flex', gap: 10, flexWrap: 'wrap', alignItems: 'center', marginBottom: 12 }}>
-        <input className={styles.input} placeholder="🔍 Pretraži pitanja…" value={q} onChange={e => setQ(e.target.value)} style={{ flex: 1, minWidth: 180 }} />
+        <input className={styles.input} placeholder={`🔍 ${t('fqSearchQ')}`} value={q} onChange={e => setQ(e.target.value)} style={{ flex: 1, minWidth: 180 }} />
         <div style={{ display: 'flex', gap: 6, flexWrap: 'wrap' }}>
           {cats.map(c => (
             <button key={c} onClick={() => setCat(c)}
               className={cat === c ? styles.btnPrimary : styles.btnSecondary} style={{ fontSize: 12, padding: '6px 10px' }}>
-              {c === 'all' ? 'Sve' : (FAQ_CATS[c] || c)}
+              {c === 'all' ? t('invCatAll') : (FAQ_CATS[c] || c)}
             </button>
           ))}
         </div>
       </div>
 
       {filtered.length === 0 ? (
-        <div style={{ fontSize: 13, color: 'var(--c-text-muted)', padding: '6px 0' }}>Nema rezultata za pretragu.</div>
+        <div style={{ fontSize: 13, color: 'var(--c-text-muted)', padding: '6px 0' }}>{t('fqNoResults')}</div>
       ) : (
         <div style={{ display: 'flex', flexDirection: 'column', gap: 8 }}>
           {filtered.map(f => {
