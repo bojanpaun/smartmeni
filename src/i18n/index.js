@@ -59,8 +59,16 @@ i18n
     react: { useSuspense: false },
   })
 
+// Drži <html lang> u skladu sa aktivnim jezikom (a11y/SEO; index.html ima statički
+// `sr` koji više nije tačan). Postavi odmah na inicijalni jezik + na svaku promjenu.
+function syncHtmlLang(lng) {
+  try { document.documentElement.lang = lng } catch { /* SSR/no document */ }
+}
+syncHtmlLang(i18n.language || DEFAULT_LANG)
+
 i18n.on('languageChanged', (lng) => {
   try { localStorage.setItem(STORAGE_KEY, lng) } catch { /* ignore */ }
+  syncHtmlLang(lng)
 })
 
 export default i18n
