@@ -4,6 +4,7 @@ import { usePlatform } from '../../../context/PlatformContext'
 import { supabase } from '../../../lib/supabase'
 import { useSpaServices } from '../hooks/useSpaServices'
 import { translateContent } from '../../../lib/contentTranslate'
+import ContentTranslations from '../../../components/shared/ContentTranslations'
 import LoadingSpinner from '../../../components/shared/LoadingSpinner'
 import styles from '../../hotel/pages/Hotel.module.css'
 import spa from './Spa.module.css'
@@ -32,6 +33,7 @@ export default function ServicesPage() {
   const [form, setForm]         = useState(BLANK)
   const [saving, setSaving]     = useState(false)
   const [catFilter, setCatFilter] = useState('all')
+  const [transSvc, setTransSvc] = useState(null) // usluga čiji editor prevoda je otvoren
 
   // Biblioteka tretmana (uvoz)
   const [showLib, setShowLib]   = useState(false)
@@ -249,6 +251,7 @@ export default function ServicesPage() {
                   {s.description && <p style={{ fontSize: 12, color: 'var(--c-text-muted)', marginTop: 8, lineHeight: 1.4 }}>{s.description}</p>}
                   <div className={spa.cardActions}>
                     <button className={styles.btnSecondary} style={{ fontSize: 12 }} onClick={() => openEdit(s)}>{t('htEdit')}</button>
+                    <button className={styles.btnSecondary} style={{ fontSize: 12 }} onClick={() => setTransSvc(s)} title={t('amTransTitle')}>🌐</button>
                     <button
                       className={styles.btnSecondary}
                       style={{ fontSize: 12 }}
@@ -268,6 +271,15 @@ export default function ServicesPage() {
             )
           })}
         </div>
+      )}
+
+      {transSvc && (
+        <ContentTranslations
+          restaurantId={restaurant.id} entityType="spa_service" entityId={transSvc.id}
+          headerTitle={transSvc.name}
+          sourceName={transSvc.name} sourceDescription={transSvc.description}
+          onClose={() => setTransSvc(null)}
+        />
       )}
     </div>
   )

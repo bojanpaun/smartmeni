@@ -1,21 +1,21 @@
 import { useState, useEffect } from 'react'
 import { useTranslation } from 'react-i18next'
-import { supabase } from '../../../lib/supabase'
-import { LANGUAGES } from '../../../i18n/languages'
+import { supabase } from '../../lib/supabase'
+import { LANGUAGES } from '../../i18n/languages'
 
-// Editor prevoda jednog jela: admin vidi AI prevode po jeziku (naziv + opis) i
-// može ručno ispraviti. Ručna verzija se snima sa is_override=true → AI je više
-// NE pregazi (ni na „Prevedi sve" ni na snimanje jela). Prazno polje + Sačuvaj =
-// briše override → AI ponovo preuzme. Piše direktno u content_translations
-// (owner RLS dozvoljava); izvor 'me' se uređuje u običnoj formi jela.
+// Generički editor prevoda jednog entiteta (menu_item, spa_service, ...): admin
+// vidi AI prevode polja name/description po 6 jezika i može ručno ispraviti.
+// Ručna verzija → is_override=true (piše direktno u content_translations preko
+// owner RLS) → AI je više NE pregazi. Prazno polje + Sačuvaj = briše override →
+// AI ponovo preuzme. Izvor ('me') se uređuje u formi entiteta, ne ovdje.
 const TARGET_LANGS = LANGUAGES.filter(l => l.code !== 'me') // en/sr/hr/sq/tr/ru
 const FIELDS = ['name', 'description']
 
-export default function MenuItemTranslations({ item, restaurantId, onClose }) {
+export default function ContentTranslations({ restaurantId, entityType, entityId, headerTitle, sourceName = '', sourceDescription = '', onClose }) {
   const { t } = useTranslation('admin')
-  const [vals, setVals] = useState({})        // `${field}|${lang}` -> value
-  const [initial, setInitial] = useState({})  // za detekciju izmjena
-  const [overridden, setOverridden] = useState({}) // `${field}|${lang}` -> bool
+  const [vals, setVals] = useState({})
+  const [initial, setInitial] = useState({})
+  const [overridden, setOverridden] = useState({})
   const [loading, setLoading] = useState(true)
   const [saving, setSaving] = useState(false)
   const [saved, setSaved] = useState(false)
@@ -25,8 +25,8 @@ export default function MenuItemTranslations({ item, restaurantId, onClose }) {
     supabase.from('content_translations')
       .select('field, lang, value, is_override')
       .eq('restaurant_id', restaurantId)
-      .eq('entity_type', 'menu_item')
-      .eq('entity_id', item.id)
+      .eq('entity_type', entityType)
+      .eq('entity_id', entityId)
       .then(({ data }) => {
         if (cancelled) return
         const v = {}, ov = {}
@@ -37,7 +37,7 @@ export default function MenuItemTranslations({ item, restaurantId, onClose }) {
         setVals(v); setInitial(v); setOverridden(ov); setLoading(false)
       })
     return () => { cancelled = true }
-  }, [item.id, restaurantId])
+  }, [entityType, entityId, restaurantId])
 
   const setVal = (key, value) => { setVals(p => ({ ...p, [key]: value })); setSaved(false) }
 
@@ -49,12 +49,9 @@ export default function MenuItemTranslations({ item, restaurantId, onClose }) {
         const key = `${field}|${l.code}`
         const cur = (vals[key] ?? '').trim()
         const init = (initial[key] ?? '').trim()
-        if (cur === init) continue // nepromijenjeno
-        if (cur) {
-          upserts.push({ restaurant_id: restaurantId, entity_type: 'menu_item', entity_id: item.id, field, lang: l.code, value: cur, is_override: true })
-        } else {
-          deletes.push({ field, lang: l.code })
-        }
+        if (cur === init) continue
+        if (cur) upserts.push({ restaurant_id: restaurantId, entity_type: entityType, entity_id: entityId, field, lang: l.code, value: cur, is_override: true })
+        else deletes.push({ field, lang: l.code })
       }
     }
     if (upserts.length) {
@@ -62,7 +59,7 @@ export default function MenuItemTranslations({ item, restaurantId, onClose }) {
     }
     for (const d of deletes) {
       await supabase.from('content_translations').delete()
-        .eq('restaurant_id', restaurantId).eq('entity_type', 'menu_item').eq('entity_id', item.id)
+        .eq('restaurant_id', restaurantId).eq('entity_type', entityType).eq('entity_id', entityId)
         .eq('field', d.field).eq('lang', d.lang)
     }
     setInitial({ ...vals })
@@ -86,9 +83,7 @@ export default function MenuItemTranslations({ item, restaurantId, onClose }) {
           <div style={{ fontWeight: 700, fontSize: 17 }}>🌐 {t('amTransTitle')}</div>
           <button onClick={onClose} style={{ background: 'none', border: 'none', fontSize: 20, cursor: 'pointer', color: 'var(--c-text-muted)' }}>✕</button>
         </div>
-        <div style={{ fontSize: 13, color: 'var(--c-text-muted)', marginBottom: 4 }}>
-          <strong>{item.emoji} {item.name}</strong>
-        </div>
+        <div style={{ fontSize: 13, color: 'var(--c-text-muted)', marginBottom: 4 }}><strong>{headerTitle}</strong></div>
         <div style={{ fontSize: 12, color: 'var(--c-text-muted)', marginBottom: 14 }}>{t('amTransSub')}</div>
 
         {loading ? (
@@ -106,10 +101,10 @@ export default function MenuItemTranslations({ item, restaurantId, onClose }) {
                     </span>
                   </div>
                   <label style={{ fontSize: 11, color: 'var(--c-text-muted)' }}>{t('amTransName')}</label>
-                  <input style={{ ...inp, marginBottom: 8 }} value={vals[`name|${l.code}`] ?? ''} placeholder={item.name}
+                  <input style={{ ...inp, marginBottom: 8 }} value={vals[`name|${l.code}`] ?? ''} placeholder={sourceName}
                     onChange={e => setVal(`name|${l.code}`, e.target.value)} />
                   <label style={{ fontSize: 11, color: 'var(--c-text-muted)' }}>{t('amTransDesc')}</label>
-                  <textarea style={{ ...inp, minHeight: 50, resize: 'vertical' }} value={vals[`description|${l.code}`] ?? ''} placeholder={item.description || '—'}
+                  <textarea style={{ ...inp, minHeight: 50, resize: 'vertical' }} value={vals[`description|${l.code}`] ?? ''} placeholder={sourceDescription || '—'}
                     onChange={e => setVal(`description|${l.code}`, e.target.value)} />
                 </div>
               )

@@ -6,7 +6,7 @@ import { usePlatform } from '../../../context/PlatformContext'
 import { stripAccountFields } from '../../../lib/planUtils'
 import { translateContent, menuItemFields } from '../../../lib/contentTranslate'
 import RecipeLibraryPicker from '../components/RecipeLibraryPicker'
-import MenuItemTranslations from '../components/MenuItemTranslations'
+import ContentTranslations from '../../../components/shared/ContentTranslations'
 import styles from './AdminMenu.module.css'
 import gsStyles from './GeneralSettings.module.css'
 
@@ -591,7 +591,12 @@ export default function AdminMenu() {
       )}
 
       {transItem && restaurant && (
-        <MenuItemTranslations item={transItem} restaurantId={restaurant.id} onClose={() => setTransItem(null)} />
+        <ContentTranslations
+          restaurantId={restaurant.id} entityType="menu_item" entityId={transItem.id}
+          headerTitle={`${transItem.emoji || '🍽️'} ${transItem.name}`}
+          sourceName={transItem.name} sourceDescription={transItem.description}
+          onClose={() => setTransItem(null)}
+        />
       )}
     </div>
   )
