@@ -1,4 +1,5 @@
 import { useState, useRef } from 'react'
+import { useTranslation } from 'react-i18next'
 import { usePlatform } from '../../../context/PlatformContext'
 import { supabase } from '../../../lib/supabase'
 import LoadingSpinner from '../../../components/shared/LoadingSpinner'
@@ -8,6 +9,7 @@ import bs from './BookingSettings.module.css'
 
 export default function BookingSettings() {
   const { restaurant, setRestaurant } = usePlatform()
+  const { t } = useTranslation('admin')
   const printRef = useRef(null)
 
   const [form, setForm] = useState(restaurant ? {
@@ -34,10 +36,10 @@ export default function BookingSettings() {
   const handleSave = async () => {
     setSaving(true)
     const { error } = await supabase.from('restaurants').update(form).eq('id', restaurant.id)
-    if (error) { toast.error('Greška pri čuvanju'); setSaving(false); return }
+    if (error) { toast.error(t('htSaveErr')); setSaving(false); return }
     setRestaurant(r => ({ ...r, ...form }))
     setSaving(false)
-    toast.success('Postavke sačuvane')
+    toast.success(t('htSettingsSaved'))
   }
 
   const copyUrl = () => {
@@ -53,7 +55,7 @@ export default function BookingSettings() {
       <html>
       <head>
         <meta charset="utf-8">
-        <title>Booking QR — ${restaurant.name}</title>
+        <title>${t('htBookingQrTitle', { name: restaurant.name })}</title>
         <style>
           body { margin: 0; background: #fff; font-family: 'DM Sans', sans-serif; }
           .page {
@@ -73,11 +75,11 @@ export default function BookingSettings() {
       <body>
         <div class="page">
           <div class="hotel">${restaurant.name}</div>
-          <div class="sub">${form.booking_page_title || 'Online rezervacija smještaja'}</div>
+          <div class="sub">${form.booking_page_title || t('htOnlineBooking')}</div>
           <img class="qr" src="${qrSrc}&size=400x400" alt="QR" />
-          <div class="cta">Skenirajte za rezervaciju</div>
+          <div class="cta">${t('htScanToBook')}</div>
           <div class="url">${bookingUrl}</div>
-          <div class="times">Check-in: ${form.booking_checkin_time} &nbsp;·&nbsp; Check-out: ${form.booking_checkout_time}</div>
+          <div class="times">${t('htCheckin')}: ${form.booking_checkin_time} &nbsp;·&nbsp; ${t('htCheckout')}: ${form.booking_checkout_time}</div>
         </div>
         <script>window.onload = () => { setTimeout(() => window.print(), 600) }<\/script>
       </body>
@@ -90,11 +92,11 @@ export default function BookingSettings() {
     <div className={styles.page}>
       <div className={styles.header}>
         <div>
-          <h1 className={styles.title}>Online rezervacija — postavke</h1>
-          <p className={styles.subtitle}>Booking stranica, custom domena i QR kod za recepciju</p>
+          <h1 className={styles.title}>{t('htBookingSettingsTitle')}</h1>
+          <p className={styles.subtitle}>{t('htBookingSettingsSub')}</p>
         </div>
         <button className={styles.btnPrimary} onClick={handleSave} disabled={saving}>
-          {saving ? 'Čuvanje...' : 'Sačuvaj'}
+          {saving ? t('saving') : t('save')}
         </button>
       </div>
 
@@ -104,30 +106,30 @@ export default function BookingSettings() {
 
           {/* Toggle */}
           <div className={bs.section}>
-            <div className={bs.sectionTitle}>Vidljivost</div>
+            <div className={bs.sectionTitle}>{t('htVisibility')}</div>
             <label className={bs.toggleRow}>
               <span className={`${bs.toggle} ${form.show_booking_button ? bs.toggleOn : bs.toggleOff}`}
                 onClick={() => setForm(f => ({ ...f, show_booking_button: !f.show_booking_button }))} />
               <div>
-                <div className={bs.toggleLabel}>Prikaži floating dugme na meniju</div>
-                <div className={bs.toggleHint}>Gosti će vidjeti "Rezerviši smještaj" dugme u meniju</div>
+                <div className={bs.toggleLabel}>{t('htShowFloatingBtn')}</div>
+                <div className={bs.toggleHint}>{t('htShowFloatingHint')}</div>
               </div>
             </label>
           </div>
 
           {/* Booking stranica */}
           <div className={bs.section}>
-            <div className={bs.sectionTitle}>Booking stranica</div>
+            <div className={bs.sectionTitle}>{t('htBookingPage')}</div>
             <div className={bs.field}>
-              <label>Naslov stranice</label>
+              <label>{t('htPageTitle')}</label>
               <input
                 value={form.booking_page_title}
                 onChange={e => setForm(f => ({ ...f, booking_page_title: e.target.value }))}
-                placeholder={`Online rezervacija — ${restaurant.name}`}
+                placeholder={t('htBookingTitlePh', { name: restaurant.name })}
               />
             </div>
             <div className={bs.field}>
-              <label>Kratki opis</label>
+              <label>{t('htShortDesc')}</label>
               <textarea
                 value={form.booking_page_desc}
                 onChange={e => setForm(f => ({ ...f, booking_page_desc: e.target.value }))}
@@ -138,46 +140,36 @@ export default function BookingSettings() {
             </div>
             <div className={bs.row2}>
               <div className={bs.field}>
-                <label>Check-in (default)</label>
+                <label>{t('htCheckinDefault')}</label>
                 <input type="time" value={form.booking_checkin_time}
                   onChange={e => setForm(f => ({ ...f, booking_checkin_time: e.target.value }))} />
               </div>
               <div className={bs.field}>
-                <label>Check-out (default)</label>
+                <label>{t('htCheckoutDefault')}</label>
                 <input type="time" value={form.booking_checkout_time}
                   onChange={e => setForm(f => ({ ...f, booking_checkout_time: e.target.value }))} />
               </div>
             </div>
             <div className={bs.field}>
-              <label>Naplata pri ranom odlasku</label>
+              <label>{t('htEarlyDepartureCharge')}</label>
               <select value={form.early_departure_charge}
                 onChange={e => setForm(f => ({ ...f, early_departure_charge: e.target.value }))}>
-                <option value="stay">Naplati samo odsjedene noći</option>
-                <option value="full">Naplati ukupno rezervisano (bez obzira na raniji odlazak)</option>
+                <option value="stay">{t('htChargeStayed')}</option>
+                <option value="full">{t('htChargeFull')}</option>
               </select>
               <div className={bs.toggleHint}>
-                Određuje da li se pri check-outu prije rezervisanog datuma skidaju neodsjedene noći sa folija.
+                {t('htEarlyDepartureHint')}
               </div>
             </div>
           </div>
 
           {/* Mod potvrde rezervacije */}
           <div className={bs.section}>
-            <div className={bs.sectionTitle}>Mod potvrde rezervacije</div>
+            <div className={bs.sectionTitle}>{t('htConfirmMode')}</div>
             <div className={bs.modeCards}>
               {[
-                {
-                  value: 'immediate',
-                  icon: '✅',
-                  label: 'Automatska potvrda',
-                  desc: 'Rezervacija se potvrđuje odmah pri slanju. Gost dobija email potvrde instantno.',
-                },
-                {
-                  value: 'manual',
-                  icon: '📋',
-                  label: 'Ručno odobravanje',
-                  desc: 'Rezervacija ide na čekanje. Vi je ručno odobravate iz admin panela, gost dobija potvrdu tek tada.',
-                },
+                { value: 'immediate', icon: '✅', labelKey: 'htModeImmediate', descKey: 'htModeImmediateD' },
+                { value: 'manual',    icon: '📋', labelKey: 'htModeManual',    descKey: 'htModeManualD' },
               ].map(opt => (
                 <button
                   key={opt.value}
@@ -186,8 +178,8 @@ export default function BookingSettings() {
                   onClick={() => setForm(f => ({ ...f, booking_mode: opt.value }))}
                 >
                   <span className={bs.modeIcon}>{opt.icon}</span>
-                  <span className={bs.modeLabel}>{opt.label}</span>
-                  <span className={bs.modeDesc}>{opt.desc}</span>
+                  <span className={bs.modeLabel}>{t(opt.labelKey)}</span>
+                  <span className={bs.modeDesc}>{t(opt.descKey)}</span>
                 </button>
               ))}
             </div>
@@ -195,9 +187,9 @@ export default function BookingSettings() {
 
           {/* Custom domena */}
           <div className={bs.section}>
-            <div className={bs.sectionTitle}>Custom domena <span className={bs.badge}>Napredno</span></div>
+            <div className={bs.sectionTitle}>{t('htCustomDomain')} <span className={bs.badge}>{t('htAdvanced')}</span></div>
             <div className={bs.field}>
-              <label>Domena (npr. book.mojhotel.com)</label>
+              <label>{t('htDomainLabel')}</label>
               <input
                 value={form.booking_custom_domain}
                 onChange={e => setForm(f => ({ ...f, booking_custom_domain: e.target.value.replace(/^https?:\/\//, '') }))}
@@ -205,22 +197,22 @@ export default function BookingSettings() {
               />
             </div>
             <div className={bs.infoBox}>
-              <div className={bs.infoTitle}>Kako podesiti custom domenu?</div>
+              <div className={bs.infoTitle}>{t('htDomainHowTo')}</div>
               <ol className={bs.infoList}>
-                <li>Dodajte CNAME zapis kod vašeg DNS provajdera:</li>
+                <li>{t('htDnsStep1')}</li>
                 <li><code className={bs.code}>{form.booking_custom_domain || 'book.mojhotel.com'} → {window.location.host}</code></li>
-                <li>Sačuvajte domenu gore i pošaljite nam je — aktiviraćemo SSL.</li>
+                <li>{t('htDnsStep3')}</li>
               </ol>
             </div>
           </div>
 
           {/* Booking link */}
           <div className={bs.section}>
-            <div className={bs.sectionTitle}>Booking link</div>
+            <div className={bs.sectionTitle}>{t('htBookingLink')}</div>
             <div className={bs.urlRow}>
               <div className={bs.urlText}>{bookingUrl}</div>
               <button className={bs.btnCopy} onClick={copyUrl}>
-                {copied ? '✓ Kopirano' : 'Kopiraj'}
+                {copied ? `✓ ${t('htCopied')}` : t('htCopy')}
               </button>
             </div>
           </div>
@@ -230,20 +222,20 @@ export default function BookingSettings() {
         {/* Desna kolona — QR */}
         <div className={bs.col}>
           <div className={bs.section}>
-            <div className={bs.sectionTitle}>QR kod za recepciju</div>
+            <div className={bs.sectionTitle}>{t('htQrForReception')}</div>
             <div className={bs.qrWrap}>
               <img src={qrSrc} alt="Booking QR" className={bs.qrImg} />
               <div className={bs.qrHotelName}>{restaurant.name}</div>
-              <div className={bs.qrCta}>{form.booking_page_title || 'Online rezervacija smještaja'}</div>
+              <div className={bs.qrCta}>{form.booking_page_title || t('htOnlineBooking')}</div>
               <div className={bs.qrTimes}>
-                Check-in: {form.booking_checkin_time} &nbsp;·&nbsp; Check-out: {form.booking_checkout_time}
+                {t('htCheckin')}: {form.booking_checkin_time} &nbsp;·&nbsp; {t('htCheckout')}: {form.booking_checkout_time}
               </div>
             </div>
             <button className={`${styles.btnPrimary} ${bs.btnPrint}`} onClick={handlePrint}>
-              🖨️ &nbsp;Odštampaj QR
+              🖨️ &nbsp;{t('htPrintQr')}
             </button>
             <p className={bs.printHint}>
-              Odštampajte i postavite na recepciju ili u sobu. Gosti skeniraju i odmah mogu rezervisati sljedeći boravak.
+              {t('htPrintHint')}
             </p>
           </div>
         </div>
