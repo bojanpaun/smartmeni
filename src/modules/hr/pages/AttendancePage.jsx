@@ -1,6 +1,7 @@
 // ▶ Zamijeniti: src/modules/hr/pages/AttendancePage.jsx
 
 import { useState, useEffect, useRef } from 'react'
+import { useTranslation } from 'react-i18next'
 import { supabase } from '../../../lib/supabase'
 import { usePlatform } from '../../../context/PlatformContext'
 import styles from './AttendancePage.module.css'
@@ -8,9 +9,9 @@ import gsStyles from '../../menu/pages/GeneralSettings.module.css'
 
 const toDay = () => new Date().toISOString().slice(0, 10)
 
-function fmtTime(ts) {
+function fmtTime(ts, dl) {
   if (!ts) return '—'
-  return new Date(ts).toLocaleTimeString('sr', { hour: '2-digit', minute: '2-digit', second: '2-digit' })
+  return new Date(ts).toLocaleTimeString(dl, { hour: '2-digit', minute: '2-digit', second: '2-digit' })
 }
 
 function calcHours(clockIn, clockOut) {
@@ -42,6 +43,8 @@ function totalSecondsForDay(entries, now) {
 
 export default function AttendancePage() {
   const { restaurant, user, isOwner, isSuperAdmin } = usePlatform()
+  const { t, i18n } = useTranslation('admin')
+  const dl = i18n.language === 'en' ? 'en-US' : 'sr-Latn'
   const isAdmin = isOwner() || isSuperAdmin()
 
   const [staff, setStaff] = useState([])
@@ -170,7 +173,7 @@ export default function AttendancePage() {
   }
 
   const deleteEntry = async (entryId, staffId) => {
-    if (!confirm('Obrisati ovaj unos?')) return
+    if (!confirm(t('attDeleteEntryConfirm'))) return
     await supabase.from('attendance_entries').delete().eq('id', entryId)
     setEntriesByStaff(prev => ({
       ...prev,
@@ -197,7 +200,7 @@ export default function AttendancePage() {
   const activeEntry = myEntries.find(e => e.clock_in && !e.clock_out)
   const todaySeconds = totalSecondsForDay(myEntries, now)
 
-  if (loading) return <div className={styles.loading}>Učitavanje evidencije...</div>
+  if (loading) return <div className={styles.loading}>{t('attLoading')}</div>
 
   return (
     <div className={styles.wrap}>
@@ -207,25 +210,25 @@ export default function AttendancePage() {
         <div className={styles.clockCard}>
           <div className={styles.clockTop}>
             <div>
-              <div className={styles.clockTitle}>Moje smjene danas</div>
+              <div className={styles.clockTitle}>{t('attMyShiftsToday')}</div>
               <div className={styles.clockTotalHours}>
-                Ukupno: <strong>{fmtDuration(todaySeconds)}</strong>
+                {t('flTotal')}: <strong>{fmtDuration(todaySeconds)}</strong>
               </div>
             </div>
             <div className={styles.clockBtns}>
               {!activeEntry ? (
                 <button className={styles.btnClockIn} onClick={clockIn} disabled={clockSaving}>
-                  {clockSaving ? '...' : '▶ Prijavi se'}
+                  {clockSaving ? '...' : `▶ ${t('attClockIn')}`}
                 </button>
               ) : (
                 <button className={styles.btnClockOut} onClick={() => clockOut(activeEntry.id)} disabled={clockSaving}>
-                  {clockSaving ? '...' : '⏹ Odjavi se'}
+                  {clockSaving ? '...' : `⏹ ${t('attClockOut')}`}
                 </button>
               )}
               {/* Nova smjena ako je prethodna završena */}
               {myEntries.length > 0 && !activeEntry && (
                 <button className={styles.btnNewShift} onClick={clockIn} disabled={clockSaving}>
-                  + Nova smjena
+                  + {t('attNewShift')}
                 </button>
               )}
             </div>
@@ -234,11 +237,11 @@ export default function AttendancePage() {
             <div className={styles.myShifts}>
               {myEntries.map((entry, i) => (
                 <div key={entry.id} className={`${styles.myShift} ${!entry.clock_out ? styles.myShiftActive : ''}`}>
-                  <span className={styles.myShiftNum}>Smjena {i + 1}</span>
+                  <span className={styles.myShiftNum}>{t('attShiftN', { n: i + 1 })}</span>
                   <span className={styles.myShiftTime}>
-                    {fmtTime(entry.clock_in)} → {entry.clock_out
-                      ? fmtTime(entry.clock_out)
-                      : <span className={styles.myShiftLive}>u toku</span>}
+                    {fmtTime(entry.clock_in, dl)} → {entry.clock_out
+                      ? fmtTime(entry.clock_out, dl)
+                      : <span className={styles.myShiftLive}>{t('attInProgress')}</span>}
                   </span>
                   {entry.hours_worked && (
                     <span className={`${styles.myShiftHours} ${!entry.clock_out ? styles.myShiftHoursActive : ''}`}>
@@ -256,27 +259,27 @@ export default function AttendancePage() {
       {isAdmin && (
         <>
           <div className={styles.header}>
-            <h1 className={gsStyles.title} style={{ margin: 0 }}>Dolasci</h1>
-          <p className={gsStyles.subtitle}>Evidencija dolazaka, odlazaka i radnih sati osoblja.</p>
+            <h1 className={gsStyles.title} style={{ margin: 0 }}>{t('attTitle')}</h1>
+          <p className={gsStyles.subtitle}>{t('attSubtitle')}</p>
             <input type="date" className={styles.dateFilter} value={filterDate}
               onChange={e => setFilterDate(e.target.value)} />
           </div>
 
           <div className={styles.statsRow}>
             <div className={styles.statCard}>
-              <div className={styles.statLabel}>Prisutni</div>
+              <div className={styles.statLabel}>{t('attPresent')}</div>
               <div className={styles.statVal}>{staff.filter(s => (entriesByStaff[s.id] || []).length > 0).length}</div>
             </div>
             <div className={styles.statCard}>
-              <div className={styles.statLabel}>Odsutni</div>
+              <div className={styles.statLabel}>{t('attAbsent')}</div>
               <div className={styles.statVal}>{staff.filter(s => (entriesByStaff[s.id] || []).length === 0).length}</div>
             </div>
             <div className={styles.statCard}>
-              <div className={styles.statLabel}>Aktivne smjene</div>
+              <div className={styles.statLabel}>{t('attActiveShifts')}</div>
               <div className={styles.statVal}>{Object.values(entriesByStaff).flat().filter(e => !e.clock_out).length}</div>
             </div>
             <div className={styles.statCard}>
-              <div className={styles.statLabel}>Ukupno sati</div>
+              <div className={styles.statLabel}>{t('attTotalHours')}</div>
               <div className={styles.statVal}>
                 {fmtDuration(Object.values(entriesByStaff).flat()
                   .reduce((sum, e) => sum + (e.clock_in ? calcSeconds(e.clock_in, e.clock_out || now) : 0), 0))}
@@ -296,12 +299,12 @@ export default function AttendancePage() {
                     <div className={styles.staffSectionName}>
                       <div className={styles.staffAvatar}>{staffName(member)[0].toUpperCase()}</div>
                       {staffName(member)}
-                      {hasActive && <span className={styles.activeBadge}>● Aktivan</span>}
+                      {hasActive && <span className={styles.activeBadge}>● {t('htActive')}</span>}
                     </div>
                     <div className={styles.staffSectionMeta}>
                       {totalSec > 0 && <span className={styles.staffTotalH}>{fmtDuration(totalSec)}</span>}
-                      {entries.length === 0 && <span className={styles.absentBadge}>Odsutan</span>}
-                      <button className={styles.btnAddEntry} onClick={() => addManualEntry(member.id)}>+ Unos</button>
+                      {entries.length === 0 && <span className={styles.absentBadge}>{t('attAbsentBadge')}</span>}
+                      <button className={styles.btnAddEntry} onClick={() => addManualEntry(member.id)}>+ {t('attEntry')}</button>
                     </div>
                   </div>
                   {entries.length > 0 && (
@@ -310,9 +313,9 @@ export default function AttendancePage() {
                         <div key={entry.id} className={`${styles.entryRow} ${!entry.clock_out ? styles.entryRowActive : ''}`}>
                           <span className={styles.entryNum}>#{i + 1}</span>
                           <span className={styles.entryTimes}>
-                            {fmtTime(entry.clock_in)}
+                            {fmtTime(entry.clock_in, dl)}
                             <span className={styles.entryArrow}>→</span>
-                            {entry.clock_out ? fmtTime(entry.clock_out) : <span className={styles.liveDot}>u toku</span>}
+                            {entry.clock_out ? fmtTime(entry.clock_out, dl) : <span className={styles.liveDot}>{t('attInProgress')}</span>}
                           </span>
                           {entry.clock_in && (
                             <span className={`${styles.entryHours} ${!entry.clock_out ? styles.entryHoursActive : ''}`}>
@@ -321,7 +324,7 @@ export default function AttendancePage() {
                           )}
                           {entry.note && <span className={styles.entryNote}>{entry.note}</span>}
                           <div className={styles.entryActions}>
-                            <button className={styles.btnEdit} onClick={() => openEdit(entry)}>Uredi</button>
+                            <button className={styles.btnEdit} onClick={() => openEdit(entry)}>{t('htEdit')}</button>
                             <button className={styles.btnDel} onClick={() => deleteEntry(entry.id, member.id)}>✕</button>
                           </div>
                         </div>
@@ -340,18 +343,18 @@ export default function AttendancePage() {
         <div className={styles.overlay} onClick={() => setEditEntry(null)}>
           <div className={styles.modal} onClick={e => e.stopPropagation()}>
             <div className={styles.modalHeader}>
-              <div className={styles.modalTitle}>Uredi unos</div>
+              <div className={styles.modalTitle}>{t('attEditEntry')}</div>
               <button className={styles.modalClose} onClick={() => setEditEntry(null)}>✕</button>
             </div>
             <form onSubmit={saveEdit} className={styles.form}>
               <div className={styles.fieldRow}>
                 <div className={styles.field}>
-                  <label>Prijava *</label>
+                  <label>{t('attClockInLabel')} *</label>
                   <input type="time" value={editForm.clock_in}
                     onChange={e => setEditForm(f => ({ ...f, clock_in: e.target.value }))} required />
                 </div>
                 <div className={styles.field}>
-                  <label>Odjava</label>
+                  <label>{t('attClockOutLabel')}</label>
                   <input type="time" value={editForm.clock_out}
                     onChange={e => setEditForm(f => ({ ...f, clock_out: e.target.value }))} />
                 </div>
@@ -362,13 +365,13 @@ export default function AttendancePage() {
                 </div>
               )}
               <div className={styles.field}>
-                <label>Napomena</label>
+                <label>{t('hkpNote')}</label>
                 <input value={editForm.note} onChange={e => setEditForm(f => ({ ...f, note: e.target.value }))}
                   placeholder="Razlog korekcije..." />
               </div>
               <div className={styles.modalActions}>
-                <button type="button" className={styles.btnSecondary} onClick={() => setEditEntry(null)}>Odustani</button>
-                <button type="submit" className={styles.btnSave} disabled={saving}>{saving ? 'Čuvanje...' : 'Sačuvaj'}</button>
+                <button type="button" className={styles.btnSecondary} onClick={() => setEditEntry(null)}>{t('cancel')}</button>
+                <button type="submit" className={styles.btnSave} disabled={saving}>{saving ? t('saving') : t('save')}</button>
               </div>
             </form>
           </div>
