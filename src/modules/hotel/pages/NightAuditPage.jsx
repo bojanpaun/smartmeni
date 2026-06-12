@@ -1,5 +1,6 @@
 import { useState, useEffect, useRef } from 'react'
 import toast from 'react-hot-toast'
+import { useTranslation } from 'react-i18next'
 import { usePlatform } from '../../../context/PlatformContext'
 import { supabase } from '../../../lib/supabase'
 import LoadingSpinner from '../../../components/shared/LoadingSpinner'
@@ -12,12 +13,15 @@ const todayISO = () => {
   return `${d.getFullYear()}-${String(d.getMonth() + 1).padStart(2, '0')}-${String(d.getDate()).padStart(2, '0')}`
 }
 
-const TYPE_LABEL = { room_charge: 'Sobe', restaurant: 'Restoran', minibar: 'Minibar', spa: 'Spa', other: 'Ostalo' }
+const TYPE_LABEL_KEYS = { room_charge: 'htTypeRoom', restaurant: 'htTypeRestaurant', minibar: 'htTypeMinibar', spa: 'htTypeSpa', other: 'htTypeOther' }
 const eur = (n) => `€${Number(n || 0).toFixed(2)}`
-const fmtDate = (s) => s ? new Date(s).toLocaleDateString('sr-Latn', { day: '2-digit', month: '2-digit', year: 'numeric' }) : '—'
+const fmtDate = (s, dl) => s ? new Date(s).toLocaleDateString(dl, { day: '2-digit', month: '2-digit', year: 'numeric' }) : '—'
 
 export default function NightAuditPage() {
   const { restaurant } = usePlatform()
+  const { t, i18n } = useTranslation('admin')
+  const dl = i18n.language === 'en' ? 'en-US' : 'sr-Latn'
+  const typeLabel = (ty) => TYPE_LABEL_KEYS[ty] ? t(TYPE_LABEL_KEYS[ty]) : ty
   const [date, setDate] = useState(todayISO())
   const [running, setRunning] = useState(false)
   const [result, setResult] = useState(null)   // odgovor zadnjeg run-a (report)
@@ -46,12 +50,12 @@ export default function NightAuditPage() {
       p_business_date: date,
     })
     setRunning(false)
-    if (error) { toast.error('Greška: ' + error.message); return }
+    if (error) { toast.error(t('htErr') + ': ' + error.message); return }
     setResult(data)
     if (data?.already_run) {
-      toast('Audit za taj dan je već urađen — prikazan postojeći izvještaj', { icon: 'ℹ️' })
+      toast(t('htAuditAlreadyRun'), { icon: 'ℹ️' })
     } else {
-      toast.success(`Audit završen — ${data?.room_charges_posted ?? 0} room charge stavki (${eur(data?.room_charges_amount)})`)
+      toast.success(t('htAuditDone', { n: data?.room_charges_posted ?? 0, amount: eur(data?.room_charges_amount) }))
     }
     loadHistory()
   }
@@ -59,17 +63,17 @@ export default function NightAuditPage() {
   const exportCSV = (rep) => {
     if (!rep) return
     const rows = [
-      ['Dnevni izvještaj', fmtDate(rep.business_date)],
+      [t('htCsvDailyReport'), fmtDate(rep.business_date, dl)],
       [],
-      ['Ukupan prihod', Number(rep.revenue_total || 0).toFixed(2)],
-      ['Popunjenost (%)', rep.occupancy_pct ?? 0],
-      ['Zauzete sobe', `${rep.rooms_occupied}/${rep.rooms_total}`],
+      [t('htTotalRevenue'), Number(rep.revenue_total || 0).toFixed(2)],
+      [t('htOccupancyPct'), rep.occupancy_pct ?? 0],
+      [t('htRoomsOccupiedHead'), `${rep.rooms_occupied}/${rep.rooms_total}`],
       ['ADR', Number(rep.adr || 0).toFixed(2)],
-      ['Room charge stavki', rep.room_charges_posted ?? 0],
-      ['Room charge iznos', Number(rep.room_charges_amount || 0).toFixed(2)],
+      [t('htRoomChargeItems'), rep.room_charges_posted ?? 0],
+      [t('htRoomChargeAmount'), Number(rep.room_charges_amount || 0).toFixed(2)],
       [],
-      ['Prihod po kategoriji', 'Iznos (€)'],
-      ...Object.entries(rep.revenue_by_type || {}).map(([t, a]) => [TYPE_LABEL[t] || t, Number(a || 0).toFixed(2)]),
+      [t('htRevenueByCategory'), t('htAmountEur')],
+      ...Object.entries(rep.revenue_by_type || {}).map(([ty, a]) => [typeLabel(ty), Number(a || 0).toFixed(2)]),
     ]
     const csv = rows.map(r => r.map(c => `"${String(c).replace(/"/g, '""')}"`).join(',')).join('\n')
     const blob = new Blob(['﻿' + csv], { type: 'text/csv;charset=utf-8;' })
@@ -91,8 +95,8 @@ export default function NightAuditPage() {
     <div className={styles.page}>
       <div className={styles.header}>
         <div>
-          <h1 className={styles.title}>Noćni audit</h1>
-          <p className={styles.subtitle}>Zatvaranje dana (EOD) — room charge na folije, housekeeping reset, dnevni izvještaj</p>
+          <h1 className={styles.title}>{t('htNightAuditTitle')}</h1>
+          <p className={styles.subtitle}>{t('htNightAuditSub')}</p>
         </div>
       </div>
 
@@ -100,15 +104,15 @@ export default function NightAuditPage() {
       <div style={{ background: 'var(--c-surface)', border: '1px solid var(--c-border)', borderRadius: 12, padding: 16, marginBottom: 16 }}>
         <div className={na.runRow}>
           <div className={na.runField}>
-            <label style={{ fontSize: 12, color: 'var(--c-text-medium)', display: 'block', marginBottom: 4 }}>Dan koji se zatvara</label>
+            <label style={{ fontSize: 12, color: 'var(--c-text-medium)', display: 'block', marginBottom: 4 }}>{t('htDayToClose')}</label>
             <input className={styles.input} type="date" value={date} max={todayISO()} onChange={e => setDate(e.target.value)} style={{ width: '100%' }} />
           </div>
           <button className={`${styles.btnPrimary} ${na.runBtn}`} onClick={runAudit} disabled={running}>
-            {running ? 'Pokrećem…' : '🌙 Pokreni noćni audit'}
+            {running ? t('htRunning') : `🌙 ${t('htRunAudit')}`}
           </button>
         </div>
         <p style={{ fontSize: 12, color: 'var(--c-text-muted)', marginTop: 10, marginBottom: 0 }}>
-          Automatski se pokreće svake noći. Ručno pokretanje je idempotentno — ponovni audit istog dana ne dodaje duple stavke.
+          {t('htAuditAutoNote')}
         </p>
       </div>
 
@@ -117,27 +121,27 @@ export default function NightAuditPage() {
         <div style={{ background: 'var(--c-surface)', border: '1px solid var(--c-border)', borderRadius: 12, padding: 16, marginBottom: 16 }}>
           <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: 12 }}>
             <div style={{ fontWeight: 600 }}>
-              Izvještaj — {fmtDate(report.business_date)}
-              {result?.already_run && <span style={{ fontSize: 12, color: 'var(--c-text-muted)', fontWeight: 400 }}> (već zatvoreno)</span>}
+              {t('htReport')} — {fmtDate(report.business_date, dl)}
+              {result?.already_run && <span style={{ fontSize: 12, color: 'var(--c-text-muted)', fontWeight: 400 }}> {t('htAlreadyClosed')}</span>}
             </div>
             <button className={styles.btnSecondary} style={{ fontSize: 12 }} onClick={() => exportCSV(report)}>⬇️ CSV</button>
           </div>
 
           <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(140px, 1fr))', gap: 12, marginBottom: 16 }}>
-            <Stat label="Ukupan prihod" value={eur(report.revenue_total)} />
-            <Stat label="Popunjenost" value={`${report.occupancy_pct ?? 0}%`} sub={`${report.rooms_occupied}/${report.rooms_total} soba`} />
-            <Stat label="ADR" value={eur(report.adr)} sub="prosj. cijena sobe" />
-            <Stat label="Room charge" value={`${report.room_charges_posted ?? 0}×`} sub={eur(report.room_charges_amount)} />
+            <Stat label={t('htTotalRevenue')} value={eur(report.revenue_total)} />
+            <Stat label={t('kpiOccupancy')} value={`${report.occupancy_pct ?? 0}%`} sub={t('htRoomsOccupied', { occupied: report.rooms_occupied, total: report.rooms_total })} />
+            <Stat label="ADR" value={eur(report.adr)} sub={t('htAdrSub')} />
+            <Stat label={t('htRoomCharge')} value={`${report.room_charges_posted ?? 0}×`} sub={eur(report.room_charges_amount)} />
           </div>
 
-          <div style={{ fontSize: 13, fontWeight: 600, marginBottom: 6, color: 'var(--c-text-medium)' }}>Prihod po kategoriji</div>
+          <div style={{ fontSize: 13, fontWeight: 600, marginBottom: 6, color: 'var(--c-text-medium)' }}>{t('htRevenueByCategory')}</div>
           {Object.keys(revByType).length === 0 ? (
-            <div style={{ fontSize: 13, color: 'var(--c-text-muted)' }}>Nema prihoda za ovaj dan.</div>
+            <div style={{ fontSize: 13, color: 'var(--c-text-muted)' }}>{t('htNoRevenueDay')}</div>
           ) : (
             <div style={{ display: 'flex', flexWrap: 'wrap', gap: 8, marginBottom: openCheckout.length ? 16 : 0 }}>
               {Object.entries(revByType).map(([type, amt]) => (
                 <div key={type} style={{ padding: '6px 12px', border: '1px solid var(--c-border)', borderRadius: 8, fontSize: 13 }}>
-                  {TYPE_LABEL[type] || type}: <strong>{eur(amt)}</strong>
+                  {typeLabel(type)}: <strong>{eur(amt)}</strong>
                 </div>
               ))}
             </div>
@@ -146,11 +150,11 @@ export default function NightAuditPage() {
           {openCheckout.length > 0 && (
             <div style={{ marginTop: 12, padding: 12, border: '1px solid #fca5a5', background: '#fef2f2', borderRadius: 8 }}>
               <div style={{ fontWeight: 600, color: '#c0392b', fontSize: 13, marginBottom: 6 }}>
-                ⚠️ Otvoreni folji za odjavljene goste ({openCheckout.length})
+                ⚠️ {t('htOpenFolios', { n: openCheckout.length })}
               </div>
               {openCheckout.map(f => (
                 <div key={f.folio_id} style={{ fontSize: 13, color: '#7f1d1d' }}>
-                  {f.guest_name} — duguje {eur((f.total_amount || 0) - (f.paid_amount || 0))}
+                  {t('htOwes', { name: f.guest_name, amount: eur((f.total_amount || 0) - (f.paid_amount || 0)) })}
                 </div>
               ))}
             </div>
@@ -159,31 +163,31 @@ export default function NightAuditPage() {
       )}
 
       {/* Istorija audita */}
-      <div style={{ fontWeight: 600, marginBottom: 8 }}>Istorija audita</div>
+      <div style={{ fontWeight: 600, marginBottom: 8 }}>{t('htAuditHistory')}</div>
       {loadingHist ? <LoadingSpinner /> : history.length === 0 ? (
-        <div style={{ padding: 24, textAlign: 'center', color: 'var(--c-text-muted)' }}>Još nema pokrenutih audita.</div>
+        <div style={{ padding: 24, textAlign: 'center', color: 'var(--c-text-muted)' }}>{t('htNoAudits')}</div>
       ) : (
         <div className={na.histWrap}>
           <table className={na.histTable}>
             <thead>
               <tr>
-                <th>Datum</th>
-                <th>Prihod</th>
-                <th>Popunjenost</th>
-                <th>Room charge</th>
-                <th>Pokrenut</th>
+                <th>{t('htDateHead')}</th>
+                <th>{t('htRevenueHead')}</th>
+                <th>{t('kpiOccupancy')}</th>
+                <th>{t('htRoomCharge')}</th>
+                <th>{t('htRunAt')}</th>
               </tr>
             </thead>
             <tbody>
               {history.map(h => (
                 <tr key={h.id}
                     onClick={() => { setResult({ report: h.report, already_run: true }); setDate(h.business_date) }}>
-                  <td className={na.dateCell} data-label="Datum">{fmtDate(h.business_date)}</td>
-                  <td data-label="Prihod">{eur(h.report?.revenue_total)}</td>
-                  <td data-label="Popunjenost">{h.report?.occupancy_pct ?? 0}%</td>
-                  <td data-label="Room charge">{h.room_charges_posted}× · {eur(h.room_charges_amount)}</td>
-                  <td className={na.mutedCell} data-label="Pokrenut">
-                    {h.run_at ? new Date(h.run_at).toLocaleString('sr-Latn', { day: '2-digit', month: '2-digit', hour: '2-digit', minute: '2-digit' }) : '—'}
+                  <td className={na.dateCell} data-label={t('htDateHead')}>{fmtDate(h.business_date, dl)}</td>
+                  <td data-label={t('htRevenueHead')}>{eur(h.report?.revenue_total)}</td>
+                  <td data-label={t('kpiOccupancy')}>{h.report?.occupancy_pct ?? 0}%</td>
+                  <td data-label={t('htRoomCharge')}>{h.room_charges_posted}× · {eur(h.room_charges_amount)}</td>
+                  <td className={na.mutedCell} data-label={t('htRunAt')}>
+                    {h.run_at ? new Date(h.run_at).toLocaleString(dl, { day: '2-digit', month: '2-digit', hour: '2-digit', minute: '2-digit' }) : '—'}
                   </td>
                 </tr>
               ))}

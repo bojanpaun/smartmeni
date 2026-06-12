@@ -1,4 +1,5 @@
 import { useState, useEffect } from 'react'
+import { useTranslation } from 'react-i18next'
 import { usePlatform } from '../../../context/PlatformContext'
 import { supabase } from '../../../lib/supabase'
 import LoadingSpinner from '../../../components/shared/LoadingSpinner'
@@ -8,6 +9,7 @@ const BLANK = { name: '', price: '', is_active: true }
 
 export default function MinibarPage() {
   const { restaurant } = usePlatform()
+  const { t } = useTranslation('admin')
   const [items, setItems] = useState([])
   const [loading, setLoading] = useState(true)
   const [showForm, setShowForm] = useState(false)
@@ -58,7 +60,7 @@ export default function MinibarPage() {
   }
 
   const remove = async (id) => {
-    if (!window.confirm('Obrisati artikal?')) return
+    if (!window.confirm(t('htDeleteItemConfirm'))) return
     await supabase.from('minibar_items').delete().eq('id', id)
     load()
   }
@@ -83,7 +85,7 @@ export default function MinibarPage() {
       p_restaurant_id: restaurant.id, p_ids: [...libSel],
     })
     setLibBusy(false)
-    if (error) { setLibMsg('Greška: ' + error.message); return }
+    if (error) { setLibMsg(t('htErr') + ': ' + error.message); return }
     setShowLib(false)
     load()
   }
@@ -94,19 +96,19 @@ export default function MinibarPage() {
     <div className={styles.page}>
       <div className={styles.header}>
         <div>
-          <h1 className={styles.title}>Minibar</h1>
-          <p className={styles.subtitle}>Cjenovnik minibara — zaduženje ide na folio gosta</p>
+          <h1 className={styles.title}>{t('htTypeMinibar')}</h1>
+          <p className={styles.subtitle}>{t('htMinibarSub')}</p>
         </div>
         <div style={{ display: 'flex', gap: 8 }}>
-          <button className={styles.btnSecondary} onClick={openLib}>📚 Iz biblioteke</button>
-          <button className={styles.btnPrimary} onClick={openNew}>+ Dodaj artikal</button>
+          <button className={styles.btnSecondary} onClick={openLib}>📚 {t('htFromLibrary')}</button>
+          <button className={styles.btnPrimary} onClick={openNew}>+ {t('htAddItem')}</button>
         </div>
       </div>
 
       {showLib && (
         <div style={{ background: 'var(--c-surface)', border: '1px solid var(--c-border)', borderRadius: 12, padding: 16, marginBottom: 16 }}>
           <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: 10 }}>
-            <div style={{ fontWeight: 600 }}>📚 Biblioteka minibara — označi i uvezi</div>
+            <div style={{ fontWeight: 600 }}>📚 {t('htMinibarLibTitle')}</div>
             <button onClick={() => setShowLib(false)} style={{ background: 'none', border: 'none', fontSize: 18, cursor: 'pointer', color: 'var(--c-text-muted)' }}>✕</button>
           </div>
           {libMsg && <div style={{ color: '#c0392b', fontSize: 13, marginBottom: 8 }}>{libMsg}</div>}
@@ -125,9 +127,9 @@ export default function MinibarPage() {
                 ))}
               </div>
               <div style={{ display: 'flex', gap: 8, justifyContent: 'flex-end', marginTop: 12 }}>
-                <button className={styles.btnSecondary} onClick={() => setShowLib(false)}>Odustani</button>
+                <button className={styles.btnSecondary} onClick={() => setShowLib(false)}>{t('cancel')}</button>
                 <button className={styles.btnPrimary} onClick={importSelected} disabled={libBusy || libSel.size === 0}>
-                  {libBusy ? 'Uvoz...' : `Uvezi izabrane (${libSel.size})`}
+                  {libBusy ? t('htImporting') : t('htImportSelected', { n: libSel.size })}
                 </button>
               </div>
             </>
@@ -139,37 +141,37 @@ export default function MinibarPage() {
         <div style={{ background: 'var(--c-surface)', border: '1px solid var(--c-border)', borderRadius: 12, padding: 16, marginBottom: 16 }}>
           <div style={{ display: 'flex', gap: 12, flexWrap: 'wrap', alignItems: 'flex-end' }}>
             <div style={{ flex: 2, minWidth: 180 }}>
-              <label style={{ fontSize: 12, color: 'var(--c-text-medium)' }}>Naziv *</label>
+              <label style={{ fontSize: 12, color: 'var(--c-text-medium)' }}>{t('htFieldName')} *</label>
               <input className={styles.input} value={form.name} onChange={e => upd('name', e.target.value)} placeholder="npr. Coca-Cola 0.33" />
             </div>
             <div style={{ width: 120 }}>
-              <label style={{ fontSize: 12, color: 'var(--c-text-medium)' }}>Cijena (€)</label>
+              <label style={{ fontSize: 12, color: 'var(--c-text-medium)' }}>{t('htPriceEur')}</label>
               <input className={styles.input} type="number" min="0" step="0.01" value={form.price} onChange={e => upd('price', e.target.value)} />
             </div>
             <label style={{ display: 'flex', alignItems: 'center', gap: 8, paddingBottom: 8 }}>
               <input type="checkbox" checked={form.is_active} onChange={e => upd('is_active', e.target.checked)} />
-              <span style={{ fontSize: 13 }}>Aktivan</span>
+              <span style={{ fontSize: 13 }}>{t('htActive')}</span>
             </label>
           </div>
           <div style={{ display: 'flex', gap: 8, justifyContent: 'flex-end', marginTop: 12 }}>
-            <button className={styles.btnSecondary} onClick={close}>Odustani</button>
-            <button className={styles.btnPrimary} onClick={handleSave} disabled={saving}>{saving ? 'Čuvanje...' : 'Sačuvaj'}</button>
+            <button className={styles.btnSecondary} onClick={close}>{t('cancel')}</button>
+            <button className={styles.btnPrimary} onClick={handleSave} disabled={saving}>{saving ? t('saving') : t('save')}</button>
           </div>
         </div>
       )}
 
       {loading ? <LoadingSpinner /> : items.length === 0 ? (
         <div style={{ padding: 32, textAlign: 'center', color: 'var(--c-text-muted)' }}>
-          Nema artikala. Dodaj prvi (npr. Voda, Sok, Pivo).
+          {t('htNoMinibarItems')}
         </div>
       ) : (
         <div className={styles.table}>
           <table style={{ width: '100%', borderCollapse: 'collapse', background: 'var(--c-surface)', borderRadius: 12, overflow: 'hidden', border: '1px solid var(--c-border)' }}>
             <thead>
               <tr style={{ textAlign: 'left' }}>
-                <th style={{ padding: '10px 12px' }}>Artikal</th>
-                <th style={{ padding: '10px 12px' }}>Cijena</th>
-                <th style={{ padding: '10px 12px' }}>Status</th>
+                <th style={{ padding: '10px 12px' }}>{t('htItemHead')}</th>
+                <th style={{ padding: '10px 12px' }}>{t('htPriceHead')}</th>
+                <th style={{ padding: '10px 12px' }}>{t('htFieldStatus')}</th>
                 <th></th>
               </tr>
             </thead>
@@ -181,11 +183,11 @@ export default function MinibarPage() {
                   <td style={{ padding: '10px 12px' }}>{it.is_active ? '✓' : '—'}</td>
                   <td style={{ padding: '10px 12px' }}>
                     <div style={{ display: 'flex', gap: 8 }}>
-                      <button className={styles.btnSecondary} style={{ fontSize: 12 }} onClick={() => openEdit(it)}>Uredi</button>
+                      <button className={styles.btnSecondary} style={{ fontSize: 12 }} onClick={() => openEdit(it)}>{t('htEdit')}</button>
                       <button
                         style={{ padding: '5px 10px', fontSize: 12, background: 'transparent', color: '#c0392b', border: '1px solid #fca5a5', borderRadius: 7, cursor: 'pointer' }}
                         onClick={() => remove(it.id)}
-                      >Obriši</button>
+                      >{t('htDelete')}</button>
                     </div>
                   </td>
                 </tr>

@@ -1,5 +1,6 @@
 import { useState, useEffect } from 'react'
 import toast from 'react-hot-toast'
+import { useTranslation } from 'react-i18next'
 import { usePlatform } from '../../../context/PlatformContext'
 import { supabase } from '../../../lib/supabase'
 import LoadingSpinner from '../../../components/shared/LoadingSpinner'
@@ -12,6 +13,7 @@ const todayISO = () => {
 
 export default function BreakfastPage() {
   const { restaurant } = usePlatform()
+  const { t } = useTranslation('admin')
   const [date, setDate] = useState(todayISO())
   const [rows, setRows] = useState([])     // { res, persons, consumed }
   const [loading, setLoading] = useState(true)
@@ -58,8 +60,8 @@ export default function BreakfastPage() {
       persons:        row.persons,
     }, { onConflict: 'reservation_id,date' })
     setBusyId(null)
-    if (error) return toast.error('Greška: ' + error.message)
-    toast.success(`Doručak potvrđen — soba ${row.res.rooms?.room_number ?? '—'}`)
+    if (error) return toast.error(t('htErr') + ': ' + error.message)
+    toast.success(t('htBreakfastConfirmed', { num: row.res.rooms?.room_number ?? '—' }))
     load()
   }
 
@@ -68,7 +70,7 @@ export default function BreakfastPage() {
     const { error } = await supabase.from('breakfast_log')
       .delete().eq('reservation_id', row.res.id).eq('date', date)
     setBusyId(null)
-    if (error) return toast.error('Greška: ' + error.message)
+    if (error) return toast.error(t('htErr') + ': ' + error.message)
     load()
   }
 
@@ -84,33 +86,33 @@ export default function BreakfastPage() {
     <div className={styles.page}>
       <div className={styles.header}>
         <div>
-          <h1 className={styles.title}>Doručak — kontrola</h1>
-          <p className={styles.subtitle}>Evidencija uključenih doručaka po sobi · planirano vs iskorišteno</p>
+          <h1 className={styles.title}>{t('htBreakfastTitle')}</h1>
+          <p className={styles.subtitle}>{t('htBreakfastSub')}</p>
         </div>
         <input className={styles.input} type="date" value={date} onChange={e => setDate(e.target.value)} style={{ maxWidth: 170 }} />
       </div>
 
       {/* Sažetak */}
       <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(150px, 1fr))', gap: 12, marginBottom: 20 }}>
-        <Stat label="Planirano" value={`${plannedRooms} soba`} sub={`${plannedPersons} osoba`} />
-        <Stat label="Iskorišteno" value={`${usedRooms} soba`} sub={`${usedPersons} osoba`} />
-        <Stat label="Neiskorišteno" value={`${unusedRooms} soba`} sub={unusedRooms > 0 ? 'nije konzumirano' : 'sve evidentirano'} accent={unusedRooms > 0} />
+        <Stat label={t('htPlanned')} value={t('htRoomsN', { n: plannedRooms })} sub={t('htPersonsN', { n: plannedPersons })} />
+        <Stat label={t('htUsed')} value={t('htRoomsN', { n: usedRooms })} sub={t('htPersonsN', { n: usedPersons })} />
+        <Stat label={t('htUnused')} value={t('htRoomsN', { n: unusedRooms })} sub={unusedRooms > 0 ? t('htNotConsumedSub') : t('htAllRecorded')} accent={unusedRooms > 0} />
       </div>
 
       {loading ? <LoadingSpinner /> : rows.length === 0 ? (
         <div style={{ padding: 32, textAlign: 'center', color: 'var(--c-text-muted)' }}>
-          Nema soba sa uključenim doručkom za ovaj dan. (Uključi doručak na rate planu: Hotel → Cjenovni planovi.)
+          {t('htNoBreakfastRooms')}
         </div>
       ) : (
         <div className={styles.table}>
           <table style={{ width: '100%', borderCollapse: 'collapse', background: 'var(--c-surface)', borderRadius: 12, overflow: 'hidden', border: '1px solid var(--c-border)' }}>
             <thead>
               <tr style={{ textAlign: 'left' }}>
-                <th style={{ padding: '10px 12px' }}>Soba</th>
-                <th style={{ padding: '10px 12px' }}>Gost</th>
-                <th style={{ padding: '10px 12px' }}>Osoba</th>
-                <th style={{ padding: '10px 12px' }}>Status</th>
-                <th style={{ padding: '10px 12px', textAlign: 'right' }}>Akcija</th>
+                <th style={{ padding: '10px 12px' }}>{t('htRoomSingular')}</th>
+                <th style={{ padding: '10px 12px' }}>{t('htGuest')}</th>
+                <th style={{ padding: '10px 12px' }}>{t('htPersonsHead')}</th>
+                <th style={{ padding: '10px 12px' }}>{t('htFieldStatus')}</th>
+                <th style={{ padding: '10px 12px', textAlign: 'right' }}>{t('htActionHead')}</th>
               </tr>
             </thead>
             <tbody>
@@ -121,13 +123,13 @@ export default function BreakfastPage() {
                   <td style={{ padding: '10px 12px' }}>{row.persons}</td>
                   <td style={{ padding: '10px 12px' }}>
                     {row.consumed
-                      ? <span style={{ color: 'var(--c-primary)', fontWeight: 600 }}>✓ Konzumiran</span>
-                      : <span style={{ color: 'var(--c-text-muted)' }}>— Nije</span>}
+                      ? <span style={{ color: 'var(--c-primary)', fontWeight: 600 }}>✓ {t('htConsumed')}</span>
+                      : <span style={{ color: 'var(--c-text-muted)' }}>— {t('htNotYet')}</span>}
                   </td>
                   <td style={{ padding: '10px 12px', textAlign: 'right' }}>
                     {row.consumed
-                      ? <button className={styles.btnSecondary} style={{ fontSize: 12 }} onClick={() => undo(row)} disabled={busyId === row.res.id}>Poništi</button>
-                      : <button className={styles.btnPrimary} style={{ fontSize: 12 }} onClick={() => confirm(row)} disabled={busyId === row.res.id}>{busyId === row.res.id ? '...' : '✓ Potvrdi'}</button>}
+                      ? <button className={styles.btnSecondary} style={{ fontSize: 12 }} onClick={() => undo(row)} disabled={busyId === row.res.id}>{t('htUndo')}</button>
+                      : <button className={styles.btnPrimary} style={{ fontSize: 12 }} onClick={() => confirm(row)} disabled={busyId === row.res.id}>{busyId === row.res.id ? '...' : `✓ ${t('htConfirm')}`}</button>}
                   </td>
                 </tr>
               ))}
