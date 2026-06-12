@@ -1,8 +1,10 @@
 import { useState, useEffect } from 'react'
 import { useParams } from 'react-router-dom'
+import { useTranslation } from 'react-i18next'
 import { supabase } from '../../lib/supabase'
 import { hasAddon } from '../../lib/planUtils'
 import useKitchenCounts from '../../hooks/useKitchenCounts'
+import LanguageSwitcher from '../../i18n/LanguageSwitcher'
 import s from './StaffPortal.module.css'
 import HomeView from './views/HomeView'
 import ProfileView from './views/ProfileView'
@@ -28,9 +30,9 @@ function detectPortalType(roleName) {
   return 'hr'
 }
 
-const HOME_TAB    = { key: 'home',    label: 'Početna', icon: '🏠' }
-const NOTIF_TAB   = { key: 'notifications', label: 'Obavještenja', icon: '📢' }
-const PROFILE_TAB = { key: 'profile', label: 'Profil',   icon: '👤' }
+const HOME_TAB    = { key: 'home',    labelKey: 'tabHome', icon: '🏠' }
+const NOTIF_TAB   = { key: 'notifications', labelKey: 'tabNotifications', icon: '📢' }
+const PROFILE_TAB = { key: 'profile', labelKey: 'tabProfile',   icon: '👤' }
 
 // Merguje tabove više rola — home uvijek prvi, profile uvijek posljednji
 const HR_TABS = ['schedule', 'attendance', 'payroll', 'absences']
@@ -58,21 +60,21 @@ function mergePortalTabs(roleNames) {
 // Mapiranje permisije → operativni tabovi koje ta permisija otvara
 const PERM_TO_TABS = [
   { perm: 'view_orders',        tabs: [
-      { key: 'orders',       label: 'Narudžbe',  icon: '🍽️' },
-      { key: 'requests',     label: 'Zahtjevi',  icon: '🔔' },
+      { key: 'orders',       labelKey: 'tabOrders',  icon: '🍽️' },
+      { key: 'requests',     labelKey: 'tabRequests',  icon: '🔔' },
   ]},
-  { perm: 'view_kitchen_orders', tabs: [{ key: 'kitchen',      label: 'Kuhinja',  icon: '🍳' }] },
-  { perm: 'view_bar_orders',     tabs: [{ key: 'bar_orders',   label: 'Bar',      icon: '🍷' }] },
+  { perm: 'view_kitchen_orders', tabs: [{ key: 'kitchen',      labelKey: 'tabKitchen',  icon: '🍳' }] },
+  { perm: 'view_bar_orders',     tabs: [{ key: 'bar_orders',   labelKey: 'tabBar',      icon: '🍷' }] },
   { perm: 'view_housekeeping',   tabs: [
-      { key: 'tasks',       label: 'Zadaci',     icon: '🧹' },
-      { key: 'maintenance', label: 'Održavanje', icon: '🔧' },
+      { key: 'tasks',       labelKey: 'tabTasks',     icon: '🧹' },
+      { key: 'maintenance', labelKey: 'tabMaintenance', icon: '🔧' },
   ]},
   { perm: 'checkin_checkout',    tabs: [
-      { key: 'checkin',      label: 'Check-in',  icon: '↓' },
-      { key: 'checkout',     label: 'Check-out', icon: '↑' },
-      { key: 'rooms',        label: 'Sobe',      icon: '🛏️' },
+      { key: 'checkin',      labelKey: 'tabCheckin',  icon: '↓' },
+      { key: 'checkout',     labelKey: 'tabCheckout', icon: '↑' },
+      { key: 'rooms',        labelKey: 'tabRooms',      icon: '🛏️' },
   ]},
-  { perm: 'view_appointments',   tabs: [{ key: 'appointments', label: 'Termini',  icon: '💆' }] },
+  { perm: 'view_appointments',   tabs: [{ key: 'appointments', labelKey: 'tabAppointments',  icon: '💆' }] },
 ]
 
 // Gradi tabove na osnovu stvarnih permisija — radi za svaku rolu, uključujući menadžere
@@ -96,43 +98,44 @@ function tabsFromPermissions(allPermissions) {
 
 const PORTAL_TABS = {
   housekeeping: [
-    { key: 'tasks',       label: 'Zadaci',     icon: '🧹' },
-    { key: 'maintenance', label: 'Održavanje', icon: '🔧' },
-    { key: 'schedule',    label: 'Raspored',   icon: '📅' },
+    { key: 'tasks',       labelKey: 'tabTasks',     icon: '🧹' },
+    { key: 'maintenance', labelKey: 'tabMaintenance', icon: '🔧' },
+    { key: 'schedule',    labelKey: 'tabSchedule',   icon: '📅' },
   ],
   waiter: [
-    { key: 'orders',   label: 'Narudžbe', icon: '🍽️' },
-    { key: 'requests', label: 'Zahtjevi', icon: '🔔' },
-    { key: 'schedule', label: 'Raspored', icon: '📅' },
+    { key: 'orders',   labelKey: 'tabOrders', icon: '🍽️' },
+    { key: 'requests', labelKey: 'tabRequests', icon: '🔔' },
+    { key: 'schedule', labelKey: 'tabSchedule', icon: '📅' },
   ],
   kitchen: [
-    { key: 'kitchen',    label: 'Kuhinja',  icon: '🍳' },
-    { key: 'schedule',   label: 'Raspored', icon: '📅' },
+    { key: 'kitchen',    labelKey: 'tabKitchen',  icon: '🍳' },
+    { key: 'schedule',   labelKey: 'tabSchedule', icon: '📅' },
   ],
   bar: [
-    { key: 'bar_orders', label: 'Bar',      icon: '🍷' },
-    { key: 'schedule',   label: 'Raspored', icon: '📅' },
+    { key: 'bar_orders', labelKey: 'tabBar',      icon: '🍷' },
+    { key: 'schedule',   labelKey: 'tabSchedule', icon: '📅' },
   ],
   reception: [
-    { key: 'checkin',  label: 'Check-in',  icon: '↓' },
-    { key: 'checkout', label: 'Check-out', icon: '↑' },
-    { key: 'rooms',    label: 'Sobe',      icon: '🛏️' },
-    { key: 'schedule', label: 'Raspored',  icon: '📅' },
+    { key: 'checkin',  labelKey: 'tabCheckin',  icon: '↓' },
+    { key: 'checkout', labelKey: 'tabCheckout', icon: '↑' },
+    { key: 'rooms',    labelKey: 'tabRooms',      icon: '🛏️' },
+    { key: 'schedule', labelKey: 'tabSchedule',  icon: '📅' },
   ],
   spa: [
-    { key: 'appointments', label: 'Termini', icon: '💆' },
-    { key: 'schedule',     label: 'Raspored', icon: '📅' },
+    { key: 'appointments', labelKey: 'tabAppointments', icon: '💆' },
+    { key: 'schedule',     labelKey: 'tabSchedule', icon: '📅' },
   ],
   hr: [
-    { key: 'schedule',   label: 'Raspored', icon: '📅' },
-    { key: 'attendance', label: 'Dolasci',  icon: '🕐' },
-    { key: 'payroll',    label: 'Zarada',   icon: '💰' },
-    { key: 'absences',   label: 'Odsustva', icon: '🏖️' },
+    { key: 'schedule',   labelKey: 'tabSchedule', icon: '📅' },
+    { key: 'attendance', labelKey: 'tabAttendance',  icon: '🕐' },
+    { key: 'payroll',    labelKey: 'tabPayroll',   icon: '💰' },
+    { key: 'absences',   labelKey: 'tabAbsences', icon: '🏖️' },
   ],
 }
 
 export default function StaffPortal() {
   const { slug } = useParams()
+  const { t } = useTranslation('staffportal')
 
   const [restaurant, setRestaurant] = useState(null)
   const [subscription, setSubscription] = useState(null)
@@ -232,7 +235,7 @@ export default function StaffPortal() {
     }
 
     if (!staffData) {
-      setAuthError('Niste pronađeni kao osoblje ovog objekta.')
+      setAuthError(t('errNotStaff'))
       return
     }
 
@@ -270,7 +273,7 @@ export default function StaffPortal() {
     setAuthLoading(true)
     const { data, error } = await supabase.auth.signInWithPassword({ email, password })
     if (error || !data.user) {
-      setAuthError('Pogrešan email ili lozinka.')
+      setAuthError(t('errBadCredentials'))
       setAuthLoading(false)
       return
     }
@@ -292,8 +295,8 @@ export default function StaffPortal() {
   const handleReset = async (e) => {
     e.preventDefault()
     setResetError('')
-    if (newPassword !== newPasswordConfirm) { setResetError('Lozinke se ne poklapaju.'); return }
-    if (newPassword.length < 6) { setResetError('Lozinka mora imati najmanje 6 karaktera.'); return }
+    if (newPassword !== newPasswordConfirm) { setResetError(t('errPasswordMismatch')); return }
+    if (newPassword.length < 6) { setResetError(t('errPasswordShort')); return }
     setResetLoading(true)
     const { error } = await supabase.auth.updateUser({ password: newPassword })
     setResetLoading(false)
@@ -316,7 +319,7 @@ export default function StaffPortal() {
   }
 
   if (loadingRest) return <div className={s.loadWrap}><div className={s.spinner} /></div>
-  if (!restaurant) return <div className={s.loadWrap}><p className={s.notFound}>Objekat nije pronađen.</p></div>
+  if (!restaurant) return <div className={s.loadWrap}><p className={s.notFound}>{t('notFound')}</p></div>
 
   const brand = restaurant.color || '#0d7a52'
 
@@ -330,25 +333,26 @@ export default function StaffPortal() {
             : <div className={s.loginLogoPlaceholder}>{restaurant.name[0]}</div>
           }
           <div className={s.loginRestName}>{restaurant.name}</div>
-          <div className={s.loginSubtitle}>Portal za osoblje</div>
+          <div className={s.loginSubtitle}>{t('staffPortal')}</div>
+          <LanguageSwitcher variant="dark" />
         </div>
         <form onSubmit={handleLogin} className={s.loginForm}>
           <div className={s.loginField}>
-            <label>Email</label>
+            <label>{t('email')}</label>
             <input type="email" value={email} onChange={e => setEmail(e.target.value)}
               placeholder="vas@email.com" required autoComplete="email" />
           </div>
           <div className={s.loginField}>
-            <label>Lozinka</label>
+            <label>{t('password')}</label>
             <input type="password" value={password} onChange={e => setPassword(e.target.value)}
               placeholder="••••••••" required autoComplete="current-password" />
           </div>
           {authError && <div className={s.loginError}>{authError}</div>}
           <button type="submit" className={s.loginBtn} style={{ background: brand }} disabled={authLoading}>
-            {authLoading ? 'Prijava...' : 'Prijavi se →'}
+            {authLoading ? t('loggingIn') : t('loginBtn')}
           </button>
           <button type="button" className={s.loginForgotBtn} onClick={() => { setAuthError(''); setMode('forgot') }}>
-            Zaboravio/la sam lozinku
+            {t('forgotPassword')}
           </button>
         </form>
       </div>
@@ -365,31 +369,32 @@ export default function StaffPortal() {
             : <div className={s.loginLogoPlaceholder}>{restaurant.name[0]}</div>
           }
           <div className={s.loginRestName}>{restaurant.name}</div>
-          <div className={s.loginSubtitle}>Resetuj lozinku</div>
+          <div className={s.loginSubtitle}>{t('resetPassword')}</div>
+          <LanguageSwitcher variant="dark" />
         </div>
         {forgotSent ? (
           <div className={s.loginForm}>
             <div className={s.loginSuccess}>
-              ✓ Email je poslan! Provjeri inbox i klikni na link za resetovanje lozinke.
+              {t('forgotSent')}
             </div>
             <button type="button" className={s.loginForgotBtn} onClick={() => { setForgotSent(false); setMode('login') }}>
-              ← Nazad na prijavu
+              {t('backToLogin')}
             </button>
           </div>
         ) : (
           <form onSubmit={handleForgot} className={s.loginForm}>
-            <p className={s.loginHint}>Unesi svoj email — poslaćemo ti link za resetovanje lozinke.</p>
+            <p className={s.loginHint}>{t('forgotHint')}</p>
             <div className={s.loginField}>
-              <label>Email</label>
+              <label>{t('email')}</label>
               <input type="email" value={forgotEmail} onChange={e => setForgotEmail(e.target.value)}
                 placeholder="vas@email.com" required autoComplete="email" />
             </div>
             {forgotError && <div className={s.loginError}>{forgotError}</div>}
             <button type="submit" className={s.loginBtn} style={{ background: brand }} disabled={forgotLoading}>
-              {forgotLoading ? 'Slanje...' : 'Pošalji link →'}
+              {forgotLoading ? t('sending') : t('sendLinkBtn')}
             </button>
             <button type="button" className={s.loginForgotBtn} onClick={() => setMode('login')}>
-              ← Nazad na prijavu
+              {t('backToLogin')}
             </button>
           </form>
         )}
@@ -407,27 +412,28 @@ export default function StaffPortal() {
             : <div className={s.loginLogoPlaceholder}>{restaurant.name[0]}</div>
           }
           <div className={s.loginRestName}>{restaurant.name}</div>
-          <div className={s.loginSubtitle}>Nova lozinka</div>
+          <div className={s.loginSubtitle}>{t('newPassword')}</div>
+          <LanguageSwitcher variant="dark" />
         </div>
         {resetDone ? (
           <div className={s.loginForm}>
-            <div className={s.loginSuccess}>✓ Lozinka je uspješno promijenjena! Prijavljivanje...</div>
+            <div className={s.loginSuccess}>{t('resetDone')}</div>
           </div>
         ) : (
           <form onSubmit={handleReset} className={s.loginForm}>
             <div className={s.loginField}>
-              <label>Nova lozinka</label>
+              <label>{t('newPassword')}</label>
               <input type="password" value={newPassword} onChange={e => setNewPassword(e.target.value)}
-                placeholder="najmanje 6 karaktera" required minLength={6} autoComplete="new-password" />
+                placeholder={t('phMin6')} required minLength={6} autoComplete="new-password" />
             </div>
             <div className={s.loginField}>
-              <label>Potvrdi lozinku</label>
+              <label>{t('confirmPassword')}</label>
               <input type="password" value={newPasswordConfirm} onChange={e => setNewPasswordConfirm(e.target.value)}
-                placeholder="ponovi lozinku" required autoComplete="new-password" />
+                placeholder={t('phRepeatPassword')} required autoComplete="new-password" />
             </div>
             {resetError && <div className={s.loginError}>{resetError}</div>}
             <button type="submit" className={s.loginBtn} style={{ background: brand }} disabled={resetLoading}>
-              {resetLoading ? 'Čuvanje...' : 'Postavi lozinku →'}
+              {resetLoading ? t('saving') : t('setPasswordBtn')}
             </button>
           </form>
         )}
@@ -496,9 +502,10 @@ export default function StaffPortal() {
         </div>
         <div className={s.portalHeaderInfo}>
           <div className={s.portalName}>{staffName}</div>
-          <div className={s.portalRoleLabel}>{staff?.role?.name || 'Osoblje'} · {restaurant.name}</div>
+          <div className={s.portalRoleLabel}>{staff?.role?.name || t('roleFallback')} · {restaurant.name}</div>
         </div>
-        <button className={s.portalLogout} onClick={handleLogout}>Odjava</button>
+        <LanguageSwitcher variant="dark" />
+        <button className={s.portalLogout} onClick={handleLogout}>{t('logout')}</button>
       </div>
 
       {/* Content — sub-pills su unutar scroll areala, wrappaju se u više redova */}
@@ -515,7 +522,7 @@ export default function StaffPortal() {
                   style={activeTab === tab.key ? { background: brand, borderColor: brand } : {}}
                 >
                   <span>{tab.icon}</span>
-                  <span>{tab.label}</span>
+                  <span>{t(tab.labelKey)}</span>
                   {badge > 0 && <span className={s.navBadge}>{badge}</span>}
                 </button>
               )
@@ -534,7 +541,7 @@ export default function StaffPortal() {
           style={activeSection === 'home' ? { color: brand } : {}}
         >
           <span className={s.bottomIcon}>🏠</span>
-          <span className={s.bottomLabel}>Početna</span>
+          <span className={s.bottomLabel}>{t('navHome')}</span>
         </button>
 
         {hasWork && (
@@ -544,7 +551,7 @@ export default function StaffPortal() {
             style={activeSection === 'work' ? { color: brand } : {}}
           >
             <span className={s.bottomIcon}>⚡</span>
-            <span className={s.bottomLabel}>Posao</span>
+            <span className={s.bottomLabel}>{t('navWork')}</span>
             {workBadge > 0 && <span className={s.bottomBadge}>{workBadge}</span>}
           </button>
         )}
@@ -555,7 +562,7 @@ export default function StaffPortal() {
           style={activeSection === 'personal' ? { color: brand } : {}}
         >
           <span className={s.bottomIcon}>👤</span>
-          <span className={s.bottomLabel}>Ja</span>
+          <span className={s.bottomLabel}>{t('navMe')}</span>
         </button>
       </nav>
     </div>
