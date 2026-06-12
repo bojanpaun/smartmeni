@@ -1,5 +1,17 @@
 import { supabase } from './supabase'
 
+// supabase-js na ne-2xx vrati generičku grešku, a pravo tijelo ({error:...}) krije
+// u error.context (Response). Ovo izvuče stvarnu poruku da je možemo prikazati.
+async function invokeTranslate(body) {
+  const { data, error } = await supabase.functions.invoke('translate-content', { body })
+  if (error) {
+    let detail = error.message || 'Edge greška'
+    try { const b = await error.context?.json?.(); if (b?.error) detail = b.error } catch { /* ignore */ }
+    throw new Error(detail)
+  }
+  return data
+}
+
 // Okida AI prevod tenant-sadržaja: zove edge funkciju `translate-content` koja
 // prevede zadate stavke na 6 ciljnih jezika i keširaju se u content_translations.
 // Edge sam preskače svjež (isti source_hash) i is_override → bezbjedno za poziv na
@@ -12,11 +24,7 @@ export async function translateContent(restaurantId, items, langs) {
     (it) => it && it.entity_type && it.entity_id && it.field && typeof it.text === 'string' && it.text.trim(),
   )
   if (!restaurantId || clean.length === 0) return { translated: 0, skipped: 0 }
-  const { data, error } = await supabase.functions.invoke('translate-content', {
-    body: { restaurant_id: restaurantId, items: clean, langs },
-  })
-  if (error) throw error
-  return data
+  return invokeTranslate({ restaurant_id: restaurantId, items: clean, langs })
 }
 
 // Backfill: edge funkcija sama učita SVE menu_items (uklj. skrivene) + kategorije
@@ -24,21 +32,14 @@ export async function translateContent(restaurantId, items, langs) {
 // menije. Vraća { translated, skipped }. Smije ga zvati vlasnik ili superadmin.
 export async function backfillTenant(restaurantId, langs) {
   if (!restaurantId) return { translated: 0, skipped: 0 }
-  const { data, error } = await supabase.functions.invoke('translate-content', {
-    body: { restaurant_id: restaurantId, backfill: true, langs },
-  })
-  if (error) throw error
-  return data
+  return invokeTranslate({ restaurant_id: restaurantId, backfill: true, langs })
 }
 
 // Dry-run prevod jednog primjera zadatim provajderom (anthropic|gemini) — vraća
 // redove [{lang, value}] BEZ upisa u bazu. Superadmin alat za poređenje kvaliteta.
 export async function previewTranslation(text, provider) {
   if (!text?.trim()) return []
-  const { data, error } = await supabase.functions.invoke('translate-content', {
-    body: { dryRun: true, provider, items: [{ entity_type: 'preview', entity_id: 'preview', field: 'name', text: text.trim() }] },
-  })
-  if (error) throw error
+  const data = await invokeTranslate({ dryRun: true, provider, items: [{ entity_type: 'preview', entity_id: 'preview', field: 'name', text: text.trim() }] })
   return data?.rows ?? []
 }
 

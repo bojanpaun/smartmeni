@@ -235,11 +235,11 @@ export default function SuperAdminPanel() {
     try {
       const res = await backfillTenant(rest.id)
       setSaveMsg(t('sapTranslateDone', { count: res?.translated ?? 0 })); setSaveErr(false)
-    } catch {
-      setSaveMsg(t('sapTranslateErr')); setSaveErr(true)
+    } catch (err) {
+      setSaveMsg(`${t('sapTranslateErr')} ${String(err?.message || err)}`); setSaveErr(true)
     }
     setTranslatingId(null)
-    setTimeout(() => setSaveMsg(''), 4000)
+    setTimeout(() => setSaveMsg(''), 8000)
   }
 
   // Backfill za SVE tenante (inicijalni rollout) — sekvencijalno, jedan po jedan.
@@ -247,13 +247,14 @@ export default function SuperAdminPanel() {
     if (!confirm(t('sapTranslateAllConfirm', { count: restaurants.length }))) return
     setTranslatingId('all')
     setSaveMsg(t('sapTranslating')); setSaveErr(false)
-    let total = 0
+    let total = 0, lastErr = null
     for (const r of restaurants) {
-      try { const res = await backfillTenant(r.id); total += res?.translated ?? 0 } catch { /* preskoči pali tenant */ }
+      try { const res = await backfillTenant(r.id); total += res?.translated ?? 0 } catch (err) { lastErr = err }
     }
     setTranslatingId(null)
-    setSaveMsg(t('sapTranslateDone', { count: total })); setSaveErr(false)
-    setTimeout(() => setSaveMsg(''), 5000)
+    if (total === 0 && lastErr) { setSaveMsg(`${t('sapTranslateErr')} ${String(lastErr?.message || lastErr)}`); setSaveErr(true) }
+    else { setSaveMsg(t('sapTranslateDone', { count: total })); setSaveErr(false) }
+    setTimeout(() => setSaveMsg(''), 8000)
   }
 
   // Dry-run test jednog provajdera (ne upisuje) — za poređenje kvaliteta.
