@@ -2572,5 +2572,12 @@
   "bfrPrice": "Fiyat",
   "bfrPricePh": "18€",
   "bfrPhoto": "Fotoğraf",
-  "bfrAddSpecial": "+ Spesiyal ekle"
+  "bfrAddSpecial": "+ Spesiyal ekle",
+  "sapTranslate": "🌐 Çevir",
+  "sapTranslateAll": "🌐 Tümünü çevir",
+  "sapTranslateConfirm": "\"{{name}}\" için tüm içeriği (menü + kategoriler) 6 dile çevirilsin mi?",
+  "sapTranslateAllConfirm": "TÜM kiracıların ({{count}}) içeriği 6 dile çevrilsin mi? Biraz sürebilir.",
+  "sapTranslating": "Çevriliyor…",
+  "sapTranslateDone": "Çevrildi: {{count}} alan.",
+  "sapTranslateErr": "Çeviri hatası (ANTHROPIC_API_KEY kontrol et)."
 }

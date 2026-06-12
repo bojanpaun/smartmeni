@@ -2572,5 +2572,12 @@
   "bfrPrice": "Cijena",
   "bfrPricePh": "18€",
   "bfrPhoto": "Fotografija",
-  "bfrAddSpecial": "+ Dodaj specijalitet"
+  "bfrAddSpecial": "+ Dodaj specijalitet",
+  "sapTranslate": "🌐 Prevedi",
+  "sapTranslateAll": "🌐 Prevedi sve",
+  "sapTranslateConfirm": "Prevesti cijeli sadržaj (meni + kategorije) za „{{name}}\" na 6 jezika?",
+  "sapTranslateAllConfirm": "Prevesti sadržaj SVIH tenanata ({{count}}) na 6 jezika? Može potrajati.",
+  "sapTranslating": "Prevodim…",
+  "sapTranslateDone": "Prevedeno: {{count}} polja.",
+  "sapTranslateErr": "Greška pri prevođenju (provjeri ANTHROPIC_API_KEY)."
 }

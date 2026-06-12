@@ -2572,5 +2572,12 @@
   "bfrPrice": "Price",
   "bfrPricePh": "18€",
   "bfrPhoto": "Photo",
-  "bfrAddSpecial": "+ Add special"
+  "bfrAddSpecial": "+ Add special",
+  "sapTranslate": "🌐 Translate",
+  "sapTranslateAll": "🌐 Translate all",
+  "sapTranslateConfirm": "Translate all content (menu + categories) for \"{{name}}\" into 6 languages?",
+  "sapTranslateAllConfirm": "Translate content of ALL tenants ({{count}}) into 6 languages? This may take a while.",
+  "sapTranslating": "Translating…",
+  "sapTranslateDone": "Translated: {{count}} fields.",
+  "sapTranslateErr": "Translation error (check ANTHROPIC_API_KEY)."
 }

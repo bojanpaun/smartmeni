@@ -4,6 +4,7 @@ import { useTranslation } from 'react-i18next'
 import { supabase } from '../../lib/supabase'
 import { usePlatform } from '../../context/PlatformContext'
 import { planStatus } from '../../lib/planUtils'
+import { backfillTenant } from '../../lib/contentTranslate'
 import { useSortable } from '../../hooks/useSortable'
 import SortableHead from '../../components/shared/SortableHead'
 import styles from './SuperAdminPanel.module.css'
@@ -62,6 +63,7 @@ export default function SuperAdminPanel() {
   const [saving, setSaving] = useState(false)
   const [saveMsg, setSaveMsg] = useState('')
   const [saveErr, setSaveErr] = useState(false)
+  const [translatingId, setTranslatingId] = useState(null) // restaurant_id u toku (ili 'all')
   const sort = useSortable('name', 'asc')
 
   useEffect(() => {
@@ -220,6 +222,35 @@ export default function SuperAdminPanel() {
       .catch(() => {})
   }
 
+  // Backfill AI prevoda za JEDAN tenant (edge sam učita sve stavke + dedupe-uje).
+  const translateTenant = async (rest) => {
+    if (!confirm(t('sapTranslateConfirm', { name: rest.name }))) return
+    setTranslatingId(rest.id)
+    setSaveMsg(t('sapTranslating')); setSaveErr(false)
+    try {
+      const res = await backfillTenant(rest.id)
+      setSaveMsg(t('sapTranslateDone', { count: res?.translated ?? 0 })); setSaveErr(false)
+    } catch {
+      setSaveMsg(t('sapTranslateErr')); setSaveErr(true)
+    }
+    setTranslatingId(null)
+    setTimeout(() => setSaveMsg(''), 4000)
+  }
+
+  // Backfill za SVE tenante (inicijalni rollout) — sekvencijalno, jedan po jedan.
+  const translateAll = async () => {
+    if (!confirm(t('sapTranslateAllConfirm', { count: restaurants.length }))) return
+    setTranslatingId('all')
+    setSaveMsg(t('sapTranslating')); setSaveErr(false)
+    let total = 0
+    for (const r of restaurants) {
+      try { const res = await backfillTenant(r.id); total += res?.translated ?? 0 } catch { /* preskoči pali tenant */ }
+    }
+    setTranslatingId(null)
+    setSaveMsg(t('sapTranslateDone', { count: total })); setSaveErr(false)
+    setTimeout(() => setSaveMsg(''), 5000)
+  }
+
   const PAID_PLANS = ['restaurant', 'hotel', 'hotel_pro', 'enterprise', 'pro']
 
   const withStatus = restaurants.map(r => ({ ...r, _status: planStatus(r) }))
@@ -273,6 +304,9 @@ export default function SuperAdminPanel() {
         <div className={styles.headerActions}>
           {/* Navigacija je sada u lijevom sidebar-u (Super admin modul) */}
           <button className={styles.btnRefresh} onClick={loadRestaurants}>↻ {t('sapRefresh')}</button>
+          <button className={styles.btnRefresh} onClick={translateAll} disabled={translatingId !== null}>
+            {translatingId === 'all' ? t('sapTranslating') : t('sapTranslateAll')}
+          </button>
         </div>
       </div>
 
@@ -412,6 +446,13 @@ export default function SuperAdminPanel() {
                         onClick={() => toggleSuspend(rest)}
                       >
                         {rest.suspended_at ? `✓ ${t('sapReactivate')}` : `⊘ ${t('sapSuspend')}`}
+                      </button>
+                      <button
+                        className={styles.btnEdit}
+                        onClick={() => translateTenant(rest)}
+                        disabled={translatingId !== null}
+                      >
+                        {translatingId === rest.id ? t('sapTranslating') : t('sapTranslate')}
                       </button>
                     </div>
                   </td>

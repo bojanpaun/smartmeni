@@ -2572,5 +2572,12 @@
   "bfrPrice": "Çmimi",
   "bfrPricePh": "18€",
   "bfrPhoto": "Fotografi",
-  "bfrAddSpecial": "+ Shto specialitet"
+  "bfrAddSpecial": "+ Shto specialitet",
+  "sapTranslate": "🌐 Përkthe",
+  "sapTranslateAll": "🌐 Përkthe të gjitha",
+  "sapTranslateConfirm": "Të përkthehet i gjithë përmbajtja (menyja + kategoritë) për \"{{name}}\" në 6 gjuhë?",
+  "sapTranslateAllConfirm": "Të përkthehet përmbajtja e TË GJITHË tenantëve ({{count}}) në 6 gjuhë? Mund të zgjasë.",
+  "sapTranslating": "Po përkthej…",
+  "sapTranslateDone": "U përkthyen: {{count}} fusha.",
+  "sapTranslateErr": "Gabim në përkthim (kontrollo ANTHROPIC_API_KEY)."
 }

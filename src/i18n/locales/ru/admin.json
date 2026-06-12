@@ -2572,5 +2572,12 @@
   "bfrPrice": "Цена",
   "bfrPricePh": "18€",
   "bfrPhoto": "Фотография",
-  "bfrAddSpecial": "+ Добавить спецблюдо"
+  "bfrAddSpecial": "+ Добавить спецблюдо",
+  "sapTranslate": "🌐 Перевести",
+  "sapTranslateAll": "🌐 Перевести все",
+  "sapTranslateConfirm": "Перевести весь контент (меню + категории) для «{{name}}» на 6 языков?",
+  "sapTranslateAllConfirm": "Перевести контент ВСЕХ арендаторов ({{count}}) на 6 языков? Это может занять время.",
+  "sapTranslating": "Перевожу…",
+  "sapTranslateDone": "Переведено: {{count}} полей.",
+  "sapTranslateErr": "Ошибка перевода (проверь ANTHROPIC_API_KEY)."
 }

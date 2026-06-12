@@ -69,7 +69,10 @@ Deno.serve(async (req) => {
     const restaurantId: string = body?.restaurant_id
     const rawItems: SourceItem[] = Array.isArray(body?.items) ? body.items : []
     const langs = resolveLangs(body?.langs)
-    if (!restaurantId || rawItems.length === 0) return json({ error: 'restaurant_id i items su obavezni' }, 400)
+    const backfill = body?.backfill === true // učitaj SVE stavke tenanta iz baze
+    if (!restaurantId || (!backfill && rawItems.length === 0)) {
+      return json({ error: 'restaurant_id i items (ili backfill) su obavezni' }, 400)
+    }
 
     // Vlasništvo: pozivalac mora biti vlasnik tenanta ili superadmin.
     const { data: profile } = await supabaseAdmin
@@ -79,8 +82,26 @@ Deno.serve(async (req) => {
     if (!rest) return json({ error: 'Restoran ne postoji' }, 404)
     if (!profile?.is_superadmin && rest.user_id !== user.id) return json({ error: 'Nemate pravo' }, 403)
 
+    // Backfill: učitaj SVE menu_items (uklj. skrivene) + kategorije iz baze
+    // (service_role zaobilazi RLS — superadmin tako prevodi i tuđi tenant).
+    let sourceItems: SourceItem[] = rawItems
+    if (backfill) {
+      const [{ data: mi }, { data: cats }] = await Promise.all([
+        supabaseAdmin.from('menu_items').select('id, name, description').eq('restaurant_id', restaurantId),
+        supabaseAdmin.from('categories').select('id, name').eq('restaurant_id', restaurantId),
+      ])
+      sourceItems = []
+      for (const m of mi ?? []) {
+        if (m.name?.trim()) sourceItems.push({ entity_type: 'menu_item', entity_id: m.id, field: 'name', text: m.name })
+        if (m.description?.trim()) sourceItems.push({ entity_type: 'menu_item', entity_id: m.id, field: 'description', text: m.description })
+      }
+      for (const c of cats ?? []) {
+        if (c.name?.trim()) sourceItems.push({ entity_type: 'category', entity_id: c.id, field: 'name', text: c.name })
+      }
+    }
+
     // Normalizuj + odbaci prazne izvore.
-    const items = rawItems
+    const items = sourceItems
       .filter((it) => it && it.entity_type && it.entity_id && it.field && typeof it.text === 'string' && it.text.trim())
       .map((it) => ({ entity_type: String(it.entity_type), entity_id: String(it.entity_id), field: String(it.field), text: it.text.trim() }))
     if (items.length === 0) return json({ translated: 0, skipped: 0 })

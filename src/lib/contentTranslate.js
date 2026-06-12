@@ -19,6 +19,18 @@ export async function translateContent(restaurantId, items, langs) {
   return data
 }
 
+// Backfill: edge funkcija sama učita SVE menu_items (uklj. skrivene) + kategorije
+// tenanta (service_role) i prevede neprevedeno. Koristi superadmin za zatečene
+// menije. Vraća { translated, skipped }. Smije ga zvati vlasnik ili superadmin.
+export async function backfillTenant(restaurantId, langs) {
+  if (!restaurantId) return { translated: 0, skipped: 0 }
+  const { data, error } = await supabase.functions.invoke('translate-content', {
+    body: { restaurant_id: restaurantId, backfill: true, langs },
+  })
+  if (error) throw error
+  return data
+}
+
 // Pomoćnik: napravi items niz iz jednog menu_item reda (name + description).
 export function menuItemFields(item) {
   const out = []
