@@ -1,12 +1,13 @@
 // ▶ Zamijeniti: src/modules/hr/pages/SchedulePage.jsx
 
 import { useState, useEffect } from 'react'
+import { useTranslation } from 'react-i18next'
 import { supabase } from '../../../lib/supabase'
 import { usePlatform } from '../../../context/PlatformContext'
 import styles from './SchedulePage.module.css'
 import gsStyles from '../../menu/pages/GeneralSettings.module.css'
 
-const DAYS = ['Pon', 'Uto', 'Sri', 'Čet', 'Pet', 'Sub', 'Ned']
+const DAY_KEYS = ['schDayMon', 'schDayTue', 'schDayWed', 'schDayThu', 'schDayFri', 'schDaySat', 'schDaySun']
 const STAFF_COLORS = ['#0d7a52','#378add','#7f77dd','#d85a30','#d4537e','#1d9e75','#ba7517','#993556']
 const STAFF_COLORS_LIGHT = ['#E1F5EE','#E6F1FB','#EEEDFE','#FAECE7','#FBEAF0','#E1F5EE','#FAEEDA','#FBEAF0']
 const STAFF_COLORS_TEXT = ['#085041','#0C447C','#3C3489','#712B13','#72243E','#085041','#633806','#72243E']
@@ -26,8 +27,8 @@ function getWeekDates(offset = 0) {
 }
 
 function fmt(date) { return date.toISOString().slice(0, 10) }
-function fmtDisplay(date) { return date.toLocaleDateString('sr-Latn', { day: '2-digit', month: '2-digit' }) }
-function fmtDisplayFull(date) { return date.toLocaleDateString('sr-Latn', { weekday: 'long', day: 'numeric', month: 'numeric', year: 'numeric' }) }
+function fmtDisplay(date, dl) { return date.toLocaleDateString(dl, { day: '2-digit', month: '2-digit' }) }
+function fmtDisplayFull(date, dl) { return date.toLocaleDateString(dl, { weekday: 'long', day: 'numeric', month: 'numeric', year: 'numeric' }) }
 
 function timeToPercent(timeStr) {
   const [h, m] = timeStr.slice(0, 5).split(':').map(Number)
@@ -42,6 +43,8 @@ function timeDiffHours(start, end) {
 
 export default function SchedulePage() {
   const { restaurant, isOwner, isSuperAdmin } = usePlatform()
+  const { t, i18n } = useTranslation('admin')
+  const dl = i18n.language === 'en' ? 'en-US' : 'sr-Latn'
   const isAdmin = isOwner() || isSuperAdmin()
 
   const [staff, setStaff] = useState([])
@@ -125,11 +128,11 @@ export default function SchedulePage() {
   }
 
   const copyPrevWeek = async () => {
-    if (!confirm('Kopirati raspored iz prethodne sedmice?')) return
+    if (!confirm(t('schCopyConfirm'))) return
     const prevDates = getWeekDates(weekOffset - 1)
     const { data: prev } = await supabase.from('work_schedules').select('*')
       .eq('restaurant_id', restaurant.id).gte('date', fmt(prevDates[0])).lte('date', fmt(prevDates[6]))
-    if (!prev?.length) { alert('Nema rasporeda u prethodnoj sedmici.'); return }
+    if (!prev?.length) { alert(t('schNoPrevWeek')); return }
     const newSchedules = prev.map(s => {
       const nd = new Date(s.date); nd.setDate(nd.getDate() + 7)
       return { restaurant_id: restaurant.id, staff_id: s.staff_id, date: fmt(nd), start_time: s.start_time, end_time: s.end_time, note: s.note, status: 'scheduled' }
@@ -155,7 +158,7 @@ export default function SchedulePage() {
     return gaps
   }
 
-  if (loading) return <div className={styles.loading}>Učitavanje rasporeda...</div>
+  if (loading) return <div className={styles.loading}>{t('schLoading')}</div>
 
   const hours = Array.from({ length: TOTAL_HOURS + 1 }, (_, i) => HOUR_START + i)
 
@@ -163,16 +166,16 @@ export default function SchedulePage() {
     <div className={styles.wrap}>
 
       <div className={styles.header}>
-        <h1 className={gsStyles.title} style={{ margin: 0 }}>Raspored rada</h1>
-        <p className={gsStyles.subtitle}>Planiranje i pregled smjena osoblja.</p>
+        <h1 className={gsStyles.title} style={{ margin: 0 }}>{t('schTitle')}</h1>
+        <p className={gsStyles.subtitle}>{t('schSubtitle')}</p>
         <div className={styles.headerActions}>
           <div className={styles.viewToggle}>
-            <button className={`${styles.viewBtn} ${view === 'week' ? styles.viewBtnActive : ''}`} onClick={() => setView('week')}>Sedmica</button>
-            <button className={`${styles.viewBtn} ${view === 'day' ? styles.viewBtnActive : ''}`} onClick={() => setView('day')}>Dan</button>
+            <button className={`${styles.viewBtn} ${view === 'week' ? styles.viewBtnActive : ''}`} onClick={() => setView('week')}>{t('schWeek')}</button>
+            <button className={`${styles.viewBtn} ${view === 'day' ? styles.viewBtnActive : ''}`} onClick={() => setView('day')}>{t('schDay')}</button>
           </div>
           {isAdmin && <>
-            {view === 'week' && <button className={styles.btnSecondary} onClick={copyPrevWeek}>↩ Kopiraj prethodnu sedmicu</button>}
-            <button className={styles.btnAdd} onClick={() => openForm('', view === 'day' ? currentDayStr : '')}>+ Dodaj smjenu</button>
+            {view === 'week' && <button className={styles.btnSecondary} onClick={copyPrevWeek}>↩ {t('schCopyPrevWeek')}</button>}
+            <button className={styles.btnAdd} onClick={() => openForm('', view === 'day' ? currentDayStr : '')}>+ {t('schAddShift')}</button>
           </>}
         </div>
       </div>
@@ -182,28 +185,28 @@ export default function SchedulePage() {
         <div className={styles.weekNav}>
           <button className={styles.weekBtn} onClick={() => setWeekOffset(w => w - 1)}>‹</button>
           <div className={styles.weekLabel}>
-            {fmtDisplay(weekDates[0])} — {fmtDisplay(weekDates[6])}
-            {weekOffset === 0 && <span className={styles.weekCurrent}>Ova sedmica</span>}
-            {weekOffset === 1 && <span className={styles.weekCurrent}>Sljedeća sedmica</span>}
-            {weekOffset === -1 && <span className={styles.weekCurrent}>Prethodna sedmica</span>}
+            {fmtDisplay(weekDates[0], dl)} — {fmtDisplay(weekDates[6], dl)}
+            {weekOffset === 0 && <span className={styles.weekCurrent}>{t('schThisWeek')}</span>}
+            {weekOffset === 1 && <span className={styles.weekCurrent}>{t('schNextWeek')}</span>}
+            {weekOffset === -1 && <span className={styles.weekCurrent}>{t('schPrevWeek')}</span>}
           </div>
           <button className={styles.weekBtn} onClick={() => setWeekOffset(w => w + 1)}>›</button>
-          {weekOffset !== 0 && <button className={styles.weekToday} onClick={() => setWeekOffset(0)}>Danas</button>}
+          {weekOffset !== 0 && <button className={styles.weekToday} onClick={() => setWeekOffset(0)}>{t('htToday')}</button>}
         </div>
 
         {staff.length === 0 ? (
-          <div className={styles.empty}><div className={styles.emptyIcon}>👥</div><div>Nema aktivnog osoblja.</div></div>
+          <div className={styles.empty}><div className={styles.emptyIcon}>👥</div><div>{t('schNoStaff')}</div></div>
         ) : (
           <div className={styles.gridScrollWrap}>
             <div className={styles.grid}>
               <div className={styles.gridHeader}>
-                <div className={styles.gridStaffCol}>Zaposlenik</div>
+                <div className={styles.gridStaffCol}>{t('stfStaffMember')}</div>
                 {weekDates.map((date, i) => {
                   const isToday = fmt(date) === fmt(new Date())
                   return (
                     <div key={i} className={`${styles.gridDayCol} ${isToday ? styles.gridDayToday : ''}`}>
-                      <div className={styles.gridDayName}>{DAYS[i]}</div>
-                      <div className={styles.gridDayDate}>{fmtDisplay(date)}</div>
+                      <div className={styles.gridDayName}>{t(DAY_KEYS[i])}</div>
+                      <div className={styles.gridDayDate}>{fmtDisplay(date, dl)}</div>
                     </div>
                   )
                 })}
@@ -245,15 +248,15 @@ export default function SchedulePage() {
         <div className={styles.weekNav}>
           <button className={styles.weekBtn} onClick={() => setDayOffset(d => d - 1)}>‹</button>
           <div className={styles.weekLabel}>
-            <span style={{ textTransform: 'capitalize' }}>{fmtDisplayFull(currentDay)}</span>
-            {dayOffset === 0 && <span className={styles.weekCurrent}>Danas</span>}
+            <span style={{ textTransform: 'capitalize' }}>{fmtDisplayFull(currentDay, dl)}</span>
+            {dayOffset === 0 && <span className={styles.weekCurrent}>{t('htToday')}</span>}
           </div>
           <button className={styles.weekBtn} onClick={() => setDayOffset(d => d + 1)}>›</button>
-          {dayOffset !== 0 && <button className={styles.weekToday} onClick={() => setDayOffset(0)}>Danas</button>}
+          {dayOffset !== 0 && <button className={styles.weekToday} onClick={() => setDayOffset(0)}>{t('htToday')}</button>}
         </div>
 
         {staff.length === 0 ? (
-          <div className={styles.empty}><div className={styles.emptyIcon}>👥</div><div>Nema aktivnog osoblja.</div></div>
+          <div className={styles.empty}><div className={styles.emptyIcon}>👥</div><div>{t('schNoStaff')}</div></div>
         ) : (
           <div className={styles.timeline}>
             <div className={styles.tlStaffCol}>
@@ -264,7 +267,7 @@ export default function SchedulePage() {
                   <span className={styles.tlStaffName}>{staffName(member)}</span>
                 </div>
               ))}
-              <div className={styles.tlCoverageLabel}>Pokrivenost</div>
+              <div className={styles.tlCoverageLabel}>{t('schCoverage')}</div>
             </div>
 
             <div className={styles.tlChartArea}>
@@ -307,7 +310,7 @@ export default function SchedulePage() {
                 ))}
                 {(() => {
                   const allShifts = schedules.filter(s => s.date === currentDayStr)
-                  if (!allShifts.length) return <div className={styles.tlNoCoverage}>Nema smjena za ovaj dan</div>
+                  if (!allShifts.length) return <div className={styles.tlNoCoverage}>{t('schNoShiftsDay')}</div>
                   const sorted = [...allShifts].sort((a, b) => a.start_time.localeCompare(b.start_time))
                   const minStart = sorted[0].start_time
                   const maxEnd = sorted.reduce((m, s) => s.end_time > m ? s.end_time : m, sorted[0].end_time)
@@ -319,7 +322,7 @@ export default function SchedulePage() {
                     {gaps.map((g, i) => {
                       const gl = timeToPercent(g.start)
                       const gw = timeToPercent(g.end) - gl
-                      return <div key={i} className={styles.tlGapBar} style={{ left: `${gl}%`, width: `${gw}%` }} title={`Nepokriveno: ${g.start.slice(0,5)}–${g.end.slice(0,5)}`} />
+                      return <div key={i} className={styles.tlGapBar} style={{ left: `${gl}%`, width: `${gw}%` }} title={`${t('schUncovered')}: ${g.start.slice(0,5)}–${g.end.slice(0,5)}`} />
                     })}
                   </>)
                 })()}
@@ -329,8 +332,8 @@ export default function SchedulePage() {
         )}
 
         <div className={styles.tlLegend}>
-          <div className={styles.tlLegendItem}><div className={styles.tlLegendDot} style={{ background: '#E1F5EE', border: '1px solid #5DCAA5' }}></div>Smjena</div>
-          <div className={styles.tlLegendItem}><div className={styles.tlLegendDot} style={{ background: '#FEF3C7', border: '1px solid #F59E0B' }}></div>Nepokriveni period</div>
+          <div className={styles.tlLegendItem}><div className={styles.tlLegendDot} style={{ background: '#E1F5EE', border: '1px solid #5DCAA5' }}></div>{t('schShift')}</div>
+          <div className={styles.tlLegendItem}><div className={styles.tlLegendDot} style={{ background: '#FEF3C7', border: '1px solid #F59E0B' }}></div>{t('schUncoveredPeriod')}</div>
         </div>
       </>)}
 
@@ -339,28 +342,28 @@ export default function SchedulePage() {
         <div className={styles.overlay} onClick={() => setShowForm(false)}>
           <div className={styles.modal} onClick={e => e.stopPropagation()}>
             <div className={styles.modalHeader}>
-              <div className={styles.modalTitle}>{editSchedule ? 'Uredi smjenu' : 'Nova smjena'}</div>
+              <div className={styles.modalTitle}>{editSchedule ? t('schEditShift') : t('schNewShift')}</div>
               <button className={styles.modalClose} onClick={() => setShowForm(false)}>✕</button>
             </div>
             <form onSubmit={saveSchedule} className={styles.form}>
               <div className={styles.field}>
-                <label>Zaposlenik *</label>
+                <label>{t('stfStaffMember')} *</label>
                 <select value={form.staff_id} onChange={e => setForm(f => ({ ...f, staff_id: e.target.value }))} required>
-                  <option value="">— Odaberi —</option>
+                  <option value="">{t('flSelect')}</option>
                   {staff.map(s => <option key={s.id} value={s.id}>{staffName(s)}</option>)}
                 </select>
               </div>
               <div className={styles.field}>
-                <label>Datum *</label>
+                <label>{t('htDateHead')} *</label>
                 <input type="date" value={form.date} onChange={e => setForm(f => ({ ...f, date: e.target.value }))} required />
               </div>
               <div className={styles.fieldRow}>
                 <div className={styles.field}>
-                  <label>Početak *</label>
+                  <label>{t('schStart')} *</label>
                   <input type="time" value={form.start_time} onChange={e => setForm(f => ({ ...f, start_time: e.target.value }))} required />
                 </div>
                 <div className={styles.field}>
-                  <label>Kraj *</label>
+                  <label>{t('schEnd')} *</label>
                   <input type="time" value={form.end_time} onChange={e => setForm(f => ({ ...f, end_time: e.target.value }))} required />
                 </div>
               </div>
@@ -368,17 +371,17 @@ export default function SchedulePage() {
                 const [sh, sm] = form.start_time.split(':').map(Number)
                 const [eh, em] = form.end_time.split(':').map(Number)
                 const mins = (eh * 60 + em) - (sh * 60 + sm)
-                return mins > 0 ? <div className={styles.shiftDuration}>Trajanje: {Math.floor(mins / 60)}h {mins % 60}min</div> : null
+                return mins > 0 ? <div className={styles.shiftDuration}>{t('schDuration', { h: Math.floor(mins / 60), m: mins % 60 })}</div> : null
               })()}
               <div className={styles.field}>
-                <label>Napomena</label>
+                <label>{t('hkpNote')}</label>
                 <input value={form.note} onChange={e => setForm(f => ({ ...f, note: e.target.value }))} placeholder="Npr. vikend smjena, zamjena..." />
               </div>
               <div className={styles.modalActions}>
-                {editSchedule && <button type="button" className={styles.btnDelete} onClick={() => deleteSchedule(editSchedule.id)}>Obriši smjenu</button>}
+                {editSchedule && <button type="button" className={styles.btnDelete} onClick={() => deleteSchedule(editSchedule.id)}>{t('schDeleteShift')}</button>}
                 <div style={{ flex: 1 }} />
-                <button type="button" className={styles.btnSecondary} onClick={() => setShowForm(false)}>Odustani</button>
-                <button type="submit" className={styles.btnAdd} disabled={saving}>{saving ? 'Čuvanje...' : 'Sačuvaj'}</button>
+                <button type="button" className={styles.btnSecondary} onClick={() => setShowForm(false)}>{t('cancel')}</button>
+                <button type="submit" className={styles.btnAdd} disabled={saving}>{saving ? t('saving') : t('save')}</button>
               </div>
             </form>
           </div>
