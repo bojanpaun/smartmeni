@@ -1,18 +1,19 @@
 import { useState, useEffect } from 'react'
+import { useTranslation } from 'react-i18next'
 import { supabase } from '../../../lib/supabase'
 import { usePlatform } from '../../../context/PlatformContext'
 import styles from './PaymentSettings.module.css'
 import gsStyles from '../../menu/pages/GeneralSettings.module.css'
 
-// Polja kredencijala po provajderu
+// Polja kredencijala po provajderu (labelKey/hintKey → t())
 const CREDENTIAL_FIELDS = {
   stripe: [
-    { key: 'secret_key',      label: 'Secret Key',      placeholder: 'sk_test_...',   hint: 'Stripe Dashboard → API Keys' },
-    { key: 'webhook_secret',  label: 'Webhook Secret',  placeholder: 'whsec_...',     hint: 'Stripe Dashboard → Webhooks → Signing secret' },
+    { key: 'secret_key',      labelKey: 'psSecretKey',      placeholder: 'sk_test_...',   hintKey: 'psSecretKeyHint' },
+    { key: 'webhook_secret',  labelKey: 'psWebhookSecret',  placeholder: 'whsec_...',     hintKey: 'psWebhookSecretHint' },
   ],
   monri: [
-    { key: 'merchant_key',       label: 'Key (tajni ključ)',  placeholder: '',  hint: 'Monri/Payten Dashboard → API podešavanja → "Key". Služi za digitalni potpis (digest). Tajno — ne dijeliti.' },
-    { key: 'authenticity_token', label: 'Authenticity Token', placeholder: '',  hint: 'Monri Dashboard → API podešavanja → "Authenticity token" (identifikator trgovca).' },
+    { key: 'merchant_key',       labelKey: 'psMonriKey',  placeholder: '',  hintKey: 'psMonriKeyHint' },
+    { key: 'authenticity_token', labelKey: 'psAuthToken', placeholder: '',  hintKey: 'psAuthTokenHint' },
   ],
 }
 
@@ -24,6 +25,7 @@ const EMPTY_CREDS = {}
 
 export default function PaymentSettingsPage() {
   const { restaurant } = usePlatform()
+  const { t } = useTranslation('admin')
 
   const [configs, setConfigs]         = useState([])
   const [credStatus, setCredStatus]   = useState({})  // config_id → boolean
@@ -111,7 +113,7 @@ export default function PaymentSettingsPage() {
   }
 
   const deleteConfig = async (id) => {
-    if (!confirm('Obrisati konfiguraciju provajdera? Svi kredencijali će biti izbrisani.')) return
+    if (!confirm(t('psDeleteConfirm'))) return
     await supabase.from('tenant_payment_configs').delete().eq('id', id)
     setConfigs(prev => prev.filter(c => c.id !== id))
     setCredStatus(prev => { const n = { ...prev }; delete n[id]; return n })
@@ -144,7 +146,7 @@ export default function PaymentSettingsPage() {
     const fields = CREDENTIAL_FIELDS[credsForConfig.provider] || []
     const missing = fields.filter(f => !credsForm[f.key]?.trim())
     if (missing.length) {
-      setCredsError(`Obavezna polja: ${missing.map(f => f.label).join(', ')}`)
+      setCredsError(t('psRequiredFields', { fields: missing.map(f => t(f.labelKey)).join(', ') }))
       return
     }
 
@@ -164,34 +166,32 @@ export default function PaymentSettingsPage() {
     setTimeout(() => setShowCredsModal(false), 1200)
   }
 
-  if (loading) return <div className={gsStyles.page}><div style={{ padding: '3rem', textAlign: 'center', color: 'var(--c-text-muted)' }}>Učitavanje...</div></div>
+  if (loading) return <div className={gsStyles.page}><div style={{ padding: '3rem', textAlign: 'center', color: 'var(--c-text-muted)' }}>{t('loading')}</div></div>
 
   return (
     <div className={gsStyles.page} style={{ maxWidth: 800 }}>
       <div className={styles.pageHeader}>
         <div>
-          <h1 className={gsStyles.title}>Plaćanja</h1>
-          <p className={gsStyles.subtitle}>Konfiguracija payment provajdera za online naplatu gostiju (booking, folio).</p>
+          <h1 className={gsStyles.title}>{t('psTitle')}</h1>
+          <p className={gsStyles.subtitle}>{t('psSubtitle')}</p>
         </div>
-        <button className={styles.btnAdd} onClick={openNewConfig}>+ Dodaj provajder</button>
+        <button className={styles.btnAdd} onClick={openNewConfig}>+ {t('psAddProvider')}</button>
       </div>
 
       {/* Info banner */}
       <div className={styles.infoBanner}>
         <div className={styles.infoBannerIcon}>ℹ</div>
         <div>
-          <strong>Kako radi:</strong> Svaki provajder koji aktiviraš i postaviš kao <em>default</em> koristiće se za online naplate gostiju.
-          Postavi <strong>Test</strong> mod za probno testiranje, <strong>Live</strong> za pravo plaćanje.
-          Kredencijali se čuvaju šifrovano i nisu vidljivi ni adminu.
+          <strong>{t('psHowItWorks')}:</strong> {t('psHowItWorksBody')}
         </div>
       </div>
 
       {configs.length === 0 && (
         <div className={styles.empty}>
           <div className={styles.emptyIcon}>💳</div>
-          <div className={styles.emptyTitle}>Nema konfiguriranih provajdera</div>
-          <div className={styles.emptyDesc}>Dodaj Stripe ili Monri da omogućiš online plaćanje.</div>
-          <button className={styles.btnAdd} onClick={openNewConfig}>+ Dodaj provajder</button>
+          <div className={styles.emptyTitle}>{t('psNoProviders')}</div>
+          <div className={styles.emptyDesc}>{t('psNoProvidersDesc')}</div>
+          <button className={styles.btnAdd} onClick={openNewConfig}>+ {t('psAddProvider')}</button>
         </div>
       )}
 
@@ -208,46 +208,46 @@ export default function PaymentSettingsPage() {
                   <span className={`${styles.modeBadge} ${cfg.mode === 'live' ? styles.modeLive : styles.modeTest}`}>
                     {cfg.mode === 'live' ? 'Live' : 'Test'}
                   </span>
-                  {cfg.is_default && <span className={styles.defaultBadge}>★ Default</span>}
+                  {cfg.is_default && <span className={styles.defaultBadge}>★ {t('psDefault')}</span>}
                 </div>
                 <div className={styles.configStatus}>
                   <span className={cfg.is_active ? styles.statusActive : styles.statusInactive}>
-                    {cfg.is_active ? '● Aktivan' : '○ Neaktivan'}
+                    {cfg.is_active ? `● ${t('htActive')}` : `○ ${t('psInactive')}`}
                   </span>
                 </div>
               </div>
 
               <div className={styles.configCredRow}>
                 {hasCreds
-                  ? <span className={styles.credsSet}>✓ Kredencijali postavljeni</span>
-                  : <span className={styles.credsMissing}>⚠ Kredencijali nisu postavljeni — provajder ne može procesirati plaćanja</span>
+                  ? <span className={styles.credsSet}>✓ {t('psCredsSet')}</span>
+                  : <span className={styles.credsMissing}>⚠ {t('psCredsMissing')}</span>
                 }
               </div>
 
               <div className={styles.configActions}>
                 <button className={styles.btnSecondary} onClick={() => openCreds(cfg)}>
-                  {hasCreds ? '🔑 Promijeni kredencijale' : '🔑 Postavi kredencijale'}
+                  {hasCreds ? `🔑 ${t('psChangeCreds')}` : `🔑 ${t('psSetCreds')}`}
                 </button>
                 {!cfg.is_default && cfg.is_active && (
-                  <button className={styles.btnSecondary} onClick={() => setDefault(cfg)}>★ Postavi kao default</button>
+                  <button className={styles.btnSecondary} onClick={() => setDefault(cfg)}>★ {t('psSetDefault')}</button>
                 )}
                 <button
                   className={cfg.is_active ? styles.btnWarn : styles.btnOk}
                   onClick={() => toggleActive(cfg)}
                 >
-                  {cfg.is_active ? 'Deaktiviraj' : 'Aktiviraj'}
+                  {cfg.is_active ? t('psDeactivate') : t('psActivate')}
                 </button>
-                <button className={styles.btnSecondary} onClick={() => openEditConfig(cfg)}>Uredi</button>
-                <button className={styles.btnDanger} onClick={() => deleteConfig(cfg.id)}>Obriši</button>
+                <button className={styles.btnSecondary} onClick={() => openEditConfig(cfg)}>{t('htEdit')}</button>
+                <button className={styles.btnDanger} onClick={() => deleteConfig(cfg.id)}>{t('htDelete')}</button>
               </div>
 
               {!hasCreds && (
                 <div className={styles.setupSteps}>
-                  <div className={styles.setupTitle}>Kako postaviti {PROVIDER_LABELS[cfg.provider]}:</div>
+                  <div className={styles.setupTitle}>{t('psHowToSetup', { provider: PROVIDER_LABELS[cfg.provider] })}</div>
                   {fields.map(f => (
                     <div key={f.key} className={styles.setupStep}>
-                      <span className={styles.setupField}>{f.label}</span>
-                      <span className={styles.setupHint}>{f.hint}</span>
+                      <span className={styles.setupField}>{t(f.labelKey)}</span>
+                      <span className={styles.setupHint}>{t(f.hintKey)}</span>
                     </div>
                   ))}
                 </div>
@@ -262,40 +262,40 @@ export default function PaymentSettingsPage() {
         <div className={styles.overlay} onClick={() => setShowConfigModal(false)}>
           <div className={styles.modal} onClick={e => e.stopPropagation()}>
             <div className={styles.modalHeader}>
-              <div className={styles.modalTitle}>{editConfig ? 'Uredi provajder' : 'Novi payment provajder'}</div>
+              <div className={styles.modalTitle}>{editConfig ? t('psEditProvider') : t('psNewProvider')}</div>
               <button className={styles.modalClose} onClick={() => setShowConfigModal(false)}>✕</button>
             </div>
             <form onSubmit={saveConfig}>
               <div className={styles.field}>
-                <label>Provajder</label>
+                <label>{t('psProvider')}</label>
                 <select value={configForm.provider} onChange={e => setConfigForm(f => ({ ...f, provider: e.target.value }))}>
-                  <option value="stripe">Stripe (preporučeno za internacionalno)</option>
-                  <option value="monri">Monri/Payten (Crna Gora / region)</option>
+                  <option value="stripe">{t('psStripeOpt')}</option>
+                  <option value="monri">{t('psMonriOpt')}</option>
                 </select>
               </div>
               <div className={styles.field}>
-                <label>Mod</label>
+                <label>{t('psMode')}</label>
                 <div className={styles.modeToggle}>
                   <button type="button"
                     className={`${styles.modeBtn} ${configForm.mode === 'test' ? styles.modeBtnActive : ''}`}
                     onClick={() => setConfigForm(f => ({ ...f, mode: 'test' }))}>
-                    Test — za probno testiranje
+                    {t('psTestMode')}
                   </button>
                   <button type="button"
                     className={`${styles.modeBtn} ${configForm.mode === 'live' ? styles.modeBtnActive : ''}`}
                     onClick={() => setConfigForm(f => ({ ...f, mode: 'live' }))}>
-                    Live — pravo plaćanje
+                    {t('psLiveMode')}
                   </button>
                 </div>
                 {configForm.mode === 'live' && (
-                  <div className={styles.liveWarning}>⚠ Live mod naplaćuje prave transakcije. Provjeri da su kredencijali ispravni.</div>
+                  <div className={styles.liveWarning}>{t('psLiveWarning')}</div>
                 )}
               </div>
               {configError && <div className={styles.error}>{configError}</div>}
               <div className={styles.modalActions}>
-                <button type="button" className={styles.btnSecondary} onClick={() => setShowConfigModal(false)}>Odustani</button>
+                <button type="button" className={styles.btnSecondary} onClick={() => setShowConfigModal(false)}>{t('cancel')}</button>
                 <button type="submit" className={styles.btnPrimary} disabled={configSaving}>
-                  {configSaving ? 'Čuvanje...' : (editConfig ? 'Sačuvaj izmjene' : 'Dodaj provajder')}
+                  {configSaving ? t('saving') : (editConfig ? t('htSaveChanges') : t('psAddProvider'))}
                 </button>
               </div>
             </form>
@@ -309,46 +309,44 @@ export default function PaymentSettingsPage() {
           <div className={styles.modal} onClick={e => e.stopPropagation()}>
             <div className={styles.modalHeader}>
               <div className={styles.modalTitle}>
-                🔑 Kredencijali — {PROVIDER_LABELS[credsForConfig.provider]} ({credsForConfig.mode})
+                🔑 {t('psCredentials')} — {PROVIDER_LABELS[credsForConfig.provider]} ({credsForConfig.mode})
               </div>
               <button className={styles.modalClose} onClick={() => setShowCredsModal(false)}>✕</button>
             </div>
             <div className={styles.credsSecurity}>
-              🔒 Kredencijali se šifruju pri čuvanju i nisu vidljivi ni administratoru.
+              {t('psCredsSecurity')}
             </div>
 
             {/* Pomoć tenantu — odakle ključevi + callback URL za dashboard */}
             <div style={{ background: 'var(--c-info-bg)', border: '1px solid var(--c-info-border)', borderRadius: 8, padding: '10px 12px', marginBottom: 12, fontSize: 13, color: 'var(--c-text)' }}>
-              <strong>📘 Kako popuniti</strong>
+              <strong>📘 {t('psHowToFill')}</strong>
               {credsForConfig.provider === 'monri' ? (
                 <ol style={{ margin: '6px 0 10px 18px', padding: 0, lineHeight: 1.6 }}>
-                  <li>U Monri/banka dashboardu otvori <strong>API podešavanja</strong>.</li>
-                  <li>Prekopiraj <strong>„Key"</strong> (tajni potpisni ključ) i <strong>„Authenticity token"</strong> (identifikator trgovca) u polja ispod.</li>
-                  <li>Počni u <strong>Test</strong> modu (probne kartice), pa kad sve radi prebaci na <strong>Live</strong>.</li>
+                  <li>{t('psMonriStep1')}</li>
+                  <li>{t('psMonriStep2')}</li>
+                  <li>{t('psMonriStep3')}</li>
                 </ol>
               ) : (
                 <ol style={{ margin: '6px 0 10px 18px', padding: 0, lineHeight: 1.6 }}>
-                  <li>U Stripe Dashboardu otvori <strong>Developers → API keys</strong> (Secret key) i <strong>Webhooks</strong> (Signing secret).</li>
-                  <li>Test ključevi počinju sa <code>sk_test_</code>, live sa <code>sk_live_</code>.</li>
+                  <li>{t('psStripeStep1')}</li>
+                  <li>{t('psStripeStep2')}</li>
                 </ol>
               )}
-              <div style={{ fontWeight: 600, marginBottom: 4 }}>Callback / Webhook URL — zalijepi ga u {PROVIDER_LABELS[credsForConfig.provider]} dashboard:</div>
+              <div style={{ fontWeight: 600, marginBottom: 4 }}>{t('psCallbackUrl', { provider: PROVIDER_LABELS[credsForConfig.provider] })}</div>
               <code style={{ display: 'block', background: 'var(--c-bg-subtle)', padding: '6px 8px', borderRadius: 6, fontSize: 12, wordBreak: 'break-all', color: 'var(--c-text)' }}>
                 {import.meta.env.VITE_SUPABASE_URL}/functions/v1/payments-webhook?provider={credsForConfig.provider}
               </code>
               <div style={{ color: 'var(--c-text-muted)', marginTop: 6 }}>
-                {credsForConfig.provider === 'monri'
-                  ? 'Monri na ovaj URL šalje potvrdu plaćanja (callback). Bez njega se rezervacija/folio neće automatski označiti kao plaćeno.'
-                  : 'Stripe na ovaj URL šalje webhook događaje. Signing secret iz tog webhooka unesi gore.'}
+                {credsForConfig.provider === 'monri' ? t('psCallbackNoteMonri') : t('psCallbackNoteStripe')}
               </div>
             </div>
             {credsSaved ? (
-              <div className={styles.credsSavedMsg}>✓ Kredencijali su uspješno sačuvani.</div>
+              <div className={styles.credsSavedMsg}>{t('psCredsSavedMsg')}</div>
             ) : (
               <form onSubmit={saveCreds}>
                 {(CREDENTIAL_FIELDS[credsForConfig.provider] || []).map(field => (
                   <div key={field.key} className={styles.field}>
-                    <label>{field.label} *</label>
+                    <label>{t(field.labelKey)} *</label>
                     <input
                       type="password"
                       value={credsForm[field.key] || ''}
@@ -356,14 +354,14 @@ export default function PaymentSettingsPage() {
                       placeholder={field.placeholder}
                       autoComplete="off"
                     />
-                    <div className={styles.fieldHint}>{field.hint}</div>
+                    <div className={styles.fieldHint}>{t(field.hintKey)}</div>
                   </div>
                 ))}
                 {credsError && <div className={styles.error}>{credsError}</div>}
                 <div className={styles.modalActions}>
-                  <button type="button" className={styles.btnSecondary} onClick={() => setShowCredsModal(false)}>Odustani</button>
+                  <button type="button" className={styles.btnSecondary} onClick={() => setShowCredsModal(false)}>{t('cancel')}</button>
                   <button type="submit" className={styles.btnPrimary} disabled={credsSaving}>
-                    {credsSaving ? 'Čuvanje...' : 'Sačuvaj kredencijale'}
+                    {credsSaving ? t('saving') : t('psSaveCreds')}
                   </button>
                 </div>
               </form>
