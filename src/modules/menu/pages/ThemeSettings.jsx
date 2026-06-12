@@ -2,6 +2,7 @@ import { useState, useEffect } from 'react'
 import { supabase } from '../../../lib/supabase'
 import { usePlatform } from '../../../context/PlatformContext'
 import { deriveShades } from '../../../lib/brandPalette'
+import { READY_LANGUAGES, DEFAULT_LANG } from '../../../i18n/languages'
 import styles from './ThemeSettings.module.css'
 
 // Tenant bira paletu admin panela. Ponuda = ugrađene palete (zelena/plava/ljubičasta,
@@ -26,12 +27,41 @@ export default function ThemeSettings() {
   const [saving, setSaving] = useState(false)
   const [saved, setSaved] = useState(false)
 
+  // Admin jezik (per-tenant default). Sibling admin_theme; mirror na tenants. Vozi
+  // AdminLangSync (App.jsx) na /admin rutama. Switcher u topbaru je per-sesija override.
+  const [lang, setLang] = useState(DEFAULT_LANG)
+  const [savedLang, setSavedLang] = useState(DEFAULT_LANG)
+  const [langSaving, setLangSaving] = useState(false)
+  const [langSaved, setLangSaved] = useState(false)
+
   useEffect(() => {
     if (restaurant?.admin_theme) {
       setSelected(restaurant.admin_theme)
       setSavedTheme(restaurant.admin_theme)
     }
   }, [restaurant?.admin_theme])
+
+  useEffect(() => {
+    const al = restaurant?.admin_language || DEFAULT_LANG
+    setLang(al)
+    setSavedLang(al)
+  }, [restaurant?.admin_language])
+
+  const langDirty = lang !== savedLang
+  const saveLang = async () => {
+    if (!restaurant || !langDirty) return
+    setLangSaving(true)
+    const { error } = await supabase.from('restaurants').update({ admin_language: lang }).eq('id', restaurant.id)
+    setLangSaving(false)
+    if (error) return
+    // Očisti per-sesija override da novi tenant default odmah zaživi; setRestaurant
+    // → AdminLangSync primijeni novi admin_language.
+    try { sessionStorage.removeItem('sm_admin_lang') } catch { /* ignore */ }
+    setRestaurant({ ...restaurant, admin_language: lang })
+    setSavedLang(lang)
+    setLangSaved(true)
+    setTimeout(() => setLangSaved(false), 3000)
+  }
 
   // Brend paleta (izvedena iz boje objekta) + ugrađene (uz override) + custom palete.
   const brandTheme = { key: 'brand', name: 'Brend', light: deriveShades(restaurant?.color || '#0d7a52').light }
@@ -107,6 +137,34 @@ export default function ThemeSettings() {
         {isDirty && (
           <button className={styles.saveBtn} onClick={save} disabled={saving}>
             {saving ? 'Čuvanje…' : 'Sačuvaj temu'}
+          </button>
+        )}
+      </div>
+
+      {/* ── Jezik admin panela (per-tenant default) ── */}
+      <div className={styles.header} style={{ marginTop: 40 }}>
+        <h1 className={styles.title}>Jezik admin panela</h1>
+        <p className={styles.subtitle}>
+          Glavni jezik admin panela za cijeli nalog. Svako u timu može privremeno
+          promijeniti jezik za svoju sesiju izbornikom u gornjoj traci — ovaj izbor je
+          podrazumijevani.
+        </p>
+      </div>
+      <div className={styles.actions} style={{ justifyContent: 'flex-start', gap: 12 }}>
+        <select
+          value={lang}
+          onChange={e => setLang(e.target.value)}
+          style={{ padding: '10px 14px', borderRadius: 8, border: '1px solid var(--c-border)',
+            background: 'var(--c-surface)', color: 'var(--c-text)', fontSize: 14, fontFamily: 'inherit', cursor: 'pointer' }}
+        >
+          {READY_LANGUAGES.map(l => (
+            <option key={l.code} value={l.code}>{l.native}</option>
+          ))}
+        </select>
+        {langSaved && !langDirty && <span className={styles.savedMsg}>✓ Sačuvano</span>}
+        {langDirty && (
+          <button className={styles.saveBtn} onClick={saveLang} disabled={langSaving}>
+            {langSaving ? 'Čuvanje…' : 'Sačuvaj jezik'}
           </button>
         )}
       </div>

@@ -1,5 +1,7 @@
 import { lazy, Suspense, Component, useEffect } from 'react'
 import { Routes, Route, Navigate, useParams, useLocation } from 'react-router-dom'
+import i18n from './i18n'
+import { isReady, DEFAULT_LANG } from './i18n/languages'
 import { PlatformProvider, usePlatform } from './context/PlatformContext'
 import { CartProvider } from './context/CartContext'
 import LoadingSpinner from './components/shared/LoadingSpinner'
@@ -232,10 +234,46 @@ function ThemeRouteSync() {
   return null
 }
 
+// Hibridni admin jezik (Faza 2): per-tenant default (restaurants.admin_language)
+// + per-sesija override (sessionStorage 'sm_admin_lang', postavlja switcher u
+// AdminLayout headeru). Na admin rutama primjenjuje override→admin_language→me;
+// van admina vraća gostov jezik (sm_lang) da javne stranice ne naslijede admin
+// izbor pri SPA navigaciji. Mirror obrazac ThemeRouteSync-a.
+const ADMIN_OVERRIDE_KEY = 'sm_admin_lang'
+function AdminLangSync() {
+  const { pathname } = useLocation()
+  const { restaurant } = usePlatform()
+  const adminLang = restaurant?.admin_language
+  useEffect(() => {
+    const isAdmin = pathname.startsWith('/admin') || pathname.startsWith('/superadmin')
+    let desired
+    if (isAdmin) {
+      let override = null
+      try { override = sessionStorage.getItem(ADMIN_OVERRIDE_KEY) } catch { /* ignore */ }
+      desired = (override && isReady(override)) ? override
+        : (adminLang && isReady(adminLang)) ? adminLang
+        : DEFAULT_LANG
+    } else {
+      // Vrati gostov jezik (preslikava detectLang: sm_lang → browser → default)
+      // da javne stranice ne naslijede admin izbor; idempotentno na prvom paintu.
+      let stored = null
+      try { stored = localStorage.getItem('sm_lang') } catch { /* ignore */ }
+      let browser = null
+      try { browser = navigator.language?.slice(0, 2).toLowerCase() } catch { /* ignore */ }
+      desired = (stored && isReady(stored)) ? stored
+        : (browser && isReady(browser)) ? browser
+        : DEFAULT_LANG
+    }
+    if (desired && i18n.language !== desired) i18n.changeLanguage(desired)
+  }, [pathname, adminLang])
+  return null
+}
+
 function AppRoutes() {
   return (
     <ChunkErrorBoundary>
     <ThemeRouteSync />
+    <AdminLangSync />
     <Suspense fallback={<LoadingSpinner fullPage />}>
       <Routes>
         {/* Javne rute */}

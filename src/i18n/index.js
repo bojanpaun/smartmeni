@@ -31,7 +31,28 @@ const lazyBackend = {
   },
 }
 
+// Admin jezik je per-tenant (restaurants.admin_language, vozi ga AdminLangSync u
+// App.jsx) + per-sesija override koji admin postavi switcherom (sessionStorage —
+// traje samo za tu sesiju, sljedeća se vraća na tenant default). Javne stranice
+// koriste sm_lang (localStorage, gost bira). Dva ključa da se ne miješaju.
+const ADMIN_OVERRIDE_KEY = 'sm_admin_lang'
+function isAdminPath() {
+  try {
+    const p = window.location.pathname
+    return p.startsWith('/admin') || p.startsWith('/superadmin')
+  } catch { return false }
+}
+
 function detectLang() {
+  // Admin rute: per-sesija override ako postoji; inače DEFAULT (AdminLangSync će
+  // postaviti tenantov admin_language čim se PlatformContext učita).
+  if (isAdminPath()) {
+    try {
+      const o = sessionStorage.getItem(ADMIN_OVERRIDE_KEY)
+      if (o && isReady(o)) return o
+    } catch { /* ignore */ }
+    return DEFAULT_LANG
+  }
   try {
     const stored = localStorage.getItem(STORAGE_KEY)
     if (stored && isReady(stored)) return stored
@@ -67,8 +88,14 @@ function syncHtmlLang(lng) {
 syncHtmlLang(i18n.language || DEFAULT_LANG)
 
 i18n.on('languageChanged', (lng) => {
-  try { localStorage.setItem(STORAGE_KEY, lng) } catch { /* ignore */ }
   syncHtmlLang(lng)
+  // Persistuj u odgovarajući ključ po kontekstu: admin → per-sesija override
+  // (sessionStorage), javno → gost pref (localStorage). Tako promjena jezika u
+  // adminu ne gazi gostov izbor i obrnuto.
+  try {
+    if (isAdminPath()) sessionStorage.setItem(ADMIN_OVERRIDE_KEY, lng)
+    else localStorage.setItem(STORAGE_KEY, lng)
+  } catch { /* ignore */ }
 })
 
 export default i18n
