@@ -1,5 +1,6 @@
 import { useState, useEffect } from 'react'
 import { useNavigate } from 'react-router-dom'
+import { useTranslation } from 'react-i18next'
 import { supabase } from '../../../lib/supabase'
 import { usePlatform } from '../../../context/PlatformContext'
 import { stripAccountFields } from '../../../lib/planUtils'
@@ -16,6 +17,7 @@ const EMOJI_OPTIONS = [
 ]
 
 export default function AdminMenu() {
+  const { t } = useTranslation('admin')
   const navigate = useNavigate()
   const { user, restaurant: ctxRestaurant } = usePlatform()
 
@@ -75,7 +77,7 @@ export default function AdminMenu() {
   }
 
   const deleteItem = async (id) => {
-    if (!confirm('Obrisati ovu stavku?')) return
+    if (!confirm(t('amConfirmDeleteItem'))) return
     await supabase.from('menu_items').delete().eq('id', id)
     setItems(items.filter(i => i.id !== id))
   }
@@ -129,14 +131,14 @@ export default function AdminMenu() {
     }
     setSaving(false)
     setShowItemForm(false)
-    setSaveMsg('Sačuvano!')
+    setSaveMsg(t('saved'))
     setTimeout(() => setSaveMsg(''), 2000)
   }
 
   const addCategory = async () => {
-    const name = prompt('Naziv kategorije:')
+    const name = prompt(t('amPromptCatName'))
     if (!name) return
-    const icon = prompt('Emoji ikona (npr. 🍕):', '🍽️')
+    const icon = prompt(t('amPromptCatIcon'), '🍽️')
     const { data } = await supabase.from('categories').insert({
       restaurant_id: restaurant.id,
       name, icon: icon || '🍽️',
@@ -163,8 +165,8 @@ export default function AdminMenu() {
   const deleteCategory = async (cat) => {
     const itemCount = items.filter(i => i.category_id === cat.id).length
     const msg = itemCount > 0
-      ? `Obrisati kategoriju "${cat.name}"? Time se briše i ${itemCount} ${itemCount === 1 ? 'stavka' : 'stavki'} u njoj. Ova radnja se ne može poništiti.`
-      : `Obrisati kategoriju "${cat.name}"?`
+      ? t('amConfirmDeleteCatItems', { name: cat.name, count: itemCount })
+      : t('amConfirmDeleteCat', { name: cat.name })
     if (!confirm(msg)) return
     // menu_items.category_id ima ON DELETE CASCADE — stavke u kategoriji se brišu zajedno.
     await supabase.from('categories').delete().eq('id', cat.id).eq('restaurant_id', restaurant.id)
@@ -180,7 +182,7 @@ export default function AdminMenu() {
 
   if (loading) return (
     <div style={{ padding: 40, color: '#8a9e96', fontFamily: 'DM Sans, sans-serif' }}>
-      Učitavanje...
+      {t('loading')}
     </div>
   )
 
@@ -203,8 +205,8 @@ export default function AdminMenu() {
 
       <div className={gsStyles.page} style={{ maxWidth: 960 }}>
         <div className={gsStyles.header}>
-          <h1 className={gsStyles.title}>Uređivanje menija</h1>
-          <p className={gsStyles.subtitle}>Upravljajte kategorijama i stavkama digitalnog menija.</p>
+          <h1 className={gsStyles.title}>{t('navMenuEdit')}</h1>
+          <p className={gsStyles.subtitle}>{t('amSubtitle')}</p>
         </div>
 
         {/* DASHBOARD */}
@@ -212,32 +214,32 @@ export default function AdminMenu() {
           <div>
             <div className={styles.metrics}>
               <div className={styles.metric}>
-                <div className={styles.metricLabel}>Jela u meniju</div>
+                <div className={styles.metricLabel}>{t('amMetricDishes')}</div>
                 <div className={styles.metricVal}>{items.filter(i => i.is_visible).length}</div>
-                <div className={styles.metricSub}>od {items.length} ukupno</div>
+                <div className={styles.metricSub}>{t('amMetricOf', { total: items.length })}</div>
               </div>
               <div className={styles.metric}>
-                <div className={styles.metricLabel}>Kategorije</div>
+                <div className={styles.metricLabel}>{t('amCategories')}</div>
                 <div className={styles.metricVal}>{categories.length}</div>
               </div>
               <div className={styles.metric}>
-                <div className={styles.metricLabel}>Vaš URL</div>
+                <div className={styles.metricLabel}>{t('amMetricUrl')}</div>
                 <div className={styles.metricVal} style={{ fontSize: 14 }}>
                   restby.me/{restaurant?.slug}
                 </div>
               </div>
             </div>
             <div className={styles.card}>
-              <div className={styles.cardTitle}>Brzi start</div>
+              <div className={styles.cardTitle}>{t('amQuickStart')}</div>
               {categories.length === 0 && (
                 <div className={styles.startStep}>
                   <span className={styles.startNum}>1</span>
                   <div>
-                    <div className={styles.startTitle}>Dodajte kategoriju menija</div>
-                    <div className={styles.startDesc}>npr. Predjela, Riba, Meso, Piće...</div>
+                    <div className={styles.startTitle}>{t('amStep1Title')}</div>
+                    <div className={styles.startDesc}>{t('amStep1Desc')}</div>
                   </div>
                   <button className={styles.startBtn} onClick={() => { setActivePage('menu'); addCategory() }}>
-                    Dodaj →
+                    {t('add')} →
                   </button>
                 </div>
               )}
@@ -245,11 +247,11 @@ export default function AdminMenu() {
                 <div className={styles.startStep}>
                   <span className={styles.startNum}>2</span>
                   <div>
-                    <div className={styles.startTitle}>Dodajte prvo jelo</div>
-                    <div className={styles.startDesc}>Naziv, opis, cijena i slika</div>
+                    <div className={styles.startTitle}>{t('amStep2Title')}</div>
+                    <div className={styles.startDesc}>{t('amStep2Desc')}</div>
                   </div>
                   <button className={styles.startBtn} onClick={() => { setActivePage('menu'); openItemForm() }}>
-                    Dodaj →
+                    {t('add')} →
                   </button>
                 </div>
               )}
@@ -257,11 +259,11 @@ export default function AdminMenu() {
                 <div className={styles.startStep}>
                   <span className={styles.startNum} style={{ background: '#e0f5ec', color: '#0d7a52' }}>✓</span>
                   <div>
-                    <div className={styles.startTitle}>Meni je aktivan!</div>
-                    <div className={styles.startDesc}>Gosti mogu skenirati QR kod</div>
+                    <div className={styles.startTitle}>{t('amStep3Title')}</div>
+                    <div className={styles.startDesc}>{t('amStep3Desc')}</div>
                   </div>
                   <a href={`/${restaurant.slug}`} target="_blank" rel="noreferrer" className={styles.startBtn}>
-                    Otvori →
+                    {t('amOpenArrow')}
                   </a>
                 </div>
               )}
@@ -281,17 +283,17 @@ export default function AdminMenu() {
                     onClick={() => setActiveCategory(cat.id)}
                   >
                     {cat.icon} {cat.name}
-                    {cat.is_bar && <span className={styles.barBadge}>Bar</span>}
+                    {cat.is_bar && <span className={styles.barBadge}>{t('navBar')}</span>}
                   </button>
                 ))}
-                <button className={styles.catTabAdd} onClick={addCategory}>+ Kategorija</button>
+                <button className={styles.catTabAdd} onClick={addCategory}>+ {t('amCategory')}</button>
               </div>
               <div className={styles.menuTopActions}>
                 <button className={styles.libraryBtn} onClick={() => setShowLibrary(true)}>
-                  📚 Biblioteka
+                  📚 {t('amLibrary')}
                 </button>
                 <button className={styles.addItemBtn} onClick={() => openItemForm()}>
-                  + Dodaj jelo
+                  + {t('amAddDish')}
                 </button>
               </div>
             </div>
@@ -321,23 +323,23 @@ export default function AdminMenu() {
                           autoFocus
                           onChange={e => setCatForm(f => ({ ...f, name: e.target.value }))}
                           onKeyDown={e => e.key === 'Enter' && saveCategoryEdit(cat)}
-                          placeholder="Naziv kategorije"
+                          placeholder={t('amCatNamePlaceholder')}
                         />
-                        <button className={styles.catSaveBtn} onClick={() => saveCategoryEdit(cat)}>Sačuvaj</button>
-                        <button className={styles.catCancelBtn} onClick={() => setEditingCat(false)}>Odustani</button>
+                        <button className={styles.catSaveBtn} onClick={() => saveCategoryEdit(cat)}>{t('save')}</button>
+                        <button className={styles.catCancelBtn} onClick={() => setEditingCat(false)}>{t('cancel')}</button>
                       </div>
                       <textarea
                         className={styles.catDescInput}
                         value={catForm.description}
                         onChange={e => setCatForm(f => ({ ...f, description: e.target.value }))}
-                        placeholder="Interna napomena (vidi samo osoblje, ne gost) — npr. uputstvo za bar/kuhinju"
+                        placeholder={t('amCatNotePlaceholder')}
                         rows={2}
                       />
                     </div>
                   ) : (
                     <div className={styles.catEditRow}>
                       <button className={styles.catRenameBtn} onClick={() => startEditCategory(cat)}>
-                        ✏️ Uredi kategoriju
+                        ✏️ {t('amEditCategory')}
                       </button>
                       {cat.description && (
                         <span className={styles.catNote}>📝 {cat.description}</span>
@@ -347,11 +349,11 @@ export default function AdminMenu() {
                   <div className={styles.catSettingsRight}>
                     <label className={styles.catToggleLabel}>
                       <input type="checkbox" checked={!!cat.is_bar} onChange={toggleBar} />
-                      <span>🍷 Bar kategorija</span>
-                      <span className={styles.catToggleHint}>Stavke iz ove kategorije idu na Bar dashboard, ne u Kuhinju</span>
+                      <span>🍷 {t('amBarCategory')}</span>
+                      <span className={styles.catToggleHint}>{t('amBarCategoryHint')}</span>
                     </label>
                     <button className={styles.catDeleteBtn} onClick={() => deleteCategory(cat)}>
-                      🗑 Obriši kategoriju
+                      🗑 {t('amDeleteCategory')}
                     </button>
                   </div>
                 </div>
@@ -362,9 +364,9 @@ export default function AdminMenu() {
               {filteredItems.length === 0 ? (
                 <div className={styles.emptyState}>
                   <div className={styles.emptyIcon}>🍽️</div>
-                  <div className={styles.emptyTitle}>Nema stavki u ovoj kategoriji</div>
+                  <div className={styles.emptyTitle}>{t('amNoItems')}</div>
                   <button className={styles.emptyBtn} onClick={() => openItemForm()}>
-                    + Dodaj prvo jelo
+                    + {t('amAddFirstDish')}
                   </button>
                 </div>
               ) : (
@@ -372,11 +374,11 @@ export default function AdminMenu() {
                   <thead>
                     <tr>
                       <th></th>
-                      <th>Naziv</th>
-                      <th>Cijena</th>
-                      <th>Status</th>
-                      <th>Vidljivo</th>
-                      <th>Akcije</th>
+                      <th>{t('thName')}</th>
+                      <th>{t('thPrice')}</th>
+                      <th>{t('thStatus')}</th>
+                      <th>{t('thVisible')}</th>
+                      <th>{t('thActions')}</th>
                     </tr>
                   </thead>
                   <tbody>
@@ -397,20 +399,20 @@ export default function AdminMenu() {
                           <div className={styles.mobileInfo}>
                             <span className={styles.itemPrice}>€{parseFloat(item.price).toFixed(2)}</span>
                             {item.is_special
-                              ? <span className={`${styles.pill} ${styles.pillSpecial}`}>Dnevna ponuda</span>
-                              : <span className={`${styles.pill} ${styles.pillActive}`}>Aktivno</span>}
+                              ? <span className={`${styles.pill} ${styles.pillSpecial}`}>{t('amDailySpecial')}</span>
+                              : <span className={`${styles.pill} ${styles.pillActive}`}>{t('amActive')}</span>}
                             <button
                               className={`${styles.toggle} ${item.is_visible ? styles.toggleOn : styles.toggleOff}`}
                               onClick={() => toggleItemVisible(item)}
-                              title="Vidljivo gostima"
+                              title={t('amVisibleToGuests')}
                             />
                           </div>
                         </td>
                         <td className={styles.itemPrice}>€{parseFloat(item.price).toFixed(2)}</td>
                         <td>
                           {item.is_special
-                            ? <span className={`${styles.pill} ${styles.pillSpecial}`}>Dnevna ponuda</span>
-                            : <span className={`${styles.pill} ${styles.pillActive}`}>Aktivno</span>
+                            ? <span className={`${styles.pill} ${styles.pillSpecial}`}>{t('amDailySpecial')}</span>
+                            : <span className={`${styles.pill} ${styles.pillActive}`}>{t('amActive')}</span>
                           }
                         </td>
                         <td>
@@ -420,8 +422,8 @@ export default function AdminMenu() {
                           />
                         </td>
                         <td>
-                          <button className={styles.actionBtn} onClick={() => openItemForm(item)}>Uredi</button>
-                          <button className={styles.actionBtn} onClick={() => deleteItem(item.id)}>Briši</button>
+                          <button className={styles.actionBtn} onClick={() => openItemForm(item)}>{t('amEdit')}</button>
+                          <button className={styles.actionBtn} onClick={() => deleteItem(item.id)}>{t('amDelete')}</button>
                         </td>
                       </tr>
                     ))}
@@ -435,7 +437,7 @@ export default function AdminMenu() {
         {/* QR */}
         {activePage === 'qr' && (
           <div className={styles.card}>
-            <div className={styles.cardTitle}>Vaš QR kod i link</div>
+            <div className={styles.cardTitle}>{t('amQrTitle')}</div>
             <div className={styles.qrSection}>
               <div className={styles.qrBox}>
                 <div className={styles.qrPlaceholder}>
@@ -457,15 +459,15 @@ export default function AdminMenu() {
                 <div className={styles.qrLabel}>{restaurant?.name}</div>
               </div>
               <div className={styles.qrInfo}>
-                <div className={styles.qrUrlLabel}>Link za goste</div>
+                <div className={styles.qrUrlLabel}>{t('amLinkForGuests')}</div>
                 <div className={styles.qrUrl}>
                   <span>restby.me/{restaurant?.slug}</span>
                   <button onClick={() => navigator.clipboard.writeText(`https://restby.me/${restaurant?.slug}`)}>
-                    Kopiraj
+                    {t('amCopy')}
                   </button>
                 </div>
                 <p className={styles.qrNote}>
-                  Odštampajte QR kod i zalijepite na svaki sto. Gosti skeniraju i meni se odmah otvara na telefonu.
+                  {t('amQrNote')}
                 </p>
                 <a
                   href={`/${restaurant?.slug}`}
@@ -473,7 +475,7 @@ export default function AdminMenu() {
                   rel="noreferrer"
                   className={styles.viewBtn}
                 >
-                  Otvori meni →
+                  {t('amOpenMenu')}
                 </a>
               </div>
             </div>
@@ -492,33 +494,33 @@ export default function AdminMenu() {
         <div className={styles.modalOverlay} onClick={() => setShowItemForm(false)}>
           <div className={styles.modal} onClick={e => e.stopPropagation()}>
             <div className={styles.modalHeader}>
-              <div className={styles.modalTitle}>{editItem ? 'Uredi stavku' : 'Novo jelo ili piće'}</div>
+              <div className={styles.modalTitle}>{editItem ? t('amEditItem') : t('amNewItem')}</div>
               <button className={styles.modalClose} onClick={() => setShowItemForm(false)}>✕</button>
             </div>
             <form onSubmit={saveItem} className={styles.modalForm}>
               <div className={styles.modalGrid}>
                 <div className={styles.field}>
-                  <label>Naziv (SR) *</label>
+                  <label>{t('fName')} (SR) *</label>
                   <input value={itemForm.name} onChange={e => setItemForm(f => ({...f, name: e.target.value}))} required />
                 </div>
                 <div className={styles.field}>
-                  <label>Naziv (EN)</label>
+                  <label>{t('fName')} (EN)</label>
                   <input value={itemForm.name_en} onChange={e => setItemForm(f => ({...f, name_en: e.target.value}))} />
                 </div>
                 <div className={`${styles.field} ${styles.fullWidth}`}>
-                  <label>Opis (SR)</label>
+                  <label>{t('fDesc')} (SR)</label>
                   <textarea value={itemForm.description} onChange={e => setItemForm(f => ({...f, description: e.target.value}))} rows={2} />
                 </div>
                 <div className={`${styles.field} ${styles.fullWidth}`}>
-                  <label>Opis (EN)</label>
+                  <label>{t('fDesc')} (EN)</label>
                   <textarea value={itemForm.description_en} onChange={e => setItemForm(f => ({...f, description_en: e.target.value}))} rows={2} />
                 </div>
                 <div className={styles.field}>
-                  <label>Cijena (€) *</label>
+                  <label>{t('amPriceLabel')} *</label>
                   <input type="number" step="0.01" value={itemForm.price} onChange={e => setItemForm(f => ({...f, price: e.target.value}))} required />
                 </div>
                 <div className={`${styles.field} ${styles.fullWidth}`}>
-                  <label>Ikona stavke <span className={styles.fieldHintInline}>(prikazuje se u meniju kad nema slike)</span></label>
+                  <label>{t('amItemIcon')} <span className={styles.fieldHintInline}>{t('amItemIconHint')}</span></label>
                   <div className={styles.emojiPicker}>
                     {EMOJI_OPTIONS.map(em => (
                       <button
@@ -533,43 +535,43 @@ export default function AdminMenu() {
                   </div>
                 </div>
                 <div className={styles.field}>
-                  <label>Kategorija</label>
+                  <label>{t('amCategory')}</label>
                   <select value={itemForm.category_id} onChange={e => setItemForm(f => ({...f, category_id: e.target.value}))}>
-                    <option value="">-- Odaberi --</option>
+                    <option value="">{t('amChoose')}</option>
                     {categories.map(c => <option key={c.id} value={c.id}>{c.name}</option>)}
                   </select>
                 </div>
                 <div className={styles.field}>
-                  <label>Vrijeme pripreme</label>
-                  <input placeholder="npr. 15 min" value={itemForm.prep_time} onChange={e => setItemForm(f => ({...f, prep_time: e.target.value}))} />
+                  <label>{t('amPrepTime')}</label>
+                  <input placeholder={t('amPrepPlaceholder')} value={itemForm.prep_time} onChange={e => setItemForm(f => ({...f, prep_time: e.target.value}))} />
                 </div>
                 <div className={styles.field}>
-                  <label>Alergeni</label>
-                  <input placeholder="npr. Gluten, Mlijeko" value={itemForm.allergens} onChange={e => setItemForm(f => ({...f, allergens: e.target.value}))} />
+                  <label>{t('amAllergens')}</label>
+                  <input placeholder={t('amAllergensPlaceholder')} value={itemForm.allergens} onChange={e => setItemForm(f => ({...f, allergens: e.target.value}))} />
                 </div>
                 <div className={styles.field}>
-                  <label>Kalorije</label>
-                  <input type="number" placeholder="npr. 320" value={itemForm.calories} onChange={e => setItemForm(f => ({...f, calories: e.target.value}))} />
+                  <label>{t('amCalories')}</label>
+                  <input type="number" placeholder={t('amCaloriesPlaceholder')} value={itemForm.calories} onChange={e => setItemForm(f => ({...f, calories: e.target.value}))} />
                 </div>
                 <div className={`${styles.field} ${styles.fullWidth}`}>
-                  <label>Slika jela</label>
+                  <label>{t('amDishImage')}</label>
                   {itemForm.image_url && (
                     <img src={itemForm.image_url} alt="preview" className={styles.imgPreview} />
                   )}
                   <input type="file" accept="image/*" onChange={handleImageUpload} />
-                  {uploadingImage && <span style={{fontSize:12,color:'#8a9e96'}}>Upload u toku...</span>}
+                  {uploadingImage && <span style={{fontSize:12,color:'#8a9e96'}}>{t('amUploadInProgress')}</span>}
                 </div>
                 <div className={`${styles.field} ${styles.fullWidth}`}>
                   <label className={styles.checkLabel}>
                     <input type="checkbox" checked={itemForm.is_special} onChange={e => setItemForm(f => ({...f, is_special: e.target.checked}))} />
-                    Prikaži kao dnevnu ponudu
+                    {t('amShowAsDaily')}
                   </label>
                 </div>
               </div>
               <div className={styles.modalActions}>
-                <button type="button" className={styles.btnCancel} onClick={() => setShowItemForm(false)}>Odustani</button>
+                <button type="button" className={styles.btnCancel} onClick={() => setShowItemForm(false)}>{t('cancel')}</button>
                 <button type="submit" className={styles.btnSave} disabled={saving}>
-                  {saving ? 'Čuvanje...' : 'Sačuvaj stavku'}
+                  {saving ? t('saving') : t('amSaveItem')}
                 </button>
               </div>
             </form>
@@ -581,6 +583,7 @@ export default function AdminMenu() {
 }
 
 function SettingsPage({ restaurant, setRestaurant }) {
+  const { t } = useTranslation('admin')
   const [form, setForm] = useState({ ...restaurant })
   const [saving, setSaving] = useState(false)
   const [msg, setMsg] = useState('')
@@ -593,35 +596,35 @@ function SettingsPage({ restaurant, setRestaurant }) {
     await supabase.from('restaurants').update(stripAccountFields(rest)).eq('id', restaurant.id)
     setRestaurant({ ...restaurant, ...rest })
     setSaving(false)
-    setMsg('Sačuvano!')
+    setMsg(t('saved'))
     setTimeout(() => setMsg(''), 2000)
   }
 
   return (
     <div className={styles.card}>
-      <div className={styles.cardTitle}>Podaci o restoranu</div>
+      <div className={styles.cardTitle}>{t('amRestaurantData')}</div>
       <form onSubmit={save} className={styles.settingsForm}>
         <div className={styles.modalGrid}>
           <div className={styles.field}>
-            <label>Naziv restorana</label>
+            <label>{t('amRestaurantName')}</label>
             <input value={form.name} onChange={e => setForm(f => ({...f, name: e.target.value}))} />
           </div>
           <div className={styles.field}>
-            <label>Lokacija</label>
+            <label>{t('amLocation')}</label>
             <input value={form.location || ''} onChange={e => setForm(f => ({...f, location: e.target.value}))} />
           </div>
           <div className={styles.field}>
-            <label>Telefon</label>
+            <label>{t('amPhone')}</label>
             <input value={form.phone || ''} onChange={e => setForm(f => ({...f, phone: e.target.value}))} />
           </div>
           <div className={styles.field}>
-            <label>Radno vrijeme</label>
+            <label>{t('amHours')}</label>
             <input value={form.hours || ''} onChange={e => setForm(f => ({...f, hours: e.target.value}))} />
           </div>
         </div>
         <div style={{display:'flex',alignItems:'center',gap:12,marginTop:8}}>
           <button type="submit" className={styles.btnSave} disabled={saving}>
-            {saving ? 'Čuvanje...' : 'Sačuvaj promjene'}
+            {saving ? t('saving') : t('amSaveChanges')}
           </button>
           {msg && <span style={{color:'#0d7a52',fontSize:13}}>✓ {msg}</span>}
         </div>
@@ -634,6 +637,7 @@ function SettingsPage({ restaurant, setRestaurant }) {
 }
 
 function WaiterMessagesEditor({ restaurant, setRestaurant }) {
+  const { t } = useTranslation('admin')
   const DEFAULT_MESSAGES = [
     { sr: 'Pozovi konobara', en: 'Call waiter', icon: '🔔' },
     { sr: 'Donesi račun', en: 'Bring the bill', icon: '🧾' },
@@ -666,15 +670,15 @@ function WaiterMessagesEditor({ restaurant, setRestaurant }) {
     await supabase.from('restaurants').update({ waiter_messages: messages }).eq('id', restaurant.id)
     setRestaurant(r => ({ ...r, waiter_messages: messages }))
     setSaving(false)
-    setMsg('Sačuvano!')
+    setMsg(t('saved'))
     setTimeout(() => setMsg(''), 2000)
   }
 
   return (
     <div className={styles.card} style={{ marginTop: 16 }}>
-      <div className={styles.cardTitle}>Poruke za poziv konobara</div>
+      <div className={styles.cardTitle}>{t('amWaiterMsgTitle')}</div>
       <div style={{ fontSize: 12, color: '#8a9e96', marginBottom: 14 }}>
-        Gosti biraju jednu od ovih poruka kada pozivaju konobara.
+        {t('amWaiterMsgHint')}
       </div>
       <div style={{ display: 'flex', flexDirection: 'column', gap: 8 }}>
         {messages.map((m, i) => (
@@ -689,13 +693,13 @@ function WaiterMessagesEditor({ restaurant, setRestaurant }) {
             <input
               value={m.sr}
               onChange={e => update(i, 'sr', e.target.value)}
-              placeholder="Tekst (SR)"
+              placeholder={`${t('amTextField')} (SR)`}
               style={{ flex: 1, padding: '8px 10px', border: '1px solid #d0e4dc', borderRadius: 8, fontSize: 13, fontFamily: 'DM Sans, sans-serif', outline: 'none' }}
             />
             <input
               value={m.en}
               onChange={e => update(i, 'en', e.target.value)}
-              placeholder="Text (EN)"
+              placeholder={`${t('amTextField')} (EN)`}
               style={{ flex: 1, padding: '8px 10px', border: '1px solid #d0e4dc', borderRadius: 8, fontSize: 13, fontFamily: 'DM Sans, sans-serif', outline: 'none' }}
             />
             <button
@@ -710,10 +714,10 @@ function WaiterMessagesEditor({ restaurant, setRestaurant }) {
           onClick={add}
           style={{ padding: '8px 14px', background: '#f0f5f2', border: '1px solid #d0e4dc', borderRadius: 8, fontSize: 13, cursor: 'pointer', fontFamily: 'DM Sans, sans-serif' }}
         >
-          + Dodaj poruku
+          + {t('amAddMessage')}
         </button>
         <button onClick={save} className={styles.btnSave} disabled={saving}>
-          {saving ? 'Čuvanje...' : 'Sačuvaj poruke'}
+          {saving ? t('saving') : t('amSaveMessages')}
         </button>
         {msg && <span style={{ color: '#0d7a52', fontSize: 13 }}>✓ {msg}</span>}
       </div>
