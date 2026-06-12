@@ -1,7 +1,9 @@
 import { useState, useEffect } from 'react'
 import { useParams } from 'react-router-dom'
+import { useTranslation } from 'react-i18next'
 import { supabase } from '../lib/supabase'
 import { goToPaymentSession } from '../lib/payments'
+import LanguageSwitcher from '../i18n/LanguageSwitcher'
 import styles from './SpaBookingPage.module.css'
 
 // ── Helpers ──────────────────────────────────────────────────
@@ -14,19 +16,25 @@ function addDays(dateStr, n) {
   return d.toISOString().slice(0, 10)
 }
 
-function fmtDate(dateStr) {
-  return new Date(dateStr + 'T12:00:00').toLocaleDateString('sr-Latn', {
+function fmtDate(dateStr, locale = 'sr-Latn') {
+  return new Date(dateStr + 'T12:00:00').toLocaleDateString(locale, {
     weekday: 'long', day: 'numeric', month: 'long', year: 'numeric',
   })
 }
 
 const CATEGORY_ICON = { massage: '💆', facial: '✨', body: '🧖', nail: '💅', wellness: '🌿', group: '👥' }
-const CATEGORY_LABEL = { massage: 'Masaža', facial: 'Facial', body: 'Tijelo', nail: 'Nokti', wellness: 'Wellness', group: 'Grupni' }
+// Kategorija → i18n ključ (spa namespace). Prevod naziva tretmana (svc.name) je
+// tenant-sadržaj → Faza 3 (AI); ovdje se prevode samo fiksne kategorije.
+const CATEGORY_KEY = { massage: 'catMassage', facial: 'catFacial', body: 'catBody', nail: 'catNail', wellness: 'catWellness', group: 'catGroup' }
 
 // ── Main Component ────────────────────────────────────────────
 
 export default function SpaBookingPage() {
   const { slug } = useParams()
+  const { t, i18n } = useTranslation('spa')
+  const isEn = i18n.language === 'en'
+  const dateLoc = isEn ? 'en-US' : 'sr-Latn'
+  const catLabel = (cat) => t(CATEGORY_KEY[cat] ?? '', { defaultValue: cat })
 
   const [restaurant, setRestaurant] = useState(null)
   const [loadingRest, setLoadingRest] = useState(true)
@@ -156,7 +164,7 @@ export default function SpaBookingPage() {
     })
 
     if (error || data?.error) {
-      setBookError(data?.error || 'Greška pri rezervaciji. Pokušajte ponovo.')
+      setBookError(data?.error || t('bookingError'))
       setBooking(false)
       return
     }
@@ -185,11 +193,11 @@ export default function SpaBookingPage() {
           }
         )
         const sess = await res.json()
-        if (!res.ok || (!sess.redirectUrl && !sess.formPost)) throw new Error(sess.error || 'Greška pri pokretanju plaćanja.')
+        if (!res.ok || (!sess.redirectUrl && !sess.formPost)) throw new Error(sess.error || t('paymentStartError'))
         goToPaymentSession(sess)
         return
       } catch (e) {
-        setBookError(e.message || 'Greška pri pokretanju plaćanja.')
+        setBookError(e.message || t('paymentStartError'))
         setBooking(false)
         return
       }
@@ -238,7 +246,7 @@ export default function SpaBookingPage() {
   )
 
   if (!restaurant) return (
-    <div className={styles.loadWrap}><p className={styles.notFound}>Spa centar nije pronađen.</p></div>
+    <div className={styles.loadWrap}><p className={styles.notFound}>{t('notFound')}</p></div>
   )
 
   // Povratak sa online plaćanja (webhook je već označio termin plaćenim).
@@ -247,11 +255,11 @@ export default function SpaBookingPage() {
     <div className={styles.page}>
       <div className={styles.confirmWrap || ''} style={{ maxWidth: 440, margin: '40px auto', textAlign: 'center', padding: 24 }}>
         <div style={{ fontSize: 52, marginBottom: 12 }}>✅</div>
-        <h1 style={{ fontSize: 20, fontWeight: 700, marginBottom: 8 }}>Plaćanje uspješno</h1>
+        <h1 style={{ fontSize: 20, fontWeight: 700, marginBottom: 8 }}>{t('paySuccessTitle')}</h1>
         <p style={{ color: 'var(--c-text-muted)', marginBottom: 20 }}>
-          Vaš spa termin je potvrđen i plaćen. Potvrda je poslana na email.
+          {t('paySuccessDesc')}
         </p>
-        <a href={`/${slug}/spa`} style={{ color: 'var(--c-primary, #0d7a52)', fontWeight: 600 }}>← Nazad na spa booking</a>
+        <a href={`/${slug}/spa`} style={{ color: 'var(--c-primary, #0d7a52)', fontWeight: 600 }}>{t('backToBooking')}</a>
       </div>
     </div>
   )
@@ -271,15 +279,16 @@ export default function SpaBookingPage() {
           )}
           <div>
             <h1 className={styles.hotelName}>{restaurant.name}</h1>
-            <p className={styles.headerSub}>✨ Spa & Wellness booking</p>
+            <p className={styles.headerSub}>{t('headerSub')}</p>
           </div>
         </div>
+        <LanguageSwitcher />
       </div>
 
       {/* Step indicator */}
       {step < 5 && (
         <div className={styles.steps}>
-          {['Tretman', 'Datum', 'Termin', 'Podaci', 'Potvrda'].map((label, i) => (
+          {[t('stepTreatment'), t('stepDate'), t('stepTime'), t('stepDetails'), t('stepConfirm')].map((label, i) => (
             <div
               key={i}
               className={`${styles.step} ${i === step ? styles.stepActive : ''} ${i < step ? styles.stepDone : ''}`}
@@ -296,19 +305,19 @@ export default function SpaBookingPage() {
         {/* Step 0: Treatment selection */}
         {step === 0 && (
           <div className={styles.stepContent}>
-            <h2 className={styles.stepTitle}>Odaberite tretman</h2>
+            <h2 className={styles.stepTitle}>{t('chooseTreatment')}</h2>
             {services.length === 0 ? (
-              <div className={styles.empty}>Spa centar još nema dostupnih tretmana.</div>
+              <div className={styles.empty}>{t('noServices')}</div>
             ) : (
               <>
                 {/* Category filter */}
                 <div className={styles.catFilter}>
                   <button className={`${styles.catBtn} ${catFilter === 'all' ? styles.catBtnActive : ''}`} onClick={() => setCatFilter('all')}>
-                    Svi
+                    {t('catAll')}
                   </button>
                   {cats.map(cat => (
                     <button key={cat} className={`${styles.catBtn} ${catFilter === cat ? styles.catBtnActive : ''}`} onClick={() => setCatFilter(cat)}>
-                      {CATEGORY_ICON[cat]} {CATEGORY_LABEL[cat] || cat}
+                      {CATEGORY_ICON[cat]} {catLabel(cat)}
                     </button>
                   ))}
                 </div>
@@ -324,12 +333,12 @@ export default function SpaBookingPage() {
                         <div className={styles.serviceName}>{svc.name}</div>
                         <div className={styles.serviceMeta}>
                           <span>⏱ {svc.duration_minutes} min</span>
-                          {svc.price_couple && <span>👫 €{Number(svc.price_couple).toFixed(0)}/par</span>}
+                          {svc.price_couple && <span>👫 €{Number(svc.price_couple).toFixed(0)}/{t('perCouple')}</span>}
                         </div>
                         {svc.description && <p className={styles.serviceDesc}>{svc.description}</p>}
                         <div className={styles.serviceFooter}>
                           <span className={styles.servicePrice}>€{Number(svc.price).toFixed(2)}</span>
-                          <button className={styles.selectBtn}>Rezerviši →</button>
+                          <button className={styles.selectBtn}>{t('selectBtn')}</button>
                         </div>
                       </div>
                     </div>
@@ -343,14 +352,14 @@ export default function SpaBookingPage() {
         {/* Step 1: Date + therapist */}
         {step === 1 && selectedService && (
           <div className={styles.stepContent}>
-            <button className={styles.btnBack} onClick={() => setStep(0)}>← Promijeni tretman</button>
-            <h2 className={styles.stepTitle}>Odaberite datum</h2>
+            <button className={styles.btnBack} onClick={() => setStep(0)}>{t('changeTreatment')}</button>
+            <h2 className={styles.stepTitle}>{t('chooseDate')}</h2>
             <div className={styles.summaryBox}>
               <strong>{CATEGORY_ICON[selectedService.category]} {selectedService.name}</strong>
               <span className={styles.summaryMeta}>⏱ {selectedService.duration_minutes} min · €{Number(selectedService.price).toFixed(2)}</span>
             </div>
             <div className={styles.fieldGroup}>
-              <label className={styles.fieldLabel}>Datum tretmana</label>
+              <label className={styles.fieldLabel}>{t('treatmentDate')}</label>
               <input
                 type="date"
                 className={styles.fieldInput}
@@ -358,39 +367,39 @@ export default function SpaBookingPage() {
                 min={minDate}
                 onChange={e => setDate(e.target.value)}
               />
-              <p className={styles.fieldHint}>{fmtDate(date)}</p>
+              <p className={styles.fieldHint}>{fmtDate(date, dateLoc)}</p>
             </div>
             {therapists.length > 0 && (
               <div className={styles.fieldGroup}>
-                <label className={styles.fieldLabel}>Preferirani terapeut (opciono)</label>
+                <label className={styles.fieldLabel}>{t('preferredTherapist')}</label>
                 <select className={styles.fieldInput} value={therapistPref} onChange={e => setTherapistPref(e.target.value)}>
-                  <option value="any">Bez preference — prvi dostupni</option>
-                  {therapists.map(t => (
-                    <option key={t.id} value={t.id}>
-                      {t.staff?.first_name} {t.staff?.last_name}
+                  <option value="any">{t('noPreference')}</option>
+                  {therapists.map(th => (
+                    <option key={th.id} value={th.id}>
+                      {th.staff?.first_name} {th.staff?.last_name}
                     </option>
                   ))}
                 </select>
               </div>
             )}
-            <button className={styles.btnPrimary} onClick={handleDateNext}>Prikaži slobodne termine →</button>
+            <button className={styles.btnPrimary} onClick={handleDateNext}>{t('showSlots')}</button>
           </div>
         )}
 
         {/* Step 2: Slot selection */}
         {step === 2 && (
           <div className={styles.stepContent}>
-            <button className={styles.btnBack} onClick={() => setStep(1)}>← Promijeni datum</button>
-            <h2 className={styles.stepTitle}>Odaberite termin</h2>
-            <p className={styles.stepSub}>{fmtDate(date)} · {selectedService?.name}</p>
+            <button className={styles.btnBack} onClick={() => setStep(1)}>{t('changeDate')}</button>
+            <h2 className={styles.stepTitle}>{t('chooseTime')}</h2>
+            <p className={styles.stepSub}>{fmtDate(date, dateLoc)} · {selectedService?.name}</p>
 
             {slotsLoading ? (
               <div className={styles.slotsLoading}><div className={styles.spinner} /></div>
             ) : slots.length === 0 ? (
               <div className={styles.noSlots}>
                 <div className={styles.noSlotsIcon}>😔</div>
-                <p>Nema slobodnih termina za odabrani datum.</p>
-                <button className={styles.btnSecondary} onClick={() => setStep(1)}>Odaberi drugi datum</button>
+                <p>{t('noSlots')}</p>
+                <button className={styles.btnSecondary} onClick={() => setStep(1)}>{t('chooseOtherDate')}</button>
               </div>
             ) : (
               <div className={styles.slotsGrid}>
@@ -415,38 +424,38 @@ export default function SpaBookingPage() {
         {/* Step 3: Guest info */}
         {step === 3 && selectedSlot && (
           <div className={styles.stepContent}>
-            <button className={styles.btnBack} onClick={() => setStep(2)}>← Promijeni termin</button>
-            <h2 className={styles.stepTitle}>Vaši podaci</h2>
+            <button className={styles.btnBack} onClick={() => setStep(2)}>{t('changeTime')}</button>
+            <h2 className={styles.stepTitle}>{t('yourDetails')}</h2>
             <div className={styles.summaryBox}>
               <strong>{selectedService?.name}</strong>
               <span className={styles.summaryMeta}>
-                {fmtDate(date)} · {selectedSlot.slot_start?.slice(0,5)}–{selectedSlot.slot_end?.slice(0,5)}
+                {fmtDate(date, dateLoc)} · {selectedSlot.slot_start?.slice(0,5)}–{selectedSlot.slot_end?.slice(0,5)}
                 {selectedSlot.therapist_name ? ` · ${selectedSlot.therapist_name}` : ''}
               </span>
             </div>
             <div className={styles.fieldGroup}>
-              <label className={styles.fieldLabel}>Ime i prezime *</label>
+              <label className={styles.fieldLabel}>{t('nameLabel')}</label>
               <input className={styles.fieldInput} value={guestName} onChange={e => setGuestName(e.target.value)} placeholder="Marko Marković" />
             </div>
             <div className={styles.fieldGroup}>
-              <label className={styles.fieldLabel}>Email adresa *</label>
+              <label className={styles.fieldLabel}>{t('emailLabel')}</label>
               <input type="email" className={styles.fieldInput} value={guestEmail} onChange={e => setGuestEmail(e.target.value)} placeholder="marko@email.com" />
-              <p className={styles.fieldHint}>Na ovu adresu šaljemo potvrdu rezervacije</p>
+              <p className={styles.fieldHint}>{t('emailHint')}</p>
             </div>
             <div className={styles.fieldGroup}>
-              <label className={styles.fieldLabel}>Broj telefona (opciono)</label>
+              <label className={styles.fieldLabel}>{t('phoneLabel')}</label>
               <input type="tel" className={styles.fieldInput} value={guestPhone} onChange={e => setGuestPhone(e.target.value)} placeholder="+387 61 000 000" />
             </div>
             <div className={styles.fieldGroup}>
-              <label className={styles.fieldLabel}>Posebni zahtjevi (opciono)</label>
-              <textarea className={styles.fieldTextarea} value={guestNotes} onChange={e => setGuestNotes(e.target.value)} rows={3} placeholder="Alergije, preference, posebni zahtjevi..." />
+              <label className={styles.fieldLabel}>{t('notesLabel')}</label>
+              <textarea className={styles.fieldTextarea} value={guestNotes} onChange={e => setGuestNotes(e.target.value)} rows={3} placeholder={t('notesPlaceholder')} />
             </div>
             <button
               className={styles.btnPrimary}
               onClick={handleGuestNext}
               disabled={!guestName.trim() || !guestEmail.trim() || !guestEmail.includes('@')}
             >
-              Nastavi →
+              {`${t('continue')} →`}
             </button>
           </div>
         )}
@@ -454,19 +463,19 @@ export default function SpaBookingPage() {
         {/* Step 4: Payment + confirmation */}
         {step === 4 && (
           <div className={styles.stepContent}>
-            <button className={styles.btnBack} onClick={() => setStep(3)}>← Nazad</button>
-            <h2 className={styles.stepTitle}>Potvrda rezervacije</h2>
+            <button className={styles.btnBack} onClick={() => setStep(3)}>{t('back')}</button>
+            <h2 className={styles.stepTitle}>{t('confirmReservation')}</h2>
 
             {/* Summary */}
             <div className={styles.summaryFull}>
               {[
-                ['Tretman',   selectedService?.name],
-                ['Datum',     fmtDate(date)],
-                ['Termin',    `${selectedSlot?.slot_start?.slice(0,5)} – ${selectedSlot?.slot_end?.slice(0,5)}`],
-                ['Terapeut',  selectedSlot?.therapist_name || 'Po dostupnosti'],
-                ['Kabina',    selectedSlot?.room_name || '—'],
-                ['Gost',      guestName],
-                ['Email',     guestEmail],
+                [t('sumTreatment'),  selectedService?.name],
+                [t('sumDate'),       fmtDate(date, dateLoc)],
+                [t('sumTime'),       `${selectedSlot?.slot_start?.slice(0,5)} – ${selectedSlot?.slot_end?.slice(0,5)}`],
+                [t('sumTherapist'),  selectedSlot?.therapist_name || t('byAvailability')],
+                [t('sumRoom'),       selectedSlot?.room_name || '—'],
+                [t('sumGuest'),      guestName],
+                [t('sumEmail'),      guestEmail],
               ].map(([k, v]) => (
                 <div key={k} className={styles.summaryRow}>
                   <span className={styles.summaryKey}>{k}</span>
@@ -475,39 +484,39 @@ export default function SpaBookingPage() {
               ))}
               <div className={styles.summaryDivider} />
               <div className={`${styles.summaryRow} ${styles.summaryTotal}`}>
-                <span>Ukupno</span>
+                <span>{t('total')}</span>
                 <span>€{Number(selectedSlot?.price || 0).toFixed(2)}</span>
               </div>
             </div>
 
             {/* Payment method */}
             <div className={styles.paymentSection}>
-              <p className={styles.paymentLabel}>Način plaćanja</p>
+              <p className={styles.paymentLabel}>{t('paymentMethod')}</p>
               <div className={styles.paymentOptions}>
                 <label className={`${styles.payOpt} ${paymentMethod === 'cash' ? styles.payOptActive : ''}`}>
                   <input type="radio" name="payment" value="cash" checked={paymentMethod === 'cash'} onChange={() => setPaymentMethod('cash')} />
-                  <span>💰 Platiti na recepciji spa centra</span>
+                  <span>{t('payCash')}</span>
                 </label>
                 <label className={`${styles.payOpt} ${paymentMethod === 'card' ? styles.payOptActive : ''}`}>
                   <input type="radio" name="payment" value="card" checked={paymentMethod === 'card'} onChange={() => setPaymentMethod('card')} />
-                  <span>💳 Platiti karticom odmah (online)</span>
+                  <span>{t('payCard')}</span>
                 </label>
                 <label className={`${styles.payOpt} ${paymentMethod === 'folio' ? styles.payOptActive : ''}`}>
                   <input type="radio" name="payment" value="folio" checked={paymentMethod === 'folio'} onChange={() => setPaymentMethod('folio')} />
-                  <span>🏨 Dodati na hotelski račun</span>
+                  <span>{t('payFolio')}</span>
                 </label>
               </div>
 
               {paymentMethod === 'folio' && (
                 <div className={styles.fieldGroup} style={{ marginTop: 12 }}>
-                  <label className={styles.fieldLabel}>Kod rezervacije sobe *</label>
+                  <label className={styles.fieldLabel}>{t('folioCodeLabel')}</label>
                   <input
                     className={styles.fieldInput}
                     value={reservationCode}
                     onChange={e => setReservationCode(e.target.value)}
-                    placeholder="Npr. A1B2C3D4 (prva 8 znakova iz booking emaila)"
+                    placeholder={t('folioCodePlaceholder')}
                   />
-                  <p className={styles.fieldHint}>Pronađite kod u email potvrdi za vaš hotelski boravak</p>
+                  <p className={styles.fieldHint}>{t('folioCodeHint')}</p>
                 </div>
               )}
             </div>
@@ -518,7 +527,7 @@ export default function SpaBookingPage() {
               onClick={handleBook}
               disabled={booking || (paymentMethod === 'folio' && !reservationCode.trim())}
             >
-              {booking ? 'Obrada...' : paymentMethod === 'card' ? '💳 Nastavi na plaćanje' : '✓ Potvrdi rezervaciju'}
+              {booking ? t('processing') : paymentMethod === 'card' ? t('continueToPay') : t('confirmBookingBtn')}
             </button>
           </div>
         )}
@@ -528,30 +537,30 @@ export default function SpaBookingPage() {
           <div className={styles.stepContent}>
             <div className={styles.confirmBlock}>
               <div className={styles.confirmIcon}>✅</div>
-              <h2 className={styles.confirmTitle}>Termin uspješno rezervisan!</h2>
+              <h2 className={styles.confirmTitle}>{t('bookedTitle')}</h2>
               <p className={styles.confirmSub}>
-                Potvrda je poslana na <strong>{guestEmail}</strong>. Radujemo se vašem dolasku!
+                {t('bookedSubPre')}<strong>{guestEmail}</strong>{t('bookedSubPost')}
               </p>
               <div className={styles.confirmDetails}>
                 <div className={styles.confirmRow}>
-                  <span>Broj termina</span>
+                  <span>{t('apptNumber')}</span>
                   <span className={styles.confirmCode}>{confirmation.appointment_id?.slice(0,8).toUpperCase()}</span>
                 </div>
                 <div className={styles.confirmRow}>
-                  <span>Tretman</span>
+                  <span>{t('sumTreatment')}</span>
                   <span>{confirmation.service_name}</span>
                 </div>
                 <div className={styles.confirmRow}>
-                  <span>Datum i vrijeme</span>
-                  <span>{fmtDate(date)} · {confirmation.start_time?.slice(0,5)}</span>
+                  <span>{t('dateTime')}</span>
+                  <span>{fmtDate(date, dateLoc)} · {confirmation.start_time?.slice(0,5)}</span>
                 </div>
                 <div className={styles.confirmRow}>
-                  <span>Ukupno</span>
+                  <span>{t('total')}</span>
                   <span>€{Number(confirmation.price).toFixed(2)}</span>
                 </div>
               </div>
               <button className={styles.btnSecondary} onClick={() => { setStep(0); setConfirmation(null); setSelectedService(null); setSelectedSlot(null) }}>
-                Rezerviši još jedan tretman
+                {t('bookAnother')}
               </button>
             </div>
           </div>
