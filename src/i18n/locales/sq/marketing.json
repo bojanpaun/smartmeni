@@ -1,0 +1,202 @@
+{
+  "betaBar": "🚧 Versioni beta — qasje e hershme, të gjitha funksionet falas gjatë betës",
+  "nav": {
+    "restaurant": "Restorant",
+    "hotel": "Hotel",
+    "addons": "Shtesa",
+    "beta": "Beta",
+    "login": "Hyrje",
+    "cta": "Kërko qasje"
+  },
+  "hero": {
+    "badge": "🇲🇪 Platformë mikpritjeje për Malin e Zi",
+    "title1": "Menaxhoni hotelin",
+    "title2": "dhe restorantin",
+    "title3": "nga një vend",
+    "sub": "Një platformë për menynë dixhitale, rezervimet, front desk, pastrimin, HR dhe analitikën. Mjaft me xhongleri me dhjetë sisteme.",
+    "ctaPrimary": "Kërko qasje (beta)",
+    "ctaGhost": "Shiko modulet →",
+    "trust1": "✓ Falas gjatë betës",
+    "trust2": "✓ Qasje e plotë në të gjitha modulet",
+    "trust3": "✓ Mbështetje lokale"
+  },
+  "demo": {
+    "frontDesk": "Front Desk",
+    "checkin": "Check-in",
+    "cleaning": "Pastrim",
+    "checkout": "Check-out",
+    "occupancy": "Zënia",
+    "menu": "Menyja dixhitale",
+    "dish1": "Sallatë greke",
+    "dish2": "Levrek në skarë",
+    "dish3": "Kallamar në skarë",
+    "waiter": "🔔 Thirr kamarierin",
+    "notifTitle": "+22% të ardhura",
+    "notifSub": "Kjo sezonë vs e kaluara"
+  },
+  "stats": {
+    "s1suf": " vertikale",
+    "s1lab": "hotel dhe restorant",
+    "s2suf": "+",
+    "s2lab": "module në një platformë",
+    "s3suf": "% falas",
+    "s3lab": "gjatë versionit beta",
+    "s4suf": " platformë",
+    "s4lab": "në vend të dhjetë sistemeve"
+  },
+  "rest": {
+    "badge": "Vertikalja e restorantit",
+    "title1": "Nga një meny dixhitale",
+    "title2": "te një sistem i plotë POS",
+    "sub": "Meny dixhitale QR, harta e tavolinave, kërkesat e kamarierit, kitchen dashboard dhe analitika në një paketë. Funksionon si sistem restoranti i pavarur ose i integruar me folio-n e hotelit.",
+    "cta": "Kërko qasje për restorantin"
+  },
+  "hot": {
+    "badge": "Vertikalja e hotelit",
+    "title1": "Një sistem i plotë",
+    "title2": "i menaxhimit të hotelit",
+    "sub": "Front desk, rezervime, pastrim, revenue management dhe Spa & Wellness. Një motor rezervimi online drejtpërdrejt nga faqja juaj e hotelit — pa komisione.",
+    "cta": "Kërko qasje për hotelin"
+  },
+  "addons": {
+    "label": "Shtesa operative",
+    "title": "Shërbime të përbashkëta për të dy vertikalet",
+    "sub": "HR, inventari dhe analitika punojnë njësoj për stafin e restorantit dhe hotelit. Aktivizoni vetëm atë që ju nevojitet.",
+    "soon": "Së shpejti"
+  },
+  "beta": {
+    "label": "Programi beta",
+    "title1": "Të gjitha funksionet. Pa pagesë.",
+    "title2": "Aktualisht në versionin beta.",
+    "subPre": "rest.by.me është në zhvillim aktiv. Përdoruesit e hershëm marrin ",
+    "subStrong": "qasje të plotë në të gjitha modulet falas",
+    "subPost": " gjatë betës — me mbështetje të drejtpërdrejtë dhe mundësinë për të ndikuar në zhvillim. Qasja miratohet manualisht që të ndihmojmë çdo objekt me konfigurimin.",
+    "notePre": "Çmimet dhe planet e abonimit do të shpallen pas përfundimit të betës. Përdoruesit e hershëm ruajnë trajtim të veçantë. Pyetje? "
+  },
+  "cta": {
+    "label": "Bashkohu betës",
+    "title1": "Qasje e hershme.",
+    "title2": "Falas gjatë betës.",
+    "sub": "Zgjidhni çfarë drejtoni dhe kërkoni qasje — zakonisht përgjigjemi me miratim brenda një dite pune.",
+    "registerBtn": "Kërko qasje (beta) →",
+    "note": "Falas gjatë betës · Qasje me miratim · Mbështetje e drejtpërdrejtë"
+  },
+  "types": {
+    "restLabel": "🍽️ Restorant",
+    "restSub": "Meny, tavolina, kuzhinë",
+    "hotelLabel": "🏨 Hotel",
+    "hotelSub": "Front desk, rezervim, folio",
+    "bothLabel": "🏨🍽️ Hotel + Restorant",
+    "bothSub": "Gjithçka, e integruar"
+  },
+  "footer": {
+    "login": "Hyrje",
+    "privacy": "Privatësia",
+    "terms": "Kushtet e përdorimit",
+    "copy": "© 2026 rest.by.me · Podgoricë, Mali i Zi"
+  },
+  "rf": {
+    "1": {
+      "t": "Meny dixhitale QR",
+      "d": "Një meny moderne e arritshme me skanim. Pa aplikacion, funksionon menjëherë në çdo telefon."
+    },
+    "2": {
+      "t": "Kërkesat e kamarierit",
+      "d": "Mysafiri shtyp një buton — kamarieri merr një njoftim në pajisjen e tij."
+    },
+    "3": {
+      "t": "Harta e tavolinave",
+      "d": "Një hartë vizuale e tavolinave me statuse në kohë reale për gjithë restorantin."
+    },
+    "4": {
+      "t": "Kitchen dashboard",
+      "d": "Kuzhina ndjek porositë drejtpërdrejt, sipas prioritetit dhe statusit."
+    },
+    "5": {
+      "t": "Analitika e menysë",
+      "d": "Cilët artikuj shihen më shumë, kur janë piket, cilat gjuhë dominojnë."
+    },
+    "6": {
+      "t": "Shumëgjuhësh",
+      "d": "Malazisht + anglisht në paketën bazë. Turistët ia dalin vetë."
+    }
+  },
+  "hf": {
+    "1": {
+      "t": "Front desk",
+      "d": "Check-in, check-out, statusi i dhomave dhe rezervimet në një ekran."
+    },
+    "2": {
+      "t": "Rezervime & kalendar",
+      "d": "Motor rezervimi me një kalendar zënieje dhe një sistem folio për çdo mysafir."
+    },
+    "3": {
+      "t": "Pastrimi",
+      "d": "Detyra për stafin, statusi i pastrimit, prioritetet — gjithçka në kohë reale."
+    },
+    "4": {
+      "t": "Revenue management",
+      "d": "Çmime dinamike, RevPAR, yield management dhe analitikë zënieje."
+    },
+    "5": {
+      "t": "Spa & Wellness",
+      "d": "Rezervim trajtimesh, kalendari i terapistëve, kapacitetet dhe integrimi folio."
+    },
+    "6": {
+      "t": "Guest App",
+      "d": "Një aplikacion celular për mysafirët — porosi, rezervim, info hoteli."
+    }
+  },
+  "ad": {
+    "1": {
+      "t": "HR Pro",
+      "d": "Orare, prania, listat e pagave për gjithë stafin."
+    },
+    "2": {
+      "t": "Inventar Pro",
+      "d": "Stoku, recetat, rotacioni FIFO, paralajmërimet."
+    },
+    "3": {
+      "t": "Analitikë Pro",
+      "d": "Raporte të avancuara, eksport PDF/Excel, periudha të personalizuara."
+    },
+    "4": {
+      "t": "Channel Manager",
+      "d": "Sinkronizim me Booking.com, Airbnb, Expedia — së shpejti."
+    },
+    "5": {
+      "t": "Loyalty",
+      "d": "Pikë, sistem nivelesh, shpërblime për mysafirët — së shpejti."
+    },
+    "6": {
+      "t": "Multi-property",
+      "d": "Menaxhimi i disa objekteve me një llogari — së shpejti."
+    }
+  },
+  "bi": {
+    "1": {
+      "t": "Moduli i restorantit",
+      "d": "Meny dixhitale, harta e tavolinave, kërkesat e kamarierit, kitchen dashboard, analitika."
+    },
+    "2": {
+      "t": "Moduli i hotelit",
+      "d": "Front desk, rezervime, folio, pastrim, revenue management, audit nate."
+    },
+    "3": {
+      "t": "Spa & Wellness",
+      "d": "Rezervim trajtimesh, kalendari i terapistëve, vlerësime dhe integrim folio."
+    },
+    "4": {
+      "t": "Guest App & Rezervim online",
+      "d": "Mysafirët rezervojnë dhe porosisin drejtpërdrejt — pa komisione për ndërmjetësit."
+    },
+    "5": {
+      "t": "HR & Inventar",
+      "d": "Orare, prania, paga, stok dhe receta për stafin e të dy vertikaleve."
+    },
+    "6": {
+      "t": "Mbështetje e drejtpërdrejtë",
+      "d": "Përdoruesit e hershëm marrin mbështetje personale dhe ndikojnë në zhvillimin e platformës."
+    }
+  }
+}

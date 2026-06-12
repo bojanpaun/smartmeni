@@ -1,0 +1,202 @@
+{
+  "betaBar": "🚧 Beta sürümü — erken erişim, beta boyunca tüm özellikler ücretsiz",
+  "nav": {
+    "restaurant": "Restoran",
+    "hotel": "Otel",
+    "addons": "Eklentiler",
+    "beta": "Beta",
+    "login": "Giriş",
+    "cta": "Erişim iste"
+  },
+  "hero": {
+    "badge": "🇲🇪 Karadağ için konaklama platformu",
+    "title1": "Otelinizi",
+    "title2": "ve restoranınızı",
+    "title3": "tek bir yerden yönetin",
+    "sub": "Dijital menü, rezervasyonlar, front desk, kat hizmetleri, İK ve analitik için tek platform. Artık on sistemle uğraşmak yok.",
+    "ctaPrimary": "Erişim iste (beta)",
+    "ctaGhost": "Modülleri gör →",
+    "trust1": "✓ Beta boyunca ücretsiz",
+    "trust2": "✓ Tüm modüllere tam erişim",
+    "trust3": "✓ Yerel destek"
+  },
+  "demo": {
+    "frontDesk": "Front Desk",
+    "checkin": "Giriş",
+    "cleaning": "Temizlik",
+    "checkout": "Çıkış",
+    "occupancy": "Doluluk",
+    "menu": "Dijital menü",
+    "dish1": "Yunan salatası",
+    "dish2": "Izgara levrek",
+    "dish3": "Izgara kalamar",
+    "waiter": "🔔 Garson çağır",
+    "notifTitle": "+%22 gelir",
+    "notifSub": "Bu sezon vs geçen"
+  },
+  "stats": {
+    "s1suf": " dikey",
+    "s1lab": "otel ve restoran",
+    "s2suf": "+",
+    "s2lab": "tek platformda modül",
+    "s3suf": "% ücretsiz",
+    "s3lab": "beta sürümü boyunca",
+    "s4suf": " platform",
+    "s4lab": "on sistem yerine"
+  },
+  "rest": {
+    "badge": "Restoran dikeyi",
+    "title1": "Dijital menüden",
+    "title2": "eksiksiz bir POS sistemine",
+    "sub": "Dijital QR menü, masa haritası, garson talepleri, kitchen dashboard ve analitik tek pakette. Bağımsız bir restoran sistemi olarak veya otel folio’suyla entegre çalışır.",
+    "cta": "Restoran erişimi iste"
+  },
+  "hot": {
+    "badge": "Otel dikeyi",
+    "title1": "Eksiksiz bir otel",
+    "title2": "yönetim sistemi",
+    "sub": "Front desk, rezervasyonlar, kat hizmetleri, revenue management ve Spa & Wellness. Otel sayfanızdan doğrudan çevrimiçi rezervasyon motoru — komisyon yok.",
+    "cta": "Otel erişimi iste"
+  },
+  "addons": {
+    "label": "Operasyonel eklentiler",
+    "title": "Her iki dikey için ortak hizmetler",
+    "sub": "İK, envanter ve analitik restoran ve otel personeli için eşit çalışır. Yalnızca ihtiyacınız olanı etkinleştirin.",
+    "soon": "Yakında"
+  },
+  "beta": {
+    "label": "Beta programı",
+    "title1": "Tüm özellikler. Ücretsiz.",
+    "title2": "Şu anda beta sürümünde.",
+    "subPre": "rest.by.me aktif geliştirme aşamasında. Erken kullanıcılar beta boyunca ",
+    "subStrong": "tüm modüllere ücretsiz tam erişim",
+    "subPost": " alır — doğrudan destek ve geliştirmeyi etkileme şansıyla. Her mekana kurulumda yardımcı olabilmemiz için erişim manuel olarak onaylanır.",
+    "notePre": "Fiyatlandırma ve abonelik planları beta bittikten sonra açıklanacak. Erken kullanıcılar özel muameleyi korur. Sorular? "
+  },
+  "cta": {
+    "label": "Betaya katıl",
+    "title1": "Erken erişim.",
+    "title2": "Beta boyunca ücretsiz.",
+    "sub": "Ne işlettiğinizi seçin ve erişim isteyin — genellikle bir iş günü içinde onayla yanıt veririz.",
+    "registerBtn": "Erişim iste (beta) →",
+    "note": "Beta boyunca ücretsiz · Onayla erişim · Doğrudan destek"
+  },
+  "types": {
+    "restLabel": "🍽️ Restoran",
+    "restSub": "Menü, masalar, mutfak",
+    "hotelLabel": "🏨 Otel",
+    "hotelSub": "Front desk, rezervasyon, folio",
+    "bothLabel": "🏨🍽️ Otel + Restoran",
+    "bothSub": "Her şey, entegre"
+  },
+  "footer": {
+    "login": "Giriş",
+    "privacy": "Gizlilik",
+    "terms": "Kullanım koşulları",
+    "copy": "© 2026 rest.by.me · Podgorica, Karadağ"
+  },
+  "rf": {
+    "1": {
+      "t": "Dijital QR menü",
+      "d": "Tarayarak erişilebilen modern bir menü. Uygulama yok, her telefonda anında çalışır."
+    },
+    "2": {
+      "t": "Garson talepleri",
+      "d": "Misafir bir düğmeye dokunur — garson cihazında bir bildirim alır."
+    },
+    "3": {
+      "t": "Masa haritası",
+      "d": "Tüm restoran için gerçek zamanlı durumlarla görsel bir masa haritası."
+    },
+    "4": {
+      "t": "Kitchen dashboard",
+      "d": "Mutfak siparişleri önceliğe ve duruma göre canlı takip eder."
+    },
+    "5": {
+      "t": "Menü analitiği",
+      "d": "Hangi öğeler en çok görüntülenir, yoğunluklar ne zaman, hangi diller baskın."
+    },
+    "6": {
+      "t": "Çok dillilik",
+      "d": "Temel pakette Karadağca + İngilizce. Turistler kendi başlarına idare eder."
+    }
+  },
+  "hf": {
+    "1": {
+      "t": "Front desk",
+      "d": "Tek ekranda check-in, check-out, oda durumu ve rezervasyonlar."
+    },
+    "2": {
+      "t": "Rezervasyonlar & takvim",
+      "d": "Doluluk takvimi ve misafir başına folio sistemi olan rezervasyon motoru."
+    },
+    "3": {
+      "t": "Kat hizmetleri",
+      "d": "Personel için görevler, temizlik durumu, öncelikler — hepsi gerçek zamanlı."
+    },
+    "4": {
+      "t": "Revenue management",
+      "d": "Dinamik fiyatlandırma, RevPAR, yield management ve doluluk analitiği."
+    },
+    "5": {
+      "t": "Spa & Wellness",
+      "d": "Tedavi rezervasyonu, terapist takvimi, kapasiteler ve folio entegrasyonu."
+    },
+    "6": {
+      "t": "Guest App",
+      "d": "Misafirler için mobil uygulama — siparişler, rezervasyon, otel bilgisi."
+    }
+  },
+  "ad": {
+    "1": {
+      "t": "HR Pro",
+      "d": "Tüm personel için çizelgeleme, devam, bordro."
+    },
+    "2": {
+      "t": "Envanter Pro",
+      "d": "Stok, tarifler, FIFO rotasyonu, uyarılar."
+    },
+    "3": {
+      "t": "Analitik Pro",
+      "d": "Gelişmiş raporlar, PDF/Excel dışa aktarma, özel dönemler."
+    },
+    "4": {
+      "t": "Channel Manager",
+      "d": "Booking.com, Airbnb, Expedia ile senkronizasyon — yakında."
+    },
+    "5": {
+      "t": "Loyalty",
+      "d": "Puanlar, kademe sistemi, misafirler için kullanım — yakında."
+    },
+    "6": {
+      "t": "Multi-property",
+      "d": "Tek hesapla birden fazla mülk yönetimi — yakında."
+    }
+  },
+  "bi": {
+    "1": {
+      "t": "Restoran modülü",
+      "d": "Dijital menü, masa haritası, garson talepleri, kitchen dashboard, analitik."
+    },
+    "2": {
+      "t": "Otel modülü",
+      "d": "Front desk, rezervasyonlar, folio, kat hizmetleri, revenue management, gece denetimi."
+    },
+    "3": {
+      "t": "Spa & Wellness",
+      "d": "Tedavi rezervasyonu, terapist takvimi, değerlendirmeler ve folio entegrasyonu."
+    },
+    "4": {
+      "t": "Guest App & Çevrimiçi rezervasyon",
+      "d": "Misafirler doğrudan rezervasyon yapar ve sipariş verir — aracılara komisyon yok."
+    },
+    "5": {
+      "t": "İK & Envanter",
+      "d": "Her iki dikeyin personeli için çizelgeleme, devam, bordro, stok ve tarifler."
+    },
+    "6": {
+      "t": "Doğrudan destek",
+      "d": "Erken kullanıcılar kişisel destek alır ve platformun gelişimini etkiler."
+    }
+  }
+}

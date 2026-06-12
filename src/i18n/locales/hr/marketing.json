@@ -1,0 +1,202 @@
+{
+  "betaBar": "🚧 Beta verzija — rani pristup, sve funkcije besplatno tijekom bete",
+  "nav": {
+    "restaurant": "Restoran",
+    "hotel": "Hotel",
+    "addons": "Dodaci",
+    "beta": "Beta",
+    "login": "Prijava",
+    "cta": "Zatraži pristup"
+  },
+  "hero": {
+    "badge": "🇲🇪 Hospitality platforma za Crnu Goru",
+    "title1": "Upravljajte hotelom",
+    "title2": "i restoranom",
+    "title3": "s jednog mjesta",
+    "sub": "Jedna platforma za digitalni meni, rezervacije, front desk, housekeeping, HR i analitiku. Nema više žongliranja s deset sustava.",
+    "ctaPrimary": "Zatraži pristup (beta)",
+    "ctaGhost": "Pogledaj module →",
+    "trust1": "✓ Besplatno tijekom bete",
+    "trust2": "✓ Puni pristup svim modulima",
+    "trust3": "✓ Lokalna podrška"
+  },
+  "demo": {
+    "frontDesk": "Front Desk",
+    "checkin": "Check-in",
+    "cleaning": "Čišćenje",
+    "checkout": "Check-out",
+    "occupancy": "Popunjenost",
+    "menu": "Digitalni meni",
+    "dish1": "Grčka salata",
+    "dish2": "Brancin na žaru",
+    "dish3": "Lignje na žaru",
+    "waiter": "🔔 Pozovi konobara",
+    "notifTitle": "+22% prihod",
+    "notifSub": "Ova sezona vs prošla"
+  },
+  "stats": {
+    "s1suf": " vertikale",
+    "s1lab": "hotel i restoran",
+    "s2suf": "+",
+    "s2lab": "modula u jednoj platformi",
+    "s3suf": "% besplatno",
+    "s3lab": "tijekom beta verzije",
+    "s4suf": " platforma",
+    "s4lab": "umjesto deset sustava"
+  },
+  "rest": {
+    "badge": "Restoran vertikala",
+    "title1": "Od digitalnog menija",
+    "title2": "do kompletnog POS sustava",
+    "sub": "Digitalni QR meni, karta stolova, waiter zahtjevi, kitchen dashboard i analitika u jednom paketu. Radi kao standalone restoranski sustav ili integrirano s hotelskim foliom.",
+    "cta": "Zatraži pristup restoranu"
+  },
+  "hot": {
+    "badge": "Hotel vertikala",
+    "title1": "Kompletan hotel",
+    "title2": "management sustav",
+    "sub": "Front desk, rezervacije, housekeeping, revenue management i Spa & Wellness. Online booking engine izravno s vaše hotel stranice — bez provizija.",
+    "cta": "Zatraži pristup hotelu"
+  },
+  "addons": {
+    "label": "Operativni dodaci",
+    "title": "Dijeljeni servisi za oba vertikala",
+    "sub": "HR, inventar i analitika rade podjednako za restoransko i hotelsko osoblje. Aktivirate samo ono što vam treba.",
+    "soon": "Uskoro"
+  },
+  "beta": {
+    "label": "Beta program",
+    "title1": "Sve funkcije. Bez naplate.",
+    "title2": "Trenutno u beta verziji.",
+    "subPre": "rest.by.me je u aktivnom razvoju. Rani korisnici dobivaju ",
+    "subStrong": "puni pristup svim modulima besplatno",
+    "subPost": " tijekom bete — uz izravnu podršku i priliku da utječu na razvoj. Pristup se odobrava ručno kako bismo svakom objektu pomogli oko postavljanja.",
+    "notePre": "Cijene i planovi pretplate bit će objavljeni nakon izlaska iz bete. Rani korisnici zadržavaju poseban tretman. Pitanja? "
+  },
+  "cta": {
+    "label": "Pridruži se beti",
+    "title1": "Rani pristup.",
+    "title2": "Besplatno tijekom bete.",
+    "sub": "Odaberite što vodite i zatražite pristup — javljamo se s odobrenjem obično u roku od jednog radnog dana.",
+    "registerBtn": "Zatraži pristup (beta) →",
+    "note": "Besplatno tijekom bete · Pristup uz odobrenje · Izravna podrška"
+  },
+  "types": {
+    "restLabel": "🍽️ Restoran",
+    "restSub": "Meni, stolovi, kuhinja",
+    "hotelLabel": "🏨 Hotel",
+    "hotelSub": "Front desk, booking, folio",
+    "bothLabel": "🏨🍽️ Hotel + Restoran",
+    "bothSub": "Sve, integrirano"
+  },
+  "footer": {
+    "login": "Prijava",
+    "privacy": "Privatnost",
+    "terms": "Uvjeti korištenja",
+    "copy": "© 2026 rest.by.me · Podgorica, Crna Gora"
+  },
+  "rf": {
+    "1": {
+      "t": "Digitalni QR meni",
+      "d": "Moderan meni dostupan skeniranjem. Bez aplikacije, radi odmah na svakom telefonu."
+    },
+    "2": {
+      "t": "Waiter zahtjevi",
+      "d": "Gost klikne gumb — konobar dobiva obavijest na svom uređaju."
+    },
+    "3": {
+      "t": "Karta stolova",
+      "d": "Vizualna karta stolova sa statusima u stvarnom vremenu za cijeli restoran."
+    },
+    "4": {
+      "t": "Kitchen dashboard",
+      "d": "Kuhinja prati narudžbe uživo, po prioritetu i statusu."
+    },
+    "5": {
+      "t": "Analitika menija",
+      "d": "Koje se stavke najviše pregledavaju, kada su gužve, koji jezici dominiraju."
+    },
+    "6": {
+      "t": "Višejezičnost",
+      "d": "Crnogorski + engleski u osnovnom paketu. Turisti se snalaze sami."
+    }
+  },
+  "hf": {
+    "1": {
+      "t": "Front desk",
+      "d": "Check-in, check-out, status soba i rezervacija na jednom ekranu."
+    },
+    "2": {
+      "t": "Rezervacije i kalendar",
+      "d": "Booking engine s kalendarom zauzetosti i folio sustavom po gostu."
+    },
+    "3": {
+      "t": "Housekeeping",
+      "d": "Zadaci za osoblje, status čišćenja, prioriteti — sve u stvarnom vremenu."
+    },
+    "4": {
+      "t": "Revenue management",
+      "d": "Dinamičke cijene, RevPAR, yield management i occupancy analitika."
+    },
+    "5": {
+      "t": "Spa & Wellness",
+      "d": "Booking tretmana, kalendar terapeuta, kapaciteti i folio integracija."
+    },
+    "6": {
+      "t": "Guest App",
+      "d": "Mobilna aplikacija za goste — narudžbe, booking, info o hotelu."
+    }
+  },
+  "ad": {
+    "1": {
+      "t": "HR Pro",
+      "d": "Raspored, prisutnost, platne liste za svo osoblje."
+    },
+    "2": {
+      "t": "Inventar Pro",
+      "d": "Zalihe, recepti, FIFO rotacija, upozorenja."
+    },
+    "3": {
+      "t": "Analitika Pro",
+      "d": "Napredna izvješća, izvoz PDF/Excel, prilagođena razdoblja."
+    },
+    "4": {
+      "t": "Channel Manager",
+      "d": "Sinkronizacija s Booking.com, Airbnb, Expedia — uskoro."
+    },
+    "5": {
+      "t": "Loyalty",
+      "d": "Bodovi, tier sustav, redemption za goste — uskoro."
+    },
+    "6": {
+      "t": "Multi-property",
+      "d": "Upravljanje više objekata jednim računom — uskoro."
+    }
+  },
+  "bi": {
+    "1": {
+      "t": "Restoran modul",
+      "d": "Digitalni meni, karta stolova, waiter zahtjevi, kitchen dashboard, analitika."
+    },
+    "2": {
+      "t": "Hotel modul",
+      "d": "Front desk, rezervacije, folio, housekeeping, revenue management, noćni audit."
+    },
+    "3": {
+      "t": "Spa & Wellness",
+      "d": "Booking tretmana, kalendar terapeuta, recenzije i folio integracija."
+    },
+    "4": {
+      "t": "Guest App & Online booking",
+      "d": "Gosti rezerviraju i naručuju izravno — bez provizija posrednicima."
+    },
+    "5": {
+      "t": "HR & Inventar",
+      "d": "Raspored, prisutnost, plaće, zalihe i recepti za osoblje oba vertikala."
+    },
+    "6": {
+      "t": "Izravna podrška",
+      "d": "Rani korisnici dobivaju osobnu podršku i utječu na razvoj platforme."
+    }
+  }
+}

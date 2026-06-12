@@ -1,0 +1,202 @@
+{
+  "betaBar": "🚧 Beta version — early access, all features free during the beta",
+  "nav": {
+    "restaurant": "Restaurant",
+    "hotel": "Hotel",
+    "addons": "Add-ons",
+    "beta": "Beta",
+    "login": "Log in",
+    "cta": "Request access"
+  },
+  "hero": {
+    "badge": "🇲🇪 Hospitality platform for Montenegro",
+    "title1": "Manage your hotel",
+    "title2": "and restaurant",
+    "title3": "from one place",
+    "sub": "One platform for digital menu, reservations, front desk, housekeeping, HR and analytics. No more juggling ten systems.",
+    "ctaPrimary": "Request access (beta)",
+    "ctaGhost": "See the modules →",
+    "trust1": "✓ Free during the beta",
+    "trust2": "✓ Full access to all modules",
+    "trust3": "✓ Local support"
+  },
+  "demo": {
+    "frontDesk": "Front Desk",
+    "checkin": "Check-in",
+    "cleaning": "Cleaning",
+    "checkout": "Check-out",
+    "occupancy": "Occupancy",
+    "menu": "Digital menu",
+    "dish1": "Greek salad",
+    "dish2": "Grilled sea bass",
+    "dish3": "Grilled calamari",
+    "waiter": "🔔 Call the waiter",
+    "notifTitle": "+22% revenue",
+    "notifSub": "This season vs last"
+  },
+  "stats": {
+    "s1suf": " verticals",
+    "s1lab": "hotel and restaurant",
+    "s2suf": "+",
+    "s2lab": "modules in one platform",
+    "s3suf": "% free",
+    "s3lab": "during the beta version",
+    "s4suf": " platform",
+    "s4lab": "instead of ten systems"
+  },
+  "rest": {
+    "badge": "Restaurant vertical",
+    "title1": "From a digital menu",
+    "title2": "to a complete POS system",
+    "sub": "Digital QR menu, table map, waiter requests, kitchen dashboard and analytics in one package. Works as a standalone restaurant system or integrated with the hotel folio.",
+    "cta": "Request restaurant access"
+  },
+  "hot": {
+    "badge": "Hotel vertical",
+    "title1": "A complete hotel",
+    "title2": "management system",
+    "sub": "Front desk, reservations, housekeeping, revenue management and Spa & Wellness. An online booking engine directly from your hotel page — no commissions.",
+    "cta": "Request hotel access"
+  },
+  "addons": {
+    "label": "Operational add-ons",
+    "title": "Shared services for both verticals",
+    "sub": "HR, inventory and analytics work equally for restaurant and hotel staff. Activate only what you need.",
+    "soon": "Soon"
+  },
+  "beta": {
+    "label": "Beta program",
+    "title1": "All features. No charge.",
+    "title2": "Currently in beta version.",
+    "subPre": "rest.by.me is in active development. Early users get ",
+    "subStrong": "full access to all modules for free",
+    "subPost": " during the beta — with direct support and the chance to influence development. Access is approved manually so we can help each venue with setup.",
+    "notePre": "Pricing and subscription plans will be announced after the beta ends. Early users keep special treatment. Questions? "
+  },
+  "cta": {
+    "label": "Join the beta",
+    "title1": "Early access.",
+    "title2": "Free during the beta.",
+    "sub": "Choose what you run and request access — we usually respond with approval within one business day.",
+    "registerBtn": "Request access (beta) →",
+    "note": "Free during the beta · Access on approval · Direct support"
+  },
+  "types": {
+    "restLabel": "🍽️ Restaurant",
+    "restSub": "Menu, tables, kitchen",
+    "hotelLabel": "🏨 Hotel",
+    "hotelSub": "Front desk, booking, folio",
+    "bothLabel": "🏨🍽️ Hotel + Restaurant",
+    "bothSub": "Everything, integrated"
+  },
+  "footer": {
+    "login": "Log in",
+    "privacy": "Privacy",
+    "terms": "Terms of use",
+    "copy": "© 2026 rest.by.me · Podgorica, Montenegro"
+  },
+  "rf": {
+    "1": {
+      "t": "Digital QR menu",
+      "d": "A modern menu accessible by scanning. No app, works instantly on any phone."
+    },
+    "2": {
+      "t": "Waiter requests",
+      "d": "The guest taps a button — the waiter gets a notification on their device."
+    },
+    "3": {
+      "t": "Table map",
+      "d": "A visual table map with real-time statuses for the whole restaurant."
+    },
+    "4": {
+      "t": "Kitchen dashboard",
+      "d": "The kitchen tracks orders live, by priority and status."
+    },
+    "5": {
+      "t": "Menu analytics",
+      "d": "Which items get viewed most, when the peaks are, which languages dominate."
+    },
+    "6": {
+      "t": "Multilingual",
+      "d": "Montenegrin + English in the base package. Tourists manage on their own."
+    }
+  },
+  "hf": {
+    "1": {
+      "t": "Front desk",
+      "d": "Check-in, check-out, room status and reservations on one screen."
+    },
+    "2": {
+      "t": "Reservations & calendar",
+      "d": "Booking engine with an occupancy calendar and a per-guest folio system."
+    },
+    "3": {
+      "t": "Housekeeping",
+      "d": "Tasks for staff, cleaning status, priorities — all in real time."
+    },
+    "4": {
+      "t": "Revenue management",
+      "d": "Dynamic pricing, RevPAR, yield management and occupancy analytics."
+    },
+    "5": {
+      "t": "Spa & Wellness",
+      "d": "Treatment booking, therapist calendar, capacities and folio integration."
+    },
+    "6": {
+      "t": "Guest App",
+      "d": "A mobile app for guests — orders, booking, hotel info."
+    }
+  },
+  "ad": {
+    "1": {
+      "t": "HR Pro",
+      "d": "Scheduling, attendance, payroll for all staff."
+    },
+    "2": {
+      "t": "Inventory Pro",
+      "d": "Stock, recipes, FIFO rotation, alerts."
+    },
+    "3": {
+      "t": "Analytics Pro",
+      "d": "Advanced reports, PDF/Excel export, custom periods."
+    },
+    "4": {
+      "t": "Channel Manager",
+      "d": "Sync with Booking.com, Airbnb, Expedia — coming soon."
+    },
+    "5": {
+      "t": "Loyalty",
+      "d": "Points, tier system, redemption for guests — coming soon."
+    },
+    "6": {
+      "t": "Multi-property",
+      "d": "Manage multiple properties with one account — coming soon."
+    }
+  },
+  "bi": {
+    "1": {
+      "t": "Restaurant module",
+      "d": "Digital menu, table map, waiter requests, kitchen dashboard, analytics."
+    },
+    "2": {
+      "t": "Hotel module",
+      "d": "Front desk, reservations, folio, housekeeping, revenue management, night audit."
+    },
+    "3": {
+      "t": "Spa & Wellness",
+      "d": "Treatment booking, therapist calendar, reviews and folio integration."
+    },
+    "4": {
+      "t": "Guest App & Online booking",
+      "d": "Guests book and order directly — no commissions to intermediaries."
+    },
+    "5": {
+      "t": "HR & Inventory",
+      "d": "Scheduling, attendance, payroll, stock and recipes for staff of both verticals."
+    },
+    "6": {
+      "t": "Direct support",
+      "d": "Early users get personal support and influence the platform’s development."
+    }
+  }
+}
