@@ -1,5 +1,6 @@
 import { useState, useEffect } from 'react'
 import { useNavigate } from 'react-router-dom'
+import { useTranslation } from 'react-i18next'
 import { supabase } from '../../../lib/supabase'
 import { usePlatform } from '../../../context/PlatformContext'
 import styles from './WaiterMapView.module.css'
@@ -10,6 +11,8 @@ const today = () => new Date().toISOString().slice(0, 10)
 export default function WaiterMapView() {
   const { restaurant } = usePlatform()
   const navigate = useNavigate()
+  const { t, i18n } = useTranslation('admin')
+  const dl = i18n.language === 'en' ? 'en-US' : 'sr-Latn'
 
   const [tables, setTables] = useState([])
   const [orders, setOrders] = useState([])
@@ -81,7 +84,7 @@ export default function WaiterMapView() {
   }
 
   const closeTable = async (tableNumber) => {
-    if (!confirm(`Zatvoriti sto ${tableNumber}? Sve aktivne narudžbe će biti označene kao završene.`)) return
+    if (!confirm(t('wmvCloseConfirm', { n: tableNumber }))) return
     for (const o of getTableOrders(tableNumber)) {
       await supabase.from('orders').update({ status: 'served' }).eq('id', o.id)
     }
@@ -91,14 +94,14 @@ export default function WaiterMapView() {
     setSelectedTable(null)
   }
 
-  if (loading) return <div className={styles.loading}>Učitavanje mape...</div>
+  if (loading) return <div className={styles.loading}>{t('wmvLoading')}</div>
 
-  const selectedTableData   = tables.find(t => t.id === selectedTable)
+  const selectedTableData   = tables.find(tb => tb.id === selectedTable)
   const selectedOrders      = selectedTableData ? getTableOrders(selectedTableData.number) : []
   const selectedRequest     = selectedTableData ? getTableRequest(selectedTableData.number) : null
   const selectedReservations = selectedTableData ? getTableReservations(selectedTableData) : []
   const selectedTotal       = selectedTableData ? getTableTotal(selectedTableData.number) : 0
-  const callingTables       = tables.filter(t => getTableStatus(t) === 'calling')
+  const callingTables       = tables.filter(tb => getTableStatus(tb) === 'calling')
 
   // Zajednički sadržaj detail panela i bottom sheeta
   const detailContent = selectedTableData ? (
@@ -106,7 +109,7 @@ export default function WaiterMapView() {
       {selectedReservations.length > 0 && (
         <div>
           <div className={styles.reservationsTitle}>
-            Rezervacije danas ({selectedReservations.length})
+            {t('wmvResToday', { count: selectedReservations.length })}
           </div>
           {selectedReservations.map(res => (
             <div key={res.id} className={styles.reservationCard}>
@@ -114,7 +117,7 @@ export default function WaiterMapView() {
               <div className={styles.reservationBody}>
                 <div className={styles.reservationGuest}>{res.guest_name}</div>
                 <div className={styles.reservationMeta}>
-                  {res.guests_count} {res.guests_count === 1 ? 'gost' : 'gosta'}
+                  {res.guests_count} {res.guests_count === 1 ? t('tblGuestOne') : t('tblGuestOther')}
                   {res.guest_phone && ` · ${res.guest_phone}`}
                 </div>
                 {res.note && <div className={styles.reservationNote}>{res.note}</div>}
@@ -130,52 +133,52 @@ export default function WaiterMapView() {
           <div className={styles.requestBody}>
             <div className={styles.requestType}>{selectedRequest.request_type}</div>
             <div className={styles.requestTime}>
-              {new Date(selectedRequest.created_at).toLocaleTimeString('sr', { hour: '2-digit', minute: '2-digit' })}
+              {new Date(selectedRequest.created_at).toLocaleTimeString(dl, { hour: '2-digit', minute: '2-digit' })}
             </div>
           </div>
           <button className={styles.requestResolve} onClick={() => resolveRequest(selectedRequest.id)}>
-            Riješeno
+            {t('wmvResolved')}
           </button>
         </div>
       )}
 
       {selectedOrders.length > 0 && (
         <>
-          <div className={styles.ordersTitle}>Aktivne narudžbe</div>
+          <div className={styles.ordersTitle}>{t('wmvActiveOrders')}</div>
           {selectedOrders.map(order => (
             <div key={order.id} className={styles.orderCard}>
               <div className={styles.orderHeader}>
                 <span className={`${styles.orderStatus} ${styles[`orderStatus-${order.status}`]}`}>
-                  {order.status === 'received' ? 'Primljeno' : order.status === 'preparing' ? 'Priprema se' : 'Spremo'}
+                  {order.status === 'received' ? t('wmvOrdReceived') : order.status === 'preparing' ? t('wmvOrdPreparing') : t('wmvOrdReady')}
                 </span>
                 <span className={styles.orderTime}>
-                  {new Date(order.created_at).toLocaleTimeString('sr', { hour: '2-digit', minute: '2-digit' })}
+                  {new Date(order.created_at).toLocaleTimeString(dl, { hour: '2-digit', minute: '2-digit' })}
                 </span>
               </div>
               {order.note && <div className={styles.orderNote}>{order.note}</div>}
               <div className={styles.orderTotal}>€{parseFloat(order.total).toFixed(2)}</div>
               {order.status !== 'ready' && (
                 <button className={styles.btnReady} onClick={() => markOrderReady(order.id)}>
-                  Označi kao spremo
+                  {t('wmvMarkReady')}
                 </button>
               )}
             </div>
           ))}
           <div className={styles.totalRow}>
-            <span>Ukupno za sto</span>
+            <span>{t('wmvTotalForTable')}</span>
             <span className={styles.totalAmount}>€{selectedTotal.toFixed(2)}</span>
           </div>
           <button className={styles.btnClose} onClick={() => closeTable(selectedTableData.number)}>
-            Zatvori sto
+            {t('wmvCloseTable')}
           </button>
         </>
       )}
 
       {selectedOrders.length === 0 && !selectedRequest && selectedReservations.length === 0 && (
-        <div className={styles.noOrders}>Sto je slobodan.</div>
+        <div className={styles.noOrders}>{t('wmvTableFree')}</div>
       )}
       {selectedOrders.length === 0 && !selectedRequest && selectedReservations.length > 0 && (
-        <div className={styles.noOrders}>Gosti još nijesu stigli.</div>
+        <div className={styles.noOrders}>{t('wmvGuestsNotArrived')}</div>
       )}
     </>
   ) : null
@@ -186,16 +189,16 @@ export default function WaiterMapView() {
       {/* Header */}
       <div className={styles.header}>
         <div className={styles.headerLeft}>
-          <h1 className={gsStyles.title} style={{ margin: 0 }}>Pregled stolova</h1>
+          <h1 className={gsStyles.title} style={{ margin: 0 }}>{t('wmvTitle')}</h1>
           <div className={styles.headerBadges}>
             {callingTables.length > 0 && (
               <span className={styles.alertBadge}>
-                🔔 {callingTables.length} zove konobara
+                🔔 {t('wmvCallsWaiterBadge', { count: callingTables.length })}
               </span>
             )}
             {reservations.length > 0 && (
               <span className={styles.reservedBadge}>
-                📅 {reservations.length} {reservations.length === 1 ? 'rezervacija' : 'rezervacija'} danas
+                📅 {t('wmvResTodayBadge', { count: reservations.length })}
               </span>
             )}
           </div>
@@ -203,10 +206,10 @@ export default function WaiterMapView() {
         {/* Skriveno na mobilnom */}
         <div className={styles.headerActions}>
           <button className={styles.btnEdit} onClick={() => navigate('/admin/tables')}>
-            ✏️ Uredi mapu
+            ✏️ {t('wmvEditMap')}
           </button>
           <button className={styles.btnReservations} onClick={() => navigate('/admin/reservations')}>
-            📅 Rezervacije
+            📅 {t('wmvReservations')}
           </button>
         </div>
       </div>
@@ -214,14 +217,14 @@ export default function WaiterMapView() {
       {/* Calling bar — samo mobilni, vidljiv kada neko zove */}
       {callingTables.length > 0 && (
         <div className={styles.callingBar}>
-          {callingTables.map(t => {
-            const req = getTableRequest(t.number)
+          {callingTables.map(tb => {
+            const req = getTableRequest(tb.number)
             return (
-              <div key={t.id} className={styles.callingBarItem}>
-                <span>🔔 {t.label || `Sto ${t.number}`} zove konobara</span>
+              <div key={tb.id} className={styles.callingBarItem}>
+                <span>🔔 {t('wmvTableCalls', { table: tb.label || `${t('anaTable')} ${tb.number}` })}</span>
                 {req && (
                   <button className={styles.callingBarResolve} onClick={() => resolveRequest(req.id)}>
-                    Riješeno ✓
+                    {t('wmvResolved')} ✓
                   </button>
                 )}
               </div>
@@ -263,7 +266,7 @@ export default function WaiterMapView() {
                     </div>
                   )}
 
-                  <div className={styles.tableLabel}>{table.label || `Sto ${table.number}`}</div>
+                  <div className={styles.tableLabel}>{table.label || `${t('anaTable')} ${table.number}`}</div>
                   {status === 'occupied' && <div className={styles.tableTotal}>€{total.toFixed(2)}</div>}
                   {status === 'calling'  && <div className={styles.tableAlert}>🔔</div>}
                   {status === 'reserved' && (
@@ -272,7 +275,7 @@ export default function WaiterMapView() {
                       {tableReservations.length > 1 && ` +${tableReservations.length - 1}`}
                     </div>
                   )}
-                  {status === 'free' && <div className={styles.tableFreeLabel}>slobodan</div>}
+                  {status === 'free' && <div className={styles.tableFreeLabel}>{t('tblFreeLower')}</div>}
                 </div>
               )
             })}
@@ -280,19 +283,19 @@ export default function WaiterMapView() {
             {tables.length === 0 && (
               <div className={styles.emptyMap}>
                 <div>🗺️</div>
-                <div>Nema stolova na mapi</div>
+                <div>{t('wmvNoTablesMap')}</div>
                 <button className={styles.btnEdit} onClick={() => navigate('/admin/tables')}>
-                  Dodaj stolove →
+                  {t('wmvAddTables')} →
                 </button>
               </div>
             )}
           </div>
 
           <div className={styles.legend}>
-            <div className={styles.legendItem}><span className={`${styles.legendDot} ${styles.dotFree}`} /> Slobodan</div>
-            <div className={styles.legendItem}><span className={`${styles.legendDot} ${styles.dotOccupied}`} /> Zauzet</div>
-            <div className={styles.legendItem}><span className={`${styles.legendDot} ${styles.dotReserved}`} /> Rezervisan</div>
-            <div className={styles.legendItem}><span className={`${styles.legendDot} ${styles.dotCalling}`} /> Zove konobara</div>
+            <div className={styles.legendItem}><span className={`${styles.legendDot} ${styles.dotFree}`} /> {t('tblFree')}</div>
+            <div className={styles.legendItem}><span className={`${styles.legendDot} ${styles.dotOccupied}`} /> {t('tblOccupied')}</div>
+            <div className={styles.legendItem}><span className={`${styles.legendDot} ${styles.dotReserved}`} /> {t('tblReserved')}</div>
+            <div className={styles.legendItem}><span className={`${styles.legendDot} ${styles.dotCalling}`} /> {t('tblCalling')}</div>
           </div>
         </div>
 
@@ -300,8 +303,8 @@ export default function WaiterMapView() {
           <div className={styles.detailPanel}>
             <div className={styles.detailHeader}>
               <div>
-                <div className={styles.detailTitle}>{selectedTableData.label || `Sto ${selectedTableData.number}`}</div>
-                <div className={styles.detailSub}>{selectedTableData.seats} mjesta</div>
+                <div className={styles.detailTitle}>{selectedTableData.label || `${t('anaTable')} ${selectedTableData.number}`}</div>
+                <div className={styles.detailSub}>{selectedTableData.seats} {t('tblSeats')}</div>
               </div>
               <button className={styles.detailClose} onClick={() => setSelectedTable(null)}>✕</button>
             </div>
@@ -315,7 +318,7 @@ export default function WaiterMapView() {
         {tables.length === 0 && (
           <div style={{ gridColumn: '1/-1', textAlign: 'center', padding: '3rem 1rem', color: 'var(--c-text-muted)' }}>
             <div style={{ fontSize: 40, marginBottom: 10 }}>🗺️</div>
-            <div>Nema stolova</div>
+            <div>{t('wmvNoTables')}</div>
           </div>
         )}
         {tables.map(table => {
@@ -329,12 +332,12 @@ export default function WaiterMapView() {
               onClick={() => setSelectedTable(table.id === selectedTable ? null : table.id)}
             >
               {status === 'calling' && <div className={styles.mobilePulse} />}
-              <div className={styles.mobileCardName}>{table.label || `Sto ${table.number}`}</div>
+              <div className={styles.mobileCardName}>{table.label || `${t('anaTable')} ${table.number}`}</div>
               <div className={styles.mobileCardInfo}>
                 {status === 'occupied' && <span className={styles.mobileCardAmount}>€{total.toFixed(2)}</span>}
                 {status === 'calling'  && <span className={styles.mobileCardCallIcon}>🔔</span>}
                 {status === 'reserved' && <span className={styles.mobileCardResTime}>📅 {res[0]?.time?.slice(0, 5)}</span>}
-                {status === 'free'     && <span className={styles.mobileCardFreeLabel}>slobodan</span>}
+                {status === 'free'     && <span className={styles.mobileCardFreeLabel}>{t('tblFreeLower')}</span>}
               </div>
             </div>
           )
@@ -348,8 +351,8 @@ export default function WaiterMapView() {
           <>
             <div className={styles.bottomSheetHeader}>
               <div>
-                <div className={styles.detailTitle}>{selectedTableData.label || `Sto ${selectedTableData.number}`}</div>
-                <div className={styles.detailSub}>{selectedTableData.seats} mjesta</div>
+                <div className={styles.detailTitle}>{selectedTableData.label || `${t('anaTable')} ${selectedTableData.number}`}</div>
+                <div className={styles.detailSub}>{selectedTableData.seats} {t('tblSeats')}</div>
               </div>
               <button className={styles.detailClose} onClick={() => setSelectedTable(null)}>✕</button>
             </div>

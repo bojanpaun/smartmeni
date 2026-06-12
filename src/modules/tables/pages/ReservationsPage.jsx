@@ -2,22 +2,25 @@
 
 import { useState, useEffect, useRef, useCallback } from 'react'
 import { createPortal } from 'react-dom'
+import { useTranslation } from 'react-i18next'
 import { supabase } from '../../../lib/supabase'
 import { usePlatform } from '../../../context/PlatformContext'
 import styles from './ReservationsPage.module.css'
 import gsStyles from '../../menu/pages/GeneralSettings.module.css'
 
+// label preko prevodnog ključa; cls je CSS klasa po statusu.
 const STATUS_MAP = {
-  pending:   { label: 'Na čekanju',  cls: 'statusPending' },
-  confirmed: { label: 'Potvrđena',   cls: 'statusConfirmed' },
-  cancelled: { label: 'Otkazana',    cls: 'statusCancelled' },
-  completed: { label: 'Završena',    cls: 'statusCompleted' },
+  pending:   { key: 'tblStPending',   cls: 'statusPending' },
+  confirmed: { key: 'tblStConfirmed', cls: 'statusConfirmed' },
+  cancelled: { key: 'tblStCancelled', cls: 'statusCancelled' },
+  completed: { key: 'tblStCompleted', cls: 'statusCompleted' },
 }
 
 const today = () => new Date().toISOString().slice(0, 10)
 
 // ── Autocomplete za ime gosta ─────────────────────────────────
 function GuestAutocomplete({ value, onChange, onSelectGuest, restaurantId }) {
+  const { t } = useTranslation('admin')
   const [suggestions, setSuggestions] = useState([])
   const [show, setShow] = useState(false)
   const [dropPos, setDropPos] = useState({ top: 0, left: 0, width: 0 })
@@ -59,7 +62,7 @@ function GuestAutocomplete({ value, onChange, onSelectGuest, restaurantId }) {
   const STATUS_BADGE = {
     vip: { label: 'VIP', bg: '#FAEEDA', color: '#633806' },
     regular: null,
-    pending: { label: 'Na čekanju', bg: '#E6F1FB', color: '#0C447C' },
+    pending: { label: t('tblStPending'), bg: '#E6F1FB', color: '#0C447C' },
   }
 
   return (
@@ -69,7 +72,7 @@ function GuestAutocomplete({ value, onChange, onSelectGuest, restaurantId }) {
         value={value}
         onChange={e => { onChange(e.target.value) }}
         onFocus={() => { if (suggestions.length > 0) { updatePos(); setShow(true) } }}
-        placeholder="Ime i prezime"
+        placeholder={t('resGuestNamePh')}
         required
         style={{ width: '100%', padding: '9px 12px', border: '1px solid #d0e4dc', borderRadius: 9, fontSize: 13, fontFamily: 'DM Sans, sans-serif', outline: 'none', boxSizing: 'border-box' }}
       />
@@ -108,7 +111,7 @@ function GuestAutocomplete({ value, onChange, onSelectGuest, restaurantId }) {
                   </div>
                   <div style={{ fontSize: 11, color: '#8a9e96', marginTop: 1 }}>
                     {g.phone || g.email || '—'}
-                    {g.total_visits > 0 && ` · ${g.total_visits} posjeta · €${parseFloat(g.total_spent || 0).toFixed(0)}`}
+                    {g.total_visits > 0 && ` · ${g.total_visits} ${t('resVisits')} · €${parseFloat(g.total_spent || 0).toFixed(0)}`}
                   </div>
                 </div>
               </div>
@@ -123,6 +126,8 @@ function GuestAutocomplete({ value, onChange, onSelectGuest, restaurantId }) {
 
 // ── Kalendarski pregled ────────────────────────────────────────
 function CalendarView({ reservations, onDayClick, selectedDate }) {
+  const { t, i18n } = useTranslation('admin')
+  const dl = i18n.language === 'en' ? 'en-US' : 'sr-Latn'
   const [month, setMonth] = useState(() => {
     const d = new Date()
     return { year: d.getFullYear(), month: d.getMonth() }
@@ -141,7 +146,7 @@ function CalendarView({ reservations, onDayClick, selectedDate }) {
     return { year: d.getFullYear(), month: d.getMonth() }
   })
 
-  const monthName = new Date(month.year, month.month).toLocaleDateString('sr-Latn', { month: 'long', year: 'numeric' })
+  const monthName = new Date(month.year, month.month).toLocaleDateString(dl, { month: 'long', year: 'numeric' })
 
   // Grupišemo rezervacije po datumu
   const byDate = {}
@@ -160,8 +165,8 @@ function CalendarView({ reservations, onDayClick, selectedDate }) {
       </div>
 
       <div className={styles.calGrid}>
-        {['Pon', 'Uto', 'Sri', 'Čet', 'Pet', 'Sub', 'Ned'].map(d => (
-          <div key={d} className={styles.calDayName}>{d}</div>
+        {['spaDayMon', 'spaDayTue', 'spaDayWed', 'spaDayThu', 'spaDayFri', 'spaDaySat', 'spaDaySun'].map(dk => (
+          <div key={dk} className={styles.calDayName}>{t(dk)}</div>
         ))}
 
         {Array.from({ length: adjustedFirst }).map((_, i) => (
@@ -209,9 +214,10 @@ function CalendarView({ reservations, onDayClick, selectedDate }) {
 
 // ── Vizuelni picker stolova ────────────────────────────────────
 function TablePicker({ tables, selectedId, reservations, date, onSelect }) {
+  const { t } = useTranslation('admin')
   if (!tables.length) return (
     <div className={styles.pickerEmpty}>
-      Nijesu definisani stolovi. Dodajte ih u Mapi stolova.
+      {t('resPickerEmpty')}
     </div>
   )
 
@@ -221,16 +227,16 @@ function TablePicker({ tables, selectedId, reservations, date, onSelect }) {
       .map(r => r.table_id)
   )
 
-  const maxX = Math.max(...tables.map(t => t.x + t.width), 300)
-  const maxY = Math.max(...tables.map(t => t.y + t.height), 200)
+  const maxX = Math.max(...tables.map(tb => tb.x + tb.width), 300)
+  const maxY = Math.max(...tables.map(tb => tb.y + tb.height), 200)
   const scale = Math.min(440 / (maxX + 40), 220 / (maxY + 40))
 
   return (
     <div className={styles.pickerWrap}>
       <div className={styles.pickerLegend}>
-        <span className={styles.legendFree}>Slobodan</span>
-        <span className={styles.legendReserved}>Rezervisan</span>
-        <span className={styles.legendSelected}>Odabran</span>
+        <span className={styles.legendFree}>{t('tblFree')}</span>
+        <span className={styles.legendReserved}>{t('tblReserved')}</span>
+        <span className={styles.legendSelected}>{t('resSelected')}</span>
       </div>
       <div className={styles.pickerCanvas} style={{ height: Math.round((maxY + 40) * scale) }}>
         <div className={styles.pickerGrid} />
@@ -250,9 +256,9 @@ function TablePicker({ tables, selectedId, reservations, date, onSelect }) {
                 borderRadius: table.shape === 'circle' ? '50%' : 8,
               }}
               onClick={() => onSelect(isSelected ? '' : table.id)}
-              title={isReserved ? `${table.label || `Sto ${table.number}`} — rezervisan` : table.label || `Sto ${table.number}`}
+              title={isReserved ? `${table.label || `${t('anaTable')} ${table.number}`} — ${t('resReservedSuffix')}` : table.label || `${t('anaTable')} ${table.number}`}
             >
-              <span className={styles.pickerTableLabel}>{table.label || `Sto ${table.number}`}</span>
+              <span className={styles.pickerTableLabel}>{table.label || `${t('anaTable')} ${table.number}`}</span>
               {isReserved && !isSelected && <span className={styles.pickerReservedDot}>R</span>}
             </button>
           )
@@ -260,8 +266,8 @@ function TablePicker({ tables, selectedId, reservations, date, onSelect }) {
       </div>
       {selectedId && (
         <div className={styles.pickerSelected}>
-          Odabrano: <strong>{tables.find(t => t.id === selectedId)?.label || `Sto ${tables.find(t => t.id === selectedId)?.number}`}</strong>
-          <button type="button" onClick={() => onSelect('')} className={styles.pickerClear}>✕ Ukloni</button>
+          {t('resSelectedLabel')} <strong>{tables.find(tb => tb.id === selectedId)?.label || `${t('anaTable')} ${tables.find(tb => tb.id === selectedId)?.number}`}</strong>
+          <button type="button" onClick={() => onSelect('')} className={styles.pickerClear}>✕ {t('resRemove')}</button>
         </div>
       )}
     </div>
@@ -274,6 +280,8 @@ import DateNav, { DATE_TODAY } from '../../../components/shared/DateNav'
 
 // ── Planner (timeline po stolovima) ──────────────────────────────
 function PlannerView({ reservations, tables, date, onDateChange }) {
+  const { t, i18n } = useTranslation('admin')
+  const dl = i18n.language === 'en' ? 'en-US' : 'sr-Latn'
   const HOURS = Array.from({ length: 13 }, (_, i) => i + 10) // 10:00–22:00
   const HOUR_W = 60 // px po satu — kompaktan
 
@@ -283,7 +291,7 @@ function PlannerView({ reservations, tables, date, onDateChange }) {
 
   // Svrstaj rezervacije po stolu
   const byTable = {}
-  tables.forEach(t => { byTable[t.number] = [] })
+  tables.forEach(tb => { byTable[tb.number] = [] })
   filteredRes.forEach(r => {
     const tNum = r.table_number
     if (tNum && byTable[tNum] !== undefined) byTable[tNum].push(r)
@@ -313,7 +321,7 @@ function PlannerView({ reservations, tables, date, onDateChange }) {
     const d = new Date(date); d.setDate(d.getDate() + 1)
     onDateChange(d.toISOString().slice(0, 10))
   }
-  const displayDate = new Date(date).toLocaleDateString('sr-Latn', { weekday: 'long', day: 'numeric', month: 'long' })
+  const displayDate = new Date(date).toLocaleDateString(dl, { weekday: 'long', day: 'numeric', month: 'long' })
   const tableNums = Object.keys(byTable).sort((a, b) => Number(a) - Number(b) || a.localeCompare(b))
 
   return (
@@ -326,7 +334,7 @@ function PlannerView({ reservations, tables, date, onDateChange }) {
       </div>
 
       {filteredRes.length === 0 ? (
-        <div className={styles.plannerEmpty}>Nema rezervacija za ovaj dan.</div>
+        <div className={styles.plannerEmpty}>{t('resNoResDay')}</div>
       ) : (
         <div className={styles.plannerScroll}>
           <div style={{ display: 'flex', minWidth: 160 + totalW }}>
@@ -336,7 +344,7 @@ function PlannerView({ reservations, tables, date, onDateChange }) {
               <div style={{ height: 32 }} /> {/* header spacer */}
               {tableNums.map(tNum => (
                 <div key={tNum} className={styles.plannerTableLabel}>
-                  {tNum === '—' ? 'Bez stola' : `Sto ${tNum}`}
+                  {tNum === '—' ? t('resNoTable') : `${t('anaTable')} ${tNum}`}
                 </div>
               ))}
             </div>
@@ -374,11 +382,11 @@ function PlannerView({ reservations, tables, date, onDateChange }) {
                           left: startX, width: Math.max(w, 40),
                           background: col.bg, borderLeft: `3px solid ${col.border}`,
                         }}
-                        title={`${res.guest_name} · ${res.time?.slice(0,5)} · ${res.guests_count} gosta`}
+                        title={`${res.guest_name} · ${res.time?.slice(0,5)} · ${res.guests_count} ${t('tblGuestOther')}`}
                       >
                         <div className={styles.plannerBlockName}>{res.guest_name}</div>
                         <div className={styles.plannerBlockTime}>
-                          {res.time?.slice(0, 5)} · {res.guests_count}os
+                          {res.time?.slice(0, 5)} · {res.guests_count}{t('resPersonsShort')}
                         </div>
                       </div>
                     )
@@ -392,9 +400,9 @@ function PlannerView({ reservations, tables, date, onDateChange }) {
 
       {/* Legenda */}
       <div className={styles.calLegend} style={{ marginTop: 12 }}>
-        <span><span className={`${styles.calDot} ${styles.calDotConfirmed}`} /> Potvrđena</span>
-        <span><span className={`${styles.calDot} ${styles.calDotPending}`} /> Na čekanju</span>
-        <span style={{ fontSize: 11, color: '#8a9e96' }}>Blokovi pokazuju trajanje rezervacije (default 90 min)</span>
+        <span><span className={`${styles.calDot} ${styles.calDotConfirmed}`} /> {t('tblStConfirmed')}</span>
+        <span><span className={`${styles.calDot} ${styles.calDotPending}`} /> {t('tblStPending')}</span>
+        <span style={{ fontSize: 11, color: '#8a9e96' }}>{t('resBlocksHint')}</span>
       </div>
     </div>
   )
@@ -402,6 +410,8 @@ function PlannerView({ reservations, tables, date, onDateChange }) {
 
 export default function ReservationsPage() {
   const { restaurant } = usePlatform()
+  const { t, i18n } = useTranslation('admin')
+  const dl = i18n.language === 'en' ? 'en-US' : 'sr-Latn'
 
   const [reservations, setReservations] = useState([])
   const [tables, setTables] = useState([])
@@ -477,7 +487,7 @@ export default function ReservationsPage() {
   const saveReservation = async (e) => {
     e.preventDefault()
     setSaving(true)
-    const selectedTable = tables.find(t => t.id === form.table_id)
+    const selectedTable = tables.find(tb => tb.id === form.table_id)
     const payload = {
       restaurant_id: restaurant.id,
       guest_id: form.guest_id || null,
@@ -508,7 +518,7 @@ export default function ReservationsPage() {
   }
 
   const deleteReservation = async (id) => {
-    if (!confirm('Obrisati ovu rezervaciju?')) return
+    if (!confirm(t('resDeleteConfirm'))) return
     await supabase.from('reservations').delete().eq('id', id)
     setReservations(prev => prev.filter(r => r.id !== id))
   }
@@ -524,7 +534,7 @@ export default function ReservationsPage() {
 
   const pendingOnline = reservations.filter(r => r.status === 'pending' && r.source === 'online')
 
-  if (loading) return <div className={styles.loading}>Učitavanje rezervacija...</div>
+  if (loading) return <div className={styles.loading}>{t('resLoading')}</div>
 
   return (
     <div className={gsStyles.page} style={{ maxWidth: 960 }}>
@@ -532,11 +542,11 @@ export default function ReservationsPage() {
       {/* Header */}
       <div className={styles.header}>
         <div>
-          <h1 className={gsStyles.title}>Rezervacije</h1>
-          <p className={gsStyles.subtitle}>Pregled i upravljanje rezervacijama stolova.</p>
+          <h1 className={gsStyles.title}>{t('resTitle')}</h1>
+          <p className={gsStyles.subtitle}>{t('resSubtitle')}</p>
           {pendingOnline.length > 0 && (
             <div className={styles.pendingBadge}>
-              🔔 {pendingOnline.length} online {pendingOnline.length === 1 ? 'zahtjev' : 'zahtjeva'} čeka odobrenje
+              🔔 {pendingOnline.length} {pendingOnline.length === 1 ? t('resReqOne') : t('resReqOther')}
             </div>
           )}
         </div>
@@ -545,31 +555,30 @@ export default function ReservationsPage() {
             <button
               className={`${styles.viewBtn} ${view === 'list' ? styles.viewBtnActive : ''}`}
               onClick={() => setView('list')}
-            >☰ Lista</button>
+            >☰ {t('resList')}</button>
             <button
               className={`${styles.viewBtn} ${view === 'calendar' ? styles.viewBtnActive : ''}`}
               onClick={() => setView('calendar')}
-            >📅 Kalendar</button>
+            >📅 {t('resCalendar')}</button>
             <button
               className={`${styles.viewBtn} ${view === 'planner' ? styles.viewBtnActive : ''}`}
               onClick={() => setView('planner')}
-            >📊 Planner</button>
+            >📊 {t('resPlanner')}</button>
           </div>
-          <button className={styles.btnAdd} onClick={() => openForm()}>+ Nova rezervacija</button>
+          <button className={styles.btnAdd} onClick={() => openForm()}>+ {t('resNewRes')}</button>
         </div>
       </div>
 
       {/* Online toggle */}
       <div className={styles.toggleCard}>
         <div className={styles.toggleInfo}>
-          <div className={styles.toggleTitle}>Online rezervacije</div>
+          <div className={styles.toggleTitle}>{t('resOnlineRes')}</div>
           <div className={styles.toggleDesc}>
-            Kada je uključeno, gosti mogu slati zahtjeve za rezervaciju putem linka restorana.
-            Svaki zahtjev morate ručno odobriti ili odbiti.
+            {t('resOnlineDesc')}
           </div>
           {onlineEnabled && (
             <div className={styles.toggleLink}>
-              Javna forma: <strong>{window.location.origin}/{restaurant.slug}/rezervacija</strong>
+              {t('resPublicForm')} <strong>{window.location.origin}/{restaurant.slug}/rezervacija</strong>
             </div>
           )}
         </div>
@@ -604,9 +613,9 @@ export default function ReservationsPage() {
             }}
           />
           <div className={styles.calLegend}>
-            <span><span className={`${styles.calDot} ${styles.calDotConfirmed}`} /> Potvrđena</span>
-            <span><span className={`${styles.calDot} ${styles.calDotPending}`} /> Na čekanju</span>
-            <span className={styles.calHint}>Klikni na dan da vidiš listu</span>
+            <span><span className={`${styles.calDot} ${styles.calDotConfirmed}`} /> {t('tblStConfirmed')}</span>
+            <span><span className={`${styles.calDot} ${styles.calDotPending}`} /> {t('tblStPending')}</span>
+            <span className={styles.calHint}>{t('resCalHint')}</span>
           </div>
         </div>
       )}
@@ -618,12 +627,12 @@ export default function ReservationsPage() {
             from={from}
             to={to}
             search={search}
-            onChange={(f, t) => { setFrom(f); setTo(t) }}
+            onChange={(f, tt) => { setFrom(f); setTo(tt) }}
             onSearch={setSearch}
             showFuture={true}
             showMonth={true}
             allowAll={true}
-            placeholder="Pretraži gosta ili telefon..."
+            placeholder={t('resSearchPh')}
           />
           <div className={styles.filterStatus} style={{ display: 'flex', gap: 8, marginBottom: 16, flexWrap: 'wrap' }}>
             {['all', 'pending', 'confirmed', 'cancelled', 'completed'].map(s => (
@@ -632,7 +641,7 @@ export default function ReservationsPage() {
                 className={`${styles.filterBtn} ${filterStatus === s ? styles.filterBtnActive : ''}`}
                 onClick={() => setFilterStatus(s)}
               >
-                {s === 'all' ? 'Sve' : STATUS_MAP[s]?.label}
+                {s === 'all' ? t('spaAll') : t(STATUS_MAP[s]?.key)}
               </button>
             ))}
           </div>
@@ -642,8 +651,8 @@ export default function ReservationsPage() {
             {filtered.length === 0 ? (
               <div className={styles.empty}>
                 <div className={styles.emptyIcon}>📅</div>
-                <div>Nema rezervacija za odabrane filtere.</div>
-                <button className={styles.btnAdd} onClick={() => openForm()}>+ Dodaj rezervaciju</button>
+                <div>{t('resNoResFilters')}</div>
+                <button className={styles.btnAdd} onClick={() => openForm()}>+ {t('resAddRes')}</button>
               </div>
             ) : (
               filtered.map(res => (
@@ -655,15 +664,15 @@ export default function ReservationsPage() {
                     <div className={styles.resTop}>
                       <div className={styles.resGuest}>{res.guest_name}</div>
                       <span className={`${styles.statusPill} ${styles[STATUS_MAP[res.status]?.cls]}`}>
-                        {STATUS_MAP[res.status]?.label}
+                        {t(STATUS_MAP[res.status]?.key)}
                       </span>
-                      {res.source === 'online' && <span className={styles.sourcePill}>Online</span>}
+                      {res.source === 'online' && <span className={styles.sourcePill}>{t('resOnline')}</span>}
                     </div>
                     <div className={styles.resMeta}>
-                      <span>📅 {new Date(res.date + 'T00:00:00').toLocaleDateString('sr-Latn', { day: '2-digit', month: '2-digit', year: 'numeric' })}</span>
+                      <span>📅 {new Date(res.date + 'T00:00:00').toLocaleDateString(dl, { day: '2-digit', month: '2-digit', year: 'numeric' })}</span>
                       <span>🕐 {res.time?.slice(0, 5)}</span>
-                      <span>👥 {res.guests_count} {res.guests_count === 1 ? 'gost' : 'gosta'}</span>
-                      {res.table_number && <span>🪑 Sto {res.table_number}</span>}
+                      <span>👥 {res.guests_count} {res.guests_count === 1 ? t('tblGuestOne') : t('tblGuestOther')}</span>
+                      {res.table_number && <span>🪑 {t('anaTable')} {res.table_number}</span>}
                       {res.guest_phone && <span>📞 {res.guest_phone}</span>}
                     </div>
                     {res.note && <div className={styles.resNote}>{res.note}</div>}
@@ -671,15 +680,15 @@ export default function ReservationsPage() {
                   <div className={styles.resActions}>
                     {res.status === 'pending' && (
                       <>
-                        <button className={styles.btnConfirm} onClick={() => updateStatus(res.id, 'confirmed')}>Potvrdi</button>
-                        <button className={styles.btnCancel} onClick={() => updateStatus(res.id, 'cancelled')}>Odbij</button>
+                        <button className={styles.btnConfirm} onClick={() => updateStatus(res.id, 'confirmed')}>{t('resConfirm')}</button>
+                        <button className={styles.btnCancel} onClick={() => updateStatus(res.id, 'cancelled')}>{t('resReject')}</button>
                       </>
                     )}
                     {res.status === 'confirmed' && (
-                      <button className={styles.btnComplete} onClick={() => updateStatus(res.id, 'completed')}>Završi</button>
+                      <button className={styles.btnComplete} onClick={() => updateStatus(res.id, 'completed')}>{t('resComplete')}</button>
                     )}
-                    <button className={styles.btnEdit} onClick={() => openForm(res)}>Uredi</button>
-                    <button className={styles.btnDelete} onClick={() => deleteReservation(res.id)}>Briši</button>
+                    <button className={styles.btnEdit} onClick={() => openForm(res)}>{t('htEdit')}</button>
+                    <button className={styles.btnDelete} onClick={() => deleteReservation(res.id)}>{t('invDelete')}</button>
                   </div>
                 </div>
               ))
@@ -693,14 +702,14 @@ export default function ReservationsPage() {
         <div className={styles.overlay} onClick={closeForm}>
           <div className={styles.modal} onClick={e => e.stopPropagation()}>
             <div className={styles.modalHeader}>
-              <div className={styles.modalTitle}>{editRes ? 'Uredi rezervaciju' : 'Nova rezervacija'}</div>
+              <div className={styles.modalTitle}>{editRes ? t('resEditRes') : t('resNewResTitle')}</div>
               <button className={styles.modalClose} onClick={closeForm}>✕</button>
             </div>
 
             <form onSubmit={saveReservation} className={styles.form}>
               <div className={styles.grid}>
                 <div className={styles.field}>
-                  <label>Ime gosta *</label>
+                  <label>{t('resGuestNameReq')}</label>
                   <GuestAutocomplete
                     value={form.guest_name}
                     restaurantId={restaurant.id}
@@ -715,43 +724,43 @@ export default function ReservationsPage() {
                   />
                 </div>
                 <div className={styles.field}>
-                  <label>Telefon</label>
+                  <label>{t('spaPhone')}</label>
                   <input value={form.guest_phone} onChange={e => setForm(f => ({ ...f, guest_phone: e.target.value }))} placeholder="+382 XX XXX XXX" />
                 </div>
                 <div className={styles.field}>
-                  <label>Email</label>
+                  <label>{t('resEmail')}</label>
                   <input type="email" value={form.guest_email} onChange={e => setForm(f => ({ ...f, guest_email: e.target.value }))} placeholder="gost@email.com" />
                 </div>
                 <div className={styles.field}>
-                  <label>Broj gostiju *</label>
+                  <label>{t('resGuestsReq')}</label>
                   <input type="number" min="1" max="50" value={form.guests_count} onChange={e => setForm(f => ({ ...f, guests_count: parseInt(e.target.value) }))} required />
                 </div>
                 <div className={styles.field}>
-                  <label>Datum *</label>
+                  <label>{t('resDateReq')}</label>
                   <input type="date" value={form.date} onChange={e => setForm(f => ({ ...f, date: e.target.value }))} required />
                 </div>
                 <div className={styles.field}>
-                  <label>Vrijeme *</label>
+                  <label>{t('resTimeReq')}</label>
                   <input type="time" value={form.time} onChange={e => setForm(f => ({ ...f, time: e.target.value }))} required />
                 </div>
                 <div className={styles.field}>
-                  <label>Status</label>
+                  <label>{t('spaStatus')}</label>
                   <select value={form.status} onChange={e => setForm(f => ({ ...f, status: e.target.value }))}>
-                    <option value="pending">Na čekanju</option>
-                    <option value="confirmed">Potvrđena</option>
-                    <option value="cancelled">Otkazana</option>
-                    <option value="completed">Završena</option>
+                    <option value="pending">{t('tblStPending')}</option>
+                    <option value="confirmed">{t('tblStConfirmed')}</option>
+                    <option value="cancelled">{t('tblStCancelled')}</option>
+                    <option value="completed">{t('tblStCompleted')}</option>
                   </select>
                 </div>
                 <div className={`${styles.field} ${styles.fullWidth}`}>
-                  <label>Napomena</label>
-                  <textarea value={form.note} onChange={e => setForm(f => ({ ...f, note: e.target.value }))} rows={2} placeholder="Posebni zahtjevi, alergije, proslava..." />
+                  <label>{t('hkpNote')}</label>
+                  <textarea value={form.note} onChange={e => setForm(f => ({ ...f, note: e.target.value }))} rows={2} placeholder={t('resNotePh')} />
                 </div>
               </div>
 
               {/* Vizuelni picker stolova */}
               <div className={styles.field}>
-                <label>Odaberi sto na mapi</label>
+                <label>{t('resSelectTableMap')}</label>
                 <TablePicker
                   tables={tables}
                   selectedId={form.table_id}
@@ -762,9 +771,9 @@ export default function ReservationsPage() {
               </div>
 
               <div className={styles.formActions}>
-                <button type="button" className={styles.btnCancelForm} onClick={closeForm}>Odustani</button>
+                <button type="button" className={styles.btnCancelForm} onClick={closeForm}>{t('cancel')}</button>
                 <button type="submit" className={styles.btnSave} disabled={saving}>
-                  {saving ? 'Čuvanje...' : 'Sačuvaj rezervaciju'}
+                  {saving ? t('saving') : t('resSaveRes')}
                 </button>
               </div>
             </form>

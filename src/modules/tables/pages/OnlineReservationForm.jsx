@@ -3,6 +3,7 @@
 
 import { useState, useEffect, useRef } from 'react'
 import { useParams, useNavigate } from 'react-router-dom'
+import { useTranslation } from 'react-i18next'
 import { supabase } from '../../../lib/supabase'
 import { getTemplate } from '../../../lib/templates'
 import styles from './OnlineReservationForm.module.css'
@@ -10,6 +11,7 @@ import styles from './OnlineReservationForm.module.css'
 export default function OnlineReservationForm() {
   const { slug } = useParams()
   const navigate = useNavigate()
+  const { t } = useTranslation('reservation')
   const realtimeChannelRef = useRef(null)
   const [restaurant, setRestaurant] = useState(null)
   const [loading, setLoading] = useState(true)
@@ -44,8 +46,8 @@ export default function OnlineReservationForm() {
       .single()
     setRestaurant(data)
     if (data) {
-      const { data: t } = await supabase.from('tables').select('id, number, capacity').eq('restaurant_id', data.id).order('number')
-      setTables(t || [])
+      const { data: tbls } = await supabase.from('tables').select('id, number, capacity').eq('restaurant_id', data.id).order('number')
+      setTables(tbls || [])
       // Ako je vidljivost 'all', preskoči identifikaciju
       const vis = data.reservation_visibility || (data.online_reservations ? 'all' : 'off')
       if (vis === 'all') setAuthMode('form_anonymous')
@@ -84,15 +86,15 @@ export default function OnlineReservationForm() {
     setPhoneSearching(false)
 
     if (!data) {
-      setPhoneError('Nismo pronašli vaše podatke u evidenciji. Molimo registrujte se prvo.')
+      setPhoneError(t('notFoundGuest'))
       return
     }
     if (data.status === 'blacklist') {
-      setPhoneError('Žao nam je, rezervacija nije moguća.')
+      setPhoneError(t('blacklistMsg'))
       return
     }
     if (data.status === 'pending') {
-      setPhoneError('Vaš nalog čeka odobrenje. Kontaktirajte restoran.')
+      setPhoneError(t('pendingMsg'))
       return
     }
     setGuest(data)
@@ -102,14 +104,14 @@ export default function OnlineReservationForm() {
   const handleSubmit = async (e) => {
     e.preventDefault()
     if (isAnonymous && !form.guest_name.trim()) {
-      setError('Unesite vaše ime.'); return
+      setError(t('enterName')); return
     }
     if (tables.length > 0 && !form.table_id) {
-      setError('Molimo odaberite sto.'); return
+      setError(t('selectTableErr')); return
     }
     // Provjeri konflikt još jednom prije slanja
     if (form.table_id && reservedTables.includes(form.table_id)) {
-      setConflictWarn(true); setError('Odabrani sto je zauzet. Molimo odaberite drugi sto.'); return
+      setConflictWarn(true); setError(t('tableTaken')); return
     }
     setSaving(true); setError('')
     try {
@@ -146,16 +148,16 @@ export default function OnlineReservationForm() {
       }
       setSubmitted(true)
     } catch {
-      setError('Došlo je do greške. Pokušajte ponovo.')
+      setError(t('genericError'))
     }
     setSaving(false)
   }
 
-  if (loading) return <div className={styles.loadingWrap}>Učitavanje...</div>
+  if (loading) return <div className={styles.loadingWrap}>{t('loading')}</div>
 
   if (!restaurant) return (
     <div className={styles.errorWrap}>
-      <div>🍽️</div><div>Restoran nije pronađen.</div>
+      <div>🍽️</div><div>{t('notFound')}</div>
     </div>
   )
 
@@ -168,7 +170,7 @@ export default function OnlineReservationForm() {
       <div className={styles.card}>
         <div className={styles.header} style={{ background: brand }}>
           <div className={styles.headerTop}>
-            <button className={styles.backBtn} onClick={() => navigate(`/${slug}`)}>← Meni</button>
+            <button className={styles.backBtn} onClick={() => navigate(`/${slug}`)}>← {t('backMenu')}</button>
           </div>
           <div className={styles.logoWrap}>
             {restaurant.logo_url
@@ -179,9 +181,9 @@ export default function OnlineReservationForm() {
           <div className={styles.restName}>{restaurant.name}</div>
         </div>
         <div className={styles.disabledMsg}>
-          Online rezervacije trenutno nijesu dostupne.<br />Kontaktirajte restoran direktno.
+          {t('disabledMsg1')}<br />{t('disabledMsg2')}
         </div>
-        <button className={styles.backLink} style={{ color: brand, background: "none", border: "none", cursor: "pointer", fontFamily: "inherit", fontSize: "inherit", padding: 0 }} onClick={() => navigate(`/${slug}`)}>← Pogledajte meni</button>
+        <button className={styles.backLink} style={{ color: brand, background: "none", border: "none", cursor: "pointer", fontFamily: "inherit", fontSize: "inherit", padding: 0 }} onClick={() => navigate(`/${slug}`)}>← {t('viewMenu')}</button>
       </div>
     </div>
   )
@@ -191,7 +193,7 @@ export default function OnlineReservationForm() {
       <div className={styles.card}>
         <div className={styles.header} style={{ background: brand }}>
           <div className={styles.headerTop}>
-            <button className={styles.backBtn} onClick={() => navigate(`/${slug}`)}>← Meni</button>
+            <button className={styles.backBtn} onClick={() => navigate(`/${slug}`)}>← {t('backMenu')}</button>
           </div>
           <div className={styles.logoWrap}>
             {restaurant.logo_url
@@ -203,24 +205,20 @@ export default function OnlineReservationForm() {
         </div>
         <div className={styles.successWrap}>
           <div className={styles.successIcon}>✓</div>
-          <div className={styles.successTitle}>Zahtjev poslan!</div>
+          <div className={styles.successTitle}>{t('successTitle')}</div>
           <div className={styles.successDesc}>
-            Hvala{guest?.first_name ? `, ${guest.first_name}` : ''}! Vaš zahtjev za rezervaciju je primljen.
+            {guest?.first_name ? t('successDescNamed', { name: guest.first_name }) : t('successDesc')}
           </div>
 
           {/* Live status rezervacije */}
           <div className={styles.resStatusBlock}>
-            {{
-              pending:   { bg: '#faeeda', color: '#ba7517', icon: '⏳', label: 'Čeka potvrdu restorana' },
-              confirmed: { bg: '#e1f5ee', color: '#0d7a52', icon: '✅', label: 'Rezervacija potvrđena!' },
-              cancelled: { bg: '#fce8e8', color: '#a32d2d', icon: '✕',  label: 'Rezervacija otkazana' },
-            }[reservationStatus] ? (
+            {['pending', 'confirmed', 'cancelled'].includes(reservationStatus) ? (
               <div className={styles.resStatusPill} style={{
                 background: { pending:'#faeeda', confirmed:'#e1f5ee', cancelled:'#fce8e8' }[reservationStatus],
                 color: { pending:'#ba7517', confirmed:'#0d7a52', cancelled:'#a32d2d' }[reservationStatus],
               }}>
                 <span>{{ pending:'⏳', confirmed:'✅', cancelled:'✕' }[reservationStatus]}</span>
-                <span>{{ pending:'Čeka potvrdu restorana', confirmed:'Rezervacija potvrđena!', cancelled:'Rezervacija otkazana' }[reservationStatus]}</span>
+                <span>{{ pending: t('statusPending'), confirmed: t('statusConfirmed'), cancelled: t('statusCancelled') }[reservationStatus]}</span>
                 {reservationStatus === 'pending' && <span className={styles.resPendingDot} />}
               </div>
             ) : null}
@@ -232,14 +230,14 @@ export default function OnlineReservationForm() {
               style={{ background: brand }}
               onClick={() => navigate(`/${slug}`)}
             >
-              ← Nazad na meni
+              ← {t('backToMenu')}
             </button>
             <button
               className={styles.btnSecondary}
               style={{ borderColor: brand, color: brand }}
               onClick={() => navigate(`/${slug}/profil`)}
             >
-              👤 Moj profil
+              👤 {t('myProfile')}
             </button>
           </div>
         </div>
@@ -256,7 +254,7 @@ export default function OnlineReservationForm() {
         {/* Header */}
         <div className={styles.header} style={{ background: brand }}>
           <div className={styles.headerTop}>
-            <button className={styles.backBtn} onClick={() => navigate(`/${slug}`)}>← Meni</button>
+            <button className={styles.backBtn} onClick={() => navigate(`/${slug}`)}>← {t('backMenu')}</button>
           </div>
           <div className={styles.logoWrap}>
             {restaurant.logo_url
@@ -265,48 +263,47 @@ export default function OnlineReservationForm() {
             }
           </div>
           <div className={styles.restName}>{restaurant.name}</div>
-          <div className={styles.subtitle}>Online rezervacija</div>
+          <div className={styles.subtitle}>{t('title')}</div>
         </div>
 
         {/* KORAK 1 — Identifikacija gosta */}
         {authMode === 'check' && (
           <div className={styles.form}>
-            <div className={styles.authTitle}>Identifikacija</div>
+            <div className={styles.authTitle}>{t('authTitle')}</div>
             <div className={styles.authDesc}>
-              Online rezervacije su dostupne samo registrovanim gostima.
-              Unesite vaš telefon ili email da nastavite.
+              {t('authDesc')}
             </div>
             <form onSubmit={findGuest}>
               <div className={styles.field}>
-                <label>Telefon ili email *</label>
+                <label>{t('phoneOrEmail')}</label>
                 <input
                   value={phone}
                   onChange={e => setPhone(e.target.value)}
-                  placeholder="+382 67 ... ili vas@email.com"
+                  placeholder={t('phonePlaceholder')}
                   required
                 />
               </div>
               {phoneError && (
                 <div className={styles.error}>
                   {phoneError}
-                  {phoneError.includes('registrujte') && (
+                  {phoneError === t('notFoundGuest') && (
                     <a href={`/${slug}/registracija`} style={{ display: 'block', marginTop: 8, color: brand, fontWeight: 500 }}>
-                      → Registruj se ovdje
+                      → {t('registerHere')}
                     </a>
                   )}
                 </div>
               )}
               <button type="submit" className={styles.btnSubmit} style={{ background: brand }} disabled={phoneSearching}>
-                {phoneSearching ? 'Provjera...' : 'Nastavi →'}
+                {phoneSearching ? t('checking') : `${t('continueBtn')} →`}
               </button>
             </form>
             <div className={styles.registerPrompt}>
-              Niste registrovani?{' '}
+              {t('notRegistered')}{' '}
               <a href={`/${slug}/registracija`} style={{ color: brand, fontWeight: 500 }}>
-                Registruj se
+                {t('register')}
               </a>
             </div>
-            <button className={styles.menuLink} style={{ color: brand, background: "none", border: "none", cursor: "pointer", fontFamily: "inherit", fontSize: "inherit", padding: 0 }} onClick={() => navigate(`/${slug}`)}>← Pogledajte meni</button>
+            <button className={styles.menuLink} style={{ color: brand, background: "none", border: "none", cursor: "pointer", fontFamily: "inherit", fontSize: "inherit", padding: 0 }} onClick={() => navigate(`/${slug}`)}>← {t('viewMenu')}</button>
           </div>
         )}
 
@@ -317,8 +314,8 @@ export default function OnlineReservationForm() {
             {isAnonymous && (
               <div className={styles.anonFields}>
                 <div className={styles.fieldRow}>
-                  <div className={styles.field}><label>Ime i prezime *</label><input value={form.guest_name} onChange={e => setForm(f => ({...f, guest_name: e.target.value}))} placeholder="Nikola Petrović" required /></div>
-                  <div className={styles.field}><label>Telefon</label><input value={form.guest_phone} onChange={e => setForm(f => ({...f, guest_phone: e.target.value}))} placeholder="+382 67..." /></div>
+                  <div className={styles.field}><label>{t('fullName')}</label><input value={form.guest_name} onChange={e => setForm(f => ({...f, guest_name: e.target.value}))} placeholder={t('fullNamePh')} required /></div>
+                  <div className={styles.field}><label>{t('phone')}</label><input value={form.guest_phone} onChange={e => setForm(f => ({...f, guest_phone: e.target.value}))} placeholder={t('phoneShortPh')} /></div>
                 </div>
               </div>
             )}
@@ -334,24 +331,24 @@ export default function OnlineReservationForm() {
                 <div className={styles.guestContact}>{guest.phone || guest.email}</div>
               </div>
               <button type="button" className={styles.btnChange} onClick={() => { setAuthMode('check'); setGuest(null) }}>
-                Promijeni
+                {t('change')}
               </button>
               </div>
             )}
 
             <div className={styles.fieldRow}>
               <div className={styles.field}>
-                <label>Datum *</label>
+                <label>{t('dateReq')}</label>
                 <input type="date" min={minDate} value={form.date} onChange={e => { setForm(f => ({ ...f, date: e.target.value, table_id: null })); checkConflicts(e.target.value, form.time) }} required />
               </div>
               <div className={styles.field}>
-                <label>Vrijeme *</label>
+                <label>{t('timeReq')}</label>
                 <input type="time" value={form.time} onChange={e => { setForm(f => ({ ...f, time: e.target.value, table_id: null })); checkConflicts(form.date, e.target.value) }} required />
               </div>
             </div>
 
             <div className={styles.field}>
-              <label>Broj gostiju *</label>
+              <label>{t('guestsReq')}</label>
               <div className={styles.guestsControl}>
                 <button type="button" onClick={() => setForm(f => ({ ...f, guests_count: Math.max(1, f.guests_count - 1) }))}>−</button>
                 <span>{form.guests_count}</span>
@@ -361,31 +358,31 @@ export default function OnlineReservationForm() {
 
             {tables.length > 0 && (
               <div className={styles.field}>
-                <label>Odaberi sto *</label>
+                <label>{t('selectTableReq')}</label>
                 {conflictWarn && (
                   <div className={styles.conflictWarn}>
-                    ⚠️ Odabrani sto je već rezervisan za ovo vrijeme.
+                    ⚠️ {t('conflictWarn')}
                   </div>
                 )}
                 <div className={styles.tableGrid}>
-                  {tables.map(t => {
-                    const isReserved = reservedTables.includes(t.id)
-                    const isSelected = form.table_id === t.id
+                  {tables.map(tb => {
+                    const isReserved = reservedTables.includes(tb.id)
+                    const isSelected = form.table_id === tb.id
                     return (
                       <button
-                        key={t.id}
+                        key={tb.id}
                         type="button"
                         disabled={isReserved}
                         className={`${styles.tableBtn} ${isSelected ? styles.tableBtnSelected : ''} ${isReserved ? styles.tableBtnReserved : ''}`}
                         style={isSelected ? { borderColor: brand, background: tpl?.catBg || '#e0f5ec', color: brand } : {}}
                         onClick={() => {
                           if (isReserved) return
-                          setForm(f => ({ ...f, table_id: t.id, table_number: t.number }))
+                          setForm(f => ({ ...f, table_id: tb.id, table_number: tb.number }))
                           setConflictWarn(false)
                         }}
                       >
-                        Sto {t.number}
-                        {t.capacity && <div style={{ fontSize: 10, opacity: 0.7 }}>{t.capacity}×</div>}
+                        {t('tablePrefix')} {tb.number}
+                        {tb.capacity && <div style={{ fontSize: 10, opacity: 0.7 }}>{tb.capacity}×</div>}
                       </button>
                     )
                   })}
@@ -394,26 +391,26 @@ export default function OnlineReservationForm() {
             )}
 
             <div className={styles.field}>
-              <label>Napomena</label>
+              <label>{t('note')}</label>
               <textarea
                 value={form.note}
                 onChange={e => setForm(f => ({ ...f, note: e.target.value }))}
                 rows={3}
-                placeholder="Posebni zahtjevi, alergije, proslava..."
+                placeholder={t('notePh')}
               />
             </div>
 
             {error && <div className={styles.error}>{error}</div>}
 
             <div className={styles.notice}>
-              ℹ️ Ovo je zahtjev za rezervaciju. Restoran će vas kontaktirati radi potvrde.
+              ℹ️ {t('notice')}
             </div>
 
             <button type="submit" className={styles.btnSubmit} style={{ background: brand }} disabled={saving}>
-              {saving ? 'Slanje...' : 'Pošalji zahtjev'}
+              {saving ? t('sending') : t('sendRequest')}
             </button>
 
-            <button className={styles.menuLink} style={{ color: brand, background: "none", border: "none", cursor: "pointer", fontFamily: "inherit", fontSize: "inherit", padding: 0 }} onClick={() => navigate(`/${slug}`)}>← Pogledajte meni</button>
+            <button className={styles.menuLink} style={{ color: brand, background: "none", border: "none", cursor: "pointer", fontFamily: "inherit", fontSize: "inherit", padding: 0 }} onClick={() => navigate(`/${slug}`)}>← {t('viewMenu')}</button>
           </form>
         )}
       </div>

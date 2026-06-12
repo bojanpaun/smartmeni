@@ -2,6 +2,7 @@
 
 import { useState, useEffect, useRef } from 'react'
 import { useNavigate } from 'react-router-dom'
+import { useTranslation } from 'react-i18next'
 import { supabase } from '../../../lib/supabase'
 import { usePlatform } from '../../../context/PlatformContext'
 import styles from './TableMapEditor.module.css'
@@ -16,6 +17,7 @@ function snapToGrid(val) {
 export default function TableMapEditor() {
   const { restaurant } = usePlatform()
   const navigate = useNavigate()
+  const { t } = useTranslation('admin')
 
   const [tables, setTables] = useState([])
   const [loading, setLoading] = useState(true)
@@ -57,12 +59,12 @@ export default function TableMapEditor() {
     // scrollLeft/Top ispravlja poziciju kad je canvas scrollan
     const x = snapToGrid(e.clientX - rect.left + canvas.scrollLeft - 40)
     const y = snapToGrid(e.clientY - rect.top + canvas.scrollTop - 40)
-    const maxNum = tables.length ? Math.max(...tables.map(t => t.number)) : 0
+    const maxNum = tables.length ? Math.max(...tables.map(tb => tb.number)) : 0
     const newTable = {
       id: `tmp-${Date.now()}`,
       restaurant_id: restaurant.id,
       number: maxNum + 1,
-      label: `Sto ${maxNum + 1}`,
+      label: `${t('anaTable')} ${maxNum + 1}`,
       x, y,
       width: 80,
       height: 80,
@@ -264,18 +266,18 @@ export default function TableMapEditor() {
 
   // ── Brisanje stola ────────────────────────────────────────
   const deleteTable = async (id) => {
-    if (!confirm('Obrisati ovaj sto?')) return
+    if (!confirm(t('tmeDeleteConfirm'))) return
     if (!id.startsWith('tmp-')) {
       await supabase.from('tables').delete().eq('id', id)
     }
-    setTables(prev => prev.filter(t => t.id !== id))
+    setTables(prev => prev.filter(tb => tb.id !== id))
     setSelected(null)
     setEditMode(null)
   }
 
   // ── Izmjena labele / sjedišta ──────────────────────────────
   const updateTableProp = (id, prop, value) => {
-    setTables(prev => prev.map(t => t.id === id ? { ...t, [prop]: value } : t))
+    setTables(prev => prev.map(tb => tb.id === id ? { ...tb, [prop]: value } : tb))
   }
 
   // ── Čuvanje u bazu ────────────────────────────────────────
@@ -298,22 +300,22 @@ export default function TableMapEditor() {
         }
         if (table.isNew || table.id.startsWith('tmp-')) {
           const { data } = await supabase.from('tables').insert(payload).select().single()
-          setTables(prev => prev.map(t => t.id === table.id ? { ...data } : t))
+          setTables(prev => prev.map(tb => tb.id === table.id ? { ...data } : tb))
         } else {
           await supabase.from('tables').update(payload).eq('id', table.id)
         }
       }
-      setSaveMsg('Sačuvano!')
+      setSaveMsg(t('tmeSaved'))
     } catch (err) {
-      setSaveMsg('Greška pri čuvanju')
+      setSaveMsg(t('tmeSaveErr'))
     }
     setSaving(false)
     setTimeout(() => setSaveMsg(''), 3000)
   }
 
-  const selectedTable = tables.find(t => t.id === selected)
+  const selectedTable = tables.find(tb => tb.id === selected)
 
-  if (loading) return <div className={styles.loading}>Učitavanje mape stolova...</div>
+  if (loading) return <div className={styles.loading}>{t('tmeLoading')}</div>
 
   return (
     <div className={styles.wrap}>
@@ -324,32 +326,32 @@ export default function TableMapEditor() {
           <button
             className={`${styles.toolBtn} ${mode === 'select' ? styles.toolBtnActive : ''}`}
             onClick={() => setMode('select')}
-            title="Selektuj / pomjeri sto"
+            title={t('tmeSelectTitle')}
           >
-            ↖ Selektuj
+            ↖ {t('tmeSelect')}
           </button>
           <button
             className={`${styles.toolBtn} ${mode === 'add-rect' ? styles.toolBtnActive : ''}`}
             onClick={() => setMode('add-rect')}
-            title="Dodaj kvadratni sto"
+            title={t('tmeRectTitle')}
           >
-            ▢ Kvadratni sto
+            ▢ {t('tmeRectTable')}
           </button>
           <button
             className={`${styles.toolBtn} ${mode === 'add-circle' ? styles.toolBtnActive : ''}`}
             onClick={() => setMode('add-circle')}
-            title="Dodaj okrugli sto"
+            title={t('tmeCircleTitle')}
           >
-            ○ Okrugli sto
+            ○ {t('tmeCircleTable')}
           </button>
         </div>
         <div className={styles.toolbarRight}>
           {saveMsg && <span className={styles.saveMsg}>{saveMsg}</span>}
           <button className={styles.btnSave} onClick={saveAll} disabled={saving}>
-            {saving ? 'Čuvanje...' : 'Sačuvaj mapu'}
+            {saving ? t('saving') : t('tmeSaveMap')}
           </button>
           <button className={styles.btnView} onClick={() => navigate('/admin/tables/view')}>
-            Prikaz konobara →
+            {t('tmeWaiterView')} →
           </button>
         </div>
       </div>
@@ -371,14 +373,14 @@ export default function TableMapEditor() {
           {/* Hint za mode */}
           {mode !== 'select' && (
             <div className={styles.canvasHint}>
-              Klikni na canvas da dodaš {mode === 'add-circle' ? 'okrugli' : 'kvadratni'} sto
+              {t('tmeAddHint', { shape: mode === 'add-circle' ? t('tmeShapeCircle') : t('tmeShapeRect') })}
             </div>
           )}
 
           {/* Edit mode hint */}
           {editMode && (
             <div className={styles.editModeHint}>
-              Vuci sto · tapni van stola da izađeš
+              {t('tmeEditModeHint')}
             </div>
           )}
 
@@ -403,8 +405,8 @@ export default function TableMapEditor() {
               onTouchStart={(e) => handleTableTouchStart(e, table.id)}
               onClick={(e) => { e.stopPropagation(); setSelected(table.id) }}
             >
-              <div className={styles.tableLabel}>{table.label || `Sto ${table.number}`}</div>
-              <div className={styles.tableSeats}>{table.seats} mjesta</div>
+              <div className={styles.tableLabel}>{table.label || `${t('anaTable')} ${table.number}`}</div>
+              <div className={styles.tableSeats}>{table.seats} {t('tblSeats')}</div>
 
               {/* Resize handle */}
               {selected === table.id && (
@@ -424,19 +426,19 @@ export default function TableMapEditor() {
         <div className={styles.panel}>
           {selectedTable ? (
             <>
-              <div className={styles.panelTitle}>Sto {selectedTable.number}</div>
+              <div className={styles.panelTitle}>{t('anaTable')} {selectedTable.number}</div>
 
               <div className={styles.field}>
-                <label>Naziv</label>
+                <label>{t('tmeName')}</label>
                 <input
                   value={selectedTable.label || ''}
                   onChange={e => updateTableProp(selectedTable.id, 'label', e.target.value)}
-                  placeholder={`Sto ${selectedTable.number}`}
+                  placeholder={`${t('anaTable')} ${selectedTable.number}`}
                 />
               </div>
 
               <div className={styles.field}>
-                <label>Broj mjesta</label>
+                <label>{t('tmeSeatsCount')}</label>
                 <input
                   type="number"
                   min="1"
@@ -447,25 +449,25 @@ export default function TableMapEditor() {
               </div>
 
               <div className={styles.field}>
-                <label>Oblik</label>
+                <label>{t('tmeShape')}</label>
                 <div className={styles.shapeToggle}>
                   <button
                     className={selectedTable.shape === 'rect' ? styles.shapeActive : ''}
                     onClick={() => updateTableProp(selectedTable.id, 'shape', 'rect')}
                   >
-                    ▢ Kvadrat
+                    ▢ {t('tmeSquare')}
                   </button>
                   <button
                     className={selectedTable.shape === 'circle' ? styles.shapeActive : ''}
                     onClick={() => updateTableProp(selectedTable.id, 'shape', 'circle')}
                   >
-                    ○ Krug
+                    ○ {t('tmeCircle')}
                   </button>
                 </div>
               </div>
 
               <div className={styles.field}>
-                <label>Širina</label>
+                <label>{t('tmeWidth')}</label>
                 <input
                   type="number"
                   value={selectedTable.width}
@@ -473,7 +475,7 @@ export default function TableMapEditor() {
                 />
               </div>
               <div className={styles.field}>
-                <label>Visina</label>
+                <label>{t('tmeHeight')}</label>
                 <input
                   type="number"
                   value={selectedTable.height}
@@ -486,29 +488,29 @@ export default function TableMapEditor() {
                   className={styles.btnQR}
                   onClick={() => setShowQR(selectedTable)}
                 >
-                  QR kod
+                  {t('tmeQRCode')}
                 </button>
                 <button
                   className={styles.btnDelete}
                   onClick={() => deleteTable(selectedTable.id)}
                 >
-                  Obriši sto
+                  {t('tmeDeleteTable')}
                 </button>
               </div>
             </>
           ) : (
             <div className={styles.panelEmpty}>
               <div className={styles.panelEmptyIcon}>🗺️</div>
-              <div>Klikni na sto da urediš detalje</div>
+              <div>{t('tmeClickToEdit')}</div>
               <div className={styles.panelLegend}>
                 <div className={styles.legendItem}>
-                  <span className={`${styles.legendDot} ${styles.dotFree}`} /> Slobodan
+                  <span className={`${styles.legendDot} ${styles.dotFree}`} /> {t('tblFree')}
                 </div>
                 <div className={styles.legendItem}>
-                  <span className={`${styles.legendDot} ${styles.dotOccupied}`} /> Zauzet
+                  <span className={`${styles.legendDot} ${styles.dotOccupied}`} /> {t('tblOccupied')}
                 </div>
                 <div className={styles.legendItem}>
-                  <span className={`${styles.legendDot} ${styles.dotCalling}`} /> Zove konobara
+                  <span className={`${styles.legendDot} ${styles.dotCalling}`} /> {t('tblCalling')}
                 </div>
               </div>
             </div>
@@ -516,16 +518,16 @@ export default function TableMapEditor() {
 
           {/* Lista stolova */}
           <div className={styles.tableList}>
-            <div className={styles.tableListTitle}>Svi stolovi ({tables.length})</div>
-            {tables.map(t => (
+            <div className={styles.tableListTitle}>{t('tmeAllTables', { count: tables.length })}</div>
+            {tables.map(tb => (
               <div
-                key={t.id}
-                className={`${styles.tableListItem} ${selected === t.id ? styles.tableListItemActive : ''}`}
-                onClick={() => setSelected(t.id)}
+                key={tb.id}
+                className={`${styles.tableListItem} ${selected === tb.id ? styles.tableListItemActive : ''}`}
+                onClick={() => setSelected(tb.id)}
               >
-                <span className={`${styles.legendDot} ${styles[`dot${t.status.charAt(0).toUpperCase() + t.status.slice(1)}`]}`} />
-                <span>{t.label || `Sto ${t.number}`}</span>
-                <span className={styles.tableListSeats}>{t.seats} mj.</span>
+                <span className={`${styles.legendDot} ${styles[`dot${tb.status.charAt(0).toUpperCase() + tb.status.slice(1)}`]}`} />
+                <span>{tb.label || `${t('anaTable')} ${tb.number}`}</span>
+                <span className={styles.tableListSeats}>{tb.seats} {t('tblSeatsShort')}</span>
               </div>
             ))}
           </div>
@@ -537,14 +539,14 @@ export default function TableMapEditor() {
         <div className={styles.qrOverlay} onClick={() => setShowQR(null)}>
           <div className={styles.qrModal} onClick={e => e.stopPropagation()}>
             <button className={styles.qrClose} onClick={() => setShowQR(null)}>✕</button>
-            <div className={styles.qrTitle}>QR kod — {showQR.label || `Sto ${showQR.number}`}</div>
+            <div className={styles.qrTitle}>{t('tmeQRTitle', { label: showQR.label || `${t('anaTable')} ${showQR.number}` })}</div>
             <div className={styles.qrUrl}>
               {`${window.location.origin}/${restaurant.slug}?table=${showQR.number}&qr=1`}
             </div>
             <div className={styles.qrBox}>
               <img
                 src={`https://api.qrserver.com/v1/create-qr-code/?size=200x200&data=${encodeURIComponent(`${window.location.origin}/${restaurant.slug}?table=${showQR.number}&qr=1`)}`}
-                alt="QR kod"
+                alt={t('tmeQRCode')}
                 width={200}
                 height={200}
               />
@@ -554,7 +556,7 @@ export default function TableMapEditor() {
               download={`qr-sto-${showQR.number}.png`}
               className={styles.qrDownload}
             >
-              Preuzmi QR kod
+              {t('tmeDownloadQR')}
             </a>
           </div>
         </div>

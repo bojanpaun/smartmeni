@@ -1,5 +1,6 @@
 // src/modules/tables/pages/TablesAnalytics.jsx
 import { useState, useEffect } from 'react'
+import { useTranslation } from 'react-i18next'
 import { supabase } from '../../../lib/supabase'
 import { usePlatform } from '../../../context/PlatformContext'
 import styles from './TableMapEditor.module.css'
@@ -7,6 +8,7 @@ import gsStyles from '../../../modules/menu/pages/GeneralSettings.module.css'
 
 export default function TablesAnalytics() {
   const { restaurant } = usePlatform()
+  const { t } = useTranslation('admin')
   const [tables, setTables] = useState([])
   const [reservations, setReservations] = useState([])
   const [loading, setLoading] = useState(true)
@@ -25,9 +27,9 @@ export default function TablesAnalytics() {
     })
   }, [restaurant])
 
-  if (loading) return <div className={gsStyles.loading}>Učitavanje...</div>
+  if (loading) return <div className={gsStyles.loading}>{t('loading')}</div>
 
-  const totalSeats = tables.reduce((s, t) => s + (t.seats || 0), 0)
+  const totalSeats = tables.reduce((s, tb) => s + (tb.seats || 0), 0)
   const totalTables = tables.length
   const confirmedRes = reservations.filter(r => r.status === 'confirmed').length
   const pendingRes = reservations.filter(r => r.status === 'pending').length
@@ -35,17 +37,17 @@ export default function TablesAnalytics() {
   const todayRes = reservations.filter(r => r.date === new Date().toISOString().slice(0, 10)).length
 
   const metrics = [
-    { label: 'Ukupno stolova', value: totalTables, sub: null, color: null },
-    { label: 'Mjesta za sjedenje', value: totalSeats, sub: 'ukupan kapacitet', color: null },
-    { label: 'Rezervacije danas', value: todayRes, sub: null, color: todayRes > 0 ? '#0d7a52' : null },
-    { label: 'Potvrđene (30 dana)', value: confirmedRes, sub: null, color: '#0d7a52' },
-    { label: 'Na čekanju', value: pendingRes, sub: null, color: pendingRes > 0 ? '#ba7517' : null },
-    { label: 'Otkazane (30 dana)', value: cancelledRes, sub: null, color: cancelledRes > 0 ? '#a32d2d' : null },
+    { label: t('tanTotalTables'), value: totalTables, sub: null, color: null },
+    { label: t('tanSeats'), value: totalSeats, sub: t('tanTotalCapacity'), color: null },
+    { label: t('tanResToday'), value: todayRes, sub: null, color: todayRes > 0 ? '#0d7a52' : null },
+    { label: t('tanConfirmed30'), value: confirmedRes, sub: null, color: '#0d7a52' },
+    { label: t('tanPending'), value: pendingRes, sub: null, color: pendingRes > 0 ? '#ba7517' : null },
+    { label: t('tanCancelled30'), value: cancelledRes, sub: null, color: cancelledRes > 0 ? '#a32d2d' : null },
   ]
 
   // Raspored stolova po kapacitetu
-  const byCapacity = tables.reduce((acc, t) => {
-    const cap = t.seats || 0
+  const byCapacity = tables.reduce((acc, tb) => {
+    const cap = tb.seats || 0
     acc[cap] = (acc[cap] || 0) + 1
     return acc
   }, {})
@@ -53,8 +55,8 @@ export default function TablesAnalytics() {
   return (
     <div className={gsStyles.page} style={{ maxWidth: 900 }}>
       <div className={gsStyles.header}>
-        <h1 className={gsStyles.title}>Analitika stolova</h1>
-        <p className={gsStyles.subtitle}>Pregled kapaciteta, rezervacija i zauzetosti za posjednjih 30 dana.</p>
+        <h1 className={gsStyles.title}>{t('tanTitle')}</h1>
+        <p className={gsStyles.subtitle}>{t('tanSubtitle')}</p>
       </div>
 
       {/* Metrike */}
@@ -73,10 +75,10 @@ export default function TablesAnalytics() {
 
       {/* Raspored po kapacitetu */}
       <div style={{ background: '#fff', borderRadius: 14, border: '1px solid #e0ece6', padding: '20px 24px', marginBottom: 16 }}>
-        <div style={{ fontSize: 14, fontWeight: 600, color: '#0e1a14', marginBottom: 16 }}>Stolovi po kapacitetu</div>
+        <div style={{ fontSize: 14, fontWeight: 600, color: '#0e1a14', marginBottom: 16 }}>{t('tanByCapacity')}</div>
         {Object.entries(byCapacity).sort(([a], [b]) => a - b).map(([cap, count]) => (
           <div key={cap} style={{ display: 'flex', alignItems: 'center', gap: 12, marginBottom: 10 }}>
-            <div style={{ width: 80, fontSize: 13, color: '#5a7a6a', fontWeight: 500 }}>{cap} mjesta</div>
+            <div style={{ width: 80, fontSize: 13, color: '#5a7a6a', fontWeight: 500 }}>{cap} {t('tblSeats')}</div>
             <div style={{ flex: 1, background: '#f0f5f2', borderRadius: 6, height: 10, overflow: 'hidden' }}>
               <div style={{
                 height: '100%', borderRadius: 6, background: '#0d7a52',
@@ -87,19 +89,19 @@ export default function TablesAnalytics() {
           </div>
         ))}
         {Object.keys(byCapacity).length === 0 && (
-          <div style={{ color: '#8a9e96', fontSize: 13 }}>Nema definisanih stolova.</div>
+          <div style={{ color: '#8a9e96', fontSize: 13 }}>{t('tanNoTables')}</div>
         )}
       </div>
 
       {/* Zadnjih 5 rezervacija */}
       {reservations.length > 0 && (
         <div style={{ background: '#fff', borderRadius: 14, border: '1px solid #e0ece6', padding: '20px 24px' }}>
-          <div style={{ fontSize: 14, fontWeight: 600, color: '#0e1a14', marginBottom: 16 }}>Nedavne rezervacije</div>
+          <div style={{ fontSize: 14, fontWeight: 600, color: '#0e1a14', marginBottom: 16 }}>{t('tanRecentRes')}</div>
           {reservations.slice(0, 8).map(r => {
             const statusColors = {
-              confirmed: { bg: '#e1f5ee', color: '#0d7a52', label: 'Potvrđena' },
-              pending:   { bg: '#faeeda', color: '#ba7517', label: 'Na čekanju' },
-              cancelled: { bg: '#fce8e8', color: '#a32d2d', label: 'Otkazana' },
+              confirmed: { bg: '#e1f5ee', color: '#0d7a52', label: t('tblStConfirmed') },
+              pending:   { bg: '#faeeda', color: '#ba7517', label: t('tblStPending') },
+              cancelled: { bg: '#fce8e8', color: '#a32d2d', label: t('tblStCancelled') },
             }[r.status] || { bg: '#f0f5f2', color: '#5a7a6a', label: r.status }
             return (
               <div key={r.id} style={{
@@ -109,8 +111,8 @@ export default function TablesAnalytics() {
                 <div style={{ flex: 1 }}>
                   <div style={{ fontSize: 13, fontWeight: 600, color: '#1a2e26' }}>{r.guest_name || '—'}</div>
                   <div style={{ fontSize: 12, color: '#8a9e96' }}>
-                    {r.date} · {r.time?.slice(0, 5)} · {r.guests_count} gosta
-                    {r.table_number && ` · Sto ${r.table_number}`}
+                    {r.date} · {r.time?.slice(0, 5)} · {r.guests_count} {t('tblGuestOther')}
+                    {r.table_number && ` · ${t('anaTable')} ${r.table_number}`}
                   </div>
                 </div>
                 <span style={{ fontSize: 11, fontWeight: 600, padding: '3px 9px', borderRadius: 6, background: statusColors.bg, color: statusColors.color }}>
