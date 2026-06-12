@@ -12,12 +12,18 @@ const STORAGE_KEY = 'sm_lang'
 // Dodavanje NOVOG velikog admin-only namespace-a = dodaj ga u oba `!...` izuzetka ispod
 // (eager) i u `lazyAdmin` (lazy), po uzoru na `admin`.
 const eager = import.meta.glob(
-  ['./locales/me/*.json', './locales/en/*.json', '!./locales/me/admin.json', '!./locales/en/admin.json'],
+  ['./locales/me/*.json', './locales/en/*.json',
+    '!./locales/me/admin.json', '!./locales/en/admin.json',
+    '!./locales/me/modulehelp.json', '!./locales/en/modulehelp.json'],
   { eager: true },
 )
-// Lazy mapa: svi ne-me/en fajlovi + eksplicitno me/admin i en/admin (koji su izbačeni iz eager-a).
+// Lazy mapa: svi ne-me/en fajlovi + eksplicitno me/en veliki admin-only namespace-i
+// (admin, modulehelp) koji su izbačeni iz eager-a.
 const lazyOthers = import.meta.glob(['./locales/*/*.json', '!./locales/me/*.json', '!./locales/en/*.json'])
-const lazyAdmin = import.meta.glob(['./locales/me/admin.json', './locales/en/admin.json'])
+const lazyAdmin = import.meta.glob([
+  './locales/me/admin.json', './locales/en/admin.json',
+  './locales/me/modulehelp.json', './locales/en/modulehelp.json',
+])
 const lazy = { ...lazyOthers, ...lazyAdmin }
 
 // Sastavi statičke resurse iz eager mape: { me: { common, booking, ... }, en: {...} }.

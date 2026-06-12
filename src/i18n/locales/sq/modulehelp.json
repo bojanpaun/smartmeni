@@ -1,0 +1,688 @@
+{
+  "tipsLabel": "Këshilla",
+  "notAvailable": "Udhëzimi për këtë modul nuk është i disponueshëm.",
+  "content": {
+    "menu": {
+      "title": "Menyja dixhitale — udhëzues",
+      "intro": "Ky modul ju lejon të menaxhoni menynë dixhitale, porositë, rrjedhën e punës së kuzhinës dhe barit, si dhe faqen publike të restorantit.",
+      "sections": [
+        {
+          "icon": "🗂️",
+          "title": "Kategoritë dhe artikujt e menysë",
+          "steps": [
+            "Shko te Redaktimi i menysë",
+            "Kliko + Kategori për të shtuar një kategori të re (p.sh. Antipasta, Peshk, Pije)",
+            "Për artikujt e barit (kokteje, alkool...) aktivizo çelësin Është kategori bari — këto artikuj shkojnë te stacioni i Barit, jo i kuzhinës",
+            "Brenda një kategorie kliko + Shto pjatë dhe plotëso emrin, përshkrimin, çmimin dhe foton",
+            "Pjatat mund t’i shënosh si Oferta e ditës — shfaqen të theksuara në menynë e mysafirit"
+          ]
+        },
+        {
+          "icon": "🧾",
+          "title": "Porositë",
+          "steps": [
+            "Në seksionin Porositë ndjek të gjitha porositë aktive në kohë reale",
+            "Çdo porosi ka status sipas stacionit: kuzhina dhe bari ndiqen veçmas",
+            "Statusi i porosisë: E pranuar → në përgatitje (kuzhinë/bar) → Gati → E shërbyer",
+            "Kamarieri sheh statusin e çdo artikulli — nuk ka nevojë të thërrasë kuzhinën për të pyetur",
+            "Portali i stafit i kamarierit (/slug/staff) tregon statuset e stacioneve në kohë reale — 🧑‍🍳 Kuzhina po përgatit/gati, 🍷 Bari po përgatit/gati — identik me pamjen e administratorit"
+          ]
+        },
+        {
+          "icon": "🧑‍🍳",
+          "title": "Kuzhina dhe Bari — stacione të ndara",
+          "steps": [
+            "Kuzhina dhe Bari janë skeda të ndara në shiritin anësor të administratorit, secila me një tregues realtime",
+            "Kuzhina shfaq vetëm porositë që përmbajnë artikuj kuzhine (pa kategoritë e barit)",
+            "Bari shfaq vetëm porositë me artikuj bari (kategoritë e shënuara Është bar)",
+            "Stafi i kuzhinës dhe i barit punojnë krejtësisht në mënyrë të pavarur — secili sheh vetëm të vetën",
+            "Një porosi është gati për kamarierin vetëm kur të dy stacionet kanë shënuar pjesën e tyre si Gati"
+          ]
+        },
+        {
+          "icon": "🔔",
+          "title": "Kërkesat e kamarierit",
+          "steps": [
+            "Mysafirët dërgojnë kërkesa nga menyja (Thirr kamarierin, Sill faturën...)",
+            "Një kërkesë e re shfaqet si tregues i kuq në skedën Kërkesat në shiritin anësor",
+            "Kamarieri zgjedh kërkesën, shkruan një përgjigje të shkurtër dhe e shënon si E zgjidhur",
+            "Mesazhet që shohin mysafirët përcaktohen te Cilësimet e menysë → Mesazhet"
+          ]
+        },
+        {
+          "icon": "⚙️",
+          "title": "Cilësimet e menysë — skedat",
+          "steps": [
+            "Të përgjithshme: emri, vendndodhja, telefoni, orari i punës, përshkrimi, ngjyra e markës, kohëzgjatja e sesionit QR",
+            "Dukshmëria: për çdo funksion zgjidh kush e sheh (E çaktivizuar / Të regjistruar / Të gjithë) — porositja, kamarieri, rezervimet, regjistrimi i mysafirëve, lidhja e hotelit, lidhja e spa-s",
+            "Mesazhet: përshtat mesazhet që zgjedhin mysafirët për të thirrur kamarierin dhe mesazhet e refuzimit të porosive",
+            "Shabllonet: zgjidh stilin vizual të menysë së mysafirit nga shabllonet e disponueshme — ndryshimi është i menjëhershëm"
+          ]
+        },
+        {
+          "icon": "🌐",
+          "title": "Faqja e restorantit",
+          "steps": [
+            "Në shiritin anësor kliko Faqja e restorantit për të hapur redaktuesin vizual të faqes publike",
+            "Redaktuesi është i ndarë: forma majtas, parapamja live djathtas që përditësohet ndërsa shkruan",
+            "Blloqet (Hero, Histori, Galeri, Specialitete...) aktivizohen/çaktivizohen dhe rirenditen me drag & drop",
+            "Çdo bllok ka një zgjedhje paraqitjeje (variante layout) dhe fusha për përmbajtje dhe imazhe",
+            "Kliko Ruaj për të publikuar ndryshimet — faqja është e disponueshme te restby.me/slug-juaj/home"
+          ]
+        },
+        {
+          "icon": "📱",
+          "title": "Kodi QR i restorantit",
+          "steps": [
+            "Shko te Kodi QR për një QR të përgjithshëm që çon te menyja pa të dhëna tavoline",
+            "Përdore te hyrja, kartëvizita, rrjetet sociale ose menyja",
+            "Për porositë sipas tavolinës përdor kodet QR nga moduli Tavolinat (çdo tavolinë ka QR-in e vet)"
+          ]
+        }
+      ],
+      "tips": [
+        "Kategoritë e barit janë çelësi për rrjedhën e saktë të punës — çdo kategori pijesh duhet të shënohet Është bar",
+        "Shabllonet dhe ngjyra e markës ndërtojnë së bashku identitetin vizual të menysë së mysafirit",
+        "QR-i sipas tavolinës (moduli Tavolinat) rekomandohet për përdorim të përditshëm sepse ndjek nga cila tavolinë vjen porosia",
+        "Mund ta çaktivizosh dukshmërinë e porositjes për mysafirë të paregjistruar — e dobishme për pamje VIP ose modalitet demo",
+        "Faqja e restorantit dhe menyja e mysafirit janë të ndara: menyja është për porosi në tavolinë, faqja është një faqe publike",
+        "Një kamarier mund të faturojë një porosi në dhomë drejtpërdrejt nga Portali i stafit (jo vetëm nga administratori) — i dukshëm kur moduli Hotel është aktiv"
+      ]
+    },
+    "staff": {
+      "title": "Rolet dhe lejet — udhëzues",
+      "intro": "Ky modul shërben për krijimin dhe menaxhimin e roleve. Caktimi i roleve te punonjësit bëhet në modulin HR → Punonjësit.",
+      "sections": [
+        {
+          "icon": "🔑",
+          "title": "Krijimi i një roli",
+          "steps": [
+            "Kliko + Rol i ri ose zgjidh një shabllon (Kamarier, Kuzhinë, Bar, Menaxher, Recepsion, Terapist spa...)",
+            "Shkruaj emrin e rolit",
+            "Lejet janë të grupuara sipas modulit (skeda horizontale): Restorant, Hotel, Spa...",
+            "Kliko Zgjidh të gjitha për një modul ose shëno lejet e detajuara manualisht",
+            "Ruaj rolin"
+          ]
+        },
+        {
+          "icon": "👤",
+          "title": "Caktimi i një roli te një punonjës",
+          "steps": [
+            "Rolet caktohen në modulin HR → Punonjësit",
+            "Një punonjës mund të ketë disa role njëkohësisht (p.sh. Kamarier + Bar)",
+            "Ndryshimet janë të menjëhershme — punonjësi merr menjëherë të drejtat e reja"
+          ]
+        },
+        {
+          "icon": "📱",
+          "title": "Portali i stafit (/slug/staff)",
+          "steps": [
+            "Punonjësit hyjnë në pamjen operative te restby.me/slug-juaj/staff",
+            "Kamarieri sheh porositë me statuset e stacioneve (🧑‍🍳 Kuzhina po përgatit/gati, 🍷 Bari po përgatit/gati) dhe mund të faturojë një porosi në dhomën e hotelit (kur moduli Hotel është aktiv)",
+            "Pastruesja sheh detyrat e pastrimit dhe kërkesat e mirëmbajtjes në kohë reale — ndryshimet e statusit (Fillo → Përfundo → Verifiko) pasqyrohen menjëherë edhe në panelin e administratorit",
+            "Recepsioni mund të bëjë check-in/check-out nga një pajisje celulare — faqja Front Desk është e përshtatshme për celular",
+            "Pa nevojë për llogari administratori — punonjësit hyjnë me kredencialet e tyre"
+          ]
+        },
+        {
+          "icon": "🔒",
+          "title": "Siguria e qasjes",
+          "steps": [
+            "Punonjësit shohin vetëm modulet për të cilat kanë leje",
+            "Pronari ka gjithmonë qasje të plotë",
+            "Lejet mund t’i ndryshosh në çdo kohë",
+            "Një rol mund të fshihet vetëm nëse nuk i është caktuar asnjë punonjësi"
+          ]
+        }
+      ],
+      "tips": [
+        "Një kamarier zakonisht ka nevojë për: porositë, kërkesat e kamarierit, pamjen e tavolinave",
+        "Kuzhina ka nevojë për: porositë (pamja e kuzhinës) — pa qasje në modulet e tjera",
+        "Pastruesja ka nevojë për: detyrat e pastrimit — pa qasje në administrim",
+        "Recepsioni ka nevojë për: hotel front desk, rezervimet, folio",
+        "Një menaxher mund të ketë HR dhe analitikë përveç funksioneve operative"
+      ]
+    },
+    "tables": {
+      "title": "Tavolinat — udhëzues",
+      "intro": "Vizatimi i hartës së tavolinave, ndjekja e statusit në kohë reale, rezervimet dhe kodet QR sipas tavolinës.",
+      "sections": [
+        {
+          "icon": "🗺️",
+          "title": "Vizatimi i hartës së tavolinave",
+          "steps": [
+            "Shko te Cilësimet e tavolinave",
+            "Kliko Tavolinë katrore ose Tavolinë e rrumbullakët në shiritin e veglave për të shtuar një tavolinë",
+            "Kliko mbi kanavacë për ta vendosur tavolinën aty ku dëshiron",
+            "Tërhiq tavolinën me miun për të ndryshuar pozicionin",
+            "Kliko mbi një tavolinë për të redaktuar emrin, numrin e vendeve dhe formën",
+            "Përdor dorezën e ripërmasimit (këndi poshtë-djathtas) për të ndryshuar madhësinë",
+            "Kliko Ruaj hartën kur të mbarosh"
+          ]
+        },
+        {
+          "icon": "👁",
+          "title": "Pamja e kamarierit",
+          "steps": [
+            "Shko te Pamja e tavolinave për një përmbledhje realtime",
+            "Tavolinat e lira janë të bardha, të zëna portokalli, të rezervuara blu",
+            "Një tavolinë e kuqe me animacion do të thotë se një mysafir po thërret kamarierin",
+            "Kliko mbi një tavolinë për të parë porositë aktive dhe faturën totale",
+            "Faqja rifreskohet automatikisht"
+          ]
+        },
+        {
+          "icon": "📅",
+          "title": "Rezervimet",
+          "steps": [
+            "Shko te Rezervimet për të menaxhuar rezervimet",
+            "Kliko + Rezervim i ri dhe plotëso të dhënat e mysafirit",
+            "Në hartën brenda formës kliko mbi një tavolinë për ta zgjedhur vizualisht",
+            "Përdor pamjen Kalendar për të parë cilat ditë janë të zëna"
+          ]
+        },
+        {
+          "icon": "🌐",
+          "title": "Rezervimet online",
+          "steps": [
+            "Aktivizo çelësin Rezervime online te cilësimet",
+            "Mysafirët dërgojnë kërkesa te restby.me/slug-juaj/reservation",
+            "Çdo kërkesë ka statusin Në pritje derisa ta miratosh",
+            "Rezervimet e konfirmuara shfaqen në hartën e kamarierit"
+          ]
+        },
+        {
+          "icon": "📱",
+          "title": "Kodet QR sipas tavolinës",
+          "steps": [
+            "Kliko mbi një tavolinë në redaktues, pastaj butonin Kodi QR",
+            "Çdo tavolinë ka një QR unik që çon te menyja me numrin e tavolinës",
+            "Shkarko dhe printo — ngjit një në çdo tavolinë veçmas",
+            "Kur një mysafir skanon dhe thërret kamarierin, kamarieri sheh saktësisht cila tavolinë po thërret"
+          ]
+        }
+      ],
+      "tips": [
+        "QR-i sipas tavolinës rekomandohet për përdorim të përditshëm — ndjek porositë sipas tavolinës",
+        "Harta ruhet automatikisht — mysafirët dhe kamarieri i shohin ndryshimet menjëherë",
+        "Tavolinat e rezervuara shfaqen me ngjyrë blu me oraret në hartën e kamarierit"
+      ]
+    },
+    "inventory": {
+      "title": "Inventari — udhëzues",
+      "intro": "Ndjekja e përbërësve dhe produkteve të gatshme, hyrjet/daljet dhe zbritja automatike e stokut me porosi.",
+      "sections": [
+        {
+          "icon": "📦",
+          "title": "Shtimi i artikujve të inventarit",
+          "steps": [
+            "Shko te Inventari dhe kliko + Artikull i ri",
+            "Shkruaj emrin, kategorinë dhe njësinë matëse",
+            "Vendos sasinë aktuale dhe sasinë minimale (pragu i paralajmërimit)",
+            "Opsionalisht shkruaj çmimin për njësi për të ndjekur shpenzimet"
+          ]
+        },
+        {
+          "icon": "±",
+          "title": "Lëvizjet e stokut",
+          "steps": [
+            "Kliko ± pranë një artikulli për hyrje ose dalje manuale",
+            "Hyrje — dorëzim i ri, Dalje — mbeturina, Korrigjim — vendos drejtpërdrejt një sasi të re (inventarizim)",
+            "Çdo lëvizje regjistrohet në historikun e Lëvizjeve"
+          ]
+        },
+        {
+          "icon": "🧪",
+          "title": "Recetat",
+          "steps": [
+            "Shko te Recetat për të përcaktuar cilët përbërës konsumon çdo pjatë",
+            "Shto përbërësit dhe vendos sasinë për porcion",
+            "Kur pranohet një porosi, stoku zbritet automatikisht sipas recetës"
+          ]
+        },
+        {
+          "icon": "⚠️",
+          "title": "Paralajmërimet",
+          "steps": [
+            "Artikujt nën minimum kanë një tregues portokalli",
+            "Kliko filtrin Stok i ulët për të parë vetëm artikujt kritikë",
+            "Përditëso sasinë me ± kur vjen stoku i ri"
+          ]
+        }
+      ],
+      "tips": [
+        "Zbritja automatike funksionon vetëm nëse janë përcaktuar recetat për artikujt e menysë",
+        "Korrigjimi është i dobishëm për të pajtuar gjendjen pas një inventarizimi fizik",
+        "Materialet harxhuese të spa-s (vajra, krema) ndiqen në të njëjtin modul — përdor kategorinë Spa"
+      ]
+    },
+    "hr": {
+      "title": "Moduli HR — udhëzues",
+      "intro": "Menaxhim i plotë i punonjësve: profilet, oraret, prania, mungesat, pagat dhe raportet.",
+      "sections": [
+        {
+          "icon": "👤",
+          "title": "Punonjësit",
+          "steps": [
+            "Shto një punonjës me adresën email — krijo një llogari menjëherë ose dërgo një lidhje regjistrimi",
+            "Shkruaj të dhënat e pagës (në orë, javore ose mujore)",
+            "Profili i punonjësit ka skeda: Të dhëna bazë, Punësimi, Financat, Mungesat, Historiku",
+            "Roli caktohet te skeda Punësimi — një punonjës mund të ketë disa role"
+          ]
+        },
+        {
+          "icon": "📅",
+          "title": "Orari i punës",
+          "steps": [
+            "Pamja javore: kliko mbi një qelizë për të shtuar një turn",
+            "Një punonjës mund të ketë disa turne në të njëjtën ditë",
+            "Pamja ditore: vijë kohore horizontale (06:00–23:00) — blloqet e verdha janë periudha të pambuluara",
+            "Kopjo javën e mëparshme me butonin ↩ për plotësim më të shpejtë"
+          ]
+        },
+        {
+          "icon": "🕐",
+          "title": "Regjistri i pranisë",
+          "steps": [
+            "Punonjësi kliko Hyrje dhe Dalje përmes Portalit të stafit",
+            "Administratori mund të shtojë ose korrigjojë manualisht një hyrje për çdo datë",
+            "Sistemi llogarit automatikisht orët totale të punës për ditë"
+          ]
+        },
+        {
+          "icon": "🌴",
+          "title": "Mungesat",
+          "steps": [
+            "Llojet: Pushim vjetor, Pushim mjekësor, I papaguar, Tjetër",
+            "Çdo mungesë mund të jetë Në pritje ose E miratuar — kliko Mirato ose Refuzo",
+            "Ditët e shfrytëzuara të pushimit vjetor llogariten automatikisht"
+          ]
+        },
+        {
+          "icon": "💰",
+          "title": "Pagat",
+          "steps": [
+            "Shto artikuj: pagë ditore, bonus, zbritje, jashtë orarit ose paradhënie",
+            "Gjenero një fletëpagesë për periudhën e zgjedhur",
+            "Fletëpagesa: Draft → E miratuar → E paguar"
+          ]
+        },
+        {
+          "icon": "📊",
+          "title": "Raportet",
+          "steps": [
+            "Përmbledhje e orëve të punës dhe kostove për punonjës për periudhën e zgjedhur",
+            "Eksporto në CSV për përpunim të mëtejshëm në Excel"
+          ]
+        }
+      ],
+      "tips": [
+        "Një punonjës duhet të ketë një llogari me të njëjtin email për të hyrë dhe parë orarin e vet",
+        "Rolet përcaktohen te Cilësimet administrative → Rolet dhe lejet",
+        "Portali i stafit (restby.me/slug/staff) është pamja operative për punonjësit — pa qasje administratori",
+        "Përdor pamjen ditore të orarit për një kontroll të shpejtë të mbulimit të turneve"
+      ]
+    },
+    "guests": {
+      "title": "Mysafirët — udhëzues",
+      "intro": "Një regjistër i mysafirëve që u regjistruan përmes menysë së mysafirit, historiku i vizitave dhe shpenzimeve.",
+      "sections": [
+        {
+          "icon": "👤",
+          "title": "Lista e mysafirëve",
+          "steps": [
+            "Mysafirët shtohen automatikisht në regjistër kur regjistrohen përmes menysë së mysafirit",
+            "Çdo mysafir ka një profil me të dhëna bazë (emri, email, telefoni)",
+            "Kërko mysafirët sipas emrit ose email-it",
+            "Kliko mbi një mysafir për të parë detajet: historikun e porosive, shpenzimin total dhe shënimet"
+          ]
+        },
+        {
+          "icon": "🏨",
+          "title": "Mysafirët e hotelit",
+          "steps": [
+            "Mysafirët që kanë pasur një rezervim hoteli janë automatikisht në regjistër",
+            "Mysafirët e hotelit mund të hyjnë në Guest App (restby.me/slug/guest) me një kod rezervimi",
+            "Guest App tregon: detajet e qëndrimit, tarifat e folio-s, kërkesat për dhomën dhe rezervimin e spa-s"
+          ]
+        },
+        {
+          "icon": "🔍",
+          "title": "Filtrat dhe kërkimi",
+          "steps": [
+            "Filtro mysafirët sipas datës së vizitës së parë ose shpenzimit total",
+            "Një etiketë VIP mund t’u caktohet manualisht mysafirëve me shpenzime të larta",
+            "Eksporto listën për marketing ose analitikë"
+          ]
+        }
+      ],
+      "tips": [
+        "Regjistrimi i mysafirëve në menynë e mysafirit mund të çaktivizohet te Cilësimet e menysë → Dukshmëria",
+        "Mysafirët e hotelit janë automatikisht në regjistër — pa nevojë për hyrje manuale",
+        "Programi i besnikërisë (faza e ardhshme) do ta përdorë këtë bazë për pikë dhe shpërblime"
+      ]
+    },
+    "analytics": {
+      "title": "Analitika — udhëzues",
+      "intro": "Përmbledhje e të ardhurave, pjatat më të shitura, tendencat dhe raporte të detajuara sipas periudhës.",
+      "sections": [
+        {
+          "icon": "📊",
+          "title": "Përmbledhja e të ardhurave",
+          "steps": [
+            "Zgjidh një periudhë (sot, javë, muaj ose një interval të personalizuar)",
+            "Grafikët tregojnë të ardhurat dhe numrin e porosive për ditë",
+            "Krahaso me periudhën e mëparshme për të parë tendencën"
+          ]
+        },
+        {
+          "icon": "🏆",
+          "title": "Pjatat më të shitura",
+          "steps": [
+            "Një listë e pjatave të renditura sipas numrit të porcioneve të shitura",
+            "Kliko mbi një pjatë për të parë detajet sipas ditës",
+            "Përdor këto të dhëna për të optimizuar menynë dhe inventarin"
+          ]
+        },
+        {
+          "icon": "📤",
+          "title": "Eksporti",
+          "steps": [
+            "Kliko Eksporto PDF për një raport gati për printim",
+            "Eksporto Excel jep një pamje tabelare për përpunim të mëtejshëm",
+            "Të dyja formatet përfshijnë periudhën kohore të zgjedhur"
+          ]
+        }
+      ],
+      "tips": [
+        "Krahaso të ardhurat sipas ditës së javës për të identifikuar periudhat më të ngarkuara",
+        "Të ardhurat sipas kategorisë ndihmojnë të vendosësh ku të investosh në meny",
+        "Hotel Revenue Management (RevPAR, ADR, Occupancy) është te moduli Hotel → Menaxhimi i të ardhurave"
+      ]
+    },
+    "hotel": {
+      "title": "Hotel Core — udhëzues",
+      "intro": "Menaxhim i plotë i hotelit: dhomat, rezervimet, kalendari i disponueshmërisë, front desk, folio, pastrimi, rezervimi online dhe një Guest App për mysafirët.",
+      "sections": [
+        {
+          "icon": "📊",
+          "title": "Paneli",
+          "steps": [
+            "Paneli tregon një widget zënieje me përqindjen e zënies dhe statistikat",
+            "Mbërritjet sot — të gjitha rezervimet me datë check-in sot",
+            "Lidhje të shpejta: Front Desk, Rezervimet, Kalendari, Dhomat"
+          ]
+        },
+        {
+          "icon": "🛏️",
+          "title": "Dhomat dhe llojet e dhomave",
+          "steps": [
+            "Shko te Llojet e dhomave për të përcaktuar kategoritë (Standard, Deluxe, Suite...)",
+            "Për çdo lloj shkruaj emrin, përshkrimin, zënien maksimale, çmimin bazë dhe komoditetet",
+            "Shko te Dhomat për të parë një rrjet të të gjitha dhomave — statuset: E lirë, E zënë, Pastrim, Mirëmbajtje, E bllokuar",
+            "Kliko mbi një dhomë për të ndryshuar statusin ose për ta redaktuar",
+            "Zgjedhja e statusit \"Pastrim\" krijon automatikisht një detyrë pastrimi të dukshme në kohë reale në panelin e Pastrimit dhe Portalin e stafit"
+          ]
+        },
+        {
+          "icon": "📅",
+          "title": "Rezervimet",
+          "steps": [
+            "Kliko + Rezervim i ri: mysafiri, lloji i dhomës, dhoma, datat, çmimi",
+            "Sistemi llogarit automatikisht shumën: numri i netëve × çmimi për natë",
+            "Statusi: Kërkesë → I konfirmuar → I pranishëm → I larguar",
+            "Kalendari i disponueshmërisë tregon 14 ditë në pamje Gantt — kliko mbi një periudhë të lirë për një rezervim të ri"
+          ]
+        },
+        {
+          "icon": "🔗",
+          "title": "Rezervimi online",
+          "steps": [
+            "Mysafirët mund të rezervojnë drejtpërdrejt te restby.me/slug/book",
+            "Faqja tregon llojet e disponueshme të dhomave, çmimet dhe një formular rezervimi",
+            "Një konfirmim me email dërgohet automatikisht me rezervim",
+            "Lidhja e rezervimit është gjithashtu e disponueshme në faqen publike të hotelit (/hotel) dhe Guest App"
+          ]
+        },
+        {
+          "icon": "🛎️",
+          "title": "Front Desk — Check-in",
+          "steps": [
+            "Skeda Check-in sot tregon të gjitha rezervimet e konfirmuara për sot",
+            "Kliko Check-in ✓ — sistemi ndryshon statusin e rezervimit në I pranishëm, dhomën në E zënë dhe krijon një folio të hapur",
+            "Faqja Front Desk është përshtatur për pajisje celulare — karta në vend të tabelës në celular"
+          ]
+        },
+        {
+          "icon": "🛎️",
+          "title": "Front Desk — Check-out",
+          "steps": [
+            "Skeda Check-out tregon të gjithë mysafirët e pranishëm që duhet të largohen",
+            "Shqyrto folio-n para check-out",
+            "Kliko Check-out ✓ — statusi i rezervimit → I larguar, dhoma → Pastrim, folio → e mbyllur",
+            "Faqja Front Desk është përshtatur për pajisje celulare — recepsioni mund të bëjë check-in/check-out nga telefoni"
+          ]
+        },
+        {
+          "icon": "📋",
+          "title": "Sistemi folio",
+          "steps": [
+            "Folio hapet automatikisht në check-in",
+            "Tregon të gjitha tarifat: dhoma, porositë e restorantit, minibari, spa, tjetër",
+            "Kliko + Shto artikull për të shtuar manualisht një tarifë",
+            "Butona të shpejtë: 🥤 Minibar (tarifë minibari) dhe 🛍️ Shit produkt (spa retail)",
+            "Porositë e restorantit \"Faturo në dhomë\" shtohen automatikisht në folio",
+            "Trajtimet spa të paguara përmes folio-s shtohen automatikisht",
+            "Mbyll folio-n në check-out — shënon pagesën të përfunduar"
+          ]
+        },
+        {
+          "icon": "🥤",
+          "title": "Minibari",
+          "steps": [
+            "Shko te Hotel → Minibar për të përcaktuar listën e çmimeve (emri + çmimi): ujë, lëng, birrë...",
+            "Fillim i shpejtë: 📚 Nga biblioteka → zgjidh dhe importo artikuj të gatshëm menjëherë",
+            "Tarifë për mysafir: hap folio-n e mysafirit → 🥤 Minibar → zgjidh artikullin dhe sasinë",
+            "Artikulli shtohet në folio si \"Minibar: <emri>\" dhe hyn në bilanc",
+            "Minibari nuk ndiqet sipas stokut (mbushet manualisht në dhoma) — tarifohet vetëm folio"
+          ]
+        },
+        {
+          "icon": "🧹",
+          "title": "Pastrimi",
+          "steps": [
+            "Detyrat e pastrimit krijohen automatikisht në çdo check-out (dhoma → Pastrim); mund të krijohen edhe manualisht nga paneli i administratorit",
+            "Pastrueset i shohin detyrat në Portalin e stafit (/slug/staff) në kohë reale — ndryshimet e statusit (Fillo → Përfundo → Verifiko) pasqyrohen menjëherë edhe në panelin e administratorit pa rifreskuar faqen",
+            "Administratori ndjek statusin e të gjitha dhomave në panelin e Pastrimit",
+            "Një pastruese shënon një dhomë si E pastër → statusi ndryshon automatikisht në E lirë"
+          ]
+        },
+        {
+          "icon": "🔑",
+          "title": "Guest App për mysafirët e hotelit",
+          "steps": [
+            "Mysafirët hyjnë në Guest App te restby.me/slug/guest",
+            "Hyrja: email + kodi i rezervimit me 8 karaktere nga konfirmimi me email",
+            "Guest App tregon: detajet e qëndrimit, tarifat e folio-s, kërkesat për dhomën (pastrim, room service...) dhe rezervimin e spa-s",
+            "Kërkesat për dhomën shfaqen në kohë reale në skedën Kërkesat te Front Desk"
+          ]
+        },
+        {
+          "icon": "🍽️",
+          "title": "Integrimi me restorantin",
+          "steps": [
+            "Një kamarier mund të faturojë një porosi në një dhomë hoteli — kliko Faturo në dhomë te një porosi e shërbyer",
+            "Shkruaj numrin e dhomës — sistemi kontrollon nëse mysafiri ka një folio të hapur",
+            "Shuma shtohet automatikisht në folio-n e mysafirit",
+            "Butoni \"Faturo në dhomë\" ekziston edhe në Portalin e stafit (moduli i kamarierit) — jo vetëm në panelin e administratorit"
+          ]
+        },
+        {
+          "icon": "💹",
+          "title": "Menaxhimi i të ardhurave",
+          "steps": [
+            "Paneli tregon ADR (çmimi mesatar i dhomës), RevPAR dhe Occupancy Rate",
+            "Grafikët e tendencave sipas javës dhe muajit",
+            "Planet e çmimeve: shkruaj çmime sezonale ose weekday/weekend sipas llojit të dhomës",
+            "Eksporto analitikën në PDF/Excel"
+          ]
+        }
+      ],
+      "tips": [
+        "Kalendari i disponueshmërisë është mënyra më e shpejtë për të parë zënien — përdore çdo ditë",
+        "Folio krijohet automatikisht në check-in — nuk ke nevojë ta krijosh manualisht",
+        "Minibari dhe spa retail tarifohen drejtpërdrejt nga folio-ja e mysafirit (butonat 🥤 / 🛍️)",
+        "Detyrat e pastrimit krijohen automatikisht — pastrueset i shohin vetëm në Portalin e stafit",
+        "Lidhja Guest App dërgohet automatikisht në konfirmimin me email të rezervimit",
+        "Faqja publike e hotelit (restby.me/slug/hotel) redaktohet te Hotel → Faqja e hotelit",
+        "Faqet Rezervimet, Pastrimi dhe Menaxhimi i të ardhurave janë të përshtatshme për celular — karta në vend të tabelave në pajisje celulare",
+        "Për konfigurim të shpejtë fillestar përdor „📋 Udhëzues: Hotel\" në panelin e kontrollit (pranë titullit Hotel) — të udhëheq nëpër llojin e dhomës, dhomat dhe kohën e rezervimit",
+        "Pagesat online të mysafirëve (rezervim/folio) konfigurohen te Hotel → Pagesat (Monri për Malin e Zi, Stripe për testim)"
+      ]
+    },
+    "spa": {
+      "title": "Spa & Wellness — udhëzues",
+      "intro": "Menaxhim i plotë i qendrës spa: katalogu i trajtimeve, terapistët, dhomat, rezervimi, kalendari dhe analitika.",
+      "sections": [
+        {
+          "icon": "💆",
+          "title": "Trajtimet (katalogu)",
+          "steps": [
+            "Fillim i shpejtë: 📚 Nga biblioteka → importo trajtime të gatshme (përmirëso çmimin dhe detajet më vonë)",
+            "Shko te Trajtimet për të përcaktuar katalogun e shërbimeve (masazhe, facial, wellness...)",
+            "Për çdo trajtim shkruaj: emrin, kategorinë, kohëzgjatjen, buffer-in midis takimeve dhe çmimin",
+            "Shëno cilat lloje dhomash mund të presin këtë trajtim (treatment room, wet facility...)",
+            "Trajtimet me requires_consultation kërkojnë një konsultim paraprak gjatë rezervimit"
+          ]
+        },
+        {
+          "icon": "👤",
+          "title": "Terapistët",
+          "steps": [
+            "Shko te Terapistët për të menaxhuar profilet — një terapist duhet të krijohet si punonjës në modulin HR",
+            "Shto specializimet (deep tissue, hot stone, facial...) dhe gjuhët",
+            "Lidh terapistin me trajtimet që mund të kryejë",
+            "Përjashto një terapist nga disponueshmëria me një klik (p.sh. pushim mjekësor ose ditë pushimi)"
+          ]
+        },
+        {
+          "icon": "🚪",
+          "title": "Dhomat",
+          "steps": [
+            "Shko te Dhomat për të përcaktuar hapësirat (Dhoma 1, Sauna, Hammam, Pishina...)",
+            "Çdo dhomë ka një lloj (treatment_room, wet_facility, group...) dhe kapacitet",
+            "Trajtimet hartëzohen automatikisht në dhoma të përputhshme"
+          ]
+        },
+        {
+          "icon": "📅",
+          "title": "Kalendari dhe takimet",
+          "steps": [
+            "Spa Calendar tregon një Gantt sipas terapistit — çdo rresht është një terapist, kolonat janë intervale kohore",
+            "Takimet e rezervuara shfaqen si shirita me ngjyra",
+            "Shko te Takimet për një listë të të gjitha takimeve me filtra sipas datës dhe statusit",
+            "Kliko mbi një takim për të parë detajet, shënimet ose për të shënuar no-show"
+          ]
+        },
+        {
+          "icon": "🌐",
+          "title": "Rezervimi publik",
+          "steps": [
+            "Mysafirët rezervojnë trajtime te restby.me/slug/spa",
+            "Rrjedha: zgjedhja e trajtimit → terapisti (opsional) → data dhe intervali i lirë → pagesa (folio për mysafirët e hotelit, kartë për të jashtmit)",
+            "Mysafirët e hotelit mund të rezervojnë gjithashtu drejtpërdrejt nga Guest App (skeda Spa)",
+            "Konfirmimi me email dhe kujtuesi dërgohen automatikisht"
+          ]
+        },
+        {
+          "icon": "📊",
+          "title": "Analitika e spa-s",
+          "steps": [
+            "Përmbledhje e të ardhurave për trajtim, shkalla e shfrytëzimit për terapist dhe shkalla e no-show",
+            "Raporti mysafirë hoteli vs. mysafirë të jashtëm",
+            "Eksporto në formatin CSV"
+          ]
+        },
+        {
+          "icon": "🎁",
+          "title": "Paketat",
+          "steps": [
+            "Shko te Paketat për të krijuar oferta të kombinuara (p.sh. Romantic getaway: 2 net + 2 trajtime)",
+            "Një paketë mund të përfshijë: llojin e dhomës, trajtimet spa dhe një përshkrim të asaj që përfshihet",
+            "Mysafirët zgjedhin një paketë në faqen publike të spa-s"
+          ]
+        },
+        {
+          "icon": "⭐",
+          "title": "Vlerësimet dhe notat",
+          "steps": [
+            "Pas një takimi të përfunduar, mysafiri vlerëson trajtimin (1–5 yje) — në Guest App (skeda Spa) për mysafirët e hotelit",
+            "Vlerësimi i terapistit llogaritet automatikisht si mesatarja e të gjitha vlerësimeve",
+            "Vlerësimi mesatar (★) shfaqet pranë çdo terapisti në faqen Terapistët"
+          ]
+        },
+        {
+          "icon": "🛍️",
+          "title": "Shitja me pakicë",
+          "steps": [
+            "Shko te Retail për të përcaktuar produktet për shitje (vajra, krema...) me çmim dhe stok",
+            "Shitja kalon përmes folio-s së mysafirit: hap folio-n → 🛍️ Shit produkt → zgjidh produktin dhe sasinë",
+            "Stoku zbritet automatikisht; shuma shtohet në folio-n e mysafirit",
+            "Shitja mbi stokun e disponueshëm bllokohet"
+          ]
+        }
+      ],
+      "tips": [
+        "Një buffer midis takimeve (p.sh. 15 min) siguron që terapisti dhe dhoma të jenë të lira për përgatitje",
+        "Integrimi folio: trajtimi spa i një mysafiri hoteli shtohet automatikisht në folio",
+        "Mysafirët e jashtëm mund të paguajnë një trajtim me kartë online (kërkohet një ofrues pagese aktiv)",
+        "Dukshmëria e lidhjes spa në menynë e mysafirit vendoset te Cilësimet e menysë → Dukshmëria",
+        "Një terapist duhet të jetë punonjës në modulin HR për t’u shfaqur në listën e terapistëve",
+        "Faqja publike e spa-s është e dukshme për të gjithë — nuk nevojitet rezervim hoteli",
+        "Produktet me pakicë shiten nga folio-ja e mysafirit (🛍️ Shit produkt); stoku ndiqet automatikisht"
+      ]
+    },
+    "settings": {
+      "title": "Cilësimet — udhëzues",
+      "intro": "Të dhënat bazë të lokalit, logoja dhe menaxhimi i abonimit.",
+      "sections": [
+        {
+          "icon": "🖼️",
+          "title": "Logoja",
+          "steps": [
+            "Ngarko një logo në formatin JPG, PNG ose WebP (maks 2MB)",
+            "Logoja shfaqet në menynë e mysafirit, panelin e administratorit dhe njoftimet me email",
+            "Formati i rekomanduar: katror (1:1), min 200×200px",
+            "Një sfond i bardhë ose transparent duket më së miri në të gjitha sfondet"
+          ]
+        },
+        {
+          "icon": "📋",
+          "title": "Të dhënat bazë",
+          "steps": [
+            "Shkruaj emrin e lokalit, vendndodhjen, telefonin, orarin e punës dhe përshkrimin",
+            "Këto të dhëna u shfaqen mysafirëve në menynë e mysafirit nën emrin e restorantit",
+            "Ndryshimet janë të dukshme për mysafirët menjëherë pas ruajtjes"
+          ]
+        },
+        {
+          "icon": "💳",
+          "title": "Abonimi",
+          "steps": [
+            "Përmbledhje e planit aktual dhe moduleve shtesë aktive",
+            "Menaxhimi i abonimit dhe faturimit",
+            "Modulet shtesë (Hotel, Spa) aktivizohen këtu"
+          ]
+        }
+      ],
+      "tips": [
+        "Cilësimet vizuale të menysë (shabllonet, ngjyrat) janë te Menyja dixhitale → Cilësimet e menysë → Shabllonet",
+        "Dukshmëria e funksioneve në menynë e mysafirit vendoset te Menyja dixhitale → Cilësimet e menysë → Dukshmëria",
+        "Faqja e restorantit redaktohet te Menyja dixhitale → Faqja e restorantit",
+        "Faqja e hotelit redaktohet te Hotel → Faqja e hotelit",
+        "Pagesa online (Monri/Stripe) konfigurohet te Hotel → Pagesat; udhëzuesit e konfigurimit janë në panelin e kontrollit pranë titullit Restorant/Hotel",
+        "Tema dhe ngjyrat e panelit të administratorit (jeshile/blu/vjollcë + paleta të personalizuara) vendosen nga superadmini: /superadmin → tenant → Tema; modaliteti i errët është çelësi ☀️/🌙 në shiritin anësor"
+      ]
+    }
+  }
+}

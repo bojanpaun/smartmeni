@@ -1,0 +1,688 @@
+{
+  "tipsLabel": "İpuçları",
+  "notAvailable": "Bu modül için kılavuz mevcut değil.",
+  "content": {
+    "menu": {
+      "title": "Dijital menü — kılavuz",
+      "intro": "Bu modül dijital menüyü, siparişleri, mutfak ve bar iş akışını ve restoranın herkese açık web sitesini yönetmenizi sağlar.",
+      "sections": [
+        {
+          "icon": "🗂️",
+          "title": "Menü kategorileri ve öğeleri",
+          "steps": [
+            "Menü düzenleme bölümüne gidin",
+            "Yeni bir kategori eklemek için + Kategori’ye tıklayın (ör. Başlangıçlar, Balık, İçecekler)",
+            "Bar ürünleri için (kokteyller, alkol...) Bar kategorisidir anahtarını açın — bu öğeler mutfağa değil Bar istasyonuna gider",
+            "Bir kategorinin içinde + Yemek ekle’ye tıklayın ve ad, açıklama, fiyat ve görseli doldurun",
+            "Yemekleri Günün önerisi olarak işaretleyebilirsiniz — misafir menüsünde belirgin şekilde gösterilir"
+          ]
+        },
+        {
+          "icon": "🧾",
+          "title": "Siparişler",
+          "steps": [
+            "Siparişler bölümünde tüm aktif siparişleri gerçek zamanlı takip edersiniz",
+            "Her siparişin istasyon başına bir durumu vardır: mutfak ve bar ayrı ayrı izlenir",
+            "Sipariş durumu: Alındı → hazırlanıyor (mutfak/bar) → Hazır → Servis edildi",
+            "Garson her öğenin durumunu görür — sormak için mutfağı aramasına gerek yoktur",
+            "Garson Personel portalı (/slug/staff) istasyon durumlarını gerçek zamanlı gösterir — 🧑‍🍳 Mutfak hazırlıyor/hazır, 🍷 Bar hazırlıyor/hazır — yönetici görünümüyle aynı"
+          ]
+        },
+        {
+          "icon": "🧑‍🍳",
+          "title": "Mutfak ve Bar — ayrı istasyonlar",
+          "steps": [
+            "Mutfak ve Bar, yönetici kenar çubuğunda ayrı sekmelerdir, her biri gerçek zamanlı rozetlidir",
+            "Mutfak yalnızca mutfak öğeleri içeren siparişleri gösterir (bar kategorileri olmadan)",
+            "Bar yalnızca bar öğeleri olan siparişleri gösterir (Bar olarak işaretlenmiş kategoriler)",
+            "Mutfak ve bar personeli tamamen bağımsız çalışır — herkes yalnızca kendi işini görür",
+            "Bir sipariş garson için ancak her iki istasyon da kendi bölümünü Hazır olarak işaretlediğinde hazırdır"
+          ]
+        },
+        {
+          "icon": "🔔",
+          "title": "Garson talepleri",
+          "steps": [
+            "Misafirler menüden talep gönderir (Garson çağır, Hesabı getir...)",
+            "Yeni bir talep, kenar çubuğundaki Talepler sekmesinde kırmızı bir rozet olarak görünür",
+            "Garson talebi seçer, kısa bir yanıt yazar ve Çözüldü olarak işaretler",
+            "Misafirlerin gördüğü mesajlar Menü ayarları → Mesajlar bölümünde tanımlanır"
+          ]
+        },
+        {
+          "icon": "⚙️",
+          "title": "Menü ayarları — sekmeler",
+          "steps": [
+            "Genel: ad, konum, telefon, çalışma saatleri, açıklama, marka rengi, QR oturum süresi",
+            "Görünürlük: her özellik için kimin göreceğini seçin (Kapalı / Kayıtlı / Herkes) — sipariş, garson, rezervasyonlar, misafir kaydı, otel bağlantısı, spa bağlantısı",
+            "Mesajlar: misafirlerin garson çağırmak için seçtiği mesajları ve sipariş reddetme mesajlarını özelleştirin",
+            "Şablonlar: misafir menüsünün görsel stilini mevcut şablonlardan seçin — değişiklik anında olur"
+          ]
+        },
+        {
+          "icon": "🌐",
+          "title": "Restoran web sitesi",
+          "steps": [
+            "Kenar çubuğunda herkese açık web sayfasının görsel düzenleyicisini açmak için Restoran web sitesi’ne tıklayın",
+            "Düzenleyici ikiye bölünmüştür: solda form, sağda yazarken güncellenen canlı önizleme",
+            "Bloklar (Hero, Hikaye, Galeri, Spesiyaller...) açılıp/kapatılır ve sürükle-bırak ile yeniden sıralanır",
+            "Her blokun bir düzen seçimi (layout varyantları) ve içerik ile görseller için alanları vardır",
+            "Değişiklikleri yayımlamak için Kaydet’e tıklayın — sayfa restby.me/slug-iniz/home adresinde mevcuttur"
+          ]
+        },
+        {
+          "icon": "📱",
+          "title": "Restoran QR kodu",
+          "steps": [
+            "Masa bilgisi olmadan menüye yönlendiren genel bir QR için QR kodu bölümüne gidin",
+            "Girişte, kartvizitte, sosyal medyada veya menüde kullanın",
+            "Masa siparişleri için Masalar modülündeki QR kodlarını kullanın (her masanın kendi QR’ı vardır)"
+          ]
+        }
+      ],
+      "tips": [
+        "Bar kategorileri doğru iş akışı için anahtardır — her içecek kategorisi Bar olarak işaretlenmelidir",
+        "Şablonlar ve marka rengi birlikte misafir menüsünün görsel kimliğini oluşturur",
+        "Masa başına QR (Masalar modülü) günlük kullanım için önerilir çünkü siparişin hangi masadan geldiğini takip eder",
+        "Kayıtsız misafirler için sipariş görünürlüğünü kapatabilirsiniz — VIP görünümler veya demo modu için kullanışlı",
+        "Restoran web sitesi ve misafir menüsü ayrıdır: menü masa siparişleri içindir, web sitesi herkese açık bir web sayfasıdır",
+        "Bir garson bir siparişi doğrudan Personel portalından odaya yansıtabilir (yalnızca yöneticiden değil) — Otel modülü aktifken görünür"
+      ]
+    },
+    "staff": {
+      "title": "Roller ve izinler — kılavuz",
+      "intro": "Bu modül rol oluşturmak ve yönetmek içindir. Çalışanlara rol atama, İK → Çalışanlar modülünde yapılır.",
+      "sections": [
+        {
+          "icon": "🔑",
+          "title": "Rol oluşturma",
+          "steps": [
+            "+ Yeni rol’e tıklayın veya bir şablon seçin (Garson, Mutfak, Bar, Müdür, Resepsiyon, Spa terapisti...)",
+            "Rol adını girin",
+            "İzinler modüllere göre gruplanmıştır (yatay sekmeler): Restoran, Otel, Spa...",
+            "Bir modül için Tümünü seç’e tıklayın veya ayrıntılı izinleri manuel işaretleyin",
+            "Rolü kaydedin"
+          ]
+        },
+        {
+          "icon": "👤",
+          "title": "Bir çalışana rol atama",
+          "steps": [
+            "Roller İK → Çalışanlar modülünde atanır",
+            "Bir çalışan aynı anda birden fazla role sahip olabilir (ör. Garson + Bar)",
+            "Değişiklikler anındadır — çalışan yeni hakları hemen alır"
+          ]
+        },
+        {
+          "icon": "📱",
+          "title": "Personel portalı (/slug/staff)",
+          "steps": [
+            "Çalışanlar operasyonel görünüme restby.me/slug-iniz/staff adresinden erişir",
+            "Garson siparişleri istasyon durumlarıyla görür (🧑‍🍳 Mutfak hazırlıyor/hazır, 🍷 Bar hazırlıyor/hazır) ve bir siparişi otel odasına yansıtabilir (Otel modülü aktifken)",
+            "Kat görevlisi temizlik görevlerini ve bakım taleplerini gerçek zamanlı görür — durum değişiklikleri (Başlat → Bitir → Doğrula) yönetici panosuna da anında yansır",
+            "Resepsiyon bir mobil cihazdan check-in/check-out yapabilir — Front Desk sayfası mobil uyumludur",
+            "Yönetici hesabına gerek yok — çalışanlar kendi kimlik bilgileriyle giriş yapar"
+          ]
+        },
+        {
+          "icon": "🔒",
+          "title": "Erişim güvenliği",
+          "steps": [
+            "Çalışanlar yalnızca izinleri olan modülleri görür",
+            "Sahip her zaman tam erişime sahiptir",
+            "İzinleri istediğiniz zaman değiştirebilirsiniz",
+            "Bir rol yalnızca hiçbir çalışana atanmamışsa silinebilir"
+          ]
+        }
+      ],
+      "tips": [
+        "Bir garson tipik olarak şunlara ihtiyaç duyar: siparişler, garson talepleri, masa görünümü",
+        "Mutfak şuna ihtiyaç duyar: siparişler (mutfak görünümü) — diğer modüllere erişim olmadan",
+        "Kat görevlisi şuna ihtiyaç duyar: temizlik görevleri — yönetime erişim olmadan",
+        "Resepsiyon şuna ihtiyaç duyar: otel front desk, rezervasyonlar, folio",
+        "Bir müdür operasyonel işlevlerin yanı sıra İK ve analitiğe sahip olabilir"
+      ]
+    },
+    "tables": {
+      "title": "Masalar — kılavuz",
+      "intro": "Masa haritasını çizme, durumu gerçek zamanlı takip etme, rezervasyonlar ve masa başına QR kodları.",
+      "sections": [
+        {
+          "icon": "🗺️",
+          "title": "Masa haritasını çizme",
+          "steps": [
+            "Masa ayarları bölümüne gidin",
+            "Bir masa eklemek için araç çubuğunda Kare masa veya Yuvarlak masa’ya tıklayın",
+            "Masayı istediğiniz yere yerleştirmek için tuvale tıklayın",
+            "Konumu değiştirmek için masayı fareyle sürükleyin",
+            "Adı, koltuk sayısını ve şekli düzenlemek için bir masaya tıklayın",
+            "Boyutu değiştirmek için yeniden boyutlandırma tutamacını (sağ alt köşe) kullanın",
+            "Bitirdiğinizde Haritayı kaydet’e tıklayın"
+          ]
+        },
+        {
+          "icon": "👁",
+          "title": "Garson görünümü",
+          "steps": [
+            "Gerçek zamanlı genel bakış için Masa görünümü’ne gidin",
+            "Boş masalar beyaz, dolu olanlar turuncu, rezerve edilenler mavidir",
+            "Animasyonlu kırmızı bir masa, bir misafirin garson çağırdığı anlamına gelir",
+            "Aktif siparişleri ve toplam hesabı görmek için bir masaya tıklayın",
+            "Sayfa otomatik olarak yenilenir"
+          ]
+        },
+        {
+          "icon": "📅",
+          "title": "Rezervasyonlar",
+          "steps": [
+            "Rezervasyonları yönetmek için Rezervasyonlar bölümüne gidin",
+            "+ Yeni rezervasyon’a tıklayın ve misafir bilgilerini doldurun",
+            "Form içindeki haritada bir masayı görsel olarak seçmek için tıklayın",
+            "Hangi günlerin yoğun olduğunu görmek için Takvim görünümünü kullanın"
+          ]
+        },
+        {
+          "icon": "🌐",
+          "title": "Çevrimiçi rezervasyonlar",
+          "steps": [
+            "Ayarlarda Çevrimiçi rezervasyonlar anahtarını açın",
+            "Misafirler restby.me/slug-iniz/reservation adresine talep gönderir",
+            "Her talep, onaylayana kadar Beklemede durumundadır",
+            "Onaylanan rezervasyonlar garson haritasında gösterilir"
+          ]
+        },
+        {
+          "icon": "📱",
+          "title": "Masa başına QR kodları",
+          "steps": [
+            "Düzenleyicide bir masaya, ardından QR kodu düğmesine tıklayın",
+            "Her masanın, menüye masa numarasıyla yönlendiren benzersiz bir QR’ı vardır",
+            "İndirin ve yazdırın — her masaya ayrı ayrı yapıştırın",
+            "Bir misafir tarayıp garson çağırdığında, garson tam olarak hangi masanın çağırdığını görür"
+          ]
+        }
+      ],
+      "tips": [
+        "Masa başına QR günlük kullanım için önerilir — siparişleri masaya göre takip eder",
+        "Harita otomatik olarak kaydedilir — misafirler ve garson değişiklikleri hemen görür",
+        "Rezerve edilen masalar garson haritasında saatleriyle birlikte mavi renkte gösterilir"
+      ]
+    },
+    "inventory": {
+      "title": "Envanter — kılavuz",
+      "intro": "Malzemelerin ve bitmiş ürünlerin takibi, giriş/çıkışlar ve siparişte otomatik stok düşümü.",
+      "sections": [
+        {
+          "icon": "📦",
+          "title": "Envanter öğeleri ekleme",
+          "steps": [
+            "Envanter bölümüne gidin ve + Yeni öğe’ye tıklayın",
+            "Adı, kategoriyi ve ölçü birimini girin",
+            "Mevcut miktarı ve minimum miktarı (uyarı eşiği) ayarlayın",
+            "Giderleri takip etmek için isteğe bağlı olarak birim maliyeti girin"
+          ]
+        },
+        {
+          "icon": "±",
+          "title": "Stok hareketleri",
+          "steps": [
+            "Manuel giriş veya çıkış için bir öğenin yanındaki ±’ye tıklayın",
+            "Giriş — yeni teslimat, Çıkış — fire, Düzeltme — doğrudan yeni bir miktar ayarlayın (sayım)",
+            "Her hareket Hareketler geçmişine kaydedilir"
+          ]
+        },
+        {
+          "icon": "🧪",
+          "title": "Tarifler",
+          "steps": [
+            "Her yemeğin hangi malzemeleri tükettiğini tanımlamak için Tarifler bölümüne gidin",
+            "Malzemeleri ekleyin ve porsiyon başına miktarı ayarlayın",
+            "Bir sipariş alındığında, stok tarife göre otomatik olarak düşülür"
+          ]
+        },
+        {
+          "icon": "⚠️",
+          "title": "Uyarılar",
+          "steps": [
+            "Minimumun altındaki öğelerin turuncu bir göstergesi vardır",
+            "Yalnızca kritik öğeleri görmek için Düşük stok filtresine tıklayın",
+            "Yeni stok geldiğinde miktarı ± ile güncelleyin"
+          ]
+        }
+      ],
+      "tips": [
+        "Otomatik düşüm yalnızca menü öğeleri için tarifler tanımlanmışsa çalışır",
+        "Düzeltme, fiziksel sayımdan sonra durumu eşleştirmek için kullanışlıdır",
+        "Spa sarf malzemeleri (yağlar, kremler) aynı modülde takip edilir — Spa kategorisini kullanın"
+      ]
+    },
+    "hr": {
+      "title": "İK modülü — kılavuz",
+      "intro": "Eksiksiz çalışan yönetimi: profiller, vardiya çizelgeleri, devam, izinler, maaşlar ve raporlar.",
+      "sections": [
+        {
+          "icon": "👤",
+          "title": "Çalışanlar",
+          "steps": [
+            "Bir çalışanı e-posta adresiyle ekleyin — hemen bir hesap oluşturun veya bir kayıt bağlantısı gönderin",
+            "Maaş bilgilerini girin (saatlik, haftalık veya aylık)",
+            "Çalışan profilinde sekmeler vardır: Temel bilgiler, İstihdam, Finans, İzinler, Geçmiş",
+            "Rol, İstihdam sekmesinde atanır — bir çalışan birden fazla role sahip olabilir"
+          ]
+        },
+        {
+          "icon": "📅",
+          "title": "Çalışma çizelgesi",
+          "steps": [
+            "Haftalık görünüm: bir vardiya eklemek için bir hücreye tıklayın",
+            "Bir çalışan aynı gün birden fazla vardiyaya sahip olabilir",
+            "Günlük görünüm: yatay zaman çizelgesi (06:00–23:00) — sarı bloklar kapsanmayan dönemlerdir",
+            "Daha hızlı doldurma için ↩ düğmesiyle önceki haftayı kopyalayın"
+          ]
+        },
+        {
+          "icon": "🕐",
+          "title": "Devam kaydı",
+          "steps": [
+            "Çalışan, Personel portalı üzerinden Giriş ve Çıkış’a tıklar",
+            "Yönetici herhangi bir tarih için bir kaydı manuel olarak ekleyebilir veya düzeltebilir",
+            "Sistem günlük toplam çalışma saatlerini otomatik olarak hesaplar"
+          ]
+        },
+        {
+          "icon": "🌴",
+          "title": "İzinler",
+          "steps": [
+            "Türler: Yıllık izin, Hastalık izni, Ücretsiz, Diğer",
+            "Her izin Beklemede veya Onaylandı olabilir — Onayla veya Reddet’e tıklayın",
+            "Kullanılan yıllık izin günleri otomatik olarak hesaplanır"
+          ]
+        },
+        {
+          "icon": "💰",
+          "title": "Maaşlar",
+          "steps": [
+            "Öğeler ekleyin: günlük ücret, prim, kesinti, fazla mesai veya avans",
+            "Seçilen dönem için bir maaş bordrosu oluşturun",
+            "Maaş bordrosu: Taslak → Onaylandı → Ödendi"
+          ]
+        },
+        {
+          "icon": "📊",
+          "title": "Raporlar",
+          "steps": [
+            "Seçilen dönem için çalışan başına çalışma saatleri ve maliyetlere genel bakış",
+            "Excel’de daha fazla işlem için CSV’ye aktarın"
+          ]
+        }
+      ],
+      "tips": [
+        "Bir çalışanın giriş yapıp kendi çizelgesini görebilmesi için aynı e-postayla bir hesabı olmalıdır",
+        "Roller Yönetim ayarları → Roller ve izinler bölümünde tanımlanır",
+        "Personel portalı (restby.me/slug/staff) çalışanlar için operasyonel görünümdür — yönetici erişimi olmadan",
+        "Vardiya kapsamını hızlıca kontrol etmek için günlük çizelge görünümünü kullanın"
+      ]
+    },
+    "guests": {
+      "title": "Misafirler — kılavuz",
+      "intro": "Misafir menüsü aracılığıyla kayıt olan misafirlerin kaydı, ziyaret ve harcama geçmişi.",
+      "sections": [
+        {
+          "icon": "👤",
+          "title": "Misafir listesi",
+          "steps": [
+            "Misafirler, misafir menüsü aracılığıyla kayıt olduklarında otomatik olarak kayda eklenir",
+            "Her misafirin temel bilgilerle bir profili vardır (ad, e-posta, telefon)",
+            "Misafirleri ada veya e-postaya göre arayın",
+            "Ayrıntıları görmek için bir misafire tıklayın: sipariş geçmişi, toplam harcama ve notlar"
+          ]
+        },
+        {
+          "icon": "🏨",
+          "title": "Otel misafirleri",
+          "steps": [
+            "Otel rezervasyonu olan misafirler otomatik olarak kayıttadır",
+            "Otel misafirleri bir rezervasyon koduyla Guest App’e (restby.me/slug/guest) erişebilir",
+            "Guest App şunları gösterir: konaklama ayrıntıları, folio masrafları, oda talepleri ve spa rezervasyonu"
+          ]
+        },
+        {
+          "icon": "🔍",
+          "title": "Filtreler ve arama",
+          "steps": [
+            "Misafirleri ilk ziyaret tarihine veya toplam harcamaya göre filtreleyin",
+            "Yüksek harcaması olan misafirlere manuel olarak bir VIP etiketi atanabilir",
+            "Listeyi pazarlama veya analitik için dışa aktarın"
+          ]
+        }
+      ],
+      "tips": [
+        "Misafir menüsündeki misafir kaydı Menü ayarları → Görünürlük bölümünde kapatılabilir",
+        "Otel misafirleri otomatik olarak kayıttadır — manuel girişe gerek yoktur",
+        "Sadakat programı (gelecek aşama) puanlar ve ödüller için bu tabanı kullanacaktır"
+      ]
+    },
+    "analytics": {
+      "title": "Analitik — kılavuz",
+      "intro": "Gelir, en çok satan yemekler, eğilimler ve döneme göre ayrıntılı raporlara genel bakış.",
+      "sections": [
+        {
+          "icon": "📊",
+          "title": "Gelir genel bakışı",
+          "steps": [
+            "Bir dönem seçin (bugün, hafta, ay veya özel bir aralık)",
+            "Grafikler günlük geliri ve sipariş sayısını gösterir",
+            "Eğilimi görmek için önceki dönemle karşılaştırın"
+          ]
+        },
+        {
+          "icon": "🏆",
+          "title": "En çok satan yemekler",
+          "steps": [
+            "Satılan porsiyon sayısına göre sıralanmış bir yemek listesi",
+            "Güne göre ayrıntıları görmek için bir yemeğe tıklayın",
+            "Menüyü ve envanteri optimize etmek için bu verileri kullanın"
+          ]
+        },
+        {
+          "icon": "📤",
+          "title": "Dışa aktarma",
+          "steps": [
+            "Yazdırmaya hazır bir rapor için PDF dışa aktar’a tıklayın",
+            "Excel dışa aktar, daha fazla işlem için tablo görünümü verir",
+            "Her iki format da seçilen zaman dönemini içerir"
+          ]
+        }
+      ],
+      "tips": [
+        "En yoğun dönemleri belirlemek için geliri haftanın gününe göre karşılaştırın",
+        "Kategoriye göre gelir, menüye nereye yatırım yapacağınıza karar vermenize yardımcı olur",
+        "Otel Gelir Yönetimi (RevPAR, ADR, Doluluk) Otel → Gelir yönetimi modülündedir"
+      ]
+    },
+    "hotel": {
+      "title": "Hotel Core — kılavuz",
+      "intro": "Eksiksiz otel yönetimi: odalar, rezervasyonlar, müsaitlik takvimi, front desk, folio, kat hizmetleri, çevrimiçi rezervasyon ve misafirler için bir Guest App.",
+      "sections": [
+        {
+          "icon": "📊",
+          "title": "Pano",
+          "steps": [
+            "Pano, doluluk yüzdesi ve istatistiklerle bir doluluk widget’ı gösterir",
+            "Bugün gelenler — bugün check-in tarihi olan tüm rezervasyonlar",
+            "Hızlı bağlantılar: Front Desk, Rezervasyonlar, Takvim, Odalar"
+          ]
+        },
+        {
+          "icon": "🛏️",
+          "title": "Odalar ve oda tipleri",
+          "steps": [
+            "Kategorileri tanımlamak için Oda tipleri bölümüne gidin (Standart, Deluxe, Suit...)",
+            "Her tip için ad, açıklama, maksimum doluluk, taban fiyat ve olanakları girin",
+            "Tüm odaların bir ızgarasını görmek için Odalar bölümüne gidin — durumlar: Boş, Dolu, Temizlik, Bakım, Bloke",
+            "Durumu değiştirmek veya düzenlemek için bir odaya tıklayın",
+            "\"Temizlik\" durumunu seçmek, Kat hizmetleri panosunda ve Personel portalında gerçek zamanlı görünen bir temizlik görevini otomatik olarak oluşturur"
+          ]
+        },
+        {
+          "icon": "📅",
+          "title": "Rezervasyonlar",
+          "steps": [
+            "+ Yeni rezervasyon’a tıklayın: misafir, oda tipi, oda, tarihler, fiyat",
+            "Sistem tutarı otomatik olarak hesaplar: gece sayısı × gece başına fiyat",
+            "Durum: Talep → Onaylandı → Mevcut → Çıkış yaptı",
+            "Müsaitlik takvimi 14 günü Gantt görünümünde gösterir — yeni bir rezervasyon için boş bir döneme tıklayın"
+          ]
+        },
+        {
+          "icon": "🔗",
+          "title": "Çevrimiçi rezervasyon",
+          "steps": [
+            "Misafirler doğrudan restby.me/slug/book adresinden rezervasyon yapabilir",
+            "Sayfa mevcut oda tiplerini, fiyatları ve bir rezervasyon formunu gösterir",
+            "Rezervasyonda otomatik olarak bir e-posta onayı gönderilir",
+            "Rezervasyon bağlantısı ayrıca herkese açık otel sayfasında (/hotel) ve Guest App’te mevcuttur"
+          ]
+        },
+        {
+          "icon": "🛎️",
+          "title": "Front Desk — Check-in",
+          "steps": [
+            "Bugün check-in sekmesi, bugün için tüm onaylanmış rezervasyonları gösterir",
+            "Check-in ✓’ye tıklayın — sistem rezervasyon durumunu Mevcut, odayı Dolu olarak değiştirir ve açık bir folio oluşturur",
+            "Front Desk sayfası mobil cihazlar için uyarlanmıştır — mobilde tablo yerine kartlar"
+          ]
+        },
+        {
+          "icon": "🛎️",
+          "title": "Front Desk — Check-out",
+          "steps": [
+            "Check-out sekmesi, ayrılması gereken tüm mevcut misafirleri gösterir",
+            "Check-out’tan önce folio’yu inceleyin",
+            "Check-out ✓’ye tıklayın — rezervasyon durumu → Çıkış yaptı, oda → Temizlik, folio → kapalı",
+            "Front Desk sayfası mobil cihazlar için uyarlanmıştır — resepsiyon telefondan check-in/check-out yapabilir"
+          ]
+        },
+        {
+          "icon": "📋",
+          "title": "Folio sistemi",
+          "steps": [
+            "Folio check-in’de otomatik olarak açılır",
+            "Tüm masrafları gösterir: oda, restoran siparişleri, minibar, spa, diğer",
+            "Bir masrafı manuel eklemek için + Öğe ekle’ye tıklayın",
+            "Hızlı düğmeler: 🥤 Minibar (minibar masrafı) ve 🛍️ Ürün sat (spa retail)",
+            "Restoranın \"Odaya yansıt\" siparişleri folio’ya otomatik olarak eklenir",
+            "Folio ile ödenen spa tedavileri otomatik olarak eklenir",
+            "Check-out’ta folio’yu kapatın — ödemeyi tamamlandı olarak işaretler"
+          ]
+        },
+        {
+          "icon": "🥤",
+          "title": "Minibar",
+          "steps": [
+            "Fiyat listesini tanımlamak için Otel → Minibar bölümüne gidin (ad + fiyat): su, meyve suyu, bira...",
+            "Hızlı başlangıç: 📚 Kütüphaneden → hazır öğeleri seçin ve bir kerede içe aktarın",
+            "Misafir başına masraf: misafir folio’sunu açın → 🥤 Minibar → öğe ve miktarı seçin",
+            "Öğe folio’ya \"Minibar: <ad>\" olarak eklenir ve bakiyeye girer",
+            "Minibar stoğa göre takip edilmez (odalarda manuel doldurulur) — yalnızca folio’ya masraf yansıtılır"
+          ]
+        },
+        {
+          "icon": "🧹",
+          "title": "Kat hizmetleri",
+          "steps": [
+            "Temizlik görevleri her check-out’ta otomatik olarak oluşturulur (oda → Temizlik); yönetici panosundan manuel olarak da oluşturulabilir",
+            "Kat görevlileri görevleri Personel portalında (/slug/staff) gerçek zamanlı görür — durum değişiklikleri (Başlat → Bitir → Doğrula) sayfayı yenilemeden yönetici panosuna da anında yansır",
+            "Yönetici tüm odaların durumunu Kat hizmetleri panosunda takip eder",
+            "Bir kat görevlisi bir odayı Temiz olarak işaretler → durum otomatik olarak Boş olarak değişir"
+          ]
+        },
+        {
+          "icon": "🔑",
+          "title": "Otel misafirleri için Guest App",
+          "steps": [
+            "Misafirler Guest App’e restby.me/slug/guest adresinden erişir",
+            "Giriş: e-posta + e-posta onayından 8 karakterli rezervasyon kodu",
+            "Guest App şunları gösterir: konaklama ayrıntıları, folio masrafları, oda talepleri (kat hizmetleri, oda servisi...) ve spa rezervasyonu",
+            "Oda talepleri Front Desk Talepler sekmesinde gerçek zamanlı görünür"
+          ]
+        },
+        {
+          "icon": "🍽️",
+          "title": "Restoran ile entegrasyon",
+          "steps": [
+            "Bir garson bir siparişi otel odasına yansıtabilir — servis edilen bir siparişte Odaya yansıt’a tıklayın",
+            "Oda numarasını girin — sistem misafirin açık bir folio’su olup olmadığını kontrol eder",
+            "Tutar otomatik olarak misafir folio’suna eklenir",
+            "\"Odaya yansıt\" düğmesi Personel portalında da (garson modülü) bulunur — yalnızca yönetici panelinde değil"
+          ]
+        },
+        {
+          "icon": "💹",
+          "title": "Gelir yönetimi",
+          "steps": [
+            "Pano ADR’yi (ortalama oda fiyatı), RevPAR ve Doluluk Oranını gösterir",
+            "Haftaya ve aya göre eğilim grafikleri",
+            "Fiyat planları: oda tipine göre mevsimsel veya hafta içi/hafta sonu fiyatları girin",
+            "Analitiği PDF/Excel’e aktarın"
+          ]
+        }
+      ],
+      "tips": [
+        "Müsaitlik takvimi doluluğu görmenin en hızlı yoludur — her gün kullanın",
+        "Folio check-in’de otomatik olarak oluşturulur — manuel olarak oluşturmanıza gerek yoktur",
+        "Minibar ve spa retail doğrudan misafir folio’sundan yansıtılır (🥤 / 🛍️ düğmeleri)",
+        "Temizlik görevleri otomatik olarak oluşturulur — kat görevlileri bunları yalnızca Personel portalında görür",
+        "Guest App bağlantısı rezervasyon e-posta onayında otomatik olarak gönderilir",
+        "Herkese açık otel web sayfası (restby.me/slug/hotel) Otel → Otel web sitesi bölümünde düzenlenir",
+        "Rezervasyonlar, Kat hizmetleri ve Gelir yönetimi sayfaları mobil uyumludur — mobil cihazlarda tablolar yerine kartlar",
+        "Hızlı ilk kurulum için kontrol panelindeki „📋 Kılavuz: Otel\"i kullanın (Otel başlığının yanında) — sizi oda tipi, odalar ve rezervasyon süresi boyunca yönlendirir",
+        "Çevrimiçi misafir ödemeleri (rezervasyon/folio) Otel → Ödemeler bölümünde kurulur (Karadağ için Monri, test için Stripe)"
+      ]
+    },
+    "spa": {
+      "title": "Spa & Wellness — kılavuz",
+      "intro": "Eksiksiz spa merkezi yönetimi: tedavi kataloğu, terapistler, odalar, rezervasyon, takvim ve analitik.",
+      "sections": [
+        {
+          "icon": "💆",
+          "title": "Tedaviler (katalog)",
+          "steps": [
+            "Hızlı başlangıç: 📚 Kütüphaneden → hazır tedavileri içe aktarın (fiyat ve ayrıntıları sonra düzenleyin)",
+            "Hizmet kataloğunu tanımlamak için Tedaviler bölümüne gidin (masajlar, yüz bakımı, wellness...)",
+            "Her tedavi için şunları girin: ad, kategori, süre, randevular arası buffer ve fiyat",
+            "Hangi oda tiplerinin bu tedaviyi alabileceğini işaretleyin (treatment room, wet facility...)",
+            "requires_consultation olan tedaviler rezervasyonda önceden bir danışma gerektirir"
+          ]
+        },
+        {
+          "icon": "👤",
+          "title": "Terapistler",
+          "steps": [
+            "Profilleri yönetmek için Terapistler bölümüne gidin — bir terapist İK modülünde çalışan olarak oluşturulmalıdır",
+            "Uzmanlık alanları (deep tissue, hot stone, yüz bakımı...) ve dilleri ekleyin",
+            "Terapisti yapabileceği tedavilerle ilişkilendirin",
+            "Bir terapisti tek tıklamayla müsaitlikten hariç tutun (ör. hastalık izni veya izin günü)"
+          ]
+        },
+        {
+          "icon": "🚪",
+          "title": "Odalar",
+          "steps": [
+            "Alanları tanımlamak için Odalar bölümüne gidin (Oda 1, Sauna, Hamam, Havuz...)",
+            "Her odanın bir tipi (treatment_room, wet_facility, group...) ve kapasitesi vardır",
+            "Tedaviler uyumlu odalara otomatik olarak eşlenir"
+          ]
+        },
+        {
+          "icon": "📅",
+          "title": "Takvim ve randevular",
+          "steps": [
+            "Spa Takvimi terapiste göre bir Gantt gösterir — her satır bir terapist, sütunlar zaman dilimleridir",
+            "Rezerve edilen randevular renkli çubuklar olarak gösterilir",
+            "Tarihe ve duruma göre filtrelerle tüm randevuların bir listesi için Randevular bölümüne gidin",
+            "Ayrıntıları, notları görmek veya no-show işaretlemek için bir randevuya tıklayın"
+          ]
+        },
+        {
+          "icon": "🌐",
+          "title": "Herkese açık rezervasyon",
+          "steps": [
+            "Misafirler tedavileri restby.me/slug/spa adresinden rezerve eder",
+            "Akış: tedavi seçimi → terapist (isteğe bağlı) → tarih ve boş dilim → ödeme (otel misafirleri için folio, harici için kart)",
+            "Otel misafirleri ayrıca doğrudan Guest App’ten (Spa sekmesi) rezervasyon yapabilir",
+            "E-posta onayı ve hatırlatıcı otomatik olarak gönderilir"
+          ]
+        },
+        {
+          "icon": "📊",
+          "title": "Spa analitiği",
+          "steps": [
+            "Tedavi başına gelire, terapist başına kullanım oranına ve no-show oranlarına genel bakış",
+            "Otel misafirleri ve harici misafirler oranı",
+            "CSV formatına aktarın"
+          ]
+        },
+        {
+          "icon": "🎁",
+          "title": "Paketler",
+          "steps": [
+            "Kombine teklifler oluşturmak için Paketler bölümüne gidin (ör. Romantic getaway: 2 gece + 2 tedavi)",
+            "Bir paket şunları içerebilir: oda tipi, spa tedavileri ve nelerin dahil olduğunun açıklaması",
+            "Misafirler herkese açık spa sayfasında bir paket seçer"
+          ]
+        },
+        {
+          "icon": "⭐",
+          "title": "Değerlendirmeler ve puanlar",
+          "steps": [
+            "Tamamlanan bir randevudan sonra misafir tedaviyi puanlar (1–5 yıldız) — otel misafirleri için Guest App’te (Spa sekmesi)",
+            "Terapist puanı tüm değerlendirmelerin ortalaması olarak otomatik hesaplanır",
+            "Ortalama puan (★) Terapistler sayfasında her terapistin yanında gösterilir"
+          ]
+        },
+        {
+          "icon": "🛍️",
+          "title": "Perakende satış",
+          "steps": [
+            "Satış için ürünleri (yağlar, kremler...) fiyat ve stokla tanımlamak için Retail bölümüne gidin",
+            "Satış misafir folio’sundan geçer: folio’yu açın → 🛍️ Ürün sat → ürünü ve miktarı seçin",
+            "Stok otomatik olarak düşülür; tutar misafir folio’suna eklenir",
+            "Mevcut stoğun üzerindeki satışlar engellenir"
+          ]
+        }
+      ],
+      "tips": [
+        "Randevular arası bir buffer (ör. 15 dk), terapistin ve odanın hazırlık için boş olmasını sağlar",
+        "Folio entegrasyonu: bir otel misafirinin spa tedavisi folio’ya otomatik olarak eklenir",
+        "Harici misafirler bir tedaviyi çevrimiçi kartla ödeyebilir (aktif bir ödeme sağlayıcısı gerekir)",
+        "Misafir menüsündeki spa bağlantısı görünürlüğü Menü ayarları → Görünürlük bölümünde ayarlanır",
+        "Bir terapistin terapist listesinde görünmesi için İK modülünde çalışan olması gerekir",
+        "Herkese açık spa sayfası herkese görünür — otel rezervasyonu gerekmez",
+        "Perakende ürünler misafir folio’sundan satılır (🛍️ Ürün sat); stok otomatik olarak takip edilir"
+      ]
+    },
+    "settings": {
+      "title": "Ayarlar — kılavuz",
+      "intro": "Mekanın temel bilgileri, logo ve abonelik yönetimi.",
+      "sections": [
+        {
+          "icon": "🖼️",
+          "title": "Logo",
+          "steps": [
+            "JPG, PNG veya WebP formatında bir logo yükleyin (maks 2MB)",
+            "Logo misafir menüsünde, yönetici panelinde ve e-posta bildirimlerinde gösterilir",
+            "Önerilen format: kare (1:1), min 200×200px",
+            "Beyaz veya şeffaf arka plan tüm arka planlarda en iyi görünür"
+          ]
+        },
+        {
+          "icon": "📋",
+          "title": "Temel bilgiler",
+          "steps": [
+            "Mekanın adını, konumunu, telefonunu, çalışma saatlerini ve açıklamasını girin",
+            "Bu bilgiler misafirlere misafir menüsünde restoran adının altında gösterilir",
+            "Değişiklikler kaydetmeden hemen sonra misafirlere görünür"
+          ]
+        },
+        {
+          "icon": "💳",
+          "title": "Abonelik",
+          "steps": [
+            "Mevcut plana ve aktif eklenti modüllerine genel bakış",
+            "Abonelik ve faturalandırma yönetimi",
+            "Eklenti modülleri (Otel, Spa) burada etkinleştirilir"
+          ]
+        }
+      ],
+      "tips": [
+        "Menü görsel ayarları (şablonlar, renkler) Dijital menü → Menü ayarları → Şablonlar bölümündedir",
+        "Misafir menüsündeki özellik görünürlüğü Dijital menü → Menü ayarları → Görünürlük bölümünde ayarlanır",
+        "Restoran web sitesi Dijital menü → Restoran web sitesi bölümünde düzenlenir",
+        "Otel web sitesi Otel → Otel web sitesi bölümünde düzenlenir",
+        "Çevrimiçi ödeme (Monri/Stripe) Otel → Ödemeler bölümünde kurulur; kurulum kılavuzları kontrol panelinde Restoran/Otel başlığının yanındadır",
+        "Yönetici paneli teması ve renkleri (yeşil/mavi/mor + özel paletler) superadmin tarafından ayarlanır: /superadmin → tenant → Tema; karanlık mod kenar çubuğundaki ☀️/🌙 anahtarıdır"
+      ]
+    }
+  }
+}

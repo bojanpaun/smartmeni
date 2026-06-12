@@ -1,0 +1,688 @@
+{
+  "tipsLabel": "Tips",
+  "notAvailable": "Help for this module is not available.",
+  "content": {
+    "menu": {
+      "title": "Digital menu — guide",
+      "intro": "This module lets you manage the digital menu, orders, bar and kitchen workflow, and the restaurant’s public website.",
+      "sections": [
+        {
+          "icon": "🗂️",
+          "title": "Menu categories and items",
+          "steps": [
+            "Go to Edit menu",
+            "Click + Category to add a new category (e.g. Starters, Fish, Drinks)",
+            "For bar items (cocktails, alcohol...) enable the Is bar category toggle — these items go to the Bar station, not the kitchen",
+            "Inside a category click + Add dish and fill in name, description, price and image",
+            "You can mark dishes as Daily special — they show prominently in the guest menu"
+          ]
+        },
+        {
+          "icon": "🧾",
+          "title": "Orders",
+          "steps": [
+            "In the Orders section you track all active orders in real time",
+            "Each order has a status per station: kitchen and bar are tracked separately",
+            "Order status: Received → in preparation (kitchen/bar) → Ready → Served",
+            "The waiter sees the status of each item — no need to call the kitchen to ask",
+            "The waiter Staff portal (/slug/staff) shows station statuses in real time — 🧑‍🍳 Kitchen preparing/ready, 🍷 Bar preparing/ready — identical to the admin view"
+          ]
+        },
+        {
+          "icon": "🧑‍🍳",
+          "title": "Kitchen and Bar — separate stations",
+          "steps": [
+            "Kitchen and Bar are separate tabs in the admin sidebar, each with a realtime badge",
+            "The Kitchen shows only orders that contain kitchen items (without bar categories)",
+            "The Bar shows only orders with bar items (categories marked Is bar)",
+            "Kitchen and bar staff work completely independently — each sees only their own",
+            "An order is ready for the waiter only when both stations have marked their part as Ready"
+          ]
+        },
+        {
+          "icon": "🔔",
+          "title": "Waiter requests",
+          "steps": [
+            "Guests send requests from the menu (Call waiter, Bring bill...)",
+            "A new request appears as a red badge on the Requests tab in the sidebar",
+            "The waiter selects the request, writes a short reply and marks it Resolved",
+            "The messages guests see are defined in Menu settings → Messages"
+          ]
+        },
+        {
+          "icon": "⚙️",
+          "title": "Menu settings — tabs",
+          "steps": [
+            "General: name, location, phone, working hours, description, brand color, QR session duration",
+            "Visibility: for each feature choose who sees it (Off / Registered / Everyone) — ordering, waiter, reservations, guest registration, hotel link, spa link",
+            "Messages: customize the messages guests choose for calling the waiter and the order rejection messages",
+            "Templates: choose the visual style of the guest menu from available templates — the change is instant"
+          ]
+        },
+        {
+          "icon": "🌐",
+          "title": "Restaurant website",
+          "steps": [
+            "In the sidebar click Restaurant website to open the visual editor of the public web page",
+            "The editor is split: form on the left, live preview on the right that updates as you type",
+            "Blocks (Hero, Story, Gallery, Specialties...) are toggled on/off and reordered by drag & drop",
+            "Each block has a layout choice (layout variants) and fields for content and images",
+            "Click Save to publish changes — the page is available at restby.me/your-slug/home"
+          ]
+        },
+        {
+          "icon": "📱",
+          "title": "Restaurant QR code",
+          "steps": [
+            "Go to QR code for a general QR that leads to the menu without table info",
+            "Use it at the entrance, business card, social media or the menu",
+            "For table orders use the QR codes from the Tables module (each table has its own QR)"
+          ]
+        }
+      ],
+      "tips": [
+        "Bar categories are key for the correct workflow — every drink category should be marked Is bar",
+        "Templates and brand color together build the visual identity of the guest menu",
+        "A per-table QR (Tables module) is recommended for daily use because it tracks which table an order comes from",
+        "You can turn off ordering visibility for unregistered guests — useful for VIP views or demo mode",
+        "The restaurant website and guest menu are separate: the menu is for table orders, the website is a public web page",
+        "A waiter can charge an order to a room directly from the Staff portal (not only from the admin) — visible when the Hotel module is active"
+      ]
+    },
+    "staff": {
+      "title": "Roles and permissions — guide",
+      "intro": "This module is for creating and managing roles. Assigning roles to employees is done in the HR → Employees module.",
+      "sections": [
+        {
+          "icon": "🔑",
+          "title": "Creating a role",
+          "steps": [
+            "Click + New role or choose a template (Waiter, Kitchen, Bar, Manager, Reception, Spa therapist...)",
+            "Enter the role name",
+            "Permissions are grouped by module (horizontal tabs): Restaurant, Hotel, Spa...",
+            "Click Select all for one module or check granular permissions manually",
+            "Save the role"
+          ]
+        },
+        {
+          "icon": "👤",
+          "title": "Assigning a role to an employee",
+          "steps": [
+            "Roles are assigned in the HR → Employees module",
+            "One employee can have multiple roles at once (e.g. Waiter + Bar)",
+            "Changes are instant — the employee immediately gets the new rights"
+          ]
+        },
+        {
+          "icon": "📱",
+          "title": "Staff portal (/slug/staff)",
+          "steps": [
+            "Employees access the operational view at restby.me/your-slug/staff",
+            "The waiter sees orders with station statuses (🧑‍🍳 Kitchen preparing/ready, 🍷 Bar preparing/ready) and can charge an order to a hotel room (when the Hotel module is active)",
+            "A housekeeper sees housekeeping tasks and maintenance requests in real time — status changes (Start → Finish → Verify) are immediately reflected on the admin dashboard too",
+            "Reception can do check-in/check-out from a mobile device — the Front Desk page is mobile-friendly",
+            "No admin account needed — employees sign in with their own credentials"
+          ]
+        },
+        {
+          "icon": "🔒",
+          "title": "Access security",
+          "steps": [
+            "Employees see only the modules they have permission for",
+            "The owner always has full access",
+            "You can change permissions at any time",
+            "A role can be deleted only if it is not assigned to any employee"
+          ]
+        }
+      ],
+      "tips": [
+        "A waiter typically needs: orders, waiter requests, table view",
+        "The kitchen needs: orders (kitchen view) — without access to other modules",
+        "A housekeeper needs: housekeeping tasks — without access to administration",
+        "Reception needs: hotel front desk, reservations, folio",
+        "A manager can have HR and analytics in addition to operational functions"
+      ]
+    },
+    "tables": {
+      "title": "Tables — guide",
+      "intro": "Drawing the table map, tracking status in real time, reservations and per-table QR codes.",
+      "sections": [
+        {
+          "icon": "🗺️",
+          "title": "Drawing the table map",
+          "steps": [
+            "Go to Table settings",
+            "Click Square table or Round table in the toolbar to add a table",
+            "Click the canvas to place the table where you want",
+            "Drag the table with the mouse to change its position",
+            "Click a table to edit its name, number of seats and shape",
+            "Use the resize handle (bottom-right corner) to change the size",
+            "Click Save map when done"
+          ]
+        },
+        {
+          "icon": "👁",
+          "title": "Waiter view",
+          "steps": [
+            "Go to Table view for a realtime overview",
+            "Free tables are white, occupied orange, reserved blue",
+            "A red table with animation means a guest is calling the waiter",
+            "Click a table to see active orders and the total bill",
+            "The page refreshes automatically"
+          ]
+        },
+        {
+          "icon": "📅",
+          "title": "Reservations",
+          "steps": [
+            "Go to Reservations to manage reservations",
+            "Click + New reservation and fill in guest details",
+            "On the map inside the form click a table to select it visually",
+            "Use the Calendar view to see which days are busy"
+          ]
+        },
+        {
+          "icon": "🌐",
+          "title": "Online reservations",
+          "steps": [
+            "Enable the Online reservations toggle in settings",
+            "Guests send requests at restby.me/your-slug/reservation",
+            "Each request has a Pending status until you approve it",
+            "Confirmed reservations show on the waiter map"
+          ]
+        },
+        {
+          "icon": "📱",
+          "title": "Per-table QR codes",
+          "steps": [
+            "Click a table in the editor, then the QR code button",
+            "Each table has a unique QR that leads to the menu with the table number",
+            "Download and print — stick one on each table separately",
+            "When a guest scans and calls the waiter, the waiter sees exactly which table is calling"
+          ]
+        }
+      ],
+      "tips": [
+        "A per-table QR is recommended for daily use — it tracks orders by table",
+        "The map saves automatically — guests and waiter see changes immediately",
+        "Reserved tables show in blue with times on the waiter map"
+      ]
+    },
+    "inventory": {
+      "title": "Inventory — guide",
+      "intro": "Tracking ingredients and finished products, inflows/outflows and automatic stock deduction on order.",
+      "sections": [
+        {
+          "icon": "📦",
+          "title": "Adding inventory items",
+          "steps": [
+            "Go to Inventory and click + New item",
+            "Enter the name, category and unit of measure",
+            "Set the current quantity and the minimum quantity (warning threshold)",
+            "Optionally enter the cost per unit to track expenses"
+          ]
+        },
+        {
+          "icon": "±",
+          "title": "Stock movements",
+          "steps": [
+            "Click ± next to an item for a manual inflow or outflow",
+            "In — new delivery, Out — waste, Adjustment — directly set a new quantity (stocktaking)",
+            "Each movement is recorded in the Movements history"
+          ]
+        },
+        {
+          "icon": "🧪",
+          "title": "Recipes",
+          "steps": [
+            "Go to Recipes to define which ingredients each dish consumes",
+            "Add ingredients and set the quantity per portion",
+            "When an order is received, stock is automatically deducted according to the recipe"
+          ]
+        },
+        {
+          "icon": "⚠️",
+          "title": "Warnings",
+          "steps": [
+            "Items below the minimum have an orange indicator",
+            "Click the Low stock filter to see only critical items",
+            "Update the quantity via ± when new stock arrives"
+          ]
+        }
+      ],
+      "tips": [
+        "Automatic deduction works only if recipes are defined for menu items",
+        "Adjustment is useful for reconciling the count after a physical stocktake",
+        "Spa consumables (oils, creams) are tracked in the same module — use the Spa category"
+      ]
+    },
+    "hr": {
+      "title": "HR module — guide",
+      "intro": "Complete employee management: profiles, schedules, attendance, leave, payroll and reports.",
+      "sections": [
+        {
+          "icon": "👤",
+          "title": "Employees",
+          "steps": [
+            "Add an employee by email address — create an account right away or send a registration link",
+            "Enter wage details (hourly, weekly or monthly)",
+            "The employee profile has tabs: Basic info, Employment, Finances, Leave, History",
+            "The role is assigned in the Employment tab — an employee can have multiple roles"
+          ]
+        },
+        {
+          "icon": "📅",
+          "title": "Work schedule",
+          "steps": [
+            "Weekly view: click a cell to add a shift",
+            "One employee can have multiple shifts on the same day",
+            "Daily view: horizontal timeline (06:00–23:00) — yellow blocks are uncovered periods",
+            "Copy the previous week with the ↩ button for faster filling"
+          ]
+        },
+        {
+          "icon": "🕐",
+          "title": "Attendance log",
+          "steps": [
+            "The employee clicks Clock in and Clock out via the Staff portal",
+            "The admin can manually add or correct an entry for any date",
+            "The system automatically calculates total work hours per day"
+          ]
+        },
+        {
+          "icon": "🌴",
+          "title": "Leave",
+          "steps": [
+            "Types: Annual leave, Sick leave, Unpaid, Other",
+            "Each leave can be Pending or Approved — click Approve or Reject",
+            "Used annual leave days are calculated automatically"
+          ]
+        },
+        {
+          "icon": "💰",
+          "title": "Payroll",
+          "steps": [
+            "Add items: daily wage, bonus, deduction, overtime or advance",
+            "Generate a payslip for the selected period",
+            "Payslip: Draft → Approved → Paid"
+          ]
+        },
+        {
+          "icon": "📊",
+          "title": "Reports",
+          "steps": [
+            "Overview of work hours and costs per employee for the selected period",
+            "Export to CSV for further processing in Excel"
+          ]
+        }
+      ],
+      "tips": [
+        "An employee must have an account with the same email to be able to sign in and see their own schedule",
+        "Roles are defined in Administrative settings → Roles and permissions",
+        "The Staff portal (restby.me/slug/staff) is the operational view for employees — without admin access",
+        "Use the daily schedule view for a quick check of shift coverage"
+      ]
+    },
+    "guests": {
+      "title": "Guests — guide",
+      "intro": "A record of guests who registered via the guest menu, visit and spending history.",
+      "sections": [
+        {
+          "icon": "👤",
+          "title": "Guest list",
+          "steps": [
+            "Guests are automatically added to the record when they register via the guest menu",
+            "Each guest has a profile with basic details (name, email, phone)",
+            "Search guests by name or email",
+            "Click a guest to see details: order history, total spending and notes"
+          ]
+        },
+        {
+          "icon": "🏨",
+          "title": "Hotel guests",
+          "steps": [
+            "Guests who had a hotel reservation are automatically in the record",
+            "Hotel guests can access the Guest App (restby.me/slug/guest) with a reservation code",
+            "The Guest App shows: stay details, folio charges, room requests and spa booking"
+          ]
+        },
+        {
+          "icon": "🔍",
+          "title": "Filters and search",
+          "steps": [
+            "Filter guests by first visit date or total spending",
+            "A VIP tag can be assigned manually to guests with high spending",
+            "Export the list for marketing or analytics"
+          ]
+        }
+      ],
+      "tips": [
+        "Guest registration in the guest menu can be turned off in Menu settings → Visibility",
+        "Hotel guests are automatically in the record — no manual entry needed",
+        "The loyalty program (future phase) will use this base for points and rewards"
+      ]
+    },
+    "analytics": {
+      "title": "Analytics — guide",
+      "intro": "Overview of revenue, best-selling dishes, trends and detailed reports by period.",
+      "sections": [
+        {
+          "icon": "📊",
+          "title": "Revenue overview",
+          "steps": [
+            "Choose a period (today, week, month or a custom range)",
+            "Charts show revenue and order count per day",
+            "Compare with the previous period to see the trend"
+          ]
+        },
+        {
+          "icon": "🏆",
+          "title": "Best-selling dishes",
+          "steps": [
+            "A list of dishes sorted by number of portions sold",
+            "Click a dish to see details by day",
+            "Use this data to optimize the menu and inventory"
+          ]
+        },
+        {
+          "icon": "📤",
+          "title": "Export",
+          "steps": [
+            "Click Export PDF for a print-ready report",
+            "Export Excel gives a tabular view for further processing",
+            "Both formats include the selected time period"
+          ]
+        }
+      ],
+      "tips": [
+        "Compare revenue by day of week to identify the busiest periods",
+        "Revenue by category helps you decide where to invest in the menu",
+        "Hotel Revenue Management (RevPAR, ADR, Occupancy) is in the Hotel → Revenue management module"
+      ]
+    },
+    "hotel": {
+      "title": "Hotel Core — guide",
+      "intro": "Complete hotel management: rooms, reservations, availability calendar, front desk, folio, housekeeping, online booking and a Guest App for guests.",
+      "sections": [
+        {
+          "icon": "📊",
+          "title": "Dashboard",
+          "steps": [
+            "The dashboard shows an occupancy widget with the occupancy percentage and statistics",
+            "Arrivals today — all reservations with a check-in date today",
+            "Quick links: Front Desk, Reservations, Calendar, Rooms"
+          ]
+        },
+        {
+          "icon": "🛏️",
+          "title": "Rooms and room types",
+          "steps": [
+            "Go to Room types to define categories (Standard, Deluxe, Suite...)",
+            "For each type enter name, description, max occupancy, base price and amenities",
+            "Go to Rooms to see a grid of all rooms — statuses: Free, Occupied, Cleaning, Maintenance, Blocked",
+            "Click a room to change its status or edit it",
+            "Choosing the \"Cleaning\" status automatically creates a housekeeping task visible in real time in the Housekeeping dashboard and Staff portal"
+          ]
+        },
+        {
+          "icon": "📅",
+          "title": "Reservations",
+          "steps": [
+            "Click + New reservation: guest, room type, room, dates, price",
+            "The system automatically calculates the amount: number of nights × price per night",
+            "Status: Inquiry → Confirmed → Present → Checked out",
+            "The availability calendar shows 14 days in a Gantt view — click a free period for a new reservation"
+          ]
+        },
+        {
+          "icon": "🔗",
+          "title": "Online booking",
+          "steps": [
+            "Guests can book directly at restby.me/slug/book",
+            "The page shows available room types, prices and a booking form",
+            "An email confirmation is sent automatically on reservation",
+            "The booking link is also available on the public hotel page (/hotel) and the Guest App"
+          ]
+        },
+        {
+          "icon": "🛎️",
+          "title": "Front Desk — Check-in",
+          "steps": [
+            "The Check-in today tab shows all confirmed reservations for today",
+            "Click Check-in ✓ — the system changes the reservation status to Present, the room to Occupied and creates an open folio",
+            "The Front Desk page is adapted for mobile devices — cards instead of a table on mobile"
+          ]
+        },
+        {
+          "icon": "🛎️",
+          "title": "Front Desk — Check-out",
+          "steps": [
+            "The Check-out tab shows all present guests who need to leave",
+            "Review the folio before check-out",
+            "Click Check-out ✓ — reservation status → Checked out, room → Cleaning, folio → closed",
+            "The Front Desk page is adapted for mobile devices — reception can do check-in/check-out from a phone"
+          ]
+        },
+        {
+          "icon": "📋",
+          "title": "Folio system",
+          "steps": [
+            "The folio opens automatically at check-in",
+            "It shows all charges: room, restaurant orders, minibar, spa, other",
+            "Click + Add item to manually add a charge",
+            "Quick buttons: 🥤 Minibar (minibar charge) and 🛍️ Sell product (spa retail)",
+            "Restaurant \"Charge to room\" orders are automatically added to the folio",
+            "Spa treatments paid via folio are added automatically",
+            "Close the folio at check-out — marks payment complete"
+          ]
+        },
+        {
+          "icon": "🥤",
+          "title": "Minibar",
+          "steps": [
+            "Go to Hotel → Minibar to define the price list (name + price): water, juice, beer...",
+            "Quick start: 📚 From library → select and import ready items at once",
+            "Charge per guest: open the guest folio → 🥤 Minibar → choose item and quantity",
+            "The item is added to the folio as \"Minibar: <name>\" and enters the balance",
+            "The minibar is not tracked by stock (refilled manually in rooms) — only the folio is charged"
+          ]
+        },
+        {
+          "icon": "🧹",
+          "title": "Housekeeping",
+          "steps": [
+            "Housekeeping tasks are created automatically at every check-out (room → Cleaning); they can also be created manually from the admin dashboard",
+            "Housekeepers see tasks in the Staff portal (/slug/staff) in real time — status changes (Start → Finish → Verify) are immediately reflected on the admin dashboard without refreshing the page",
+            "The admin tracks the status of all rooms in the Housekeeping dashboard",
+            "A housekeeper marks a room as Clean → the status automatically changes to Free"
+          ]
+        },
+        {
+          "icon": "🔑",
+          "title": "Guest App for hotel guests",
+          "steps": [
+            "Guests access the Guest App at restby.me/slug/guest",
+            "Login: email + 8-character reservation code from the email confirmation",
+            "The Guest App shows: stay details, folio charges, room requests (housekeeping, room service...) and spa booking",
+            "Room requests appear in real time on the Front Desk Requests tab"
+          ]
+        },
+        {
+          "icon": "🍽️",
+          "title": "Integration with the restaurant",
+          "steps": [
+            "A waiter can charge an order to a hotel room — click Charge to room on a served order",
+            "Enter the room number — the system checks whether the guest has an open folio",
+            "The amount is automatically added to the guest folio",
+            "The \"Charge to room\" button also exists in the Staff portal (waiter module) — not only in the admin panel"
+          ]
+        },
+        {
+          "icon": "💹",
+          "title": "Revenue management",
+          "steps": [
+            "The dashboard shows ADR (average daily rate), RevPAR and Occupancy Rate",
+            "Trend charts by week and month",
+            "Price plans: enter seasonal or weekday/weekend prices per room type",
+            "Export analytics to PDF/Excel"
+          ]
+        }
+      ],
+      "tips": [
+        "The availability calendar is the fastest way to see occupancy — use it daily",
+        "The folio is created automatically at check-in — you don’t need to create it manually",
+        "Minibar and spa retail are charged directly from the guest folio (🥤 / 🛍️ buttons)",
+        "Housekeeping tasks are created automatically — housekeepers see them only in the Staff portal",
+        "The Guest App link is sent automatically in the reservation email confirmation",
+        "The public hotel web page (restby.me/slug/hotel) is edited in Hotel → Hotel website",
+        "The Reservations, Housekeeping and Revenue management pages are mobile-friendly — cards instead of tables on mobile devices",
+        "For quick initial setup use the “📋 Guide: Hotel” on the control panel (next to the Hotel title) — it walks you through room type, rooms and booking time",
+        "Online guest payments (booking/folio) are set up in Hotel → Payments (Monri for Montenegro, Stripe for testing)"
+      ]
+    },
+    "spa": {
+      "title": "Spa & Wellness — guide",
+      "intro": "Complete spa center management: treatment catalog, therapists, rooms, booking, calendar and analytics.",
+      "sections": [
+        {
+          "icon": "💆",
+          "title": "Treatments (catalog)",
+          "steps": [
+            "Quick start: 📚 From library → import ready treatments (refine price and details later)",
+            "Go to Treatments to define the service catalog (massages, facial, wellness...)",
+            "For each treatment enter: name, category, duration, buffer between appointments and price",
+            "Mark which room types can host this treatment (treatment room, wet facility...)",
+            "Treatments with requires_consultation require a prior consultation at booking"
+          ]
+        },
+        {
+          "icon": "👤",
+          "title": "Therapists",
+          "steps": [
+            "Go to Therapists to manage profiles — a therapist must be created as an employee in the HR module",
+            "Add specializations (deep tissue, hot stone, facial...) and languages",
+            "Link the therapist with the treatments they can perform",
+            "Exclude a therapist from availability with one click (e.g. sick leave or day off)"
+          ]
+        },
+        {
+          "icon": "🚪",
+          "title": "Rooms",
+          "steps": [
+            "Go to Rooms to define spaces (Room 1, Sauna, Hammam, Pool...)",
+            "Each room has a type (treatment_room, wet_facility, group...) and capacity",
+            "Treatments are automatically mapped to compatible rooms"
+          ]
+        },
+        {
+          "icon": "📅",
+          "title": "Calendar and appointments",
+          "steps": [
+            "The Spa Calendar shows a Gantt by therapist — each row is a therapist, columns are time slots",
+            "Booked appointments are shown as colored bars",
+            "Go to Appointments for a list of all appointments with filters by date and status",
+            "Click an appointment to see details, notes or mark no-show"
+          ]
+        },
+        {
+          "icon": "🌐",
+          "title": "Public booking",
+          "steps": [
+            "Guests book treatments at restby.me/slug/spa",
+            "Flow: treatment selection → therapist (optional) → date and free slot → payment (folio for hotel guests, card for external)",
+            "Hotel guests can also book directly from the Guest App (Spa tab)",
+            "Email confirmation and reminder are sent automatically"
+          ]
+        },
+        {
+          "icon": "📊",
+          "title": "Spa analytics",
+          "steps": [
+            "Overview of revenue per treatment, utilization rate per therapist and no-show rates",
+            "Ratio of hotel guests vs. external guests",
+            "Export to CSV format"
+          ]
+        },
+        {
+          "icon": "🎁",
+          "title": "Packages",
+          "steps": [
+            "Go to Packages to create combined offers (e.g. Romantic getaway: 2 nights + 2 treatments)",
+            "A package can include: room type, spa treatments and a description of what is included",
+            "Guests choose a package on the public spa page"
+          ]
+        },
+        {
+          "icon": "⭐",
+          "title": "Reviews and ratings",
+          "steps": [
+            "After a completed appointment, the guest rates the treatment (1–5 stars) — in the Guest App (Spa tab) for hotel guests",
+            "The therapist rating is automatically calculated as the average of all reviews",
+            "The average rating (★) is shown next to each therapist on the Therapists page"
+          ]
+        },
+        {
+          "icon": "🛍️",
+          "title": "Retail sales",
+          "steps": [
+            "Go to Retail to define products for sale (oils, creams...) with price and stock",
+            "Sales go through the guest folio: open folio → 🛍️ Sell product → choose product and quantity",
+            "Stock is automatically deducted; the amount is added to the guest folio",
+            "Sales above available stock are blocked"
+          ]
+        }
+      ],
+      "tips": [
+        "A buffer between appointments (e.g. 15 min) ensures the therapist and room are free for preparation",
+        "Folio integration: a hotel guest’s spa treatment is automatically added to the folio",
+        "External guests can pay for a treatment by card online (an active payment provider is required)",
+        "Spa link visibility in the guest menu is set in Menu settings → Visibility",
+        "A therapist must be an employee in the HR module to appear in the therapist list",
+        "The public spa page is visible to everyone — no hotel reservation needed",
+        "Retail products are sold from the guest folio (🛍️ Sell product); stock is tracked automatically"
+      ]
+    },
+    "settings": {
+      "title": "Settings — guide",
+      "intro": "Basic venue details, logo and subscription management.",
+      "sections": [
+        {
+          "icon": "🖼️",
+          "title": "Logo",
+          "steps": [
+            "Upload a logo in JPG, PNG or WebP format (max 2MB)",
+            "The logo shows in the guest menu, admin panel and email notifications",
+            "Recommended format: square (1:1), min 200×200px",
+            "A white or transparent background looks best on all backgrounds"
+          ]
+        },
+        {
+          "icon": "📋",
+          "title": "Basic details",
+          "steps": [
+            "Enter the venue name, location, phone, working hours and description",
+            "These details show to guests in the guest menu below the restaurant name",
+            "Changes are visible to guests immediately after saving"
+          ]
+        },
+        {
+          "icon": "💳",
+          "title": "Subscription",
+          "steps": [
+            "Overview of the current plan and active addon modules",
+            "Subscription and billing management",
+            "Addon modules (Hotel, Spa) are activated here"
+          ]
+        }
+      ],
+      "tips": [
+        "Menu visual settings (templates, colors) are in Digital menu → Menu settings → Templates",
+        "Feature visibility in the guest menu is set in Digital menu → Menu settings → Visibility",
+        "The restaurant website is edited in Digital menu → Restaurant website",
+        "The hotel website is edited in Hotel → Hotel website",
+        "Online payment (Monri/Stripe) is set up in Hotel → Payments; setup guides are on the control panel next to the Restaurant/Hotel title",
+        "The admin panel theme and colors (green/blue/purple + custom palettes) are set by the superadmin: /superadmin → tenant → Theme; dark mode is the ☀️/🌙 toggle in the sidebar"
+      ]
+    }
+  }
+}
