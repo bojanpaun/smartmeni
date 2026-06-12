@@ -1,4 +1,5 @@
 import { useState, useEffect } from 'react'
+import { useTranslation } from 'react-i18next'
 import { supabase } from '../../../lib/supabase'
 import { usePlatform } from '../../../context/PlatformContext'
 import { planStatus, trialDaysLeft, PLAN_PRICING, ANNUAL_DISCOUNT } from '../../../lib/planUtils'
@@ -72,6 +73,7 @@ const PLANS = [
 const PLAN_ORDER = ['starter', 'restaurant', 'hotel', 'hotel_pro']
 
 export default function BillingPage() {
+  const { t } = useTranslation('admin')
   const { restaurant, subscription, setSubscription, plans: dbPlans, betaMode } = usePlatform()
   const [cycle, setCycle] = useState('annual') // 'monthly' | 'annual'
   const [loading, setLoading] = useState(false)
@@ -118,7 +120,7 @@ export default function BillingPage() {
     setError(null)
     try {
       const { data: { session } } = await supabase.auth.getSession()
-      if (!session) throw new Error('Nisi prijavljen')
+      if (!session) throw new Error(t('bpNotLoggedIn'))
       const res = await fetch(
         `${import.meta.env.VITE_SUPABASE_URL}/functions/v1/paypal-create-subscription`,
         {
@@ -138,7 +140,7 @@ export default function BillingPage() {
       )
       const data = await res.json()
       if (data.approve_url) window.location.href = data.approve_url
-      else throw new Error(data.error ?? 'Greška pri kreiranju pretplate')
+      else throw new Error(data.error ?? t('bpSubError'))
     } catch (err) {
       setError(err.message)
     } finally {
@@ -151,14 +153,13 @@ export default function BillingPage() {
   if (betaMode) return (
     <div className={styles.page}>
       <div className={styles.header}>
-        <h1 className={styles.title}>Pretplata i naplata</h1>
+        <h1 className={styles.title}>{t('bpTitle')}</h1>
       </div>
       <div className={styles.complimentaryCard}>
         <div className={styles.complimentaryIcon}>🧪</div>
-        <div className={styles.complimentaryTitle}>Beta period — sve besplatno</div>
+        <div className={styles.complimentaryTitle}>{t('bpBetaTitle')}</div>
         <div className={styles.complimentaryDesc}>
-          Tokom beta perioda svi moduli su besplatni. Planovi i naplata biće dostupni
-          kada beta period završi.
+          {t('bpBetaDesc')}
         </div>
       </div>
     </div>
@@ -168,13 +169,13 @@ export default function BillingPage() {
   if (status === 'complimentary') return (
     <div className={styles.page}>
       <div className={styles.header}>
-        <h1 className={styles.title}>Pretplata i naplata</h1>
+        <h1 className={styles.title}>{t('bpTitle')}</h1>
       </div>
       <div className={styles.complimentaryCard}>
         <div className={styles.complimentaryIcon}>🎁</div>
-        <div className={styles.complimentaryTitle}>Besplatni Pro pristup</div>
+        <div className={styles.complimentaryTitle}>{t('bpComplimentaryTitle')}</div>
         <div className={styles.complimentaryDesc}>
-          Vaš nalog ima aktiviran besplatni pristup sa svim funkcionalnostima.
+          {t('bpComplimentaryDesc')}
           {restaurant?.complimentary_note && (
             <div className={styles.complimentaryNote}>{restaurant.complimentary_note}</div>
           )}
@@ -186,24 +187,24 @@ export default function BillingPage() {
   return (
     <div className={styles.page}>
       <div className={styles.header}>
-        <h1 className={styles.title}>Pretplata i naplata</h1>
-        <p className={styles.subtitle}>Odaberi plan koji odgovara tvom objektu.</p>
+        <h1 className={styles.title}>{t('bpTitle')}</h1>
+        <p className={styles.subtitle}>{t('bpSubtitle')}</p>
       </div>
 
       {/* Status alertovi */}
       {status === 'suspended' && (
         <div className={styles.alertDanger}>
-          ⚠️ Nalog je suspendovan. Obnovi pretplatu da nastaviš koristiti RestByMe.
+          ⚠️ {t('bpSuspended')}
         </div>
       )}
       {status === 'trial' && days > 0 && (
         <div className={styles.alertTrial}>
-          🎁 Trial — ostalo ti je <strong>{days} dana</strong> besplatnog pristupa.
+          🎁 {t('bpTrialPre')}<strong>{days} {t('bpDays')}</strong>{t('bpTrialPost')}
         </div>
       )}
       {status === 'expired' && (
         <div className={styles.alertExpired}>
-          ⏰ Trial je istekao. Odaberi plan da nastaviš sa svim funkcionalnostima.
+          ⏰ {t('bpExpired')}
         </div>
       )}
 
@@ -214,19 +215,19 @@ export default function BillingPage() {
             className={`${styles.cycleBtn} ${cycle === 'monthly' ? styles.cycleBtnActive : ''}`}
             onClick={() => setCycle('monthly')}
           >
-            Mjesečno
+            {t('bpMonthly')}
           </button>
           <button
             className={`${styles.cycleBtn} ${cycle === 'annual' ? styles.cycleBtnActive : ''}`}
             onClick={() => setCycle('annual')}
           >
-            Godišnje
-            <span className={styles.saveBadge}>Uštedi {ANNUAL_DISCOUNT}%</span>
+            {t('bpAnnual')}
+            <span className={styles.saveBadge}>{t('bpSavePercent', { percent: ANNUAL_DISCOUNT })}</span>
           </button>
         </div>
         {cycle === 'annual' && (
           <div className={styles.annualNote}>
-            Godišnji plan se naplaćuje jednokratno. Dobijate 2,4 mjeseca besplatno.
+            {t('bpAnnualNote')}
           </div>
         )}
       </div>
@@ -246,12 +247,12 @@ export default function BillingPage() {
             >
               {plan.popular && !isCurrent && (
                 <div className={styles.popularBadge} style={{ background: plan.color }}>
-                  Najpopularnije
+                  {t('bpMostPopular')}
                 </div>
               )}
               {isCurrent && (
                 <div className={styles.popularBadge} style={{ background: plan.color }}>
-                  ✓ Tvoj plan
+                  ✓ {t('bpYourPlan')}
                 </div>
               )}
 
@@ -263,15 +264,15 @@ export default function BillingPage() {
               <div className={styles.planPricing}>
                 {plan.id === 'starter' ? (
                   <>
-                    <span className={styles.planPrice}>Besplatno</span>
-                    <span className={styles.planPeriod}>zauvijek</span>
+                    <span className={styles.planPrice}>{t('bpFree')}</span>
+                    <span className={styles.planPeriod}>{t('bpForever')}</span>
                   </>
                 ) : p ? (
                   <>
                     <span className={styles.planPrice}>€{p.main}</span>
-                    <span className={styles.planPeriod}>/mj</span>
+                    <span className={styles.planPeriod}>{t('bpPerMonth')}</span>
                     {p.save && (
-                      <div className={styles.annualTotal}>naplaćuje se {p.sub}</div>
+                      <div className={styles.annualTotal}>{t('bpBilledAs', { sub: p.sub })}</div>
                     )}
                   </>
                 ) : null}
@@ -289,12 +290,12 @@ export default function BillingPage() {
               <div className={styles.planCta}>
                 {isCurrent ? (
                   <div className={styles.currentLabel} style={{ color: plan.color }}>
-                    Trenutni plan
+                    {t('bpCurrentPlan')}
                   </div>
                 ) : plan.id === 'starter' ? (
                   isDowngrade ? (
-                    <button className={styles.downgradeBtn} onClick={() => alert('Za downgrade kontaktirajte podršku na support@restby.me')}>
-                      Smanji plan
+                    <button className={styles.downgradeBtn} onClick={() => alert(t('bpDowngradeContact'))}>
+                      {t('bpDowngrade')}
                     </button>
                   ) : null
                 ) : plan.paypal ? (
@@ -304,16 +305,16 @@ export default function BillingPage() {
                     onClick={handlePayPal}
                     disabled={loading}
                   >
-                    {loading ? 'Preusmjeravanje...' : '🅿 Plati putem PayPal-a'}
+                    {loading ? t('bpRedirecting') : `🅿 ${t('bpPayPayPal')}`}
                   </button>
                 ) : plan.comingSoon ? (
                   <div className={styles.comingSoonWrap}>
-                    <div className={styles.comingSoonBadge}>Stripe — uskoro</div>
+                    <div className={styles.comingSoonBadge}>{t('bpStripeSoon')}</div>
                     <a
-                      href={`mailto:support@restby.me?subject=Interes za ${plan.name} plan`}
+                      href={`mailto:support@restby.me?subject=${encodeURIComponent(t('bpInterestSubject', { plan: plan.name }))}`}
                       className={styles.contactBtn}
                     >
-                      ✉️ Kontaktirajte nas
+                      ✉️ {t('bpContactUs')}
                     </a>
                   </div>
                 ) : null}
@@ -330,26 +331,25 @@ export default function BillingPage() {
         <div className={styles.enterpriseLeft}>
           <div className={styles.enterpriseName}>Enterprise</div>
           <div className={styles.enterpriseDesc}>
-            Više objekata, channel manager (Beds24), portfolio dashboard, brand šabloni.
-            Za hotelske lance i portfelje od 3+ objekata.
+            {t('bpEnterpriseDesc')}
           </div>
         </div>
         <a
-          href="mailto:support@restby.me?subject=Enterprise upit"
+          href={`mailto:support@restby.me?subject=${encodeURIComponent(t('bpEnterpriseSubject'))}`}
           className={styles.enterpriseBtn}
         >
-          Kontaktirajte nas →
+          {t('bpContactUs')} →
         </a>
       </div>
 
       {/* FAQ */}
       <div className={styles.faq}>
-        <div className={styles.faqTitle}>Često postavljana pitanja</div>
+        <div className={styles.faqTitle}>{t('bpFaqTitle')}</div>
         {[
-          { q: 'Mogu li promijeniti plan u bilo kom trenutku?', a: 'Da, upgrade je trenutno aktivan. Za downgrade kontaktirajte podršku.' },
-          { q: 'Šta se dešava s podacima ako promijenim plan?', a: 'Podaci se nikad ne brišu. Ako upgradujete, odmah dobijate pristup novim modulima.' },
-          { q: 'Kakva je razlika između mjesečnog i godišnjeg plana?', a: `Godišnji plan košta ${ANNUAL_DISCOUNT}% manje — kao da dobijate 2,4 mjeseca besplatno. Naplaćuje se jednokratno na godinu dana.` },
-          { q: 'Mogu li otkazati pretplatu?', a: 'Da, u bilo kom trenutku. Plan ostaje aktivan do kraja plaćenog perioda.' },
+          { q: t('bpFaq1Q'), a: t('bpFaq1A') },
+          { q: t('bpFaq2Q'), a: t('bpFaq2A') },
+          { q: t('bpFaq3Q'), a: t('bpFaq3A', { percent: ANNUAL_DISCOUNT }) },
+          { q: t('bpFaq4Q'), a: t('bpFaq4A') },
         ].map(({ q, a }) => (
           <div key={q} className={styles.faqItem}>
             <div className={styles.faqQ}>{q}</div>
