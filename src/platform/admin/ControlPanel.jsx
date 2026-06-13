@@ -24,8 +24,47 @@ const RESTAURANT_KEYS  = ['menu', 'tables']
 const HOTEL_KEYS       = ['hotel', 'spa']
 const UPRAVLJANJE_KEYS = ['hr', 'inventory', 'guests', 'analytics']
 
-function useDashboardData(restaurant, hasHotel, hasSpa) {
-  const [kpi, setKpi]       = useState({ ordersToday: null, revenueToday: null, checkinsToday: null, spaToday: null, occupancy: null, freeRooms: null })
+// Katalog KPI-eva koje admin može izabrati na dashboard. `field` = polje iz
+// get_admin_overview (default = key). `vertical`/`addon` = uslov dostupnosti.
+// fmt: int | money | pct. avg_order/occupancy se računaju iz drugih polja.
+const KPI_CATALOG = [
+  { key: 'orders_today',       group: 'menu',      icon: '🧾', labelKey: 'kpiOrdersToday',      fmt: 'int',   vertical: 'restaurant' },
+  { key: 'revenue_today',      group: 'menu',      icon: '💰', labelKey: 'kpiRevenueToday',     fmt: 'money', vertical: 'restaurant' },
+  { key: 'avg_order',          group: 'menu',      icon: '🧮', labelKey: 'kpiAvgOrder',         fmt: 'money', vertical: 'restaurant' },
+  { key: 'pending_orders',     group: 'menu',      icon: '⏳', labelKey: 'kpiPendingOrders',    fmt: 'int',   vertical: 'restaurant', field: 'waiter' },
+  { key: 'revenue_week',       group: 'menu',      icon: '📈', labelKey: 'kpiRevenueWeek',      fmt: 'money', vertical: 'restaurant' },
+  { key: 'reservations_today', group: 'tables',    icon: '📅', labelKey: 'kpiReservationsToday', fmt: 'int',  vertical: 'restaurant' },
+  { key: 'waiter_req',         group: 'tables',    icon: '🔔', labelKey: 'kpiWaiterReq',        fmt: 'int',   vertical: 'restaurant' },
+  { key: 'new_guests_today',   group: 'guests',    icon: '🆕', labelKey: 'kpiNewGuests',        fmt: 'int' },
+  { key: 'total_guests',       group: 'guests',    icon: '👥', labelKey: 'kpiTotalGuests',      fmt: 'int' },
+  { key: 'low_stock',          group: 'inventory', icon: '⚠️', labelKey: 'kpiLowStock',         fmt: 'int' },
+  { key: 'checkins_today',     group: 'hotel',     icon: '🏨', labelKey: 'kpiCheckinsToday',    fmt: 'int',   vertical: 'hotel' },
+  { key: 'checkouts_today',    group: 'hotel',     icon: '🧳', labelKey: 'kpiCheckoutsToday',   fmt: 'int',   vertical: 'hotel', field: 'hotel_departures' },
+  { key: 'occupancy',          group: 'hotel',     icon: '📊', labelKey: 'kpiOccupancy',        fmt: 'pct',   vertical: 'hotel' },
+  { key: 'free_rooms',         group: 'hotel',     icon: '🛏️', labelKey: 'kpiFreeRooms',        fmt: 'int',   vertical: 'hotel' },
+  { key: 'checked_in_now',     group: 'hotel',     icon: '🟢', labelKey: 'kpiInHouse',          fmt: 'int',   vertical: 'hotel' },
+  { key: 'hotel_inquiry',      group: 'hotel',     icon: '✉️', labelKey: 'kpiInquiries',        fmt: 'int',   vertical: 'hotel' },
+  { key: 'housekeeping',       group: 'hotel',     icon: '🧹', labelKey: 'kpiHousekeeping',     fmt: 'int',   vertical: 'hotel' },
+  { key: 'maint_open',         group: 'hotel',     icon: '🔧', labelKey: 'kpiMaintOpen',        fmt: 'int',   vertical: 'hotel' },
+  { key: 'spa_today',          group: 'spa',       icon: '💆', labelKey: 'kpiSpaToday',         fmt: 'int',   vertical: 'hotel', addon: 'spa_wellness' },
+]
+// Podrazumijevani set (kad korisnik nije prilagodio) — čuva dosadašnje ponašanje;
+// nedostupni (po vertikali/addonu) se filtriraju pri renderu.
+const DEFAULT_KPIS = ['orders_today', 'revenue_today', 'checkins_today', 'occupancy', 'free_rooms', 'spa_today']
+
+function kpiVal(kpi, d) {
+  if (kpi.key === 'avg_order') {
+    const o = d.orders_today || 0
+    return o > 0 ? (Number(d.revenue_today) || 0) / o : 0
+  }
+  if (kpi.key === 'occupancy') {
+    return d.total_rooms > 0 ? Math.round((d.checked_in_now / d.total_rooms) * 100) : null
+  }
+  return d[kpi.field || kpi.key]
+}
+
+function useDashboardData(restaurant) {
+  const [data, setData]     = useState({})
   const [badges, setBadges] = useState({ waiter: 0, kitchen: 0, bar: 0, waiterReq: 0 })
 
   useEffect(() => {
@@ -34,23 +73,10 @@ function useDashboardData(restaurant, hasHotel, hasSpa) {
 
     // Sve KPI/badge brojke u jednom RPC pozivu (ranije ~11 zasebnih count-upita).
     async function load() {
-      const { data } = await supabase.rpc('get_admin_overview', { p_restaurant_id: rid })
-      if (!data) return
-      setKpi({
-        ordersToday:   data.orders_today || 0,
-        revenueToday:  Number(data.revenue_today) || 0,
-        checkinsToday: hasHotel ? (data.checkins_today || 0) : null,
-        spaToday:      hasSpa   ? (data.spa_today || 0) : null,
-        occupancy:     (hasHotel && data.total_rooms > 0)
-          ? Math.round((data.checked_in_now / data.total_rooms) * 100) : null,
-        freeRooms:     hasHotel ? (data.free_rooms || 0) : null,
-      })
-      setBadges({
-        waiter:    data.waiter     || 0,
-        kitchen:   data.kitchen    || 0,
-        bar:       data.bar        || 0,
-        waiterReq: data.waiter_req || 0,
-      })
+      const { data: d } = await supabase.rpc('get_admin_overview', { p_restaurant_id: rid })
+      if (!d) return
+      setData(d)
+      setBadges({ waiter: d.waiter || 0, kitchen: d.kitchen || 0, bar: d.bar || 0, waiterReq: d.waiter_req || 0 })
     }
 
     load()
@@ -59,14 +85,53 @@ function useDashboardData(restaurant, hasHotel, hasSpa) {
       .on('postgres_changes', { event: '*', schema: 'public', table: 'waiter_requests', filter: `restaurant_id=eq.${rid}` }, load)
       .subscribe()
     return () => supabase.removeChannel(ch)
-  }, [restaurant?.id, hasHotel, hasSpa])
+  }, [restaurant?.id])
 
-  return { kpi, badges }
+  return { data, badges }
+}
+
+// Modal za izbor KPI-eva (per-korisnik). Prima već filtriran (dostupan) katalog.
+function KpiPicker({ catalog, selected, onSave, onClose, t }) {
+  const [draft, setDraft] = useState(() => new Set(selected))
+  const toggle = (key) => setDraft(prev => {
+    const n = new Set(prev); n.has(key) ? n.delete(key) : n.add(key); return n
+  })
+  const overlay = { position: 'fixed', inset: 0, background: 'rgba(0,0,0,0.5)', display: 'flex', alignItems: 'flex-start', justifyContent: 'center', padding: '6vh 16px', zIndex: 1000, overflowY: 'auto' }
+  const modal = { background: 'var(--c-surface)', borderRadius: 14, width: '100%', maxWidth: 460, padding: 20, boxShadow: 'var(--c-shadow-modal)' }
+  const row = { display: 'flex', alignItems: 'center', gap: 10, padding: '9px 10px', borderRadius: 8, cursor: 'pointer' }
+  return (
+    <div style={overlay} onClick={onClose}>
+      <div style={modal} onClick={e => e.stopPropagation()}>
+        <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: 4 }}>
+          <div style={{ fontWeight: 700, fontSize: 17 }}>⚙️ {t('cpKpiTitle')}</div>
+          <button onClick={onClose} style={{ background: 'none', border: 'none', fontSize: 20, cursor: 'pointer', color: 'var(--c-text-muted)' }}>✕</button>
+        </div>
+        <div style={{ fontSize: 12, color: 'var(--c-text-muted)', marginBottom: 14 }}>{t('cpKpiHint')}</div>
+        <div style={{ display: 'flex', flexDirection: 'column', gap: 2, maxHeight: '52vh', overflowY: 'auto' }}>
+          {catalog.map(k => {
+            const on = draft.has(k.key)
+            return (
+              <label key={k.key} style={{ ...row, background: on ? 'var(--c-primary-light)' : 'transparent' }}>
+                <input type="checkbox" checked={on} onChange={() => toggle(k.key)} style={{ accentColor: 'var(--c-primary)', width: 16, height: 16 }} />
+                <span style={{ fontSize: 16 }}>{k.icon}</span>
+                <span style={{ fontSize: 14, color: 'var(--c-text)' }}>{t(k.labelKey)}</span>
+              </label>
+            )
+          })}
+        </div>
+        <div style={{ display: 'flex', justifyContent: 'flex-end', gap: 8, marginTop: 16 }}>
+          <button onClick={onClose} style={{ padding: '8px 16px', borderRadius: 8, border: '1px solid var(--c-border)', background: 'var(--c-bg)', color: 'var(--c-text)', cursor: 'pointer' }}>{t('cancel')}</button>
+          <button onClick={() => onSave(catalog.filter(k => draft.has(k.key)).map(k => k.key))}
+            style={{ padding: '8px 16px', borderRadius: 8, border: 'none', background: 'var(--c-primary)', color: '#fff', cursor: 'pointer', fontWeight: 600 }}>{t('save')}</button>
+        </div>
+      </div>
+    </div>
+  )
 }
 
 export default function ControlPanel() {
   const { t } = useTranslation('admin')
-  const { restaurant, setRestaurant, hasPermission, isOwner, isSuperAdmin, hasAddon, hasVertical } = usePlatform()
+  const { user, restaurant, setRestaurant, hasPermission, isOwner, isSuperAdmin, hasAddon, hasVertical } = usePlatform()
   const { unread: unreadAnn } = useAnnouncements()
   const { unreadCount: unreadSupport } = useSupport()
   const navigate = useNavigate()
@@ -84,10 +149,31 @@ export default function ControlPanel() {
   // upiti nepotrebno slali i restoranu-only nalogu).
   const hasHotel = hasVertical('hotel')
   const hasSpa   = hasVertical('hotel') && hasAddon('spa_wellness')
-  const { kpi, badges } = useDashboardData(restaurant, hasHotel, hasSpa)
+  const { data, badges } = useDashboardData(restaurant)
 
   const canSee    = (perm) => !perm || isOwner() || isSuperAdmin() || hasPermission(perm)
   const addonOn   = (mod)  => !mod.addonId || hasAddon(mod.addonId)
+
+  // Prilagodljivi KPI-evi (per-korisnik, user_profiles.dashboard_kpis).
+  const [profileKpis, setProfileKpis] = useState(null)
+  const [showKpiPicker, setShowKpiPicker] = useState(false)
+  useEffect(() => {
+    if (!user?.id) return
+    let cancelled = false
+    supabase.from('user_profiles').select('dashboard_kpis').eq('id', user.id).maybeSingle()
+      .then(({ data: p }) => { if (!cancelled) setProfileKpis(p?.dashboard_kpis ?? null) })
+    return () => { cancelled = true }
+  }, [user?.id])
+
+  const kpiAvailable = (k) => (!k.vertical || hasVertical(k.vertical)) && (!k.addon || hasAddon(k.addon))
+  const availableKpis = KPI_CATALOG.filter(kpiAvailable)
+  const selectedKeys  = profileKpis ?? DEFAULT_KPIS
+  const shownKpis     = availableKpis.filter(k => selectedKeys.includes(k.key))
+  const saveKpis = async (keys) => {
+    setProfileKpis(keys)
+    setShowKpiPicker(false)
+    if (user?.id) await supabase.from('user_profiles').update({ dashboard_kpis: keys }).eq('id', user.id)
+  }
 
   const handleMod = (mod) => {
     if (!mod.active) return
@@ -99,6 +185,13 @@ export default function ControlPanel() {
     if (v === null) return '—'
     if (v >= 1000) return `€${(v / 1000).toFixed(1)}k`
     return `€${Math.round(v)}`
+  }
+  const fmtKpi = (k) => {
+    const v = kpiVal(k, data)
+    if (v === null || v === undefined) return '—'
+    if (k.fmt === 'money') return fmtRevenue(Number(v))
+    if (k.fmt === 'pct') return `${v}%`
+    return v
   }
 
   // 2b/Faza: dodavanje biznisa (vertikale) naknadno. Restoran besplatno (odmah);
@@ -128,8 +221,8 @@ export default function ControlPanel() {
     { labelKey: 'navKitchen',  icon: '🧑‍🍳', path: '/admin/kitchen', badge: badges.kitchen,   perm: 'view_orders' },
     { labelKey: 'navBar',      icon: '🍷', path: '/admin/bar',     badge: badges.bar,       perm: 'view_orders' },
     { labelKey: 'navWaiterReq', icon: '🔔', path: '/admin/waiter',  badge: badges.waiterReq, perm: 'view_waiter_req' },
-    ...(hasHotel ? [{ labelKey: 'navFrontDesk', icon: '🛎️', path: '/admin/hotel/frontdesk', badge: kpi.checkinsToday || 0 }] : []),
-    ...(hasSpa   ? [{ labelKey: 'quickSpaToday',  icon: '💆', path: '/admin/spa/appointments', badge: kpi.spaToday || 0 }] : []),
+    ...(hasHotel ? [{ labelKey: 'navFrontDesk', icon: '🛎️', path: '/admin/hotel/frontdesk', badge: data.checkins_today || 0 }] : []),
+    ...(hasSpa   ? [{ labelKey: 'quickSpaToday',  icon: '💆', path: '/admin/spa/appointments', badge: data.spa_today || 0 }] : []),
   ]
   const quickItems = QUICK.filter(a => canSee(a.perm))
 
@@ -182,59 +275,29 @@ export default function ControlPanel() {
         <p className={styles.subtitle}>{t('cpSubtitle')}</p>
       </div>
 
-      {/* ── KPI row ── */}
+      {/* ── KPI row (prilagodljiv, per-korisnik) ── */}
+      <div className={styles.kpiHead}>
+        <button className={styles.kpiCustomizeBtn} onClick={() => setShowKpiPicker(true)}>
+          ⚙️ {t('cpCustomize')}
+        </button>
+      </div>
       <div className={styles.kpiRow}>
-        <div className={styles.kpiCard}>
-          <div className={styles.kpiIcon}>🧾</div>
-          <div>
-            <div className={styles.kpiValue}>{kpi.ordersToday ?? '—'}</div>
-            <div className={styles.kpiLabel}>{t('kpiOrdersToday')}</div>
-          </div>
-        </div>
-        <div className={styles.kpiCard}>
-          <div className={styles.kpiIcon}>💰</div>
-          <div>
-            <div className={styles.kpiValue}>{fmtRevenue(kpi.revenueToday)}</div>
-            <div className={styles.kpiLabel}>{t('kpiRevenueToday')}</div>
-          </div>
-        </div>
-        {hasHotel && (
-          <div className={styles.kpiCard}>
-            <div className={styles.kpiIcon}>🏨</div>
+        {shownKpis.map(k => (
+          <div key={k.key} className={styles.kpiCard}>
+            <div className={styles.kpiIcon}>{k.icon}</div>
             <div>
-              <div className={styles.kpiValue}>{kpi.checkinsToday ?? '—'}</div>
-              <div className={styles.kpiLabel}>{t('kpiCheckinsToday')}</div>
+              <div className={styles.kpiValue}>{fmtKpi(k)}</div>
+              <div className={styles.kpiLabel}>{t(k.labelKey)}</div>
             </div>
           </div>
-        )}
-        {hasHotel && (
-          <div className={styles.kpiCard}>
-            <div className={styles.kpiIcon}>📊</div>
-            <div>
-              <div className={styles.kpiValue}>{kpi.occupancy !== null ? `${kpi.occupancy}%` : '—'}</div>
-              <div className={styles.kpiLabel}>{t('kpiOccupancy')}</div>
-            </div>
-          </div>
-        )}
-        {hasHotel && (
-          <div className={styles.kpiCard}>
-            <div className={styles.kpiIcon}>🛏️</div>
-            <div>
-              <div className={styles.kpiValue}>{kpi.freeRooms ?? '—'}</div>
-              <div className={styles.kpiLabel}>{t('kpiFreeRooms')}</div>
-            </div>
-          </div>
-        )}
-        {hasSpa && (
-          <div className={styles.kpiCard}>
-            <div className={styles.kpiIcon}>💆</div>
-            <div>
-              <div className={styles.kpiValue}>{kpi.spaToday ?? '—'}</div>
-              <div className={styles.kpiLabel}>{t('kpiSpaToday')}</div>
-            </div>
-          </div>
+        ))}
+        {shownKpis.length === 0 && (
+          <button className={styles.kpiEmpty} onClick={() => setShowKpiPicker(true)}>+ {t('cpCustomize')}</button>
         )}
       </div>
+      {showKpiPicker && (
+        <KpiPicker catalog={availableKpis} selected={selectedKeys} onSave={saveKpis} onClose={() => setShowKpiPicker(false)} t={t} />
+      )}
 
       {/* ── Quick actions ── */}
       {quickItems.length > 0 && (
