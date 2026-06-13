@@ -1,6 +1,9 @@
 import { useState, useEffect } from 'react'
 import { useNavigate } from 'react-router-dom'
 import { useTranslation } from 'react-i18next'
+import { DndContext, closestCenter, PointerSensor, useSensor, useSensors } from '@dnd-kit/core'
+import { SortableContext, horizontalListSortingStrategy, arrayMove, useSortable } from '@dnd-kit/sortable'
+import { CSS } from '@dnd-kit/utilities'
 import { supabase } from '../../../lib/supabase'
 import { usePlatform } from '../../../context/PlatformContext'
 import { stripAccountFields } from '../../../lib/planUtils'
@@ -9,6 +12,29 @@ import RecipeLibraryPicker from '../components/RecipeLibraryPicker'
 import ContentTranslations from '../../../components/shared/ContentTranslations'
 import styles from './AdminMenu.module.css'
 import gsStyles from './GeneralSettings.module.css'
+
+// Pilula kategorije koja se može prevlačiti (DnD redoslijed = redoslijed na javnom
+// meniju, sort_order). Distance-aktivacija (5px) razlikuje klik (izbor) od prevlačenja.
+function SortableCatTab({ cat, active, onSelect, barLabel }) {
+  const { attributes, listeners, setNodeRef, transform, transition, isDragging } = useSortable({ id: cat.id })
+  return (
+    <button
+      ref={setNodeRef}
+      {...attributes}
+      {...listeners}
+      onClick={onSelect}
+      className={`${styles.catTab} ${active ? styles.catTabActive : ''}`}
+      style={{
+        transform: CSS.Transform.toString(transform), transition,
+        opacity: isDragging ? 0.5 : 1, cursor: isDragging ? 'grabbing' : 'grab',
+        touchAction: 'none', zIndex: isDragging ? 5 : 'auto',
+      }}
+    >
+      {cat.icon} {cat.name}
+      {cat.is_bar && <span className={styles.barBadge}>{barLabel}</span>}
+    </button>
+  )
+}
 
 // Kurirani emoji izbor za ikonu stavke (umjesto slobodnog unosa teksta).
 const EMOJI_OPTIONS = [
@@ -163,6 +189,20 @@ export default function AdminMenu() {
     }
   }
 
+  // DnD redoslijed pilula kategorija → upiše sort_order svih (vozi javni meni).
+  const catSensors = useSensors(useSensor(PointerSensor, { activationConstraint: { distance: 5 } }))
+  const onCatDragEnd = async ({ active, over }) => {
+    if (!over || active.id === over.id) return
+    const oldIdx = categories.findIndex(c => c.id === active.id)
+    const newIdx = categories.findIndex(c => c.id === over.id)
+    if (oldIdx < 0 || newIdx < 0) return
+    const reordered = arrayMove(categories, oldIdx, newIdx)
+    setCategories(reordered)
+    await Promise.all(reordered.map((c, i) =>
+      supabase.from('categories').update({ sort_order: i }).eq('id', c.id).eq('restaurant_id', restaurant.id),
+    ))
+  }
+
   const startEditCategory = (cat) => {
     setCatForm({ name: cat.name, icon: cat.icon || '🍽️', description: cat.description || '' })
     setEditingCat(true)
@@ -292,16 +332,19 @@ export default function AdminMenu() {
           <div>
             <div className={styles.menuTop}>
               <div className={styles.catTabs}>
-                {categories.map(cat => (
-                  <button
-                    key={cat.id}
-                    className={`${styles.catTab} ${activeCategory === cat.id ? styles.catTabActive : ''}`}
-                    onClick={() => setActiveCategory(cat.id)}
-                  >
-                    {cat.icon} {cat.name}
-                    {cat.is_bar && <span className={styles.barBadge}>{t('navBar')}</span>}
-                  </button>
-                ))}
+                <DndContext sensors={catSensors} collisionDetection={closestCenter} onDragEnd={onCatDragEnd}>
+                  <SortableContext items={categories.map(c => c.id)} strategy={horizontalListSortingStrategy}>
+                    {categories.map(cat => (
+                      <SortableCatTab
+                        key={cat.id}
+                        cat={cat}
+                        active={activeCategory === cat.id}
+                        onSelect={() => setActiveCategory(cat.id)}
+                        barLabel={t('navBar')}
+                      />
+                    ))}
+                  </SortableContext>
+                </DndContext>
                 <button className={styles.catTabAdd} onClick={addCategory}>+ {t('amCategory')}</button>
               </div>
               <div className={styles.menuTopActions}>
