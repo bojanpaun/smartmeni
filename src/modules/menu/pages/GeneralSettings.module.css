@@ -184,7 +184,7 @@
 
 .segControl { display: flex; background: var(--c-bg-subtle); border-radius: 9px; padding: 3px; gap: 2px; flex-shrink: 0; }
 .segBtn { padding: 6px 10px; border: none; border-radius: 7px; font-size: 11px; font-weight: 500; cursor: pointer; background: transparent; color: var(--c-text-medium); font-family: var(--c-font-sans); white-space: nowrap; transition: all 0.15s; }
-.segBtn:hover { background: rgba(255,255,255,0.6); }
+.segBtn:hover { background: var(--c-surface); }
 .segBtnOff { background: var(--c-surface) !important; color: var(--c-text) !important; border: 1px solid var(--c-border); }
 .segBtnReg { background: var(--c-info) !important; color: var(--c-surface) !important; }
 .segBtnAll { background: var(--c-primary) !important; color: var(--c-surface) !important; }
@@ -212,7 +212,7 @@
 }
 
 .deleteBtn {
-  background: none; border: none; color: #c0b0b0;
+  background: none; border: none; color: var(--c-text-muted);
   font-size: 12px; cursor: pointer; padding: 2px 4px;
   border-radius: 4px; transition: color 0.15s, background 0.15s;
   flex-shrink: 0;
