@@ -788,7 +788,10 @@
   .navLinks, .navActions { display: none; }
   .navBurger { display: flex; }
   .hero, .moduleSection, .addonsSection, .testSection, .pricingSection, .ctaSection { padding-left: 1.25rem; padding-right: 1.25rem; }
-  .statsGrid { grid-template-columns: repeat(2, 1fr); }
+  .stats { padding: 2.25rem 1.25rem; }
+  .statsGrid { grid-template-columns: repeat(2, 1fr); gap: 1.5rem 1rem; }
+  .stats .statNum { font-size: 1.6rem; line-height: 1.15; }
+  .statLabel { font-size: 12px; }
   .addonsGrid { grid-template-columns: 1fr; }
   .featGrid { grid-template-columns: 1fr; }
   .pricingGrid { grid-template-columns: 1fr; max-width: 400px; margin-left: auto; margin-right: auto; }
