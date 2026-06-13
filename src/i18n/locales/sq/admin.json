@@ -2601,6 +2601,8 @@
   "sapTranslateErr": "Gabim në përkthim (kontrollo ANTHROPIC_API_KEY).",
   "amTransTitle": "Përkthimet",
   "amTransSub": "AI përkthen automatikisht emrin dhe përshkrimin. Korrigjo një gjuhë këtu — versioni yt kyçet dhe AI nuk e ndryshon. Fshi fushën dhe ruaj për të rikthyer përkthimin AI.",
+  "amTransShort": "Përkthimet",
+  "amTransPageHint": "🌐 Pranë çdo artikulli, korrigjo manualisht përkthimet automatike në gjuhët e tjera.",
   "amTransName": "Emri",
   "amTransDesc": "Përshkrimi",
   "amTransManual": "manual",

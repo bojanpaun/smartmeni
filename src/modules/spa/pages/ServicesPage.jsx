@@ -226,6 +226,8 @@ export default function ServicesPage() {
           <p>{catFilter === 'all' ? t('spaNoTreatments') : t('spaNoTreatmentsCat')}</p>
         </div>
       ) : (
+        <>
+        <div style={{ fontSize: 12, color: 'var(--c-text-muted)', marginBottom: 12, lineHeight: 1.4 }}>{t('amTransPageHint')}</div>
         <div className={spa.cardGrid}>
           {filtered.map(s => {
             const cat = CATEGORIES.find(c => c.value === s.category) || CATEGORIES[0]
@@ -251,7 +253,7 @@ export default function ServicesPage() {
                   {s.description && <p style={{ fontSize: 12, color: 'var(--c-text-muted)', marginTop: 8, lineHeight: 1.4 }}>{s.description}</p>}
                   <div className={spa.cardActions}>
                     <button className={styles.btnSecondary} style={{ fontSize: 12 }} onClick={() => openEdit(s)}>{t('htEdit')}</button>
-                    <button className={styles.btnSecondary} style={{ fontSize: 12 }} onClick={() => setTransSvc(s)} title={t('amTransTitle')}>🌐</button>
+                    <button className={styles.btnSecondary} style={{ fontSize: 12 }} onClick={() => setTransSvc(s)} title={t('amTransTitle')}>🌐 {t('amTransShort')}</button>
                     <button
                       className={styles.btnSecondary}
                       style={{ fontSize: 12 }}
@@ -271,6 +273,7 @@ export default function ServicesPage() {
             )
           })}
         </div>
+        </>
       )}
 
       {transSvc && (

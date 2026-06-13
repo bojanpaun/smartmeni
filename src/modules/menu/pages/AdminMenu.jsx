@@ -404,8 +404,8 @@ export default function AdminMenu() {
                       <button className={styles.catRenameBtn} onClick={() => startEditCategory(cat)}>
                         ✏️ {t('amEditCategory')}
                       </button>
-                      <button className={styles.catIconBtn} onClick={() => setTransCat(cat)} title={t('amTransTitle')} aria-label={t('amTransTitle')}>
-                        🌐
+                      <button className={styles.catRenameBtn} onClick={() => setTransCat(cat)} title={t('amTransTitle')}>
+                        🌐 {t('amTransShort')}
                       </button>
                       {cat.description && (
                         <span className={styles.catNote}>📝 {cat.description}</span>
@@ -429,6 +429,9 @@ export default function AdminMenu() {
             })()}
 
             <div className={styles.card}>
+              {filteredItems.length > 0 && (
+                <div className={styles.transHint}>{t('amTransPageHint')}</div>
+              )}
               {filteredItems.length === 0 ? (
                 <div className={styles.emptyState}>
                   <div className={styles.emptyIcon}>🍽️</div>
@@ -491,7 +494,7 @@ export default function AdminMenu() {
                         </td>
                         <td>
                           <button className={styles.actionBtn} onClick={() => openItemForm(item)}>{t('amEdit')}</button>
-                          <button className={styles.actionBtn} onClick={() => setTransItem(item)} title={t('amTransTitle')}>🌐</button>
+                          <button className={styles.actionBtn} onClick={() => setTransItem(item)} title={t('amTransTitle')}>🌐 {t('amTransShort')}</button>
                           <button className={styles.actionBtn} onClick={() => deleteItem(item.id)}>{t('amDelete')}</button>
                         </td>
                       </tr>

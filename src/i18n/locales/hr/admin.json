@@ -2601,6 +2601,8 @@
   "sapTranslateErr": "Pogreška pri prevođenju (provjeri ANTHROPIC_API_KEY).",
   "amTransTitle": "Prijevodi",
   "amTransSub": "AI automatski prevodi naziv i opis. Ovdje ručno ispravi pojedini jezik — tvoja verzija se zaključava i AI je ne mijenja. Obriši polje i spremi da vratiš AI prijevod.",
+  "amTransShort": "Prijevodi",
+  "amTransPageHint": "🌐 Pored svake stavke ručno ispravite AI prijevode na ostale jezike.",
   "amTransName": "Naziv",
   "amTransDesc": "Opis",
   "amTransManual": "ručno",

@@ -104,7 +104,7 @@ function WaiterMessagesEditor({ restaurant, setRestaurant }) {
     <div className={menuStyles.card} style={{ marginBottom: 16 }}>
       <div className={menuStyles.cardTitle}>🔔 {t('amWaiterMsgTitle')}</div>
       <div style={{ fontSize: 12, color: '#8a9e96', marginBottom: 14 }}>
-        {t('msWaiterHintDrag')} {t('amWaiterMsgNote')}
+        {t('msWaiterHintDrag')} {t('amWaiterMsgNote')} {t('amTransPageHint')}
       </div>
       <DraggableList items={messages} onReorder={setMessages}>
         {(m, i) => (
@@ -116,7 +116,7 @@ function WaiterMessagesEditor({ restaurant, setRestaurant }) {
             <input value={m.sr} onChange={e => update(i, 'sr', e.target.value)} placeholder={t('amTextField')}
               style={{ flex: 1, minWidth: 160, padding: '8px 10px', border: '1px solid #d0e4dc', borderRadius: 8, fontSize: 13, fontFamily: 'DM Sans, sans-serif', outline: 'none' }} />
             <button type="button" onClick={() => setTrMsg(m)} title={t('amTransTitle')} disabled={!m.sr?.trim()}
-              style={{ padding: '7px 10px', background: 'transparent', border: '1px solid #d0e4dc', borderRadius: 8, cursor: m.sr?.trim() ? 'pointer' : 'not-allowed', opacity: m.sr?.trim() ? 1 : 0.4, fontSize: 13 }}>🌐</button>
+              style={{ padding: '7px 10px', background: 'transparent', border: '1px solid var(--c-border-input)', borderRadius: 8, cursor: m.sr?.trim() ? 'pointer' : 'not-allowed', opacity: m.sr?.trim() ? 1 : 0.4, fontSize: 13, whiteSpace: 'nowrap', color: 'var(--c-text-medium)', fontFamily: 'DM Sans, sans-serif' }}>🌐 {t('amTransShort')}</button>
             <button onClick={() => remove(i)}
               style={{ padding: '7px 10px', background: 'transparent', border: '1px solid #f5b0b0', borderRadius: 8, color: '#c0392b', cursor: 'pointer', fontSize: 13 }}>✕</button>
           </>

@@ -2601,6 +2601,8 @@
   "sapTranslateErr": "Translation error (check ANTHROPIC_API_KEY).",
   "amTransTitle": "Translations",
   "amTransSub": "AI translates the name and description automatically. Correct an individual language here — your version gets locked and AI won’t change it. Clear a field and save to restore the AI translation.",
+  "amTransShort": "Translations",
+  "amTransPageHint": "🌐 Next to each item, manually correct the AI translations into other languages.",
   "amTransName": "Name",
   "amTransDesc": "Description",
   "amTransManual": "manual",

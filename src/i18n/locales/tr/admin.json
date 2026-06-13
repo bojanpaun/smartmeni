@@ -2601,6 +2601,8 @@
   "sapTranslateErr": "Çeviri hatası (ANTHROPIC_API_KEY kontrol et).",
   "amTransTitle": "Çeviriler",
   "amTransSub": "AI adı ve açıklamayı otomatik çevirir. Burada tek bir dili düzelt — senin sürümün kilitlenir ve AI değiştirmez. Bir alanı temizleyip kaydet, AI çevirisini geri getir.",
+  "amTransShort": "Çeviriler",
+  "amTransPageHint": "🌐 Her öğenin yanında otomatik çevirileri diğer dillere göre elle düzeltin.",
   "amTransName": "Ad",
   "amTransDesc": "Açıklama",
   "amTransManual": "el ile",
