@@ -2080,6 +2080,8 @@
   "saReopen": "Yeniden aç",
   "saMarkResolved": "Çözüldü olarak işaretle",
   "saSearchPlaceholder": "Kiracı veya konuya göre ara…",
+  "saDelete": "Sil",
+  "saDeleteConfirm": "Bu konuşma kalıcı olarak silinsin mi? Mesajlar geri alınamaz.",
   "saBack": "Geri",
   "saSupportLabel": "Destek",
   "saAdminLabel": "Yönetici",

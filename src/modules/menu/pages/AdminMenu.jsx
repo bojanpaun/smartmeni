@@ -360,6 +360,7 @@ export default function AdminMenu() {
             {categories.length > 1 && (
               <div className={styles.dragHint}>⠿ {t('amDragHint')}</div>
             )}
+            <div className={styles.dragHint}>📚 {t('libBtnHint')}</div>
             {activeCategory && (() => {
               const cat = categories.find(c => c.id === activeCategory)
               if (!cat) return null

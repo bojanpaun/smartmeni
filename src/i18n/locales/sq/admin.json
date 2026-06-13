@@ -2080,6 +2080,8 @@
   "saReopen": "Rihap",
   "saMarkResolved": "Shëno si të zgjidhur",
   "saSearchPlaceholder": "Kërko sipas qiramarrësit ose temës…",
+  "saDelete": "Fshi",
+  "saDeleteConfirm": "Të fshihet përgjithmonë ky bisedim? Mesazhet nuk mund të rikthehen.",
   "saBack": "Mbrapa",
   "saSupportLabel": "Mbështetje",
   "saAdminLabel": "Admin",

@@ -2080,6 +2080,8 @@
   "saReopen": "Reopen",
   "saMarkResolved": "Mark resolved",
   "saSearchPlaceholder": "Search by tenant or subject…",
+  "saDelete": "Delete",
+  "saDeleteConfirm": "Permanently delete this conversation? Messages can't be recovered.",
   "saBack": "Back",
   "saSupportLabel": "Support",
   "saAdminLabel": "Admin",

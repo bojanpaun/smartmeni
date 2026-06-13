@@ -2080,6 +2080,8 @@
   "saReopen": "Ponovo otvori",
   "saMarkResolved": "Označi rešeno",
   "saSearchPlaceholder": "Pretraži po tenantu ili naslovu…",
+  "saDelete": "Obriši",
+  "saDeleteConfirm": "Trajno obrisati ovu konverzaciju? Poruke se ne mogu vratiti.",
   "saBack": "Nazad",
   "saSupportLabel": "Podrška",
   "saAdminLabel": "Admin",

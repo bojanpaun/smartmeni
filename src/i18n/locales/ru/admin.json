@@ -2080,6 +2080,8 @@
   "saReopen": "Открыть снова",
   "saMarkResolved": "Отметить решённым",
   "saSearchPlaceholder": "Поиск по арендатору или теме…",
+  "saDelete": "Удалить",
+  "saDeleteConfirm": "Удалить этот разговор навсегда? Сообщения нельзя восстановить.",
   "saBack": "Назад",
   "saSupportLabel": "Поддержка",
   "saAdminLabel": "Админ",

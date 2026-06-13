@@ -100,6 +100,7 @@ export default function ServicesPage() {
           <button className={styles.btnPrimary} onClick={openNew}>+ {t('spaNewTreatment')}</button>
         </div>
       </div>
+      <div style={{ fontSize: 12, color: 'var(--c-text-muted)', marginBottom: 14, lineHeight: 1.4 }}>📚 {t('libBtnHint')}</div>
 
       {showLib && (
         <div className={spa.formPanel}>

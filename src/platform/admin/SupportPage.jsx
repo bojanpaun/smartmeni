@@ -86,6 +86,16 @@ export default function SupportPage() {
     reload()
   }
 
+  // Trajno brisanje konverzacije (briše i poruke — FK ON DELETE CASCADE). Riješene
+  // ostaju u arhivi; ovo je zasebna, namjerna radnja. RLS: owner upravlja svojom.
+  const deleteConversation = async () => {
+    if (!selected || !window.confirm(t('saDeleteConfirm'))) return
+    await supabase.from('support_conversations').delete()
+      .eq('id', selected.id).eq('restaurant_id', restaurant.id)
+    setSelected(null)
+    reload()
+  }
+
   const createConversation = async () => {
     if (!subject.trim() || !firstMsg.trim()) return
     setSending(true)
@@ -131,6 +141,7 @@ export default function SupportPage() {
             {selected.status === 'open'
               ? <button className={styles.btnSecondary} onClick={() => markStatus('closed')}>✓ {t('saMarkResolved')}</button>
               : <button className={styles.btnSecondary} onClick={() => markStatus('open')}>{t('saReopen')}</button>}
+            <button className={styles.btnSecondary} style={{ color: 'var(--c-danger)' }} onClick={deleteConversation}>🗑 {t('saDelete')}</button>
             <button className={styles.btnSecondary} onClick={() => { setSelected(null); reload() }}>← {t('saBack')}</button>
           </div>
         </div>

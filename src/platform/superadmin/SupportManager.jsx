@@ -89,6 +89,15 @@ export default function SupportManager() {
     reload()
   }
 
+  // Trajno brisanje konverzacije (CASCADE briše poruke). Riješene ostaju u arhivi;
+  // ovo je namjerna radnja. RLS: superadmin upravlja svima.
+  const deleteConversation = async () => {
+    if (!selected || !window.confirm(t('saDeleteConfirm'))) return
+    await supabase.from('support_conversations').delete().eq('id', selected.id)
+    setSelected(null)
+    reload()
+  }
+
   // ── Thread ──
   if (selected) {
     return (
@@ -102,6 +111,7 @@ export default function SupportManager() {
             {selected.status === 'open'
               ? <button className={styles.btnSecondary} onClick={() => setStatus('closed')}>✓ {t('saMarkResolved')}</button>
               : <button className={styles.btnSecondary} onClick={() => setStatus('open')}>{t('saReopen')}</button>}
+            <button className={styles.btnSecondary} style={{ color: 'var(--c-danger)' }} onClick={deleteConversation}>🗑 {t('saDelete')}</button>
             <button className={styles.btnSecondary} onClick={() => { setSelected(null); reload() }}>← {t('saBack')}</button>
           </div>
         </div>

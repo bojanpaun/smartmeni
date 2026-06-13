@@ -424,7 +424,7 @@ export default function ControlPanel() {
               <button className={`${styles.card} ${styles.cardSys} ${styles.cardActive}`} onClick={() => navigate('/admin/support')}>
                 <div className={styles.cardIcon}>💬</div>
                 <div className={styles.cardBody}>
-                  <div className={styles.cardName}>{t('modSupport')} <CardBadge n={isSuperAdmin() ? supportSuperOpen : supportOpen} /></div>
+                  <div className={styles.cardName}>{t('modSupport')} <CardBadge n={supportOpen} /></div>
                   <div className={styles.cardDesc}>{t('supportDesc')}</div>
                 </div>
               </button>
@@ -434,7 +434,7 @@ export default function ControlPanel() {
               <button className={`${styles.card} ${styles.cardSys} ${styles.cardActive}`} onClick={() => navigate('/superadmin')}>
                 <div className={styles.cardIcon}>🔧</div>
                 <div className={styles.cardBody}>
-                  <div className={styles.cardName}>{t('superadminPanel')}</div>
+                  <div className={styles.cardName}>{t('superadminPanel')} <CardBadge n={supportSuperOpen} /></div>
                   <div className={styles.cardDesc}>{t('superadminPanelDesc')}</div>
                 </div>
               </button>

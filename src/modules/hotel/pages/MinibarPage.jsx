@@ -104,6 +104,7 @@ export default function MinibarPage() {
           <button className={styles.btnPrimary} onClick={openNew}>+ {t('htAddItem')}</button>
         </div>
       </div>
+      <div style={{ fontSize: 12, color: 'var(--c-text-muted)', marginBottom: 14, lineHeight: 1.4 }}>📚 {t('libBtnHint')}</div>
 
       {showLib && (
         <div style={{ background: 'var(--c-surface)', border: '1px solid var(--c-border)', borderRadius: 12, padding: 16, marginBottom: 16 }}>
