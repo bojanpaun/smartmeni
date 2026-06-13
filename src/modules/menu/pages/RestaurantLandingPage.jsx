@@ -3,6 +3,8 @@ import { useParams, useNavigate } from 'react-router-dom'
 import { useTranslation } from 'react-i18next'
 import { supabase } from '../../../lib/supabase'
 import { toEmbedUrl } from '../../../utils/videoUrl'
+import { useContentTranslations } from '../../../lib/useContentTranslations'
+import { landingFieldPath } from '../../../lib/contentTranslate'
 import LanguageSwitcher from '../../../i18n/LanguageSwitcher'
 import styles from './RestaurantLanding.module.css'
 
@@ -18,6 +20,12 @@ export default function RestaurantLandingPage() {
   const [categories, setCategories] = useState([])
   const [loading, setLoading] = useState(true)
   const [notFound, setNotFound] = useState(false)
+
+  // AI prevod proznih polja blokova za aktivni jezik gosta. Putanja polja:
+  // `restaurant.${blockType}.${key}` (vidi landingFieldPath / landingBlockFields).
+  const tr = useContentTranslations(restaurant?.id)
+  const L = (...parts) => landingFieldPath('restaurant', ...parts)
+  const trL = (path, fallback) => tr('landing_block', restaurant?.id, path, fallback)
 
   useEffect(() => {
     async function load() {
@@ -88,9 +96,9 @@ export default function RestaurantLandingPage() {
             <div className={styles.heroContent}>
               <div className={styles.langRow}><LanguageSwitcher variant="dark" /></div>
               {restaurant.logo_url && <img src={restaurant.logo_url} alt={restaurant.name} className={styles.logo} />}
-              <h1 className={styles.restName}>{block.data.title || restaurant.name}</h1>
+              <h1 className={styles.restName}>{trL(L('hero', 'title'), block.data.title) || restaurant.name}</h1>
               {(block.data.subtitle || restaurant.description) && (
-                <p className={styles.restDesc}>{block.data.subtitle || restaurant.description}</p>
+                <p className={styles.restDesc}>{trL(L('hero', 'subtitle'), block.data.subtitle) || tr('restaurant', restaurant?.id, 'description', restaurant.description)}</p>
               )}
               <button className={styles.heroCta} onClick={() => navigate(`/${slug}`)}>🍽️ {t('menu')}</button>
             </div>
@@ -103,7 +111,7 @@ export default function RestaurantLandingPage() {
         return (
           <section key={idx} className={styles.section}>
             <div className={styles.storyWrap} data-layout={layout || 'image-right'}>
-              <p className={styles.storyText} style={{ flex: textFlex }}>{block.data.text}</p>
+              <p className={styles.storyText} style={{ flex: textFlex }}>{trL(L('story', 'text'), block.data.text)}</p>
               {block.data.image_url && layout !== 'text-only' && layout !== 'image-above' && (
                 <img src={block.data.image_url} alt="" loading="lazy" decoding="async" className={styles.storyImg} style={{ flex: imgFlex }} />
               )}
@@ -143,10 +151,10 @@ export default function RestaurantLandingPage() {
                   {item.image_url && <img src={item.image_url} alt={item.name} loading="lazy" decoding="async" className={styles.specialImg} />}
                   <div className={styles.specialBody}>
                     <div className={styles.specialHeader}>
-                      <span className={styles.specialName}>{item.name}</span>
+                      <span className={styles.specialName}>{trL(L('specials', 'specials', i, 'name'), item.name)}</span>
                       {item.price && <span className={styles.specialPrice}>{item.price}</span>}
                     </div>
-                    {item.description && <p className={styles.specialDesc}>{item.description}</p>}
+                    {item.description && <p className={styles.specialDesc}>{trL(L('specials', 'specials', i, 'description'), item.description)}</p>}
                   </div>
                 </div>
               ))}
@@ -178,7 +186,7 @@ export default function RestaurantLandingPage() {
               {reviews.map((r, i) => (
                 <div key={i} className={styles.reviewCard}>
                   <div className={styles.reviewStars}>{'★'.repeat(r.rating || 5)}{'☆'.repeat(5 - (r.rating || 5))}</div>
-                  <p className={styles.reviewText}>{r.text}</p>
+                  <p className={styles.reviewText}>{trL(L('reviews', 'reviews', i, 'text'), r.text)}</p>
                   <div className={styles.reviewMeta}>
                     <span className={styles.reviewName}>{r.name}</span>
                     {r.date && <span className={styles.reviewDate}>{r.date}</span>}
@@ -195,7 +203,7 @@ export default function RestaurantLandingPage() {
         if (!embed) return null
         return (
           <section key={idx} className={`${styles.section} ${layout === 'centered' ? styles.sectionCentered : ''}`}>
-            {block.data.title && <h2 className={styles.sectionTitle}>{block.data.title}</h2>}
+            {block.data.title && <h2 className={styles.sectionTitle}>{trL(L('video', 'title'), block.data.title)}</h2>}
             <div className={styles.videoWrap}>
               <iframe src={embed} className={styles.videoIframe} allowFullScreen title="Video" />
             </div>
@@ -208,12 +216,12 @@ export default function RestaurantLandingPage() {
         return (
           <div key={idx} className={`${styles.ctaBanner} ${layout === 'left-aligned' ? styles.ctaBannerLeft : ''}`}>
             <div className={styles.ctaBannerContent}>
-              <h2 className={styles.ctaBannerTitle}>{block.data.title}</h2>
-              {block.data.subtitle && <p className={styles.ctaBannerSub}>{block.data.subtitle}</p>}
+              <h2 className={styles.ctaBannerTitle}>{trL(L('cta_banner', 'title'), block.data.title)}</h2>
+              {block.data.subtitle && <p className={styles.ctaBannerSub}>{trL(L('cta_banner', 'subtitle'), block.data.subtitle)}</p>}
             </div>
             {block.data.btn_text && (
               <a href={block.data.btn_link || `/${slug}/rezervacija`} className={styles.ctaBannerBtn}>
-                {block.data.btn_text}
+                {trL(L('cta_banner', 'btn_text'), block.data.btn_text)}
               </a>
             )}
           </div>
@@ -226,7 +234,7 @@ export default function RestaurantLandingPage() {
           <section key={idx} className={styles.section}>
             <div className={styles.infoCard}>
               {locAddress && <div className={styles.infoRow}><span className={styles.infoIcon}>📍</span><span>{locAddress}</span></div>}
-              {block.data.hours && <div className={styles.infoRow}><span className={styles.infoIcon}>⏰</span><span>{block.data.hours}</span></div>}
+              {block.data.hours && <div className={styles.infoRow}><span className={styles.infoIcon}>⏰</span><span>{trL(L('hours_location', 'hours'), block.data.hours)}</span></div>}
             </div>
             {layout !== 'card-only' && block.data.maps_embed_url && (
               <iframe src={block.data.maps_embed_url} className={styles.mapsEmbed} allowFullScreen referrerPolicy="no-referrer-when-downgrade" title="Lokacija" />
@@ -238,8 +246,8 @@ export default function RestaurantLandingPage() {
       case 'reservation_cta':
         return (
           <div key={idx} className={`${styles.reservationCta} ${layout === 'card' ? styles.reservationCtaCard : layout === 'minimal' ? styles.reservationCtaMinimal : ''}`}>
-            <h2 className={styles.reservationCtaTitle}>{block.data.text || t('reservation')}</h2>
-            {block.data.subtitle && <p className={styles.reservationCtaSub}>{block.data.subtitle}</p>}
+            <h2 className={styles.reservationCtaTitle}>{trL(L('reservation_cta', 'text'), block.data.text) || t('reservation')}</h2>
+            {block.data.subtitle && <p className={styles.reservationCtaSub}>{trL(L('reservation_cta', 'subtitle'), block.data.subtitle)}</p>}
             <button className={styles.reservationBtn} onClick={() => navigate(`/${slug}/rezervacija`)}>
               📅 {t('reservation')}
             </button>
@@ -269,7 +277,7 @@ export default function RestaurantLandingPage() {
           <div className={styles.langRow}><LanguageSwitcher variant="dark" /></div>
           {restaurant.logo_url && <img src={restaurant.logo_url} alt={restaurant.name} className={styles.logo} />}
           <h1 className={styles.restName}>{restaurant.name}</h1>
-          {restaurant.description && <p className={styles.restDesc}>{restaurant.description}</p>}
+          {restaurant.description && <p className={styles.restDesc}>{tr('restaurant', restaurant?.id, 'description', restaurant.description)}</p>}
           <button className={styles.heroCta} onClick={() => navigate(`/${slug}`)}>🍽️ {t('menu')}</button>
         </div>
       </div>

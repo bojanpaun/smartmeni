@@ -3,6 +3,8 @@ import { useParams, useNavigate } from 'react-router-dom'
 import { useTranslation } from 'react-i18next'
 import { supabase } from '../../../lib/supabase'
 import { toEmbedUrl } from '../../../utils/videoUrl'
+import { useContentTranslations } from '../../../lib/useContentTranslations'
+import { landingFieldPath } from '../../../lib/contentTranslate'
 import LanguageSwitcher from '../../../i18n/LanguageSwitcher'
 import styles from './HotelLanding.module.css'
 
@@ -18,6 +20,11 @@ export default function HotelLandingPage() {
   const [landingBlocks, setLandingBlocks] = useState(null)
   const [loading, setLoading] = useState(true)
   const [notFound, setNotFound] = useState(false)
+
+  // AI prevod proznih polja blokova za aktivni jezik gosta. Putanja: `hotel.${blockType}.${key}`.
+  const tr = useContentTranslations(hotel?.id)
+  const L = (...parts) => landingFieldPath('hotel', ...parts)
+  const trL = (path, fallback) => tr('landing_block', hotel?.id, path, fallback)
 
   useEffect(() => {
     async function load() {
@@ -142,8 +149,8 @@ export default function HotelLandingPage() {
     switch (block.type) {
 
       case 'hero': {
-        const title = block.data.title || hotel.name
-        const subtitle = block.data.subtitle || hotel.description
+        const title = trL(L('hero', 'title'), block.data.title) || hotel.name
+        const subtitle = trL(L('hero', 'subtitle'), block.data.subtitle) || tr('restaurant', hotel?.id, 'description', hotel.description)
         return (
           <div key={idx}>
             <div
@@ -170,7 +177,7 @@ export default function HotelLandingPage() {
           <section key={idx} className={styles.section}>
             <h2 className={styles.sectionTitle}>{t('about')}</h2>
             <div className={styles.aboutWrap} data-layout={layout || 'image-right'}>
-              <p className={styles.aboutText} style={{ flex: textFlex }}>{block.data.text}</p>
+              <p className={styles.aboutText} style={{ flex: textFlex }}>{trL(L('about', 'text'), block.data.text)}</p>
               {block.data.image_url && layout !== 'text-only' && (
                 <img src={block.data.image_url} alt="" loading="lazy" decoding="async" className={styles.aboutImg} style={{ flex: imgFlex }} />
               )}
@@ -204,7 +211,7 @@ export default function HotelLandingPage() {
           <section key={idx} className={styles.section}>
             <h2 className={styles.sectionTitle}>{t('amenities')}</h2>
             <div className={gridClass}>
-              {items.map((item, i) => <div key={i} className={styles.amenityItem}>{item}</div>)}
+              {items.map((item, i) => <div key={i} className={styles.amenityItem}>{trL(L('amenities', 'items', i), item)}</div>)}
             </div>
           </section>
         )
@@ -220,7 +227,7 @@ export default function HotelLandingPage() {
               {reviews.map((r, i) => (
                 <div key={i} className={styles.reviewCard}>
                   <div className={styles.reviewStars}>{'★'.repeat(r.rating || 5)}{'☆'.repeat(5 - (r.rating || 5))}</div>
-                  <p className={styles.reviewText}>{r.text}</p>
+                  <p className={styles.reviewText}>{trL(L('reviews', 'reviews', i, 'text'), r.text)}</p>
                   <div className={styles.reviewMeta}>
                     <span className={styles.reviewName}>{r.name}</span>
                     {r.date && <span className={styles.reviewDate}>{r.date}</span>}
@@ -237,7 +244,7 @@ export default function HotelLandingPage() {
         if (!embed) return null
         return (
           <section key={idx} className={`${styles.section} ${layout === 'centered' ? styles.sectionCentered : ''}`}>
-            {block.data.title && <h2 className={styles.sectionTitle}>{block.data.title}</h2>}
+            {block.data.title && <h2 className={styles.sectionTitle}>{trL(L('video', 'title'), block.data.title)}</h2>}
             <div className={styles.videoWrap}>
               <iframe src={embed} className={styles.videoIframe} allowFullScreen title="Video" />
             </div>
@@ -254,8 +261,8 @@ export default function HotelLandingPage() {
             <div className={layout === 'two-column' ? styles.faqGrid : styles.faqList}>
               {faqs.map((item, i) => (
                 <details key={i} className={styles.faqItem}>
-                  <summary className={styles.faqQuestion}>{item.question}<span className={styles.faqChevron}>›</span></summary>
-                  <p className={styles.faqAnswer}>{item.answer}</p>
+                  <summary className={styles.faqQuestion}>{trL(L('faq', 'faq', i, 'question'), item.question)}<span className={styles.faqChevron}>›</span></summary>
+                  <p className={styles.faqAnswer}>{trL(L('faq', 'faq', i, 'answer'), item.answer)}</p>
                 </details>
               ))}
             </div>
@@ -268,12 +275,12 @@ export default function HotelLandingPage() {
         return (
           <div key={idx} className={`${styles.ctaBanner} ${layout === 'left-aligned' ? styles.ctaBannerLeft : ''}`}>
             <div className={styles.ctaBannerContent}>
-              <h2 className={styles.ctaBannerTitle}>{block.data.title}</h2>
-              {block.data.subtitle && <p className={styles.ctaBannerSub}>{block.data.subtitle}</p>}
+              <h2 className={styles.ctaBannerTitle}>{trL(L('cta_banner', 'title'), block.data.title)}</h2>
+              {block.data.subtitle && <p className={styles.ctaBannerSub}>{trL(L('cta_banner', 'subtitle'), block.data.subtitle)}</p>}
             </div>
             {block.data.btn_text && (
               <a href={block.data.btn_link || `/${slug}/book`} className={styles.ctaBannerBtn}>
-                {block.data.btn_text}
+                {trL(L('cta_banner', 'btn_text'), block.data.btn_text)}
               </a>
             )}
           </div>
@@ -308,7 +315,7 @@ export default function HotelLandingPage() {
             <div className={wrapClass}>
               {phone && <a href={`tel:${phone}`} className={styles.infoRow}><span className={styles.infoIcon}>📞</span><span>{phone}</span></a>}
               {email && <a href={`mailto:${email}`} className={styles.infoRow}><span className={styles.infoIcon}>✉️</span><span>{email}</span></a>}
-              {hours && <div className={styles.infoRow}><span className={styles.infoIcon}>⏰</span><span>{hours}</span></div>}
+              {hours && <div className={styles.infoRow}><span className={styles.infoIcon}>⏰</span><span>{trL(L('contact', 'hours'), hours)}</span></div>}
               {addr  && <div className={styles.infoRow}><span className={styles.infoIcon}>📍</span><span>{addr}</span></div>}
             </div>
           </section>

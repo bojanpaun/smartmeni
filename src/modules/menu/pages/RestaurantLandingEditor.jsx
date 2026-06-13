@@ -5,6 +5,7 @@ import { SortableContext, verticalListSortingStrategy, arrayMove } from '@dnd-ki
 import { usePlatform } from '../../../context/PlatformContext'
 import { supabase } from '../../../lib/supabase'
 import { toast } from 'react-hot-toast'
+import { translateContent, landingBlockFields } from '../../../lib/contentTranslate'
 import BlockSortable from '../../../components/shared/BlockSortable'
 import LandingPreview from '../../../components/shared/LandingPreview'
 import BlockLayoutPicker, { ColSplitPicker } from '../../../components/shared/BlockLayoutPicker'
@@ -218,7 +219,11 @@ export default function RestaurantLandingEditor() {
     }
     setSaving(false)
     if (error) { console.error(error); toast.error(t('rleSaveErr')) }
-    else toast.success(t('rleSaved'))
+    else {
+      toast.success(t('rleSaved'))
+      // AI prevod proznih polja blokova (fire-and-forget) — gost vidi landing na svom jeziku.
+      translateContent(restaurant.id, landingBlockFields(restaurant.id, 'restaurant', blocks)).catch(() => {})
+    }
   }
 
   if (loading) return <div className={styles.loadWrap}>{t('loading')}</div>

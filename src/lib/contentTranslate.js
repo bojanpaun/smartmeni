@@ -50,3 +50,78 @@ export function menuItemFields(item) {
   if (item?.id && item.description?.trim()) out.push({ entity_type: 'menu_item', entity_id: item.id, field: 'description', text: item.description })
   return out
 }
+
+// ── Landing stranice (restaurant/hotel) ───────────────────────────────────────
+// Blokovi su jedinstveni po `type` po stranici (editor ih čuva kao {type,enabled,data}
+// bez id-a, dnd/keys idu po `type`). Zato je entity model:
+//   entity_type = 'landing_block', entity_id = restaurantId,
+//   field = `${pageType}.${blockType}.${key}` (nizovi: `…arr.${i}.${subkey}`).
+// pageType ('restaurant'|'hotel') u putanji razdvaja dvije landing stranice istog
+// tenanta. Prevode se SAMO prozna polja; URL-ovi/slike/cijene/imena-osoba/adresa/
+// telefon/email ostaju izvor. `restaurants.description` (opis objekta) ide zasebno
+// kao entity_type='restaurant'.
+const LANDING_FIELDS = {
+  restaurant: {
+    hero:            ['title', 'subtitle'],
+    story:           ['text'],
+    video:           ['title'],
+    cta_banner:      ['title', 'subtitle', 'btn_text'],
+    reservation_cta: ['text', 'subtitle'],
+    hours_location:  ['hours'],
+    specials:        { array: 'specials', fields: ['name', 'description'] },
+    reviews:         { array: 'reviews', fields: ['text'] },
+  },
+  hotel: {
+    hero:       ['title', 'subtitle'],
+    about:      ['text'],
+    amenities:  { lines: 'items' },
+    video:      ['title'],
+    cta_banner: ['title', 'subtitle', 'btn_text'],
+    contact:    ['hours'],
+    reviews:    { array: 'reviews', fields: ['text'] },
+    faq:        { array: 'faq', fields: ['question', 'answer'] },
+  },
+}
+
+// Gradi stabilnu putanju polja (isti oblik pri pisanju i čitanju — bez drift-a).
+export function landingFieldPath(pageType, blockType, ...rest) {
+  return [pageType, blockType, ...rest].join('.')
+}
+
+// items niz za sva prozna polja jedne landing stranice (svi blokovi, bez obzira na
+// enabled — i isključeni blok može kasnije biti uključen). pageType: 'restaurant'|'hotel'.
+export function landingBlockFields(restaurantId, pageType, blocks) {
+  const cfg = LANDING_FIELDS[pageType]
+  if (!restaurantId || !cfg || !Array.isArray(blocks)) return []
+  const out = []
+  const push = (field, text) => {
+    if (typeof text === 'string' && text.trim()) {
+      out.push({ entity_type: 'landing_block', entity_id: restaurantId, field, text })
+    }
+  }
+  for (const block of blocks) {
+    const spec = cfg[block?.type]
+    const data = block?.data
+    if (!spec || !data) continue
+    if (Array.isArray(spec)) {
+      for (const key of spec) push(landingFieldPath(pageType, block.type, key), data[key])
+    } else if (spec.lines) {
+      // Lista odvojena novim redom (npr. amenities) → prevod po liniji (indeksirano),
+      // jer prevod cijelog bloba ne garantuje očuvanje prelomа.
+      const lines = typeof data[spec.lines] === 'string' ? data[spec.lines].split('\n').map(s => s.trim()).filter(Boolean) : []
+      lines.forEach((line, i) => push(landingFieldPath(pageType, block.type, spec.lines, i), line))
+    } else {
+      const arr = Array.isArray(data[spec.array]) ? data[spec.array] : []
+      arr.forEach((item, i) => {
+        for (const key of spec.fields) push(landingFieldPath(pageType, block.type, spec.array, i, key), item?.[key])
+      })
+    }
+  }
+  return out
+}
+
+// Pomoćnik: items niz za opis objekta (restaurants.description). entity_type='restaurant'.
+export function restaurantDescriptionFields(restaurantId, description) {
+  if (!restaurantId || typeof description !== 'string' || !description.trim()) return []
+  return [{ entity_type: 'restaurant', entity_id: restaurantId, field: 'description', text: description }]
+}

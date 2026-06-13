@@ -2,7 +2,7 @@ import { useState, useRef } from 'react'
 import { useTranslation } from 'react-i18next'
 import { supabase } from '../../../lib/supabase'
 import { stripAccountFields } from '../../../lib/planUtils'
-import { translateContent } from '../../../lib/contentTranslate'
+import { translateContent, restaurantDescriptionFields } from '../../../lib/contentTranslate'
 import { usePlatform } from '../../../context/PlatformContext'
 import TemplateSettings from './TemplateSettings'
 import styles from './GeneralSettings.module.css'
@@ -291,6 +291,8 @@ export default function AdminMenuSettings() {
     setSaving(false)
     setMsg(t('saved'))
     setTimeout(() => setMsg(''), 2000)
+    // AI prevod opisa objekta (fire-and-forget) — prikazuje se kao hero podnaslov na landingu.
+    translateContent(restaurant.id, restaurantDescriptionFields(restaurant.id, rest.description)).catch(() => {})
   }
 
   // Instant save za visibility polja (bez forme)
