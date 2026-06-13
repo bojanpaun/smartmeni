@@ -112,6 +112,8 @@
   "bannerDetails": "Подробнее",
   "close": "Закрыть",
   "cpSubtitle": "Обзор и быстрый доступ ко всем модулям",
+  "cpQuickTitle": "Быстрый доступ",
+  "cpQuickHint": "Ярлыки к экранам, которые вы используете чаще всего.",
   "kpiOrdersToday": "Заказы сегодня",
   "kpiRevenueToday": "Доход сегодня",
   "kpiCheckinsToday": "Заезды сегодня",

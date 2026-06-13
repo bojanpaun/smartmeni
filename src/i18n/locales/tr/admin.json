@@ -112,6 +112,8 @@
   "bannerDetails": "Detaylar",
   "close": "Kapat",
   "cpSubtitle": "Tüm modüllere genel bakış ve hızlı erişim",
+  "cpQuickTitle": "Hızlı erişim",
+  "cpQuickHint": "En sık kullandığınız ekranlara kısayollar.",
   "kpiOrdersToday": "Bugünkü siparişler",
   "kpiRevenueToday": "Bugünkü gelir",
   "kpiCheckinsToday": "Bugünkü check-in",

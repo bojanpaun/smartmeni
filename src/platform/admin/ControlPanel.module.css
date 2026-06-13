@@ -38,8 +38,9 @@
   border: 1px solid var(--c-border);
   border-radius: 12px;
   padding: 16px 20px;
-  flex: 1;
+  flex: 1 1 180px;
   min-width: 150px;
+  max-width: 280px;
 }
 
 .kpiIcon { font-size: 26px; line-height: 1; flex-shrink: 0; }
@@ -60,6 +61,24 @@
 }
 
 /* ── Quick actions ── */
+.quickHead {
+  display: flex;
+  align-items: baseline;
+  gap: 8px;
+  flex-wrap: wrap;
+  margin-bottom: 10px;
+}
+.quickHeadTitle {
+  font-size: 12px;
+  font-weight: 700;
+  letter-spacing: 0.04em;
+  text-transform: uppercase;
+  color: var(--c-text-medium);
+}
+.quickHeadHint {
+  font-size: 12px;
+  color: var(--c-text-muted);
+}
 .quickRow {
   display: flex;
   gap: 8px;

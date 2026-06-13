@@ -131,6 +131,7 @@ export default function ControlPanel() {
     ...(hasHotel ? [{ labelKey: 'navFrontDesk', icon: '🛎️', path: '/admin/hotel/frontdesk', badge: kpi.checkinsToday || 0 }] : []),
     ...(hasSpa   ? [{ labelKey: 'quickSpaToday',  icon: '💆', path: '/admin/spa/appointments', badge: kpi.spaToday || 0 }] : []),
   ]
+  const quickItems = QUICK.filter(a => canSee(a.perm))
 
   const renderCard = (mod) => {
     const accessible = canSee(mod.perm)
@@ -236,15 +237,23 @@ export default function ControlPanel() {
       </div>
 
       {/* ── Quick actions ── */}
-      <div className={styles.quickRow}>
-        {QUICK.filter(a => canSee(a.perm)).map(a => (
-          <button key={a.path} className={styles.quickBtn} onClick={() => navigate(a.path)}>
-            <span className={styles.quickIcon}>{a.icon}</span>
-            <span className={styles.quickLabel}>{t(a.labelKey)}</span>
-            {a.badge > 0 && <span className={styles.quickBadge}>{a.badge}</span>}
-          </button>
-        ))}
-      </div>
+      {quickItems.length > 0 && (
+        <>
+          <div className={styles.quickHead}>
+            <span className={styles.quickHeadTitle}>⚡ {t('cpQuickTitle')}</span>
+            <span className={styles.quickHeadHint}>{t('cpQuickHint')}</span>
+          </div>
+          <div className={styles.quickRow}>
+            {quickItems.map(a => (
+              <button key={a.path} className={styles.quickBtn} onClick={() => navigate(a.path)}>
+                <span className={styles.quickIcon}>{a.icon}</span>
+                <span className={styles.quickLabel}>{t(a.labelKey)}</span>
+                {a.badge > 0 && <span className={styles.quickBadge}>{a.badge}</span>}
+              </button>
+            ))}
+          </div>
+        </>
+      )}
 
       {/* ── Restoran vertical ── */}
       {hasVertical('restaurant') && (

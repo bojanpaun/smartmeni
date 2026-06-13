@@ -112,6 +112,8 @@
   "bannerDetails": "Details",
   "close": "Close",
   "cpSubtitle": "Overview and quick access to all modules",
+  "cpQuickTitle": "Quick access",
+  "cpQuickHint": "Shortcuts to the screens you use most.",
   "kpiOrdersToday": "Orders today",
   "kpiRevenueToday": "Revenue today",
   "kpiCheckinsToday": "Check-ins today",
