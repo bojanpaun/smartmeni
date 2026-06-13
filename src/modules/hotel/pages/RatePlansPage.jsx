@@ -3,6 +3,7 @@ import { useTranslation } from 'react-i18next'
 import { usePlatform } from '../../../context/PlatformContext'
 import { useRatePlans } from '../hooks/useRatePlans'
 import { supabase } from '../../../lib/supabase'
+import { translateContent, ratePlanFields } from '../../../lib/contentTranslate'
 import LoadingSpinner from '../../../components/shared/LoadingSpinner'
 import toast from 'react-hot-toast'
 import styles from './Hotel.module.css'
@@ -203,6 +204,11 @@ export default function RatePlansPage() {
     toast.success(editing ? t('rplPlanUpdated') : t('rplPlanAdded'))
     setShowForm(false)
     refetch()
+    // AI prevod naziva/opisa PAKETA (fire-and-forget) — gost vidi paket na svom jeziku
+    // u booking flow-u. Sezonski planovi (cjenovno pravilo) se ne prikazuju gostu.
+    if (form.plan_type === 'package' && planId) {
+      translateContent(restaurant.id, ratePlanFields({ id: planId, name: payload.name, description: payload.description })).catch(() => {})
+    }
   }
 
   const handleDelete = async (id) => {

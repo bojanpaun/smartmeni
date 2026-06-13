@@ -498,8 +498,8 @@ export default function BookingPage() {
                                   className={styles.pkgRadio}
                                 />
                                 <div className={styles.pkgInfo}>
-                                  <span className={styles.pkgName}>{pkg.plan_name}</span>
-                                  {pkg.plan_description && <span className={styles.pkgDesc}>{pkg.plan_description}</span>}
+                                  <span className={styles.pkgName}>{tr('rate_plan', pkg.rate_plan_id, 'name', pkg.plan_name)}</span>
+                                  {pkg.plan_description && <span className={styles.pkgDesc}>{tr('rate_plan', pkg.rate_plan_id, 'description', pkg.plan_description)}</span>}
                                 </div>
                                 <div className={styles.pkgPrices}>
                                   <span className={styles.pkgPrice}>€{Number(pkg.price_per_night).toFixed(2)}</span>
@@ -538,8 +538,8 @@ export default function BookingPage() {
 
             <div className={styles.summaryBox}>
               <strong>
-                {selectedRoom.name}
-                {selectedPackage && <span className={styles.summaryPackage}> — {selectedPackage.plan_name}</span>}
+                {tr('room_type', selectedRoom.room_type_id, 'name', selectedRoom.name)}
+                {selectedPackage && <span className={styles.summaryPackage}> — {tr('rate_plan', selectedPackage.rate_plan_id, 'name', selectedPackage.plan_name)}</span>}
               </strong>
               <span className={styles.summaryMeta}>
                 {formatDate(checkIn, lang)} — {formatDate(checkOut, lang)} · {t('date.nights', { count: nights })} · €{totalAmount.toFixed(2)}
@@ -586,12 +586,12 @@ export default function BookingPage() {
             <div className={styles.summaryFull}>
               <div className={styles.summaryRow}>
                 <span>{t('payment.accommodation')}</span>
-                <span>{selectedRoom.name}</span>
+                <span>{tr('room_type', selectedRoom.room_type_id, 'name', selectedRoom.name)}</span>
               </div>
               {selectedPackage && (
                 <div className={styles.summaryRow}>
                   <span>{t('payment.package')}</span>
-                  <span>{selectedPackage.plan_name}</span>
+                  <span>{tr('rate_plan', selectedPackage.rate_plan_id, 'name', selectedPackage.plan_name)}</span>
                 </div>
               )}
               <div className={styles.summaryRow}>

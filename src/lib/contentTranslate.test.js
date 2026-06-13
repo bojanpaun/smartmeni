@@ -13,7 +13,7 @@ import { describe, it, expect, vi } from 'vitest'
 vi.mock('./supabase', () => ({ supabase: { functions: { invoke: vi.fn() } } }))
 
 const {
-  orderRejectionFields, menuItemFields, roomTypeFields,
+  orderRejectionFields, menuItemFields, roomTypeFields, ratePlanFields,
   landingFieldPath, landingBlockFields, restaurantDescriptionFields,
 } = await import('./contentTranslate.js')
 
@@ -71,6 +71,24 @@ describe('roomTypeFields', () => {
       { entity_type: 'room_type', entity_id: id, field: 'name', text: 'Suite' },
     ])
     expect(roomTypeFields({ name: 'Suite' })).toEqual([])
+  })
+})
+
+describe('ratePlanFields', () => {
+  const id = '66666666-6666-6666-6666-666666666666'
+
+  it('uključuje name i description kad postoje', () => {
+    expect(ratePlanFields({ id, name: 'Romantični paket', description: 'Šampanjac + spa' })).toEqual([
+      { entity_type: 'rate_plan', entity_id: id, field: 'name', text: 'Romantični paket' },
+      { entity_type: 'rate_plan', entity_id: id, field: 'description', text: 'Šampanjac + spa' },
+    ])
+  })
+
+  it('preskače prazno description i sve bez id-a', () => {
+    expect(ratePlanFields({ id, name: 'Standard', description: null })).toEqual([
+      { entity_type: 'rate_plan', entity_id: id, field: 'name', text: 'Standard' },
+    ])
+    expect(ratePlanFields({ name: 'Standard' })).toEqual([])
   })
 })
 

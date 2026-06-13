@@ -110,12 +110,13 @@ Deno.serve(async (req) => {
     let sourceItems: SourceItem[] = rawItems
     if (backfill) {
       const [
-        { data: mi }, { data: cats }, { data: rts }, { data: spa }, { data: restRow }, { data: lps },
+        { data: mi }, { data: cats }, { data: rts }, { data: spa }, { data: rps }, { data: restRow }, { data: lps },
       ] = await Promise.all([
         supabaseAdmin.from('menu_items').select('id, name, description').eq('restaurant_id', restaurantId),
         supabaseAdmin.from('categories').select('id, name').eq('restaurant_id', restaurantId),
         supabaseAdmin.from('room_types').select('id, name, description').eq('restaurant_id', restaurantId),
         supabaseAdmin.from('spa_services').select('id, name, description').eq('restaurant_id', restaurantId),
+        supabaseAdmin.from('rate_plans').select('id, name, description').eq('restaurant_id', restaurantId).eq('plan_type', 'package'),
         supabaseAdmin.from('restaurants').select('description, waiter_messages').eq('id', restaurantId).maybeSingle(),
         supabaseAdmin.from('landing_pages').select('page_type, blocks').eq('restaurant_id', restaurantId),
       ])
@@ -134,6 +135,10 @@ Deno.serve(async (req) => {
       for (const s of spa ?? []) {
         if (s.name?.trim()) sourceItems.push({ entity_type: 'spa_service', entity_id: s.id, field: 'name', text: s.name })
         if (s.description?.trim()) sourceItems.push({ entity_type: 'spa_service', entity_id: s.id, field: 'description', text: s.description })
+      }
+      for (const p of rps ?? []) {
+        if (p.name?.trim()) sourceItems.push({ entity_type: 'rate_plan', entity_id: p.id, field: 'name', text: p.name })
+        if (p.description?.trim()) sourceItems.push({ entity_type: 'rate_plan', entity_id: p.id, field: 'description', text: p.description })
       }
       if (restRow?.description?.trim()) {
         sourceItems.push({ entity_type: 'restaurant', entity_id: restaurantId, field: 'description', text: restRow.description })

@@ -134,3 +134,13 @@ export function roomTypeFields(roomType) {
   if (roomType?.id && roomType.description?.trim()) out.push({ entity_type: 'room_type', entity_id: roomType.id, field: 'description', text: roomType.description })
   return out
 }
+
+// Pomoćnik: items niz iz jednog rate_plan (PAKET) reda. Paketi su guest-facing u
+// booking flow-u (RPC vraća rate_plan_id + plan_name/plan_description). Sezonski
+// planovi (multiplier) su interno cjenovno pravilo → ne prevode se. entity_type='rate_plan'.
+export function ratePlanFields(ratePlan) {
+  const out = []
+  if (ratePlan?.id && ratePlan.name?.trim()) out.push({ entity_type: 'rate_plan', entity_id: ratePlan.id, field: 'name', text: ratePlan.name })
+  if (ratePlan?.id && ratePlan.description?.trim()) out.push({ entity_type: 'rate_plan', entity_id: ratePlan.id, field: 'description', text: ratePlan.description })
+  return out
+}
