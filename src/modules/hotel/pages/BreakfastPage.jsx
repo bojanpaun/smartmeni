@@ -143,9 +143,9 @@ export default function BreakfastPage() {
 
 function Stat({ label, value, sub, accent }) {
   return (
-    <div style={{ padding: 12, border: `1px solid ${accent ? '#fca5a5' : 'var(--c-border)'}`, borderRadius: 10, background: accent ? '#fef2f2' : 'transparent' }}>
+    <div style={{ padding: 12, border: `1px solid ${accent ? 'var(--c-danger-border)' : 'var(--c-border)'}`, borderRadius: 10, background: accent ? 'var(--c-danger-bg)' : 'transparent' }}>
       <div style={{ fontSize: 12, color: 'var(--c-text-muted)' }}>{label}</div>
-      <div style={{ fontSize: 20, fontWeight: 700, marginTop: 2, color: accent ? '#c0392b' : 'inherit' }}>{value}</div>
+      <div style={{ fontSize: 20, fontWeight: 700, marginTop: 2, color: accent ? 'var(--c-danger)' : 'inherit' }}>{value}</div>
       {sub && <div style={{ fontSize: 11, color: 'var(--c-text-muted)', marginTop: 2 }}>{sub}</div>}
     </div>
   )

@@ -12,10 +12,10 @@ const STATUS_LABELS = {
   regular: 'Regular', vip: 'VIP', blacklist: 'Blacklist', pending: 'Na čekanju'
 }
 const STATUS_STYLES = {
-  regular: { background: '#f0f5f2', color: '#5a7a6a' },
-  vip: { background: '#FAEEDA', color: '#633806' },
-  blacklist: { background: '#FCEBEB', color: '#791F1F' },
-  pending: { background: '#E6F1FB', color: '#0C447C' },
+  regular: { background: 'var(--c-bg-subtle)', color: 'var(--c-text-medium)' },
+  vip: { background: 'var(--c-warning-bg)', color: 'var(--c-warning)' },
+  blacklist: { background: 'var(--c-danger-bg)', color: 'var(--c-danger)' },
+  pending: { background: 'var(--c-info-bg)', color: 'var(--c-info)' },
 }
 
 const EMPTY_FORM = {
@@ -154,7 +154,7 @@ export default function GuestsPage() {
                     <div className={styles.nameCell}>
                       {g.avatar_url
                         ? <img src={g.avatar_url} className={styles.avatar} alt={fullName(g)} />
-                        : <div className={styles.avatar} style={{ background: '#FAEEDA', color: '#633806' }}>{initials(g)}</div>
+                        : <div className={styles.avatar} style={{ background: 'var(--c-warning-bg)', color: 'var(--c-warning)' }}>{initials(g)}</div>
                       }
                       <div>
                         <div className={styles.guestName}>{fullName(g)}</div>

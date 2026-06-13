@@ -39,10 +39,10 @@ export default function TablesAnalytics() {
   const metrics = [
     { label: t('tanTotalTables'), value: totalTables, sub: null, color: null },
     { label: t('tanSeats'), value: totalSeats, sub: t('tanTotalCapacity'), color: null },
-    { label: t('tanResToday'), value: todayRes, sub: null, color: todayRes > 0 ? '#0d7a52' : null },
-    { label: t('tanConfirmed30'), value: confirmedRes, sub: null, color: '#0d7a52' },
-    { label: t('tanPending'), value: pendingRes, sub: null, color: pendingRes > 0 ? '#ba7517' : null },
-    { label: t('tanCancelled30'), value: cancelledRes, sub: null, color: cancelledRes > 0 ? '#a32d2d' : null },
+    { label: t('tanResToday'), value: todayRes, sub: null, color: todayRes > 0 ? 'var(--c-primary)' : null },
+    { label: t('tanConfirmed30'), value: confirmedRes, sub: null, color: 'var(--c-primary)' },
+    { label: t('tanPending'), value: pendingRes, sub: null, color: pendingRes > 0 ? 'var(--c-warning)' : null },
+    { label: t('tanCancelled30'), value: cancelledRes, sub: null, color: cancelledRes > 0 ? 'var(--c-danger)' : null },
   ]
 
   // Raspored stolova po kapacitetu
@@ -63,54 +63,54 @@ export default function TablesAnalytics() {
       <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fill, minmax(160px, 1fr))', gap: 14, marginBottom: 24 }}>
         {metrics.map((m, i) => (
           <div key={i} style={{
-            background: '#fff', borderRadius: 14, padding: '18px 20px',
-            border: '1px solid #e0ece6', boxShadow: '0 1px 4px rgba(0,0,0,0.04)',
+            background: 'var(--c-surface)', borderRadius: 14, padding: '18px 20px',
+            border: '1px solid var(--c-border)', boxShadow: '0 1px 4px rgba(0,0,0,0.04)',
           }}>
-            <div style={{ fontSize: 12, color: '#8a9e96', fontWeight: 500, marginBottom: 8 }}>{m.label}</div>
-            <div style={{ fontSize: 28, fontWeight: 700, color: m.color || '#1a2e26', lineHeight: 1 }}>{m.value}</div>
-            {m.sub && <div style={{ fontSize: 11, color: '#b0c0b8', marginTop: 4 }}>{m.sub}</div>}
+            <div style={{ fontSize: 12, color: 'var(--c-text-muted)', fontWeight: 500, marginBottom: 8 }}>{m.label}</div>
+            <div style={{ fontSize: 28, fontWeight: 700, color: m.color || 'var(--c-text)', lineHeight: 1 }}>{m.value}</div>
+            {m.sub && <div style={{ fontSize: 11, color: 'var(--c-text-muted)', marginTop: 4 }}>{m.sub}</div>}
           </div>
         ))}
       </div>
 
       {/* Raspored po kapacitetu */}
-      <div style={{ background: '#fff', borderRadius: 14, border: '1px solid #e0ece6', padding: '20px 24px', marginBottom: 16 }}>
-        <div style={{ fontSize: 14, fontWeight: 600, color: '#0e1a14', marginBottom: 16 }}>{t('tanByCapacity')}</div>
+      <div style={{ background: 'var(--c-surface)', borderRadius: 14, border: '1px solid var(--c-border)', padding: '20px 24px', marginBottom: 16 }}>
+        <div style={{ fontSize: 14, fontWeight: 600, color: 'var(--c-text)', marginBottom: 16 }}>{t('tanByCapacity')}</div>
         {Object.entries(byCapacity).sort(([a], [b]) => a - b).map(([cap, count]) => (
           <div key={cap} style={{ display: 'flex', alignItems: 'center', gap: 12, marginBottom: 10 }}>
-            <div style={{ width: 80, fontSize: 13, color: '#5a7a6a', fontWeight: 500 }}>{cap} {t('tblSeats')}</div>
-            <div style={{ flex: 1, background: '#f0f5f2', borderRadius: 6, height: 10, overflow: 'hidden' }}>
+            <div style={{ width: 80, fontSize: 13, color: 'var(--c-text-medium)', fontWeight: 500 }}>{cap} {t('tblSeats')}</div>
+            <div style={{ flex: 1, background: 'var(--c-bg-subtle)', borderRadius: 6, height: 10, overflow: 'hidden' }}>
               <div style={{
-                height: '100%', borderRadius: 6, background: '#0d7a52',
+                height: '100%', borderRadius: 6, background: 'var(--c-primary)',
                 width: `${(count / totalTables) * 100}%`, transition: 'width 0.6s',
               }} />
             </div>
-            <div style={{ fontSize: 13, fontWeight: 600, color: '#1a2e26', minWidth: 24 }}>{count}×</div>
+            <div style={{ fontSize: 13, fontWeight: 600, color: 'var(--c-text)', minWidth: 24 }}>{count}×</div>
           </div>
         ))}
         {Object.keys(byCapacity).length === 0 && (
-          <div style={{ color: '#8a9e96', fontSize: 13 }}>{t('tanNoTables')}</div>
+          <div style={{ color: 'var(--c-text-muted)', fontSize: 13 }}>{t('tanNoTables')}</div>
         )}
       </div>
 
       {/* Zadnjih 5 rezervacija */}
       {reservations.length > 0 && (
-        <div style={{ background: '#fff', borderRadius: 14, border: '1px solid #e0ece6', padding: '20px 24px' }}>
-          <div style={{ fontSize: 14, fontWeight: 600, color: '#0e1a14', marginBottom: 16 }}>{t('tanRecentRes')}</div>
+        <div style={{ background: 'var(--c-surface)', borderRadius: 14, border: '1px solid var(--c-border)', padding: '20px 24px' }}>
+          <div style={{ fontSize: 14, fontWeight: 600, color: 'var(--c-text)', marginBottom: 16 }}>{t('tanRecentRes')}</div>
           {reservations.slice(0, 8).map(r => {
             const statusColors = {
-              confirmed: { bg: '#e1f5ee', color: '#0d7a52', label: t('tblStConfirmed') },
-              pending:   { bg: '#faeeda', color: '#ba7517', label: t('tblStPending') },
-              cancelled: { bg: '#fce8e8', color: '#a32d2d', label: t('tblStCancelled') },
-            }[r.status] || { bg: '#f0f5f2', color: '#5a7a6a', label: r.status }
+              confirmed: { bg: 'var(--c-primary-light)', color: 'var(--c-primary)', label: t('tblStConfirmed') },
+              pending:   { bg: 'var(--c-warning-bg)', color: 'var(--c-warning)', label: t('tblStPending') },
+              cancelled: { bg: 'var(--c-danger-bg)', color: 'var(--c-danger)', label: t('tblStCancelled') },
+            }[r.status] || { bg: 'var(--c-bg-subtle)', color: 'var(--c-text-medium)', label: r.status }
             return (
               <div key={r.id} style={{
                 display: 'flex', alignItems: 'center', gap: 12,
-                padding: '9px 0', borderBottom: '1px solid #f0f5f2',
+                padding: '9px 0', borderBottom: '1px solid var(--c-border)',
               }}>
                 <div style={{ flex: 1 }}>
-                  <div style={{ fontSize: 13, fontWeight: 600, color: '#1a2e26' }}>{r.guest_name || '—'}</div>
-                  <div style={{ fontSize: 12, color: '#8a9e96' }}>
+                  <div style={{ fontSize: 13, fontWeight: 600, color: 'var(--c-text)' }}>{r.guest_name || '—'}</div>
+                  <div style={{ fontSize: 12, color: 'var(--c-text-muted)' }}>
                     {r.date} · {r.time?.slice(0, 5)} · {r.guests_count} {t('tblGuestOther')}
                     {r.table_number && ` · ${t('anaTable')} ${r.table_number}`}
                   </div>

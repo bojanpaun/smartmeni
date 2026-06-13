@@ -51,10 +51,10 @@ export default function InventoryAnalytics() {
 
   const metrics = [
     { label: t('iaTotalItems'), value: totalItems },
-    { label: t('invBelowMin'), value: lowItems.length, color: lowItems.length > 0 ? '#a32d2d' : '#0d7a52' },
-    { label: t('iaStockValue'), value: `€${totalValue.toFixed(0)}`, color: '#0d7a52' },
-    { label: t('iaInflows'), value: inMoves, color: '#0d7a52' },
-    { label: t('iaOutflows'), value: outMoves, color: '#ba7517' },
+    { label: t('invBelowMin'), value: lowItems.length, color: lowItems.length > 0 ? 'var(--c-danger)' : 'var(--c-primary)' },
+    { label: t('iaStockValue'), value: `€${totalValue.toFixed(0)}`, color: 'var(--c-primary)' },
+    { label: t('iaInflows'), value: inMoves, color: 'var(--c-primary)' },
+    { label: t('iaOutflows'), value: outMoves, color: 'var(--c-warning)' },
   ]
 
   return (
@@ -67,24 +67,24 @@ export default function InventoryAnalytics() {
       {/* Metrike */}
       <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fill, minmax(155px, 1fr))', gap: 14, marginBottom: 24 }}>
         {metrics.map((m, i) => (
-          <div key={i} style={{ background: '#fff', borderRadius: 14, padding: '18px 20px', border: '1px solid #e0ece6', boxShadow: '0 1px 4px rgba(0,0,0,0.04)' }}>
-            <div style={{ fontSize: 12, color: '#8a9e96', fontWeight: 500, marginBottom: 8 }}>{m.label}</div>
-            <div style={{ fontSize: 28, fontWeight: 700, color: m.color || '#1a2e26', lineHeight: 1 }}>{m.value}</div>
+          <div key={i} style={{ background: 'var(--c-surface)', borderRadius: 14, padding: '18px 20px', border: '1px solid var(--c-border)', boxShadow: '0 1px 4px rgba(0,0,0,0.04)' }}>
+            <div style={{ fontSize: 12, color: 'var(--c-text-muted)', fontWeight: 500, marginBottom: 8 }}>{m.label}</div>
+            <div style={{ fontSize: 28, fontWeight: 700, color: m.color || 'var(--c-text)', lineHeight: 1 }}>{m.value}</div>
           </div>
         ))}
       </div>
 
       {/* Stavke ispod minimuma */}
       {lowItems.length > 0 && (
-        <div style={{ background: '#fff8f5', border: '1px solid #f5c0a0', borderRadius: 14, padding: '18px 22px', marginBottom: 16 }}>
-          <div style={{ fontSize: 14, fontWeight: 600, color: '#a32d2d', marginBottom: 12 }}>
+        <div style={{ background: 'var(--c-danger-bg)', border: '1px solid var(--c-danger-border)', borderRadius: 14, padding: '18px 22px', marginBottom: 16 }}>
+          <div style={{ fontSize: 14, fontWeight: 600, color: 'var(--c-danger)', marginBottom: 12 }}>
             ⚠️ {t('iaItemsBelowMin')} ({lowItems.length})
           </div>
           {lowItems.map(item => (
-            <div key={item.id} style={{ display: 'flex', justifyContent: 'space-between', padding: '7px 0', borderBottom: '1px solid #f5e0d8', fontSize: 13 }}>
-              <span style={{ fontWeight: 500, color: '#1a2e26' }}>{item.name}</span>
-              <span style={{ color: '#a32d2d', fontWeight: 600 }}>
-                {item.quantity} {item.unit} <span style={{ color: '#b0c0b8', fontWeight: 400 }}>/ {t('iaMin')} {item.min_quantity}</span>
+            <div key={item.id} style={{ display: 'flex', justifyContent: 'space-between', padding: '7px 0', borderBottom: '1px solid var(--c-danger-border)', fontSize: 13 }}>
+              <span style={{ fontWeight: 500, color: 'var(--c-text)' }}>{item.name}</span>
+              <span style={{ color: 'var(--c-danger)', fontWeight: 600 }}>
+                {item.quantity} {item.unit} <span style={{ color: 'var(--c-text-muted)', fontWeight: 400 }}>/ {t('iaMin')} {item.min_quantity}</span>
               </span>
             </div>
           ))}
@@ -93,15 +93,15 @@ export default function InventoryAnalytics() {
 
       {/* Po kategorijama */}
       {Object.keys(byCategory).length > 0 && (
-        <div style={{ background: '#fff', borderRadius: 14, border: '1px solid #e0ece6', padding: '20px 24px', marginBottom: 16 }}>
-          <div style={{ fontSize: 14, fontWeight: 600, color: '#0e1a14', marginBottom: 16 }}>{t('iaByCategory')}</div>
+        <div style={{ background: 'var(--c-surface)', borderRadius: 14, border: '1px solid var(--c-border)', padding: '20px 24px', marginBottom: 16 }}>
+          <div style={{ fontSize: 14, fontWeight: 600, color: 'var(--c-text)', marginBottom: 16 }}>{t('iaByCategory')}</div>
           {Object.entries(byCategory).sort(([,a],[,b]) => b.count - a.count).map(([cat, data]) => (
             <div key={cat} style={{ display: 'flex', alignItems: 'center', gap: 12, marginBottom: 10 }}>
-              <div style={{ width: 120, fontSize: 13, color: '#5a7a6a', fontWeight: 500, flexShrink: 0 }}>{catLabel(cat)}</div>
-              <div style={{ flex: 1, background: '#f0f5f2', borderRadius: 6, height: 10, overflow: 'hidden' }}>
-                <div style={{ height: '100%', borderRadius: 6, background: '#0d7a52', width: `${(data.count / totalItems) * 100}%` }} />
+              <div style={{ width: 120, fontSize: 13, color: 'var(--c-text-medium)', fontWeight: 500, flexShrink: 0 }}>{catLabel(cat)}</div>
+              <div style={{ flex: 1, background: 'var(--c-bg-subtle)', borderRadius: 6, height: 10, overflow: 'hidden' }}>
+                <div style={{ height: '100%', borderRadius: 6, background: 'var(--c-primary)', width: `${(data.count / totalItems) * 100}%` }} />
               </div>
-              <div style={{ fontSize: 12, color: '#8a9e96', minWidth: 80, textAlign: 'right' }}>
+              <div style={{ fontSize: 12, color: 'var(--c-text-muted)', minWidth: 80, textAlign: 'right' }}>
                 {data.count} {t('iaItemsShort')} · €{data.value.toFixed(0)}
               </div>
             </div>
@@ -111,20 +111,20 @@ export default function InventoryAnalytics() {
 
       {/* Zadnje promjene */}
       {movements.length > 0 && (
-        <div style={{ background: '#fff', borderRadius: 14, border: '1px solid #e0ece6', padding: '20px 24px' }}>
-          <div style={{ fontSize: 14, fontWeight: 600, color: '#0e1a14', marginBottom: 14 }}>{t('iaRecentChanges')}</div>
+        <div style={{ background: 'var(--c-surface)', borderRadius: 14, border: '1px solid var(--c-border)', padding: '20px 24px' }}>
+          <div style={{ fontSize: 14, fontWeight: 600, color: 'var(--c-text)', marginBottom: 14 }}>{t('iaRecentChanges')}</div>
           {movements.slice(0, 8).map(m => {
             const isIn = m.type === 'in' || m.quantity > 0
             return (
-              <div key={m.id} style={{ display: 'flex', alignItems: 'center', gap: 10, padding: '8px 0', borderBottom: '1px solid #f0f5f2' }}>
+              <div key={m.id} style={{ display: 'flex', alignItems: 'center', gap: 10, padding: '8px 0', borderBottom: '1px solid var(--c-border)' }}>
                 <span style={{ fontSize: 16 }}>{isIn ? '📥' : '📤'}</span>
                 <div style={{ flex: 1 }}>
-                  <div style={{ fontSize: 13, fontWeight: 500, color: '#1a2e26' }}>{m.item_name || m.note || '—'}</div>
-                  <div style={{ fontSize: 11, color: '#8a9e96' }}>
+                  <div style={{ fontSize: 13, fontWeight: 500, color: 'var(--c-text)' }}>{m.item_name || m.note || '—'}</div>
+                  <div style={{ fontSize: 11, color: 'var(--c-text-muted)' }}>
                     {new Date(m.created_at).toLocaleDateString(dl)} · {m.note || ''}
                   </div>
                 </div>
-                <span style={{ fontSize: 13, fontWeight: 600, color: isIn ? '#0d7a52' : '#ba7517' }}>
+                <span style={{ fontSize: 13, fontWeight: 600, color: isIn ? 'var(--c-primary)' : 'var(--c-warning)' }}>
                   {isIn ? '+' : ''}{m.quantity}
                 </span>
               </div>

@@ -28,10 +28,10 @@ export default function AdminMenuQR() {
       </div>
 
       <div style={{
-        background: '#fff', borderRadius: 16, border: '1px solid #e0ece6',
+        background: 'var(--c-surface)', borderRadius: 16, border: '1px solid var(--c-border)',
         padding: '28px 32px', maxWidth: 640,
       }}>
-        <div style={{ fontSize: 14, fontWeight: 600, color: '#0e1a14', marginBottom: 24 }}>
+        <div style={{ fontSize: 14, fontWeight: 600, color: 'var(--c-text)', marginBottom: 24 }}>
           {t('amQrTitle')}
         </div>
 
@@ -40,50 +40,50 @@ export default function AdminMenuQR() {
           {/* QR placeholder */}
           <div style={{ textAlign: 'center', flexShrink: 0 }}>
             <div style={{
-              width: 140, height: 140, border: '2px solid #d0e4dc', borderRadius: 12,
+              width: 140, height: 140, border: '2px solid var(--c-border-input)', borderRadius: 12,
               display: 'flex', alignItems: 'center', justifyContent: 'center',
-              background: '#f8fbf9',
+              background: 'var(--c-bg-subtle)',
             }}>
               <svg width="90" height="90" viewBox="0 0 80 80" fill="none">
-                <rect x="2" y="2" width="26" height="26" rx="3" stroke="#1a2e26" strokeWidth="3" fill="none"/>
-                <rect x="10" y="10" width="10" height="10" rx="1" fill="#1a2e26"/>
-                <rect x="52" y="2" width="26" height="26" rx="3" stroke="#1a2e26" strokeWidth="3" fill="none"/>
-                <rect x="60" y="10" width="10" height="10" rx="1" fill="#1a2e26"/>
-                <rect x="2" y="52" width="26" height="26" rx="3" stroke="#1a2e26" strokeWidth="3" fill="none"/>
-                <rect x="10" y="60" width="10" height="10" rx="1" fill="#1a2e26"/>
-                <rect x="36" y="4" width="8" height="8" rx="1" fill="#1a2e26"/>
-                <rect x="36" y="36" width="8" height="8" rx="1" fill="#1a2e26"/>
-                <rect x="48" y="36" width="8" height="8" rx="1" fill="#1a2e26"/>
-                <rect x="60" y="36" width="8" height="8" rx="1" fill="#1a2e26"/>
-                <rect x="36" y="48" width="8" height="8" rx="1" fill="#1a2e26"/>
-                <rect x="60" y="48" width="8" height="8" rx="1" fill="#1a2e26"/>
-                <rect x="48" y="60" width="8" height="8" rx="1" fill="#1a2e26"/>
-                <rect x="36" y="68" width="8" height="8" rx="1" fill="#1a2e26"/>
-                <rect x="60" y="68" width="8" height="8" rx="1" fill="#1a2e26"/>
+                <rect x="2" y="2" width="26" height="26" rx="3" stroke="var(--c-text)" strokeWidth="3" fill="none"/>
+                <rect x="10" y="10" width="10" height="10" rx="1" fill="var(--c-text)"/>
+                <rect x="52" y="2" width="26" height="26" rx="3" stroke="var(--c-text)" strokeWidth="3" fill="none"/>
+                <rect x="60" y="10" width="10" height="10" rx="1" fill="var(--c-text)"/>
+                <rect x="2" y="52" width="26" height="26" rx="3" stroke="var(--c-text)" strokeWidth="3" fill="none"/>
+                <rect x="10" y="60" width="10" height="10" rx="1" fill="var(--c-text)"/>
+                <rect x="36" y="4" width="8" height="8" rx="1" fill="var(--c-text)"/>
+                <rect x="36" y="36" width="8" height="8" rx="1" fill="var(--c-text)"/>
+                <rect x="48" y="36" width="8" height="8" rx="1" fill="var(--c-text)"/>
+                <rect x="60" y="36" width="8" height="8" rx="1" fill="var(--c-text)"/>
+                <rect x="36" y="48" width="8" height="8" rx="1" fill="var(--c-text)"/>
+                <rect x="60" y="48" width="8" height="8" rx="1" fill="var(--c-text)"/>
+                <rect x="48" y="60" width="8" height="8" rx="1" fill="var(--c-text)"/>
+                <rect x="36" y="68" width="8" height="8" rx="1" fill="var(--c-text)"/>
+                <rect x="60" y="68" width="8" height="8" rx="1" fill="var(--c-text)"/>
               </svg>
             </div>
-            <div style={{ fontSize: 12, color: '#8a9e96', marginTop: 8 }}>{restaurant.name}</div>
+            <div style={{ fontSize: 12, color: 'var(--c-text-muted)', marginTop: 8 }}>{restaurant.name}</div>
           </div>
 
           {/* Info */}
           <div style={{ flex: 1, minWidth: 220 }}>
-            <div style={{ fontSize: 12, fontWeight: 500, color: '#8a9e96', marginBottom: 6 }}>
+            <div style={{ fontSize: 12, fontWeight: 500, color: 'var(--c-text-muted)', marginBottom: 6 }}>
               {t('amLinkForGuests')}
             </div>
             <div style={{
               display: 'flex', alignItems: 'center', gap: 10,
-              background: '#f0f8f4', borderRadius: 10, padding: '10px 14px', marginBottom: 14,
+              background: 'var(--c-primary-light)', borderRadius: 10, padding: '10px 14px', marginBottom: 14,
             }}>
-              <span style={{ flex: 1, fontSize: 13, fontWeight: 500, color: '#0d7a52', wordBreak: 'break-all' }}>
+              <span style={{ flex: 1, fontSize: 13, fontWeight: 500, color: 'var(--c-primary)', wordBreak: 'break-all' }}>
                 {guestUrl}
               </span>
               <button
                 onClick={copy}
                 style={{
                   padding: '6px 14px', borderRadius: 8,
-                  background: copied ? '#0d7a52' : '#fff', color: copied ? '#fff' : '#0d7a52',
+                  background: copied ? 'var(--c-primary)' : 'var(--c-surface)', color: copied ? '#fff' : 'var(--c-primary)',
                   fontSize: 12, fontWeight: 600, cursor: 'pointer', flexShrink: 0,
-                  border: '1px solid #0d7a52', fontFamily: 'DM Sans, sans-serif',
+                  border: '1px solid var(--c-primary)', fontFamily: 'DM Sans, sans-serif',
                   transition: 'all 0.2s',
                 }}
               >
@@ -91,7 +91,7 @@ export default function AdminMenuQR() {
               </button>
             </div>
 
-            <p style={{ fontSize: 13, color: '#5a7a6a', lineHeight: 1.6, marginBottom: 18 }}>
+            <p style={{ fontSize: 13, color: 'var(--c-text-medium)', lineHeight: 1.6, marginBottom: 18 }}>
               {t('amQrNoteLong')}
             </p>
 
@@ -103,7 +103,7 @@ export default function AdminMenuQR() {
                 style={{
                   display: 'inline-flex', alignItems: 'center', gap: 6,
                   padding: '10px 20px', borderRadius: 10,
-                  background: restaurant.color || '#0d7a52', color: '#fff',
+                  background: restaurant.color || 'var(--c-primary)', color: '#fff',
                   fontSize: 13, fontWeight: 600, textDecoration: 'none',
                 }}
               >
@@ -113,8 +113,8 @@ export default function AdminMenuQR() {
                 onClick={() => window.print()}
                 style={{
                   padding: '10px 20px', borderRadius: 10, cursor: 'pointer',
-                  border: '1px solid #d0e4dc', background: '#fff',
-                  fontSize: 13, fontWeight: 600, color: '#3a6a56',
+                  border: '1px solid var(--c-border-input)', background: 'var(--c-surface)',
+                  fontSize: 13, fontWeight: 600, color: 'var(--c-text-medium)',
                   fontFamily: 'DM Sans, sans-serif',
                 }}
               >

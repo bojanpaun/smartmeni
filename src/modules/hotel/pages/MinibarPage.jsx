@@ -111,7 +111,7 @@ export default function MinibarPage() {
             <div style={{ fontWeight: 600 }}>📚 {t('htMinibarLibTitle')}</div>
             <button onClick={() => setShowLib(false)} style={{ background: 'none', border: 'none', fontSize: 18, cursor: 'pointer', color: 'var(--c-text-muted)' }}>✕</button>
           </div>
-          {libMsg && <div style={{ color: '#c0392b', fontSize: 13, marginBottom: 8 }}>{libMsg}</div>}
+          {libMsg && <div style={{ color: 'var(--c-danger)', fontSize: 13, marginBottom: 8 }}>{libMsg}</div>}
           {libLoading ? <LoadingSpinner /> : (
             <>
               <div style={{ display: 'flex', flexWrap: 'wrap', gap: 8, maxHeight: 320, overflowY: 'auto' }}>
@@ -185,7 +185,7 @@ export default function MinibarPage() {
                     <div style={{ display: 'flex', gap: 8 }}>
                       <button className={styles.btnSecondary} style={{ fontSize: 12 }} onClick={() => openEdit(it)}>{t('htEdit')}</button>
                       <button
-                        style={{ padding: '5px 10px', fontSize: 12, background: 'transparent', color: '#c0392b', border: '1px solid #fca5a5', borderRadius: 7, cursor: 'pointer' }}
+                        style={{ padding: '5px 10px', fontSize: 12, background: 'transparent', color: 'var(--c-danger)', border: '1px solid var(--c-danger-border)', borderRadius: 7, cursor: 'pointer' }}
                         onClick={() => remove(it.id)}
                       >{t('htDelete')}</button>
                     </div>

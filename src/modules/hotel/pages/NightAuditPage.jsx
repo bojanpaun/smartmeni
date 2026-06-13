@@ -148,12 +148,12 @@ export default function NightAuditPage() {
           )}
 
           {openCheckout.length > 0 && (
-            <div style={{ marginTop: 12, padding: 12, border: '1px solid #fca5a5', background: '#fef2f2', borderRadius: 8 }}>
-              <div style={{ fontWeight: 600, color: '#c0392b', fontSize: 13, marginBottom: 6 }}>
+            <div style={{ marginTop: 12, padding: 12, border: '1px solid var(--c-danger-border)', background: 'var(--c-danger-bg)', borderRadius: 8 }}>
+              <div style={{ fontWeight: 600, color: 'var(--c-danger)', fontSize: 13, marginBottom: 6 }}>
                 ⚠️ {t('htOpenFolios', { n: openCheckout.length })}
               </div>
               {openCheckout.map(f => (
-                <div key={f.folio_id} style={{ fontSize: 13, color: '#7f1d1d' }}>
+                <div key={f.folio_id} style={{ fontSize: 13, color: 'var(--c-danger)' }}>
                   {t('htOwes', { name: f.guest_name, amount: eur((f.total_amount || 0) - (f.paid_amount || 0)) })}
                 </div>
               ))}
