@@ -3,15 +3,19 @@
 
 import { useState, useEffect, useRef, useCallback } from 'react'
 import { useParams, useNavigate } from 'react-router-dom'
+import { useTranslation } from 'react-i18next'
 import { supabase } from '../../../lib/supabase'
 import { getTemplate } from '../../../lib/templates'
+import { useContentTranslations } from '../../../lib/useContentTranslations'
+import LanguageSwitcher from '../../../i18n/LanguageSwitcher'
 import styles from './OrderTrackerPage.module.css'
 
+// Koraci statusa — labela/opis idu kroz i18n ('ordertracker' ns). Ikona ostaje u kodu.
 const STATUS_STEPS = [
-  { key: 'received',  icon: '✅', label: 'Narudžba primljena',  labelEn: 'Order received',  desc: 'Vaša narudžba je primljena i čeka potvrdu.',          descEn: 'Your order has been received and awaits confirmation.' },
-  { key: 'preparing', icon: '👨‍🍳', label: 'U pripremi',         labelEn: 'Being prepared',   desc: 'Kuhinja priprema vašu narudžbu.',                       descEn: 'The kitchen is preparing your order.' },
-  { key: 'ready',    icon: '🔔', label: 'Gotovo!',             labelEn: 'Ready!',            desc: 'Vaša narudžba je gotova. Konobar dolazi.',              descEn: 'Your order is ready. The waiter is on the way.' },
-  { key: 'served',   icon: '🍽️', label: 'Servirano',           labelEn: 'Served',            desc: 'Prijatno! Narudžba je servisirana na vaš sto.',         descEn: 'Enjoy your meal! Order has been served to your table.' },
+  { key: 'received',  icon: '✅',   labelKey: 'stReceived',  descKey: 'stReceivedDesc' },
+  { key: 'preparing', icon: '👨‍🍳', labelKey: 'stPreparing', descKey: 'stPreparingDesc' },
+  { key: 'ready',     icon: '🔔',   labelKey: 'stReady',     descKey: 'stReadyDesc' },
+  { key: 'served',    icon: '🍽️',   labelKey: 'stServed',    descKey: 'stServedDesc' },
 ]
 
 const STATUS_INDEX = Object.fromEntries(STATUS_STEPS.map((s, i) => [s.key, i]))
@@ -19,19 +23,20 @@ const STATUS_INDEX = Object.fromEntries(STATUS_STEPS.map((s, i) => [s.key, i]))
 export default function OrderTrackerPage() {
   const { slug, orderId } = useParams()
   const navigate = useNavigate()
+  const { t } = useTranslation('ordertracker')
   const [restaurant, setRestaurant] = useState(null)
   const [order, setOrder] = useState(null)
   const [items, setItems] = useState([])
   const [loading, setLoading] = useState(true)
   const [notFound, setNotFound] = useState(false)
-  const [lang, setLang] = useState('sr')
   const channelRef = useRef(null)
 
-  const isEn = lang === 'en'
+  // AI prevod tenant-sadržaja (razlog odbijanja) za aktivni jezik gosta.
+  const tr = useContentTranslations(restaurant?.id)
 
   const loadData = useCallback(async () => {
     // Učitaj restoran — koristi samo sigurne kolone
-    const { data: rest, error: restErr } = await supabase
+    const { data: rest } = await supabase
       .from('restaurants')
       .select('id, name, slug, logo_url, color, template')
       .eq('slug', slug)
@@ -41,7 +46,7 @@ export default function OrderTrackerPage() {
     setRestaurant(rest)
 
     // Učitaj narudžbu
-    const { data: ord, error: ordErr } = await supabase
+    const { data: ord } = await supabase
       .from('orders')
       .select('*, order_items(*)')
       .eq('id', orderId)
@@ -83,20 +88,20 @@ export default function OrderTrackerPage() {
 
   if (loading) return (
     <div style={{ minHeight: '100vh', display: 'flex', alignItems: 'center', justifyContent: 'center', fontFamily: 'DM Sans,sans-serif', color: '#8a9e96' }}>
-      Učitavanje narudžbe...
+      {t('loading')}
     </div>
   )
 
   if (notFound) return (
     <div style={{ minHeight: '100vh', display: 'flex', flexDirection: 'column', alignItems: 'center', justifyContent: 'center', fontFamily: 'DM Sans,sans-serif', gap: 12, padding: 24 }}>
       <div style={{ fontSize: 48 }}>🍽️</div>
-      <div style={{ fontSize: 18, fontWeight: 700, color: '#1a2e26' }}>Narudžba nije pronađena</div>
-      <div style={{ color: '#8a9e96', textAlign: 'center' }}>Provjerite link ili kontaktirajte osoblje.</div>
+      <div style={{ fontSize: 18, fontWeight: 700, color: '#1a2e26' }}>{t('notFoundTitle')}</div>
+      <div style={{ color: '#8a9e96', textAlign: 'center' }}>{t('notFoundDesc')}</div>
       <button
         onClick={() => navigate(`/${slug}`)}
         style={{ marginTop: 12, padding: '10px 22px', borderRadius: 10, border: 'none', background: '#0d7a52', color: '#fff', fontWeight: 600, cursor: 'pointer', fontFamily: 'DM Sans,sans-serif' }}
       >
-        ← Nazad na meni
+        ← {t('notFoundBack')}
       </button>
     </div>
   )
@@ -108,6 +113,12 @@ export default function OrderTrackerPage() {
   const isDone = isClosed || isServed
 
   const total = items.reduce((s, i) => s + parseFloat(i.price) * i.quantity, 0)
+
+  // Razlog odbijanja: izvor je crnogorski (kako ga je konobar odabrao/unio); za
+  // ostale jezike prikaži AI prevod ako je stigao, inače fallback na izvor.
+  const rejectionText = order.rejection_message
+    ? tr('order', order.id, 'rejection_message', order.rejection_message)
+    : null
 
   return (
     <div className={styles.pageWrapper}>
@@ -123,11 +134,9 @@ export default function OrderTrackerPage() {
         <div className={styles.header} style={{ background: tpl.brand }}>
           <div className={styles.headerTop}>
             <button className={styles.backBtn} onClick={() => navigate(`/${slug}`)}>
-              ← {isEn ? 'Menu' : 'Meni'}
+              ← {t('menu')}
             </button>
-            <button className={styles.langToggle} onClick={() => setLang(isEn ? 'sr' : 'en')}>
-              {isEn ? 'SR' : 'EN'}
-            </button>
+            <LanguageSwitcher variant="dark" />
           </div>
           <div className={styles.restInfo}>
             <div className={styles.restLogo}>
@@ -138,14 +147,14 @@ export default function OrderTrackerPage() {
             </div>
             <div>
               <div className={styles.restName}>{restaurant.name}</div>
-              <div className={styles.restSub}>{isEn ? 'Order tracking' : 'Praćenje narudžbe'}</div>
+              <div className={styles.restSub}>{t('orderTracking')}</div>
             </div>
           </div>
         </div>
 
         {/* ORDER ID */}
         <div className={styles.orderIdBar}>
-          <span className={styles.orderIdLabel}>{isEn ? 'Order' : 'Narudžba'} #</span>
+          <span className={styles.orderIdLabel}>{t('orderLabel')} #</span>
           <span className={styles.orderIdVal}>{orderId.slice(-8).toUpperCase()}</span>
           {order.table_number && (
             <span className={styles.tableTag}>🪑 {order.table_number}</span>
@@ -156,8 +165,8 @@ export default function OrderTrackerPage() {
         {!isClosed && (
           <div className={styles.stepperCard}>
             <div className={styles.stepperTitle}>
-              {isEn ? 'Order status' : 'Status narudžbe'}
-              <span className={styles.liveDot} title={isEn ? 'Live updates' : 'Ažuriranje uživo'} />
+              {t('orderStatus')}
+              <span className={styles.liveDot} title={t('liveUpdates')} />
             </div>
             <div className={styles.stepper}>
               {STATUS_STEPS.map((step, i) => {
@@ -176,12 +185,12 @@ export default function OrderTrackerPage() {
                       </div>
                       <div className={styles.stepInfo}>
                         <div className={styles.stepLabel}>
-                          {isEn ? step.labelEn : step.label}
-                          {active && <span className={styles.stepNow}>{isEn ? 'NOW' : 'SADA'}</span>}
+                          {t(step.labelKey)}
+                          {active && <span className={styles.stepNow}>{t('now')}</span>}
                         </div>
                         {active && (
                           <div className={styles.stepDesc}>
-                            {isEn ? step.descEn : step.desc}
+                            {t(step.descKey)}
                           </div>
                         )}
                       </div>
@@ -207,17 +216,17 @@ export default function OrderTrackerPage() {
         {/* ZATVORENA NARUDŽBA */}
         {isClosed && (
           <div className={styles.closedCard}>
-            {order.rejection_message ? (
+            {rejectionText ? (
               <>
                 <div className={styles.closedIcon}>ℹ️</div>
-                <div className={styles.closedTitle}>{isEn ? 'Order cancelled' : 'Narudžba otkazana'}</div>
-                <div className={styles.rejectionMsg}>{order.rejection_message}</div>
+                <div className={styles.closedTitle}>{t('cancelledTitle')}</div>
+                <div className={styles.rejectionMsg}>{rejectionText}</div>
               </>
             ) : (
               <>
                 <div className={styles.closedIcon}>🧾</div>
-                <div className={styles.closedTitle}>{isEn ? 'Order closed' : 'Narudžba zatvorena'}</div>
-                <div className={styles.closedDesc}>{isEn ? 'Thank you for dining with us!' : 'Hvala što ste jeli kod nas!'}</div>
+                <div className={styles.closedTitle}>{t('closedTitle')}</div>
+                <div className={styles.closedDesc}>{t('closedDesc')}</div>
               </>
             )}
           </div>
@@ -225,7 +234,7 @@ export default function OrderTrackerPage() {
 
         {/* STAVKE NARUDŽBE */}
         <div className={styles.itemsCard}>
-          <div className={styles.itemsTitle}>{isEn ? 'Your order' : 'Vaša narudžba'}</div>
+          <div className={styles.itemsTitle}>{t('yourOrder')}</div>
           {items.map(item => (
             <div key={item.id} className={styles.orderItem}>
               <div className={styles.orderItemName}>{item.name}</div>
@@ -234,7 +243,7 @@ export default function OrderTrackerPage() {
             </div>
           ))}
           <div className={styles.orderTotal}>
-            <span>{isEn ? 'Total' : 'Ukupno'}</span>
+            <span>{t('total')}</span>
             <span>€{total.toFixed(2)}</span>
           </div>
         </div>
@@ -246,24 +255,24 @@ export default function OrderTrackerPage() {
             style={{ background: tpl.brand }}
             onClick={() => navigate(`/${slug}`)}
           >
-            {isEn ? '🍽️ New order' : '🍽️ Nova narudžba'}
+            🍽️ {t('newOrder')}
           </button>
         )}
 
         {/* LINKOVI NA DNU */}
         <div className={styles.menuLinkWrap}>
           <button className={styles.menuLink} onClick={() => navigate(`/${slug}`)}>
-            ← {isEn ? 'Back to menu' : 'Pogledajte meni'}
+            ← {t('backToMenuLink')}
           </button>
           <button className={styles.menuLink} onClick={() => navigate(`/${slug}/profil`)}>
-            👤 {isEn ? 'My profile' : 'Moj profil'}
+            👤 {t('myProfile')}
           </button>
         </div>
 
         {/* FOOTER */}
         <div className={styles.footer}>
           <a href="/" className={styles.footerBrand}>
-            Powered by <strong>rest.by.me</strong>
+            {t('poweredBy')} <strong>rest.by.me</strong>
           </a>
         </div>
       </div>

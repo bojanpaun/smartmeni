@@ -1,6 +1,7 @@
 import { useState, useEffect, useCallback, useRef } from 'react'
 import { useTranslation } from 'react-i18next'
 import { supabase } from '../../../lib/supabase'
+import { translateContent, orderRejectionFields } from '../../../lib/contentTranslate'
 import s from '../StaffPortal.module.css'
 
 async function findOpenFolio(restaurantId, roomNum, t) {
@@ -163,6 +164,10 @@ export default function WaiterView({ restaurant, activeTab, onRefresh, hotelEnab
     await supabase.from('orders').update({ status: 'closed', rejection_message: message }).eq('id', orderId)
     setOrders(prev => prev.filter(o => o.id !== orderId))
     onRefresh?.()
+    // AI prevod razloga odbijanja (fire-and-forget) — gost vidi razlog na svom jeziku.
+    if (message && restaurantId) {
+      translateContent(restaurantId, orderRejectionFields(orderId, message)).catch(() => {})
+    }
   }
 
   const resolveRequest = async (reqId, response = null) => {

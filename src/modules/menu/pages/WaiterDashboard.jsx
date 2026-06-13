@@ -4,6 +4,7 @@ import { useTranslation } from 'react-i18next'
 import { supabase } from '../../../lib/supabase'
 import { usePlatform } from '../../../context/PlatformContext'
 import { useAdminBadgeRefresh } from '../../../layouts/AdminLayout'
+import { translateContent, orderRejectionFields } from '../../../lib/contentTranslate'
 import styles from './WaiterDashboard.module.css'
 
 async function findOpenFolio(restaurantId, roomNum, t) {
@@ -138,6 +139,12 @@ export default function WaiterDashboard() {
     setOrders(prev => prev.map(o =>
       o.id === orderId ? { ...o, ...update } : o
     ).filter(o => o.status !== 'closed'))
+
+    // AI prevod razloga odbijanja (fire-and-forget) — gost na OrderTrackerPage vidi
+    // razlog na svom jeziku. Izvor crnogorski; keš po narudžbi (entity_id=order.id).
+    if (rejectionMessage && restaurant?.id) {
+      translateContent(restaurant.id, orderRejectionFields(orderId, rejectionMessage)).catch(() => {})
+    }
   }
 
   const resolveWaiterReq = async (id, response = null) => {

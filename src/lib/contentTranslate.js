@@ -35,6 +35,14 @@ export async function backfillTenant(restaurantId, langs) {
   return invokeTranslate({ restaurant_id: restaurantId, backfill: true, langs })
 }
 
+// Pomoćnik: items niz za razlog odbijanja narudžbe. Izvor je tekst koji je konobar
+// odabrao/unio (crnogorski); keširaju se prevodi po konkretnoj narudžbi (entity_id =
+// order.id) pa ih OrderTrackerPage čita na gostov jezik. entity_type='order'.
+export function orderRejectionFields(orderId, message) {
+  if (!orderId || typeof message !== 'string' || !message.trim()) return []
+  return [{ entity_type: 'order', entity_id: orderId, field: 'rejection_message', text: message }]
+}
+
 // Pomoćnik: napravi items niz iz jednog menu_item reda (name + description).
 export function menuItemFields(item) {
   const out = []
