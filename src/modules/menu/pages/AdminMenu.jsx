@@ -33,6 +33,7 @@ export default function AdminMenu() {
   const [showItemForm, setShowItemForm] = useState(false)
   const [editItem, setEditItem] = useState(null)
   const [transItem, setTransItem] = useState(null) // jelo čiji editor prevoda je otvoren
+  const [transCat, setTransCat] = useState(null)   // kategorija čiji editor prevoda je otvoren
   const [itemForm, setItemForm] = useState({
     name: '', name_en: '', description: '', description_en: '',
     price: '', emoji: '🍽️', allergens: '', calories: '',
@@ -356,6 +357,9 @@ export default function AdminMenu() {
                       <button className={styles.catRenameBtn} onClick={() => startEditCategory(cat)}>
                         ✏️ {t('amEditCategory')}
                       </button>
+                      <button className={styles.catRenameBtn} onClick={() => setTransCat(cat)} title={t('amTransTitle')}>
+                        🌐
+                      </button>
                       {cat.description && (
                         <span className={styles.catNote}>📝 {cat.description}</span>
                       )}
@@ -596,6 +600,15 @@ export default function AdminMenu() {
           headerTitle={`${transItem.emoji || '🍽️'} ${transItem.name}`}
           sourceName={transItem.name} sourceDescription={transItem.description}
           onClose={() => setTransItem(null)}
+        />
+      )}
+
+      {transCat && restaurant && (
+        <ContentTranslations
+          restaurantId={restaurant.id} entityType="category" entityId={transCat.id}
+          headerTitle={`${transCat.icon || '📁'} ${transCat.name}`}
+          fields={[{ key: 'name', labelKey: 'amTransName', source: transCat.name }]}
+          onClose={() => setTransCat(null)}
         />
       )}
     </div>

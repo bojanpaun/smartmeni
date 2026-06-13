@@ -5,6 +5,7 @@ import { stripAccountFields } from '../../../lib/planUtils'
 import { translateContent, restaurantDescriptionFields } from '../../../lib/contentTranslate'
 import { usePlatform } from '../../../context/PlatformContext'
 import TemplateSettings from './TemplateSettings'
+import ContentTranslations from '../../../components/shared/ContentTranslations'
 import styles from './GeneralSettings.module.css'
 import menuStyles from './AdminMenu.module.css'
 
@@ -81,6 +82,7 @@ function WaiterMessagesEditor({ restaurant, setRestaurant }) {
   )
   const [saving, setSaving] = useState(false)
   const [msg, setMsg] = useState('')
+  const [trMsg, setTrMsg] = useState(null) // poruka čiji se 🌐 override editor otvara
 
   const update = (i, field, val) =>
     setMessages(prev => prev.map((m, idx) => idx === i ? { ...m, [field]: val } : m))
@@ -113,11 +115,23 @@ function WaiterMessagesEditor({ restaurant, setRestaurant }) {
             </select>
             <input value={m.sr} onChange={e => update(i, 'sr', e.target.value)} placeholder={t('amTextField')}
               style={{ flex: 1, minWidth: 160, padding: '8px 10px', border: '1px solid #d0e4dc', borderRadius: 8, fontSize: 13, fontFamily: 'DM Sans, sans-serif', outline: 'none' }} />
+            <button type="button" onClick={() => setTrMsg(m)} title={t('amTransTitle')} disabled={!m.sr?.trim()}
+              style={{ padding: '7px 10px', background: 'transparent', border: '1px solid #d0e4dc', borderRadius: 8, cursor: m.sr?.trim() ? 'pointer' : 'not-allowed', opacity: m.sr?.trim() ? 1 : 0.4, fontSize: 13 }}>🌐</button>
             <button onClick={() => remove(i)}
               style={{ padding: '7px 10px', background: 'transparent', border: '1px solid #f5b0b0', borderRadius: 8, color: '#c0392b', cursor: 'pointer', fontSize: 13 }}>✕</button>
           </>
         )}
       </DraggableList>
+      {trMsg && (
+        <ContentTranslations
+          restaurantId={restaurant.id}
+          entityType="waiter_message"
+          entityId={trMsg.id}
+          headerTitle={trMsg.sr}
+          fields={[{ key: 'text', labelKey: 'amTextField', source: trMsg.sr, multiline: true }]}
+          onClose={() => setTrMsg(null)}
+        />
+      )}
       <div style={{ display: 'flex', gap: 10, marginTop: 12, alignItems: 'center' }}>
         <button onClick={add}
           style={{ padding: '8px 14px', background: '#f0f5f2', border: '1px solid #d0e4dc', borderRadius: 8, fontSize: 13, cursor: 'pointer', fontFamily: 'DM Sans, sans-serif' }}>

@@ -3,16 +3,22 @@ import { useTranslation } from 'react-i18next'
 import { supabase } from '../../lib/supabase'
 import { LANGUAGES } from '../../i18n/languages'
 
-// Generički editor prevoda jednog entiteta (menu_item, spa_service, ...): admin
-// vidi AI prevode polja name/description po 6 jezika i može ručno ispraviti.
-// Ručna verzija → is_override=true (piše direktno u content_translations preko
-// owner RLS) → AI je više NE pregazi. Prazno polje + Sačuvaj = briše override →
+// Generički editor prevoda jednog entiteta (menu_item, spa_service, category,
+// waiter_message, ...): admin vidi AI prevode polja po 6 jezika i može ručno
+// ispraviti. Ručna verzija → is_override=true (piše direktno u content_translations
+// preko owner RLS) → AI je više NE pregazi. Prazno polje + Sačuvaj = briše override →
 // AI ponovo preuzme. Izvor ('me') se uređuje u formi entiteta, ne ovdje.
+//
+// Polja: `fields` = [{ key, labelKey, source, multiline }]. Bez `fields` (legacy
+// pozivaoci menu_item/spa_service) → name + description iz sourceName/sourceDescription.
 const TARGET_LANGS = LANGUAGES.filter(l => l.code !== 'me') // en/sr/hr/sq/tr/ru
-const FIELDS = ['name', 'description']
 
-export default function ContentTranslations({ restaurantId, entityType, entityId, headerTitle, sourceName = '', sourceDescription = '', onClose }) {
+export default function ContentTranslations({ restaurantId, entityType, entityId, headerTitle, fields, sourceName = '', sourceDescription = '', onClose }) {
   const { t } = useTranslation('admin')
+  const resolvedFields = fields ?? [
+    { key: 'name', labelKey: 'amTransName', source: sourceName },
+    { key: 'description', labelKey: 'amTransDesc', source: sourceDescription, multiline: true },
+  ]
   const [vals, setVals] = useState({})
   const [initial, setInitial] = useState({})
   const [overridden, setOverridden] = useState({})
@@ -44,7 +50,7 @@ export default function ContentTranslations({ restaurantId, entityType, entityId
   const save = async () => {
     setSaving(true)
     const upserts = [], deletes = []
-    for (const field of FIELDS) {
+    for (const { key: field } of resolvedFields) {
       for (const l of TARGET_LANGS) {
         const key = `${field}|${l.code}`
         const cur = (vals[key] ?? '').trim()
@@ -91,7 +97,7 @@ export default function ContentTranslations({ restaurantId, entityType, entityId
         ) : (
           <div style={{ display: 'flex', flexDirection: 'column', gap: 14 }}>
             {TARGET_LANGS.map(l => {
-              const isOv = overridden[`name|${l.code}`] || overridden[`description|${l.code}`]
+              const isOv = resolvedFields.some(f => overridden[`${f.key}|${l.code}`])
               return (
                 <div key={l.code} style={{ border: '1px solid var(--c-border)', borderRadius: 10, padding: 12 }}>
                   <div style={{ display: 'flex', alignItems: 'center', gap: 8, marginBottom: 8 }}>
@@ -100,12 +106,22 @@ export default function ContentTranslations({ restaurantId, entityType, entityId
                       {isOv ? t('amTransManual') : t('amTransAi')}
                     </span>
                   </div>
-                  <label style={{ fontSize: 11, color: 'var(--c-text-muted)' }}>{t('amTransName')}</label>
-                  <input style={{ ...inp, marginBottom: 8 }} value={vals[`name|${l.code}`] ?? ''} placeholder={sourceName}
-                    onChange={e => setVal(`name|${l.code}`, e.target.value)} />
-                  <label style={{ fontSize: 11, color: 'var(--c-text-muted)' }}>{t('amTransDesc')}</label>
-                  <textarea style={{ ...inp, minHeight: 50, resize: 'vertical' }} value={vals[`description|${l.code}`] ?? ''} placeholder={sourceDescription || '—'}
-                    onChange={e => setVal(`description|${l.code}`, e.target.value)} />
+                  {resolvedFields.map((f, fi) => {
+                    const key = `${f.key}|${l.code}`
+                    const last = fi === resolvedFields.length - 1
+                    return (
+                      <div key={f.key}>
+                        <label style={{ fontSize: 11, color: 'var(--c-text-muted)' }}>{t(f.labelKey)}</label>
+                        {f.multiline ? (
+                          <textarea style={{ ...inp, minHeight: 50, resize: 'vertical', marginBottom: last ? 0 : 8 }} value={vals[key] ?? ''} placeholder={f.source || '—'}
+                            onChange={e => setVal(key, e.target.value)} />
+                        ) : (
+                          <input style={{ ...inp, marginBottom: last ? 0 : 8 }} value={vals[key] ?? ''} placeholder={f.source || ''}
+                            onChange={e => setVal(key, e.target.value)} />
+                        )}
+                      </div>
+                    )
+                  })}
                 </div>
               )
             })}
