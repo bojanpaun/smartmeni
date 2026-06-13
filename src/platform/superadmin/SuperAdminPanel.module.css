@@ -180,6 +180,7 @@
 .field { display: flex; flex-direction: column; gap: 5px; margin-bottom: 12px; }
 .field label { font-size: 12px; font-weight: 500; color: var(--c-text-medium); }
 .field input, .field select {
+  width: 100%; box-sizing: border-box;
   padding: 9px 12px; border: 1px solid var(--c-border-input);
   border-radius: 9px; font-size: 13px;
   font-family: var(--c-font-sans); outline: none; background: var(--c-surface);
@@ -219,6 +220,7 @@
 /* ── Tema admin panela ── */
 .themeOptions {
   display: flex;
+  flex-wrap: wrap;
   gap: 8px;
 }
 
