@@ -125,3 +125,12 @@ export function restaurantDescriptionFields(restaurantId, description) {
   if (!restaurantId || typeof description !== 'string' || !description.trim()) return []
   return [{ entity_type: 'restaurant', entity_id: restaurantId, field: 'description', text: description }]
 }
+
+// Pomoćnik: items niz iz jednog room_type reda (name + description). Prikazuje se
+// gostu na hotel landingu i u booking flow-u (get_available_rooms vraća room_type_id).
+export function roomTypeFields(roomType) {
+  const out = []
+  if (roomType?.id && roomType.name?.trim()) out.push({ entity_type: 'room_type', entity_id: roomType.id, field: 'name', text: roomType.name })
+  if (roomType?.id && roomType.description?.trim()) out.push({ entity_type: 'room_type', entity_id: roomType.id, field: 'description', text: roomType.description })
+  return out
+}

@@ -3,6 +3,7 @@ import { useParams } from 'react-router-dom'
 import { useTranslation, Trans } from 'react-i18next'
 import { supabase } from '../lib/supabase'
 import { goToPaymentSession } from '../lib/payments'
+import { useContentTranslations } from '../lib/useContentTranslations'
 import LanguageSwitcher from '../i18n/LanguageSwitcher'
 import styles from './BookingPage.module.css'
 
@@ -25,6 +26,10 @@ export default function BookingPage() {
   const [restaurant, setRestaurant] = useState(null)
   const [loadingRest, setLoadingRest] = useState(true)
   const [step, setStep] = useState(0)
+
+  // AI prevod naziva/opisa tipova soba za aktivni jezik gosta (get_available_rooms
+  // vraća room_type_id pa ga koristimo kao entity_id).
+  const tr = useContentTranslations(restaurant?.id)
 
   const [checkIn, setCheckIn] = useState('')
   const [checkOut, setCheckOut] = useState('')
@@ -449,8 +454,8 @@ export default function BookingPage() {
                         <img src={room.images[0]} alt={room.name} className={styles.roomImg} />
                       )}
                       <div className={styles.roomBody}>
-                        <div className={styles.roomName}>{room.name}</div>
-                        {room.description && <p className={styles.roomDesc}>{room.description}</p>}
+                        <div className={styles.roomName}>{tr('room_type', room.room_type_id, 'name', room.name)}</div>
+                        {room.description && <p className={styles.roomDesc}>{tr('room_type', room.room_type_id, 'description', room.description)}</p>}
                         <div className={styles.roomMeta}>
                           <span>👥 {t('room.maxGuests', { count: room.max_occupancy })}</span>
                           {room.amenities?.slice(0, 4).map(a => (

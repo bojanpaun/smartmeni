@@ -13,7 +13,7 @@ import { describe, it, expect, vi } from 'vitest'
 vi.mock('./supabase', () => ({ supabase: { functions: { invoke: vi.fn() } } }))
 
 const {
-  orderRejectionFields, menuItemFields,
+  orderRejectionFields, menuItemFields, roomTypeFields,
   landingFieldPath, landingBlockFields, restaurantDescriptionFields,
 } = await import('./contentTranslate.js')
 
@@ -53,6 +53,24 @@ describe('menuItemFields', () => {
       { entity_type: 'menu_item', entity_id: id, field: 'name', text: 'Pica' },
     ])
     expect(menuItemFields({ name: 'Pica' })).toEqual([])
+  })
+})
+
+describe('roomTypeFields', () => {
+  const id = '55555555-5555-5555-5555-555555555555'
+
+  it('uključuje name i description kad postoje', () => {
+    expect(roomTypeFields({ id, name: 'Dvokrevetna', description: 'Pogled na more' })).toEqual([
+      { entity_type: 'room_type', entity_id: id, field: 'name', text: 'Dvokrevetna' },
+      { entity_type: 'room_type', entity_id: id, field: 'description', text: 'Pogled na more' },
+    ])
+  })
+
+  it('preskače prazno description i sve bez id-a', () => {
+    expect(roomTypeFields({ id, name: 'Suite', description: '' })).toEqual([
+      { entity_type: 'room_type', entity_id: id, field: 'name', text: 'Suite' },
+    ])
+    expect(roomTypeFields({ name: 'Suite' })).toEqual([])
   })
 })
 

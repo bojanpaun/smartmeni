@@ -3,6 +3,7 @@ import { useTranslation } from 'react-i18next'
 import { usePlatform } from '../../../context/PlatformContext'
 import { useRooms } from '../hooks/useRooms'
 import { supabase } from '../../../lib/supabase'
+import { translateContent, roomTypeFields } from '../../../lib/contentTranslate'
 import LoadingSpinner from '../../../components/shared/LoadingSpinner'
 import toast from 'react-hot-toast'
 import styles from './Hotel.module.css'
@@ -27,14 +28,16 @@ export default function RoomTypesPage() {
     if (!form.name.trim()) return toast.error(t('htNameRequired'))
     setSaving(true)
     const payload = { ...form, base_price: parseFloat(form.base_price) || null, restaurant_id: restaurant.id }
-    const { error } = editing
-      ? await supabase.from('room_types').update(payload).eq('id', editing.id)
-      : await supabase.from('room_types').insert(payload)
+    const { data, error } = editing
+      ? await supabase.from('room_types').update(payload).eq('id', editing.id).select('id, name, description').single()
+      : await supabase.from('room_types').insert(payload).select('id, name, description').single()
     setSaving(false)
     if (error) return toast.error(t('htSaveErr'))
     toast.success(editing ? t('htTypeUpdated') : t('htTypeAdded'))
     setShowForm(false)
     refetch()
+    // AI prevod naziva/opisa sobe (fire-and-forget) — gost vidi na svom jeziku.
+    if (data) translateContent(restaurant.id, roomTypeFields(data)).catch(() => {})
   }
 
   const handleDelete = async (id) => {

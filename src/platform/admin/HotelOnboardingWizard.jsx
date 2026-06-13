@@ -2,6 +2,7 @@ import { useState } from 'react'
 import { useNavigate } from 'react-router-dom'
 import { useTranslation } from 'react-i18next'
 import { supabase } from '../../lib/supabase'
+import { translateContent, roomTypeFields } from '../../lib/contentTranslate'
 import { usePlatform } from '../../context/PlatformContext'
 import styles from './OnboardingWizard.module.css'
 
@@ -79,7 +80,10 @@ export default function HotelOnboardingWizard({ onComplete, onSkip, markComplete
             base_price: rt.basePrice ? parseFloat(rt.basePrice) : null,
             max_occupancy: rt.maxOccupancy ? parseInt(rt.maxOccupancy, 10) : 2,
           }).select().single()
-          if (data) setCreatedTypeId(data.id)
+          if (data) {
+            setCreatedTypeId(data.id)
+            translateContent(restaurant.id, roomTypeFields(data)).catch(() => {})
+          }
         }
       }
 

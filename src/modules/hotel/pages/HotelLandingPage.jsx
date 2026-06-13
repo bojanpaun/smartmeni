@@ -118,7 +118,7 @@ export default function HotelLandingPage() {
                 {img ? <img src={img} alt={rt.name} loading="lazy" decoding="async" className={styles.roomImg} /> : <div className={styles.roomImgPlaceholder}>🏨</div>}
                 <div className={styles.roomBody}>
                   <div className={styles.roomHeader}>
-                    <h3 className={styles.roomName}>{rt.name}</h3>
+                    <h3 className={styles.roomName}>{tr('room_type', rt.id, 'name', rt.name)}</h3>
                     {rt.base_price && (
                       <div className={styles.roomPrice}>
                         <span className={styles.priceFrom}>{t('from')}</span>
@@ -128,7 +128,7 @@ export default function HotelLandingPage() {
                     )}
                   </div>
                   {rt.max_occupancy && <div className={styles.roomOccupancy}>👤 max {rt.max_occupancy} {t('guests')}</div>}
-                  {rt.description && <p className={styles.roomDesc}>{rt.description}</p>}
+                  {rt.description && <p className={styles.roomDesc}>{tr('room_type', rt.id, 'description', rt.description)}</p>}
                   {amens.length > 0 && (
                     <div className={styles.amenities}>
                       {amens.map((a, i) => <span key={i} className={styles.amenityTag}>{a}</span>)}
