@@ -133,7 +133,7 @@ export default function ControlPanel() {
   const { t } = useTranslation('admin')
   const { user, restaurant, setRestaurant, hasPermission, isOwner, isSuperAdmin, hasAddon, hasVertical } = usePlatform()
   const { unread: unreadAnn } = useAnnouncements()
-  const { unreadCount: unreadSupport } = useSupport()
+  const { openCount: supportOpen, superOpenCount: supportSuperOpen } = useSupport()
   const navigate = useNavigate()
   // Hotel-only tenant (izabrao samo hotel pri registraciji) dobija HOTEL wizard
   // automatski; restoran/oba → restoranski (kao i dosad). Koristi isti
@@ -424,7 +424,7 @@ export default function ControlPanel() {
               <button className={`${styles.card} ${styles.cardSys} ${styles.cardActive}`} onClick={() => navigate('/admin/support')}>
                 <div className={styles.cardIcon}>💬</div>
                 <div className={styles.cardBody}>
-                  <div className={styles.cardName}>{t('modSupport')} <CardBadge n={unreadSupport} /></div>
+                  <div className={styles.cardName}>{t('modSupport')} <CardBadge n={isSuperAdmin() ? supportSuperOpen : supportOpen} /></div>
                   <div className={styles.cardDesc}>{t('supportDesc')}</div>
                 </div>
               </button>

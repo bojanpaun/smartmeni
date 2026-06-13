@@ -100,7 +100,7 @@ export default function MinibarPage() {
           <p className={styles.subtitle}>{t('htMinibarSub')}</p>
         </div>
         <div style={{ display: 'flex', gap: 8 }}>
-          <button className={styles.btnSecondary} onClick={openLib}>📚 {t('htFromLibrary')}</button>
+          <button className={styles.btnSecondary} onClick={openLib} title={t('libBtnHint')}>📚 {t('htFromLibrary')}</button>
           <button className={styles.btnPrimary} onClick={openNew}>+ {t('htAddItem')}</button>
         </div>
       </div>
@@ -111,6 +111,7 @@ export default function MinibarPage() {
             <div style={{ fontWeight: 600 }}>📚 {t('htMinibarLibTitle')}</div>
             <button onClick={() => setShowLib(false)} style={{ background: 'none', border: 'none', fontSize: 18, cursor: 'pointer', color: 'var(--c-text-muted)' }}>✕</button>
           </div>
+          <div style={{ fontSize: 12, color: 'var(--c-text-muted)', marginBottom: 12, lineHeight: 1.4 }}>{t('libBtnHint')}</div>
           {libMsg && <div style={{ color: 'var(--c-danger)', fontSize: 13, marginBottom: 8 }}>{libMsg}</div>}
           {libLoading ? <LoadingSpinner /> : (
             <>

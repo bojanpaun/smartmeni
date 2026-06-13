@@ -96,7 +96,7 @@ export default function ServicesPage() {
           <p className={styles.subtitle}>{t('spaSvcSubtitle')}</p>
         </div>
         <div style={{ display: 'flex', gap: 8 }}>
-          <button className={styles.btnSecondary} onClick={openLib}>📚 {t('spaFromLibrary')}</button>
+          <button className={styles.btnSecondary} onClick={openLib} title={t('libBtnHint')}>📚 {t('spaFromLibrary')}</button>
           <button className={styles.btnPrimary} onClick={openNew}>+ {t('spaNewTreatment')}</button>
         </div>
       </div>

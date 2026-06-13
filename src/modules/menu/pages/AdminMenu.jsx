@@ -349,7 +349,7 @@ export default function AdminMenu() {
                 <button className={styles.catTabAdd} onClick={addCategory}>+ {t('amCategory')}</button>
               </div>
               <div className={styles.menuTopActions}>
-                <button className={styles.libraryBtn} onClick={() => setShowLibrary(true)}>
+                <button className={styles.libraryBtn} onClick={() => setShowLibrary(true)} title={t('libBtnHint')}>
                   📚 {t('amLibrary')}
                 </button>
                 <button className={styles.addItemBtn} onClick={() => openItemForm()}>

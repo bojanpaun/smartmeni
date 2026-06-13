@@ -15,9 +15,11 @@ const isUnreadForAdmin = (c) =>
 export function SupportProvider({ children }) {
   // Učitava konverzacije TEKUĆEG tenanta (vlasnikov inbox) — radi i za superadmina koji
   // ima svoj tenant. Sve-tenanti pregled je odvojeno u /superadmin/podrska (SupportManager).
-  const { restaurant } = usePlatform()
+  const { restaurant, isSuperAdmin } = usePlatform()
+  const isSuper = !!isSuperAdmin?.()
   const rid = restaurant?.id
   const [conversations, setConversations] = useState([])
+  const [superOpenCount, setSuperOpenCount] = useState(0)
   const ridRef = useRef(null)
 
   const reload = useCallback(async () => {
@@ -44,10 +46,34 @@ export function SupportProvider({ children }) {
     return () => { ridRef.current = null; supabase.removeChannel(ch) }
   }, [rid, reload])
 
+  // Superadmin badge: broj OTVORENIH (neriješenih) konverzacija SVIH tenanata.
+  // Pali se čim tenant postavi pitanje; gasi se tek kad je konverzacija riješena
+  // (status='closed'). Realtime — svaki insert/update support_conversations osvježi.
+  const reloadSuper = useCallback(async () => {
+    if (!isSuper) { setSuperOpenCount(0); return }
+    const { count } = await supabase
+      .from('support_conversations')
+      .select('id', { count: 'exact', head: true })
+      .eq('status', 'open')
+    setSuperOpenCount(count ?? 0)
+  }, [isSuper])
+
+  useEffect(() => {
+    if (!isSuper) { setSuperOpenCount(0); return }
+    reloadSuper()
+    const ch = supabase
+      .channel('support-super-open-count')
+      .on('postgres_changes', { event: '*', schema: 'public', table: 'support_conversations' }, reloadSuper)
+      .subscribe()
+    return () => supabase.removeChannel(ch)
+  }, [isSuper, reloadSuper])
+
   const unreadCount = conversations.filter(isUnreadForAdmin).length
+  // Otvoreni (neriješeni) tiketi tekućeg tenanta — badge za vlasnika; gasi se kad riješeno.
+  const openCount = conversations.filter(c => c.status === 'open').length
 
   return (
-    <SupportContext.Provider value={{ conversations, unreadCount, reload, isUnreadForAdmin }}>
+    <SupportContext.Provider value={{ conversations, unreadCount, openCount, superOpenCount, reload, isUnreadForAdmin }}>
       {children}
     </SupportContext.Provider>
   )

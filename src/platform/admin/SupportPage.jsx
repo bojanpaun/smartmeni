@@ -76,6 +76,16 @@ export default function SupportPage() {
     reload()
   }
 
+  // Vlasnik može označiti svoju konverzaciju riješenom (status='closed') ili je
+  // ponovo otvoriti. Riješeno gasi badge (sidebar + dashboard) kad nema otvorenih.
+  const markStatus = async (status) => {
+    if (!selected) return
+    await supabase.from('support_conversations').update({ status })
+      .eq('id', selected.id).eq('restaurant_id', restaurant.id)
+    setSelected(s => ({ ...s, status }))
+    reload()
+  }
+
   const createConversation = async () => {
     if (!subject.trim() || !firstMsg.trim()) return
     setSending(true)
@@ -117,7 +127,12 @@ export default function SupportPage() {
             <h1 className={styles.title} style={{ fontSize: 20 }}>{selected.subject}</h1>
             <p className={styles.subtitle}>{selected.status === 'closed' ? t('saClosed') : t('saOpen')}{t('spSupportSuffix')}</p>
           </div>
-          <button className={styles.btnSecondary} onClick={() => { setSelected(null); reload() }}>← {t('saBack')}</button>
+          <div style={{ display: 'flex', gap: 8, flexWrap: 'wrap' }}>
+            {selected.status === 'open'
+              ? <button className={styles.btnSecondary} onClick={() => markStatus('closed')}>✓ {t('saMarkResolved')}</button>
+              : <button className={styles.btnSecondary} onClick={() => markStatus('open')}>{t('saReopen')}</button>}
+            <button className={styles.btnSecondary} onClick={() => { setSelected(null); reload() }}>← {t('saBack')}</button>
+          </div>
         </div>
 
         <div style={{ display: 'flex', flexDirection: 'column', gap: 10, marginBottom: 16 }}>

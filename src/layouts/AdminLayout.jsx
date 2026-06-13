@@ -11,6 +11,7 @@ import ThemeToggle from '../components/ThemeToggle'
 import LanguageSwitcher from '../i18n/LanguageSwitcher'
 import useKitchenCounts from '../hooks/useKitchenCounts'
 import { useAnnouncements } from '../context/AnnouncementsContext'
+import { useSupport } from '../context/SupportContext'
 const SEV_BANNER = {
   important: { bg: 'var(--c-danger-bg)',  border: 'var(--c-danger-border)',  text: 'var(--c-danger)',  icon: '⚠️' },
   update:    { bg: 'var(--c-success-bg)', border: 'var(--c-success-border)', text: 'var(--c-success)', icon: '✨' },
@@ -364,6 +365,7 @@ export default function AdminLayout({ children }) {
   )
 
   const { counts: kitchenCounts, refresh: refreshCounts } = useKitchenCounts(restaurant?.id, hasVertical('hotel'))
+  const { openCount: supportOpen, superOpenCount: supportSuperOpen } = useSupport()
   const badges = {
     '/admin/orders':              kitchenCounts.waiter        || 0,
     '/admin/waiter':              kitchenCounts.waiterReq     || 0,
@@ -372,6 +374,8 @@ export default function AdminLayout({ children }) {
     '/admin/hotel/housekeeping':  (kitchenCounts.housekeeping || 0) + (kitchenCounts.maintOpen || 0),
     '/admin/hotel/reservations':  kitchenCounts.hotelInquiry  || 0,
     '/admin/hotel/frontdesk':     kitchenCounts.hotelFrontDesk || 0,
+    '/admin/support':             supportOpen      || 0,  // vlasnikovi neriješeni tiketi
+    '/superadmin/podrska':        supportSuperOpen || 0,  // svi otvoreni tiketi (superadmin)
   }
 
   const handleLogout = async () => { await logout(); navigate('/') }

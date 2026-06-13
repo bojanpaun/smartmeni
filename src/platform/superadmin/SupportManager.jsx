@@ -19,6 +19,7 @@ export default function SupportManager() {
   const [conversations, setConversations] = useState([])
   const [loading, setLoading] = useState(true)
   const [filter, setFilter] = useState('open')
+  const [search, setSearch] = useState('')
   const [selected, setSelected] = useState(null)
   const [messages, setMessages] = useState([])
   const [reply, setReply] = useState('')
@@ -99,7 +100,7 @@ export default function SupportManager() {
           </div>
           <div style={{ display: 'flex', gap: 8 }}>
             {selected.status === 'open'
-              ? <button className={styles.btnSecondary} onClick={() => setStatus('closed')}>{t('saClose')}</button>
+              ? <button className={styles.btnSecondary} onClick={() => setStatus('closed')}>✓ {t('saMarkResolved')}</button>
               : <button className={styles.btnSecondary} onClick={() => setStatus('open')}>{t('saReopen')}</button>}
             <button className={styles.btnSecondary} onClick={() => { setSelected(null); reload() }}>← {t('saBack')}</button>
           </div>
@@ -138,9 +139,11 @@ export default function SupportManager() {
   }
 
   // ── Lista ──
+  const q = search.trim().toLowerCase()
   const filtered = conversations.filter(c => {
-    if (filter === 'open') return c.status === 'open'
-    if (filter === 'unread') return isUnreadForSuper(c)
+    if (filter === 'open' && c.status !== 'open') return false
+    if (filter === 'unread' && !isUnreadForSuper(c)) return false
+    if (q && !`${c.restaurants?.name ?? ''} ${c.subject ?? ''}`.toLowerCase().includes(q)) return false
     return true
   })
   const unreadTotal = conversations.filter(isUnreadForSuper).length
@@ -151,6 +154,12 @@ export default function SupportManager() {
         {[{ k: 'open', l: t('saFilterOpen') }, { k: 'unread', l: `${t('saFilterUnread')} (${unreadTotal})` }, { k: 'all', l: t('saFilterAll') }].map(f => (
           <button key={f.k} className={filter === f.k ? styles.btnPrimary : styles.btnSecondary} style={{ fontSize: 13 }} onClick={() => setFilter(f.k)}>{f.l}</button>
         ))}
+        <input
+          value={search}
+          onChange={e => setSearch(e.target.value)}
+          placeholder={t('saSearchPlaceholder')}
+          style={{ flex: '1 1 200px', minWidth: 160, padding: '8px 12px', border: '1px solid var(--c-border-input)', borderRadius: 9, fontSize: 13, fontFamily: 'var(--c-font-sans)', outline: 'none', background: 'var(--c-surface)', color: 'var(--c-text)' }}
+        />
       </div>
 
       {loading ? <LoadingSpinner /> : filtered.length === 0 ? (
