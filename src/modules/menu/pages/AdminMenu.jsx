@@ -30,6 +30,7 @@ function SortableCatTab({ cat, active, onSelect, barLabel }) {
         touchAction: 'none', zIndex: isDragging ? 5 : 'auto',
       }}
     >
+      <span className={styles.catTabGrip} aria-hidden="true">⠿</span>
       {cat.icon} {cat.name}
       {cat.is_bar && <span className={styles.barBadge}>{barLabel}</span>}
     </button>
@@ -356,6 +357,9 @@ export default function AdminMenu() {
                 </button>
               </div>
             </div>
+            {categories.length > 1 && (
+              <div className={styles.dragHint}>⠿ {t('amDragHint')}</div>
+            )}
             {activeCategory && (() => {
               const cat = categories.find(c => c.id === activeCategory)
               if (!cat) return null

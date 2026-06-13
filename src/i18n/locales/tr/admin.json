@@ -241,6 +241,7 @@
   "amOpenArrow": "Aç →",
   "amLibrary": "Kütüphane",
   "amAddDish": "Yemek ekle",
+  "amDragHint": "Sıralamak için kategori baloncuklarını sürükleyin — aynı sıra dijital menüde misafirlere gösterilir.",
   "amCatNamePlaceholder": "Kategori adı",
   "amCatNotePlaceholder": "Dahili not (yalnızca personel görür, misafir görmez) — örn. bar/mutfak talimatı",
   "amEditCategory": "Kategoriyi düzenle",

@@ -241,6 +241,7 @@
   "amOpenArrow": "Otvori →",
   "amLibrary": "Biblioteka",
   "amAddDish": "Dodaj jelo",
+  "amDragHint": "Povucite pilule kategorija da promijenite redoslijed — isti redoslijed prikazuje se gostu na digitalnom jelovniku.",
   "amCatNamePlaceholder": "Naziv kategorije",
   "amCatNotePlaceholder": "Interna napomena (vidi samo osoblje, ne gost) — npr. uputa za bar/kuhinju",
   "amEditCategory": "Uredi kategoriju",

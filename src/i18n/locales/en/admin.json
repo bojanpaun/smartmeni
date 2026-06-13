@@ -241,6 +241,7 @@
   "amOpenArrow": "Open →",
   "amLibrary": "Library",
   "amAddDish": "Add dish",
+  "amDragHint": "Drag the category pills to reorder them — the same order is shown to guests on the digital menu.",
   "amCatNamePlaceholder": "Category name",
   "amCatNotePlaceholder": "Internal note (visible to staff only, not guests) — e.g. instructions for bar/kitchen",
   "amEditCategory": "Edit category",

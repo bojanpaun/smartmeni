@@ -100,6 +100,15 @@
 .catTabs { composes: pillBar from '../../../styles/nav.module.css'; margin-bottom: 0; }
 .catTab { composes: pillBtn from '../../../styles/nav.module.css'; }
 .catTabActive { composes: pillBtnActive from '../../../styles/nav.module.css'; }
+.catTabGrip {
+  font-size: 11px; line-height: 1; opacity: 0.45; margin-right: 1px;
+  letter-spacing: -1px; user-select: none;
+}
+.dragHint {
+  display: flex; align-items: center; gap: 6px;
+  font-size: 12px; color: var(--c-text-muted);
+  margin: 2px 0 14px;
+}
 .catTabAdd {
   padding: 6px 14px; border-radius: 20px; font-size: 13px; cursor: pointer;
   border: 1px dashed var(--c-border-input); background: transparent; color: var(--c-text-muted);
