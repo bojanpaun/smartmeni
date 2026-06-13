@@ -112,10 +112,12 @@
   letter-spacing: 0.04em; vertical-align: middle;
 }
 .catSettings {
-  padding: 8px 14px 12px;
-  border-bottom: 1px solid var(--c-border);
-  background: var(--c-bg-subtle);
-  display: flex; flex-direction: column; gap: 10px;
+  background: var(--c-surface);
+  border: 1px solid var(--c-border);
+  border-radius: 14px;
+  padding: 14px 16px;
+  margin-bottom: 14px;
+  display: flex; flex-direction: column; gap: 12px;
 }
 .catEditBox { display: flex; flex-direction: column; gap: 8px; }
 .catEditRow { display: flex; align-items: center; gap: 8px; flex-wrap: wrap; }
@@ -162,7 +164,7 @@
 .catBarToggle {
   display: flex; align-items: center; gap: 10px; cursor: pointer;
   padding: 7px 12px; border: 1px solid var(--c-border-input); border-radius: 8px;
-  background: var(--c-surface); font-family: var(--c-font-sans);
+  background: var(--c-bg-subtle); font-family: var(--c-font-sans);
   transition: border-color 0.15s, background 0.15s;
 }
 .catBarToggle:hover { border-color: var(--c-accent); }
