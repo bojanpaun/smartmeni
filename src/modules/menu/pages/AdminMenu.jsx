@@ -357,7 +357,7 @@ export default function AdminMenu() {
                       <button className={styles.catRenameBtn} onClick={() => startEditCategory(cat)}>
                         ✏️ {t('amEditCategory')}
                       </button>
-                      <button className={styles.catRenameBtn} onClick={() => setTransCat(cat)} title={t('amTransTitle')}>
+                      <button className={styles.catIconBtn} onClick={() => setTransCat(cat)} title={t('amTransTitle')} aria-label={t('amTransTitle')}>
                         🌐
                       </button>
                       {cat.description && (
@@ -366,10 +366,12 @@ export default function AdminMenu() {
                     </div>
                   )}
                   <div className={styles.catSettingsRight}>
-                    <label className={styles.catToggleLabel}>
+                    <label className={`${styles.catBarToggle} ${cat.is_bar ? styles.catBarToggleOn : ''}`}>
                       <input type="checkbox" checked={!!cat.is_bar} onChange={toggleBar} />
-                      <span>🍷 {t('amBarCategory')}</span>
-                      <span className={styles.catToggleHint}>{t('amBarCategoryHint')}</span>
+                      <span className={styles.catBarToggleText}>
+                        🍷 {t('amBarCategory')}
+                        <span className={styles.catToggleHint}>{t('amBarCategoryHint')}</span>
+                      </span>
                     </label>
                     <button className={styles.catDeleteBtn} onClick={() => deleteCategory(cat)}>
                       🗑 {t('amDeleteCategory')}
