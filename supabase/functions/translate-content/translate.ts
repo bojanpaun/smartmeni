@@ -95,6 +95,64 @@ export function parseTranslations(raw: string, items: SourceItem[], langs: strin
   return rows
 }
 
+// ── Landing blokovi (backfill) ───────────────────────────────────────────────
+// Ogledalo frontend `LANDING_FIELDS` (src/lib/contentTranslate.js) — DRŽATI U SINHRONU.
+// Blokovi su jedinstveni po `type` po stranici; vraćamo {field, text} parove gdje je
+// field = `${pageType}.${blockType}.${key}` (nizovi indeksirani, amenities po liniji).
+const LANDING_FIELDS: Record<string, Record<string, string[] | { array?: string; fields?: string[]; lines?: string }>> = {
+  restaurant: {
+    hero: ['title', 'subtitle'],
+    story: ['text'],
+    video: ['title'],
+    cta_banner: ['title', 'subtitle', 'btn_text'],
+    reservation_cta: ['text', 'subtitle'],
+    hours_location: ['hours'],
+    specials: { array: 'specials', fields: ['name', 'description'] },
+    reviews: { array: 'reviews', fields: ['text'] },
+  },
+  hotel: {
+    hero: ['title', 'subtitle'],
+    about: ['text'],
+    amenities: { lines: 'items' },
+    video: ['title'],
+    cta_banner: ['title', 'subtitle', 'btn_text'],
+    contact: ['hours'],
+    reviews: { array: 'reviews', fields: ['text'] },
+    faq: { array: 'faq', fields: ['question', 'answer'] },
+  },
+}
+
+export function landingFields(
+  pageType: string,
+  // deno-lint-ignore no-explicit-any
+  blocks: any[],
+): { field: string; text: string }[] {
+  const cfg = LANDING_FIELDS[pageType]
+  if (!cfg || !Array.isArray(blocks)) return []
+  const out: { field: string; text: string }[] = []
+  const push = (field: string, text: unknown) => {
+    if (typeof text === 'string' && text.trim()) out.push({ field, text })
+  }
+  for (const block of blocks) {
+    const spec = cfg[block?.type]
+    const data = block?.data
+    if (!spec || !data) continue
+    if (Array.isArray(spec)) {
+      for (const key of spec) push(`${pageType}.${block.type}.${key}`, data[key])
+    } else if (spec.lines) {
+      const raw = data[spec.lines]
+      const lines = typeof raw === 'string' ? raw.split('\n').map((s: string) => s.trim()).filter(Boolean) : []
+      lines.forEach((line: string, i: number) => push(`${pageType}.${block.type}.${spec.lines}.${i}`, line))
+    } else if (spec.array && spec.fields) {
+      const arr = Array.isArray(data[spec.array]) ? data[spec.array] : []
+      arr.forEach((item: Record<string, unknown>, i: number) => {
+        for (const key of spec.fields!) push(`${pageType}.${block.type}.${spec.array}.${i}.${key}`, item?.[key])
+      })
+    }
+  }
+  return out
+}
+
 // SHA-256 heks izvornog teksta (invalidacija stale prevoda). Web Crypto — radi u Deno.
 export async function sourceHash(text: string): Promise<string> {
   const data = new TextEncoder().encode(text)

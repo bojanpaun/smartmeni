@@ -13,7 +13,7 @@
 import { createClient } from 'https://esm.sh/@supabase/supabase-js@2'
 import { callAnthropic, callGemini } from './providers.ts'
 import {
-  buildPrompt, parseTranslations, resolveLangs, sourceHash,
+  buildPrompt, parseTranslations, resolveLangs, sourceHash, landingFields,
   type SourceItem, type TranslationRow,
 } from './translate.ts'
 
@@ -103,12 +103,21 @@ Deno.serve(async (req) => {
     if (!rest) return json({ error: 'Restoran ne postoji' }, 404)
     if (!profile?.is_superadmin && rest.user_id !== user.id) return json({ error: 'Nemate pravo' }, 403)
 
-    // Backfill: učitaj SVE menu_items (uklj. skrivene) + kategorije iz baze.
+    // Backfill: učitaj SVE zatečeno guest-facing tenant-sadržaja iz baze (service_role).
+    // Pokriva: menu_items, kategorije, room_types, spa_services, opis objekta,
+    // poruke konobaru i landing blokove (restaurant+hotel). Order/rejection NIJE ovdje
+    // (per-narudžba, prevodi se na odbijanje).
     let sourceItems: SourceItem[] = rawItems
     if (backfill) {
-      const [{ data: mi }, { data: cats }] = await Promise.all([
+      const [
+        { data: mi }, { data: cats }, { data: rts }, { data: spa }, { data: restRow }, { data: lps },
+      ] = await Promise.all([
         supabaseAdmin.from('menu_items').select('id, name, description').eq('restaurant_id', restaurantId),
         supabaseAdmin.from('categories').select('id, name').eq('restaurant_id', restaurantId),
+        supabaseAdmin.from('room_types').select('id, name, description').eq('restaurant_id', restaurantId),
+        supabaseAdmin.from('spa_services').select('id, name, description').eq('restaurant_id', restaurantId),
+        supabaseAdmin.from('restaurants').select('description, waiter_messages').eq('id', restaurantId).maybeSingle(),
+        supabaseAdmin.from('landing_pages').select('page_type, blocks').eq('restaurant_id', restaurantId),
       ])
       sourceItems = []
       for (const m of mi ?? []) {
@@ -117,6 +126,27 @@ Deno.serve(async (req) => {
       }
       for (const c of cats ?? []) {
         if (c.name?.trim()) sourceItems.push({ entity_type: 'category', entity_id: c.id, field: 'name', text: c.name })
+      }
+      for (const r of rts ?? []) {
+        if (r.name?.trim()) sourceItems.push({ entity_type: 'room_type', entity_id: r.id, field: 'name', text: r.name })
+        if (r.description?.trim()) sourceItems.push({ entity_type: 'room_type', entity_id: r.id, field: 'description', text: r.description })
+      }
+      for (const s of spa ?? []) {
+        if (s.name?.trim()) sourceItems.push({ entity_type: 'spa_service', entity_id: s.id, field: 'name', text: s.name })
+        if (s.description?.trim()) sourceItems.push({ entity_type: 'spa_service', entity_id: s.id, field: 'description', text: s.description })
+      }
+      if (restRow?.description?.trim()) {
+        sourceItems.push({ entity_type: 'restaurant', entity_id: restaurantId, field: 'description', text: restRow.description })
+      }
+      for (const m of (Array.isArray(restRow?.waiter_messages) ? restRow.waiter_messages : [])) {
+        if (m?.id && typeof m?.sr === 'string' && m.sr.trim()) {
+          sourceItems.push({ entity_type: 'waiter_message', entity_id: m.id, field: 'text', text: m.sr })
+        }
+      }
+      for (const lp of lps ?? []) {
+        for (const { field, text } of landingFields(lp.page_type, lp.blocks)) {
+          sourceItems.push({ entity_type: 'landing_block', entity_id: restaurantId, field, text })
+        }
       }
     }
 

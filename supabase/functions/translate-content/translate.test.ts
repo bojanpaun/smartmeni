@@ -10,7 +10,7 @@
 
 import { assertEquals, assert } from 'jsr:@std/assert'
 import {
-  buildPrompt, parseTranslations, extractJson, resolveLangs, sourceHash, TARGET_LANGS,
+  buildPrompt, parseTranslations, extractJson, resolveLangs, sourceHash, landingFields, TARGET_LANGS,
   type SourceItem,
 } from './translate.ts'
 
@@ -65,6 +65,28 @@ Deno.test('parseTranslations — neispravan JSON baca grešku', () => {
   let threw = false
   try { parseTranslations('ovo nije json', ITEMS, ['en']) } catch { threw = true }
   assert(threw)
+})
+
+Deno.test('landingFields — skalar/niz/linije putanje, prazna preskočena', () => {
+  const blocks = [
+    { type: 'hero', data: { title: 'Ribar', subtitle: '', bg_image_url: 'x.jpg' } },
+    { type: 'specials', data: { specials: [{ name: 'Brancin', description: 'Na žaru' }, { name: '' }] } },
+  ]
+  assertEquals(landingFields('restaurant', blocks), [
+    { field: 'restaurant.hero.title', text: 'Ribar' },
+    { field: 'restaurant.specials.specials.0.name', text: 'Brancin' },
+    { field: 'restaurant.specials.specials.0.description', text: 'Na žaru' },
+  ])
+})
+
+Deno.test('landingFields — amenities lista po liniji (trim/filter), nepoznat pageType prazno', () => {
+  const blocks = [{ type: 'amenities', data: { items: 'Bazen\n  Wi-Fi  \n\nParking' } }]
+  assertEquals(landingFields('hotel', blocks), [
+    { field: 'hotel.amenities.items.0', text: 'Bazen' },
+    { field: 'hotel.amenities.items.1', text: 'Wi-Fi' },
+    { field: 'hotel.amenities.items.2', text: 'Parking' },
+  ])
+  assertEquals(landingFields('nepostoji', blocks), [])
 })
 
 Deno.test('sourceHash — stabilan i osjetljiv na promjenu', async () => {
