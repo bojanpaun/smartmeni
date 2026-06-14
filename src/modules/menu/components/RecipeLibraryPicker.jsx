@@ -1,36 +1,39 @@
 import { useState, useEffect } from 'react'
+import { useTranslation } from 'react-i18next'
 import { toast } from 'react-hot-toast'
 import { supabase } from '../../../lib/supabase'
 import { usePlatform } from '../../../context/PlatformContext'
 import { useLibraryTranslations } from '../../../lib/useLibraryTranslations'
 import styles from './RecipeLibraryPicker.module.css'
 
-// Meta po kategoriji: label + redoslijed taba. Nepoznata kategorija → fallback.
+// Meta po kategoriji: emoji + labelKey (prevod) + redoslijed taba. Nepoznata → fallback.
 const CAT_META = {
-  coffee:    { label: '☕ Kafa',            order: 1 },
-  cocktail:  { label: '🍸 Kokteli',         order: 2 },
-  soft:      { label: '🥤 Bezalkoholna',    order: 3 },
-  hot:       { label: '🍵 Topli napici',    order: 4 },
-  beverage:  { label: '🍺 Pivo/vino',       order: 5 },
-  soup:      { label: '🍲 Supe i čorbe',    order: 6 },
-  food:      { label: '🍽️ Jela',            order: 7 },
-  vegetarian:{ label: '🥦 Vegetarijansko',  order: 8 },
-  salad:     { label: '🥗 Salate/predjela', order: 9 },
-  side:      { label: '🍚 Prilozi',         order: 10 },
-  breakfast: { label: '🍳 Doručak',         order: 11 },
-  dessert:   { label: '🍰 Deserti',         order: 12 },
-  kids:      { label: '🧒 Dječji meni',     order: 13 },
+  coffee:    { emoji: '☕',  labelKey: 'rlpCatCoffee',     order: 1 },
+  cocktail:  { emoji: '🍸',  labelKey: 'rlpCatCocktail',   order: 2 },
+  soft:      { emoji: '🥤',  labelKey: 'rlpCatSoft',       order: 3 },
+  hot:       { emoji: '🍵',  labelKey: 'rlpCatHot',        order: 4 },
+  beverage:  { emoji: '🍺',  labelKey: 'rlpCatBeverage',   order: 5 },
+  soup:      { emoji: '🍲',  labelKey: 'rlpCatSoup',       order: 6 },
+  food:      { emoji: '🍽️',  labelKey: 'rlpCatFood',       order: 7 },
+  vegetarian:{ emoji: '🥦',  labelKey: 'rlpCatVegetarian', order: 8 },
+  salad:     { emoji: '🥗',  labelKey: 'rlpCatSalad',      order: 9 },
+  side:      { emoji: '🍚',  labelKey: 'rlpCatSide',       order: 10 },
+  breakfast: { emoji: '🍳',  labelKey: 'rlpCatBreakfast',  order: 11 },
+  dessert:   { emoji: '🍰',  labelKey: 'rlpCatDessert',    order: 12 },
+  kids:      { emoji: '🧒',  labelKey: 'rlpCatKids',       order: 13 },
 }
-const catLabel = (key) => CAT_META[key]?.label || key
 const catOrder = (key) => CAT_META[key]?.order ?? 99
 
 // Modal: pregled biblioteke preddefinisanih recepata + preuzimanje u meni.
 // Preuzimanje ide kroz RPC import_recipe_from_library (kreira menu_item, a uz
 // inventory_pro i namirnice + recept). Po završetku zove onImported() za reload.
 export default function RecipeLibraryPicker({ onClose, onImported, categories = [], defaultCategoryId = '' }) {
+  const { t } = useTranslation('admin')
   const { restaurant, hasAddon } = usePlatform()
   const lt = useLibraryTranslations()
   const hasInventory = hasAddon('inventory_pro')
+  // Naziv kategorije = emoji (data) + prevedeni naziv; nepoznata → ključ.
+  const catLabel = (key) => CAT_META[key] ? `${CAT_META[key].emoji} ${t(CAT_META[key].labelKey)}` : key
 
   const [tab, setTab] = useState(null)
   const [recipes, setRecipes] = useState([])
@@ -106,12 +109,11 @@ export default function RecipeLibraryPicker({ onClose, onImported, categories = 
     setImporting(false)
 
     if (ok > 0) {
-      toast.success(
-        `Preuzeto ${ok} ${ok === 1 ? 'stavka' : 'stavki'}` +
-        (created < ok ? ` (${ok - created} već postojalo)` : '')
-      )
+      let msg = t('rlpImportedN', { n: ok })
+      if (created < ok) msg += ' ' + t('rlpExisted', { n: ok - created })
+      toast.success(msg)
     }
-    if (fail > 0) toast.error(`${fail} nije preuzeto`)
+    if (fail > 0) toast.error(t('rlpFailedN', { n: fail }))
     if (ok > 0) {
       onImported?.()
       onClose?.()
@@ -124,30 +126,28 @@ export default function RecipeLibraryPicker({ onClose, onImported, categories = 
 
         <div className={styles.header}>
           <div>
-            <div className={styles.title}>📚 Biblioteka recepata</div>
-            <div className={styles.sub}>Preuzmi gotove stavke u svoj meni</div>
+            <div className={styles.title}>📚 {t('rlpTitle')}</div>
+            <div className={styles.sub}>{t('rlpSub')}</div>
           </div>
           <button className={styles.close} onClick={onClose}>✕</button>
         </div>
 
         <div className={styles.scroll}>
         <div className={styles.addonNote}>
-          {hasInventory
-            ? '✓ Imaš Inventar Pro — uz svaku stavku kreiraju se i namirnice + recept (zalihe se odbijaju automatski).'
-            : 'ℹ️ Preuzimaju se stavke menija. Uz Inventar Pro automatski bi se kreirali i recepti/zalihe.'}
+          {hasInventory ? `✓ ${t('rlpAddonYes')}` : `ℹ️ ${t('rlpAddonNo')}`}
         </div>
 
         <div className={styles.disclaimer}>
-          ⓘ Kalorije se računaju zbirno iz sastojaka recepta (procjena; flaširana/gotova pića po standardnoj porciji), a alergeni se izvode iz sastojaka kao polazna osnova. Vrijednosti zavise od tvoje recepture i porcije — provjeri i prilagodi nakon preuzimanja (uredi stavku).
+          ⓘ {t('rlpDisclaimer')}
         </div>
 
         <div className={styles.targetRow}>
-          <label>Dodaj u kategoriju:</label>
+          <label>{t('rlpAddToCategory')}</label>
           <select value={targetCategoryId} onChange={e => setTargetCategoryId(e.target.value)}>
             {categories.map(c => (
               <option key={c.id} value={c.id}>{c.icon} {c.name}</option>
             ))}
-            <option value="">+ Nova (Kafa/Kokteli automatski)</option>
+            <option value="">{t('rlpNewAuto')}</option>
           </select>
         </div>
 
@@ -165,13 +165,13 @@ export default function RecipeLibraryPicker({ onClose, onImported, categories = 
 
         <div className={styles.body}>
           {loading ? (
-            <div className={styles.loading}>Učitavanje…</div>
+            <div className={styles.loading}>{t('loading')}</div>
           ) : visible.length === 0 ? (
-            <div className={styles.empty}>Nema stavki u ovoj kategoriji.</div>
+            <div className={styles.empty}>{t('rlpEmpty')}</div>
           ) : (
             <>
               <button className={styles.selectAll} onClick={toggleAllVisible}>
-                {allVisibleSelected ? '☑ Poništi sve' : '☐ Označi sve'}
+                {allVisibleSelected ? `☑ ${t('rlpDeselectAll')}` : `☐ ${t('rlpSelectAll')}`}
               </button>
               <div className={styles.list}>
                 {visible.map(r => {
@@ -207,16 +207,16 @@ export default function RecipeLibraryPicker({ onClose, onImported, categories = 
 
         <div className={styles.footer}>
           <span className={styles.count}>
-            {selected.size > 0 ? `${selected.size} označeno` : 'Ništa nije označeno'}
+            {selected.size > 0 ? t('rlpNSelected', { n: selected.size }) : t('rlpNoneSelected')}
           </span>
           <div className={styles.actions}>
-            <button className={styles.btnCancel} onClick={onClose}>Odustani</button>
+            <button className={styles.btnCancel} onClick={onClose}>{t('cancel')}</button>
             <button
               className={styles.btnImport}
               onClick={doImport}
               disabled={selected.size === 0 || importing}
             >
-              {importing ? 'Preuzimanje…' : `Preuzmi${selected.size ? ` (${selected.size})` : ''}`}
+              {importing ? t('rlpImporting') : `${t('rlpImport')}${selected.size ? ` (${selected.size})` : ''}`}
             </button>
           </div>
         </div>

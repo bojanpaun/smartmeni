@@ -1,15 +1,17 @@
-// ▶ Novi fajl: src/modules/guests/pages/GuestsPage.jsx
+// src/modules/guests/pages/GuestsPage.jsx
 
 import { useState, useEffect } from 'react'
 import { useNavigate } from 'react-router-dom'
+import { useTranslation } from 'react-i18next'
 import { supabase } from '../../../lib/supabase'
 import { usePlatform } from '../../../context/PlatformContext'
 import { useSortable } from '../../../hooks/useSortable'
 import SortableHead from '../../../components/shared/SortableHead'
 import styles from './GuestsPage.module.css'
 
-const STATUS_LABELS = {
-  regular: 'Regular', vip: 'VIP', blacklist: 'Blacklist', pending: 'Na čekanju'
+// Status → i18n ključ (admin ns). VIP/Blacklist su univerzalni nazivi.
+const STATUS_KEY = {
+  regular: 'agpStRegular', vip: 'agpStVip', blacklist: 'agpStBlacklist', pending: 'agpStPending',
 }
 const STATUS_STYLES = {
   regular: { background: 'var(--c-bg-subtle)', color: 'var(--c-text-medium)' },
@@ -24,6 +26,8 @@ const EMPTY_FORM = {
 }
 
 export default function GuestsPage() {
+  const { t, i18n } = useTranslation('admin')
+  const dl = i18n.language === 'en' ? 'en-US' : 'sr-Latn'
   const { restaurant } = usePlatform()
   const navigate = useNavigate()
   const [guests, setGuests] = useState([])
@@ -69,7 +73,7 @@ export default function GuestsPage() {
 
   const rejectGuest = async (e, id) => {
     e.stopPropagation()
-    if (!confirm('Odbiti zahtjev gosta?')) return
+    if (!confirm(t('agpRejectConfirm'))) return
     await supabase.from('guests').delete().eq('id', id).eq('restaurant_id', restaurant.id)
     setGuests(prev => prev.filter(g => g.id !== id))
   }
@@ -89,20 +93,20 @@ export default function GuestsPage() {
   const initials = (g) => `${g.first_name?.[0] || ''}${g.last_name?.[0] || ''}`.toUpperCase()
   const fullName = (g) => `${g.first_name} ${g.last_name}`
 
-  if (loading) return <div className={styles.loading}>Učitavanje...</div>
+  if (loading) return <div className={styles.loading}>{t('loading')}</div>
 
   return (
     <div className={styles.page}>
       <div className={styles.topbar}>
-        <div className={styles.title}>Gosti</div>
+        <div className={styles.title}>{t('agpTitle')}</div>
         <div className={styles.topbarActions}>
           {pendingCount > 0 && (
             <button className={styles.btnPending} onClick={() => setFilter('pending')}>
-              Na čekanju ({pendingCount})
+              {t('agpPendingN', { n: pendingCount })}
             </button>
           )}
           <button className={styles.btnPrimary} onClick={() => setShowForm(true)}>
-            + Dodaj gosta
+            + {t('agpAddGuest')}
           </button>
         </div>
       </div>
@@ -110,7 +114,7 @@ export default function GuestsPage() {
       <div className={styles.toolbar}>
         <input
           className={styles.search}
-          placeholder="Pretraži po imenu, telefonu, emailu..."
+          placeholder={t('agpSearchPh')}
           value={search}
           onChange={e => setSearch(e.target.value)}
         />
@@ -121,7 +125,7 @@ export default function GuestsPage() {
               className={`${styles.filterBtn} ${filter === f ? styles.filterActive : ''}`}
               onClick={() => setFilter(f)}
             >
-              {f === 'all' ? 'Svi' : STATUS_LABELS[f]}
+              {f === 'all' ? t('agpAll') : t(STATUS_KEY[f])}
             </button>
           ))}
         </div>
@@ -130,21 +134,21 @@ export default function GuestsPage() {
       {filtered.length === 0 ? (
         <div className={styles.empty}>
           <div className={styles.emptyIcon}>👥</div>
-          <div className={styles.emptyTitle}>Nema gostiju</div>
-          <div className={styles.emptyDesc}>Dodaj prvog gosta ili sačekaj online registracije</div>
-          <button className={styles.btnPrimary} onClick={() => setShowForm(true)}>+ Dodaj gosta</button>
+          <div className={styles.emptyTitle}>{t('agpEmptyTitle')}</div>
+          <div className={styles.emptyDesc}>{t('agpEmptyDesc')}</div>
+          <button className={styles.btnPrimary} onClick={() => setShowForm(true)}>+ {t('agpAddGuest')}</button>
         </div>
       ) : (
         <div className={styles.tableWrap}>
           <table className={styles.table}>
             <thead>
               <tr>
-                <th><SortableHead col="last_name"    label="Gost"           sortBy={sort.sortBy} sortDir={sort.sortDir} onSort={sort.onSort} /></th>
-                <th><SortableHead col="status"       label="Status"         sortBy={sort.sortBy} sortDir={sort.sortDir} onSort={sort.onSort} /></th>
-                <th><SortableHead col="total_visits" label="Posjete"        sortBy={sort.sortBy} sortDir={sort.sortDir} onSort={sort.onSort} /></th>
-                <th><SortableHead col="total_spent"  label="Potrošnja"      sortBy={sort.sortBy} sortDir={sort.sortDir} onSort={sort.onSort} /></th>
-                <th><SortableHead col="updated_at"   label="Zadnja posjeta" sortBy={sort.sortBy} sortDir={sort.sortDir} onSort={sort.onSort} /></th>
-                <th style={{ textAlign: 'right' }}>Akcije</th>
+                <th><SortableHead col="last_name"    label={t('agpColGuest')}     sortBy={sort.sortBy} sortDir={sort.sortDir} onSort={sort.onSort} /></th>
+                <th><SortableHead col="status"       label={t('agpColStatus')}    sortBy={sort.sortBy} sortDir={sort.sortDir} onSort={sort.onSort} /></th>
+                <th><SortableHead col="total_visits" label={t('agpColVisits')}    sortBy={sort.sortBy} sortDir={sort.sortDir} onSort={sort.onSort} /></th>
+                <th><SortableHead col="total_spent"  label={t('agpColSpent')}     sortBy={sort.sortBy} sortDir={sort.sortDir} onSort={sort.onSort} /></th>
+                <th><SortableHead col="updated_at"   label={t('agpColLastVisit')} sortBy={sort.sortBy} sortDir={sort.sortDir} onSort={sort.onSort} /></th>
+                <th style={{ textAlign: 'right' }}>{t('agpColActions')}</th>
               </tr>
             </thead>
             <tbody>
@@ -160,8 +164,8 @@ export default function GuestsPage() {
                         <div className={styles.guestName}>{fullName(g)}</div>
                         <div className={styles.guestSub}>{g.phone || g.email || '—'}</div>
                         <div className={styles.guestMobileInfo}>
-                          <span className={styles.badge} style={STATUS_STYLES[g.status]}>{STATUS_LABELS[g.status]}</span>
-                          {g.total_visits > 0 && <span className={styles.mobileInfoItem}>{g.total_visits} posjeta</span>}
+                          <span className={styles.badge} style={STATUS_STYLES[g.status]}>{t(STATUS_KEY[g.status])}</span>
+                          {g.total_visits > 0 && <span className={styles.mobileInfoItem}>{t('agpVisitsN', { n: g.total_visits })}</span>}
                           {g.total_spent > 0 && <span className={styles.mobileInfoItem}>€{parseFloat(g.total_spent).toFixed(0)}</span>}
                         </div>
                       </div>
@@ -169,7 +173,7 @@ export default function GuestsPage() {
                   </td>
                   <td>
                     <span className={styles.badge} style={STATUS_STYLES[g.status]}>
-                      {STATUS_LABELS[g.status]}
+                      {t(STATUS_KEY[g.status])}
                     </span>
                   </td>
                   <td className={styles.numCell}>{g.total_visits || 0}</td>
@@ -177,15 +181,15 @@ export default function GuestsPage() {
                     {g.total_spent > 0 ? `€${parseFloat(g.total_spent).toFixed(2)}` : '—'}
                   </td>
                   <td className={styles.dateCell}>
-                    {g.updated_at ? new Date(g.updated_at).toLocaleDateString('sr-Latn') : '—'}
+                    {g.updated_at ? new Date(g.updated_at).toLocaleDateString(dl) : '—'}
                   </td>
                   <td onClick={e => e.stopPropagation()}>
                     <div className={styles.rowActions}>
                       {g.status === 'pending' ? (<>
-                        <button className={styles.btnApprove} onClick={e => approveGuest(e, g.id)}>Odobri</button>
-                        <button className={styles.btnReject} onClick={e => rejectGuest(e, g.id)}>Odbij</button>
+                        <button className={styles.btnApprove} onClick={e => approveGuest(e, g.id)}>{t('agpApprove')}</button>
+                        <button className={styles.btnReject} onClick={e => rejectGuest(e, g.id)}>{t('agpReject')}</button>
                       </>) : (
-                        <button className={styles.btnEdit} onClick={() => navigate(`/admin/guests/${g.id}`)}>Profil</button>
+                        <button className={styles.btnEdit} onClick={() => navigate(`/admin/guests/${g.id}`)}>{t('agpProfile')}</button>
                       )}
                     </div>
                   </td>
@@ -200,23 +204,23 @@ export default function GuestsPage() {
         <div className={styles.overlay} onClick={() => setShowForm(false)}>
           <div className={styles.modal} onClick={e => e.stopPropagation()}>
             <div className={styles.modalHeader}>
-              <div className={styles.modalTitle}>Dodaj gosta</div>
+              <div className={styles.modalTitle}>{t('agpAddGuest')}</div>
               <button className={styles.modalClose} onClick={() => setShowForm(false)}>✕</button>
             </div>
             <form onSubmit={saveGuest}>
               <div className={styles.fieldRow}>
                 <div className={styles.field}>
-                  <label>Ime *</label>
+                  <label>{t('agpFirstName')} *</label>
                   <input value={form.first_name} onChange={e => setForm(f => ({ ...f, first_name: e.target.value }))} required />
                 </div>
                 <div className={styles.field}>
-                  <label>Prezime *</label>
+                  <label>{t('agpLastName')} *</label>
                   <input value={form.last_name} onChange={e => setForm(f => ({ ...f, last_name: e.target.value }))} required />
                 </div>
               </div>
               <div className={styles.fieldRow}>
                 <div className={styles.field}>
-                  <label>Telefon</label>
+                  <label>{t('agpPhone')}</label>
                   <input value={form.phone} onChange={e => setForm(f => ({ ...f, phone: e.target.value }))} placeholder="+382 67 ..." />
                 </div>
                 <div className={styles.field}>
@@ -226,25 +230,25 @@ export default function GuestsPage() {
               </div>
               <div className={styles.fieldRow}>
                 <div className={styles.field}>
-                  <label>Datum rođenja</label>
+                  <label>{t('agpDob')}</label>
                   <input type="date" value={form.date_of_birth} onChange={e => setForm(f => ({ ...f, date_of_birth: e.target.value }))} />
                 </div>
                 <div className={styles.field}>
-                  <label>Status</label>
+                  <label>{t('agpColStatus')}</label>
                   <select value={form.status} onChange={e => setForm(f => ({ ...f, status: e.target.value }))}>
-                    <option value="regular">Regular</option>
-                    <option value="vip">VIP</option>
-                    <option value="blacklist">Blacklist</option>
+                    <option value="regular">{t('agpStRegular')}</option>
+                    <option value="vip">{t('agpStVip')}</option>
+                    <option value="blacklist">{t('agpStBlacklist')}</option>
                   </select>
                 </div>
               </div>
               <div className={styles.field}>
-                <label>Napomene</label>
-                <textarea rows={3} value={form.notes} onChange={e => setForm(f => ({ ...f, notes: e.target.value }))} placeholder="Alergije, preference, napomene..." />
+                <label>{t('agpNotes')}</label>
+                <textarea rows={3} value={form.notes} onChange={e => setForm(f => ({ ...f, notes: e.target.value }))} placeholder={t('agpNotesPh')} />
               </div>
               <div className={styles.modalActions}>
-                <button type="button" className={styles.btnSecondary} onClick={() => setShowForm(false)}>Odustani</button>
-                <button type="submit" className={styles.btnPrimary} disabled={saving}>{saving ? 'Čuvanje...' : 'Dodaj gosta'}</button>
+                <button type="button" className={styles.btnSecondary} onClick={() => setShowForm(false)}>{t('cancel')}</button>
+                <button type="submit" className={styles.btnPrimary} disabled={saving}>{saving ? t('saving') : t('agpAddGuest')}</button>
               </div>
             </form>
           </div>
