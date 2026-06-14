@@ -50,6 +50,8 @@
   "online": "Online",
   "done": "Gotovo",
   "noAnnouncements": "Trenutno nema obaveštenja.",
+  "notifClearAll": "Obriši sve",
+  "notifClearConfirm": "Obrisati sva obaveštenja iz tvog prikaza? Novi će se ponovo pojaviti.",
   "expired": "isteklo",
   "edited": "izmenjeno",
   "allOrdersDone": "Sve porudžbine su odrađene!",

@@ -50,6 +50,8 @@
   "online": "Online",
   "done": "Tamam",
   "noAnnouncements": "Şu anda bildirim yok.",
+  "notifClearAll": "Tümünü temizle",
+  "notifClearConfirm": "Tüm bildirimler görünümünüzden temizlensin mi? Yenileri tekrar görünecek.",
   "expired": "süresi doldu",
   "edited": "düzenlendi",
   "allOrdersDone": "Tüm siparişler tamamlandı!",

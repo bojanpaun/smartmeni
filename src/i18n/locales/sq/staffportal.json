@@ -50,6 +50,8 @@
   "online": "Online",
   "done": "Gati",
   "noAnnouncements": "Aktualisht nuk ka njoftime.",
+  "notifClearAll": "Pastro të gjitha",
+  "notifClearConfirm": "Të pastrohen të gjitha njoftimet nga pamja jote? Të rejat do të rishfaqen.",
   "expired": "skaduar",
   "edited": "redaktuar",
   "allOrdersDone": "Të gjitha porositë janë kryer!",

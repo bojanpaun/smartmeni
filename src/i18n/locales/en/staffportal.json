@@ -50,6 +50,8 @@
   "online": "Online",
   "done": "Done",
   "noAnnouncements": "No announcements at the moment.",
+  "notifClearAll": "Clear all",
+  "notifClearConfirm": "Clear all notifications from your view? New ones will reappear.",
   "expired": "expired",
   "edited": "edited",
   "allOrdersDone": "All orders are done!",

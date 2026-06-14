@@ -491,7 +491,7 @@ export default function StaffPortal() {
     if (activeTab === 'bar_orders')  return <BarView        restaurantId={restaurant.id} onRefresh={refreshCounts} />
     if (['checkin', 'checkout', 'rooms'].includes(activeTab)) return <ReceptionView restaurantId={restaurant.id} activeTab={activeTab} onRefresh={refreshCounts} />
     if (activeTab === 'appointments') return <SpaView     staffId={staff.id} restaurantId={restaurant.id} onRefresh={refreshCounts} />
-    if (activeTab === 'notifications') return <NotificationsView restaurantId={restaurant.id} />
+    if (activeTab === 'notifications') return <NotificationsView restaurantId={restaurant.id} userId={staff?.user_id} />
     if (activeTab === 'profile')      return <ProfileView staffId={staff.id} staff={staff} brand={brand} />
     return null
   }
