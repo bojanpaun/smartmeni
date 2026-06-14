@@ -54,9 +54,20 @@ export default function FiscalizationPage() {
   const loadInvoices = () => {
     if (!restaurant?.id) return
     supabase.from('invoices')
-      .select('id, invoice_number, issued_at, source_type, source_id, total_cents, total_base_cents, total_vat_cents, currency, fiscal_status')
+      .select('id, invoice_number, issued_at, source_type, source_id, total_cents, total_base_cents, total_vat_cents, currency, fiscal_status, corrective_for')
       .eq('restaurant_id', restaurant.id).order('issued_at', { ascending: false }).limit(200)
       .then(({ data }) => setInvoices(data || []))
+  }
+
+  // Storniranje (korektivni račun). Original ostaje; samo se kreira ogledalo sa negativnim iznosom.
+  const stornoInvoice = async (inv, e) => {
+    e.stopPropagation()
+    if (!confirm(t('fiskStornoConfirm', { n: inv.invoice_number }))) return
+    const reason = window.prompt(t('fiskStornoReason')) ?? null
+    const { error } = await supabase.rpc('create_storno_invoice', { p_invoice_id: inv.id, p_reason: reason || null })
+    if (error) { toast.error(t('fiskStornoErr')); return }
+    toast.success(t('fiskStornoDone'))
+    loadInvoices()
   }
   const loadUnbilled = () => {
     if (!restaurant?.id) return
@@ -120,6 +131,8 @@ export default function FiscalizationPage() {
   const filteredUnbilled = unbilled.filter(s =>
     (ubSource === 'all' || s.source_type === ubSource) &&
     (!ubq || (s.ref_label || '').toLowerCase().includes(ubq)))
+  // Originali koji su već stornirani (njihov id je nečiji corrective_for) → ne nudi storno opet.
+  const stornoedIds = new Set(invoices.filter(i => i.corrective_for).map(i => i.corrective_for))
   const invq = invSearch.trim().toLowerCase()
   const filteredInvoices = invoices.filter(inv =>
     (invSource === 'all' || inv.source_type === invSource) &&
@@ -288,17 +301,26 @@ export default function FiscalizationPage() {
                   <th className={styles.right}>{t('fiskColVat')}</th>
                   <th className={styles.right}>{t('fiskColTotal')}</th>
                   <th>{t('fiskColStatus')}</th>
+                  <th></th>
                 </tr>
               </thead>
               <tbody>
                 {filteredInvoices.map(inv => (
-                  <tr key={inv.id} className={styles.invoiceRow} onClick={() => setPrintInvoice(inv)} title={t('fiskOpenPrint')}>
-                    <td><code className={styles.code}>{inv.invoice_number}</code></td>
+                  <tr key={inv.id} className={`${styles.invoiceRow} ${inv.corrective_for ? styles.stornoRow : ''}`} onClick={() => setPrintInvoice(inv)} title={t('fiskOpenPrint')}>
+                    <td>
+                      <code className={styles.code}>{inv.invoice_number}</code>
+                      {inv.corrective_for && <span className={styles.stornoBadge}>{t('fiskStornoBadge')}</span>}
+                    </td>
                     <td>{new Date(inv.issued_at).toLocaleDateString(dl, { day: '2-digit', month: '2-digit', year: 'numeric' })}</td>
                     <td>{t(SRC_KEY[inv.source_type] || 'fiskSrcOrder')}</td>
                     <td className={styles.right}>{invMoney(inv.total_vat_cents, inv.currency)}</td>
                     <td className={styles.right}>{invMoney(inv.total_cents, inv.currency)}</td>
                     <td><span className={styles.statBadge}>{t(STATUS_KEY[inv.fiscal_status] || 'fiskStatPending')}</span></td>
+                    <td className={styles.right}>
+                      {!inv.corrective_for && !stornoedIds.has(inv.id) && (
+                        <button className={styles.stornoBtn} onClick={(e) => stornoInvoice(inv, e)}>↩︎ {t('fiskStorno')}</button>
+                      )}
+                    </td>
                   </tr>
                 ))}
               </tbody>

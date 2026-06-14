@@ -82,6 +82,18 @@
 .issueBtn:disabled { opacity: 0.6; cursor: default; }
 .invoiceRow { cursor: pointer; }
 .invoiceRow:hover { background: var(--c-bg-subtle, #f0f5f2); }
+.stornoRow td { color: var(--c-danger, #b42318); opacity: 0.85; }
+.stornoBadge {
+  font-size: 0.64rem; font-weight: 700; text-transform: uppercase; letter-spacing: .04em;
+  padding: 1px 7px; border-radius: 999px; margin-left: 7px;
+  background: var(--c-danger-bg, #FEE4E2); color: var(--c-danger, #b42318);
+}
+.stornoBtn {
+  background: none; border: 1px solid var(--c-border-input, var(--c-border)); border-radius: 8px;
+  padding: 4px 10px; font-size: 0.76rem; font-weight: 600; cursor: pointer; font-family: inherit;
+  color: var(--c-danger, #b42318); white-space: nowrap;
+}
+.stornoBtn:hover { background: var(--c-danger-bg, #FEE4E2); }
 
 .statBadge {
   font-size: 0.7rem; font-weight: 600; padding: 2px 8px; border-radius: 999px;
