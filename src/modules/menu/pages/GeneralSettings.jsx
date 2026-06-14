@@ -5,6 +5,7 @@ import { usePlatform } from '../../../context/PlatformContext'
 import { READY_LANGUAGES, DEFAULT_LANG } from '../../../i18n/languages'
 import { CURRENCIES, DEFAULT_CURRENCY } from '../../../lib/currencies'
 import { translateContent, restaurantDescriptionFields } from '../../../lib/contentTranslate'
+import BankAccountsManager from '../../../components/shared/BankAccountsManager'
 import styles from './GeneralSettings.module.css'
 
 export default function GeneralSettings() {
@@ -39,7 +40,6 @@ export default function GeneralSettings() {
         description: restaurant.description || '',
         tax_id:      restaurant.tax_id      || '',
         vat_number:  restaurant.vat_number  || '',
-        iban:        restaurant.iban        || '',
       })
     }
   }, [restaurant])
@@ -142,10 +142,10 @@ export default function GeneralSettings() {
             <label>{t('gsVatNumber')}</label>
             <input value={form.vat_number} onChange={e => setField('vat_number', e.target.value)} placeholder={t('gsVatNumberPh')} />
           </div>
-          <div className={styles.field}>
-            <label>{t('gsIban')}</label>
-            <input value={form.iban} onChange={e => setField('iban', e.target.value)} placeholder={t('gsIbanPh')} />
-          </div>
+        </div>
+
+        <div className={styles.field} style={{ marginBottom: 20 }}>
+          <BankAccountsManager restaurantId={restaurant.id} />
         </div>
 
         <div className={styles.field} style={{ marginBottom: 20 }}>
