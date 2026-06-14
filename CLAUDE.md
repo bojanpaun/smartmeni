@@ -196,6 +196,11 @@ Stabilne i end-to-end testirane; izmjene izoliraj i ručno testiraj cijeli scena
 - **Digitalni meni:** order flow, narudžba na sobu, košarica u sessionStorage
 - **Booking engine:** `get_available_rooms()`, `create_booking_direct()`, payment webhookovi
 - **Guest trigger:** `trg_hotel_reservation_auto_guest` (auto-kreiranje/linkovanje gosta)
+- **Fiskalni računi:** `create_invoice_from_items` (atomarna numeracija + PDV grupe), readeri
+  order/spa/folio, split (`create_split_invoices`) i storno (`create_storno_invoice`); izvor je
+  „fakturisan" samo dok ima AKTIVAN (nestorniran) original. `restaurants.iban` je **mirror**
+  primarnog `tenant_bank_accounts` (ne pisati direktno); PDV stope = `restaurants.tax_rates`
+  (NULL = državne `tax_config`). Detalji: memorija `project_fiscalization`.
 - **RLS politike:** svaka šema-izmjena može pokvariti RLS
 
 ---

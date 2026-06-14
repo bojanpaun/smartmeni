@@ -598,6 +598,27 @@ supabase/functions/
 - **Prekidač odobrenja registracije** (`require_tenant_approval`): `platform_settings` flag + ažuriran trigger
   `enforce_restaurant_approval_pending` (bira pending/approved po flagu) + prekidač na `/superadmin`. pgTAP 046.
 
+### ✅ Nastavak — operativni FISK (2026-06-15, commiti `02f3655`..`9ecfe08`)
+- **Split računa (UI)** — `SplitInvoiceModal` u „Za izdavanje": mod po stavkama (raspored na 2–6 računa) /
+  jednaka podjela na N → `create_split_invoices`. Engine od ranije; dodato objašnjenje u modalu.
+- **Storno → ponovo izdaj/razdvoji** (`20260615120000`, pgTAP 048): izvor je „fakturisan" samo dok ima
+  AKTIVAN (nestorniran) original (`_fisk_active_invoice_exists`); readeri vraćaju aktivan original ili
+  gen-aware ključ (`:r<gen>`). Tok: storniraj izdat račun → vrati se u „Za izdavanje" → izdaj/razdvoji.
+- **PDV stope po tenantu** (`20260615130000`, pgTAP 049): `restaurants.tax_rates` (NULL=državne); jezgro
+  `create_invoice_from_items` čita efektivne stope; `useTaxRates(restaurantId)`; editor na „PDV stope" +
+  upozorenje na korišćenu stopu. PDV picker dodat i na hotel (`rate_plans`, `minibar_items`).
+- **Više IBAN-a** (`20260615140000`, pgTAP 050): `tenant_bank_accounts` (primarni mirror → `restaurants.iban`,
+  `set_primary_bank_account`); shared `BankAccountsManager` u Opštim postavkama (self-heal zatečenog iban-a).
+- **Račun na portalu zaposlenih** — dugme 🧾 Račun na serviranoj narudžbi (WaiterView, gejtovano addonom;
+  staff su supabase-auth → RPC prolazi). Shared `src/lib/invoicePrint.js` (`openInvoicePrintWindow`, `@page 80mm`).
+- **UX/bugfix**: pretraga+filteri+sortabilni headeri+collapsible na FiscalizationPage; štampa kroz čist prozor
+  (ne `@media print` hack); status „Čeka fiskalizaciju"; `vercel.json` izuzeo `/assets/` (stari chunk → 404,
+  ne HTML-as-JS 500); minibar overlap fix.
+- **Portal #8**: `staff_notification_clears` (per-user „Obriši sve" obavještenja; pgTAP 051).
+- **i18n backfill fix** (edge `translate-content` redeploy): poruke konobaru bez `id`-a (default/stare) sad
+  self-heal id + seed + prevod (gost čita po id-u); razlozi odbijanja nedavnih narudžbi u backfill-u.
+  **Akcija: pokrenuti „🌐 Prevedi sve" na /superadmin za zatečene tenante.**
+
 ### Addon-gating
 - Novi addon **`fiscalization`** u `addon_catalog` (migracija) + `planUtils.js` + `<AddonGuard addonId="fiscalization">`
   (radi za obje vertikale, kao `inventory_pro`/`hr_pro`). FISK-0 (valuta) je **platformski temelj** —
