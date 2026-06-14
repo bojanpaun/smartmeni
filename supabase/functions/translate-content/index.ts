@@ -147,9 +147,9 @@ Deno.serve(async (req) => {
     if (!profile?.is_superadmin && rest.user_id !== user.id) return json({ error: 'Nemate pravo' }, 403)
 
     // Backfill: učitaj SVE zatečeno guest-facing tenant-sadržaja iz baze (service_role).
-    // Pokriva: menu_items, kategorije, room_types, spa_services, opis objekta,
-    // poruke konobaru i landing blokove (restaurant+hotel). Order/rejection NIJE ovdje
-    // (per-narudžba, prevodi se na odbijanje).
+    // Pokriva: menu_items, kategorije, room_types, spa_services, opis objekta, poruke
+    // konobaru (self-heal id + seed default-a), landing blokove i razloge odbijanja
+    // nedavnih narudžbi (entity 'order').
     let sourceItems: SourceItem[] = rawItems
     if (backfill) {
       const [
@@ -186,14 +186,50 @@ Deno.serve(async (req) => {
       if (restRow?.description?.trim()) {
         sourceItems.push({ entity_type: 'restaurant', entity_id: restaurantId, field: 'description', text: restRow.description })
       }
-      for (const m of (Array.isArray(restRow?.waiter_messages) ? restRow.waiter_messages : [])) {
-        if (m?.id && typeof m?.sr === 'string' && m.sr.trim()) {
-          sourceItems.push({ entity_type: 'waiter_message', entity_id: m.id, field: 'text', text: m.sr })
+      // Poruke konobaru: gost ih čita PO ID-u (tr('waiter_message', opt.id, ...)). Ranije
+      // backfill je preskakao poruke bez id-a (default-i i stare {sr,en}) → ostajale
+      // neprevedene za ne-en jezike. Sada: self-heal id-jeva + seed default-a + upis nazad.
+      const DEFAULT_WAITER_MESSAGES = [
+        { sr: 'Pozovi konobara', icon: '🔔' },
+        { sr: 'Donesi račun – plaćam u kešu', icon: '🧾' },
+        { sr: 'Donesi vodu', icon: '🥤' },
+        { sr: 'Skloni prazne tanjire', icon: '🍽️' },
+      ]
+      let wmsgs: Array<Record<string, unknown>> = Array.isArray(restRow?.waiter_messages) ? restRow!.waiter_messages : []
+      let wmMutated = false
+      if (wmsgs.length === 0) {
+        wmsgs = DEFAULT_WAITER_MESSAGES.map((m) => ({ ...m, id: crypto.randomUUID() }))
+        wmMutated = true
+      } else {
+        wmsgs = wmsgs.map((m) => {
+          const src = (m?.sr ?? m?.text) as string | undefined
+          if (src && typeof src === 'string' && src.trim() && !m.id) { wmMutated = true; return { ...m, id: crypto.randomUUID() } }
+          return m
+        })
+      }
+      if (wmMutated) {
+        await supabaseAdmin.from('restaurants').update({ waiter_messages: wmsgs }).eq('id', restaurantId)
+      }
+      for (const m of wmsgs) {
+        const src = (m?.sr ?? m?.text) as string | undefined
+        if (m?.id && typeof src === 'string' && src.trim()) {
+          sourceItems.push({ entity_type: 'waiter_message', entity_id: String(m.id), field: 'text', text: src })
         }
       }
       for (const lp of lps ?? []) {
         for (const { field, text } of landingFields(lp.page_type, lp.blocks)) {
           sourceItems.push({ entity_type: 'landing_block', entity_id: restaurantId, field, text })
+        }
+      }
+      // Razlozi odbijanja: per-narudžba (gost ih čita kao entity 'order'). Prevedi nedavne
+      // odbijene narudžbe da button uhvati i one kojima je per-order prevod promašio.
+      const { data: rejOrders } = await supabaseAdmin
+        .from('orders').select('id, rejection_message')
+        .eq('restaurant_id', restaurantId).not('rejection_message', 'is', null)
+        .order('created_at', { ascending: false }).limit(300)
+      for (const o of rejOrders ?? []) {
+        if (typeof o.rejection_message === 'string' && o.rejection_message.trim()) {
+          sourceItems.push({ entity_type: 'order', entity_id: o.id, field: 'rejection_message', text: o.rejection_message })
         }
       }
     }
