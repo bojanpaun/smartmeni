@@ -40,6 +40,14 @@ export default function FiscalizationPage() {
   const [unbilled, setUnbilled] = useState([])
   const [printInvoice, setPrintInvoice] = useState(null)
   const [issuing, setIssuing] = useState(null) // source_id u toku
+  // Filteri + collapse stanje (#1 pretraga, #6 collapsible)
+  const [invSearch, setInvSearch] = useState('')
+  const [invSource, setInvSource] = useState('all')
+  const [invStatus, setInvStatus] = useState('all')
+  const [ubSearch, setUbSearch] = useState('')
+  const [ubSource, setUbSource] = useState('all')
+  const [openUnbilled, setOpenUnbilled] = useState(true)
+  const [openInvoices, setOpenInvoices] = useState(true)
   const invMoney = (cents, cur) => formatMoney(fromMinorUnits(cents, cur), cur, i18n.language)
   const money = (a) => formatMoney(a, restaurant?.currency, i18n.language)
 
@@ -47,7 +55,7 @@ export default function FiscalizationPage() {
     if (!restaurant?.id) return
     supabase.from('invoices')
       .select('id, invoice_number, issued_at, source_type, source_id, total_cents, total_base_cents, total_vat_cents, currency, fiscal_status')
-      .eq('restaurant_id', restaurant.id).order('issued_at', { ascending: false }).limit(25)
+      .eq('restaurant_id', restaurant.id).order('issued_at', { ascending: false }).limit(200)
       .then(({ data }) => setInvoices(data || []))
   }
   const loadUnbilled = () => {
@@ -106,6 +114,17 @@ export default function FiscalizationPage() {
   const vatOk = !!restaurant?.vat_number
   const ibanOk = !!restaurant?.iban
   const idComplete = idOk && vatOk
+
+  // ── Filtriranje (client-side nad učitanim setom) ──────────────────────────
+  const ubq = ubSearch.trim().toLowerCase()
+  const filteredUnbilled = unbilled.filter(s =>
+    (ubSource === 'all' || s.source_type === ubSource) &&
+    (!ubq || (s.ref_label || '').toLowerCase().includes(ubq)))
+  const invq = invSearch.trim().toLowerCase()
+  const filteredInvoices = invoices.filter(inv =>
+    (invSource === 'all' || inv.source_type === invSource) &&
+    (invStatus === 'all' || inv.fiscal_status === invStatus) &&
+    (!invq || (inv.invoice_number || '').toLowerCase().includes(invq) || t(SRC_KEY[inv.source_type] || 'fiskSrcOrder').toLowerCase().includes(invq)))
 
   return (
     <div className={styles.page}>
@@ -176,73 +195,116 @@ export default function FiscalizationPage() {
       </div>
       {/* Za izdavanje — nedovršeni izvori bez računa (uvijek dostupno) */}
       <div className={styles.card}>
-        <div className={styles.cardTitle}>{t('fiskUnbilledTitle')}</div>
-        <div className={styles.cardHint}>{t('fiskUnbilledHint')}</div>
-        <label className={styles.autoRow}>
-          <input type="checkbox" checked={!!restaurant?.auto_fiscalize} onChange={toggleAuto} />
-          <span>{t('fiskAutoLabel')}</span>
-        </label>
-        {unbilled.length === 0 ? (
-          <div className={styles.muted}>{t('fiskUnbilledEmpty')}</div>
-        ) : (
-          <table className={styles.table}>
-            <thead>
-              <tr>
-                <th>{t('fiskColSource')}</th>
-                <th>{t('fiskColDate')}</th>
-                <th className={styles.right}>{t('fiskColTotal')}</th>
-                <th></th>
-              </tr>
-            </thead>
-            <tbody>
-              {unbilled.map(s => (
-                <tr key={`${s.source_type}-${s.source_id}`}>
-                  <td>{t(SRC_KEY[s.source_type] || 'fiskSrcOrder')} · {s.ref_label}</td>
-                  <td>{new Date(s.occurred_at).toLocaleDateString(dl, { day: '2-digit', month: '2-digit', year: 'numeric' })}</td>
-                  <td className={styles.right}>{money(s.total_amount)}</td>
-                  <td className={styles.right}>
-                    <button className={styles.issueBtn} disabled={issuing === s.source_id} onClick={() => issueSource(s)}>
-                      🧾 {issuing === s.source_id ? '…' : t('wdIssueInvoice')}
-                    </button>
-                  </td>
+        <button className={styles.collapseHead} onClick={() => setOpenUnbilled(o => !o)} aria-expanded={openUnbilled}>
+          <span className={styles.cardTitle}>{t('fiskUnbilledTitle')} <span className={styles.countTag}>{unbilled.length}</span></span>
+          <span className={styles.chevron}>{openUnbilled ? '▾' : '▸'}</span>
+        </button>
+        {openUnbilled && (<>
+          <div className={styles.cardHint}>{t('fiskUnbilledHint')}</div>
+          <label className={styles.autoRow}>
+            <input type="checkbox" checked={!!restaurant?.auto_fiscalize} onChange={toggleAuto} />
+            <span>{t('fiskAutoLabel')}</span>
+          </label>
+          {unbilled.length > 0 && (
+            <div className={styles.filterRow}>
+              <input className={styles.searchInput} placeholder={t('fiskSearchUnbilledPh')} value={ubSearch} onChange={e => setUbSearch(e.target.value)} />
+              <select className={styles.filterSelect} value={ubSource} onChange={e => setUbSource(e.target.value)}>
+                <option value="all">{t('fiskAllSources')}</option>
+                <option value="order">{t('fiskSrcOrder')}</option>
+                <option value="folio">{t('fiskSrcFolio')}</option>
+                <option value="spa">{t('fiskSrcSpa')}</option>
+              </select>
+            </div>
+          )}
+          {unbilled.length === 0 ? (
+            <div className={styles.muted}>{t('fiskUnbilledEmpty')}</div>
+          ) : filteredUnbilled.length === 0 ? (
+            <div className={styles.muted}>{t('fiskNoMatch')}</div>
+          ) : (
+            <table className={styles.table}>
+              <thead>
+                <tr>
+                  <th>{t('fiskColSource')}</th>
+                  <th>{t('fiskColDate')}</th>
+                  <th className={styles.right}>{t('fiskColTotal')}</th>
+                  <th></th>
                 </tr>
-              ))}
-            </tbody>
-          </table>
-        )}
+              </thead>
+              <tbody>
+                {filteredUnbilled.map(s => (
+                  <tr key={`${s.source_type}-${s.source_id}`}>
+                    <td>{t(SRC_KEY[s.source_type] || 'fiskSrcOrder')} · {s.ref_label}</td>
+                    <td>{new Date(s.occurred_at).toLocaleDateString(dl, { day: '2-digit', month: '2-digit', year: 'numeric' })}</td>
+                    <td className={styles.right}>{money(s.total_amount)}</td>
+                    <td className={styles.right}>
+                      <button className={styles.issueBtn} disabled={issuing === s.source_id} onClick={() => issueSource(s)}>
+                        🧾 {issuing === s.source_id ? '…' : t('wdIssueInvoice')}
+                      </button>
+                    </td>
+                  </tr>
+                ))}
+              </tbody>
+            </table>
+          )}
+        </>)}
       </div>
 
       <div className={styles.card}>
-        <div className={styles.cardTitle}>{t('fiskInvoicesTitle')}</div>
-        <div className={styles.cardHint}>{t('fiskInvoicesHint')}</div>
-        {invoices.length === 0 ? (
-          <div className={styles.muted}>{t('fiskInvEmpty')}</div>
-        ) : (
-          <table className={styles.table}>
-            <thead>
-              <tr>
-                <th>{t('fiskColNumber')}</th>
-                <th>{t('fiskColDate')}</th>
-                <th>{t('fiskColSource')}</th>
-                <th className={styles.right}>{t('fiskColVat')}</th>
-                <th className={styles.right}>{t('fiskColTotal')}</th>
-                <th>{t('fiskColStatus')}</th>
-              </tr>
-            </thead>
-            <tbody>
-              {invoices.map(inv => (
-                <tr key={inv.id} className={styles.invoiceRow} onClick={() => setPrintInvoice(inv)} title={t('fiskOpenPrint')}>
-                  <td><code className={styles.code}>{inv.invoice_number}</code></td>
-                  <td>{new Date(inv.issued_at).toLocaleDateString(dl, { day: '2-digit', month: '2-digit', year: 'numeric' })}</td>
-                  <td>{t(SRC_KEY[inv.source_type] || 'fiskSrcOrder')}</td>
-                  <td className={styles.right}>{invMoney(inv.total_vat_cents, inv.currency)}</td>
-                  <td className={styles.right}>{invMoney(inv.total_cents, inv.currency)}</td>
-                  <td><span className={styles.statBadge}>{t(STATUS_KEY[inv.fiscal_status] || 'fiskStatPending')}</span></td>
+        <button className={styles.collapseHead} onClick={() => setOpenInvoices(o => !o)} aria-expanded={openInvoices}>
+          <span className={styles.cardTitle}>{t('fiskInvoicesTitle')} <span className={styles.countTag}>{invoices.length}</span></span>
+          <span className={styles.chevron}>{openInvoices ? '▾' : '▸'}</span>
+        </button>
+        {openInvoices && (<>
+          <div className={styles.cardHint}>{t('fiskInvoicesHint')}</div>
+          {invoices.length > 0 && (
+            <div className={styles.filterRow}>
+              <input className={styles.searchInput} placeholder={t('fiskSearchInvoicePh')} value={invSearch} onChange={e => setInvSearch(e.target.value)} />
+              <select className={styles.filterSelect} value={invSource} onChange={e => setInvSource(e.target.value)}>
+                <option value="all">{t('fiskAllSources')}</option>
+                <option value="order">{t('fiskSrcOrder')}</option>
+                <option value="folio">{t('fiskSrcFolio')}</option>
+                <option value="spa">{t('fiskSrcSpa')}</option>
+              </select>
+              <select className={styles.filterSelect} value={invStatus} onChange={e => setInvStatus(e.target.value)}>
+                <option value="all">{t('fiskAllStatuses')}</option>
+                <option value="PENDING">{t('fiskStatPending')}</option>
+                <option value="QUEUED">{t('fiskStatQueued')}</option>
+                <option value="FISCALIZED">{t('fiskStatFiscalized')}</option>
+                <option value="FAILED">{t('fiskStatFailed')}</option>
+              </select>
+            </div>
+          )}
+          {invoices.length === 0 ? (
+            <div className={styles.muted}>{t('fiskInvEmpty')}</div>
+          ) : filteredInvoices.length === 0 ? (
+            <div className={styles.muted}>{t('fiskNoMatch')}</div>
+          ) : (
+            <table className={styles.table}>
+              <thead>
+                <tr>
+                  <th>{t('fiskColNumber')}</th>
+                  <th>{t('fiskColDate')}</th>
+                  <th>{t('fiskColSource')}</th>
+                  <th className={styles.right}>{t('fiskColVat')}</th>
+                  <th className={styles.right}>{t('fiskColTotal')}</th>
+                  <th>{t('fiskColStatus')}</th>
                 </tr>
-              ))}
-            </tbody>
-          </table>
-        )}
+              </thead>
+              <tbody>
+                {filteredInvoices.map(inv => (
+                  <tr key={inv.id} className={styles.invoiceRow} onClick={() => setPrintInvoice(inv)} title={t('fiskOpenPrint')}>
+                    <td><code className={styles.code}>{inv.invoice_number}</code></td>
+                    <td>{new Date(inv.issued_at).toLocaleDateString(dl, { day: '2-digit', month: '2-digit', year: 'numeric' })}</td>
+                    <td>{t(SRC_KEY[inv.source_type] || 'fiskSrcOrder')}</td>
+                    <td className={styles.right}>{invMoney(inv.total_vat_cents, inv.currency)}</td>
+                    <td className={styles.right}>{invMoney(inv.total_cents, inv.currency)}</td>
+                    <td><span className={styles.statBadge}>{t(STATUS_KEY[inv.fiscal_status] || 'fiskStatPending')}</span></td>
+                  </tr>
+                ))}
+              </tbody>
+            </table>
+          )}
+        </>)}
       </div>
       <div className={styles.card}>
         <div className={styles.cardTitleRow}>
