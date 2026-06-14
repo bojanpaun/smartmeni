@@ -3,16 +3,18 @@ import { useTranslation } from 'react-i18next'
 import { usePlatform } from '../../../context/PlatformContext'
 import { supabase } from '../../../lib/supabase'
 import { useLibraryTranslations } from '../../../lib/useLibraryTranslations'
+import { useTaxRates } from '../../../lib/useTaxRates'
 import { useMoney } from '../../../lib/useMoney'
 import LoadingSpinner from '../../../components/shared/LoadingSpinner'
 import styles from './Hotel.module.css'
 
-const BLANK = { name: '', price: '', is_active: true }
+const BLANK = { name: '', price: '', vat_rate_key: '', is_active: true }
 
 export default function MinibarPage() {
   const { restaurant } = usePlatform()
   const { t } = useTranslation('admin')
   const lt = useLibraryTranslations()
+  const { rates: taxRates } = useTaxRates()
   const money = useMoney()
   const [items, setItems] = useState([])
   const [loading, setLoading] = useState(true)
@@ -34,7 +36,7 @@ export default function MinibarPage() {
     setLoading(true)
     const { data } = await supabase
       .from('minibar_items')
-      .select('id, name, price, is_active, sort_order')
+      .select('id, name, price, vat_rate_key, is_active, sort_order')
       .eq('restaurant_id', restaurant.id)
       .order('sort_order').order('name')
     setItems(data ?? [])
@@ -43,7 +45,7 @@ export default function MinibarPage() {
   useEffect(() => { load() }, [restaurant?.id])
 
   const openNew = () => { setEditing(null); setForm(BLANK); setShowForm(true) }
-  const openEdit = (it) => { setEditing(it.id); setForm({ name: it.name, price: it.price ?? '', is_active: it.is_active }); setShowForm(true) }
+  const openEdit = (it) => { setEditing(it.id); setForm({ name: it.name, price: it.price ?? '', vat_rate_key: it.vat_rate_key ?? '', is_active: it.is_active }); setShowForm(true) }
   const close = () => { setShowForm(false); setEditing(null) }
   const upd = (k, v) => setForm(f => ({ ...f, [k]: v }))
 
@@ -54,6 +56,7 @@ export default function MinibarPage() {
       restaurant_id: restaurant.id,
       name:          form.name.trim(),
       price:         form.price === '' ? null : Number(form.price),
+      vat_rate_key:  form.vat_rate_key || null,
       is_active:     form.is_active,
     }
     if (editing) await supabase.from('minibar_items').update(payload).eq('id', editing)
@@ -154,6 +157,15 @@ export default function MinibarPage() {
               <label style={{ fontSize: 12, color: 'var(--c-text-medium)' }}>{t('htPriceEur')}</label>
               <input className={styles.input} type="number" min="0" step="0.01" value={form.price} onChange={e => upd('price', e.target.value)} />
             </div>
+            {taxRates.length > 0 && (
+              <div style={{ minWidth: 150 }}>
+                <label style={{ fontSize: 12, color: 'var(--c-text-medium)' }}>{t('amVatRate')}</label>
+                <select className={styles.input} value={form.vat_rate_key || ''} onChange={e => upd('vat_rate_key', e.target.value || null)}>
+                  <option value="">{t('amVatRateNone')}</option>
+                  {taxRates.map(r => <option key={r.key} value={r.key}>{r.label}</option>)}
+                </select>
+              </div>
+            )}
             <label style={{ display: 'flex', alignItems: 'center', gap: 8, paddingBottom: 8 }}>
               <input type="checkbox" checked={form.is_active} onChange={e => upd('is_active', e.target.checked)} />
               <span style={{ fontSize: 13 }}>{t('htActive')}</span>

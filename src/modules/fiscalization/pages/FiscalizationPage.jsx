@@ -5,6 +5,8 @@ import toast from 'react-hot-toast'
 import { usePlatform } from '../../../context/PlatformContext'
 import { supabase } from '../../../lib/supabase'
 import { formatMoney, fromMinorUnits } from '../../../lib/currencies'
+import { useSortable } from '../../../hooks/useSortable'
+import SortableHead from '../../../components/shared/SortableHead'
 import InvoicePrintModal from '../components/InvoicePrintModal'
 import styles from './FiscalizationPage.module.css'
 
@@ -48,6 +50,8 @@ export default function FiscalizationPage() {
   const [ubSource, setUbSource] = useState('all')
   const [openUnbilled, setOpenUnbilled] = useState(true)
   const [openInvoices, setOpenInvoices] = useState(true)
+  const sortUnbilled = useSortable('occurred_at', 'desc')
+  const sortInv = useSortable('issued_at', 'desc')
   const invMoney = (cents, cur) => formatMoney(fromMinorUnits(cents, cur), cur, i18n.language)
   const money = (a) => formatMoney(a, restaurant?.currency, i18n.language)
 
@@ -237,14 +241,14 @@ export default function FiscalizationPage() {
             <table className={styles.table}>
               <thead>
                 <tr>
-                  <th>{t('fiskColSource')}</th>
-                  <th>{t('fiskColDate')}</th>
-                  <th className={styles.right}>{t('fiskColTotal')}</th>
+                  <th><SortableHead col="source_type" label={t('fiskColSource')} sortBy={sortUnbilled.sortBy} sortDir={sortUnbilled.sortDir} onSort={sortUnbilled.onSort} /></th>
+                  <th><SortableHead col="occurred_at" label={t('fiskColDate')} sortBy={sortUnbilled.sortBy} sortDir={sortUnbilled.sortDir} onSort={sortUnbilled.onSort} /></th>
+                  <th className={styles.right}><SortableHead col="total_amount" label={t('fiskColTotal')} sortBy={sortUnbilled.sortBy} sortDir={sortUnbilled.sortDir} onSort={sortUnbilled.onSort} /></th>
                   <th></th>
                 </tr>
               </thead>
               <tbody>
-                {filteredUnbilled.map(s => (
+                {sortUnbilled.sort(filteredUnbilled).map(s => (
                   <tr key={`${s.source_type}-${s.source_id}`}>
                     <td>{t(SRC_KEY[s.source_type] || 'fiskSrcOrder')} · {s.ref_label}</td>
                     <td>{new Date(s.occurred_at).toLocaleDateString(dl, { day: '2-digit', month: '2-digit', year: 'numeric' })}</td>
@@ -295,17 +299,17 @@ export default function FiscalizationPage() {
             <table className={styles.table}>
               <thead>
                 <tr>
-                  <th>{t('fiskColNumber')}</th>
-                  <th>{t('fiskColDate')}</th>
-                  <th>{t('fiskColSource')}</th>
-                  <th className={styles.right}>{t('fiskColVat')}</th>
-                  <th className={styles.right}>{t('fiskColTotal')}</th>
-                  <th>{t('fiskColStatus')}</th>
+                  <th><SortableHead col="invoice_number" label={t('fiskColNumber')} sortBy={sortInv.sortBy} sortDir={sortInv.sortDir} onSort={sortInv.onSort} /></th>
+                  <th><SortableHead col="issued_at" label={t('fiskColDate')} sortBy={sortInv.sortBy} sortDir={sortInv.sortDir} onSort={sortInv.onSort} /></th>
+                  <th><SortableHead col="source_type" label={t('fiskColSource')} sortBy={sortInv.sortBy} sortDir={sortInv.sortDir} onSort={sortInv.onSort} /></th>
+                  <th className={styles.right}><SortableHead col="total_vat_cents" label={t('fiskColVat')} sortBy={sortInv.sortBy} sortDir={sortInv.sortDir} onSort={sortInv.onSort} /></th>
+                  <th className={styles.right}><SortableHead col="total_cents" label={t('fiskColTotal')} sortBy={sortInv.sortBy} sortDir={sortInv.sortDir} onSort={sortInv.onSort} /></th>
+                  <th><SortableHead col="fiscal_status" label={t('fiskColStatus')} sortBy={sortInv.sortBy} sortDir={sortInv.sortDir} onSort={sortInv.onSort} /></th>
                   <th></th>
                 </tr>
               </thead>
               <tbody>
-                {filteredInvoices.map(inv => (
+                {sortInv.sort(filteredInvoices).map(inv => (
                   <tr key={inv.id} className={`${styles.invoiceRow} ${inv.corrective_for ? styles.stornoRow : ''}`} onClick={() => setPrintInvoice(inv)} title={t('fiskOpenPrint')}>
                     <td>
                       <code className={styles.code}>{inv.invoice_number}</code>

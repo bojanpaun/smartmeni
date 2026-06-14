@@ -2,6 +2,7 @@ import { useState, useEffect } from 'react'
 import { useTranslation } from 'react-i18next'
 import { usePlatform } from '../../../context/PlatformContext'
 import { useRatePlans } from '../hooks/useRatePlans'
+import { useTaxRates } from '../../../lib/useTaxRates'
 import { supabase } from '../../../lib/supabase'
 import { translateContent, ratePlanFields } from '../../../lib/contentTranslate'
 import LoadingSpinner from '../../../components/shared/LoadingSpinner'
@@ -22,6 +23,7 @@ const BLANK_PLAN = {
   description: '',
   room_type_id: '',
   price_per_night: '',
+  vat_rate_key: '',
   min_stay: 1,
   max_stay: '',
   cancellation_policy: 'flexible',
@@ -39,6 +41,7 @@ export default function RatePlansPage() {
   const { restaurant } = usePlatform()
   const { t } = useTranslation('admin')
   const { ratePlans, loading, refetch } = useRatePlans(restaurant?.id)
+  const { rates: taxRates } = useTaxRates()
 
   const [roomTypes, setRoomTypes] = useState([])
   const [allRooms, setAllRooms] = useState([])       // sve sobe hotela (za prikaz na kartici)
@@ -101,6 +104,7 @@ export default function RatePlansPage() {
       description: plan.description ?? '',
       room_type_id: plan.room_type_id ?? '',
       price_per_night: plan.price_per_night ?? '',
+      vat_rate_key: plan.vat_rate_key ?? '',
       min_stay: plan.min_stay ?? 1,
       max_stay: plan.max_stay ?? '',
       cancellation_policy: plan.cancellation_policy ?? 'flexible',
@@ -154,6 +158,7 @@ export default function RatePlansPage() {
           ...base,
           room_type_id: form.room_type_id || null,
           price_per_night: parseFloat(form.price_per_night),
+          vat_rate_key: form.vat_rate_key || null,
           min_stay: parseInt(form.min_stay) || 1,
           max_stay: form.max_stay ? parseInt(form.max_stay) : null,
           cancellation_policy: form.cancellation_policy,
@@ -320,6 +325,15 @@ export default function RatePlansPage() {
                 <input type="number" min="0" step="0.01" value={form.price_per_night}
                   onChange={e => f('price_per_night', e.target.value)} placeholder="0.00" />
               </div>
+              {taxRates.length > 0 && (
+                <div className={rp.field}>
+                  <label>{t('amVatRate')}</label>
+                  <select value={form.vat_rate_key || ''} onChange={e => f('vat_rate_key', e.target.value || null)}>
+                    <option value="">{t('amVatRateNone')}</option>
+                    {taxRates.map(r => <option key={r.key} value={r.key}>{r.label}</option>)}
+                  </select>
+                </div>
+              )}
 
               {/* Specifične sobe (opciono) */}
               {form.room_type_id && roomsForType.length > 0 && (
