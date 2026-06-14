@@ -172,7 +172,7 @@ export default function StaffPortal() {
 
   useEffect(() => {
     supabase.from('restaurants')
-      .select('id, name, slug, logo_url, color, template, rejection_messages')
+      .select('id, name, slug, logo_url, color, template, rejection_messages, currency')
       .ilike('slug', slug)
       .maybeSingle()
       .then(async ({ data }) => {
@@ -479,7 +479,7 @@ export default function StaffPortal() {
   const renderView = () => {
     if (activeTab === 'home') return <HomeView staffId={staff.id} restaurantId={restaurant.id} staffInfo={staff} brand={brand} />
     if (['schedule', 'attendance', 'payroll', 'absences'].includes(activeTab)) {
-      return <HrView staffId={staff.id} activeTab={activeTab} />
+      return <HrView staffId={staff.id} activeTab={activeTab} currency={restaurant?.currency} />
     }
     if (activeTab === 'tasks')       return <HousekeepingView staffId={staff.id} restaurantId={restaurant.id} onRefresh={refreshCounts} />
     if (activeTab === 'maintenance') return <MaintenanceView  staffId={staff.id} restaurantId={restaurant.id} onRefresh={refreshCounts} />

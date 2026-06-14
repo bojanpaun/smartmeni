@@ -2,6 +2,7 @@ import { useState, useEffect } from 'react'
 import { useTranslation } from 'react-i18next'
 import { supabase } from '../../../lib/supabase'
 import { usePlatform } from '../../../context/PlatformContext'
+import { currencyMeta } from '../../../lib/currencies'
 import { TEMPLATES, getTemplate } from '../../../lib/templates'
 import styles from './TemplateSettings.module.css'
 
@@ -48,7 +49,7 @@ function MenuPreview({ template: t }) {
           <div className={styles.phoneItemBody}>
             <div className={styles.phoneItemName}>Grčka salata</div>
             <div className={styles.phoneItemDesc}>Feta, masline, krastavac</div>
-            <div className={styles.phoneItemPrice} style={{ color: t.priceColor }}>€4.50</div>
+            <div className={styles.phoneItemPrice} style={{ color: t.priceColor }}>{curSym}4.50</div>
           </div>
         </div>
         <div className={styles.phoneItem} style={{ background: t.cardBg }}>
@@ -56,7 +57,7 @@ function MenuPreview({ template: t }) {
           <div className={styles.phoneItemBody}>
             <div className={styles.phoneItemName}>Lignje na žaru</div>
             <div className={styles.phoneItemDesc}>Mediteranske lignje</div>
-            <div className={styles.phoneItemPrice} style={{ color: t.priceColor }}>€8.00</div>
+            <div className={styles.phoneItemPrice} style={{ color: t.priceColor }}>{curSym}8.00</div>
           </div>
         </div>
       </div>
@@ -70,6 +71,7 @@ function MenuPreview({ template: t }) {
 export default function TemplateSettings() {
   const { t } = useTranslation('admin')
   const { restaurant } = usePlatform()
+  const curSym = currencyMeta(restaurant?.currency).symbol
   const [selected, setSelected] = useState('modern_minimal')
   const [saving, setSaving] = useState(false)
   const [saved, setSaved] = useState(false)

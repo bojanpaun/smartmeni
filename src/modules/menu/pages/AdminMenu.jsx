@@ -9,6 +9,7 @@ import { usePlatform } from '../../../context/PlatformContext'
 import { stripAccountFields } from '../../../lib/planUtils'
 import { translateContent, menuItemFields } from '../../../lib/contentTranslate'
 import { useContentTranslations } from '../../../lib/useContentTranslations'
+import { useMoney } from '../../../lib/useMoney'
 import RecipeLibraryPicker from '../components/RecipeLibraryPicker'
 import ContentTranslations from '../../../components/shared/ContentTranslations'
 import styles from './AdminMenu.module.css'
@@ -55,6 +56,7 @@ export default function AdminMenu() {
   // Prevod tenant-sadržaja na jeziku admina (Sloj B). PRIKAZ (tabovi/lista/dropdown)
   // čita prevod; polja za UNOS ostaju na izvoru (master). Za 'me'/bez prevoda → izvor.
   const tr = useContentTranslations(restaurant?.id)
+  const money = useMoney()
   const catName = (c) => tr('category', c.id, 'name', c.name)
   const itemName = (it) => tr('menu_item', it.id, 'name', it.name)
   const [categories, setCategories] = useState([])
@@ -476,7 +478,7 @@ export default function AdminMenu() {
                           {item.description && <div className={styles.itemDesc}>{tr('menu_item', item.id, 'description', item.description).slice(0, 40)}…</div>}
                           {/* Mobilni: cijena + status + vidljivost ispod naziva (kolone skrivene) */}
                           <div className={styles.mobileInfo}>
-                            <span className={styles.itemPrice}>€{parseFloat(item.price).toFixed(2)}</span>
+                            <span className={styles.itemPrice}>{money(item.price)}</span>
                             {item.is_special
                               ? <span className={`${styles.pill} ${styles.pillSpecial}`}>{t('amDailySpecial')}</span>
                               : <span className={`${styles.pill} ${styles.pillActive}`}>{t('amActive')}</span>}
@@ -487,7 +489,7 @@ export default function AdminMenu() {
                             />
                           </div>
                         </td>
-                        <td className={styles.itemPrice}>€{parseFloat(item.price).toFixed(2)}</td>
+                        <td className={styles.itemPrice}>{money(item.price)}</td>
                         <td>
                           {item.is_special
                             ? <span className={`${styles.pill} ${styles.pillSpecial}`}>{t('amDailySpecial')}</span>

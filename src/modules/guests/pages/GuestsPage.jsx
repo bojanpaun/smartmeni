@@ -5,6 +5,7 @@ import { useNavigate } from 'react-router-dom'
 import { useTranslation } from 'react-i18next'
 import { supabase } from '../../../lib/supabase'
 import { usePlatform } from '../../../context/PlatformContext'
+import { useMoney } from '../../../lib/useMoney'
 import { useSortable } from '../../../hooks/useSortable'
 import SortableHead from '../../../components/shared/SortableHead'
 import styles from './GuestsPage.module.css'
@@ -27,6 +28,7 @@ const EMPTY_FORM = {
 
 export default function GuestsPage() {
   const { t, i18n } = useTranslation('admin')
+  const money = useMoney()
   const dl = i18n.language === 'en' ? 'en-US' : 'sr-Latn'
   const { restaurant } = usePlatform()
   const navigate = useNavigate()
@@ -166,7 +168,7 @@ export default function GuestsPage() {
                         <div className={styles.guestMobileInfo}>
                           <span className={styles.badge} style={STATUS_STYLES[g.status]}>{t(STATUS_KEY[g.status])}</span>
                           {g.total_visits > 0 && <span className={styles.mobileInfoItem}>{t('agpVisitsN', { n: g.total_visits })}</span>}
-                          {g.total_spent > 0 && <span className={styles.mobileInfoItem}>€{parseFloat(g.total_spent).toFixed(0)}</span>}
+                          {g.total_spent > 0 && <span className={styles.mobileInfoItem}>{money(g.total_spent)}</span>}
                         </div>
                       </div>
                     </div>
@@ -178,7 +180,7 @@ export default function GuestsPage() {
                   </td>
                   <td className={styles.numCell}>{g.total_visits || 0}</td>
                   <td className={styles.spentCell}>
-                    {g.total_spent > 0 ? `€${parseFloat(g.total_spent).toFixed(2)}` : '—'}
+                    {g.total_spent > 0 ? money(g.total_spent) : '—'}
                   </td>
                   <td className={styles.dateCell}>
                     {g.updated_at ? new Date(g.updated_at).toLocaleDateString(dl) : '—'}

@@ -3,6 +3,7 @@ import { useLocation } from 'react-router-dom'
 import { useTranslation } from 'react-i18next'
 import { supabase } from '../../../lib/supabase'
 import { usePlatform } from '../../../context/PlatformContext'
+import { useMoney } from '../../../lib/useMoney'
 import { useAdminBadgeRefresh } from '../../../layouts/AdminLayout'
 import { translateContent, orderRejectionFields } from '../../../lib/contentTranslate'
 import styles from './WaiterDashboard.module.css'
@@ -56,6 +57,7 @@ const NEXT_LABEL_KEYS = {
 
 export default function WaiterDashboard() {
   const { t, i18n } = useTranslation('admin')
+  const money = useMoney()
   const dl = i18n.language === 'en' ? 'en-US' : 'sr-Latn'
   const { restaurant, hasAddon } = usePlatform()
   const { refreshCounts } = useAdminBadgeRefresh()
@@ -275,7 +277,7 @@ export default function WaiterDashboard() {
                 )}
 
                 <div className={styles.orderFooter}>
-                  <span className={styles.orderTotal}>€{parseFloat(order.total).toFixed(2)}</span>
+                  <span className={styles.orderTotal}>{money(order.total)}</span>
                   <span className={styles.orderTime}>
                     {new Date(order.created_at).toLocaleTimeString(dl, { hour: '2-digit', minute: '2-digit' })}
                   </span>

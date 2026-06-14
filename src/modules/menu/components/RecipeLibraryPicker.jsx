@@ -5,6 +5,7 @@ import { supabase } from '../../../lib/supabase'
 import { usePlatform } from '../../../context/PlatformContext'
 import { useLibraryTranslations } from '../../../lib/useLibraryTranslations'
 import { translateContent, menuItemFields } from '../../../lib/contentTranslate'
+import { useMoney } from '../../../lib/useMoney'
 import styles from './RecipeLibraryPicker.module.css'
 
 // Meta po kategoriji: emoji + labelKey (prevod) + redoslijed taba. Nepoznata → fallback.
@@ -32,6 +33,7 @@ export default function RecipeLibraryPicker({ onClose, onImported, categories = 
   const { t } = useTranslation('admin')
   const { restaurant, hasAddon } = usePlatform()
   const lt = useLibraryTranslations()
+  const money = useMoney()
   const hasInventory = hasAddon('inventory_pro')
   // Naziv kategorije = emoji (data) + prevedeni naziv; nepoznata → ključ.
   const catLabel = (key) => CAT_META[key] ? `${CAT_META[key].emoji} ${t(CAT_META[key].labelKey)}` : key
@@ -204,7 +206,7 @@ export default function RecipeLibraryPicker({ onClose, onImported, categories = 
                         </div>
                       </div>
                       {r.suggested_price != null && (
-                        <span className={styles.price}>€{Number(r.suggested_price).toFixed(2)}</span>
+                        <span className={styles.price}>{money(r.suggested_price)}</span>
                       )}
                     </div>
                   )

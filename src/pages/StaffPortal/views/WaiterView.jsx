@@ -2,6 +2,7 @@ import { useState, useEffect, useCallback, useRef } from 'react'
 import { useTranslation } from 'react-i18next'
 import { supabase } from '../../../lib/supabase'
 import { translateContent, orderRejectionFields } from '../../../lib/contentTranslate'
+import { formatMoney } from '../../../lib/currencies'
 import s from '../StaffPortal.module.css'
 
 async function findOpenFolio(restaurantId, roomNum, t) {
@@ -40,7 +41,8 @@ const QUICK_RESPONSE_KEYS = ['quickResp1', 'quickResp2', 'quickResp3', 'quickRes
 const DEFAULT_REJECT_KEYS = ['reject1', 'reject2', 'reject3', 'reject4']
 
 export default function WaiterView({ restaurant, activeTab, onRefresh, hotelEnabled }) {
-  const { t } = useTranslation('staffportal')
+  const { t, i18n } = useTranslation('staffportal')
+  const money = (a) => formatMoney(a, restaurant?.currency, i18n.language)
   const restaurantId = restaurant?.id
   const [orders, setOrders]         = useState([])
   const [requests, setRequests]     = useState([])
@@ -260,14 +262,14 @@ export default function WaiterView({ restaurant, activeTab, onRefresh, hotelEnab
                   <span className={s.orderItemQty}>{item.quantity}×</span>
                   <span className={s.orderItemName}>{item.name}</span>
                   <span className={s.orderItemPrice}>
-                    €{(parseFloat(item.price) * item.quantity).toFixed(2)}
+                    {money(parseFloat(item.price) * item.quantity)}
                   </span>
                 </div>
               ))}
               {order.total && (
                 <div className={s.orderTotalRow}>
                   <span>{t('total')}</span>
-                  <span>€{parseFloat(order.total).toFixed(2)}</span>
+                  <span>{money(order.total)}</span>
                 </div>
               )}
             </div>

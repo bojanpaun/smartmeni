@@ -1,6 +1,7 @@
 import { useState, useEffect } from 'react'
 import { useTranslation } from 'react-i18next'
 import { supabase } from '../../../lib/supabase'
+import { formatMoney } from '../../../lib/currencies'
 import s from '../StaffPortal.module.css'
 
 const ENTRY_TYPES = {
@@ -27,8 +28,9 @@ function mEnd() {
   return new Date(d.getFullYear(), d.getMonth()+1, 0).toISOString().slice(0, 10)
 }
 
-export default function HrView({ staffId, activeTab }) {
+export default function HrView({ staffId, activeTab, currency }) {
   const { t, i18n } = useTranslation('staffportal')
+  const money = (a) => formatMoney(a, currency, i18n.language)
   const dl = i18n.language === 'en' ? 'en-US' : dl
   const [schedules, setSchedules]   = useState([])
   const [attendance, setAttendance] = useState([])
@@ -183,10 +185,10 @@ export default function HrView({ staffId, activeTab }) {
           <input type="month" value={payrollMonth} onChange={e => setPayrollMonth(e.target.value)} />
         </div>
         <div className={s.kpiGrid}>
-          <div className={s.kpiCard}><div className={s.kpiLabel}>{t('payBase')}</div><div className={s.kpiVal}>€{base.toFixed(0)}</div></div>
-          <div className={s.kpiCard}><div className={s.kpiLabel}>{t('payAdds')}</div><div className={s.kpiVal} style={{ color: '#0d7a52' }}>+€{adds.toFixed(0)}</div></div>
-          <div className={s.kpiCard}><div className={s.kpiLabel}>{t('payDeds')}</div><div className={s.kpiVal} style={{ color: '#c0392b' }}>-€{deds.toFixed(0)}</div></div>
-          <div className={s.kpiCard}><div className={s.kpiLabel}>{t('payNet')}</div><div className={s.kpiVal} style={{ color: '#0d7a52' }}>€{(base+adds-deds).toFixed(0)}</div></div>
+          <div className={s.kpiCard}><div className={s.kpiLabel}>{t('payBase')}</div><div className={s.kpiVal}>{money(base)}</div></div>
+          <div className={s.kpiCard}><div className={s.kpiLabel}>{t('payAdds')}</div><div className={s.kpiVal} style={{ color: '#0d7a52' }}>+{money(adds)}</div></div>
+          <div className={s.kpiCard}><div className={s.kpiLabel}>{t('payDeds')}</div><div className={s.kpiVal} style={{ color: '#c0392b' }}>-{money(deds)}</div></div>
+          <div className={s.kpiCard}><div className={s.kpiLabel}>{t('payNet')}</div><div className={s.kpiVal} style={{ color: '#0d7a52' }}>{money(base+adds-deds)}</div></div>
         </div>
         <div className={s.card}>
           {payroll.length === 0
@@ -198,7 +200,7 @@ export default function HrView({ staffId, activeTab }) {
                 <div key={e.id} className={s.payRow}>
                   <span className={s.badge} style={{ background: '#f3f4f6', color: et.color }}>{t(et.labelKey)}</span>
                   <div className={s.payAmount} style={{ color: isDed ? '#c0392b' : '#0d7a52' }}>
-                    {isDed ? '-' : '+'}€{parseFloat(e.amount).toFixed(2)}
+                    {isDed ? '-' : '+'}{money(e.amount)}
                   </div>
                   <div className={s.payMeta}>{new Date(e.date).toLocaleDateString(dl)}{e.note ? ` · ${e.note}` : ''}</div>
                 </div>

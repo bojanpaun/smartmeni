@@ -3,6 +3,7 @@ import { useParams, useNavigate } from 'react-router-dom'
 import { useTranslation } from 'react-i18next'
 import { supabase } from '../../../lib/supabase'
 import { usePlatform } from '../../../context/PlatformContext'
+import { useMoney } from '../../../lib/useMoney'
 import DateNav, { DATE_TODAY } from '../../../components/shared/DateNav'
 import styles from './GuestProfilePage.module.css'
 
@@ -39,6 +40,7 @@ export default function GuestProfilePage() {
   const { t, i18n } = useTranslation('admin')
   const dl = i18n.language === 'en' ? 'en-US' : 'sr-Latn'
   const fmtDate = (d) => d ? new Date(d).toLocaleDateString(dl, { day: '2-digit', month: 'short', year: 'numeric' }) : '—'
+  const money = useMoney()
   const { id } = useParams()
   const { restaurant } = usePlatform()
   const navigate = useNavigate()
@@ -319,7 +321,7 @@ export default function GuestProfilePage() {
           </div>
           <div className={styles.statBox}>
             <div className={styles.statVal} style={{ color: '#0d7a52' }}>
-              €{(parseFloat(guest.total_spent || 0) + hotelTotal + ordersTotal).toFixed(2)}
+              {money(parseFloat(guest.total_spent || 0) + hotelTotal + ordersTotal)}
             </div>
             <div className={styles.statLbl}>{t('gpfStTotalSpent')}</div>
           </div>
@@ -384,7 +386,7 @@ export default function GuestProfilePage() {
                       {a._status}
                     </span>
                     <div className={styles.visitAmount} style={{ color: '#0d7a52' }}>
-                      {a._amount != null ? `€${a._amount.toFixed(2)}` : '—'}
+                      {a._amount != null ? money(a._amount) : '—'}
                     </div>
                   </div>
                 ))}
@@ -449,7 +451,7 @@ export default function GuestProfilePage() {
                       {VISIT_STATUS[v.status] && t(VISIT_STATUS[v.status].labelKey)}
                     </span>
                     <div className={styles.visitAmount} style={{ color: v.status === 'completed' ? '#0d7a52' : '#A32D2D' }}>
-                      {v.amount_spent > 0 ? `€${parseFloat(v.amount_spent).toFixed(2)}` : '—'}
+                      {v.amount_spent > 0 ? money(v.amount_spent) : '—'}
                     </div>
                     <button className={styles.delBtn} onClick={() => deleteVisit(v.id)}>✕</button>
                   </div>
@@ -489,7 +491,7 @@ export default function GuestProfilePage() {
                         {orderStatusLabel(o.status)}
                       </span>
                       <div className={styles.visitAmount} style={{ color: '#0d7a52' }}>
-                        {o.total ? `€${Number(o.total).toFixed(2)}` : '—'}
+                        {o.total ? money(o.total) : '—'}
                       </div>
                     </div>
                   )
@@ -526,7 +528,7 @@ export default function GuestProfilePage() {
                       </div>
                       <span className={styles.visitBadge} style={{ background: st.bg, color: st.color }}>{t(st.labelKey)}</span>
                       <div className={styles.visitAmount} style={{ color: '#0d7a52' }}>
-                        {h.total_amount ? `€${Number(h.total_amount).toFixed(2)}` : '—'}
+                        {h.total_amount ? money(h.total_amount) : '—'}
                       </div>
                     </div>
                   )
@@ -563,7 +565,7 @@ export default function GuestProfilePage() {
                       </div>
                       <span className={styles.visitBadge} style={{ background: st.bg, color: st.color }}>{t(st.labelKey)}</span>
                       <div className={styles.visitAmount} style={{ color: '#0d7a52' }}>
-                        {a.price ? `€${Number(a.price).toFixed(2)}` : '—'}
+                        {a.price ? money(a.price) : '—'}
                       </div>
                     </div>
                   )
