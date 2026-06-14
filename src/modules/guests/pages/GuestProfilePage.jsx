@@ -1,11 +1,13 @@
 import { useState, useEffect, useRef } from 'react'
 import { useParams, useNavigate } from 'react-router-dom'
+import { useTranslation } from 'react-i18next'
 import { supabase } from '../../../lib/supabase'
 import { usePlatform } from '../../../context/PlatformContext'
 import DateNav, { DATE_TODAY } from '../../../components/shared/DateNav'
 import styles from './GuestProfilePage.module.css'
 
-const STATUS_LABELS = { regular: 'Regular', vip: 'VIP', blacklist: 'Blacklist', pending: 'Na čekanju' }
+// Status → i18n ključ (admin ns) + boje (data).
+const STATUS_KEY = { regular: 'agpStRegular', vip: 'agpStVip', blacklist: 'agpStBlacklist', pending: 'agpStPending' }
 const STATUS_STYLES = {
   regular:   { background: '#f0f5f2', color: '#5a7a6a' },
   vip:       { background: '#FAEEDA', color: '#633806' },
@@ -13,32 +15,30 @@ const STATUS_STYLES = {
   pending:   { background: '#E6F1FB', color: '#0C447C' },
 }
 const VISIT_STATUS = {
-  completed: { label: 'Završena',    bg: '#E1F5EE', color: '#085041' },
-  cancelled: { label: 'Otkazana',    bg: '#f0f5f2', color: '#5a7a6a' },
-  no_show:   { label: 'No-show',     bg: '#FCEBEB', color: '#791F1F' },
-  unpaid:    { label: 'Nije platio', bg: '#FAEEDA', color: '#633806' },
+  completed: { labelKey: 'gpfVsCompleted', bg: '#E1F5EE', color: '#085041' },
+  cancelled: { labelKey: 'gpfVsCancelled', bg: '#f0f5f2', color: '#5a7a6a' },
+  no_show:   { labelKey: 'gpfNoShow',      bg: '#FCEBEB', color: '#791F1F' },
+  unpaid:    { labelKey: 'gpfVsUnpaid',    bg: '#FAEEDA', color: '#633806' },
 }
 const HOTEL_STATUS = {
-  confirmed:   { label: 'Potvrđena',  bg: '#E1F5EE', color: '#085041' },
-  checked_in:  { label: 'U hotelu',   bg: '#fff7ed', color: '#92400e' },
-  checked_out: { label: 'Odjava',     bg: '#f0f5f2', color: '#5a7a6a' },
-  cancelled:   { label: 'Otkazana',   bg: '#FCEBEB', color: '#791F1F' },
-  no_show:     { label: 'No-show',    bg: '#FCEBEB', color: '#791F1F' },
+  confirmed:   { labelKey: 'gpfHsConfirmed',  bg: '#E1F5EE', color: '#085041' },
+  checked_in:  { labelKey: 'gpfHsCheckedIn',  bg: '#fff7ed', color: '#92400e' },
+  checked_out: { labelKey: 'gpfHsCheckedOut', bg: '#f0f5f2', color: '#5a7a6a' },
+  cancelled:   { labelKey: 'gpfHsCancelled',  bg: '#FCEBEB', color: '#791F1F' },
+  no_show:     { labelKey: 'gpfNoShow',       bg: '#FCEBEB', color: '#791F1F' },
 }
 const SPA_STATUS = {
-  confirmed:  { label: 'Potvrđen',  bg: '#E1F5EE', color: '#085041' },
-  checked_in: { label: 'Prisutan',  bg: '#fff7ed', color: '#92400e' },
-  completed:  { label: 'Završen',   bg: '#f0f5f2', color: '#5a7a6a' },
-  cancelled:  { label: 'Otkazan',   bg: '#FCEBEB', color: '#791F1F' },
-  no_show:    { label: 'No-show',   bg: '#FCEBEB', color: '#791F1F' },
-}
-
-function fmtDate(d) {
-  if (!d) return '—'
-  return new Date(d).toLocaleDateString('sr-Latn', { day: '2-digit', month: 'short', year: 'numeric' })
+  confirmed:  { labelKey: 'gpfSsConfirmed',  bg: '#E1F5EE', color: '#085041' },
+  checked_in: { labelKey: 'gpfSsCheckedIn',  bg: '#fff7ed', color: '#92400e' },
+  completed:  { labelKey: 'gpfSsCompleted',  bg: '#f0f5f2', color: '#5a7a6a' },
+  cancelled:  { labelKey: 'gpfSsCancelled',  bg: '#FCEBEB', color: '#791F1F' },
+  no_show:    { labelKey: 'gpfNoShow',       bg: '#FCEBEB', color: '#791F1F' },
 }
 
 export default function GuestProfilePage() {
+  const { t, i18n } = useTranslation('admin')
+  const dl = i18n.language === 'en' ? 'en-US' : 'sr-Latn'
+  const fmtDate = (d) => d ? new Date(d).toLocaleDateString(dl, { day: '2-digit', month: 'short', year: 'numeric' }) : '—'
   const { id } = useParams()
   const { restaurant } = usePlatform()
   const navigate = useNavigate()
@@ -151,18 +151,22 @@ export default function GuestProfilePage() {
   }
 
   const deleteVisit = async (visitId) => {
-    if (!confirm('Obrisati posjetu?')) return
+    if (!confirm(t('gpfDeleteVisitConfirm'))) return
     await supabase.from('guest_visits').delete().eq('id', visitId)
     setVisits(prev => prev.filter(v => v.id !== visitId))
     const { data: g } = await supabase.from('guests').select('*').eq('id', id).eq('restaurant_id', restaurant.id).single()
     if (g) setGuest(g)
   }
 
-  if (loading) return <div className={styles.loading}>Učitavanje...</div>
-  if (!guest) return <div className={styles.loading}>Gost nije pronađen.</div>
+  if (loading) return <div className={styles.loading}>{t('loading')}</div>
+  if (!guest) return <div className={styles.loading}>{t('gpfNotFound')}</div>
+
+  // Tip posjete → prevod
+  const visitTypeLabel = (vt) => vt === 'walk_in' ? t('gpfWalkIn') : vt === 'reservation' ? t('gpfReservation') : vt === 'online' ? t('gpfOnline') : vt
+  // Status narudžbe → prevod
+  const orderStatusLabel = (st) => st === 'closed' ? t('gpfOrdClosed') : st === 'served' ? t('gpfOrdServed') : st === 'pending' ? t('agpStPending') : st
 
   const initials = `${guest.first_name?.[0] || ''}${guest.last_name?.[0] || ''}`.toUpperCase()
-  const avgSpent = guest.total_visits > 0 ? (parseFloat(guest.total_spent) / guest.total_visits).toFixed(2) : '0.00'
   const hotelTotal  = hotelStays.reduce((s, h) => s + (Number(h.total_amount) || 0), 0)
   const ordersTotal = orders.reduce((s, o) => s + (Number(o.total) || 0), 0)
 
@@ -188,41 +192,41 @@ export default function GuestProfilePage() {
   const allActivities = [
     ...filteredVisits.map(v => ({
       _key: `v-${v.id}`, _date: v.visit_date,
-      _icon: '🍽️', _label: 'Posjeta', _labelBg: '#E1F5EE', _labelColor: '#085041',
-      _title: [v.table_number && `Sto ${v.table_number}`, v.party_size && `${v.party_size} osoba`, v.visit_type === 'walk_in' ? 'Walk-in' : v.visit_type].filter(Boolean).join(' · '),
+      _icon: '🍽️', _label: t('gpfActVisit'), _labelBg: '#E1F5EE', _labelColor: '#085041',
+      _title: [v.table_number && `${t('gpfTable')} ${v.table_number}`, v.party_size && t('gpfPersonsN', { n: v.party_size }), visitTypeLabel(v.visit_type)].filter(Boolean).join(' · '),
       _amount: v.amount_spent > 0 ? Number(v.amount_spent) : null,
-      _status: VISIT_STATUS[v.status]?.label, _stBg: VISIT_STATUS[v.status]?.bg, _stColor: VISIT_STATUS[v.status]?.color,
+      _status: VISIT_STATUS[v.status] && t(VISIT_STATUS[v.status].labelKey), _stBg: VISIT_STATUS[v.status]?.bg, _stColor: VISIT_STATUS[v.status]?.color,
     })),
     ...filteredOrders.map(o => ({
       _key: `o-${o.id}`, _date: o.created_at?.slice(0, 10),
-      _icon: '📋', _label: 'Narudžba', _labelBg: '#d4f5e9', _labelColor: '#1a7a52',
-      _title: [o.table_number && `Sto ${o.table_number}`, o.note].filter(Boolean).join(' · ') || 'Restoran',
+      _icon: '📋', _label: t('gpfActOrder'), _labelBg: '#d4f5e9', _labelColor: '#1a7a52',
+      _title: [o.table_number && `${t('gpfTable')} ${o.table_number}`, o.note].filter(Boolean).join(' · ') || t('gpfRestaurant'),
       _amount: o.total ? Number(o.total) : null,
-      _status: o.status === 'closed' ? 'Zatvorena' : o.status === 'served' ? 'Servirana' : o.status,
+      _status: orderStatusLabel(o.status),
       _stBg: ['served','closed'].includes(o.status) ? '#E1F5EE' : '#fff7ed',
       _stColor: ['served','closed'].includes(o.status) ? '#085041' : '#92400e',
     })),
     ...filteredHotel.map(h => ({
       _key: `h-${h.id}`, _date: h.check_in_date,
-      _icon: '🏨', _label: 'Hotel', _labelBg: '#dbeafe', _labelColor: '#1a4ea0',
-      _title: [h.room_types?.name, h.package_name].filter(Boolean).join(' · ') || 'Hotel boravak',
+      _icon: '🏨', _label: t('gpfActHotel'), _labelBg: '#dbeafe', _labelColor: '#1a4ea0',
+      _title: [h.room_types?.name, h.package_name].filter(Boolean).join(' · ') || t('gpfHotelStay'),
       _amount: h.total_amount ? Number(h.total_amount) : null,
-      _status: HOTEL_STATUS[h.status]?.label, _stBg: HOTEL_STATUS[h.status]?.bg, _stColor: HOTEL_STATUS[h.status]?.color,
+      _status: HOTEL_STATUS[h.status] && t(HOTEL_STATUS[h.status].labelKey), _stBg: HOTEL_STATUS[h.status]?.bg, _stColor: HOTEL_STATUS[h.status]?.color,
       _sub: `${fmtDate(h.check_in_date)} — ${fmtDate(h.check_out_date)}`,
     })),
     ...filteredSpa.map(a => ({
       _key: `s-${a.id}`, _date: a.appointment_date,
-      _icon: '💆', _label: 'Spa', _labelBg: '#f3e8ff', _labelColor: '#6b21a8',
+      _icon: '💆', _label: t('gpfActSpa'), _labelBg: '#f3e8ff', _labelColor: '#6b21a8',
       _title: [a.spa_services?.name, a.spa_therapists?.staff && `${a.spa_therapists.staff.first_name} ${a.spa_therapists.staff.last_name}`].filter(Boolean).join(' · '),
       _amount: a.price ? Number(a.price) : null,
-      _status: SPA_STATUS[a.status]?.label, _stBg: SPA_STATUS[a.status]?.bg, _stColor: SPA_STATUS[a.status]?.color,
+      _status: SPA_STATUS[a.status] && t(SPA_STATUS[a.status].labelKey), _stBg: SPA_STATUS[a.status]?.bg, _stColor: SPA_STATUS[a.status]?.color,
     })),
   ].sort((a, b) => (b._date ?? '').localeCompare(a._date ?? ''))
 
   return (
     <div className={styles.page}>
       <div className={styles.breadcrumb}>
-        <button className={styles.backBtn} onClick={() => navigate('/admin/guests')}>← Gosti</button>
+        <button className={styles.backBtn} onClick={() => navigate('/admin/guests')}>← {t('agpTitle')}</button>
         <span>{guest.first_name} {guest.last_name}</span>
       </div>
 
@@ -247,27 +251,27 @@ export default function GuestProfilePage() {
             {editMode ? (
               <div className={styles.editInline}>
                 <div className={styles.fieldRow}>
-                  <input className={styles.editInput} value={form.first_name || ''} onChange={e => setForm(f => ({ ...f, first_name: e.target.value }))} placeholder="Ime" />
-                  <input className={styles.editInput} value={form.last_name || ''} onChange={e => setForm(f => ({ ...f, last_name: e.target.value }))} placeholder="Prezime" />
+                  <input className={styles.editInput} value={form.first_name || ''} onChange={e => setForm(f => ({ ...f, first_name: e.target.value }))} placeholder={t('agpFirstName')} />
+                  <input className={styles.editInput} value={form.last_name || ''} onChange={e => setForm(f => ({ ...f, last_name: e.target.value }))} placeholder={t('agpLastName')} />
                 </div>
                 <div className={styles.fieldRow}>
-                  <input className={styles.editInput} value={form.phone || ''} onChange={e => setForm(f => ({ ...f, phone: e.target.value }))} placeholder="Telefon" />
+                  <input className={styles.editInput} value={form.phone || ''} onChange={e => setForm(f => ({ ...f, phone: e.target.value }))} placeholder={t('agpPhone')} />
                   <input className={styles.editInput} value={form.email || ''} onChange={e => setForm(f => ({ ...f, email: e.target.value }))} placeholder="Email" type="email" />
                 </div>
                 <div className={styles.fieldRow}>
-                  <input className={styles.editInput} type="date" value={form.date_of_birth || ''} onChange={e => setForm(f => ({ ...f, date_of_birth: e.target.value }))} placeholder="Datum rođenja" />
+                  <input className={styles.editInput} type="date" value={form.date_of_birth || ''} onChange={e => setForm(f => ({ ...f, date_of_birth: e.target.value }))} placeholder={t('agpDob')} />
                   <select className={styles.editInput} value={form.status || 'regular'} onChange={e => setForm(f => ({ ...f, status: e.target.value }))}>
-                    <option value="regular">Regular</option>
-                    <option value="vip">VIP</option>
-                    <option value="blacklist">Blacklist</option>
+                    <option value="regular">{t('agpStRegular')}</option>
+                    <option value="vip">{t('agpStVip')}</option>
+                    <option value="blacklist">{t('agpStBlacklist')}</option>
                   </select>
                 </div>
                 <div className={styles.fieldRow}>
-                  <input className={styles.editInput} value={form.nationality || ''} onChange={e => setForm(f => ({ ...f, nationality: e.target.value }))} placeholder="Nacionalnost" />
-                  <input className={styles.editInput} value={form.document_number || ''} onChange={e => setForm(f => ({ ...f, document_number: e.target.value }))} placeholder="Broj dokumenta (pasoš/LK)" />
+                  <input className={styles.editInput} value={form.nationality || ''} onChange={e => setForm(f => ({ ...f, nationality: e.target.value }))} placeholder={t('gpfNationality')} />
+                  <input className={styles.editInput} value={form.document_number || ''} onChange={e => setForm(f => ({ ...f, document_number: e.target.value }))} placeholder={t('gpfDocNumberPh')} />
                 </div>
                 {form.status === 'blacklist' && (
-                  <input className={styles.editInput} value={form.blacklist_reason || ''} onChange={e => setForm(f => ({ ...f, blacklist_reason: e.target.value }))} placeholder="Razlog blacklistanja..." />
+                  <input className={styles.editInput} value={form.blacklist_reason || ''} onChange={e => setForm(f => ({ ...f, blacklist_reason: e.target.value }))} placeholder={t('gpfBlacklistReasonPh')} />
                 )}
               </div>
             ) : (
@@ -278,11 +282,11 @@ export default function GuestProfilePage() {
                   {guest.email && <span>{guest.email}</span>}
                   {guest.date_of_birth && <span>{fmtDate(guest.date_of_birth)}</span>}
                   {guest.nationality && <span>{guest.nationality}</span>}
-                  {guest.document_number && <span>Dok: {guest.document_number}</span>}
+                  {guest.document_number && <span>{t('gpfDocPrefix')} {guest.document_number}</span>}
                 </div>
                 <div className={styles.profileBadges}>
-                  <span className={styles.badge} style={STATUS_STYLES[guest.status]}>{STATUS_LABELS[guest.status]}</span>
-                  {guest.user_id && <span className={styles.badge} style={{ background: '#E1F5EE', color: '#085041' }}>Registrovan</span>}
+                  <span className={styles.badge} style={STATUS_STYLES[guest.status]}>{t(STATUS_KEY[guest.status])}</span>
+                  {guest.user_id && <span className={styles.badge} style={{ background: '#E1F5EE', color: '#085041' }}>{t('gpfRegistered')}</span>}
                   {guest.blacklist_reason && <span className={styles.blacklistReason}>{guest.blacklist_reason}</span>}
                 </div>
               </>
@@ -291,10 +295,10 @@ export default function GuestProfilePage() {
 
           <div className={styles.headerActions}>
             {editMode ? (<>
-              <button className={styles.btnPrimary} onClick={saveGuest} disabled={saving}>{saving ? 'Čuvanje...' : 'Sačuvaj'}</button>
-              <button className={styles.btnSecondary} onClick={() => { setEditMode(false); setForm(guest) }}>Odustani</button>
+              <button className={styles.btnPrimary} onClick={saveGuest} disabled={saving}>{saving ? t('saving') : t('gpfSave')}</button>
+              <button className={styles.btnSecondary} onClick={() => { setEditMode(false); setForm(guest) }}>{t('cancel')}</button>
             </>) : (
-              <button className={styles.btnSecondary} onClick={() => setEditMode(true)}>Uredi</button>
+              <button className={styles.btnSecondary} onClick={() => setEditMode(true)}>{t('gpfEdit')}</button>
             )}
           </div>
         </div>
@@ -303,25 +307,25 @@ export default function GuestProfilePage() {
         <div className={styles.statsRow}>
           <div className={styles.statBox}>
             <div className={styles.statVal}>{(guest.total_visits || 0) + orders.length}</div>
-            <div className={styles.statLbl}>Rest. posjeta</div>
+            <div className={styles.statLbl}>{t('gpfStRestVisits')}</div>
           </div>
           <div className={styles.statBox}>
             <div className={styles.statVal}>{hotelStays.length}</div>
-            <div className={styles.statLbl}>Hotel boravaka</div>
+            <div className={styles.statLbl}>{t('gpfStHotelStays')}</div>
           </div>
           <div className={styles.statBox}>
             <div className={styles.statVal}>{spaAppts.length}</div>
-            <div className={styles.statLbl}>Spa tretmana</div>
+            <div className={styles.statLbl}>{t('gpfStSpa')}</div>
           </div>
           <div className={styles.statBox}>
             <div className={styles.statVal} style={{ color: '#0d7a52' }}>
               €{(parseFloat(guest.total_spent || 0) + hotelTotal + ordersTotal).toFixed(2)}
             </div>
-            <div className={styles.statLbl}>Ukupno potrošeno</div>
+            <div className={styles.statLbl}>{t('gpfStTotalSpent')}</div>
           </div>
           <div className={styles.statBox}>
             <div className={styles.statVal} style={{ color: guest.no_show_count > 0 ? '#A32D2D' : 'inherit' }}>{guest.no_show_count || 0}</div>
-            <div className={styles.statLbl}>Incidenti</div>
+            <div className={styles.statLbl}>{t('gpfStIncidents')}</div>
           </div>
         </div>
 
@@ -329,12 +333,12 @@ export default function GuestProfilePage() {
         <div className={styles.tabsWrap}>
           <div className={styles.tabs}>
             {[
-              ['all',    `Sve (${allActivities.length})`],
-              ['visits', `Restoran (${filteredVisits.length + filteredOrders.length})`],
-              ['hotel',  `Hotel (${filteredHotel.length})`],
-              ['spa',    `Spa (${filteredSpa.length})`],
-              ['notes',  'Napomene'],
-              ['account','Nalog'],
+              ['all',    `${t('gpfTabAll')} (${allActivities.length})`],
+              ['visits', `${t('gpfTabRest')} (${filteredVisits.length + filteredOrders.length})`],
+              ['hotel',  `${t('gpfTabHotel')} (${filteredHotel.length})`],
+              ['spa',    `${t('gpfTabSpa')} (${filteredSpa.length})`],
+              ['notes',  t('gpfTabNotes')],
+              ['account', t('gpfTabAccount')],
             ].map(([key, label]) => (
               <button key={key} className={`${styles.tab} ${activeTab === key ? styles.tabActive : ''}`} onClick={() => setActiveTab(key)}>{label}</button>
             ))}
@@ -348,10 +352,10 @@ export default function GuestProfilePage() {
               from={filterFrom}
               to={filterTo}
               search={search}
-              onChange={(f, t) => { setFilterFrom(f); setFilterTo(t) }}
+              onChange={(f, t2) => { setFilterFrom(f); setFilterTo(t2) }}
               onSearch={setSearch}
               showFuture={false}
-              placeholder="Pretraži aktivnosti..."
+              placeholder={t('gpfSearchPh')}
             />
           </div>
         )}
@@ -360,10 +364,10 @@ export default function GuestProfilePage() {
         {activeTab === 'all' && (
           <div className={styles.tabContent}>
             <div className={styles.tabHeader}>
-              <div className={styles.tabTitle}>Sve aktivnosti</div>
+              <div className={styles.tabTitle}>{t('gpfAllActivities')}</div>
             </div>
             {allActivities.length === 0 ? (
-              <div className={styles.empty}>Nema aktivnosti za odabrani period</div>
+              <div className={styles.empty}>{t('gpfNoActivities')}</div>
             ) : (
               <div className={styles.visitList}>
                 {allActivities.map(a => (
@@ -393,56 +397,56 @@ export default function GuestProfilePage() {
         {activeTab === 'visits' && (
           <div className={styles.tabContent}>
             <div className={styles.tabHeader}>
-              <div className={styles.tabTitle}>Istorija posjeta</div>
-              <button className={styles.btnPrimary} onClick={() => setShowVisitForm(v => !v)}>+ Dodaj posjetu</button>
+              <div className={styles.tabTitle}>{t('gpfVisitHistory')}</div>
+              <button className={styles.btnPrimary} onClick={() => setShowVisitForm(v => !v)}>+ {t('gpfAddVisit')}</button>
             </div>
 
             {showVisitForm && (
               <form onSubmit={saveVisit} className={styles.inlineForm}>
                 <div className={styles.fieldRow}>
-                  <div className={styles.field}><label>Datum</label><input type="date" value={visitForm.visit_date} onChange={e => setVisitForm(f => ({ ...f, visit_date: e.target.value }))} required /></div>
-                  <div className={styles.field}><label>Sto</label><input value={visitForm.table_number} onChange={e => setVisitForm(f => ({ ...f, table_number: e.target.value }))} placeholder="npr. 4" /></div>
-                  <div className={styles.field}><label>Osoba</label><input type="number" min="1" value={visitForm.party_size} onChange={e => setVisitForm(f => ({ ...f, party_size: e.target.value }))} /></div>
+                  <div className={styles.field}><label>{t('gpfVfDate')}</label><input type="date" value={visitForm.visit_date} onChange={e => setVisitForm(f => ({ ...f, visit_date: e.target.value }))} required /></div>
+                  <div className={styles.field}><label>{t('gpfTable')}</label><input value={visitForm.table_number} onChange={e => setVisitForm(f => ({ ...f, table_number: e.target.value }))} placeholder={t('gpfTablePh')} /></div>
+                  <div className={styles.field}><label>{t('gpfPersons')}</label><input type="number" min="1" value={visitForm.party_size} onChange={e => setVisitForm(f => ({ ...f, party_size: e.target.value }))} /></div>
                 </div>
                 <div className={styles.fieldRow}>
-                  <div className={styles.field}><label>Tip</label>
+                  <div className={styles.field}><label>{t('gpfType')}</label>
                     <select value={visitForm.visit_type} onChange={e => setVisitForm(f => ({ ...f, visit_type: e.target.value }))}>
-                      <option value="walk_in">Walk-in</option>
-                      <option value="reservation">Rezervacija</option>
-                      <option value="online">Online</option>
+                      <option value="walk_in">{t('gpfWalkIn')}</option>
+                      <option value="reservation">{t('gpfReservation')}</option>
+                      <option value="online">{t('gpfOnline')}</option>
                     </select>
                   </div>
-                  <div className={styles.field}><label>Status</label>
+                  <div className={styles.field}><label>{t('agpColStatus')}</label>
                     <select value={visitForm.status} onChange={e => setVisitForm(f => ({ ...f, status: e.target.value }))}>
-                      <option value="completed">Završena</option>
-                      <option value="cancelled">Otkazana</option>
-                      <option value="no_show">No-show</option>
-                      <option value="unpaid">Nije platio</option>
+                      <option value="completed">{t('gpfVsCompleted')}</option>
+                      <option value="cancelled">{t('gpfVsCancelled')}</option>
+                      <option value="no_show">{t('gpfNoShow')}</option>
+                      <option value="unpaid">{t('gpfVsUnpaid')}</option>
                     </select>
                   </div>
-                  <div className={styles.field}><label>Iznos (€)</label><input type="number" min="0" step="0.01" value={visitForm.amount_spent} onChange={e => setVisitForm(f => ({ ...f, amount_spent: e.target.value }))} placeholder="0.00" /></div>
+                  <div className={styles.field}><label>{t('gpfAmount')}</label><input type="number" min="0" step="0.01" value={visitForm.amount_spent} onChange={e => setVisitForm(f => ({ ...f, amount_spent: e.target.value }))} placeholder="0.00" /></div>
                 </div>
-                <div className={styles.field}><label>Napomena</label><input value={visitForm.notes} onChange={e => setVisitForm(f => ({ ...f, notes: e.target.value }))} placeholder="Opcionalno..." /></div>
+                <div className={styles.field}><label>{t('agpNotes')}</label><input value={visitForm.notes} onChange={e => setVisitForm(f => ({ ...f, notes: e.target.value }))} placeholder={t('gpfOptional')} /></div>
                 <div className={styles.saveRow}>
-                  <button type="button" className={styles.btnSecondary} onClick={() => setShowVisitForm(false)}>Odustani</button>
-                  <button type="submit" className={styles.btnPrimary}>Sačuvaj</button>
+                  <button type="button" className={styles.btnSecondary} onClick={() => setShowVisitForm(false)}>{t('cancel')}</button>
+                  <button type="submit" className={styles.btnPrimary}>{t('gpfSave')}</button>
                 </div>
               </form>
             )}
 
             {/* Manualne posjete */}
             {filteredVisits.length === 0 && filteredOrders.length === 0 && visits.length === 0 ? (
-              <div className={styles.empty}>Nema evidentiranih posjeta</div>
+              <div className={styles.empty}>{t('gpfNoVisits')}</div>
             ) : (
               <div className={styles.visitList}>
                 {filteredVisits.map(v => (
                   <div key={v.id} className={styles.visitItem}>
                     <div className={styles.visitDate}>{fmtDate(v.visit_date)}</div>
                     <div className={styles.visitInfo}>
-                      {v.table_number && `Sto ${v.table_number} · `}{v.party_size} {v.party_size === 1 ? 'osoba' : 'osobe'} · {v.visit_type === 'walk_in' ? 'Walk-in' : v.visit_type === 'reservation' ? 'Rezervacija' : 'Online'}
+                      {v.table_number && `${t('gpfTable')} ${v.table_number} · `}{t('gpfPersonsN', { n: v.party_size })} · {visitTypeLabel(v.visit_type)}
                     </div>
                     <span className={styles.visitBadge} style={{ background: VISIT_STATUS[v.status]?.bg, color: VISIT_STATUS[v.status]?.color }}>
-                      {VISIT_STATUS[v.status]?.label}
+                      {VISIT_STATUS[v.status] && t(VISIT_STATUS[v.status].labelKey)}
                     </span>
                     <div className={styles.visitAmount} style={{ color: v.status === 'completed' ? '#0d7a52' : '#A32D2D' }}>
                       {v.amount_spent > 0 ? `€${parseFloat(v.amount_spent).toFixed(2)}` : '—'}
@@ -455,12 +459,12 @@ export default function GuestProfilePage() {
 
             {/* Narudžbe iz sistema */}
             <div className={styles.tabHeader} style={{ marginTop: 24 }}>
-              <div className={styles.tabTitle}>Narudžbe u sistemu</div>
+              <div className={styles.tabTitle}>{t('gpfOrdersInSystem')}</div>
             </div>
             {filteredOrders.length === 0 ? (
               <div className={styles.empty} style={{ padding: '12px 0' }}>
-                Nema narudžbi linkovanих za ovog gosta.
-                <div style={{ fontSize: 11, color: '#aaa', marginTop: 4 }}>Narudžbe se automatski vežu kada gost plati na sobu (folio).</div>
+                {t('gpfNoOrders')}
+                <div style={{ fontSize: 11, color: '#aaa', marginTop: 4 }}>{t('gpfOrdersAutoLink')}</div>
               </div>
             ) : (
               <div className={styles.visitList}>
@@ -469,20 +473,20 @@ export default function GuestProfilePage() {
                   return (
                     <div key={o.id} className={styles.visitItem}>
                       <div className={styles.visitDate}>
-                        {new Date(o.created_at).toLocaleDateString('sr-Latn', { day: '2-digit', month: 'short', year: 'numeric' })}
+                        {new Date(o.created_at).toLocaleDateString(dl, { day: '2-digit', month: 'short', year: 'numeric' })}
                         <span style={{ fontSize: 11, color: '#8a9e96', marginLeft: 6 }}>
-                          {new Date(o.created_at).toLocaleTimeString('sr-Latn', { hour: '2-digit', minute: '2-digit' })}
+                          {new Date(o.created_at).toLocaleTimeString(dl, { hour: '2-digit', minute: '2-digit' })}
                         </span>
                       </div>
                       <div className={styles.visitInfo}>
-                        {o.table_number ? `Sto ${o.table_number}` : 'Restoran'}
+                        {o.table_number ? `${t('gpfTable')} ${o.table_number}` : t('gpfRestaurant')}
                         {o.note && <span style={{ color: '#8a9e96', marginLeft: 6 }}>· {o.note}</span>}
                       </div>
                       <span className={styles.visitBadge} style={{
                         background: done ? '#E1F5EE' : '#fff7ed',
                         color: done ? '#085041' : '#92400e',
                       }}>
-                        {o.status === 'closed' ? 'Zatvorena' : o.status === 'served' ? 'Servirana' : o.status === 'pending' ? 'Na čekanju' : o.status}
+                        {orderStatusLabel(o.status)}
                       </span>
                       <div className={styles.visitAmount} style={{ color: '#0d7a52' }}>
                         {o.total ? `€${Number(o.total).toFixed(2)}` : '—'}
@@ -499,10 +503,10 @@ export default function GuestProfilePage() {
         {activeTab === 'hotel' && (
           <div className={styles.tabContent}>
             <div className={styles.tabHeader}>
-              <div className={styles.tabTitle}>Hotel boravci</div>
+              <div className={styles.tabTitle}>{t('gpfHotelStays')}</div>
             </div>
             {filteredHotel.length === 0 ? (
-              <div className={styles.empty}>{hotelStays.length === 0 ? 'Gost nema hotelskih boravaka' : 'Nema boravaka za odabrani period'}</div>
+              <div className={styles.empty}>{hotelStays.length === 0 ? t('gpfNoHotelStays') : t('gpfNoHotelPeriod')}</div>
             ) : (
               <div className={styles.visitList}>
                 {filteredHotel.map(h => {
@@ -514,13 +518,13 @@ export default function GuestProfilePage() {
                     <div key={h.id} className={styles.visitItem}>
                       <div className={styles.visitDate}>
                         {fmtDate(h.check_in_date)} — {fmtDate(h.check_out_date)}
-                        {nights && <span style={{ fontSize: 11, color: '#8a9e96', marginLeft: 6 }}>{nights}n</span>}
+                        {nights && <span style={{ fontSize: 11, color: '#8a9e96', marginLeft: 6 }}>{t('gpfNightsN', { n: nights })}</span>}
                       </div>
                       <div className={styles.visitInfo}>
                         {h.room_types?.name || '—'}
                         {h.package_name && <span style={{ color: '#0d7a52', marginLeft: 6 }}>· {h.package_name}</span>}
                       </div>
-                      <span className={styles.visitBadge} style={{ background: st.bg, color: st.color }}>{st.label}</span>
+                      <span className={styles.visitBadge} style={{ background: st.bg, color: st.color }}>{t(st.labelKey)}</span>
                       <div className={styles.visitAmount} style={{ color: '#0d7a52' }}>
                         {h.total_amount ? `€${Number(h.total_amount).toFixed(2)}` : '—'}
                       </div>
@@ -536,10 +540,10 @@ export default function GuestProfilePage() {
         {activeTab === 'spa' && (
           <div className={styles.tabContent}>
             <div className={styles.tabHeader}>
-              <div className={styles.tabTitle}>Spa tretmani</div>
+              <div className={styles.tabTitle}>{t('gpfSpaTreatments')}</div>
             </div>
             {filteredSpa.length === 0 ? (
-              <div className={styles.empty}>{spaAppts.length === 0 ? 'Gost nema spa tretmana' : 'Nema tretmana za odabrani period'}</div>
+              <div className={styles.empty}>{spaAppts.length === 0 ? t('gpfNoSpa') : t('gpfNoSpaPeriod')}</div>
             ) : (
               <div className={styles.visitList}>
                 {filteredSpa.map(a => {
@@ -557,7 +561,7 @@ export default function GuestProfilePage() {
                         {a.spa_services?.name || '—'}
                         {therapist && <span style={{ color: '#8a9e96', marginLeft: 6 }}>· {therapist}</span>}
                       </div>
-                      <span className={styles.visitBadge} style={{ background: st.bg, color: st.color }}>{st.label}</span>
+                      <span className={styles.visitBadge} style={{ background: st.bg, color: st.color }}>{t(st.labelKey)}</span>
                       <div className={styles.visitAmount} style={{ color: '#0d7a52' }}>
                         {a.price ? `€${Number(a.price).toFixed(2)}` : '—'}
                       </div>
@@ -573,17 +577,17 @@ export default function GuestProfilePage() {
         {activeTab === 'notes' && (
           <div className={styles.tabContent}>
             <div className={styles.field}>
-              <label>Napomene o gostu</label>
+              <label>{t('gpfGuestNotes')}</label>
               <textarea
                 rows={6}
                 value={form.notes || ''}
                 onChange={e => setForm(f => ({ ...f, notes: e.target.value }))}
-                placeholder="Alergije, preference, posebni zahtjevi..."
+                placeholder={t('gpfNotesPh')}
                 className={styles.notesArea}
               />
             </div>
             <div className={styles.saveRow}>
-              <button className={styles.btnPrimary} onClick={saveGuest} disabled={saving}>{saving ? 'Čuvanje...' : 'Sačuvaj napomene'}</button>
+              <button className={styles.btnPrimary} onClick={saveGuest} disabled={saving}>{saving ? t('saving') : t('gpfSaveNotes')}</button>
             </div>
           </div>
         )}
@@ -596,9 +600,9 @@ export default function GuestProfilePage() {
                 <div className={styles.accountStatus}>
                   <span style={{ color: '#0d7a52', fontSize: 24 }}>✓</span>
                   <div>
-                    <div className={styles.accountTitle}>Gost ima aktivan nalog</div>
-                    <div className={styles.accountSub}>Može se prijaviti i pregledati rezervacije</div>
-                    {guest.approved_at && <div className={styles.accountSub}>Odobreno: {fmtDate(guest.approved_at)}</div>}
+                    <div className={styles.accountTitle}>{t('gpfHasAccount')}</div>
+                    <div className={styles.accountSub}>{t('gpfHasAccountSub')}</div>
+                    {guest.approved_at && <div className={styles.accountSub}>{t('gpfApproved')}: {fmtDate(guest.approved_at)}</div>}
                   </div>
                 </div>
               </div>
@@ -607,8 +611,8 @@ export default function GuestProfilePage() {
                 <div className={styles.accountStatus}>
                   <span style={{ color: '#8a9e96', fontSize: 24 }}>○</span>
                   <div>
-                    <div className={styles.accountTitle}>Gost nema nalog</div>
-                    <div className={styles.accountSub}>Gost se može registrovati na stranici rezervacija — zahtjev ćeš vidjeti u listi "Na čekanju"</div>
+                    <div className={styles.accountTitle}>{t('gpfNoAccount')}</div>
+                    <div className={styles.accountSub}>{t('gpfNoAccountSub')}</div>
                   </div>
                 </div>
               </div>
