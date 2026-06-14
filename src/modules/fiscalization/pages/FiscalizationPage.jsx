@@ -3,6 +3,7 @@ import { Link } from 'react-router-dom'
 import { useTranslation } from 'react-i18next'
 import { usePlatform } from '../../../context/PlatformContext'
 import { supabase } from '../../../lib/supabase'
+import { formatMoney, fromMinorUnits } from '../../../lib/currencies'
 import styles from './FiscalizationPage.module.css'
 
 // FISK addon — „dom" fiskalizacije. Zasad prikazuje stanje (poslovni identitet,
@@ -21,12 +22,18 @@ function IdBadge({ ok, label, value, fallback }) {
   )
 }
 
+const SRC_KEY = { order: 'fiskSrcOrder', folio: 'fiskSrcFolio', spa: 'fiskSrcSpa', booking: 'fiskSrcBooking' }
+const STATUS_KEY = { PENDING: 'fiskStatPending', QUEUED: 'fiskStatQueued', FISCALIZED: 'fiskStatFiscalized', FAILED: 'fiskStatFailed' }
+
 export default function FiscalizationPage() {
-  const { t } = useTranslation('admin')
+  const { t, i18n } = useTranslation('admin')
+  const dl = i18n.language === 'en' ? 'en-US' : 'sr-Latn'
   const { restaurant } = usePlatform()
   const [rates, setRates] = useState([])
   const [loading, setLoading] = useState(true)
   const [menuStats, setMenuStats] = useState(null) // { total, classified }
+  const [invoices, setInvoices] = useState([])
+  const invMoney = (cents, cur) => formatMoney(fromMinorUnits(cents, cur), cur, i18n.language)
 
   useEffect(() => {
     let cancelled = false
@@ -51,6 +58,19 @@ export default function FiscalizationPage() {
       if (cancelled) return
       setMenuStats({ total: all.count || 0, classified: cls.count || 0 })
     })
+    return () => { cancelled = true }
+  }, [restaurant?.id])
+
+  // Izdati računi (najnoviji).
+  useEffect(() => {
+    if (!restaurant?.id) return
+    let cancelled = false
+    supabase.from('invoices')
+      .select('id, invoice_number, issued_at, source_type, total_cents, total_vat_cents, currency, fiscal_status')
+      .eq('restaurant_id', restaurant.id)
+      .order('issued_at', { ascending: false })
+      .limit(25)
+      .then(({ data }) => { if (!cancelled) setInvoices(data || []) })
     return () => { cancelled = true }
   }, [restaurant?.id])
 
@@ -127,11 +147,36 @@ export default function FiscalizationPage() {
         )}
       </div>
       <div className={styles.card}>
-        <div className={styles.cardTitleRow}>
-          <span className={styles.cardTitle}>{t('fiskInvoicesTitle')}</span>
-          <span className={styles.soon}>{t('fiskSoon')}</span>
-        </div>
+        <div className={styles.cardTitle}>{t('fiskInvoicesTitle')}</div>
         <div className={styles.cardHint}>{t('fiskInvoicesHint')}</div>
+        {invoices.length === 0 ? (
+          <div className={styles.muted}>{t('fiskInvEmpty')}</div>
+        ) : (
+          <table className={styles.table}>
+            <thead>
+              <tr>
+                <th>{t('fiskColNumber')}</th>
+                <th>{t('fiskColDate')}</th>
+                <th>{t('fiskColSource')}</th>
+                <th className={styles.right}>{t('fiskColVat')}</th>
+                <th className={styles.right}>{t('fiskColTotal')}</th>
+                <th>{t('fiskColStatus')}</th>
+              </tr>
+            </thead>
+            <tbody>
+              {invoices.map(inv => (
+                <tr key={inv.id}>
+                  <td><code className={styles.code}>{inv.invoice_number}</code></td>
+                  <td>{new Date(inv.issued_at).toLocaleDateString(dl, { day: '2-digit', month: '2-digit', year: 'numeric' })}</td>
+                  <td>{t(SRC_KEY[inv.source_type] || 'fiskSrcOrder')}</td>
+                  <td className={styles.right}>{invMoney(inv.total_vat_cents, inv.currency)}</td>
+                  <td className={styles.right}>{invMoney(inv.total_cents, inv.currency)}</td>
+                  <td><span className={styles.statBadge}>{t(STATUS_KEY[inv.fiscal_status] || 'fiskStatPending')}</span></td>
+                </tr>
+              ))}
+            </tbody>
+          </table>
+        )}
       </div>
       <div className={styles.card}>
         <div className={styles.cardTitleRow}>

@@ -50,6 +50,11 @@
 .statWarn { background: var(--c-warn-bg, #FAEEDA); color: var(--c-warn, #633806); }
 .classifyLabel { font-size: 0.85rem; color: var(--c-text); }
 
+.statBadge {
+  font-size: 0.7rem; font-weight: 600; padding: 2px 8px; border-radius: 999px;
+  background: var(--c-warn-bg, #FAEEDA); color: var(--c-warn, #633806); white-space: nowrap;
+}
+
 .muted { font-size: 0.85rem; color: var(--c-text-muted); padding: 8px 0; }
 .soon {
   font-size: 0.68rem; font-weight: 700; text-transform: uppercase; letter-spacing: .05em;

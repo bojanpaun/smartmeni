@@ -1,6 +1,7 @@
 import { useState, useEffect, useRef } from 'react'
 import { useLocation } from 'react-router-dom'
 import { useTranslation } from 'react-i18next'
+import toast from 'react-hot-toast'
 import { supabase } from '../../../lib/supabase'
 import { usePlatform } from '../../../context/PlatformContext'
 import { useMoney } from '../../../lib/useMoney'
@@ -62,7 +63,18 @@ export default function WaiterDashboard() {
   const { restaurant, hasAddon } = usePlatform()
   const { refreshCounts } = useAdminBadgeRefresh()
   const hotelEnabled = hasAddon('hotel_core')
+  const fiscalEnabled = hasAddon('fiscalization')
+  const [issuedIds, setIssuedIds] = useState(() => new Set())
   const barCatIdsRef = useRef(null)
+
+  // Izdaj fiskalni račun iz narudžbe (FISK). Idempotentno (order:<id>) → dupli klik
+  // ne pravi drugi račun. Račun se vidi u /admin/settings/fiscalization.
+  const issueInvoice = async (orderId) => {
+    const { data, error } = await supabase.rpc('create_invoice_from_order', { p_order_id: orderId })
+    if (error) { toast.error(t('wdInvoiceErr')); return }
+    setIssuedIds(prev => new Set(prev).add(orderId))
+    toast.success(t('wdInvoiceIssued', { n: data?.invoice_number || '' }))
+  }
 
   const getBarCatIds = async () => {
     if (!barCatIdsRef.current) {
@@ -304,6 +316,11 @@ export default function WaiterDashboard() {
                     <button className={styles.roomChargeBtn} onClick={() => openRoomCharge(order.id)}>
                       🏨 {t('wdChargeToRoom')}
                     </button>
+                  )}
+                  {order.status === 'served' && fiscalEnabled && (
+                    issuedIds.has(order.id)
+                      ? <span style={{ fontSize: 13, fontWeight: 600, color: '#0d7a52', alignSelf: 'center' }}>🧾 {t('wdInvoiceDone')}</span>
+                      : <button className={styles.roomChargeBtn} onClick={() => issueInvoice(order.id)}>🧾 {t('wdIssueInvoice')}</button>
                   )}
                   {(order.status === 'received' || order.status === 'pending') && (
                     <div className={styles.rejectWrap}>
