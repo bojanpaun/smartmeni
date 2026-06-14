@@ -556,6 +556,8 @@
   "fiskSplitErr": "Razdvajanje nije uspjelo.",
   "fiskSplitDone": "Kreirano {{n}} računa.",
   "fiskSplitMinGroups": "Rasporedi stavke na najmanje 2 računa.",
+  "fiskSplitHelpItems": "Dodijeli svaku stavku jednom računu (dugmad 1, 2, …). Svaka grupa postaje zaseban račun. Ako je račun već izdat, prvo ga storniraj na listi „Računi“, pa ga ovdje razdvoji.",
+  "fiskSplitHelpEqual": "Ukupan iznos se dijeli na jednake dijelove — svaki gost dobija svoj račun na isti iznos. Ako je račun već izdat, prvo ga storniraj pa razdvoji.",
   "fiskUnbilledTitle": "Za izdavanje",
   "fiskUnbilledHint": "Nedavne narudžbe, folio i spa termini bez izdatog računa. Izdaj kad god — račun se ne gubi.",
   "fiskUnbilledEmpty": "Sve je izdato — nema na čekanju.",

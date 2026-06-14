@@ -11,6 +11,10 @@
 .close { background: none; border: none; font-size: 16px; cursor: pointer; color: var(--c-text-muted); }
 .sub { font-size: 0.82rem; color: var(--c-text-muted); margin: 2px 0 14px; }
 
+.help {
+  font-size: 0.8rem; color: var(--c-text-medium, #4b5563); line-height: 1.45;
+  background: var(--c-bg-subtle, #f0f5f2); border-radius: 9px; padding: 9px 11px; margin-bottom: 14px;
+}
 .modeRow { display: flex; gap: 8px; margin-bottom: 14px; }
 .modeBtn {
   flex: 1; padding: 9px; border: 1px solid var(--c-border-input, var(--c-border)); border-radius: 9px;

@@ -556,6 +556,8 @@
   "fiskSplitErr": "Bölme başarısız.",
   "fiskSplitDone": "{{n}} fatura oluşturuldu.",
   "fiskSplitMinGroups": "Kalemleri en az 2 faturaya atayın.",
+  "fiskSplitHelpItems": "Her kalemi bir faturaya atayın (1, 2, … düğmeleri). Her grup ayrı bir fatura olur. Fatura zaten düzenlendiyse önce „Faturalar“ listesinde iptal edin, sonra burada bölün.",
+  "fiskSplitHelpEqual": "Toplam tutar eşit paylara bölünür — her misafir aynı tutarda kendi faturasını alır. Fatura zaten düzenlendiyse önce iptal edin, sonra bölün.",
   "fiskUnbilledTitle": "Düzenlenecek",
   "fiskUnbilledHint": "Faturası olmayan son siparişler, folio ve spa randevuları. İstediğin zaman düzenle — kaybolmaz.",
   "fiskUnbilledEmpty": "Hepsi düzenlendi — bekleyen yok.",

@@ -556,6 +556,8 @@
   "fiskSplitErr": "Ndarja dështoi.",
   "fiskSplitDone": "U krijuan {{n}} fatura.",
   "fiskSplitMinGroups": "Cakto artikujt në të paktën 2 fatura.",
+  "fiskSplitHelpItems": "Cakto çdo artikull te një faturë (butonat 1, 2, …). Çdo grup bëhet faturë e veçantë. Nëse fatura është lëshuar tashmë, anuloje fillimisht te lista „Faturat“, pastaj ndaje këtu.",
+  "fiskSplitHelpEqual": "Shuma totale ndahet në pjesë të barabarta — çdo mysafir merr faturën e vet me të njëjtën shumë. Nëse fatura është lëshuar tashmë, anuloje fillimisht, pastaj ndaje.",
   "fiskUnbilledTitle": "Për lëshim",
   "fiskUnbilledHint": "Porositë, foliot dhe terminet spa të fundit pa faturë të lëshuar. Lësho kurdo — fatura nuk humbet.",
   "fiskUnbilledEmpty": "Të gjitha të lëshuara — asgjë në pritje.",

@@ -81,6 +81,10 @@ export default function SplitInvoiceModal({ restaurant, source, onClose, onDone 
         </div>
         <div className={styles.sub}>{source.ref_label} · {m(source.total_amount * 100)}</div>
 
+        <div className={styles.help}>
+          ℹ️ {mode === 'equal' ? t('fiskSplitHelpEqual') : t('fiskSplitHelpItems')}
+        </div>
+
         <div className={styles.modeRow}>
           <button className={`${styles.modeBtn} ${mode === 'items' ? styles.modeOn : ''}`} onClick={() => setMode('items')}>{t('fiskSplitByItems')}</button>
           <button className={`${styles.modeBtn} ${mode === 'equal' ? styles.modeOn : ''}`} onClick={() => setMode('equal')}>{t('fiskSplitEqual')}</button>
