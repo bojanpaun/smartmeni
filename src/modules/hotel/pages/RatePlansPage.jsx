@@ -41,7 +41,7 @@ export default function RatePlansPage() {
   const { restaurant } = usePlatform()
   const { t } = useTranslation('admin')
   const { ratePlans, loading, refetch } = useRatePlans(restaurant?.id)
-  const { rates: taxRates } = useTaxRates()
+  const { rates: taxRates } = useTaxRates(restaurant?.id)
 
   const [roomTypes, setRoomTypes] = useState([])
   const [allRooms, setAllRooms] = useState([])       // sve sobe hotela (za prikaz na kartici)

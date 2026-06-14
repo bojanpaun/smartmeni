@@ -1,23 +1,32 @@
 import { useState, useEffect } from 'react'
 import { supabase } from './supabase'
 
-// FISK — učitava poreske stope (tax_config.rates) za zemlju (default 'ME') i vraća
-// niz [{key,value,label}] za <select> klasifikacije artikala (vat_rate_key). Stope
-// su javno čitljive za prijavljene (RLS FISK-1). Jedan fetch po (country).
-export function useTaxRates(country = 'ME') {
+// FISK — učitava EFEKTIVNE poreske stope za <select> klasifikacije (vat_rate_key):
+// per-tenant override (restaurants.tax_rates) ako postoji, inače državne (tax_config).
+// Vraća [{key,value,label}] + isCustom (true ako su tenant-stope). Bez restaurantId →
+// samo državne stope (kao ranije).
+export function useTaxRates(restaurantId = null, country = 'ME') {
   const [rates, setRates] = useState([])
   const [loading, setLoading] = useState(true)
+  const [isCustom, setIsCustom] = useState(false)
 
   useEffect(() => {
     let cancelled = false
-    supabase.from('tax_config').select('rates').eq('country', country).maybeSingle()
-      .then(({ data }) => {
-        if (cancelled) return
-        setRates(Array.isArray(data?.rates) ? data.rates : [])
-        setLoading(false)
-      })
+    const run = async () => {
+      if (restaurantId) {
+        const { data } = await supabase.from('restaurants').select('tax_rates').eq('id', restaurantId).maybeSingle()
+        const tenant = Array.isArray(data?.tax_rates) ? data.tax_rates : null
+        if (tenant && tenant.length) {
+          if (!cancelled) { setRates(tenant); setIsCustom(true); setLoading(false) }
+          return
+        }
+      }
+      const { data } = await supabase.from('tax_config').select('rates').eq('country', country).maybeSingle()
+      if (!cancelled) { setRates(Array.isArray(data?.rates) ? data.rates : []); setIsCustom(false); setLoading(false) }
+    }
+    run()
     return () => { cancelled = true }
-  }, [country])
+  }, [restaurantId, country])
 
-  return { rates, loading }
+  return { rates, loading, isCustom }
 }

@@ -32,7 +32,7 @@ export default function ServicesPage() {
   const { restaurant } = usePlatform()
   const { t } = useTranslation('admin')
   const money = useMoney()
-  const { rates: taxRates } = useTaxRates()
+  const { rates: taxRates } = useTaxRates(restaurant?.id)
   const lt = useLibraryTranslations()
   const { services, loading, save, remove, toggle, refetch } = useSpaServices(restaurant?.id)
   const [showForm, setShowForm] = useState(false)

@@ -58,7 +58,7 @@ export default function AdminMenu() {
   // čita prevod; polja za UNOS ostaju na izvoru (master). Za 'me'/bez prevoda → izvor.
   const tr = useContentTranslations(restaurant?.id)
   const money = useMoney()
-  const { rates: taxRates } = useTaxRates()
+  const { rates: taxRates } = useTaxRates(restaurant?.id)
   const catName = (c) => tr('category', c.id, 'name', c.name)
   const itemName = (it) => tr('menu_item', it.id, 'name', it.name)
   const [categories, setCategories] = useState([])

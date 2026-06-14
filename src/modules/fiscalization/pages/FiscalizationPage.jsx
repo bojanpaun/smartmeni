@@ -36,8 +36,12 @@ export default function FiscalizationPage() {
   const { t, i18n } = useTranslation('admin')
   const dl = i18n.language === 'en' ? 'en-US' : 'sr-Latn'
   const { restaurant, setRestaurant } = usePlatform()
-  const [rates, setRates] = useState([])
   const [loading, setLoading] = useState(true)
+  // PDV stope editor (per-tenant override): taxRows = [{key,label,pct}]
+  const [taxRows, setTaxRows] = useState([])
+  const [taxCustom, setTaxCustom] = useState(false)
+  const [taxDirty, setTaxDirty] = useState(false)
+  const [taxSaving, setTaxSaving] = useState(false)
   const [menuStats, setMenuStats] = useState(null) // { total, classified }
   const [invoices, setInvoices] = useState([])
   const [unbilled, setUnbilled] = useState([])
@@ -98,16 +102,74 @@ export default function FiscalizationPage() {
     setRestaurant({ ...restaurant, auto_fiscalize: next })
   }
 
+  const ratesToRows = (arr) => (arr || []).map(x => ({ key: x.key, label: x.label, pct: String(+(Number(x.value) * 100).toFixed(2)) }))
+
   useEffect(() => {
+    if (!restaurant?.id) return
     let cancelled = false
-    supabase.from('tax_config').select('rates').eq('country', 'ME').maybeSingle()
-      .then(({ data }) => {
-        if (cancelled) return
-        setRates(Array.isArray(data?.rates) ? data.rates : [])
-        setLoading(false)
-      })
+    Promise.all([
+      supabase.from('restaurants').select('tax_rates').eq('id', restaurant.id).maybeSingle(),
+      supabase.from('tax_config').select('rates').eq('country', 'ME').maybeSingle(),
+    ]).then(([{ data: r }, { data: tc }]) => {
+      if (cancelled) return
+      const tenant = Array.isArray(r?.tax_rates) ? r.tax_rates : null
+      const country = Array.isArray(tc?.rates) ? tc.rates : []
+      setTaxRows(ratesToRows(tenant && tenant.length ? tenant : country))
+      setTaxCustom(!!(tenant && tenant.length))
+      setTaxDirty(false)
+      setLoading(false)
+    })
     return () => { cancelled = true }
-  }, [])
+  }, [restaurant?.id])
+
+  // ── PDV stope: uređivanje + snimanje (restaurants.tax_rates) ────────────────
+  const taxUpd = (i, field, val) => { setTaxRows(rows => rows.map((r, idx) => idx === i ? { ...r, [field]: val } : r)); setTaxDirty(true) }
+  const taxAdd = () => { setTaxRows(rows => [...rows, { key: '', label: '', pct: '' }]); setTaxDirty(true) }
+
+  const countRateUsage = async (key) => {
+    let total = 0
+    for (const tbl of ['menu_items', 'categories', 'spa_services', 'rate_plans', 'minibar_items']) {
+      const { count } = await supabase.from(tbl).select('id', { count: 'exact', head: true })
+        .eq('restaurant_id', restaurant.id).eq('vat_rate_key', key)
+      total += count || 0
+    }
+    return total
+  }
+
+  const taxRemove = async (i) => {
+    const row = taxRows[i]
+    if (row.key) {
+      const used = await countRateUsage(row.key)
+      if (used > 0 && !confirm(t('fiskRateUsedWarn', { key: row.key, n: used }))) return
+    }
+    setTaxRows(rows => rows.filter((_, idx) => idx !== i)); setTaxDirty(true)
+  }
+
+  const taxSave = async () => {
+    const cleaned = taxRows.map(r => ({ key: (r.key || '').trim(), label: (r.label || '').trim() || (r.key || '').trim(), value: Number(r.pct) / 100 }))
+    if (cleaned.some(r => !r.key || isNaN(r.value) || r.value < 0)) { toast.error(t('fiskRateInvalid')); return }
+    const keys = cleaned.map(r => r.key)
+    if (new Set(keys).size !== keys.length) { toast.error(t('fiskRateDupKey')); return }
+    setTaxSaving(true)
+    const { error } = await supabase.from('restaurants').update({ tax_rates: cleaned }).eq('id', restaurant.id)
+    setTaxSaving(false)
+    if (error) { toast.error(t('saErrPrefix') + error.message); return }
+    setRestaurant({ ...restaurant, tax_rates: cleaned })
+    setTaxCustom(true); setTaxDirty(false)
+    toast.success(t('saved'))
+  }
+
+  const taxReset = async () => {
+    if (!confirm(t('fiskRateResetConfirm'))) return
+    setTaxSaving(true)
+    const { error } = await supabase.from('restaurants').update({ tax_rates: null }).eq('id', restaurant.id)
+    if (error) { setTaxSaving(false); toast.error(t('saErrPrefix') + error.message); return }
+    setRestaurant({ ...restaurant, tax_rates: null })
+    const { data: tc } = await supabase.from('tax_config').select('rates').eq('country', 'ME').maybeSingle()
+    setTaxRows(ratesToRows(Array.isArray(tc?.rates) ? tc.rates : []))
+    setTaxCustom(false); setTaxDirty(false); setTaxSaving(false)
+    toast.success(t('saved'))
+  }
 
   // Pregled klasifikacije: koliko KATEGORIJA ima dodijeljenu PDV stopu (jela
   // nasljeđuju iz kategorije; per-jelo je override).
@@ -168,33 +230,44 @@ export default function FiscalizationPage() {
         )}
       </div>
 
-      {/* PDV stope (tax_config) */}
+      {/* PDV stope — uređivanje po tenantu (override državnih) */}
       <div className={styles.card}>
-        <div className={styles.cardTitle}>{t('fiskRatesTitle')}</div>
-        <div className={styles.cardHint}>{t('fiskRatesHint')}</div>
+        <div className={styles.cardTitleRow}>
+          <span className={styles.cardTitle}>{t('fiskRatesTitle')}</span>
+          <span className={taxCustom ? styles.customTag : styles.soon}>{taxCustom ? t('fiskRatesCustom') : t('fiskRatesDefault')}</span>
+        </div>
+        <div className={styles.cardHint}>{t('fiskRatesEditHint')}</div>
         {loading ? (
           <div className={styles.muted}>{t('loading')}</div>
-        ) : rates.length === 0 ? (
-          <div className={styles.muted}>{t('fiskRatesEmpty')}</div>
         ) : (
-          <table className={styles.table}>
-            <thead>
-              <tr>
-                <th>{t('fiskRateKey')}</th>
-                <th>{t('fiskRateLabel')}</th>
-                <th className={styles.right}>{t('fiskRateValue')}</th>
-              </tr>
-            </thead>
-            <tbody>
-              {rates.map(r => (
-                <tr key={r.key}>
-                  <td><code className={styles.code}>{r.key}</code></td>
-                  <td>{r.label}</td>
-                  <td className={styles.right}>{(Number(r.value) * 100).toFixed(0)}%</td>
+          <>
+            <table className={styles.table}>
+              <thead>
+                <tr>
+                  <th>{t('fiskRateKey')}</th>
+                  <th>{t('fiskRateLabel')}</th>
+                  <th className={styles.right}>{t('fiskRateValue')}</th>
+                  <th></th>
                 </tr>
-              ))}
-            </tbody>
-          </table>
+              </thead>
+              <tbody>
+                {taxRows.map((r, i) => (
+                  <tr key={i}>
+                    <td><input className={styles.rateInput} value={r.key} onChange={e => taxUpd(i, 'key', e.target.value)} placeholder="STANDARD" /></td>
+                    <td><input className={styles.rateInput} value={r.label} onChange={e => taxUpd(i, 'label', e.target.value)} placeholder="Standardna (21%)" /></td>
+                    <td className={styles.right}><input className={styles.ratePct} type="number" min="0" step="0.5" value={r.pct} onChange={e => taxUpd(i, 'pct', e.target.value)} /> %</td>
+                    <td className={styles.right}><button className={styles.rateDel} onClick={() => taxRemove(i)} title={t('htDelete')}>✕</button></td>
+                  </tr>
+                ))}
+              </tbody>
+            </table>
+            <div className={styles.rateActions}>
+              <button className={styles.splitBtn} onClick={taxAdd}>+ {t('fiskRateAdd')}</button>
+              <div style={{ flex: 1 }} />
+              {taxCustom && <button className={styles.splitBtn} onClick={taxReset} disabled={taxSaving}>↺ {t('fiskRateReset')}</button>}
+              <button className={styles.issueBtn} onClick={taxSave} disabled={taxSaving || !taxDirty}>{taxSaving ? '…' : t('save')}</button>
+            </div>
+          </>
         )}
       </div>
 

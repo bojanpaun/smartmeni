@@ -14,7 +14,7 @@ export default function MinibarPage() {
   const { restaurant } = usePlatform()
   const { t } = useTranslation('admin')
   const lt = useLibraryTranslations()
-  const { rates: taxRates } = useTaxRates()
+  const { rates: taxRates } = useTaxRates(restaurant?.id)
   const money = useMoney()
   const [items, setItems] = useState([])
   const [loading, setLoading] = useState(true)

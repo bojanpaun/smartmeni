@@ -107,6 +107,27 @@
   background: var(--c-warn-bg, #FAEEDA); color: var(--c-warn, #633806); white-space: nowrap;
 }
 
+/* PDV stope editor */
+.rateInput {
+  width: 100%; box-sizing: border-box; padding: 6px 9px; font-size: 0.85rem; font-family: inherit;
+  border: 1px solid var(--c-border-input, var(--c-border)); border-radius: 7px;
+  background: var(--c-surface); color: var(--c-text);
+}
+.ratePct {
+  width: 64px; box-sizing: border-box; padding: 6px 8px; font-size: 0.85rem; font-family: inherit; text-align: right;
+  border: 1px solid var(--c-border-input, var(--c-border)); border-radius: 7px;
+  background: var(--c-surface); color: var(--c-text);
+}
+.rateDel {
+  background: none; border: 1px solid var(--c-border-input, var(--c-border)); border-radius: 7px;
+  padding: 4px 9px; cursor: pointer; color: var(--c-danger, #b42318); font-size: 0.8rem;
+}
+.rateActions { display: flex; align-items: center; gap: 8px; margin-top: 12px; }
+.customTag {
+  font-size: 0.68rem; font-weight: 700; text-transform: uppercase; letter-spacing: .05em;
+  padding: 3px 8px; border-radius: 999px; background: var(--c-success-bg, #E1F5EE); color: var(--c-success, #0d7a52);
+}
+
 .muted { font-size: 0.85rem; color: var(--c-text-muted); padding: 8px 0; }
 .soon {
   font-size: 0.68rem; font-weight: 700; text-transform: uppercase; letter-spacing: .05em;
