@@ -1,6 +1,6 @@
 ﻿# rest.by.me — HospitalityOS Produkt roadmap
 
-> **Verzija:** 5.8 *(2b — tenants model + nezavisne vertikale: izbor biznisa pri registraciji, hotel-only sakriva restoran, "dodaj biznis", RLS izolaciona matrica (23 tabele). — 2026-06-07. Prethodno: MENU-LIB faza 3 — 2026-06-07)*
+> **Verzija:** 6.12 *(Faza FISK — valuta + PDV + računi: **FISK-0/1/2 ZAVRŠENE** (valuta po tenantu + display refaktor + payments wiring; PDV motor + `tax_config`; assembly + atomarna numeracija). **Fiscalization addon + UI** (`/admin/settings/fiscalization`): poslovni identitet PIB/PDV/IBAN, PDV stope, **PDV klasifikacija po kategoriji** (override po jelu/spa), **lista izdatih računa**, **okidač „Izdaj račun"** na narudžbi. **FISK-3 SKELET** (provider apstrakcija `_shared/fiscalization/` + `tenant_fiscal_configs`/`fiscal_credentials`, dormant dok Fisver nije potvrđen). Platforma: **„Šta razvijamo"** roadmap najave (ticker + superadmin CRUD). — 2026-06-14. Prethodno: i18n 7 jezika + AI prevod sadržaja; 2b tenant model — 2026-06-07)*
 
 ---
 
@@ -570,9 +570,20 @@ supabase/functions/
 | **FISK-0** | **Valuta po tenantu (preduslov). ✅ ZAVRŠEN (2026-06-14).** Temelj (`b4a6fe6`): `restaurants.currency` (migracija, prod), `src/lib/currencies.js` (registar + `formatMoney` + `toMinorUnits/fromMinorUnits`), Vitest (12), izbor u Postavkama (×7). Payments wiring (`5d07dbf`): `toMinorUnits(restaurant.currency)` umjesto `*100` u booking/spa/folio/guestapp. Display refaktor (`useMoney()` hook + `formatMoney`/`currencyMeta`/`sym`) kroz guest-facing + sve tenant-operativne admin/staff površine (analytics/folio/revenue/HR/spa/hotel/tables/inventory/menu/guests/staffportal). NAMJERNO EUR (van scope-a): platform-billing (Landing/BillingPage/ControlPanel/SuperAdminPanel) + globalne superadmin biblioteke (suggested_price, bez FX). | regionalna/globalna ekspanzija + valutno-ispravni računi · Vitest (formatMoney/konverzija) ✓ |
 | **FISK-1** | PDV/pricing motor (centi tenantove valute) + `tax_config` (ME). **✅ ZAVRŠEN (2026-06-14, `3141e28`):** `tax_config` global tabela (RLS superadmin/auth-read, ME seed 0.21/0.15/0.07 EUR, prod), `src/lib/vat.js` (vatBreakdownFromGross + computeInvoiceTax, minor-jedinice, base+vat==gross), pgTAP 040 + Vitest (9). ⬜ Otvoreno: tačan ME `numbering_format` (NULL dok se ne potvrdi, BLOCKING prije FISK-2). | tačan obračun · Vitest ✓ |
 | **FISK-2** | Assembly (po `SourceType`) + atomarna numeracija (`invoices`/`invoice_items`/`invoice_counters`). **✅ ZAVRŠEN (2026-06-14):** 2a PIB/PDV/IBAN (`aedaf46`), 2b `vat_rate_key` na 4 tabele (`c412fb0`), 2c jezgro `create_invoice_from_items` (PDV grupe po stopi + atomarni redni broj u istoj transakciji + idempotencija, `17d3545`), 2c-readeri `create_invoice_from_order/spa/folio` (`4885ece`). pgTAP 041 (10) + 042 (5). ⬜ Preostalo van FISK-2: okidač na zatvaranje računa + UI (vezuje se uz FISK-3/addon); `numbering_format` za ME (prije produkcione numeracije). | `InvoiceDraft` · pgTAP (RLS izolacija + bez rupa u nizu) ✓ |
-| **FISK-3** | `FiscalizationProvider` + ME adapter (Fisver) + `tenant_fiscal_configs`/`fiscal_credentials` | fiskalizacija · Deno (status-map + adapter) |
+| **FISK-3** | `FiscalizationProvider` + ME adapter (Fisver) + `tenant_fiscal_configs`/`fiscal_credentials`. **🟡 SKELET ✅ (2026-06-14, `ef7b49b`):** tabele (config + credentials BEZ SELECT, `save_fiscal_credentials`, pgTAP 044) + `_shared/fiscalization/` (types/registry/status-map+Deno/stub/me-fisver) ogledalo payments-a; me-fisver DORMANT. ⬜ Implementacija (Fisver adapter, edge `fiscalize-invoice`/`fiscal-status`, UI za config+certifikat) čeka BLOCKING: Fisver ugovor, ME `numbering_format`, onboarding certifikata. | fiskalizacija · Deno (status-map + adapter) |
 | **FISK-4** | Render template + QR + obavezni elementi (ReceiptSpec) | izdavanje gostu · snapshot |
 | **FISK-5** | Offline red, storno/korekcija, B2B, **folio-račun** | potpunost · pgTAP/E2E |
+
+### ✅ UI sloj (urađeno 2026-06-14)
+- **Addon `fiscalization`** registrovan (`f715cee`); stranica `/admin/settings/fiscalization`
+  (FiscalizationPage iza `<AddonGuard>`): poslovni identitet (PIB/PDV/IBAN status), PDV stope iz
+  `tax_config`, **lista izdatih računa** (broj/datum/izvor/PDV/ukupno/status), placeholder za provajdera.
+- **PDV klasifikacija po KATEGORIJI** (`e3e8c41`): `categories.vat_rate_key` (default) + override po
+  jelu (`menu_items`) i spa usluzi (`spa_services`); reader bira `COALESCE(jelo, kategorija)`.
+  Picker u formama (AdminMenu, ServicesPage); `useTaxRates` hook.
+- **Okidač „Izdaj račun"** (`22b08a4`): na serviranoj narudžbi (WaiterDashboard, iza addona) →
+  `create_invoice_from_order` (idempotentno), toast; račun se vidi u listi.
+- Poslovni identitet (`aedaf46`): polja PIB/PDV/IBAN na registraciji (OnboardingWizard) + Postavkama.
 
 ### Addon-gating
 - Novi addon **`fiscalization`** u `addon_catalog` (migracija) + `planUtils.js` + `<AddonGuard addonId="fiscalization">`
