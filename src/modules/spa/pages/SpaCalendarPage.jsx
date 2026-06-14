@@ -2,6 +2,7 @@ import { useState, useEffect, useRef } from 'react'
 import { useTranslation } from 'react-i18next'
 import { usePlatform } from '../../../context/PlatformContext'
 import { supabase } from '../../../lib/supabase'
+import { useMoney } from '../../../lib/useMoney'
 import LoadingSpinner from '../../../components/shared/LoadingSpinner'
 import styles from '../../hotel/pages/Hotel.module.css'
 import cal from './SpaCalendar.module.css'
@@ -68,6 +69,7 @@ const CATEGORY_ICON = {
 export default function SpaCalendarPage() {
   const { restaurant } = usePlatform()
   const { t, i18n } = useTranslation('admin')
+  const money = useMoney()
   const dl = i18n.language === 'en' ? 'en-US' : 'sr-Latn'
   const [date, setDate]           = useState(TODAY)
   const [view, setView]           = useState('therapists') // 'therapists' | 'rooms'
@@ -360,7 +362,7 @@ export default function SpaCalendarPage() {
           </div>
           <div className={cal.popupRow}>
             <span>💶</span>
-            <span>€{Number(popup.appt.price).toFixed(2)} · {popup.appt.payment_method}</span>
+            <span>{money(popup.appt.price)} · {popup.appt.payment_method}</span>
           </div>
           <div className={cal.popupRow}>
             <span>📌</span>

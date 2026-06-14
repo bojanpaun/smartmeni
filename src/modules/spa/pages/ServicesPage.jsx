@@ -5,6 +5,7 @@ import { supabase } from '../../../lib/supabase'
 import { useSpaServices } from '../hooks/useSpaServices'
 import { translateContent } from '../../../lib/contentTranslate'
 import { useLibraryTranslations } from '../../../lib/useLibraryTranslations'
+import { useMoney } from '../../../lib/useMoney'
 import ContentTranslations from '../../../components/shared/ContentTranslations'
 import LoadingSpinner from '../../../components/shared/LoadingSpinner'
 import styles from '../../hotel/pages/Hotel.module.css'
@@ -28,6 +29,7 @@ const BLANK = {
 export default function ServicesPage() {
   const { restaurant } = usePlatform()
   const { t } = useTranslation('admin')
+  const money = useMoney()
   const lt = useLibraryTranslations()
   const { services, loading, save, remove, toggle, refetch } = useSpaServices(restaurant?.id)
   const [showForm, setShowForm] = useState(false)
@@ -120,7 +122,7 @@ export default function ServicesPage() {
                   <div style={{ flex: 1 }}>
                     <div style={{ fontWeight: 600 }}>{lt('spa_treatment_library', it.id, 'name', it.name)}</div>
                     <div style={{ fontSize: 12, color: 'var(--c-text-muted)' }}>
-                      {it.duration_minutes} {t('spaMinUnit')}{it.suggested_price != null ? ` · ~€${Number(it.suggested_price).toFixed(0)}` : ''}
+                      {it.duration_minutes} {t('spaMinUnit')}{it.suggested_price != null ? ` · ~${money(it.suggested_price)}` : ''}
                     </div>
                   </div>
                   <button className={styles.btnSecondary} style={{ fontSize: 12 }} disabled={importingId === it.id} onClick={() => importTreatment(it.id, it.name)}>
@@ -245,10 +247,10 @@ export default function ServicesPage() {
                   <div className={spa.cardMeta}>
                     <span>{cat.icon} {t(cat.key)}</span>
                     <span>⏱ {s.duration_minutes} {t('spaMinUnit')}</span>
-                    {s.price_couple && <span>👫 €{Number(s.price_couple).toFixed(0)}</span>}
+                    {s.price_couple && <span>👫 {money(s.price_couple)}</span>}
                   </div>
                   <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
-                    <span className={spa.cardPrice}>€{Number(s.price).toFixed(2)}</span>
+                    <span className={spa.cardPrice}>{money(s.price)}</span>
                     <span className={`${spa.badge} ${s.is_active ? spa.badgeActive : spa.badgeInactive}`}>
                       {s.is_active ? t('spaActiveM') : t('spaInactiveM')}
                     </span>

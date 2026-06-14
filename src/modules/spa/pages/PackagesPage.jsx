@@ -2,6 +2,7 @@ import { useState, useEffect, useCallback } from 'react'
 import { useTranslation } from 'react-i18next'
 import { usePlatform } from '../../../context/PlatformContext'
 import { supabase } from '../../../lib/supabase'
+import { useMoney } from '../../../lib/useMoney'
 import LoadingSpinner from '../../../components/shared/LoadingSpinner'
 import toast from 'react-hot-toast'
 import styles from '../../hotel/pages/Hotel.module.css'
@@ -60,6 +61,7 @@ function useSpaPackages(restaurantId, t) {
 export default function PackagesPage() {
   const { restaurant } = usePlatform()
   const { t } = useTranslation('admin')
+  const money = useMoney()
   const { packages, loading, save, remove, toggle } = useSpaPackages(restaurant?.id, t)
 
   const [showForm, setShowForm] = useState(false)
@@ -220,7 +222,7 @@ export default function PackagesPage() {
                     </ul>
                   )}
                   <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: 12 }}>
-                    <span className={spa.cardPrice}>€{Number(pkg.total_price || 0).toFixed(2)}</span>
+                    <span className={spa.cardPrice}>{money(pkg.total_price || 0)}</span>
                   </div>
                   <div className={spa.cardActions}>
                     <button className={styles.btnSecondary} style={{ fontSize: 12 }} onClick={() => openEdit(pkg)}>{t('htEdit')}</button>

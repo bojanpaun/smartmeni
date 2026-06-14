@@ -2,6 +2,7 @@ import { useState } from 'react'
 import { useNavigate } from 'react-router-dom'
 import { useTranslation } from 'react-i18next'
 import { usePlatform } from '../../../context/PlatformContext'
+import { useMoney } from '../../../lib/useMoney'
 import { useSpaAppointments } from '../hooks/useSpaAppointments'
 import DateNav, { DATE_TODAY } from '../../../components/shared/DateNav'
 import LoadingSpinner from '../../../components/shared/LoadingSpinner'
@@ -24,6 +25,7 @@ const CATEGORY_ICON = {
 
 export default function SpaDashboard() {
   const { restaurant } = usePlatform()
+  const money = useMoney()
   const navigate = useNavigate()
   const { t, i18n } = useTranslation('admin')
   const dl = i18n.language === 'en' ? 'en-US' : 'sr-Latn'
@@ -102,7 +104,7 @@ export default function SpaDashboard() {
         </div>
         <div className={spa.kpiCard}>
           <div className={spa.kpiLabel}>{t('spaKpiRevenueToday')}</div>
-          <div className={spa.kpiVal} style={{ color: '#0d7a52' }}>€{revenue.toFixed(2)}</div>
+          <div className={spa.kpiVal} style={{ color: '#0d7a52' }}>{money(revenue)}</div>
         </div>
       </div>
 
@@ -175,7 +177,7 @@ export default function SpaDashboard() {
                     <td>{therapistName}</td>
                     <td>{a.spa_rooms?.name || '—'}</td>
                     <td style={{ maxWidth: 140, overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap' }}>{guestName}</td>
-                    <td style={{ fontWeight: 600 }}>€{Number(a.price).toFixed(2)}</td>
+                    <td style={{ fontWeight: 600 }}>{money(a.price)}</td>
                     <td>
                       <span className={spa.badge} style={{ background: sl.bg, color: sl.color }}>{t(sl.key)}</span>
                     </td>

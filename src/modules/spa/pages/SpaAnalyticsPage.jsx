@@ -1,6 +1,7 @@
 import { useState } from 'react'
 import { useTranslation } from 'react-i18next'
 import { usePlatform } from '../../../context/PlatformContext'
+import { formatMoney, currencyMeta } from '../../../lib/currencies'
 import { useSpaAnalytics } from '../hooks/useSpaAnalytics'
 import LoadingSpinner from '../../../components/shared/LoadingSpinner'
 import { BarChart, Bar, XAxis, YAxis, CartesianGrid, Tooltip, ResponsiveContainer } from 'recharts'
@@ -20,7 +21,7 @@ function addDays(n) {
   return d.toISOString().slice(0, 10)
 }
 
-function exportCSV(metrics, serviceStats, therapistStats, restaurantName, fromDate, toDate, t, dl) {
+function exportCSV(metrics, serviceStats, therapistStats, restaurantName, fromDate, toDate, t, dl, sym) {
   const lines = [
     t('spaCsvTitle'),
     `${t('spaCsvObject')}:;${restaurantName}`,
@@ -28,9 +29,9 @@ function exportCSV(metrics, serviceStats, therapistStats, restaurantName, fromDa
     `${t('spaCsvGenerated')}:;${new Date().toLocaleDateString(dl)}`,
     '',
     t('spaCsvKpiOverview'),
-    `${t('spaCsvTotalRevenue')};€${metrics.totalRevenue.toFixed(2)}`,
+    `${t('spaCsvTotalRevenue')};${sym}${metrics.totalRevenue.toFixed(2)}`,
     `${t('spaCsvCompletedTreatments')};${metrics.completed}`,
-    `${t('spaCsvAvgPrice')};€${metrics.avgRevenue.toFixed(2)}`,
+    `${t('spaCsvAvgPrice')};${sym}${metrics.avgRevenue.toFixed(2)}`,
     `${t('spaCsvNoShowRate')};${metrics.noShowRate.toFixed(1)}%`,
     `${t('spaCsvHotelGuests')};${metrics.hotelGuests}`,
     `${t('spaCsvExternalGuests')};${metrics.externalGuests}`,
@@ -56,6 +57,8 @@ export default function SpaAnalyticsPage() {
   const { restaurant } = usePlatform()
   const { t, i18n } = useTranslation('admin')
   const dl = i18n.language === 'en' ? 'en-US' : 'sr-Latn'
+  const curSym = currencyMeta(restaurant?.currency).symbol
+  const money = (a) => formatMoney(a, restaurant?.currency, i18n.language)
   const [periodDays, setPeriodDays] = useState(30)
 
   const toDate   = new Date().toISOString().slice(0, 10)
@@ -99,7 +102,7 @@ export default function SpaAnalyticsPage() {
           {!loading && (
             <button
               className={styles.btnSecondary}
-              onClick={() => exportCSV(metrics, serviceStats, therapistStats, restaurant.name, fromDate, toDate, t, dl)}
+              onClick={() => exportCSV(metrics, serviceStats, therapistStats, restaurant.name, fromDate, toDate, t, dl, curSym)}
             >
               ⬇ CSV
             </button>
@@ -113,12 +116,12 @@ export default function SpaAnalyticsPage() {
           <div className={spa.kpiGrid}>
             <div className={spa.kpiCard}>
               <div className={spa.kpiLabel}>{t('spaTotalRevenue')}</div>
-              <div className={spa.kpiVal} style={{ color: '#0d7a52' }}>€{metrics.totalRevenue.toFixed(2)}</div>
+              <div className={spa.kpiVal} style={{ color: '#0d7a52' }}>{money(metrics.totalRevenue)}</div>
               <div className={spa.kpiSub}>{t('spaCompletedTreatmentsN', { count: metrics.completed })}</div>
             </div>
             <div className={spa.kpiCard}>
               <div className={spa.kpiLabel}>{t('spaAvgPrice')}</div>
-              <div className={spa.kpiVal}>€{metrics.avgRevenue.toFixed(2)}</div>
+              <div className={spa.kpiVal}>{money(metrics.avgRevenue)}</div>
               <div className={spa.kpiSub}>{t('spaPerTreatment')}</div>
             </div>
             <div className={spa.kpiCard}>
@@ -143,8 +146,8 @@ export default function SpaAnalyticsPage() {
                 <BarChart data={chartData} margin={{ top: 4, right: 8, left: 0, bottom: 0 }}>
                   <CartesianGrid strokeDasharray="3 3" stroke="var(--c-border)" />
                   <XAxis dataKey="date" tick={{ fontSize: 11, fill: 'var(--c-text-muted)' }} />
-                  <YAxis tick={{ fontSize: 11, fill: 'var(--c-text-muted)' }} tickFormatter={v => `€${v}`} width={52} />
-                  <Tooltip formatter={(v, name) => name === 'prihod' ? `€${v}` : v} />
+                  <YAxis tick={{ fontSize: 11, fill: 'var(--c-text-muted)' }} tickFormatter={v => `${curSym}${v}`} width={52} />
+                  <Tooltip formatter={(v, name) => name === 'prihod' ? `${curSym}${v}` : v} />
                   <Bar dataKey="prihod" name={t('spaColRevenue')} fill="#6d28d9" radius={[4,4,0,0]} />
                 </BarChart>
               </ResponsiveContainer>
@@ -166,7 +169,7 @@ export default function SpaAnalyticsPage() {
                       <tr key={s.name}>
                         <td style={{ fontWeight: 500, maxWidth: 140, overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap' }}>{s.name}</td>
                         <td style={{ textAlign: 'right', color: 'var(--c-text-muted)' }}>{s.count}</td>
-                        <td style={{ textAlign: 'right', fontWeight: 600, color: '#6d28d9' }}>€{s.revenue.toFixed(0)}</td>
+                        <td style={{ textAlign: 'right', fontWeight: 600, color: '#6d28d9' }}>{money(s.revenue)}</td>
                       </tr>
                     ))}
                   </tbody>
@@ -187,7 +190,7 @@ export default function SpaAnalyticsPage() {
                       <tr key={th.name}>
                         <td style={{ fontWeight: 500, maxWidth: 140, overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap' }}>{th.name}</td>
                         <td style={{ textAlign: 'right', color: 'var(--c-text-muted)' }}>{th.completed}</td>
-                        <td style={{ textAlign: 'right', fontWeight: 600, color: '#6d28d9' }}>€{th.revenue.toFixed(0)}</td>
+                        <td style={{ textAlign: 'right', fontWeight: 600, color: '#6d28d9' }}>{money(th.revenue)}</td>
                       </tr>
                     ))}
                   </tbody>

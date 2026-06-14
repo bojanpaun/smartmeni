@@ -2,6 +2,8 @@ import { useState, useEffect, useCallback } from 'react'
 import { useTranslation } from 'react-i18next'
 import { usePlatform } from '../../../context/PlatformContext'
 import { supabase } from '../../../lib/supabase'
+import { useMoney } from '../../../lib/useMoney'
+import { currencyMeta } from '../../../lib/currencies'
 import { useSpaServices } from '../hooks/useSpaServices'
 import { useSpaTherapists } from '../hooks/useSpaTherapists'
 import { useSpaRooms } from '../hooks/useSpaRooms'
@@ -37,6 +39,8 @@ function addMinutes(time, minutes) {
 export default function AppointmentsPage() {
   const { restaurant } = usePlatform()
   const { t } = useTranslation('admin')
+  const money = useMoney()
+  const curSym = currencyMeta(restaurant?.currency).symbol
   const { services }   = useSpaServices(restaurant?.id)
   const { therapists } = useSpaTherapists(restaurant?.id)
   const { rooms }      = useSpaRooms(restaurant?.id)
@@ -202,7 +206,7 @@ export default function AppointmentsPage() {
               </select>
             </div>
             <div className={spa.formField}>
-              <label className={spa.formLabel}>{t('spaPrice')} (€)</label>
+              <label className={spa.formLabel}>{t('spaPrice')} ({curSym})</label>
               <input className={spa.formInput} type="number" min="0" step="0.01" value={form.price} onChange={e => upd('price', e.target.value)} />
             </div>
             <div className={spa.formField}>
@@ -321,7 +325,7 @@ export default function AppointmentsPage() {
                       <div style={{ fontSize: 13 }}>{guestName}</div>
                       {a.external_guest_email && <div style={{ fontSize: 11, color: 'var(--c-text-muted)' }}>{a.external_guest_email}</div>}
                     </td>
-                    <td style={{ fontWeight: 600 }}>€{Number(a.price).toFixed(2)}</td>
+                    <td style={{ fontWeight: 600 }}>{money(a.price)}</td>
                     <td>
                       <span className={spa.badge} style={{ background: sl.bg, color: sl.color }}>{t(sl.key)}</span>
                     </td>

@@ -2,6 +2,8 @@ import { useState, useEffect } from 'react'
 import { useTranslation } from 'react-i18next'
 import { usePlatform } from '../../../context/PlatformContext'
 import { supabase } from '../../../lib/supabase'
+import { useMoney } from '../../../lib/useMoney'
+import { currencyMeta } from '../../../lib/currencies'
 import LoadingSpinner from '../../../components/shared/LoadingSpinner'
 import styles from '../../hotel/pages/Hotel.module.css'
 import spa from './Spa.module.css'
@@ -11,6 +13,8 @@ const BLANK = { name: '', brand: '', price: '', stock_quantity: 0, image_url: ''
 export default function RetailPage() {
   const { restaurant } = usePlatform()
   const { t } = useTranslation('admin')
+  const money = useMoney()
+  const curSym = currencyMeta(restaurant?.currency).symbol
   const [items, setItems] = useState([])
   const [loading, setLoading] = useState(true)
   const [showForm, setShowForm] = useState(false)
@@ -89,7 +93,7 @@ export default function RetailPage() {
               <input className={spa.formInput} value={form.brand} onChange={e => upd('brand', e.target.value)} />
             </div>
             <div className={spa.formField}>
-              <label className={spa.formLabel}>{t('spaPrice')} (€)</label>
+              <label className={spa.formLabel}>{t('spaPrice')} ({curSym})</label>
               <input className={spa.formInput} type="number" min="0" step="0.01" value={form.price} onChange={e => upd('price', e.target.value)} />
             </div>
             <div className={spa.formField}>
@@ -132,7 +136,7 @@ export default function RetailPage() {
               <tr key={it.id}>
                 <td style={{ fontWeight: 600 }}>{it.name}</td>
                 <td style={{ color: 'var(--c-text-muted)' }}>{it.brand || '—'}</td>
-                <td>{it.price != null ? `€${Number(it.price).toFixed(2)}` : '—'}</td>
+                <td>{it.price != null ? money(it.price) : '—'}</td>
                 <td style={{ color: it.stock_quantity > 0 ? 'inherit' : '#c0392b', fontWeight: it.stock_quantity > 0 ? 400 : 600 }}>{it.stock_quantity}</td>
                 <td>{it.is_active ? '✓' : '—'}</td>
                 <td>
