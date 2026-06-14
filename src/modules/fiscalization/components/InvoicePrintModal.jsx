@@ -33,7 +33,8 @@ export default function InvoicePrintModal({ invoice, restaurant, onClose }) {
       + `<td class="r">${esc(it.vat_rate_key || '—')}</td><td class="r">${esc(m(it.total_cents))}</td></tr>`).join('')
     const html = `<!doctype html><html lang="${esc(i18n.language)}"><head><meta charset="utf-8">`
       + `<title>${esc(invoice.invoice_number)}</title><style>`
-      + `*{box-sizing:border-box}body{font-family:ui-monospace,monospace;color:#111;background:#fff;margin:0;padding:18px;max-width:420px}`
+      + `@page{size:80mm auto;margin:4mm}`  // format računa (ne A4); visina prati sadržaj
+      + `*{box-sizing:border-box}body{font-family:ui-monospace,monospace;color:#111;background:#fff;margin:0 auto;padding:0;width:72mm;max-width:72mm}`
       + `.c{text-align:center}.nm{font-size:1rem;font-weight:700}.sl{font-size:.78rem;color:#444;margin-top:2px}`
       + `.d{border-top:1px dashed #bbb;margin:12px 0}.row{display:flex;justify-content:space-between;font-size:.82rem;margin:3px 0}`
       + `.row span:first-child{color:#666}.tot{font-size:.95rem;margin-top:6px;font-weight:700}`

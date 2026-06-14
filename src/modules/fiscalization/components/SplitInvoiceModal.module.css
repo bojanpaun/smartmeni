@@ -1,0 +1,57 @@
+.overlay {
+  position: fixed; inset: 0; background: rgba(0,0,0,0.45); z-index: 1000;
+  display: flex; align-items: flex-start; justify-content: center; padding: 24px; overflow-y: auto;
+}
+.modal {
+  background: var(--c-surface); border: 1px solid var(--c-border); border-radius: 14px;
+  width: 100%; max-width: 460px; padding: 18px 20px; font-family: 'DM Sans', sans-serif;
+}
+.head { display: flex; align-items: center; justify-content: space-between; }
+.title { font-size: 1.05rem; font-weight: 700; color: var(--c-text); }
+.close { background: none; border: none; font-size: 16px; cursor: pointer; color: var(--c-text-muted); }
+.sub { font-size: 0.82rem; color: var(--c-text-muted); margin: 2px 0 14px; }
+
+.modeRow { display: flex; gap: 8px; margin-bottom: 14px; }
+.modeBtn {
+  flex: 1; padding: 9px; border: 1px solid var(--c-border-input, var(--c-border)); border-radius: 9px;
+  background: var(--c-surface); color: var(--c-text); font-size: 0.85rem; font-weight: 600; cursor: pointer; font-family: inherit;
+}
+.modeOn { background: var(--c-primary); color: #fff; border-color: var(--c-primary); }
+
+.muted { font-size: 0.85rem; color: var(--c-text-muted); padding: 14px 0; }
+
+.equalBox { display: flex; flex-direction: column; gap: 6px; }
+.equalBox label { font-size: 0.82rem; font-weight: 600; color: var(--c-text-medium); }
+.equalBox input {
+  width: 100px; padding: 9px 12px; border: 1px solid var(--c-border-input, var(--c-border));
+  border-radius: 9px; font-size: 0.9rem; background: var(--c-surface); color: var(--c-text);
+}
+.equalHint { font-size: 0.8rem; color: var(--c-text-muted); margin-top: 4px; }
+
+.groupCtl { display: flex; align-items: center; justify-content: space-between; margin-bottom: 10px; font-size: 0.85rem; color: var(--c-text); }
+.groupBtns { display: flex; gap: 6px; }
+.groupBtns button {
+  width: 30px; height: 30px; border: 1px solid var(--c-border-input, var(--c-border)); border-radius: 8px;
+  background: var(--c-surface); color: var(--c-text); font-size: 1rem; cursor: pointer; line-height: 1;
+}
+.groupBtns button:disabled { opacity: 0.4; cursor: default; }
+
+.itemList { display: flex; flex-direction: column; gap: 8px; max-height: 320px; overflow-y: auto; }
+.itemRow { display: flex; align-items: center; justify-content: space-between; gap: 10px; padding: 8px 0; border-bottom: 1px solid var(--c-border); }
+.itemName { font-size: 0.85rem; color: var(--c-text); flex: 1; }
+.itemRight { display: flex; align-items: center; gap: 10px; }
+.itemPrice { font-size: 0.82rem; color: var(--c-text-muted); white-space: nowrap; }
+.assignBtns { display: flex; gap: 4px; }
+.gBtn {
+  width: 26px; height: 26px; border: 1px solid var(--c-border-input, var(--c-border)); border-radius: 6px;
+  background: var(--c-surface); color: var(--c-text-muted); font-size: 0.78rem; font-weight: 600; cursor: pointer;
+}
+.gBtnOn { background: var(--c-primary); color: #fff; border-color: var(--c-primary); }
+
+.totals { display: flex; flex-wrap: wrap; gap: 8px; margin-top: 12px; }
+.totChip { font-size: 0.78rem; color: var(--c-text-muted); background: var(--c-bg-subtle, #f0f5f2); border-radius: 999px; padding: 3px 10px; }
+
+.actions { display: flex; justify-content: flex-end; gap: 10px; margin-top: 18px; }
+.btnGhost { padding: 9px 16px; border: 1px solid var(--c-border); border-radius: 9px; background: none; color: var(--c-text); cursor: pointer; font-family: inherit; font-size: 0.85rem; }
+.btnPrimary { padding: 9px 18px; border: none; border-radius: 9px; background: var(--c-primary); color: #fff; cursor: pointer; font-family: inherit; font-size: 0.85rem; font-weight: 600; }
+.btnPrimary:disabled { opacity: 0.6; cursor: default; }

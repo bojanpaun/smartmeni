@@ -80,6 +80,13 @@
   padding: 5px 10px; font-size: 0.78rem; font-weight: 600; cursor: pointer; font-family: inherit; white-space: nowrap;
 }
 .issueBtn:disabled { opacity: 0.6; cursor: default; }
+.unbilledActions { display: inline-flex; gap: 6px; justify-content: flex-end; }
+.splitBtn {
+  background: none; border: 1px solid var(--c-border-input, var(--c-border)); border-radius: 8px;
+  padding: 5px 10px; font-size: 0.78rem; font-weight: 600; cursor: pointer; font-family: inherit;
+  color: var(--c-text-medium); white-space: nowrap;
+}
+.splitBtn:hover { background: var(--c-bg-subtle, #f0f5f2); }
 .invoiceRow { cursor: pointer; }
 .invoiceRow:hover { background: var(--c-bg-subtle, #f0f5f2); }
 .stornoRow td { color: var(--c-danger, #b42318); opacity: 0.85; }

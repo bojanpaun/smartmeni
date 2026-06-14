@@ -149,18 +149,18 @@ export default function MinibarPage() {
       {showForm && (
         <div style={{ background: 'var(--c-surface)', border: '1px solid var(--c-border)', borderRadius: 12, padding: 16, marginBottom: 16 }}>
           <div style={{ display: 'flex', gap: 12, flexWrap: 'wrap', alignItems: 'flex-end' }}>
-            <div style={{ flex: 2, minWidth: 180 }}>
+            <div style={{ flex: '2 1 180px', minWidth: 160, display: 'flex', flexDirection: 'column', gap: 4 }}>
               <label style={{ fontSize: 12, color: 'var(--c-text-medium)' }}>{t('htFieldName')} *</label>
-              <input className={styles.input} value={form.name} onChange={e => upd('name', e.target.value)} placeholder="npr. Coca-Cola 0.33" />
+              <input className={styles.input} style={{ width: '100%', boxSizing: 'border-box' }} value={form.name} onChange={e => upd('name', e.target.value)} placeholder="npr. Coca-Cola 0.33" />
             </div>
-            <div style={{ width: 120 }}>
+            <div style={{ flex: '0 1 110px', minWidth: 90, display: 'flex', flexDirection: 'column', gap: 4 }}>
               <label style={{ fontSize: 12, color: 'var(--c-text-medium)' }}>{t('htPriceEur')}</label>
-              <input className={styles.input} type="number" min="0" step="0.01" value={form.price} onChange={e => upd('price', e.target.value)} />
+              <input className={styles.input} style={{ width: '100%', boxSizing: 'border-box' }} type="number" min="0" step="0.01" value={form.price} onChange={e => upd('price', e.target.value)} />
             </div>
             {taxRates.length > 0 && (
-              <div style={{ minWidth: 150 }}>
+              <div style={{ flex: '1 1 150px', minWidth: 130, display: 'flex', flexDirection: 'column', gap: 4 }}>
                 <label style={{ fontSize: 12, color: 'var(--c-text-medium)' }}>{t('amVatRate')}</label>
-                <select className={styles.input} value={form.vat_rate_key || ''} onChange={e => upd('vat_rate_key', e.target.value || null)}>
+                <select className={styles.input} style={{ width: '100%', boxSizing: 'border-box' }} value={form.vat_rate_key || ''} onChange={e => upd('vat_rate_key', e.target.value || null)}>
                   <option value="">{t('amVatRateNone')}</option>
                   {taxRates.map(r => <option key={r.key} value={r.key}>{r.label}</option>)}
                 </select>

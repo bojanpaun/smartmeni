@@ -8,6 +8,7 @@ import { formatMoney, fromMinorUnits } from '../../../lib/currencies'
 import { useSortable } from '../../../hooks/useSortable'
 import SortableHead from '../../../components/shared/SortableHead'
 import InvoicePrintModal from '../components/InvoicePrintModal'
+import SplitInvoiceModal from '../components/SplitInvoiceModal'
 import styles from './FiscalizationPage.module.css'
 
 const RPC_BY_SOURCE = { order: ['create_invoice_from_order', 'p_order_id'], spa: ['create_invoice_from_spa', 'p_appointment_id'], folio: ['create_invoice_from_folio', 'p_folio_id'] }
@@ -41,6 +42,7 @@ export default function FiscalizationPage() {
   const [invoices, setInvoices] = useState([])
   const [unbilled, setUnbilled] = useState([])
   const [printInvoice, setPrintInvoice] = useState(null)
+  const [splitSource, setSplitSource] = useState(null)
   const [issuing, setIssuing] = useState(null) // source_id u toku
   // Filteri + collapse stanje (#1 pretraga, #6 collapsible)
   const [invSearch, setInvSearch] = useState('')
@@ -254,9 +256,14 @@ export default function FiscalizationPage() {
                     <td>{new Date(s.occurred_at).toLocaleDateString(dl, { day: '2-digit', month: '2-digit', year: 'numeric' })}</td>
                     <td className={styles.right}>{money(s.total_amount)}</td>
                     <td className={styles.right}>
-                      <button className={styles.issueBtn} disabled={issuing === s.source_id} onClick={() => issueSource(s)}>
-                        🧾 {issuing === s.source_id ? '…' : t('wdIssueInvoice')}
-                      </button>
+                      <div className={styles.unbilledActions}>
+                        <button className={styles.splitBtn} onClick={() => setSplitSource(s)} title={t('fiskSplitTitle')}>
+                          ✂️ {t('fiskSplit')}
+                        </button>
+                        <button className={styles.issueBtn} disabled={issuing === s.source_id} onClick={() => issueSource(s)}>
+                          🧾 {issuing === s.source_id ? '…' : t('wdIssueInvoice')}
+                        </button>
+                      </div>
                     </td>
                   </tr>
                 ))}
@@ -342,6 +349,10 @@ export default function FiscalizationPage() {
 
       {printInvoice && (
         <InvoicePrintModal invoice={printInvoice} restaurant={restaurant} onClose={() => setPrintInvoice(null)} />
+      )}
+      {splitSource && (
+        <SplitInvoiceModal restaurant={restaurant} source={splitSource}
+          onClose={() => setSplitSource(null)} onDone={() => { loadUnbilled(); loadInvoices() }} />
       )}
     </div>
   )
