@@ -2,6 +2,7 @@ import { useState, useEffect } from 'react'
 import { useTranslation } from 'react-i18next'
 import { supabase } from '../../../lib/supabase'
 import { useContentTranslations } from '../../../lib/useContentTranslations'
+import { formatMoney } from '../../../lib/currencies'
 import styles from './GuestApp.module.css'
 
 const TODAY = new Date().toISOString().slice(0, 10)
@@ -21,8 +22,9 @@ const APPT_STATUS = {
   no_show:    { label: 'No-show',   labelEn: 'No-show',    color: '#ef9f27' },
 }
 
-export default function GuestSpaTab({ restaurantId, session }) {
+export default function GuestSpaTab({ restaurantId, currency, session }) {
   const { t, i18n } = useTranslation('guestapp')
+  const money = (amt) => formatMoney(amt, currency, i18n.language)
   const tr = useContentTranslations(restaurantId) // AI prevodi naziva/opisa usluge
   const svcName = (s) => s ? tr('spa_service', s.id, 'name', s.name) : ''
   const svcDesc = (s) => s ? tr('spa_service', s.id, 'description', s.description) : ''
@@ -212,7 +214,7 @@ export default function GuestSpaTab({ restaurantId, session }) {
                   <div style={{ fontSize: 13, color: '#6b7280', marginTop: 2 }}>🚪 {appt.spa_rooms.name}</div>
                 )}
                 <div style={{ fontSize: 13, color: '#0d7a52', fontWeight: 600, marginTop: 6 }}>
-                  €{parseFloat(appt.price).toFixed(2)} — {t('spaBilledToFolio')}
+                  {money(appt.price)} — {t('spaBilledToFolio')}
                 </div>
                 {appt.status === 'completed' && (
                   <ReviewRow
@@ -319,7 +321,7 @@ export default function GuestSpaTab({ restaurantId, session }) {
                   {svc.description && <div style={{ fontSize: 12, color: '#9ca3af', marginTop: 4 }}>{svcDesc(svc)}</div>}
                 </div>
                 <div style={{ fontWeight: 700, fontSize: 16, color: '#0d7a52', flexShrink: 0, marginLeft: 12 }}>
-                  €{parseFloat(svc.price).toFixed(2)}
+                  {money(svc.price)}
                 </div>
               </div>
             </div>
@@ -369,7 +371,7 @@ export default function GuestSpaTab({ restaurantId, session }) {
           {/* Summary */}
           <div style={{ background: '#f0fdf4', border: '1px solid #86efac', borderRadius: 12, padding: 14, marginBottom: 16 }}>
             <div style={{ fontSize: 13, fontWeight: 700, color: '#15803d', marginBottom: 4 }}>{svcName(selectedService)}</div>
-            <div style={{ fontSize: 12, color: '#16a34a' }}>⏱ {selectedService.duration_minutes} min · €{parseFloat(selectedService.price).toFixed(2)} · folio</div>
+            <div style={{ fontSize: 12, color: '#16a34a' }}>⏱ {selectedService.duration_minutes} min · {money(selectedService.price)} · folio</div>
           </div>
 
           <div style={{ display: 'flex', gap: 10 }}>
@@ -456,7 +458,7 @@ export default function GuestSpaTab({ restaurantId, session }) {
             <div style={{ marginTop: 12, paddingTop: 12, borderTop: '1px solid #bbf7d0',
               display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
               <div>
-                <div style={{ fontWeight: 700, fontSize: 18, color: '#15803d' }}>€{parseFloat(selectedSlot.price || selectedService.price).toFixed(2)}</div>
+                <div style={{ fontWeight: 700, fontSize: 18, color: '#15803d' }}>{money(selectedSlot.price || selectedService.price)}</div>
                 <div style={{ fontSize: 11, color: '#16a34a' }}>🧾 {t('spaBilledToRoomFolio')}</div>
               </div>
               <div style={{ background: '#fff', border: '1px solid #86efac', borderRadius: 10, padding: '6px 14px',

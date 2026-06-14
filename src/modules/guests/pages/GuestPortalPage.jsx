@@ -6,6 +6,7 @@ import { useParams } from 'react-router-dom'
 import { useTranslation } from 'react-i18next'
 import { supabase } from '../../../lib/supabase'
 import { getTemplate } from '../../../lib/templates'
+import { formatMoney } from '../../../lib/currencies'
 import styles from './GuestPortalPage.module.css'
 
 const GUEST_SESSION_KEY = (slug) => `sm_guest_${slug}`
@@ -83,7 +84,7 @@ export default function GuestPortalPage() {
   const loadRestaurant = async () => {
     const { data } = await supabase
       .from('restaurants')
-      .select('id, name, slug, logo_url, color, template')
+      .select('id, name, slug, logo_url, color, template, currency')
       .eq('slug', slug)
       .single()
     setRestaurant(data)
@@ -263,7 +264,7 @@ export default function GuestPortalPage() {
                 <div className={styles.statLbl}>{t('gppVisits')}</div>
               </div>
               <div className={styles.statBox}>
-                <div className={styles.statVal} style={{ color: brand }}>€{parseFloat(guest.total_spent || 0).toFixed(0)}</div>
+                <div className={styles.statVal} style={{ color: brand }}>{formatMoney(guest.total_spent || 0, restaurant?.currency, i18n.language)}</div>
                 <div className={styles.statLbl}>{t('gppSpent')}</div>
               </div>
               <div className={styles.statBox}>
@@ -347,7 +348,7 @@ export default function GuestPortalPage() {
                         </div>
                         <div style={{ display: 'flex', flexDirection: 'column', alignItems: 'flex-end', gap: 4 }}>
                           <span className={styles.resBadge} style={{ background: statusColors.bg, color: statusColors.color }}>{statusLabel}</span>
-                          <span style={{ fontSize: 12, fontWeight: 600, color: brand }}>€{parseFloat(ord.total || 0).toFixed(2)}</span>
+                          <span style={{ fontSize: 12, fontWeight: 600, color: brand }}>{formatMoney(ord.total || 0, restaurant?.currency, i18n.language)}</span>
                           {isActive && <span style={{ fontSize: 10, color: brand }}>👁 {t('gppTrack')}</span>}
                         </div>
                       </div>

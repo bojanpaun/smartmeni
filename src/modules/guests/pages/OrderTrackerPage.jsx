@@ -7,6 +7,7 @@ import { useTranslation } from 'react-i18next'
 import { supabase } from '../../../lib/supabase'
 import { getTemplate } from '../../../lib/templates'
 import { useContentTranslations } from '../../../lib/useContentTranslations'
+import { formatMoney } from '../../../lib/currencies'
 import LanguageSwitcher from '../../../i18n/LanguageSwitcher'
 import styles from './OrderTrackerPage.module.css'
 
@@ -23,7 +24,7 @@ const STATUS_INDEX = Object.fromEntries(STATUS_STEPS.map((s, i) => [s.key, i]))
 export default function OrderTrackerPage() {
   const { slug, orderId } = useParams()
   const navigate = useNavigate()
-  const { t } = useTranslation('ordertracker')
+  const { t, i18n } = useTranslation('ordertracker')
   const [restaurant, setRestaurant] = useState(null)
   const [order, setOrder] = useState(null)
   const [items, setItems] = useState([])
@@ -38,7 +39,7 @@ export default function OrderTrackerPage() {
     // Učitaj restoran — koristi samo sigurne kolone
     const { data: rest } = await supabase
       .from('restaurants')
-      .select('id, name, slug, logo_url, color, template')
+      .select('id, name, slug, logo_url, color, template, currency')
       .eq('slug', slug)
       .single()
 
@@ -239,12 +240,12 @@ export default function OrderTrackerPage() {
             <div key={item.id} className={styles.orderItem}>
               <div className={styles.orderItemName}>{item.name}</div>
               <div className={styles.orderItemQty}>×{item.quantity}</div>
-              <div className={styles.orderItemPrice}>€{(parseFloat(item.price) * item.quantity).toFixed(2)}</div>
+              <div className={styles.orderItemPrice}>{formatMoney(parseFloat(item.price) * item.quantity, restaurant?.currency, i18n.language)}</div>
             </div>
           ))}
           <div className={styles.orderTotal}>
             <span>{t('total')}</span>
-            <span>€{total.toFixed(2)}</span>
+            <span>{formatMoney(total, restaurant?.currency, i18n.language)}</span>
           </div>
         </div>
 

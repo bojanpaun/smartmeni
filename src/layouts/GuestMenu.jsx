@@ -1,5 +1,6 @@
 import { useState, useEffect, useRef } from 'react'
 import { useContentTranslations } from '../lib/useContentTranslations'
+import { formatMoney } from '../lib/currencies'
 import { useParams, useNavigate } from 'react-router-dom'
 import { useTranslation } from 'react-i18next'
 import { supabase } from '../lib/supabase'
@@ -497,8 +498,8 @@ export default function Menu() {
             {isEn ? specialItem.descEn : specialItem.desc}
           </div>
           <div className={styles.specialPrice}>
-            €{specialItem.price}
-            <span className={styles.specialOld}>€{(parseFloat(specialItem.price) * 1.25).toFixed(2)}</span>
+            {formatMoney(specialItem.price, r?.currency, i18n.language)}
+            <span className={styles.specialOld}>{formatMoney(parseFloat(specialItem.price) * 1.25, r?.currency, i18n.language)}</span>
           </div>
         </div>
       )}
@@ -548,7 +549,7 @@ export default function Menu() {
                 </div>
               )}
               <div className={styles.itemFooter}>
-                <span className={styles.itemPrice} style={{ color: tpl.priceColor }}>€{parseFloat(item.price).toFixed(2)}</span>
+                <span className={styles.itemPrice} style={{ color: tpl.priceColor }}>{formatMoney(item.price, r?.currency, i18n.language)}</span>
                 {canOrder && (() => {
                   const qty = cart.find(c => c.id === item.id)?.qty || 0
                   return qty > 0 ? (
@@ -600,7 +601,7 @@ export default function Menu() {
               <span className={styles.cartBarLabel}>{t('viewOrder')}</span>
               <span className={styles.cartBarCount}>{cartCount}</span>
             </div>
-            <span className={styles.cartBarTotal}>€{cartTotal.toFixed(2)}</span>
+            <span className={styles.cartBarTotal}>{formatMoney(cartTotal, r?.currency, i18n.language)}</span>
           </div>
         )}
         {/* Sesija bar — kad je gost ulogovan */}
@@ -749,7 +750,7 @@ export default function Menu() {
                 <span>{selectedItem.prep_time || selectedItem.time || '—'}</span>
               </div>
             </div>
-            <div className={styles.sheetPrice} style={{ color: tpl.priceColor }}>€{parseFloat(selectedItem.price).toFixed(2)}</div>
+            <div className={styles.sheetPrice} style={{ color: tpl.priceColor }}>{formatMoney(selectedItem.price, r?.currency, i18n.language)}</div>
             {canOrder && (
               <button
                 className={styles.sheetAdd}
@@ -788,13 +789,13 @@ export default function Menu() {
                         <span className={styles.cartQty}>{item.qty}</span>
                         <button className={styles.cartQtyBtn} onClick={() => addToCart(item)}>+</button>
                       </div>
-                      <div className={styles.cartItemPrice}>€{(parseFloat(item.price) * item.qty).toFixed(2)}</div>
+                      <div className={styles.cartItemPrice}>{formatMoney(parseFloat(item.price) * item.qty, r?.currency, i18n.language)}</div>
                     </div>
                   ))}
                 </div>
                 <div className={styles.cartTotal}>
                   <span>{t('total')}</span>
-                  <span>€{cartTotal.toFixed(2)}</span>
+                  <span>{formatMoney(cartTotal, r?.currency, i18n.language)}</span>
                 </div>
                 <button
                   className={styles.sheetAdd}
@@ -859,7 +860,7 @@ export default function Menu() {
                 <div key={item.id} className={styles.cartItem}>
                   <div className={styles.cartItemName}>{item.name}</div>
                   <div className={styles.cartQty}>×{item.qty}</div>
-                  <div className={styles.cartItemPrice}>€{(parseFloat(item.price) * item.qty).toFixed(2)}</div>
+                  <div className={styles.cartItemPrice}>{formatMoney(parseFloat(item.price) * item.qty, r?.currency, i18n.language)}</div>
                 </div>
               ))}
             </div>

@@ -2,10 +2,12 @@ import { useState } from 'react'
 import { useTranslation } from 'react-i18next'
 import { supabase } from '../../../lib/supabase'
 import { useCart } from '../../../context/CartContext'
+import { formatMoney } from '../../../lib/currencies'
 import styles from './CartSheet.module.css'
 
 export default function CartSheet({ restaurant, onClose, onOrderPlaced }) {
-  const { t } = useTranslation('menu')
+  const { t, i18n } = useTranslation('menu')
+  const money = (amt) => formatMoney(amt, restaurant?.currency, i18n.language)
   const { items, removeItem, updateQuantity, updateNote, clearCart, total, tableNumber, setTableNumber } = useCart()
   const [step, setStep] = useState('cart') // cart | table | confirm | tracking
   const [order, setOrder] = useState(null)
@@ -107,7 +109,7 @@ export default function CartSheet({ restaurant, onClose, onOrderPlaced }) {
                       <div className={styles.cartItemEmoji}>{item.emoji}</div>
                       <div className={styles.cartItemBody}>
                         <div className={styles.cartItemName}>{item.name}</div>
-                        <div className={styles.cartItemPrice}>€{(parseFloat(item.price) * item.quantity).toFixed(2)}</div>
+                        <div className={styles.cartItemPrice}>{money(parseFloat(item.price) * item.quantity)}</div>
                         <input
                           className={styles.noteInput}
                           placeholder={t('cartNotePh')}
@@ -125,7 +127,7 @@ export default function CartSheet({ restaurant, onClose, onOrderPlaced }) {
                 </div>
                 <div className={styles.totalRow}>
                   <span>{t('cartTotal')}</span>
-                  <span className={styles.totalAmount}>€{total.toFixed(2)}</span>
+                  <span className={styles.totalAmount}>{money(total)}</span>
                 </div>
                 <button
                   className={styles.orderBtn}
@@ -214,7 +216,7 @@ export default function CartSheet({ restaurant, onClose, onOrderPlaced }) {
 
             <div className={styles.orderSummary}>
               <div className={styles.summaryTitle}>{t('cartYourOrder')} · {t('tableLabel', { n: order.table_number })}</div>
-              <div className={styles.summaryTotal}>€{parseFloat(order.total).toFixed(2)}</div>
+              <div className={styles.summaryTotal}>{money(order.total)}</div>
             </div>
 
             <button className={styles.closeOrderBtn} onClick={onClose}>

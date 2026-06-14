@@ -3,6 +3,7 @@ import { useParams } from 'react-router-dom'
 import { useTranslation } from 'react-i18next'
 import { supabase } from '../../../lib/supabase'
 import { goToPaymentSession } from '../../../lib/payments'
+import { toMinorUnits, formatMoney } from '../../../lib/currencies'
 import LanguageSwitcher from '../../../i18n/LanguageSwitcher'
 import GuestSpaTab from './GuestSpaTab'
 import styles from './GuestApp.module.css'
@@ -158,8 +159,8 @@ export default function GuestAppPage() {
         restaurantId:    restaurant.id,
         sourceType:      'folio',
         sourceId:        folioId,
-        amountMinor:     Math.round(folioTotal * 100),
-        currency:        'EUR',
+        amountMinor:     toMinorUnits(folioTotal, restaurant?.currency || 'EUR'),
+        currency:        restaurant?.currency || 'EUR',
         idempotencyKey,
         successUrl,
         cancelUrl,
@@ -351,7 +352,7 @@ export default function GuestAppPage() {
                 <span className={styles.infoIcon}>💳</span>
                 <div>
                   <div className={styles.infoLabel}>{t('total')}</div>
-                  <div className={styles.infoVal}>€{Number(session.total_amount || 0).toFixed(2)}</div>
+                  <div className={styles.infoVal}>{formatMoney(session.total_amount || 0, restaurant?.currency, i18n.language)}</div>
                 </div>
               </div>
               {session.special_requests && (
@@ -383,6 +384,7 @@ export default function GuestAppPage() {
           <div className={styles.requestsTab}>
             <GuestSpaTab
               restaurantId={restaurant.id}
+              currency={restaurant.currency}
               session={session}
             />
           </div>
@@ -529,17 +531,17 @@ export default function GuestAppPage() {
                       <div className={styles.folioDesc}>
                         <div className={styles.folioDescText}>{item.description}</div>
                         {item.quantity !== 1 && (
-                          <div className={styles.folioQty}>{item.quantity} × €{Number(item.unit_price).toFixed(2)}</div>
+                          <div className={styles.folioQty}>{item.quantity} × {formatMoney(item.unit_price, restaurant?.currency, i18n.language)}</div>
                         )}
                       </div>
-                      <div className={styles.folioAmt}>€{Number(item.total_price || 0).toFixed(2)}</div>
+                      <div className={styles.folioAmt}>{formatMoney(item.total_price || 0, restaurant?.currency, i18n.language)}</div>
                     </div>
                   ))}
                 </div>
 
                 <div className={styles.folioTotal}>
                   <span>{t('total')}</span>
-                  <span>€{Number(folio[0]?.folio_total || 0).toFixed(2)}</span>
+                  <span>{formatMoney(folio[0]?.folio_total || 0, restaurant?.currency, i18n.language)}</span>
                 </div>
 
                 {folioPaidSuccess && (

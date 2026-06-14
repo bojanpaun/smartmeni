@@ -3,6 +3,7 @@ import { useParams, useNavigate } from 'react-router-dom'
 import { useTranslation } from 'react-i18next'
 import { usePlatform } from '../../../context/PlatformContext'
 import { supabase } from '../../../lib/supabase'
+import { toMinorUnits, fromMinorUnits } from '../../../lib/currencies'
 import LoadingSpinner from '../../../components/shared/LoadingSpinner'
 import toast from 'react-hot-toast'
 import styles from './Hotel.module.css'
@@ -278,7 +279,8 @@ export default function FolioPage() {
 
   const handleRefund = async () => {
     if (!paymentTx) return
-    const paidEur = paymentTx.amount_minor / 100
+    const txCur = paymentTx.currency || restaurant?.currency || 'EUR'
+    const paidEur = fromMinorUnits(paymentTx.amount_minor, txCur)
     const inputEur = parseFloat(refundAmount) || paidEur
     if (inputEur <= 0 || inputEur > paidEur) {
       return toast.error(t('flRefundRange', { max: paidEur.toFixed(2) }))
@@ -295,7 +297,7 @@ export default function FolioPage() {
           body: JSON.stringify({
             restaurantId: restaurant.id,
             transactionId: paymentTx.id,
-            amountMinor: Math.round(inputEur * 100),
+            amountMinor: toMinorUnits(inputEur, txCur),
           }),
         }
       )
@@ -328,8 +330,8 @@ export default function FolioPage() {
             restaurantId:    restaurant.id,
             sourceType:      'folio',
             sourceId:        folio.id,
-            amountMinor:     Math.round(balance * 100),
-            currency:        'EUR',
+            amountMinor:     toMinorUnits(balance, restaurant?.currency || 'EUR'),
+            currency:        restaurant?.currency || 'EUR',
             idempotencyKey,
             successUrl,
             cancelUrl,

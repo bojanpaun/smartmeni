@@ -3,6 +3,7 @@ import { useParams } from 'react-router-dom'
 import { useTranslation } from 'react-i18next'
 import { supabase } from '../lib/supabase'
 import { goToPaymentSession } from '../lib/payments'
+import { toMinorUnits, formatMoney } from '../lib/currencies'
 import { useContentTranslations } from '../lib/useContentTranslations'
 import LanguageSwitcher from '../i18n/LanguageSwitcher'
 import styles from './SpaBookingPage.module.css'
@@ -81,7 +82,7 @@ export default function SpaBookingPage() {
     async function load() {
       const { data: rest } = await supabase
         .from('restaurants')
-        .select('id, name, logo_url, slug')
+        .select('id, name, logo_url, slug, currency')
         .ilike('slug', slug)
         .single()
       if (!rest) { setLoadingRest(false); return }
@@ -188,8 +189,8 @@ export default function SpaBookingPage() {
               restaurantId: restaurant.id,
               sourceType:   'spa',
               sourceId:     data.appointment_id,
-              amountMinor:  Math.round(Number(selectedSlot.price) * 100),
-              currency:     'EUR',
+              amountMinor:  toMinorUnits(selectedSlot.price, restaurant?.currency || 'EUR'),
+              currency:     restaurant?.currency || 'EUR',
               idempotencyKey: data.appointment_id,
               successUrl:   `${window.location.origin}/${slug}/spa?paid=1`,
               cancelUrl:    `${window.location.origin}/${slug}/spa?cancelled=1`,
@@ -339,11 +340,11 @@ export default function SpaBookingPage() {
                         <div className={styles.serviceName}>{svcName(svc)}</div>
                         <div className={styles.serviceMeta}>
                           <span>⏱ {svc.duration_minutes} min</span>
-                          {svc.price_couple && <span>👫 €{Number(svc.price_couple).toFixed(0)}/{t('perCouple')}</span>}
+                          {svc.price_couple && <span>👫 {formatMoney(svc.price_couple, restaurant?.currency, i18n.language)}/{t('perCouple')}</span>}
                         </div>
                         {svc.description && <p className={styles.serviceDesc}>{svcDesc(svc)}</p>}
                         <div className={styles.serviceFooter}>
-                          <span className={styles.servicePrice}>€{Number(svc.price).toFixed(2)}</span>
+                          <span className={styles.servicePrice}>{formatMoney(svc.price, restaurant?.currency, i18n.language)}</span>
                           <button className={styles.selectBtn}>{t('selectBtn')}</button>
                         </div>
                       </div>
@@ -362,7 +363,7 @@ export default function SpaBookingPage() {
             <h2 className={styles.stepTitle}>{t('chooseDate')}</h2>
             <div className={styles.summaryBox}>
               <strong>{CATEGORY_ICON[selectedService.category]} {svcName(selectedService)}</strong>
-              <span className={styles.summaryMeta}>⏱ {selectedService.duration_minutes} min · €{Number(selectedService.price).toFixed(2)}</span>
+              <span className={styles.summaryMeta}>⏱ {selectedService.duration_minutes} min · {formatMoney(selectedService.price, restaurant?.currency, i18n.language)}</span>
             </div>
             <div className={styles.fieldGroup}>
               <label className={styles.fieldLabel}>{t('treatmentDate')}</label>
@@ -419,7 +420,7 @@ export default function SpaBookingPage() {
                     {slot.therapist_name && (
                       <div className={styles.slotTherapist}>{slot.therapist_name}</div>
                     )}
-                    <div className={styles.slotPrice}>€{Number(slot.price).toFixed(0)}</div>
+                    <div className={styles.slotPrice}>{formatMoney(slot.price, restaurant?.currency, i18n.language)}</div>
                   </button>
                 ))}
               </div>
@@ -491,7 +492,7 @@ export default function SpaBookingPage() {
               <div className={styles.summaryDivider} />
               <div className={`${styles.summaryRow} ${styles.summaryTotal}`}>
                 <span>{t('total')}</span>
-                <span>€{Number(selectedSlot?.price || 0).toFixed(2)}</span>
+                <span>{formatMoney(selectedSlot?.price || 0, restaurant?.currency, i18n.language)}</span>
               </div>
             </div>
 
@@ -562,7 +563,7 @@ export default function SpaBookingPage() {
                 </div>
                 <div className={styles.confirmRow}>
                   <span>{t('total')}</span>
-                  <span>€{Number(confirmation.price).toFixed(2)}</span>
+                  <span>{formatMoney(confirmation.price, restaurant?.currency, i18n.language)}</span>
                 </div>
               </div>
               <button className={styles.btnSecondary} onClick={() => { setStep(0); setConfirmation(null); setSelectedService(null); setSelectedSlot(null) }}>

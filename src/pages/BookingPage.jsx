@@ -4,6 +4,7 @@ import { useTranslation, Trans } from 'react-i18next'
 import { supabase } from '../lib/supabase'
 import { goToPaymentSession } from '../lib/payments'
 import { useContentTranslations } from '../lib/useContentTranslations'
+import { toMinorUnits, formatMoney } from '../lib/currencies'
 import LanguageSwitcher from '../i18n/LanguageSwitcher'
 import styles from './BookingPage.module.css'
 
@@ -64,7 +65,7 @@ export default function BookingPage() {
   useEffect(() => {
     supabase
       .from('restaurants')
-      .select('id, name, slug, logo_url, booking_mode')
+      .select('id, name, slug, logo_url, booking_mode, currency')
       .eq('slug', slug)
       .single()
       .then(({ data }) => {
@@ -202,8 +203,8 @@ export default function BookingPage() {
             restaurantId:    restaurant.id,
             sourceType:      'booking',
             sourceId:        null,
-            amountMinor:     Math.round(totalAmount * 100), // EUR → centi
-            currency:        'EUR',
+            amountMinor:     toMinorUnits(totalAmount, restaurant?.currency || 'EUR'),
+            currency:        restaurant?.currency || 'EUR',
             idempotencyKey,
             successUrl:      `${window.location.origin}/${slug}/book`,
             cancelUrl:       `${window.location.origin}/${slug}/book?cancelled=1`,
@@ -468,9 +469,9 @@ export default function BookingPage() {
                       </div>
                       <div className={styles.roomPrice}>
                         <div className={styles.roomPriceLabel}>{room.has_packages ? t('room.from') : ''}</div>
-                        <div className={styles.roomPriceVal}>€{Number(room.price_per_night).toFixed(2)}</div>
+                        <div className={styles.roomPriceVal}>{formatMoney(room.price_per_night, restaurant?.currency, lang)}</div>
                         <div className={styles.roomPriceSub}>{t('room.perNight')}</div>
-                        <div className={styles.roomPriceTotal}>€{(room.price_per_night * nights).toFixed(2)} {t('room.total')}</div>
+                        <div className={styles.roomPriceTotal}>{formatMoney(room.price_per_night * nights, restaurant?.currency, lang)} {t('room.total')}</div>
                         <button className={styles.btnSelect} onClick={() => handleSelectRoom(room)}>
                           {isExpanded ? t('room.close') : room.has_packages ? t('room.selectPackage') : t('room.select')}
                         </button>
@@ -502,7 +503,7 @@ export default function BookingPage() {
                                   {pkg.plan_description && <span className={styles.pkgDesc}>{tr('rate_plan', pkg.rate_plan_id, 'description', pkg.plan_description)}</span>}
                                 </div>
                                 <div className={styles.pkgPrices}>
-                                  <span className={styles.pkgPrice}>€{Number(pkg.price_per_night).toFixed(2)}</span>
+                                  <span className={styles.pkgPrice}>{formatMoney(pkg.price_per_night, restaurant?.currency, lang)}</span>
                                   <span className={styles.pkgPriceSub}>{t('room.perNight')}</span>
                                 </div>
                               </label>
@@ -542,7 +543,7 @@ export default function BookingPage() {
                 {selectedPackage && <span className={styles.summaryPackage}> — {tr('rate_plan', selectedPackage.rate_plan_id, 'name', selectedPackage.plan_name)}</span>}
               </strong>
               <span className={styles.summaryMeta}>
-                {formatDate(checkIn, lang)} — {formatDate(checkOut, lang)} · {t('date.nights', { count: nights })} · €{totalAmount.toFixed(2)}
+                {formatDate(checkIn, lang)} — {formatDate(checkOut, lang)} · {t('date.nights', { count: nights })} · {formatMoney(totalAmount, restaurant?.currency, lang)}
               </span>
             </div>
 
@@ -625,7 +626,7 @@ export default function BookingPage() {
               <div className={styles.summaryDivider} />
               <div className={`${styles.summaryRow} ${styles.summaryTotal}`}>
                 <span>{t('payment.total')}</span>
-                <span>€{totalAmount.toFixed(2)}</span>
+                <span>{formatMoney(totalAmount, restaurant?.currency, lang)}</span>
               </div>
             </div>
 
@@ -701,7 +702,7 @@ export default function BookingPage() {
                   </div>
                   <div className={styles.confirmRow}>
                     <span>{t('confirm.paid')}</span>
-                    <span>€{Number(confirmation.total_amount).toFixed(2)}</span>
+                    <span>{formatMoney(confirmation.total_amount, restaurant?.currency, lang)}</span>
                   </div>
                 </div>
                 <a href={`/${slug}`} className={styles.btnSecondary}>{t('confirm.backToMenu')}</a>
