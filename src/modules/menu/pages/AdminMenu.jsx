@@ -8,6 +8,7 @@ import { supabase } from '../../../lib/supabase'
 import { usePlatform } from '../../../context/PlatformContext'
 import { stripAccountFields } from '../../../lib/planUtils'
 import { translateContent, menuItemFields } from '../../../lib/contentTranslate'
+import { useContentTranslations } from '../../../lib/useContentTranslations'
 import RecipeLibraryPicker from '../components/RecipeLibraryPicker'
 import ContentTranslations from '../../../components/shared/ContentTranslations'
 import styles from './AdminMenu.module.css'
@@ -15,7 +16,7 @@ import gsStyles from './GeneralSettings.module.css'
 
 // Pilula kategorije koja se može prevlačiti (DnD redoslijed = redoslijed na javnom
 // meniju, sort_order). Distance-aktivacija (5px) razlikuje klik (izbor) od prevlačenja.
-function SortableCatTab({ cat, active, onSelect, barLabel }) {
+function SortableCatTab({ cat, active, onSelect, barLabel, name }) {
   const { attributes, listeners, setNodeRef, transform, transition, isDragging } = useSortable({ id: cat.id })
   return (
     <button
@@ -31,7 +32,7 @@ function SortableCatTab({ cat, active, onSelect, barLabel }) {
       }}
     >
       <span className={styles.catTabGrip} aria-hidden="true">⠿</span>
-      {cat.icon} {cat.name}
+      {cat.icon} {name}
       {cat.is_bar && <span className={styles.barBadge}>{barLabel}</span>}
     </button>
   )
@@ -51,6 +52,11 @@ export default function AdminMenu() {
   const { user, restaurant: ctxRestaurant } = usePlatform()
 
   const [restaurant, setRestaurant] = useState(ctxRestaurant)
+  // Prevod tenant-sadržaja na jeziku admina (Sloj B). PRIKAZ (tabovi/lista/dropdown)
+  // čita prevod; polja za UNOS ostaju na izvoru (master). Za 'me'/bez prevoda → izvor.
+  const tr = useContentTranslations(restaurant?.id)
+  const catName = (c) => tr('category', c.id, 'name', c.name)
+  const itemName = (it) => tr('menu_item', it.id, 'name', it.name)
   const [categories, setCategories] = useState([])
   const [items, setItems] = useState([])
   const [loading, setLoading] = useState(true)
@@ -222,8 +228,8 @@ export default function AdminMenu() {
   const deleteCategory = async (cat) => {
     const itemCount = items.filter(i => i.category_id === cat.id).length
     const msg = itemCount > 0
-      ? t('amConfirmDeleteCatItems', { name: cat.name, count: itemCount })
-      : t('amConfirmDeleteCat', { name: cat.name })
+      ? t('amConfirmDeleteCatItems', { name: catName(cat), count: itemCount })
+      : t('amConfirmDeleteCat', { name: catName(cat) })
     if (!confirm(msg)) return
     // menu_items.category_id ima ON DELETE CASCADE — stavke u kategoriji se brišu zajedno.
     await supabase.from('categories').delete().eq('id', cat.id).eq('restaurant_id', restaurant.id)
@@ -339,6 +345,7 @@ export default function AdminMenu() {
                       <SortableCatTab
                         key={cat.id}
                         cat={cat}
+                        name={catName(cat)}
                         active={activeCategory === cat.id}
                         onSelect={() => setActiveCategory(cat.id)}
                         barLabel={t('navBar')}
@@ -465,8 +472,8 @@ export default function AdminMenu() {
                           </div>
                         </td>
                         <td>
-                          <div className={styles.itemName}>{item.name}</div>
-                          {item.description && <div className={styles.itemDesc}>{item.description.slice(0, 40)}…</div>}
+                          <div className={styles.itemName}>{itemName(item)}</div>
+                          {item.description && <div className={styles.itemDesc}>{tr('menu_item', item.id, 'description', item.description).slice(0, 40)}…</div>}
                           {/* Mobilni: cijena + status + vidljivost ispod naziva (kolone skrivene) */}
                           <div className={styles.mobileInfo}>
                             <span className={styles.itemPrice}>€{parseFloat(item.price).toFixed(2)}</span>
@@ -606,7 +613,7 @@ export default function AdminMenu() {
                   <label>{t('amCategory')}</label>
                   <select value={itemForm.category_id} onChange={e => setItemForm(f => ({...f, category_id: e.target.value}))}>
                     <option value="">{t('amChoose')}</option>
-                    {categories.map(c => <option key={c.id} value={c.id}>{c.name}</option>)}
+                    {categories.map(c => <option key={c.id} value={c.id}>{catName(c)}</option>)}
                   </select>
                 </div>
                 <div className={styles.field}>
