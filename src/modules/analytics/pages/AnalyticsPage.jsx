@@ -4,6 +4,7 @@ import { useState, useEffect } from 'react'
 import { useTranslation } from 'react-i18next'
 import { supabase } from '../../../lib/supabase'
 import { usePlatform } from '../../../context/PlatformContext'
+import { formatMoney } from '../../../lib/currencies'
 import styles from './AnalyticsPage.module.css'
 import nav from '../../../styles/nav.module.css'
 
@@ -183,6 +184,7 @@ export default function AnalyticsPage() {
   const { restaurant } = usePlatform()
   const { t, i18n } = useTranslation('admin')
   const dl = i18n.language === 'en' ? 'en-US' : 'sr-Latn'
+  const money = (a) => formatMoney(a, restaurant?.currency, i18n.language)
   const [period, setPeriod] = useState('month')
   const [customStart, setCustomStart] = useState('')
   const [customEnd, setCustomEnd] = useState('')
@@ -560,26 +562,26 @@ export default function AnalyticsPage() {
             <div className={styles.profitRow}>
               <div className={styles.profitItem}>
                 <div className={styles.profitLabel}>{t('anaTotalRevenue')}</div>
-                <div className={styles.profitValue}>€{d.totalRevenue.toFixed(2)}</div>
+                <div className={styles.profitValue}>{money(d.totalRevenue)}</div>
                 <Trend current={d.totalRevenue} prev={d.prevRevenue} />
               </div>
               <div className={styles.profitMinus}>−</div>
               <div className={styles.profitItem}>
                 <div className={styles.profitLabel}>{t('anaIngredientCost')}</div>
-                <div className={styles.profitValue}>€{d.ingredientCost.toFixed(2)}</div>
+                <div className={styles.profitValue}>{money(d.ingredientCost)}</div>
                 {d.foodCostPct !== null && <div className={styles.profitPct}>{t('anaOfRevenue', { pct: d.foodCostPct.toFixed(1) })}</div>}
               </div>
               <div className={styles.profitMinus}>−</div>
               <div className={styles.profitItem}>
                 <div className={styles.profitLabel}>{t('anaLaborCost')}</div>
-                <div className={styles.profitValue}>€{d.laborCost.toFixed(2)}</div>
+                <div className={styles.profitValue}>{money(d.laborCost)}</div>
                 {d.laborPct !== null && <div className={styles.profitPct}>{t('anaOfRevenue', { pct: d.laborPct.toFixed(1) })}</div>}
               </div>
               <div className={styles.profitEquals}>=</div>
               <div className={`${styles.profitItem} ${styles.profitResult}`}>
                 <div className={styles.profitLabel}>{t('anaOpProfit')}</div>
                 <div className={`${styles.profitValue} ${d.operatingProfit >= 0 ? styles.profitPos : styles.profitNeg}`}>
-                  €{d.operatingProfit.toFixed(2)}
+                  {money(d.operatingProfit)}
                 </div>
                 {d.operatingMargin !== null && (
                   <div className={`${styles.profitPct} ${d.operatingMargin >= 0 ? styles.profitPos : styles.profitNeg}`}>
@@ -604,7 +606,7 @@ export default function AnalyticsPage() {
             </div>
             <div className={styles.kpiCard}>
               <div className={styles.kpiLabel}>{t('anaAvgOrder')}</div>
-              <div className={styles.kpiValue}>€{d.avgOrder.toFixed(2)}</div>
+              <div className={styles.kpiValue}>{money(d.avgOrder)}</div>
               <Trend current={d.avgOrder} prev={d.prevAvg} />
             </div>
             <div className={styles.kpiCard}>
@@ -622,7 +624,7 @@ export default function AnalyticsPage() {
           {d.dailyData.length > 1 && (
             <div className={styles.section}>
               <div className={styles.sectionTitle}>{t('anaRevenuePerDay')}</div>
-              <BarChart data={d.dailyData} valueKey="revenue" labelKey="day" color="#0d7a52" formatValue={v => `€${v.toFixed(2)}`} />
+              <BarChart data={d.dailyData} valueKey="revenue" labelKey="day" color="#0d7a52" formatValue={v => money(v)} />
             </div>
           )}
 
@@ -678,7 +680,7 @@ export default function AnalyticsPage() {
                     <span className={`${styles.itemRank} ${i < 3 ? styles[`rank${i+1}`] : ''}`}>{i + 1}</span>
                     <span className={styles.itemName}>{item.name}</span>
                     <span className={styles.itemQty}>{item.quantity} {t('anaPieces')}</span>
-                    <span className={styles.itemRevenue}>€{item.revenue.toFixed(2)}</span>
+                    <span className={styles.itemRevenue}>{money(item.revenue)}</span>
                     <div className={styles.itemBar}>
                       <div className={styles.itemBarFill} style={{ width: `${(item.quantity / maxItem) * 100}%` }} />
                     </div>
@@ -695,7 +697,7 @@ export default function AnalyticsPage() {
               <div className={styles.hBarList}>
                 {d.catData.map((cat, i) => (
                   <HBar key={i} value={cat.revenue} max={d.catData[0]?.revenue || 1}
-                    label={cat.name} sub={`€${cat.revenue.toFixed(2)} · ${cat.quantity} ${t('anaSold')}`} color="#0d7a52" />
+                    label={cat.name} sub={`${money(cat.revenue)} · ${cat.quantity} ${t('anaSold')}`} color="#0d7a52" />
                 ))}
               </div>
             </div>
@@ -709,12 +711,12 @@ export default function AnalyticsPage() {
           <div className={styles.twoCol}>
             <div className={styles.kpiCard}>
               <div className={styles.kpiLabel}>{t('anaTotalIngredientCost')}</div>
-              <div className={styles.kpiValue}>€{d.ingredientCost.toFixed(2)}</div>
+              <div className={styles.kpiValue}>{money(d.ingredientCost)}</div>
               {d.foodCostPct !== null && <div className={styles.kpiSub}>{t('anaPctOfRevenue2', { pct: d.foodCostPct.toFixed(1) })}</div>}
             </div>
             <div className={styles.kpiCard}>
               <div className={styles.kpiLabel}>{t('anaFrozenCapital')}</div>
-              <div className={styles.kpiValue}>€{d.frozenCapital.reduce((s, i) => s + i.value, 0).toFixed(2)}</div>
+              <div className={styles.kpiValue}>{money(d.frozenCapital.reduce((s, i) => s + i.value, 0))}</div>
               <div className={styles.kpiSub}>{t('anaItemsNoConsumption', { count: d.frozenCapital.length })}</div>
             </div>
           </div>
@@ -728,7 +730,7 @@ export default function AnalyticsPage() {
                   {d.topConsumed.map((ing, i) => (
                     <HBar key={i} value={ing.cost} max={maxConsumed}
                       label={ing.name}
-                      sub={`${ing.consumed.toFixed(3)} ${ing.unit} · €${ing.cost.toFixed(2)}`}
+                      sub={`${ing.consumed.toFixed(3)} ${ing.unit} · ${money(ing.cost)}`}
                       color="#ef9f27" />
                   ))}
                 </div>
@@ -745,7 +747,7 @@ export default function AnalyticsPage() {
                     {d.topReplenish.map((ing, i) => (
                       <HBar key={i} value={ing.cost} max={maxReplenish}
                         label={ing.name}
-                        sub={`${ing.count}× · ${ing.quantity.toFixed(2)} ${ing.unit} · €${ing.cost.toFixed(2)}`}
+                        sub={`${ing.count}× · ${ing.quantity.toFixed(2)} ${ing.unit} · ${money(ing.cost)}`}
                         color="#0d7a52" />
                     ))}
                   </div>
@@ -761,7 +763,7 @@ export default function AnalyticsPage() {
                     {d.topWaste.map((ing, i) => (
                       <HBar key={i} value={ing.cost} max={maxWaste}
                         label={ing.name}
-                        sub={`${ing.count}× · ${ing.quantity.toFixed(2)} ${ing.unit} · €${ing.cost.toFixed(2)}`}
+                        sub={`${ing.count}× · ${ing.quantity.toFixed(2)} ${ing.unit} · ${money(ing.cost)}`}
                         color="#c0392b" />
                     ))}
                   </div>
@@ -779,14 +781,14 @@ export default function AnalyticsPage() {
                   <div key={i} className={styles.frozenItem}>
                     <span className={styles.frozenName}>{item.name}</span>
                     <span className={styles.frozenQty}>{item.quantity.toFixed(2)} {item.unit}</span>
-                    <span className={styles.frozenValue}>€{item.value.toFixed(2)}</span>
+                    <span className={styles.frozenValue}>{money(item.value)}</span>
                   </div>
                 ))}
                 <div className={styles.frozenTotal}>
                   <span>{t('anaTotalFrozen')}</span>
                   <span></span>
                   <span className={styles.frozenTotalVal}>
-                    €{d.frozenCapital.reduce((s, i) => s + i.value, 0).toFixed(2)}
+                    {money(d.frozenCapital.reduce((s, i) => s + i.value, 0))}
                   </span>
                 </div>
               </div>
@@ -845,7 +847,7 @@ export default function AnalyticsPage() {
                 {d.topTables.map((tbl, i) => (
                   <HBar key={i} value={tbl.revenue} max={maxTable}
                     label={tbl.table}
-                    sub={`€${tbl.revenue.toFixed(2)} · ${tbl.orders} ${t('anaOrders')}`}
+                    sub={`${money(tbl.revenue)} · ${tbl.orders} ${t('anaOrders')}`}
                     badge={tbl.reservations > 0 ? `${tbl.reservations} ${t('anaResShort')}` : null}
                     color="#0d7a52" />
                 ))}
@@ -880,14 +882,14 @@ export default function AnalyticsPage() {
                       <span className={styles.staffWageType}>
                         {emp.wage_type === 'hourly' ? t('anaWageHourly') : emp.wage_type === 'weekly' ? t('anaWageWeekly') : t('anaWageMonthly')}
                       </span>
-                      <span>€{amt.toFixed(2)}</span>
-                      <span className={styles.staffForPeriod}>€{forPeriod.toFixed(2)}</span>
+                      <span>{money(amt)}</span>
+                      <span className={styles.staffForPeriod}>{money(forPeriod)}</span>
                     </div>
                   )
                 })}
                 <div className={styles.staffTotal}>
                   <span>{t('anaTotalForPeriod')}</span><span></span><span></span>
-                  <span>€{d.laborCost.toFixed(2)}</span>
+                  <span>{money(d.laborCost)}</span>
                 </div>
               </div>
             )}

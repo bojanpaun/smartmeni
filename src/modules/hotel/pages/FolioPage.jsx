@@ -3,7 +3,7 @@ import { useParams, useNavigate } from 'react-router-dom'
 import { useTranslation } from 'react-i18next'
 import { usePlatform } from '../../../context/PlatformContext'
 import { supabase } from '../../../lib/supabase'
-import { toMinorUnits, fromMinorUnits } from '../../../lib/currencies'
+import { toMinorUnits, fromMinorUnits, formatMoney, currencyMeta } from '../../../lib/currencies'
 import LoadingSpinner from '../../../components/shared/LoadingSpinner'
 import toast from 'react-hot-toast'
 import styles from './Hotel.module.css'
@@ -19,6 +19,8 @@ export default function FolioPage() {
   const { t, i18n } = useTranslation('admin')
   const dl = i18n.language === 'en' ? 'en-US' : 'sr-Latn'
   const { restaurant } = usePlatform()
+  const money = (a) => formatMoney(a, restaurant?.currency, i18n.language)
+  const curSym = currencyMeta(restaurant?.currency).symbol
 
   const [reservation, setReservation] = useState(null)
   const [folios, setFolios] = useState([])        // svi folji rezervacije (split)
@@ -420,16 +422,16 @@ export default function FolioPage() {
         </div>
         <div className={styles.folioSummaryItem}>
           <span className={styles.folioSummaryLabel}>{t('flTotal')}</span>
-          <span className={styles.folioSummaryVal}>€{computedTotal.toFixed(2)}</span>
+          <span className={styles.folioSummaryVal}>{money(computedTotal)}</span>
         </div>
         <div className={styles.folioSummaryItem}>
           <span className={styles.folioSummaryLabel}>{t('htPayPaid')}</span>
-          <span className={styles.folioSummaryVal}>€{parseFloat(folio.paid_amount || 0).toFixed(2)}</span>
+          <span className={styles.folioSummaryVal}>{money(folio.paid_amount || 0)}</span>
         </div>
         <div className={styles.folioSummaryItem}>
           <span className={styles.folioSummaryLabel}>{t('flBalance')}</span>
           <span className={`${styles.folioSummaryVal} ${balance > 0 ? styles.folioBalanceDue : styles.folioBalancePaid}`}>
-            €{balance.toFixed(2)}
+            {money(balance)}
           </span>
         </div>
         {folio.status === 'open' && balance > 0 && paymentProvider && (
@@ -439,7 +441,7 @@ export default function FolioPage() {
               onClick={handleFolioPayment}
               disabled={payLoading}
             >
-              {payLoading ? t('flRedirecting') : '💳 ' + t('flPayCard') + ' (€' + balance.toFixed(2) + ')'}
+              {payLoading ? t('flRedirecting') : '💳 ' + t('flPayCard') + ' (' + money(balance) + ')'}
             </button>
           </div>
         )}
@@ -454,7 +456,7 @@ export default function FolioPage() {
                 💳 {t('flOnlinePaymentLogged')}
               </div>
               <div style={{ fontSize: 13, color: '#78350f', marginTop: 4 }}>
-                €{(paymentTx.amount_minor / 100).toFixed(2)} via {paymentTx.provider} · {new Date(paymentTx.created_at).toLocaleDateString(dl)}
+                {money(fromMinorUnits(paymentTx.amount_minor, paymentTx.currency || restaurant?.currency))} via {paymentTx.provider} · {new Date(paymentTx.created_at).toLocaleDateString(dl)}
               </div>
             </div>
             {!showRefund && (
@@ -470,7 +472,7 @@ export default function FolioPage() {
                 {t('flRefundAmount', { max: (paymentTx.amount_minor / 100).toFixed(2) })}
               </div>
               <div style={{ display: 'flex', gap: 8, alignItems: 'center', marginBottom: 8 }}>
-                <span style={{ fontSize: 15, fontWeight: 700 }}>€</span>
+                <span style={{ fontSize: 15, fontWeight: 700 }}>{curSym}</span>
                 <input
                   className={styles.input}
                   type="number"
@@ -528,7 +530,7 @@ export default function FolioPage() {
                   <select className={styles.input} value={minibarItemId} onChange={e => setMinibarItemId(e.target.value)}>
                     <option value="">{t('flSelect')}</option>
                     {minibarList.map(m => (
-                      <option key={m.id} value={m.id}>{m.name} — €{Number(m.price).toFixed(2)}</option>
+                      <option key={m.id} value={m.id}>{m.name} — {money(m.price)}</option>
                     ))}
                   </select>
                 </div>
@@ -564,7 +566,7 @@ export default function FolioPage() {
                     <option value="">{t('flSelect')}</option>
                     {retailList.map(r => (
                       <option key={r.id} value={r.id}>
-                        {r.name}{r.brand ? ` (${r.brand})` : ''} — €{Number(r.price).toFixed(2)} · {t('flStock', { n: r.stock_quantity })}
+                        {r.name}{r.brand ? ` (${r.brand})` : ''} — {money(r.price)} · {t('flStock', { n: r.stock_quantity })}
                       </option>
                     ))}
                   </select>
@@ -613,7 +615,7 @@ export default function FolioPage() {
                 {item.description}
                 {item.quantity !== 1 && <span className={styles.folioQty}> × {item.quantity}</span>}
               </span>
-              <span className={styles.folioAmount}>€{parseFloat(item.total_price).toFixed(2)}</span>
+              <span className={styles.folioAmount}>{money(item.total_price)}</span>
               <span style={{ display: 'flex', gap: 4, alignItems: 'center', justifyContent: 'flex-end' }}>
                 {folio.status === 'open' && folios.length > 1 && (
                   movingItemId === item.id ? (
@@ -645,7 +647,7 @@ export default function FolioPage() {
           {items.length > 0 && (
             <div className={styles.folioTotalRow}>
               <span style={{ gridColumn: '1 / 4', textAlign: 'right', fontWeight: 600, color: '#5a7a6a' }}>{t('flTotal')}</span>
-              <span className={styles.folioAmount} style={{ fontWeight: 700, fontSize: 15 }}>€{computedTotal.toFixed(2)}</span>
+              <span className={styles.folioAmount} style={{ fontWeight: 700, fontSize: 15 }}>{money(computedTotal)}</span>
               <span />
             </div>
           )}
@@ -683,8 +685,8 @@ export default function FolioPage() {
             </div>
             {newItem.unit_price && newItem.quantity && (
               <div className={styles.totalBox}>
-                <span>{newItem.quantity} × €{newItem.unit_price}</span>
-                <strong>= €{(parseFloat(newItem.quantity) * parseFloat(newItem.unit_price)).toFixed(2)}</strong>
+                <span>{newItem.quantity} × {money(newItem.unit_price)}</span>
+                <strong>= {money(parseFloat(newItem.quantity) * parseFloat(newItem.unit_price))}</strong>
               </div>
             )}
           </div>

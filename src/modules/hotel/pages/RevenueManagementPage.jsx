@@ -1,6 +1,7 @@
 import { useState } from 'react'
 import { useTranslation } from 'react-i18next'
 import { usePlatform } from '../../../context/PlatformContext'
+import { formatMoney, currencyMeta } from '../../../lib/currencies'
 import { useRevenueMetrics } from '../hooks/useRevenueMetrics'
 import { supabase } from '../../../lib/supabase'
 import LoadingSpinner from '../../../components/shared/LoadingSpinner'
@@ -14,10 +15,10 @@ import rv from './RevenueManagement.module.css'
 
 // ── Export helpers ────────────────────────────────────────────
 
-function exportCSV(data, kpis, periodDays, restaurantName, t, dl) {
+function exportCSV(data, kpis, periodDays, restaurantName, t, dl, sym) {
   const today = new Date().toLocaleDateString(dl)
   const pct = (v) => v != null ? (v >= 0 ? '+' : '') + v.toFixed(1) + '%' : 'N/A'
-  const eur = (v) => '€' + Number(v || 0).toFixed(2)
+  const eur = (v) => sym + Number(v || 0).toFixed(2)
 
   const lines = [
     `RestByMe — ${t('rvAnalyticsTitle')}`,
@@ -51,16 +52,16 @@ function exportCSV(data, kpis, periodDays, restaurantName, t, dl) {
   URL.revokeObjectURL(url)
 }
 
-function printRevenuePDF(data, kpis, periodDays, restaurantName, suggestions, t, dl) {
+function printRevenuePDF(data, kpis, periodDays, restaurantName, suggestions, t, dl, sym) {
   const today = new Date().toLocaleDateString(dl)
-  const eur = (v) => '€' + Number(v || 0).toFixed(2)
+  const eur = (v) => sym + Number(v || 0).toFixed(2)
   const pctStr = (v) => v != null ? `<span style="color:${v >= 0 ? '#0d7a52' : '#c0392b'}">${v >= 0 ? '▲' : '▼'} ${Math.abs(v).toFixed(1)}%</span>` : '—'
 
   const dailyRows = (data.daily || []).map(d => `
     <tr>
       <td>${d.date}</td>
-      <td>€${Number(d.total_revenue).toFixed(2)}</td>
-      <td>€${Number(d.adr).toFixed(2)}</td>
+      <td>${sym}${Number(d.total_revenue).toFixed(2)}</td>
+      <td>${sym}${Number(d.adr).toFixed(2)}</td>
       <td>${d.reservations_count}</td>
       <td>${d.room_nights_sold}</td>
     </tr>`).join('')
@@ -72,8 +73,8 @@ function printRevenuePDF(data, kpis, periodDays, restaurantName, suggestions, t,
         <td>${s.date}</td>
         <td>${s.occupancy}%</td>
         <td>${s.booked} / ${s.totalRooms}</td>
-        <td>€${s.basePrice}</td>
-        <td><strong>€${s.suggested}</strong></td>
+        <td>${sym}${s.basePrice}</td>
+        <td><strong>${sym}${s.suggested}</strong></td>
       </tr>`).join('')
 
   const html = `<!DOCTYPE html>
@@ -165,14 +166,14 @@ function KpiCard({ label, value, prefix = '€', pct, sub, prevLabel }) {
   )
 }
 
-function CustomTooltip({ active, payload, label }) {
+function CustomTooltip({ active, payload, label, sym = '€' }) {
   if (!active || !payload?.length) return null
   return (
     <div className={rv.tooltip}>
       <div className={rv.tooltipLabel}>{label}</div>
       {payload.map(p => (
         <div key={p.dataKey} style={{ color: p.color }}>
-          {p.name}: {p.dataKey === 'occupancy' ? p.value + '%' : '€' + fmt(p.value)}
+          {p.name}: {p.dataKey === 'occupancy' ? p.value + '%' : sym + fmt(p.value)}
         </div>
       ))}
     </div>
@@ -216,6 +217,8 @@ export default function RevenueManagementPage() {
   const { restaurant } = usePlatform()
   const { t, i18n } = useTranslation('admin')
   const dl = i18n.language === 'en' ? 'en-US' : 'sr-Latn'
+  const curSym = currencyMeta(restaurant?.currency).symbol
+  const money = (a) => formatMoney(a, restaurant?.currency, i18n.language)
   const [periodDays, setPeriodDays] = useState(30)
   const [applyingDate, setApplyingDate] = useState(null)
   const { data, suggestions, loading, error, refetch, cancel } = useRevenueMetrics(restaurant?.id, periodDays)
@@ -303,14 +306,14 @@ export default function RevenueManagementPage() {
             <div className={rv.exportBar}>
               <button
                 className={rv.btnExport}
-                onClick={() => exportCSV(data, data.kpis, periodDays, restaurant.name, t, dl)}
+                onClick={() => exportCSV(data, data.kpis, periodDays, restaurant.name, t, dl, curSym)}
                 title={t('rvCsvTitle2')}
               >
                 ⬇ CSV
               </button>
               <button
                 className={rv.btnExport}
-                onClick={() => printRevenuePDF(data, data.kpis, periodDays, restaurant.name, suggestions, t, dl)}
+                onClick={() => printRevenuePDF(data, data.kpis, periodDays, restaurant.name, suggestions, t, dl, curSym)}
                 title={t('rvPdfTitle')}
               >
                 🖨 PDF
@@ -348,12 +351,14 @@ export default function RevenueManagementPage() {
             <KpiCard
               label={t('rvTotalRevenue')}
               value={kpis?.totalRevenue}
+              prefix={curSym}
               pct={kpis?.pctRevenue}
               prevLabel={prevLabel}
             />
             <KpiCard
               label={t('rvAdrFull')}
               value={kpis?.adr}
+              prefix={curSym}
               pct={kpis?.pctAdr}
               sub={t('rvAdrSubCard')}
               prevLabel={prevLabel}
@@ -361,6 +366,7 @@ export default function RevenueManagementPage() {
             <KpiCard
               label="RevPAR"
               value={kpis?.revpar}
+              prefix={curSym}
               pct={kpis?.pctRevpar}
               sub={t('htRoomsTotal', { n: data?.totalRooms ?? 0 })}
               prevLabel={prevLabel}
@@ -382,8 +388,8 @@ export default function RevenueManagementPage() {
               <BarChart data={chartData} margin={{ top: 4, right: 16, left: 0, bottom: 0 }}>
                 <CartesianGrid strokeDasharray="3 3" stroke="var(--c-border)" />
                 <XAxis dataKey="date" tick={{ fontSize: 11, fill: 'var(--c-text-muted)' }} />
-                <YAxis tick={{ fontSize: 11, fill: 'var(--c-text-muted)' }} tickFormatter={v => `€${v}`} width={56} />
-                <Tooltip content={<CustomTooltip />} />
+                <YAxis tick={{ fontSize: 11, fill: 'var(--c-text-muted)' }} tickFormatter={v => `${curSym}${v}`} width={56} />
+                <Tooltip content={<CustomTooltip sym={curSym} />} />
                 <Bar dataKey="total_revenue" name={t('rvRevenue')} fill="var(--c-primary)" radius={[4, 4, 0, 0]} />
               </BarChart>
             </ResponsiveContainer>
@@ -397,8 +403,8 @@ export default function RevenueManagementPage() {
                 <LineChart data={chartData} margin={{ top: 4, right: 16, left: 0, bottom: 0 }}>
                   <CartesianGrid strokeDasharray="3 3" stroke="var(--c-border)" />
                   <XAxis dataKey="date" tick={{ fontSize: 11, fill: 'var(--c-text-muted)' }} />
-                  <YAxis tick={{ fontSize: 11, fill: 'var(--c-text-muted)' }} tickFormatter={v => `€${v}`} width={52} />
-                  <Tooltip content={<CustomTooltip />} />
+                  <YAxis tick={{ fontSize: 11, fill: 'var(--c-text-muted)' }} tickFormatter={v => `${curSym}${v}`} width={52} />
+                  <Tooltip content={<CustomTooltip sym={curSym} />} />
                   <Line
                     type="monotone" dataKey="adr" name="ADR"
                     stroke="#2563eb" strokeWidth={2} dot={false}
@@ -414,7 +420,7 @@ export default function RevenueManagementPage() {
                   <CartesianGrid strokeDasharray="3 3" stroke="var(--c-border)" />
                   <XAxis dataKey="date" tick={{ fontSize: 11, fill: 'var(--c-text-muted)' }} />
                   <YAxis tick={{ fontSize: 11, fill: 'var(--c-text-muted)' }} allowDecimals={false} width={32} />
-                  <Tooltip content={<CustomTooltip />} />
+                  <Tooltip content={<CustomTooltip sym={curSym} />} />
                   <Bar dataKey="reservations_count" name={t('rvReservations')} fill="var(--c-primary-medium)" radius={[4, 4, 0, 0]} />
                 </BarChart>
               </ResponsiveContainer>
@@ -461,9 +467,9 @@ export default function RevenueManagementPage() {
                           <span className={rv.occLabel}>{sug.occupancy}%</span>
                         </span>
                         <span className={rv.sugNum}>{sug.booked} / {sug.totalRooms}</span>
-                        <span className={rv.sugNum}>€{sug.basePrice}</span>
-                        <span className={rv.sugPrice}>€{sug.suggested}</span>
-                        <span className={`${rv.sugDiff} ${diff > 0 ? rv.sugDiffUp : rv.sugDiffDown}`}>{diff > 0 ? '+' : ''}€{diff}</span>
+                        <span className={rv.sugNum}>{money(sug.basePrice)}</span>
+                        <span className={rv.sugPrice}>{money(sug.suggested)}</span>
+                        <span className={`${rv.sugDiff} ${diff > 0 ? rv.sugDiffUp : rv.sugDiffDown}`}>{diff > 0 ? '+' : ''}{money(diff)}</span>
                         <button className={rv.btnApply} onClick={() => handleApplySuggestion(sug)} disabled={!!applyingDate}>{isApplying ? '...' : t('rvApply')}</button>
                       </div>
                     )
@@ -480,15 +486,15 @@ export default function RevenueManagementPage() {
                     <div key={sug.date} className={rv.sugCard}>
                       <div className={rv.sugCardTop}>
                         <div className={rv.sugCardDate}>{new Date(sug.date).toLocaleDateString(dl, { weekday: 'short', day: 'numeric', month: 'short' })}</div>
-                        <span className={`${rv.sugCardDiff} ${diff > 0 ? rv.sugDiffUp : rv.sugDiffDown}`}>{diff > 0 ? '+' : ''}€{diff}</span>
+                        <span className={`${rv.sugCardDiff} ${diff > 0 ? rv.sugDiffUp : rv.sugDiffDown}`}>{diff > 0 ? '+' : ''}{money(diff)}</span>
                       </div>
                       <div>
                         <div className={rv.occBar}><div className={rv.occFill} style={{ width: `${sug.occupancy}%`, background: occColor }} /></div>
                         <span className={rv.occLabel} style={{ color: occColor }}>{t('rvOccBooked', { occ: sug.occupancy, booked: sug.booked, total: sug.totalRooms })}</span>
                       </div>
                       <div className={rv.sugCardPrices}>
-                        <div><div className={rv.sugCardPriceLabel}>{t('rvBasePrice')}</div><div className={rv.sugCardPriceVal}>€{sug.basePrice}</div></div>
-                        <div><div className={rv.sugCardPriceLabel}>{t('rvSuggested')}</div><div className={`${rv.sugCardPriceVal} ${rv.sugCardPriceValHigh}`}>€{sug.suggested}</div></div>
+                        <div><div className={rv.sugCardPriceLabel}>{t('rvBasePrice')}</div><div className={rv.sugCardPriceVal}>{money(sug.basePrice)}</div></div>
+                        <div><div className={rv.sugCardPriceLabel}>{t('rvSuggested')}</div><div className={`${rv.sugCardPriceVal} ${rv.sugCardPriceValHigh}`}>{money(sug.suggested)}</div></div>
                         <div><div className={rv.sugCardPriceLabel}>{t('rvBooked')}</div><div className={rv.sugCardPriceVal}>{sug.booked}/{sug.totalRooms}</div></div>
                       </div>
                       <button className={rv.btnApply} style={{ width: '100%' }} onClick={() => handleApplySuggestion(sug)} disabled={!!applyingDate}>{isApplying ? '...' : t('rvApplyPrice')}</button>
