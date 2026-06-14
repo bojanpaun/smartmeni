@@ -10,8 +10,11 @@ import spa from '../../modules/spa/pages/Spa.module.css'
 const CATEGORIES = ['massage', 'facial', 'body', 'nail', 'wellness', 'group']
 const CAT_KEYS = { massage: 'spaCatMassage', facial: 'spaCatFacial', body: 'spaCatBody', nail: 'spaCatNail', wellness: 'spaCatWellness', group: 'spaCatGroup' }
 
+// Nazivi/opisi se prevode AI-jem (library_translations za biblioteku; content_translations
+// za uvezene usluge — okida importTreatment). Stare _en kolone se više ne uređuju ovdje
+// (ostaju u bazi kao fallback).
 const BLANK = {
-  id: '', name: '', name_en: '', category: 'massage', description: '', description_en: '',
+  id: '', name: '', category: 'massage', description: '',
   duration_minutes: 60, buffer_minutes: 15, suggested_price: '', price_couple: '',
   requires_consultation: false, image_url: '', sort_order: 0, is_active: true,
 }
@@ -61,8 +64,8 @@ export default function SpaTreatmentLibraryAdmin() {
     setSaving(true)
     const payload = {
       id,
-      name: form.name.trim(), name_en: form.name_en?.trim() || null,
-      category: form.category, description: form.description || null, description_en: form.description_en || null,
+      name: form.name.trim(),
+      category: form.category, description: form.description || null,
       duration_minutes: parseInt(form.duration_minutes) || 60,
       buffer_minutes: parseInt(form.buffer_minutes) || 0,
       suggested_price: form.suggested_price === '' ? null : Number(form.suggested_price),
@@ -122,10 +125,6 @@ export default function SpaTreatmentLibraryAdmin() {
               <input className={spa.formInput} value={form.name} onChange={e => upd('name', e.target.value)} />
             </div>
             <div className={spa.formField}>
-              <label className={spa.formLabel}>{t('saNameEN')}</label>
-              <input className={spa.formInput} value={form.name_en} onChange={e => upd('name_en', e.target.value)} />
-            </div>
-            <div className={spa.formField}>
               <label className={spa.formLabel}>{t('spaCategory')}</label>
               <select className={spa.formSelect} value={form.category} onChange={e => upd('category', e.target.value)}>
                 {CATEGORIES.map(c => <option key={c} value={c}>{catLabel(c)}</option>)}
@@ -154,10 +153,6 @@ export default function SpaTreatmentLibraryAdmin() {
             <div className={spa.formField} style={{ gridColumn: '1 / -1' }}>
               <label className={spa.formLabel}>{t('saDescME')}</label>
               <textarea className={spa.formTextarea} rows={2} value={form.description} onChange={e => upd('description', e.target.value)} />
-            </div>
-            <div className={spa.formField} style={{ gridColumn: '1 / -1' }}>
-              <label className={spa.formLabel}>{t('saDescEN')}</label>
-              <textarea className={spa.formTextarea} rows={2} value={form.description_en} onChange={e => upd('description_en', e.target.value)} />
             </div>
             <div className={spa.formField} style={{ gridColumn: '1 / -1' }}>
               <label className={spa.formLabel}>{t('saImageUrl')}</label>

@@ -9,7 +9,10 @@ import styles from '../../modules/hotel/pages/Hotel.module.css'
 const CATEGORIES = ['drink', 'alcohol', 'snack']
 const CAT_KEYS = { drink: 'saMinDrink', alcohol: 'saMinAlcohol', snack: 'saMinSnack' }
 
-const BLANK = { id: '', name: '', name_en: '', category: 'drink', suggested_price: '', sort_order: 0, is_active: true }
+// Naziv se prevodi AI-jem (library_translations; picker ih čita kroz lt()). Stara _en
+// kolona se više ne uređuje ovdje (ostaje u bazi kao fallback). Minibar artikli nisu
+// guest-facing pa nema prevoda na import.
+const BLANK = { id: '', name: '', category: 'drink', suggested_price: '', sort_order: 0, is_active: true }
 
 const slugify = (s) => (s || '').toLowerCase().trim()
   .replace(/[čć]/g, 'c').replace(/[šđ]/g, 's').replace(/ž/g, 'z')
@@ -48,7 +51,7 @@ export default function MinibarLibraryAdmin() {
     if (!id) return flash(t('saIdNameReq'))
     setSaving(true)
     const payload = {
-      id, name: form.name.trim(), name_en: form.name_en?.trim() || null,
+      id, name: form.name.trim(),
       category: form.category,
       suggested_price: form.suggested_price === '' ? null : Number(form.suggested_price),
       sort_order: parseInt(form.sort_order) || 0, is_active: form.is_active,
@@ -97,10 +100,6 @@ export default function MinibarLibraryAdmin() {
             <div style={{ flex: 1, minWidth: 160 }}>
               <label style={{ fontSize: 12, color: 'var(--c-text-medium)' }}>{t('saNameME')}</label>
               <input className={styles.input} value={form.name} onChange={e => upd('name', e.target.value)} />
-            </div>
-            <div style={{ flex: 1, minWidth: 140 }}>
-              <label style={{ fontSize: 12, color: 'var(--c-text-medium)' }}>{t('saNameEN')}</label>
-              <input className={styles.input} value={form.name_en} onChange={e => upd('name_en', e.target.value)} />
             </div>
             <div style={{ width: 140 }}>
               <label style={{ fontSize: 12, color: 'var(--c-text-medium)' }}>{t('spaCategory')}</label>
