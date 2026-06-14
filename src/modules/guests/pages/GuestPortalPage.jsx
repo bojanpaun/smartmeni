@@ -164,7 +164,7 @@ export default function GuestPortalPage() {
   if (loading) return <div className={styles.page}><div className={styles.loading}>{t('gaLoading')}</div></div>
   if (!restaurant) return <div className={styles.page}><div className={styles.loading}>{t('gaRestNotFound')}</div></div>
 
-  const tpl = getTemplate(restaurant?.template)
+  const tpl = getTemplate(restaurant?.template, restaurant?.color)
   const brand = tpl?.brand || restaurant?.color || '#0d7a52'
   const pageBg = tpl?.pageBg || '#f0f5f2'
 

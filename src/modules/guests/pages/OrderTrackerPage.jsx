@@ -107,7 +107,7 @@ export default function OrderTrackerPage() {
     </div>
   )
 
-  const tpl = getTemplate(restaurant?.template)
+  const tpl = getTemplate(restaurant?.template, restaurant?.color)
   const currentStep = STATUS_INDEX[order.status] ?? -1
   const isClosed = order.status === 'closed'
   const isServed = order.status === 'served'

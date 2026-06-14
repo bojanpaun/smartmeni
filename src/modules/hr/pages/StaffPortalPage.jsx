@@ -188,7 +188,7 @@ export default function StaffPortalPage() {
     <div className={styles.loading}>{t('sppRestaurantNotFound')}</div>
   )
 
-  const tpl = getTemplate(restaurant.template)
+  const tpl = getTemplate(restaurant.template, restaurant.color)
   const brand = tpl?.brand || restaurant.color || '#0d7a52'
   const staffName = staff ? `${staff.first_name || ''} ${staff.last_name || ''}`.trim() || staff.email : ''
 
