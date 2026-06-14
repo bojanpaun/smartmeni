@@ -78,6 +78,16 @@
             "Koristi ga na ulazu, posjetnici, društvenim mrežama ili jelovniku",
             "Za narudžbe po stolu koristi QR kodove iz modula Stolovi (svaki stol ima vlastiti QR)"
           ]
+        },
+        {
+          "icon": "🌍",
+          "title": "Višejezičnost — prijevod sadržaja",
+          "steps": [
+            "Nazive i opise jela, kategorije i poruke unosiš na crnogorskom (izvorni jezik)",
+            "Sadržaj se automatski prevodi na ostale jezike (engleski, srpski, hrvatski, albanski, turski, ruski) i gostu se prikazuje prema odabranom jeziku",
+            "Prijevod radi AI — ako želiš ispraviti, klikni 🌐 gumb pored stavke i unesi svoj prijevod (tvoja ispravka se sprema i AI je više ne mijenja)",
+            "Statički dijelovi aplikacije (gumbi, izbornici) već su prevedeni na svih 7 jezika"
+          ]
         }
       ],
       "tips": [
@@ -672,6 +682,27 @@
             "Pregled trenutnog plana i aktivnih addon modula",
             "Upravljanje pretplatom i naplatom",
             "Addon moduli (Hotel, Spa) aktiviraju se ovdje"
+          ]
+        },
+        {
+          "icon": "🧾",
+          "title": "Fiskalizacija i računi",
+          "steps": [
+            "Stranica je Postavke → Fiskalizacija (/admin/settings/fiscalization); dostupna kad je uključen dodatak Fiskalizacija",
+            "U odjeljku „Za izdavanje“ nalaze se sve poslužene narudžbe, hotelski folio i spa termini bez računa — klikni „Izdaj“ da kreiraš račun. Popis je trajan, pa račun ne možeš izgubiti ni ako zaboraviš odmah ga izdati",
+            "Uključi „Automatski izdaj račun pri zatvaranju“ da se račun za narudžbu kreira sam čim se narudžba zatvori",
+            "Klikni na bilo koji račun na popisu da ga otvoriš i ispišeš (gumb Ispis)",
+            "Napomena: povezivanje s poreznom upravom (fiskalni broj, QR kod) stiže uskoro; do tada se računi vode interno"
+          ]
+        },
+        {
+          "icon": "💱",
+          "title": "Valuta i stope PDV-a",
+          "steps": [
+            "Valuta se postavlja po objektu — svi iznosi i računi koriste tu valutu (bez konverzije)",
+            "Svakoj kategoriji jelovnika dodijeli zadanu stopu PDV-a",
+            "Pojedinačno jelo ili spa usluga može imati svoju stopu koja nadjačava kategoriju",
+            "Račun automatski razdvaja osnovicu i PDV po svakoj stavci"
           ]
         }
       ],

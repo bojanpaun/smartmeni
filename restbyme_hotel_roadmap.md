@@ -584,6 +584,19 @@ supabase/functions/
 - **Okidač „Izdaj račun"** (`22b08a4`): na serviranoj narudžbi (WaiterDashboard, iza addona) →
   `create_invoice_from_order` (idempotentno), toast; račun se vidi u listi.
 - Poslovni identitet (`aedaf46`): polja PIB/PDV/IBAN na registraciji (OnboardingWizard) + Postavkama.
+- **Trajni pristup računima** (`9a9edcc`): `get_unbilled_sources` + sekcija „Za izdavanje" (narudžbe/folio/spa
+  bez računa, dugme Izdaj), `restaurants.auto_fiscalize` + auto-izdavanje na zatvaranje (WaiterDashboard),
+  `InvoicePrintModal` (klik na račun → fiskalni prikaz + štampa). Pokriva restoran/hotel/spa. pgTAP 045.
+
+### ✅ Operativne dopune (2026-06-14)
+- **Najave razvoja osvježene** (migracije `roadmap_refresh`/`roadmap_full`/`roadmap_descriptions`): zastarjele
+  uklonjene; 13 laičkih najava iz preostalog roadmapa; za nadograđujuće stavke opis navodi „X već postoji,
+  dodajemo Y" (inventar, hotel, HR, email, channel manager…).
+- **Uputstva po modulima** (modulehelp ×7): nove sekcije Fiskalizacija i računi + Valuta i PDV (settings),
+  Višejezičnost — prevod sadržaja (menu). **FAQ** (`support_faq_seed_fisk`): 9 novih pitanja (izdavanje/štampa/
+  auto-račun, hotel+spa, PDV, valuta, prevod sadržaja, prekidač odobrenja).
+- **Prekidač odobrenja registracije** (`require_tenant_approval`): `platform_settings` flag + ažuriran trigger
+  `enforce_restaurant_approval_pending` (bira pending/approved po flagu) + prekidač na `/superadmin`. pgTAP 046.
 
 ### Addon-gating
 - Novi addon **`fiscalization`** u `addon_catalog` (migracija) + `planUtils.js` + `<AddonGuard addonId="fiscalization">`

@@ -78,6 +78,16 @@
             "Përdore te hyrja, kartëvizita, rrjetet sociale ose menyja",
             "Për porositë sipas tavolinës përdor kodet QR nga moduli Tavolinat (çdo tavolinë ka QR-in e vet)"
           ]
+        },
+        {
+          "icon": "🌍",
+          "title": "Shumëgjuhësia — përkthimi i përmbajtjes",
+          "steps": [
+            "Emrat dhe përshkrimet e pjatave, kategoritë dhe mesazhet i shkruan në malazisht (gjuha burimore)",
+            "Përmbajtja përkthehet automatikisht në gjuhët e tjera (anglisht, serbisht, kroatisht, shqip, turqisht, rusisht) dhe i shfaqet mysafirit sipas gjuhës së zgjedhur",
+            "Përkthimin e bën AI — për ta korrigjuar, kliko butonin 🌐 pranë artikullit dhe shkruaj përkthimin tënd (korrigjimi yt ruhet dhe AI nuk e mbishkruan)",
+            "Pjesët statike të aplikacionit (butonat, menutë) janë përkthyer tashmë në të 7 gjuhët"
+          ]
         }
       ],
       "tips": [
@@ -672,6 +682,27 @@
             "Përmbledhje e planit aktual dhe moduleve shtesë aktive",
             "Menaxhimi i abonimit dhe faturimit",
             "Modulet shtesë (Hotel, Spa) aktivizohen këtu"
+          ]
+        },
+        {
+          "icon": "🧾",
+          "title": "Fiskalizimi dhe faturat",
+          "steps": [
+            "Ndodhet te Cilësimet → Fiskalizimi (/admin/settings/fiscalization); e disponueshme kur është aktivizuar shtesa Fiskalizimi",
+            "Te seksioni „Për lëshim“ janë të gjitha porositë e shërbyera, foliot e hotelit dhe terminet e spa-së pa faturë — kliko „Lësho“ për të krijuar faturën. Lista është e përhershme, kështu që nuk e humb faturën edhe nëse harron ta lëshosh menjëherë",
+            "Aktivizo „Lësho faturën automatikisht në mbyllje“ që fatura e porosisë të krijohet vetë sapo porosia mbyllet",
+            "Kliko çdo faturë në listë për ta hapur dhe printuar (butoni Printo)",
+            "Shënim: lidhja me autoritetin tatimor (numri fiskal, kodi QR) vjen së shpejti; deri atëherë faturat mbahen brendazi"
+          ]
+        },
+        {
+          "icon": "💱",
+          "title": "Monedha dhe normat e TVSH-së",
+          "steps": [
+            "Monedha caktohet sipas objektit — të gjitha shumat dhe faturat përdorin atë monedhë (pa konvertim)",
+            "Cakto një normë TVSH-je të paracaktuar për çdo kategori të menusë",
+            "Një pjatë ose shërbim spa i veçantë mund të ketë normën e vet që mbizotëron kategorinë",
+            "Fatura ndan automatikisht bazën dhe TVSH-në për çdo artikull"
           ]
         }
       ],

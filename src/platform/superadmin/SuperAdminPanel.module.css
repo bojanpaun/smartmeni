@@ -32,6 +32,16 @@
 .btnRefresh:hover { background: var(--c-bg-subtle); }
 
 /* ── Statistike ── */
+.approvalBar {
+  display: flex; align-items: center; justify-content: space-between; gap: 16px;
+  background: var(--c-surface); border: 1px solid var(--c-border);
+  border-radius: 12px; padding: 14px 18px; margin-bottom: 16px;
+}
+.approvalTitle { font-size: 14px; font-weight: 600; color: var(--c-text); }
+.approvalSub   { font-size: 12px; color: var(--c-text-muted); margin-top: 3px; max-width: 640px; }
+.approvalState { font-size: 12px; font-weight: 600; color: var(--c-text-muted); }
+.approvalBar .toggleLabel { gap: 10px; }
+
 .stats {
   display: grid; grid-template-columns: repeat(4, 1fr);
   gap: 12px; margin-bottom: 20px;

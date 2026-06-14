@@ -23,7 +23,7 @@ const CATEGORY_KEYS = {
 }
 
 export default function SuperAdminPanel() {
-  const { isSuperAdmin, palettes, restaurant, setRestaurant, setTenant } = usePlatform()
+  const { isSuperAdmin, palettes, restaurant, setRestaurant, setTenant, user } = usePlatform()
   const navigate = useNavigate()
   const { t, i18n } = useTranslation('admin')
   const dl = i18n.language === 'en' ? 'en-US' : 'sr-Latn'
@@ -64,13 +64,45 @@ export default function SuperAdminPanel() {
   const [saveMsg, setSaveMsg] = useState('')
   const [saveErr, setSaveErr] = useState(false)
   const [translatingId, setTranslatingId] = useState(null) // restaurant_id u toku (ili 'all')
+  const [reqApproval, setReqApproval] = useState(true)      // platform_settings.require_tenant_approval
+  const [savingApproval, setSavingApproval] = useState(false)
   const sort = useSortable('name', 'asc')
 
   useEffect(() => {
     loadRestaurants()
     loadAddonCatalog()
     loadPlans()
+    loadSettings()
   }, [])
+
+  const loadSettings = async () => {
+    const { data } = await supabase
+      .from('platform_settings')
+      .select('require_tenant_approval')
+      .limit(1)
+      .maybeSingle()
+    setReqApproval(data?.require_tenant_approval ?? true)
+  }
+
+  // Globalni prekidač: da li nova registracija ide na odobrenje ili odmah aktivna.
+  const toggleApproval = async () => {
+    const next = !reqApproval
+    setReqApproval(next)
+    setSavingApproval(true)
+    const { data, error } = await supabase
+      .from('platform_settings')
+      .update({ require_tenant_approval: next, updated_at: new Date().toISOString(), updated_by: user?.id ?? null })
+      .eq('id', true)
+      .select('id')
+    setSavingApproval(false)
+    if (error || !data?.length) {
+      setReqApproval(!next) // rollback
+      setSaveMsg(t('sapApprovalSaveErr')); setSaveErr(true)
+    } else {
+      setSaveMsg(next ? t('sapApprovalOnSaved') : t('sapApprovalOffSaved')); setSaveErr(false)
+    }
+    setTimeout(() => setSaveMsg(''), 3000)
+  }
 
   const loadPlans = async () => {
     const { data } = await supabase
@@ -309,6 +341,27 @@ export default function SuperAdminPanel() {
             {translatingId === 'all' ? t('sapTranslating') : t('sapTranslateAll')}
           </button>
         </div>
+      </div>
+
+      {/* ─── Globalni prekidač: odobrenje registracije ─────────────── */}
+      <div className={styles.approvalBar}>
+        <div className={styles.approvalText}>
+          <div className={styles.approvalTitle}>🛂 {t('sapApprovalTitle')}</div>
+          <div className={styles.approvalSub}>
+            {reqApproval ? t('sapApprovalOnDesc') : t('sapApprovalOffDesc')}
+          </div>
+        </div>
+        <label className={styles.toggleLabel} style={{ opacity: savingApproval ? 0.6 : 1 }}>
+          <span className={styles.approvalState}>
+            {reqApproval ? t('sapApprovalOn') : t('sapApprovalOff')}
+          </span>
+          <div
+            role="switch"
+            aria-checked={reqApproval}
+            className={`${styles.toggle} ${reqApproval ? styles.toggleOn : styles.toggleOff}`}
+            onClick={() => !savingApproval && toggleApproval()}
+          />
+        </label>
       </div>
 
       <div className={styles.stats}>

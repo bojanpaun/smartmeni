@@ -78,6 +78,16 @@
             "Use it at the entrance, business card, social media or the menu",
             "For table orders use the QR codes from the Tables module (each table has its own QR)"
           ]
+        },
+        {
+          "icon": "🌍",
+          "title": "Multilingual — content translation",
+          "steps": [
+            "Enter dish names and descriptions, categories and messages in Montenegrin (the source language)",
+            "Content is automatically translated into the other languages (English, Serbian, Croatian, Albanian, Turkish, Russian) and shown to the guest in their chosen language",
+            "Translation is done by AI — to correct it, click the 🌐 button next to an item and enter your own translation (your correction is saved and AI will not overwrite it)",
+            "Static parts of the app (buttons, menus) are already translated into all 7 languages"
+          ]
         }
       ],
       "tips": [
@@ -672,6 +682,27 @@
             "Overview of the current plan and active addon modules",
             "Subscription and billing management",
             "Addon modules (Hotel, Spa) are activated here"
+          ]
+        },
+        {
+          "icon": "🧾",
+          "title": "Fiscalization and invoices",
+          "steps": [
+            "Found under Settings → Fiscalization (/admin/settings/fiscalization); available when the Fiscalization add-on is enabled",
+            "The „To issue“ section lists every served order, hotel folio and spa appointment without an invoice — click „Issue“ to create one. The list is permanent, so you cannot lose an invoice even if you forget to issue it right away",
+            "Turn on „Auto-issue invoice on close“ so an order invoice is created automatically the moment the order is closed",
+            "Click any invoice in the list to open and print it (Print button)",
+            "Note: connection to the tax authority (fiscal number, QR code) is coming soon; until then invoices are kept internally"
+          ]
+        },
+        {
+          "icon": "💱",
+          "title": "Currency and VAT rates",
+          "steps": [
+            "Currency is set per property — all amounts and invoices use that currency (no conversion)",
+            "Assign a default VAT rate to each menu category",
+            "An individual dish or spa service can have its own rate that overrides the category",
+            "The invoice automatically splits net and VAT for each line item"
           ]
         }
       ],

@@ -78,6 +78,16 @@
             "Girişte, kartvizitte, sosyal medyada veya menüde kullanın",
             "Masa siparişleri için Masalar modülündeki QR kodlarını kullanın (her masanın kendi QR’ı vardır)"
           ]
+        },
+        {
+          "icon": "🌍",
+          "title": "Çok dillilik — içerik çevirisi",
+          "steps": [
+            "Yemek adlarını ve açıklamalarını, kategorileri ve mesajları Karadağca (kaynak dil) girersiniz",
+            "İçerik diğer dillere (İngilizce, Sırpça, Hırvatça, Arnavutça, Türkçe, Rusça) otomatik çevrilir ve misafire seçtiği dilde gösterilir",
+            "Çeviriyi yapay zeka yapar — düzeltmek için öğenin yanındaki 🌐 düğmesine tıklayıp kendi çevirinizi girin (düzeltmeniz kaydedilir ve yapay zeka üzerine yazmaz)",
+            "Uygulamanın statik bölümleri (düğmeler, menüler) zaten 7 dile çevrilmiştir"
+          ]
         }
       ],
       "tips": [
@@ -672,6 +682,27 @@
             "Mevcut plana ve aktif eklenti modüllerine genel bakış",
             "Abonelik ve faturalandırma yönetimi",
             "Eklenti modülleri (Otel, Spa) burada etkinleştirilir"
+          ]
+        },
+        {
+          "icon": "🧾",
+          "title": "Mali entegrasyon ve faturalar",
+          "steps": [
+            "Ayarlar → Fiskalizasyon (/admin/settings/fiscalization) altındadır; Fiskalizasyon eklentisi etkinleştirildiğinde kullanılabilir",
+            "„Düzenlenecek“ bölümünde faturası olmayan tüm servis edilmiş siparişler, otel foliyoları ve spa randevuları yer alır — fatura oluşturmak için „Düzenle“ye tıklayın. Liste kalıcıdır, bu yüzden hemen düzenlemeyi unutsanız bile faturayı kaybetmezsiniz",
+            "Sipariş kapatıldığı anda faturasının otomatik oluşması için „Kapanışta faturayı otomatik düzenle“yi açın",
+            "Açıp yazdırmak için listedeki herhangi bir faturaya tıklayın (Yazdır düğmesi)",
+            "Not: vergi dairesiyle bağlantı (mali numara, QR kod) yakında geliyor; o zamana kadar faturalar dahili tutulur"
+          ]
+        },
+        {
+          "icon": "💱",
+          "title": "Para birimi ve KDV oranları",
+          "steps": [
+            "Para birimi tesise göre ayarlanır — tüm tutarlar ve faturalar bu para birimini kullanır (çevrim yok)",
+            "Her menü kategorisine varsayılan bir KDV oranı atayın",
+            "Tek bir yemek veya spa hizmeti, kategoriyi geçersiz kılan kendi oranına sahip olabilir",
+            "Fatura, her satır için matrahı ve KDV tutarını otomatik olarak ayırır"
           ]
         }
       ],
