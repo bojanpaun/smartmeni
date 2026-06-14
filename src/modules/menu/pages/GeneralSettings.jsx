@@ -3,6 +3,7 @@ import { useTranslation } from 'react-i18next'
 import { supabase } from '../../../lib/supabase'
 import { usePlatform } from '../../../context/PlatformContext'
 import { READY_LANGUAGES, DEFAULT_LANG } from '../../../i18n/languages'
+import { CURRENCIES, DEFAULT_CURRENCY } from '../../../lib/currencies'
 import { translateContent, restaurantDescriptionFields } from '../../../lib/contentTranslate'
 import styles from './GeneralSettings.module.css'
 
@@ -20,6 +21,12 @@ export default function GeneralSettings() {
   const [savedLang, setSavedLang] = useState(DEFAULT_LANG)
   const [langSaving, setLangSaving] = useState(false)
   const [langSaved, setLangSaved] = useState(false)
+
+  // Valuta (per-tenant, FISK-0). Promjena ne konvertuje postojeće cijene — stamp po zapisu.
+  const [cur, setCur] = useState(DEFAULT_CURRENCY)
+  const [savedCur, setSavedCur] = useState(DEFAULT_CURRENCY)
+  const [curSaving, setCurSaving] = useState(false)
+  const [curSaved, setCurSaved] = useState(false)
 
   useEffect(() => {
     if (restaurant) {
@@ -39,6 +46,25 @@ export default function GeneralSettings() {
     setLang(al)
     setSavedLang(al)
   }, [restaurant?.admin_language])
+
+  useEffect(() => {
+    const c = restaurant?.currency || DEFAULT_CURRENCY
+    setCur(c)
+    setSavedCur(c)
+  }, [restaurant?.currency])
+
+  const curDirty = cur !== savedCur
+  const saveCur = async () => {
+    if (!restaurant || !curDirty) return
+    setCurSaving(true)
+    const { error } = await supabase.from('restaurants').update({ currency: cur }).eq('id', restaurant.id)
+    setCurSaving(false)
+    if (error) return
+    setRestaurant({ ...restaurant, currency: cur })
+    setSavedCur(cur)
+    setCurSaved(true)
+    setTimeout(() => setCurSaved(false), 3000)
+  }
 
   const langDirty = lang !== savedLang
   const saveLang = async () => {
@@ -139,6 +165,28 @@ export default function GeneralSettings() {
         {langDirty && (
           <button className={styles.saveBtn} onClick={saveLang} disabled={langSaving}>
             {langSaving ? t('saving') : t('thSaveLang')}
+          </button>
+        )}
+      </div>
+
+      {/* ── Valuta (per-tenant, FISK-0) ── */}
+      <div className={styles.sectionLabel} style={{ marginTop: 28 }}>{t('gsCurrencyTitle')}</div>
+      <div className={styles.visDesc}>{t('gsCurrencySub')}</div>
+      <div className={styles.formActions} style={{ justifyContent: 'flex-start', gap: 12 }}>
+        <select
+          value={cur}
+          onChange={e => setCur(e.target.value)}
+          style={{ padding: '10px 14px', borderRadius: 8, border: '1px solid var(--c-border)',
+            background: 'var(--c-surface)', color: 'var(--c-text)', fontSize: 14, fontFamily: 'inherit', cursor: 'pointer' }}
+        >
+          {CURRENCIES.map(c => (
+            <option key={c.code} value={c.code}>{c.code} ({c.symbol})</option>
+          ))}
+        </select>
+        {curSaved && !curDirty && <span className={styles.savedMsg}>✓ {t('saved')}</span>}
+        {curDirty && (
+          <button className={styles.saveBtn} onClick={saveCur} disabled={curSaving}>
+            {curSaving ? t('saving') : t('gsSaveCurrency')}
           </button>
         )}
       </div>
