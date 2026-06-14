@@ -1,0 +1,48 @@
+/* Diskretni roadmap ticker — tanki red ispod headera dashboarda. */
+.ticker {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  padding: 8px 14px;
+  margin-bottom: 16px;
+  border: 1px dashed var(--c-border);
+  border-radius: 10px;
+  background: var(--c-bg-subtle, rgba(13,122,82,0.04));
+  font-size: 0.82rem;
+  color: var(--c-text-muted);
+  overflow: hidden;
+}
+.rocket { flex-shrink: 0; }
+.label { font-weight: 600; color: var(--c-text-medium); flex-shrink: 0; }
+.list { flex: 1; min-width: 0; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+.seeAll {
+  flex-shrink: 0; background: none; border: none; cursor: pointer;
+  color: var(--c-primary); font-weight: 600; font-size: 0.82rem; padding: 2px 4px;
+  font-family: inherit; text-decoration: underline;
+}
+
+/* Modal */
+.overlay {
+  position: fixed; inset: 0; background: rgba(0,0,0,0.4);
+  display: flex; align-items: center; justify-content: center; z-index: 1000; padding: 20px;
+}
+.modal {
+  background: var(--c-surface); border-radius: 16px; width: 100%; max-width: 460px;
+  max-height: 80vh; overflow: hidden; display: flex; flex-direction: column;
+  border: 1px solid var(--c-border);
+}
+.modalHead {
+  display: flex; align-items: center; justify-content: space-between;
+  padding: 16px 20px; border-bottom: 1px solid var(--c-border);
+}
+.modalTitle { font-weight: 700; font-size: 1rem; color: var(--c-text); }
+.close {
+  background: none; border: none; cursor: pointer; font-size: 16px;
+  color: var(--c-text-muted); padding: 4px 8px; border-radius: 8px;
+}
+.close:hover { background: var(--c-bg-subtle, #f0f5f2); }
+.modalBody { padding: 8px 0; overflow-y: auto; }
+.item { padding: 12px 20px; border-bottom: 1px solid var(--c-border); }
+.item:last-child { border-bottom: none; }
+.itemTitle { font-weight: 600; font-size: 0.92rem; color: var(--c-text); }
+.itemDesc { font-size: 0.83rem; color: var(--c-text-muted); margin-top: 4px; line-height: 1.45; }

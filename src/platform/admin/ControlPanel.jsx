@@ -8,6 +8,7 @@ import OnboardingWizard from './OnboardingWizard'
 import HotelOnboardingWizard from './HotelOnboardingWizard'
 import { useAnnouncements } from '../../context/AnnouncementsContext'
 import { useSupport } from '../../context/SupportContext'
+import RoadmapTicker from '../../components/shared/RoadmapTicker'
 import styles from './ControlPanel.module.css'
 
 // Mali numerički badge za kartice komunikacije
@@ -274,6 +275,9 @@ export default function ControlPanel() {
         <h1 className={styles.title}>{restaurant ? restaurant.name : t('controlPanel')}</h1>
         <p className={styles.subtitle}>{t('cpSubtitle')}</p>
       </div>
+
+      {/* ── Roadmap ticker (Šta razvijamo) — diskretno, bez dismiss-a ── */}
+      <RoadmapTicker />
 
       {/* ── KPI row (prilagodljiv, per-korisnik) ── */}
       <div className={styles.kpiHead}>
