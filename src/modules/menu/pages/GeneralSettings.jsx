@@ -37,6 +37,9 @@ export default function GeneralSettings() {
         phone:       restaurant.phone       || '',
         hours:       restaurant.hours       || '',
         description: restaurant.description || '',
+        tax_id:      restaurant.tax_id      || '',
+        vat_number:  restaurant.vat_number  || '',
+        iban:        restaurant.iban        || '',
       })
     }
   }, [restaurant])
@@ -126,6 +129,25 @@ export default function GeneralSettings() {
             <input value={form.hours} onChange={e => setField('hours', e.target.value)} placeholder={t('gsPhHours')} />
           </div>
         </div>
+
+        {/* Poslovni podaci prodavca (za fiskalne račune) */}
+        <div className={styles.sectionLabel} style={{ marginTop: 4 }}>{t('gsBusinessTitle')}</div>
+        <div className={styles.fieldHint} style={{ marginBottom: 12 }}>{t('gsBusinessSub')}</div>
+        <div className={styles.formGrid}>
+          <div className={styles.field}>
+            <label>{t('gsTaxId')}</label>
+            <input value={form.tax_id} onChange={e => setField('tax_id', e.target.value)} placeholder={t('gsTaxIdPh')} />
+          </div>
+          <div className={styles.field}>
+            <label>{t('gsVatNumber')}</label>
+            <input value={form.vat_number} onChange={e => setField('vat_number', e.target.value)} placeholder={t('gsVatNumberPh')} />
+          </div>
+          <div className={styles.field}>
+            <label>{t('gsIban')}</label>
+            <input value={form.iban} onChange={e => setField('iban', e.target.value)} placeholder={t('gsIbanPh')} />
+          </div>
+        </div>
+
         <div className={styles.field} style={{ marginBottom: 20 }}>
           <label>{t('msDescLabel')}</label>
           <textarea

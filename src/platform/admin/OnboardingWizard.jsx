@@ -28,6 +28,9 @@ export default function OnboardingWizard({ onComplete, onSkip }) {
     location: restaurant?.location || '',
     hours: restaurant?.hours || '',
     phone: restaurant?.phone || '',
+    tax_id: restaurant?.tax_id || '',
+    vat_number: restaurant?.vat_number || '',
+    iban: restaurant?.iban || '',
   })
   const [selectedTemplate, setSelectedTemplate] = useState(restaurant?.template || 'modern_minimal')
   const [logoFile, setLogoFile] = useState(null)
@@ -219,6 +222,30 @@ export default function OnboardingWizard({ onComplete, onSkip }) {
                   value={profile.phone}
                   onChange={e => setProfile(p => ({ ...p, phone: e.target.value }))}
                   placeholder={t('onbPhonePh')}
+                />
+              </div>
+              <div className={styles.field}>
+                <label>{t('gsTaxId')} <span style={{ color: 'var(--c-text-muted)', fontWeight: 400, fontSize: 12 }}>{t('onbOptional')}</span></label>
+                <input
+                  value={profile.tax_id}
+                  onChange={e => setProfile(p => ({ ...p, tax_id: e.target.value }))}
+                  placeholder={t('gsTaxIdPh')}
+                />
+              </div>
+              <div className={styles.field}>
+                <label>{t('gsVatNumber')} <span style={{ color: 'var(--c-text-muted)', fontWeight: 400, fontSize: 12 }}>{t('onbOptional')}</span></label>
+                <input
+                  value={profile.vat_number}
+                  onChange={e => setProfile(p => ({ ...p, vat_number: e.target.value }))}
+                  placeholder={t('gsVatNumberPh')}
+                />
+              </div>
+              <div className={styles.field}>
+                <label>{t('gsIban')} <span style={{ color: 'var(--c-text-muted)', fontWeight: 400, fontSize: 12 }}>{t('onbOptional')}</span></label>
+                <input
+                  value={profile.iban}
+                  onChange={e => setProfile(p => ({ ...p, iban: e.target.value }))}
+                  placeholder={t('gsIbanPh')}
                 />
               </div>
             </div>
