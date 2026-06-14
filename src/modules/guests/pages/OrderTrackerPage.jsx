@@ -122,12 +122,15 @@ export default function OrderTrackerPage() {
     : null
 
   return (
-    <div className={styles.pageWrapper}>
+    <div className={styles.pageWrapper} style={{ background: tpl.pageBg }}>
       <div
         className={styles.page}
         style={{
+          background: tpl.pageBg,
           '--tpl-brand': tpl.brand,
           '--tpl-brand-light': tpl.catBg,
+          '--tpl-border': tpl.catBorder,
+          '--tpl-price': tpl.priceColor,
           '--tpl-cat-color': tpl.catColor,
         }}
       >
