@@ -50,6 +50,15 @@
 .statWarn { background: var(--c-warn-bg, #FAEEDA); color: var(--c-warn, #633806); }
 .classifyLabel { font-size: 0.85rem; color: var(--c-text); }
 
+.autoRow { display: flex; align-items: center; gap: 8px; margin: 10px 0; font-size: 0.85rem; color: var(--c-text); cursor: pointer; }
+.issueBtn {
+  background: var(--c-primary, #0d7a52); color: #fff; border: none; border-radius: 8px;
+  padding: 5px 10px; font-size: 0.78rem; font-weight: 600; cursor: pointer; font-family: inherit; white-space: nowrap;
+}
+.issueBtn:disabled { opacity: 0.6; cursor: default; }
+.invoiceRow { cursor: pointer; }
+.invoiceRow:hover { background: var(--c-bg-subtle, #f0f5f2); }
+
 .statBadge {
   font-size: 0.7rem; font-weight: 600; padding: 2px 8px; border-radius: 999px;
   background: var(--c-warn-bg, #FAEEDA); color: var(--c-warn, #633806); white-space: nowrap;

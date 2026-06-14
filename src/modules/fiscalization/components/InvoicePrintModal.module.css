@@ -1,0 +1,40 @@
+.overlay {
+  position: fixed; inset: 0; background: rgba(0,0,0,0.45);
+  display: flex; align-items: flex-start; justify-content: center; z-index: 1000;
+  padding: 24px; overflow-y: auto;
+}
+.modal {
+  background: var(--c-surface); border-radius: 14px; width: 100%; max-width: 420px;
+  border: 1px solid var(--c-border); overflow: hidden;
+}
+.toolbar {
+  display: flex; align-items: center; justify-content: space-between;
+  padding: 10px 14px; border-bottom: 1px solid var(--c-border); background: var(--c-bg-subtle, #f0f5f2);
+}
+.printBtn {
+  background: var(--c-primary, #0d7a52); color: #fff; border: none; border-radius: 8px;
+  padding: 8px 14px; font-weight: 600; cursor: pointer; font-size: 0.85rem; font-family: inherit;
+}
+.closeBtn { background: none; border: none; cursor: pointer; font-size: 16px; color: var(--c-text-muted); padding: 4px 8px; }
+
+.receipt { padding: 22px 24px; font-family: ui-monospace, 'DM Sans', monospace; color: #111; background: #fff; }
+.seller { text-align: center; }
+.sellerName { font-size: 1rem; font-weight: 700; }
+.sellerLine { font-size: 0.78rem; color: #444; margin-top: 2px; }
+.divider { border-top: 1px dashed #bbb; margin: 12px 0; }
+.metaRow { display: flex; justify-content: space-between; font-size: 0.82rem; margin: 3px 0; color: #222; }
+.metaRow span:first-child { color: #666; }
+.totalRow { font-size: 0.95rem; margin-top: 6px; }
+.items { width: 100%; border-collapse: collapse; font-size: 0.8rem; }
+.items th { text-align: left; color: #666; font-weight: 600; padding: 4px 4px; border-bottom: 1px solid #ddd; }
+.items td { padding: 4px 4px; border-bottom: 1px solid #f0f0f0; color: #111; }
+.right { text-align: right; }
+.footnote { margin-top: 14px; font-size: 0.72rem; color: #888; text-align: center; line-height: 1.4; }
+
+/* Štampa: prikaži samo račun */
+@media print {
+  body * { visibility: hidden; }
+  #invoice-print, #invoice-print * { visibility: visible; }
+  #invoice-print { position: absolute; left: 0; top: 0; width: 100%; padding: 0; }
+  .toolbar { display: none; }
+}

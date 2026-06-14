@@ -154,6 +154,13 @@ export default function WaiterDashboard() {
       o.id === orderId ? { ...o, ...update } : o
     ).filter(o => o.status !== 'closed'))
 
+    // Auto-izdavanje fiskalnog računa na zatvaranje (osim odbijenih), ako je tenant
+    // uključio auto i ima addon. Idempotentno; fire-and-forget. Ručno ostaje uvijek
+    // dostupno na /admin/settings/fiscalization (get_unbilled_sources).
+    if (status === 'closed' && !rejectionMessage && fiscalEnabled && restaurant?.auto_fiscalize) {
+      issueInvoice(orderId)
+    }
+
     // AI prevod razloga odbijanja (fire-and-forget) — gost na OrderTrackerPage vidi
     // razlog na svom jeziku. Izvor crnogorski; keš po narudžbi (entity_id=order.id).
     if (rejectionMessage && restaurant?.id) {
