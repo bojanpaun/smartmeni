@@ -252,6 +252,7 @@ export const MODULES = [
       links: [
         { labelKey: 'navBrand',          icon: '🖼️', path: '/admin/settings/brand' },
         { labelKey: 'navGeneral', icon: '📋', path: '/admin/settings/general' },
+        { labelKey: 'navFiscalization', icon: '🧾', path: '/admin/settings/fiscalization' },
         { labelKey: 'navTheme',  icon: '🎨', path: '/admin/settings/theme' },
         { labelKey: 'navSubscription',      icon: '💳', path: '/admin/billing' },
       ],

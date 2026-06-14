@@ -104,6 +104,7 @@ const ModuleHelp           = lazy(() => import('./platform/admin/ModuleHelp'))
 const TemplateSettings     = lazy(() => import('./modules/menu/pages/TemplateSettings'))
 const BrandSettings        = lazy(() => import('./modules/menu/pages/BrandSettings'))
 const GeneralSettings      = lazy(() => import('./modules/menu/pages/GeneralSettings'))
+const FiscalizationPage    = lazy(() => import('./modules/fiscalization/pages/FiscalizationPage'))
 const ThemeSettings        = lazy(() => import('./modules/menu/pages/ThemeSettings'))
 const AdminMenuQR          = lazy(() => import('./modules/menu/pages/AdminMenuQR'))
 const AdminMenuSettings    = lazy(() => import('./modules/menu/pages/AdminMenuSettings'))
@@ -306,6 +307,7 @@ function AppRoutes() {
         {/* Stari link na Logo → Brend (logo je sad dio Brend sekcije) */}
         <Route path="/admin/settings/logo" element={<Navigate to="/admin/settings/brand" replace />} />
         <Route path="/admin/settings/general" element={<AdminRoute><GeneralSettings /></AdminRoute>} />
+        <Route path="/admin/settings/fiscalization" element={<AdminRoute><AddonGuard addonId="fiscalization" name="Fiskalizacija" description="Univerzalni računi sa PDV obračunom + fiskalizacija po zemlji (CG i region)." price={199} category="restaurant"><FiscalizationPage /></AddonGuard></AdminRoute>} />
         <Route path="/admin/settings/theme" element={<AdminRoute><ThemeSettings /></AdminRoute>} />
         <Route path="/admin/settings/landing" element={<AdminRoute><RestaurantLandingEditor /></AdminRoute>} />
         <Route path="/admin/billing" element={<AdminRoute><BillingPage /></AdminRoute>} />
