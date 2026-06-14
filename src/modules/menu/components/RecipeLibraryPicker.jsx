@@ -2,6 +2,7 @@ import { useState, useEffect } from 'react'
 import { toast } from 'react-hot-toast'
 import { supabase } from '../../../lib/supabase'
 import { usePlatform } from '../../../context/PlatformContext'
+import { useLibraryTranslations } from '../../../lib/useLibraryTranslations'
 import styles from './RecipeLibraryPicker.module.css'
 
 // Meta po kategoriji: label + redoslijed taba. Nepoznata kategorija → fallback.
@@ -28,6 +29,7 @@ const catOrder = (key) => CAT_META[key]?.order ?? 99
 // inventory_pro i namirnice + recept). Po završetku zove onImported() za reload.
 export default function RecipeLibraryPicker({ onClose, onImported, categories = [], defaultCategoryId = '' }) {
   const { restaurant, hasAddon } = usePlatform()
+  const lt = useLibraryTranslations()
   const hasInventory = hasAddon('inventory_pro')
 
   const [tab, setTab] = useState(null)
@@ -186,7 +188,7 @@ export default function RecipeLibraryPicker({ onClose, onImported, categories = 
                         ? <img src={r.image_url} alt="" className={styles.thumb} loading="lazy" />
                         : <span className={styles.emoji}>{r.emoji}</span>}
                       <div className={styles.info}>
-                        <div className={styles.name}>{r.name}</div>
+                        <div className={styles.name}>{lt('recipe_library', r.id, 'name', r.name)}</div>
                         <div className={styles.ings}>
                           {ings.map(i => `${i.ingredient_name} ${i.quantity}${i.unit}`).join(' · ') || '—'}
                         </div>

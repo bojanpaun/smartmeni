@@ -27,6 +27,13 @@ export async function translateContent(restaurantId, items, langs) {
   return invokeTranslate({ restaurant_id: restaurantId, items: clean, langs })
 }
 
+// Faza 4: prevedi GLOBALNE biblioteke (recipe/spa/minibar `name`) na 6 jezika →
+// library_translations. Samo superadmin (edge provjerava). Centralno, jednom; pickeri
+// ih čitaju kroz useLibraryTranslations. Vraća { translated, skipped }.
+export async function translateLibraries(langs) {
+  return invokeTranslate({ library: true, langs })
+}
+
 // Backfill: edge funkcija sama učita SVE menu_items (uklj. skrivene) + kategorije
 // tenanta (service_role) i prevede neprevedeno. Koristi superadmin za zatečene
 // menije. Vraća { translated, skipped }. Smije ga zvati vlasnik ili superadmin.

@@ -91,6 +91,49 @@ Deno.serve(async (req) => {
       return json({ rows, provider })
     }
 
+    // ── BIBLIOTEKE (globalno, samo superadmin): prevedi `name` 3 kurirane biblioteke
+    //    → library_translations (bez restaurant_id). Pickeri ih čitaju za admin jezik. ──
+    if (body?.library === true) {
+      if (!profile?.is_superadmin) return json({ error: 'Samo superadmin' }, 403)
+      const [{ data: recs }, { data: spaT }, { data: mini }] = await Promise.all([
+        supabaseAdmin.from('recipe_library').select('id, name'),
+        supabaseAdmin.from('spa_treatment_library').select('id, name'),
+        supabaseAdmin.from('minibar_library').select('id, name'),
+      ])
+      const libItems: SourceItem[] = []
+      for (const r of recs ?? []) if (r.name?.trim()) libItems.push({ entity_type: 'recipe_library', entity_id: r.id, field: 'name', text: r.name.trim() })
+      for (const s of spaT ?? []) if (s.name?.trim()) libItems.push({ entity_type: 'spa_treatment_library', entity_id: s.id, field: 'name', text: s.name.trim() })
+      for (const m of mini ?? []) if (m.name?.trim()) libItems.push({ entity_type: 'minibar_library', entity_id: m.id, field: 'name', text: m.name.trim() })
+      if (libItems.length === 0) return json({ translated: 0, skipped: 0 })
+
+      const libHashes = new Map<string, string>()
+      for (const it of libItems) libHashes.set(it.entity_id, await sourceHash(it.text))
+      const libIds = [...new Set(libItems.map((it) => it.entity_id))]
+      const { data: libExisting } = await supabaseAdmin
+        .from('library_translations')
+        .select('entity_id, lang, source_hash')
+        .in('entity_id', libIds)
+      const libFresh = new Set<string>()
+      for (const r of libExisting ?? []) {
+        const h = libHashes.get(r.entity_id)
+        if (h && r.source_hash === h) libFresh.add(`${r.entity_id}|${r.lang}`)
+      }
+      const libToDo = libItems.filter((it) => langs.some((l) => !libFresh.has(`${it.entity_id}|${l}`)))
+      if (libToDo.length === 0) return json({ translated: 0, skipped: libItems.length })
+
+      const libRows = await translateAll(provider, libToDo, langs)
+      const libUpsert = libRows
+        .filter((row) => !libFresh.has(`${row.entity_id}|${row.lang}`))
+        .map((row) => ({
+          entity_type: row.entity_type, entity_id: row.entity_id, field: row.field,
+          lang: row.lang, value: row.value, source_hash: libHashes.get(row.entity_id),
+        }))
+      if (libUpsert.length === 0) return json({ translated: 0, skipped: libItems.length })
+      await supabaseAdmin.from('library_translations')
+        .upsert(libUpsert, { onConflict: 'entity_type,entity_id,field,lang' })
+      return json({ translated: libUpsert.length, skipped: libItems.length - libToDo.length })
+    }
+
     // ── REALNI PREVOD (upis u content_translations) ──
     const restaurantId: string = body?.restaurant_id
     const backfill = body?.backfill === true

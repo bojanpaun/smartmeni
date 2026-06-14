@@ -4,6 +4,7 @@ import { usePlatform } from '../../../context/PlatformContext'
 import { supabase } from '../../../lib/supabase'
 import { useSpaServices } from '../hooks/useSpaServices'
 import { translateContent } from '../../../lib/contentTranslate'
+import { useLibraryTranslations } from '../../../lib/useLibraryTranslations'
 import ContentTranslations from '../../../components/shared/ContentTranslations'
 import LoadingSpinner from '../../../components/shared/LoadingSpinner'
 import styles from '../../hotel/pages/Hotel.module.css'
@@ -27,6 +28,7 @@ const BLANK = {
 export default function ServicesPage() {
   const { restaurant } = usePlatform()
   const { t } = useTranslation('admin')
+  const lt = useLibraryTranslations()
   const { services, loading, save, remove, toggle, refetch } = useSpaServices(restaurant?.id)
   const [showForm, setShowForm] = useState(false)
   const [editing, setEditing]   = useState(null)
@@ -116,7 +118,7 @@ export default function ServicesPage() {
               {libItems.map(it => (
                 <div key={it.id} style={{ display: 'flex', alignItems: 'center', gap: 10, padding: '8px 10px', border: '1px solid var(--c-border)', borderRadius: 8 }}>
                   <div style={{ flex: 1 }}>
-                    <div style={{ fontWeight: 600 }}>{it.name}</div>
+                    <div style={{ fontWeight: 600 }}>{lt('spa_treatment_library', it.id, 'name', it.name)}</div>
                     <div style={{ fontSize: 12, color: 'var(--c-text-muted)' }}>
                       {it.duration_minutes} {t('spaMinUnit')}{it.suggested_price != null ? ` · ~€${Number(it.suggested_price).toFixed(0)}` : ''}
                     </div>

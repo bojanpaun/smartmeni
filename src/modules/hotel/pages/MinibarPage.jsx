@@ -2,6 +2,7 @@ import { useState, useEffect } from 'react'
 import { useTranslation } from 'react-i18next'
 import { usePlatform } from '../../../context/PlatformContext'
 import { supabase } from '../../../lib/supabase'
+import { useLibraryTranslations } from '../../../lib/useLibraryTranslations'
 import LoadingSpinner from '../../../components/shared/LoadingSpinner'
 import styles from './Hotel.module.css'
 
@@ -10,6 +11,7 @@ const BLANK = { name: '', price: '', is_active: true }
 export default function MinibarPage() {
   const { restaurant } = usePlatform()
   const { t } = useTranslation('admin')
+  const lt = useLibraryTranslations()
   const [items, setItems] = useState([])
   const [loading, setLoading] = useState(true)
   const [showForm, setShowForm] = useState(false)
@@ -124,7 +126,7 @@ export default function MinibarPage() {
                     borderRadius: 8, background: libSel.has(it.id) ? 'var(--c-primary-light)' : 'transparent',
                   }}>
                     <input type="checkbox" checked={libSel.has(it.id)} onChange={() => toggleSel(it.id)} />
-                    <span style={{ fontSize: 13 }}>{it.name}{it.suggested_price != null ? ` · €${Number(it.suggested_price).toFixed(2)}` : ''}</span>
+                    <span style={{ fontSize: 13 }}>{lt('minibar_library', it.id, 'name', it.name)}{it.suggested_price != null ? ` · €${Number(it.suggested_price).toFixed(2)}` : ''}</span>
                   </label>
                 ))}
               </div>
