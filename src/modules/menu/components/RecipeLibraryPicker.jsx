@@ -4,6 +4,7 @@ import { toast } from 'react-hot-toast'
 import { supabase } from '../../../lib/supabase'
 import { usePlatform } from '../../../context/PlatformContext'
 import { useLibraryTranslations } from '../../../lib/useLibraryTranslations'
+import { translateContent, menuItemFields } from '../../../lib/contentTranslate'
 import styles from './RecipeLibraryPicker.module.css'
 
 // Meta po kategoriji: emoji + labelKey (prevod) + redoslijed taba. Nepoznata → fallback.
@@ -51,7 +52,7 @@ export default function RecipeLibraryPicker({ onClose, onImported, categories = 
     setLoading(true)
     const [{ data: recs }, { data: ings }] = await Promise.all([
       supabase.from('recipe_library')
-        .select('id, name, category, emoji, suggested_price, image_url')
+        .select('id, name, instructions, category, emoji, suggested_price, image_url')
         .eq('is_active', true)
         .order('sort_order'),
       supabase.from('recipe_library_ingredients')
@@ -96,6 +97,7 @@ export default function RecipeLibraryPicker({ onClose, onImported, categories = 
     if (selected.size === 0 || !restaurant) return
     setImporting(true)
     let ok = 0, created = 0, fail = 0
+    const toTranslate = []
     for (const id of selected) {
       const { data, error } = await supabase.rpc('import_recipe_from_library', {
         p_recipe_id: id,
@@ -105,8 +107,16 @@ export default function RecipeLibraryPicker({ onClose, onImported, categories = 
       if (error) { fail++; continue }
       ok++
       if (data?.menu_created) created++
+      // Izvor (me) za uvezeno jelo = bibliotečki name + instructions (opis). Skupljamo
+      // za jedan batch AI prevod (svih 6 jezika → content_translations).
+      const r = recipes.find(x => x.id === id)
+      if (data?.menu_item_id && r) {
+        toTranslate.push(...menuItemFields({ id: data.menu_item_id, name: r.name, description: r.instructions }))
+      }
     }
     setImporting(false)
+    // Fire-and-forget: gost vidi prevod čim stigne; do tada fallback na izvor.
+    if (toTranslate.length) translateContent(restaurant.id, toTranslate).catch(() => {})
 
     if (ok > 0) {
       let msg = t('rlpImportedN', { n: ok })

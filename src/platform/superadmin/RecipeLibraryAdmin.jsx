@@ -16,9 +16,11 @@ const CAT_KEYS = {
 }
 const catOrder = (c) => { const i = CAT_ORDER.indexOf(c); return i < 0 ? 99 : i }
 
+// Nazivi/opisi se prevode AI-jem (library_translations za biblioteku; content_translations
+// za uvezena jela). Stare _en kolone se više ne uređuju ovdje (ostaju u bazi kao fallback).
 const EMPTY_FORM = {
-  id: '', name: '', name_en: '', category: 'coffee', emoji: '🍽️',
-  suggested_price: '', prep_time: '', instructions: '', description_en: '',
+  id: '', name: '', category: 'coffee', emoji: '🍽️',
+  suggested_price: '', prep_time: '', instructions: '',
   allergens: '', calories: '', is_active: true,
 }
 
@@ -48,7 +50,7 @@ export default function RecipeLibraryAdmin() {
     setLoading(true)
     const { data } = await supabase
       .from('recipe_library')
-      .select('id, name, name_en, category, emoji, image_url, is_active, suggested_price, prep_time, instructions, description_en, allergens, calories, sort_order')
+      .select('id, name, category, emoji, image_url, is_active, suggested_price, prep_time, instructions, allergens, calories, sort_order')
       .order('sort_order')
     setRecipes(data || [])
     setTab(prev => prev || [...new Set((data || []).map(r => r.category))].sort((a, b) => catOrder(a) - catOrder(b))[0] || 'coffee')
@@ -94,10 +96,10 @@ export default function RecipeLibraryAdmin() {
     setEditing(recipe.id)
     setEditMsg('')
     setForm({
-      id: recipe.id, name: recipe.name || '', name_en: recipe.name_en || '',
+      id: recipe.id, name: recipe.name || '',
       category: recipe.category || 'coffee', emoji: recipe.emoji || '🍽️',
       suggested_price: recipe.suggested_price ?? '', prep_time: recipe.prep_time || '',
-      instructions: recipe.instructions || '', description_en: recipe.description_en || '',
+      instructions: recipe.instructions || '',
       allergens: recipe.allergens || '', calories: recipe.calories ?? '', is_active: !!recipe.is_active,
     })
     const { data } = await supabase.from('recipe_library_ingredients')
@@ -164,13 +166,11 @@ export default function RecipeLibraryAdmin() {
     setSavingEdit(true)
     const payload = {
       name: form.name.trim(),
-      name_en: form.name_en.trim() || null,
       category: form.category,
       emoji: form.emoji || '🍽️',
       suggested_price: form.suggested_price === '' ? null : parseFloat(form.suggested_price),
       prep_time: form.prep_time.trim() || null,
       instructions: form.instructions.trim() || null,
-      description_en: form.description_en.trim() || null,
       allergens: form.allergens.trim() || null,
       calories: form.calories === '' ? null : parseInt(form.calories),
       is_active: form.is_active,
@@ -286,10 +286,6 @@ export default function RecipeLibraryAdmin() {
                   <input value={form.name} onChange={e => setForm(f => ({ ...f, name: e.target.value }))} />
                 </div>
                 <div className={styles.field}>
-                  <label>{t('saNameEN')}</label>
-                  <input value={form.name_en} onChange={e => setForm(f => ({ ...f, name_en: e.target.value }))} />
-                </div>
-                <div className={styles.field}>
                   <label>{t('spaCategory')}</label>
                   <select value={form.category} onChange={e => setForm(f => ({ ...f, category: e.target.value }))}>
                     {CAT_ORDER.map(c => <option key={c} value={c}>{catLabel(c)}</option>)}
@@ -311,10 +307,6 @@ export default function RecipeLibraryAdmin() {
                 <div className={`${styles.field} ${styles.full}`}>
                   <label>{t('saDescME')}</label>
                   <textarea rows={2} value={form.instructions} onChange={e => setForm(f => ({ ...f, instructions: e.target.value }))} />
-                </div>
-                <div className={`${styles.field} ${styles.full}`}>
-                  <label>{t('saDescEN')}</label>
-                  <textarea rows={2} value={form.description_en} onChange={e => setForm(f => ({ ...f, description_en: e.target.value }))} />
                 </div>
                 <div className={styles.field}>
                   <label>{t('saAllergens')}</label>
