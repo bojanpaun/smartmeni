@@ -7,7 +7,7 @@ const TODAY = new Date().toISOString().slice(0, 10)
 
 export default function HomeView({ staffId, restaurantId, staffInfo, brand }) {
   const { t, i18n } = useTranslation('staffportal')
-  const dl = i18n.language === 'en' ? 'en-US' : dl
+  const dl = i18n.language === 'en' ? 'en-US' : 'sr-Latn'
   const [schedule, setSchedule]           = useState(null)
   const [clockEntry, setClockEntry]       = useState(null)
   const [pendingCount, setPendingCount]   = useState(0)

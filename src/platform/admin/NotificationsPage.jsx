@@ -16,12 +16,14 @@ const BLANK = { title: '', body: '', expires_at: '' }
 
 export default function NotificationsPage() {
   const { restaurant } = usePlatform()
-  const { visible, readIds, markAllRead } = useAnnouncements()
+  const { visible, readIds } = useAnnouncements()
   const { section } = useParams()
   const { t } = useTranslation('admin')
   const tab = section === 'tabla' ? 'tabla' : 'najave'
 
-  // Označi najave pročitanim pri otvaranju sekcije „Najave"
+  // Snapshot nepročitanih PRI OTVARANJU — samo za „NOVO" oznake u listi. NE
+  // označavamo automatski sve pročitanim (banner na dashboardu mora ostati dok ga
+  // admin ručno ne zatvori X-om; samo pregled inboxa ne smije obrisati najavu).
   const initialUnread = useRef(null)
   const [unreadSnapshot, setUnreadSnapshot] = useState(() => new Set())
   useEffect(() => {
@@ -29,9 +31,8 @@ export default function NotificationsPage() {
       const snap = new Set(visible.filter(a => !readIds.has(a.id)).map(a => a.id))
       initialUnread.current = snap
       setUnreadSnapshot(snap)
-      if (snap.size) markAllRead()
     }
-  }, [tab, visible, readIds, markAllRead])
+  }, [tab, visible, readIds])
 
   return (
     <div className={styles.page}>

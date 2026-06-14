@@ -31,7 +31,7 @@ function mEnd() {
 export default function HrView({ staffId, activeTab, currency }) {
   const { t, i18n } = useTranslation('staffportal')
   const money = (a) => formatMoney(a, currency, i18n.language)
-  const dl = i18n.language === 'en' ? 'en-US' : dl
+  const dl = i18n.language === 'en' ? 'en-US' : 'sr-Latn'
   const [schedules, setSchedules]   = useState([])
   const [attendance, setAttendance] = useState([])
   const [payroll, setPayroll]       = useState([])
