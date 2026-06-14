@@ -26,6 +26,7 @@ export default function FiscalizationPage() {
   const { restaurant } = usePlatform()
   const [rates, setRates] = useState([])
   const [loading, setLoading] = useState(true)
+  const [menuStats, setMenuStats] = useState(null) // { total, classified }
 
   useEffect(() => {
     let cancelled = false
@@ -37,6 +38,20 @@ export default function FiscalizationPage() {
       })
     return () => { cancelled = true }
   }, [])
+
+  // Pregled klasifikacije: koliko jela ima dodijeljenu PDV stopu.
+  useEffect(() => {
+    if (!restaurant?.id) return
+    let cancelled = false
+    Promise.all([
+      supabase.from('menu_items').select('id', { count: 'exact', head: true }).eq('restaurant_id', restaurant.id),
+      supabase.from('menu_items').select('id', { count: 'exact', head: true }).eq('restaurant_id', restaurant.id).not('vat_rate_key', 'is', null),
+    ]).then(([all, cls]) => {
+      if (cancelled) return
+      setMenuStats({ total: all.count || 0, classified: cls.count || 0 })
+    })
+    return () => { cancelled = true }
+  }, [restaurant?.id])
 
   const idOk = !!restaurant?.tax_id
   const vatOk = !!restaurant?.vat_number
@@ -98,11 +113,17 @@ export default function FiscalizationPage() {
 
       {/* Placeholderi — naredne faze */}
       <div className={styles.card}>
-        <div className={styles.cardTitleRow}>
-          <span className={styles.cardTitle}>{t('fiskClassifyTitle')}</span>
-          <span className={styles.soon}>{t('fiskSoon')}</span>
-        </div>
+        <div className={styles.cardTitle}>{t('fiskClassifyTitle')}</div>
         <div className={styles.cardHint}>{t('fiskClassifyHint')}</div>
+        {menuStats && menuStats.total > 0 && (
+          <div className={styles.classifyRow}>
+            <span className={menuStats.classified >= menuStats.total ? styles.statOk : styles.statWarn}>
+              {menuStats.classified} / {menuStats.total}
+            </span>
+            <span className={styles.classifyLabel}>{t('fiskClassifyMenu')}</span>
+            <Link to="/admin/menu" className={styles.link}>{t('fiskClassifyLink')}</Link>
+          </div>
+        )}
       </div>
       <div className={styles.card}>
         <div className={styles.cardTitleRow}>

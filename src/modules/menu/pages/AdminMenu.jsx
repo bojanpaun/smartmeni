@@ -10,6 +10,7 @@ import { stripAccountFields } from '../../../lib/planUtils'
 import { translateContent, menuItemFields } from '../../../lib/contentTranslate'
 import { useContentTranslations } from '../../../lib/useContentTranslations'
 import { useMoney } from '../../../lib/useMoney'
+import { useTaxRates } from '../../../lib/useTaxRates'
 import RecipeLibraryPicker from '../components/RecipeLibraryPicker'
 import ContentTranslations from '../../../components/shared/ContentTranslations'
 import styles from './AdminMenu.module.css'
@@ -57,6 +58,7 @@ export default function AdminMenu() {
   // čita prevod; polja za UNOS ostaju na izvoru (master). Za 'me'/bez prevoda → izvor.
   const tr = useContentTranslations(restaurant?.id)
   const money = useMoney()
+  const { rates: taxRates } = useTaxRates()
   const catName = (c) => tr('category', c.id, 'name', c.name)
   const itemName = (it) => tr('menu_item', it.id, 'name', it.name)
   const [categories, setCategories] = useState([])
@@ -72,7 +74,7 @@ export default function AdminMenu() {
   const [itemForm, setItemForm] = useState({
     name: '', name_en: '', description: '', description_en: '',
     price: '', emoji: '🍽️', allergens: '', calories: '',
-    prep_time: '', category_id: '', is_special: false, tags: []
+    prep_time: '', category_id: '', is_special: false, tags: [], vat_rate_key: ''
   })
   const [uploadingImage, setUploadingImage] = useState(false)
   const [saving, setSaving] = useState(false)
@@ -129,7 +131,7 @@ export default function AdminMenu() {
       setItemForm({
         name: '', description: '',
         price: '', emoji: '🍽️', allergens: '', calories: '',
-        prep_time: '', category_id: activeCategory || '', is_special: false, tags: []
+        prep_time: '', category_id: activeCategory || '', is_special: false, tags: [], vat_rate_key: ''
       })
       setEditItem(null)
     }
@@ -618,6 +620,15 @@ export default function AdminMenu() {
                     {categories.map(c => <option key={c.id} value={c.id}>{catName(c)}</option>)}
                   </select>
                 </div>
+                {taxRates.length > 0 && (
+                  <div className={styles.field}>
+                    <label>{t('amVatRate')} <span className={styles.fieldHintInline}>{t('amVatRateHint')}</span></label>
+                    <select value={itemForm.vat_rate_key || ''} onChange={e => setItemForm(f => ({...f, vat_rate_key: e.target.value || null}))}>
+                      <option value="">{t('amVatRateNone')}</option>
+                      {taxRates.map(r => <option key={r.key} value={r.key}>{r.label}</option>)}
+                    </select>
+                  </div>
+                )}
                 <div className={styles.field}>
                   <label>{t('amPrepTime')}</label>
                   <input placeholder={t('amPrepPlaceholder')} value={itemForm.prep_time} onChange={e => setItemForm(f => ({...f, prep_time: e.target.value}))} />

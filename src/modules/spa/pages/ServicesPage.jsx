@@ -6,6 +6,7 @@ import { useSpaServices } from '../hooks/useSpaServices'
 import { translateContent } from '../../../lib/contentTranslate'
 import { useLibraryTranslations } from '../../../lib/useLibraryTranslations'
 import { useMoney } from '../../../lib/useMoney'
+import { useTaxRates } from '../../../lib/useTaxRates'
 import ContentTranslations from '../../../components/shared/ContentTranslations'
 import LoadingSpinner from '../../../components/shared/LoadingSpinner'
 import styles from '../../hotel/pages/Hotel.module.css'
@@ -24,12 +25,14 @@ const BLANK = {
   name: '', category: 'massage', description: '', duration_minutes: 60,
   buffer_minutes: 15, price: '', price_couple: '', max_guests: 1,
   image_url: '', is_active: true, requires_consultation: false, display_order: 0,
+  vat_rate_key: '',
 }
 
 export default function ServicesPage() {
   const { restaurant } = usePlatform()
   const { t } = useTranslation('admin')
   const money = useMoney()
+  const { rates: taxRates } = useTaxRates()
   const lt = useLibraryTranslations()
   const { services, loading, save, remove, toggle, refetch } = useSpaServices(restaurant?.id)
   const [showForm, setShowForm] = useState(false)
@@ -176,6 +179,15 @@ export default function ServicesPage() {
               <label className={spa.formLabel}>{t('spaPriceReq')}</label>
               <input className={spa.formInput} type="number" min="0" step="0.01" value={form.price} onChange={e => upd('price', e.target.value)} placeholder="80.00" />
             </div>
+            {taxRates.length > 0 && (
+              <div className={spa.formField}>
+                <label className={spa.formLabel}>{t('amVatRate')}</label>
+                <select className={spa.formSelect} value={form.vat_rate_key || ''} onChange={e => upd('vat_rate_key', e.target.value || null)}>
+                  <option value="">{t('amVatRateNone')}</option>
+                  {taxRates.map(r => <option key={r.key} value={r.key}>{r.label}</option>)}
+                </select>
+              </div>
+            )}
             <div className={spa.formField}>
               <label className={spa.formLabel}>{t('spaDuration')}</label>
               <select className={spa.formSelect} value={form.duration_minutes} onChange={e => upd('duration_minutes', Number(e.target.value))}>

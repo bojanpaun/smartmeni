@@ -44,6 +44,12 @@
   background: var(--c-bg-subtle, #f0f5f2); padding: 2px 7px; border-radius: 6px; color: var(--c-text);
 }
 
+.classifyRow { display: flex; align-items: center; gap: 10px; margin-top: 12px; flex-wrap: wrap; }
+.statOk, .statWarn { font-weight: 700; font-size: 0.85rem; padding: 3px 10px; border-radius: 999px; }
+.statOk { background: var(--c-success-bg, #E1F5EE); color: var(--c-success, #0d7a52); }
+.statWarn { background: var(--c-warn-bg, #FAEEDA); color: var(--c-warn, #633806); }
+.classifyLabel { font-size: 0.85rem; color: var(--c-text); }
+
 .muted { font-size: 0.85rem; color: var(--c-text-muted); padding: 8px 0; }
 .soon {
   font-size: 0.68rem; font-weight: 700; text-transform: uppercase; letter-spacing: .05em;
