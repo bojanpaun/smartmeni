@@ -6,7 +6,7 @@
 -- ============================================================================
 
 BEGIN;
-SELECT plan(5);
+SELECT plan(6);
 
 SELECT tests.create_supabase_user('rd_owner');
 
@@ -62,6 +62,27 @@ SELECT results_eq(
   $$ SELECT count(*)::int FROM invoices WHERE restaurant_id='55555555-5555-5555-5555-555555555555' $$,
   ARRAY[1],
   'Idempotentno po izvoru: i dalje tačno 1 račun'
+);
+
+-- ── Test 6: nasljeđivanje stope iz KATEGORIJE (jelo bez stope) ──────────────
+-- Kategorija HOSP (15%), jelo bez vat_rate_key → efektivna stopa = kategorijina.
+INSERT INTO categories (id, restaurant_id, name, vat_rate_key) VALUES
+  ('88888888-8888-8888-8888-888888888888', '55555555-5555-5555-5555-555555555555', 'Hrana', 'HOSP');
+INSERT INTO menu_items (id, restaurant_id, category_id, name, price) VALUES
+  ('99999999-9999-9999-9999-999999999999', '55555555-5555-5555-5555-555555555555',
+   '88888888-8888-8888-8888-888888888888', 'Supa', 11.50);  -- bez vat_rate_key
+INSERT INTO orders (id, restaurant_id, table_number, status, total) VALUES
+  ('aaaa0000-0000-0000-0000-000000000001', '55555555-5555-5555-5555-555555555555', '6', 'closed', 11.50);
+INSERT INTO order_items (order_id, menu_item_id, restaurant_id, name, price, quantity) VALUES
+  ('aaaa0000-0000-0000-0000-000000000001', '99999999-9999-9999-9999-999999999999',
+   '55555555-5555-5555-5555-555555555555', 'Supa', 11.50, 1);
+
+SELECT create_invoice_from_order('aaaa0000-0000-0000-0000-000000000001');
+SELECT results_eq(
+  $$ SELECT total_cents, total_base_cents, total_vat_cents FROM invoices
+     WHERE source_id='aaaa0000-0000-0000-0000-000000000001' $$,
+  $$ VALUES (1150, 1000, 150) $$,
+  'Jelo bez stope nasljeđuje HOSP 15% iz kategorije: 11.50 → 10.00 + 1.50'
 );
 
 SELECT * FROM finish();

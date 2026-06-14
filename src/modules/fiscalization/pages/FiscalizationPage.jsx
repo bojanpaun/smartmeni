@@ -39,13 +39,14 @@ export default function FiscalizationPage() {
     return () => { cancelled = true }
   }, [])
 
-  // Pregled klasifikacije: koliko jela ima dodijeljenu PDV stopu.
+  // Pregled klasifikacije: koliko KATEGORIJA ima dodijeljenu PDV stopu (jela
+  // nasljeđuju iz kategorije; per-jelo je override).
   useEffect(() => {
     if (!restaurant?.id) return
     let cancelled = false
     Promise.all([
-      supabase.from('menu_items').select('id', { count: 'exact', head: true }).eq('restaurant_id', restaurant.id),
-      supabase.from('menu_items').select('id', { count: 'exact', head: true }).eq('restaurant_id', restaurant.id).not('vat_rate_key', 'is', null),
+      supabase.from('categories').select('id', { count: 'exact', head: true }).eq('restaurant_id', restaurant.id),
+      supabase.from('categories').select('id', { count: 'exact', head: true }).eq('restaurant_id', restaurant.id).not('vat_rate_key', 'is', null),
     ]).then(([all, cls]) => {
       if (cancelled) return
       setMenuStats({ total: all.count || 0, classified: cls.count || 0 })

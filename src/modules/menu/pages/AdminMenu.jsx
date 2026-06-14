@@ -80,7 +80,7 @@ export default function AdminMenu() {
   const [saving, setSaving] = useState(false)
   const [saveMsg, setSaveMsg] = useState('')
   const [showLibrary, setShowLibrary] = useState(false)
-  const [catForm, setCatForm] = useState({ name: '', icon: '', description: '' })
+  const [catForm, setCatForm] = useState({ name: '', icon: '', description: '', vat_rate_key: '' })
   const [editingCat, setEditingCat] = useState(false)
 
   useEffect(() => {
@@ -215,14 +215,14 @@ export default function AdminMenu() {
   }
 
   const startEditCategory = (cat) => {
-    setCatForm({ name: cat.name, icon: cat.icon || '🍽️', description: cat.description || '' })
+    setCatForm({ name: cat.name, icon: cat.icon || '🍽️', description: cat.description || '', vat_rate_key: cat.vat_rate_key || '' })
     setEditingCat(true)
   }
 
   const saveCategoryEdit = async (cat) => {
     const name = catForm.name.trim()
     if (!name) return
-    const payload = { name, icon: catForm.icon || '🍽️', description: catForm.description.trim() || null }
+    const payload = { name, icon: catForm.icon || '🍽️', description: catForm.description.trim() || null, vat_rate_key: catForm.vat_rate_key || null }
     await supabase.from('categories').update(payload).eq('id', cat.id).eq('restaurant_id', restaurant.id)
     setCategories(categories.map(c => c.id === cat.id ? { ...c, ...payload } : c))
     setEditingCat(false)
@@ -410,6 +410,19 @@ export default function AdminMenu() {
                         placeholder={t('amCatNotePlaceholder')}
                         rows={2}
                       />
+                      {taxRates.length > 0 && (
+                        <div style={{ display: 'flex', alignItems: 'center', gap: 8, marginTop: 8, flexWrap: 'wrap' }}>
+                          <span style={{ fontSize: 12, color: 'var(--c-text-muted)' }}>🧾 {t('amVatRate')}</span>
+                          <select
+                            value={catForm.vat_rate_key || ''}
+                            onChange={e => setCatForm(f => ({ ...f, vat_rate_key: e.target.value }))}
+                            style={{ padding: '6px 10px', borderRadius: 8, border: '1px solid var(--c-border)', background: 'var(--c-surface)', color: 'var(--c-text)', fontSize: 13, fontFamily: 'inherit' }}
+                          >
+                            <option value="">{t('amVatRateNone')}</option>
+                            {taxRates.map(r => <option key={r.key} value={r.key}>{r.label}</option>)}
+                          </select>
+                        </div>
+                      )}
                     </div>
                   ) : (
                     <div className={styles.catEditRow}>
@@ -620,15 +633,19 @@ export default function AdminMenu() {
                     {categories.map(c => <option key={c.id} value={c.id}>{catName(c)}</option>)}
                   </select>
                 </div>
-                {taxRates.length > 0 && (
-                  <div className={styles.field}>
-                    <label>{t('amVatRate')} <span className={styles.fieldHintInline}>{t('amVatRateHint')}</span></label>
-                    <select value={itemForm.vat_rate_key || ''} onChange={e => setItemForm(f => ({...f, vat_rate_key: e.target.value || null}))}>
-                      <option value="">{t('amVatRateNone')}</option>
-                      {taxRates.map(r => <option key={r.key} value={r.key}>{r.label}</option>)}
-                    </select>
-                  </div>
-                )}
+                {taxRates.length > 0 && (() => {
+                  const catRate = categories.find(c => c.id === itemForm.category_id)?.vat_rate_key
+                  const catRateLabel = catRate ? taxRates.find(r => r.key === catRate)?.label : null
+                  return (
+                    <div className={styles.field}>
+                      <label>{t('amVatRate')} <span className={styles.fieldHintInline}>{t('amVatRateHint')}</span></label>
+                      <select value={itemForm.vat_rate_key || ''} onChange={e => setItemForm(f => ({...f, vat_rate_key: e.target.value || null}))}>
+                        <option value="">{t('amVatInherit')}{catRateLabel ? ` — ${catRateLabel}` : ` (${t('amVatRateNone')})`}</option>
+                        {taxRates.map(r => <option key={r.key} value={r.key}>{r.label}</option>)}
+                      </select>
+                    </div>
+                  )
+                })()}
                 <div className={styles.field}>
                   <label>{t('amPrepTime')}</label>
                   <input placeholder={t('amPrepPlaceholder')} value={itemForm.prep_time} onChange={e => setItemForm(f => ({...f, prep_time: e.target.value}))} />
