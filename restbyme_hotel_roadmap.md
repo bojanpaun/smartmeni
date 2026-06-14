@@ -567,7 +567,7 @@ supabase/functions/
 ### Faze izgradnje (redoslijed odozdo)
 | Faza | Sadržaj | Otključava / Test (DoD) |
 |------|---------|--------------------------|
-| **FISK-0** | **Valuta po tenantu (preduslov):** `restaurants.currency` + `currencies.js` + `formatMoney`; payments currency wiring (minor-unit po decimalama); izbor u Postavkama; display refaktor ~193 `€` (inkrementalno, modul po modul) | regionalna/globalna ekspanzija + valutno-ispravni računi · Vitest (formatMoney/konverzija) |
+| **FISK-0** | **Valuta po tenantu (preduslov).** ✅ TEMELJ (2026-06-14, `b4a6fe6`): `restaurants.currency` (migracija, prod), `src/lib/currencies.js` (registar + `formatMoney` + `toMinorUnits/fromMinorUnits`), Vitest (12), izbor u Postavkama (GeneralSettings, ×7 ključeva). ⬜ PREOSTALO: payments currency wiring (minor-unit po decimalama) + display refaktor ~193 `€` (inkrementalno, modul po modul, plan: `useMoney()` hook) | regionalna/globalna ekspanzija + valutno-ispravni računi · Vitest (formatMoney/konverzija) |
 | **FISK-1** | PDV/pricing motor (centi tenantove valute) + `tax_config` (ME) | tačan obračun · Vitest |
 | **FISK-2** | Assembly (po `SourceType`) + atomarna numeracija (`invoices`/`invoice_items`/`invoice_counters`) | `InvoiceDraft` · pgTAP (RLS izolacija + bez rupa u nizu, paralelne narudžbe) |
 | **FISK-3** | `FiscalizationProvider` + ME adapter (Fisver) + `tenant_fiscal_configs`/`fiscal_credentials` | fiskalizacija · Deno (status-map + adapter) |
