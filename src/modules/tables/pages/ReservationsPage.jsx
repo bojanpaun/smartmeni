@@ -5,6 +5,7 @@ import { createPortal } from 'react-dom'
 import { useTranslation } from 'react-i18next'
 import { supabase } from '../../../lib/supabase'
 import { usePlatform } from '../../../context/PlatformContext'
+import { useMoney } from '../../../lib/useMoney'
 import styles from './ReservationsPage.module.css'
 import gsStyles from '../../menu/pages/GeneralSettings.module.css'
 
@@ -21,6 +22,7 @@ const today = () => new Date().toISOString().slice(0, 10)
 // ── Autocomplete za ime gosta ─────────────────────────────────
 function GuestAutocomplete({ value, onChange, onSelectGuest, restaurantId }) {
   const { t } = useTranslation('admin')
+  const money = useMoney()
   const [suggestions, setSuggestions] = useState([])
   const [show, setShow] = useState(false)
   const [dropPos, setDropPos] = useState({ top: 0, left: 0, width: 0 })
@@ -111,7 +113,7 @@ function GuestAutocomplete({ value, onChange, onSelectGuest, restaurantId }) {
                   </div>
                   <div style={{ fontSize: 11, color: '#8a9e96', marginTop: 1 }}>
                     {g.phone || g.email || '—'}
-                    {g.total_visits > 0 && ` · ${g.total_visits} ${t('resVisits')} · €${parseFloat(g.total_spent || 0).toFixed(0)}`}
+                    {g.total_visits > 0 && ` · ${g.total_visits} ${t('resVisits')} · ${money(g.total_spent || 0)}`}
                   </div>
                 </div>
               </div>

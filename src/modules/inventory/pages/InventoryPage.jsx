@@ -5,6 +5,7 @@ import { useNavigate } from 'react-router-dom'
 import { useTranslation } from 'react-i18next'
 import { supabase } from '../../../lib/supabase'
 import { usePlatform } from '../../../context/PlatformContext'
+import { useMoney } from '../../../lib/useMoney'
 import { useSortable } from '../../../hooks/useSortable'
 import SortableHead from '../../../components/shared/SortableHead'
 import styles from './InventoryPage.module.css'
@@ -23,6 +24,7 @@ export default function InventoryPage() {
   const { restaurant } = usePlatform()
   const navigate = useNavigate()
   const { t } = useTranslation('admin')
+  const money = useMoney()
 
   const catLabel = (c) => t(CAT_KEYS[c] || 'invCatOstalo')
   const unitLabel = (u) => u === 'kom' ? t('invUnitKom') : u === 'pak' ? t('invUnitPak') : u
@@ -243,7 +245,7 @@ export default function InventoryPage() {
                 }
               </div>
               <div className={styles.itemCost}>
-                {item.cost_per_unit ? `€${parseFloat(item.cost_per_unit).toFixed(2)}` : '—'}
+                {item.cost_per_unit ? money(item.cost_per_unit) : '—'}
               </div>
               <div className={styles.itemActions}>
                 <button

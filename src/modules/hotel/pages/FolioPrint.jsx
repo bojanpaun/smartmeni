@@ -3,6 +3,7 @@ import { useParams } from 'react-router-dom'
 import { useTranslation } from 'react-i18next'
 import { usePlatform } from '../../../context/PlatformContext'
 import { supabase } from '../../../lib/supabase'
+import { useMoney } from '../../../lib/useMoney'
 import styles from './FolioPrint.module.css'
 
 const TYPE_LABEL_KEYS = {
@@ -18,6 +19,7 @@ export default function FolioPrint() {
   const { t, i18n } = useTranslation('admin')
   const dl = i18n.language === 'en' ? 'en-US' : 'sr-Latn'
   const { restaurant } = usePlatform()
+  const money = useMoney()
   const [data, setData] = useState(null)
   const [loading, setLoading] = useState(true)
   const printed = useRef(false)
@@ -157,30 +159,30 @@ export default function FolioPrint() {
                 <td>{TYPE_LABEL_KEYS[item.type] ? t(TYPE_LABEL_KEYS[item.type]) : item.type}</td>
                 <td>{item.description}</td>
                 <td className={styles.right}>{item.quantity}</td>
-                <td className={styles.right}>€{parseFloat(item.unit_price).toFixed(2)}</td>
-                <td className={styles.right}>€{parseFloat(item.total_price).toFixed(2)}</td>
+                <td className={styles.right}>{money(item.unit_price)}</td>
+                <td className={styles.right}>{money(item.total_price)}</td>
               </tr>
             ))}
           </tbody>
           <tfoot>
             <tr className={styles.totalRow}>
               <td colSpan={5} className={styles.right}><strong>{t('flTotal')}</strong></td>
-              <td className={styles.right}><strong>€{computedTotal.toFixed(2)}</strong></td>
+              <td className={styles.right}><strong>{money(computedTotal)}</strong></td>
             </tr>
             <tr>
               <td colSpan={5} className={styles.right}>{t('htPayPaid')}</td>
-              <td className={styles.right}>€{paidAmount.toFixed(2)}</td>
+              <td className={styles.right}>{money(paidAmount)}</td>
             </tr>
             {balance > 0 && (
               <tr className={styles.balanceDue}>
                 <td colSpan={5} className={styles.right}><strong>{t('fpOwes')}</strong></td>
-                <td className={styles.right}><strong>€{balance.toFixed(2)}</strong></td>
+                <td className={styles.right}><strong>{money(balance)}</strong></td>
               </tr>
             )}
             {balance < 0 && (
               <tr className={styles.balancePaid}>
                 <td colSpan={5} className={styles.right}><strong>{t('fpRefundLabel')}</strong></td>
-                <td className={styles.right}><strong>€{Math.abs(balance).toFixed(2)}</strong></td>
+                <td className={styles.right}><strong>{money(Math.abs(balance))}</strong></td>
               </tr>
             )}
           </tfoot>

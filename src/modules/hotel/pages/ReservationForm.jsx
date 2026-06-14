@@ -2,6 +2,7 @@ import { useState, useEffect } from 'react'
 import { useNavigate, useParams } from 'react-router-dom'
 import { useTranslation } from 'react-i18next'
 import { usePlatform } from '../../../context/PlatformContext'
+import { useMoney } from '../../../lib/useMoney'
 import { useRooms } from '../hooks/useRooms'
 import { supabase } from '../../../lib/supabase'
 import LoadingSpinner from '../../../components/shared/LoadingSpinner'
@@ -21,6 +22,7 @@ export default function ReservationForm() {
   const { id } = useParams()
   const navigate = useNavigate()
   const { t } = useTranslation('admin')
+  const money = useMoney()
   const { restaurant } = usePlatform()
   const { rooms, roomTypes, loading: loadingRooms } = useRooms(restaurant?.id)
   const [form, setForm] = useState(EMPTY)
@@ -210,7 +212,7 @@ export default function ReservationForm() {
             {nights > 0 && (
               <div className={styles.totalBox}>
                 <span>{t('htNightsRate', { n: nights, rate: form.rate_per_night || 0 })}</span>
-                <strong>= €{total.toFixed(2)}</strong>
+                <strong>= {money(total)}</strong>
               </div>
             )}
           </div>

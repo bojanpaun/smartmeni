@@ -3,6 +3,7 @@ import { useNavigate } from 'react-router-dom'
 import { useTranslation } from 'react-i18next'
 import { supabase } from '../../../lib/supabase'
 import { usePlatform } from '../../../context/PlatformContext'
+import { useMoney } from '../../../lib/useMoney'
 import styles from './WaiterMapView.module.css'
 import gsStyles from '../../menu/pages/GeneralSettings.module.css'
 
@@ -12,6 +13,7 @@ export default function WaiterMapView() {
   const { restaurant } = usePlatform()
   const navigate = useNavigate()
   const { t, i18n } = useTranslation('admin')
+  const money = useMoney()
   const dl = i18n.language === 'en' ? 'en-US' : 'sr-Latn'
 
   const [tables, setTables] = useState([])
@@ -156,7 +158,7 @@ export default function WaiterMapView() {
                 </span>
               </div>
               {order.note && <div className={styles.orderNote}>{order.note}</div>}
-              <div className={styles.orderTotal}>€{parseFloat(order.total).toFixed(2)}</div>
+              <div className={styles.orderTotal}>{money(order.total)}</div>
               {order.status !== 'ready' && (
                 <button className={styles.btnReady} onClick={() => markOrderReady(order.id)}>
                   {t('wmvMarkReady')}
@@ -166,7 +168,7 @@ export default function WaiterMapView() {
           ))}
           <div className={styles.totalRow}>
             <span>{t('wmvTotalForTable')}</span>
-            <span className={styles.totalAmount}>€{selectedTotal.toFixed(2)}</span>
+            <span className={styles.totalAmount}>{money(selectedTotal)}</span>
           </div>
           <button className={styles.btnClose} onClick={() => closeTable(selectedTableData.number)}>
             {t('wmvCloseTable')}
@@ -267,7 +269,7 @@ export default function WaiterMapView() {
                   )}
 
                   <div className={styles.tableLabel}>{table.label || `${t('anaTable')} ${table.number}`}</div>
-                  {status === 'occupied' && <div className={styles.tableTotal}>€{total.toFixed(2)}</div>}
+                  {status === 'occupied' && <div className={styles.tableTotal}>{money(total)}</div>}
                   {status === 'calling'  && <div className={styles.tableAlert}>🔔</div>}
                   {status === 'reserved' && (
                     <div className={styles.tableReservedLabel}>
@@ -334,7 +336,7 @@ export default function WaiterMapView() {
               {status === 'calling' && <div className={styles.mobilePulse} />}
               <div className={styles.mobileCardName}>{table.label || `${t('anaTable')} ${table.number}`}</div>
               <div className={styles.mobileCardInfo}>
-                {status === 'occupied' && <span className={styles.mobileCardAmount}>€{total.toFixed(2)}</span>}
+                {status === 'occupied' && <span className={styles.mobileCardAmount}>{money(total)}</span>}
                 {status === 'calling'  && <span className={styles.mobileCardCallIcon}>🔔</span>}
                 {status === 'reserved' && <span className={styles.mobileCardResTime}>📅 {res[0]?.time?.slice(0, 5)}</span>}
                 {status === 'free'     && <span className={styles.mobileCardFreeLabel}>{t('tblFreeLower')}</span>}

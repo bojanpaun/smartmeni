@@ -3,6 +3,7 @@ import toast from 'react-hot-toast'
 import { useTranslation } from 'react-i18next'
 import { usePlatform } from '../../../context/PlatformContext'
 import { supabase } from '../../../lib/supabase'
+import { formatMoney } from '../../../lib/currencies'
 import LoadingSpinner from '../../../components/shared/LoadingSpinner'
 import styles from './Hotel.module.css'
 import na from './NightAudit.module.css'
@@ -14,13 +15,13 @@ const todayISO = () => {
 }
 
 const TYPE_LABEL_KEYS = { room_charge: 'htTypeRoom', restaurant: 'htTypeRestaurant', minibar: 'htTypeMinibar', spa: 'htTypeSpa', other: 'htTypeOther' }
-const eur = (n) => `€${Number(n || 0).toFixed(2)}`
 const fmtDate = (s, dl) => s ? new Date(s).toLocaleDateString(dl, { day: '2-digit', month: '2-digit', year: 'numeric' }) : '—'
 
 export default function NightAuditPage() {
   const { restaurant } = usePlatform()
   const { t, i18n } = useTranslation('admin')
   const dl = i18n.language === 'en' ? 'en-US' : 'sr-Latn'
+  const eur = (n) => formatMoney(n, restaurant?.currency, i18n.language)
   const typeLabel = (ty) => TYPE_LABEL_KEYS[ty] ? t(TYPE_LABEL_KEYS[ty]) : ty
   const [date, setDate] = useState(todayISO())
   const [running, setRunning] = useState(false)

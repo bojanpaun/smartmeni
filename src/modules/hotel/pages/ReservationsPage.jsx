@@ -2,6 +2,7 @@ import { useState, useEffect, useMemo } from 'react'
 import { useNavigate } from 'react-router-dom'
 import { useTranslation } from 'react-i18next'
 import { usePlatform } from '../../../context/PlatformContext'
+import { useMoney } from '../../../lib/useMoney'
 import { useReservations } from '../hooks/useReservations'
 import { useReservationCounts } from '../hooks/useReservationCounts'
 import { useRooms } from '../hooks/useRooms'
@@ -99,6 +100,7 @@ export default function ReservationsPage() {
   const { restaurant } = usePlatform()
   const { t, i18n }    = useTranslation('admin')
   const dl             = i18n.language === 'en' ? 'en-US' : 'sr-Latn'
+  const money          = useMoney()
   const navigate       = useNavigate()
   const [view, setView] = useState('list')
 
@@ -304,7 +306,7 @@ export default function ReservationsPage() {
                       <span>{new Date(res.check_in_date).toLocaleDateString(dl)}</span>
                       <span>{new Date(res.check_out_date).toLocaleDateString(dl)}</span>
                       <span>{nights}</span>
-                      <span>{res.total_amount ? `€${Number(res.total_amount).toFixed(0)}` : '—'}</span>
+                      <span>{res.total_amount ? money(res.total_amount) : '—'}</span>
                       <span><span className={`${styles.sBadge} ${styles[STATUS_CLASS[res.status] ?? 'sBadgeConfirmed']}`}>{STATUS_LABEL_KEYS[res.status] ? t(STATUS_LABEL_KEYS[res.status]) : res.status}</span></span>
                     </div>
                   )
@@ -330,7 +332,7 @@ export default function ReservationsPage() {
                       <span>↓ {new Date(res.check_in_date).toLocaleDateString(dl)}</span>
                       <span>↑ {new Date(res.check_out_date).toLocaleDateString(dl)}</span>
                       <span>{t('htNights', { n: nights })}</span>
-                      {res.total_amount && <span style={{ fontWeight: 600, color: 'var(--c-text)' }}>€{Number(res.total_amount).toFixed(0)}</span>}
+                      {res.total_amount && <span style={{ fontWeight: 600, color: 'var(--c-text)' }}>{money(res.total_amount)}</span>}
                     </div>
                   </div>
                 )

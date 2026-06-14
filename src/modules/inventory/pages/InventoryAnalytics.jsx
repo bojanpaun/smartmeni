@@ -2,6 +2,7 @@ import { useState, useEffect } from 'react'
 import { useTranslation } from 'react-i18next'
 import { supabase } from '../../../lib/supabase'
 import { usePlatform } from '../../../context/PlatformContext'
+import { useMoney } from '../../../lib/useMoney'
 import gsStyles from '../../menu/pages/GeneralSettings.module.css'
 
 const CAT_KEYS = {
@@ -13,6 +14,7 @@ export default function InventoryAnalytics() {
   const { restaurant } = usePlatform()
   const { t, i18n } = useTranslation('admin')
   const dl = i18n.language === 'en' ? 'en-US' : 'sr-Latn'
+  const money = useMoney()
   const catLabel = (c) => t(CAT_KEYS[c] || 'invCatOstalo')
   const [items, setItems] = useState([])
   const [movements, setMovements] = useState([])
@@ -52,7 +54,7 @@ export default function InventoryAnalytics() {
   const metrics = [
     { label: t('iaTotalItems'), value: totalItems },
     { label: t('invBelowMin'), value: lowItems.length, color: lowItems.length > 0 ? 'var(--c-danger)' : 'var(--c-primary)' },
-    { label: t('iaStockValue'), value: `€${totalValue.toFixed(0)}`, color: 'var(--c-primary)' },
+    { label: t('iaStockValue'), value: money(totalValue), color: 'var(--c-primary)' },
     { label: t('iaInflows'), value: inMoves, color: 'var(--c-primary)' },
     { label: t('iaOutflows'), value: outMoves, color: 'var(--c-warning)' },
   ]
@@ -102,7 +104,7 @@ export default function InventoryAnalytics() {
                 <div style={{ height: '100%', borderRadius: 6, background: 'var(--c-primary)', width: `${(data.count / totalItems) * 100}%` }} />
               </div>
               <div style={{ fontSize: 12, color: 'var(--c-text-muted)', minWidth: 80, textAlign: 'right' }}>
-                {data.count} {t('iaItemsShort')} · €{data.value.toFixed(0)}
+                {data.count} {t('iaItemsShort')} · {money(data.value)}
               </div>
             </div>
           ))}

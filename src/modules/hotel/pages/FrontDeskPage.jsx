@@ -2,6 +2,7 @@ import { useState, useEffect, useCallback } from 'react'
 import { useNavigate } from 'react-router-dom'
 import { useTranslation } from 'react-i18next'
 import { usePlatform } from '../../../context/PlatformContext'
+import { useMoney } from '../../../lib/useMoney'
 import { useAdminBadgeRefresh } from '../../../layouts/AdminLayout'
 import { useReservations } from '../hooks/useReservations'
 import { supabase } from '../../../lib/supabase'
@@ -27,6 +28,7 @@ export default function FrontDeskPage() {
   const { restaurant } = usePlatform()
   const { t, i18n } = useTranslation('admin')
   const dl = i18n.language === 'en' ? 'en-US' : 'sr-Latn'
+  const money = useMoney()
   const { refreshCounts } = useAdminBadgeRefresh()
   const navigate = useNavigate()
   const [tab, setTab] = useState('checkin')
@@ -324,7 +326,7 @@ export default function FrontDeskPage() {
                   </span>
                   <span>{res.rooms?.room_number ? t('htRoomNum', { num: res.rooms.room_number }) : '—'}</span>
                   <span>{new Date(res.check_in_date).toLocaleDateString(dl)}</span>
-                  <span style={{ fontWeight: 600 }}>{res.total_amount ? `€${Number(res.total_amount).toFixed(2)}` : '—'}</span>
+                  <span style={{ fontWeight: 600 }}>{res.total_amount ? money(res.total_amount) : '—'}</span>
                   <span style={{ display: 'flex', gap: 6, justifyContent: 'flex-end' }}>
                     <button className={styles.btnSecondary} onClick={() => navigate(`/admin/hotel/reservations/${res.id}/folio`)}>{t('htFolio')}</button>
                     <button className={styles.btnPrimary} onClick={() => handleCheckOut(res)}>{t('htCheckout')} ✓</button>
@@ -346,7 +348,7 @@ export default function FrontDeskPage() {
                 </div>
                 <div className={styles.fdCardMeta}>
                   <span>{t('htCheckin')}: {new Date(res.check_in_date).toLocaleDateString(dl)}</span>
-                  {res.total_amount && <span style={{ fontWeight: 600, color: 'var(--c-text)' }}>€{Number(res.total_amount).toFixed(2)}</span>}
+                  {res.total_amount && <span style={{ fontWeight: 600, color: 'var(--c-text)' }}>{money(res.total_amount)}</span>}
                 </div>
                 <div className={styles.fdCardActions}>
                   <button className={styles.btnSecondary} onClick={() => navigate(`/admin/hotel/reservations/${res.id}/folio`)}>{t('htFolio')}</button>

@@ -5,6 +5,7 @@ import { supabase } from '../../../lib/supabase'
 import { toEmbedUrl } from '../../../utils/videoUrl'
 import { useContentTranslations } from '../../../lib/useContentTranslations'
 import { landingFieldPath } from '../../../lib/contentTranslate'
+import { formatMoney } from '../../../lib/currencies'
 import LanguageSwitcher from '../../../i18n/LanguageSwitcher'
 import styles from './HotelLanding.module.css'
 
@@ -13,7 +14,7 @@ const isPreview = new URLSearchParams(window.location.search).get('preview') ===
 export default function HotelLandingPage() {
   const { slug } = useParams()
   const navigate = useNavigate()
-  const { t } = useTranslation('hotellanding')
+  const { t, i18n } = useTranslation('hotellanding')
 
   const [hotel, setHotel] = useState(null)
   const [roomTypes, setRoomTypes] = useState([])
@@ -122,7 +123,7 @@ export default function HotelLandingPage() {
                     {rt.base_price && (
                       <div className={styles.roomPrice}>
                         <span className={styles.priceFrom}>{t('from')}</span>
-                        <span className={styles.priceAmount}>€{Number(rt.base_price).toFixed(0)}</span>
+                        <span className={styles.priceAmount}>{formatMoney(rt.base_price, hotel?.currency, i18n.language)}</span>
                         <span className={styles.priceNight}>{t('perNight')}</span>
                       </div>
                     )}

@@ -3,6 +3,7 @@ import { useTranslation } from 'react-i18next'
 import { usePlatform } from '../../../context/PlatformContext'
 import { supabase } from '../../../lib/supabase'
 import { useLibraryTranslations } from '../../../lib/useLibraryTranslations'
+import { useMoney } from '../../../lib/useMoney'
 import LoadingSpinner from '../../../components/shared/LoadingSpinner'
 import styles from './Hotel.module.css'
 
@@ -12,6 +13,7 @@ export default function MinibarPage() {
   const { restaurant } = usePlatform()
   const { t } = useTranslation('admin')
   const lt = useLibraryTranslations()
+  const money = useMoney()
   const [items, setItems] = useState([])
   const [loading, setLoading] = useState(true)
   const [showForm, setShowForm] = useState(false)
@@ -126,7 +128,7 @@ export default function MinibarPage() {
                     borderRadius: 8, background: libSel.has(it.id) ? 'var(--c-primary-light)' : 'transparent',
                   }}>
                     <input type="checkbox" checked={libSel.has(it.id)} onChange={() => toggleSel(it.id)} />
-                    <span style={{ fontSize: 13 }}>{lt('minibar_library', it.id, 'name', it.name)}{it.suggested_price != null ? ` · €${Number(it.suggested_price).toFixed(2)}` : ''}</span>
+                    <span style={{ fontSize: 13 }}>{lt('minibar_library', it.id, 'name', it.name)}{it.suggested_price != null ? ` · ${money(it.suggested_price)}` : ''}</span>
                   </label>
                 ))}
               </div>
@@ -183,7 +185,7 @@ export default function MinibarPage() {
               {items.map(it => (
                 <tr key={it.id} style={{ borderTop: '1px solid var(--c-border)' }}>
                   <td style={{ padding: '10px 12px', fontWeight: 600 }}>{it.name}</td>
-                  <td style={{ padding: '10px 12px' }}>{it.price != null ? `€${Number(it.price).toFixed(2)}` : '—'}</td>
+                  <td style={{ padding: '10px 12px' }}>{it.price != null ? money(it.price) : '—'}</td>
                   <td style={{ padding: '10px 12px' }}>{it.is_active ? '✓' : '—'}</td>
                   <td style={{ padding: '10px 12px' }}>
                     <div style={{ display: 'flex', gap: 8 }}>
