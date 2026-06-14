@@ -5,6 +5,7 @@ import { useNavigate } from 'react-router-dom'
 import { useTranslation } from 'react-i18next'
 import { supabase } from '../../../lib/supabase'
 import { usePlatform } from '../../../context/PlatformContext'
+import { useMoney } from '../../../lib/useMoney'
 import { useSortable } from '../../../hooks/useSortable'
 import SortableHead from '../../../components/shared/SortableHead'
 import styles from './StaffPage.module.css'
@@ -223,6 +224,7 @@ export default function StaffPage() {
 
 function StaffTable({ staff, onEdit, onToggle, onRemove }) {
   const { t } = useTranslation('admin')
+  const money = useMoney()
   const sort = useSortable('_displayName', 'asc')
   const staffWithNames = staff.map(s => ({
     ...s,
@@ -248,7 +250,7 @@ function StaffTable({ staff, onEdit, onToggle, onRemove }) {
               : s.email[0].toUpperCase()
             const displayName = s._displayName
             const wage = s.wage_amount > 0
-              ? `€${parseFloat(s.wage_amount).toFixed(0)}/${s.wage_type === 'hourly' ? t('stfPerHour') : s.wage_type === 'weekly' ? t('stfPerWeek') : t('stfPerMonth')}`
+              ? `${money(s.wage_amount)}/${s.wage_type === 'hourly' ? t('stfPerHour') : s.wage_type === 'weekly' ? t('stfPerWeek') : t('stfPerMonth')}`
               : '—'
 
             return (

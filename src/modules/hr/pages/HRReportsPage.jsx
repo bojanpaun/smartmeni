@@ -2,6 +2,7 @@ import { useState, useEffect } from 'react'
 import { useTranslation } from 'react-i18next'
 import { supabase } from '../../../lib/supabase'
 import { usePlatform } from '../../../context/PlatformContext'
+import { useMoney } from '../../../lib/useMoney'
 import DateNav from '../../../components/shared/DateNav'
 import styles from './HRReportsPage.module.css'
 import gsStyles from '../../menu/pages/GeneralSettings.module.css'
@@ -179,6 +180,7 @@ function StaffDetailModal({ staff, attendance, schedules, dateFrom, dateTo, onCl
 export default function HRReportsPage() {
   const { restaurant } = usePlatform()
   const { t } = useTranslation('admin')
+  const money = useMoney()
 
   const [loading, setLoading] = useState(true)
   const [dateFrom, setDateFrom] = useState(() => getPeriod('this_month')[0])
@@ -334,7 +336,7 @@ export default function HRReportsPage() {
             </div>
             <div className={styles.kpiCard}>
               <div className={styles.kpiLabel}>{t('hrrLaborCost')}</div>
-              <div className={styles.kpiVal}>€{data.totalLaborCost.toFixed(2)}</div>
+              <div className={styles.kpiVal}>{money(data.totalLaborCost)}</div>
             </div>
             <div className={styles.kpiCard}>
               <div className={styles.kpiLabel}>{t('hrrAvgAttendance')}</div>
@@ -394,7 +396,7 @@ export default function HRReportsPage() {
                             {s.attendanceRate !== null ? `${s.attendanceRate.toFixed(0)}%` : '—'}
                           </span>
                         </td>
-                        <td className={styles.tableTotal}>€{s.totalCost.toFixed(2)}</td>
+                        <td className={styles.tableTotal}>{money(s.totalCost)}</td>
                         <td>
                           <button
                             className={styles.btnDetail}
@@ -414,7 +416,7 @@ export default function HRReportsPage() {
                       <td></td>
                       <td>{data.totalLate}×</td>
                       <td>{data.avgAttendance.toFixed(0)}%</td>
-                      <td className={styles.tableTotal}>€{data.totalLaborCost.toFixed(2)}</td>
+                      <td className={styles.tableTotal}>{money(data.totalLaborCost)}</td>
                       <td></td>
                     </tr>
                   </tfoot>
@@ -431,7 +433,7 @@ export default function HRReportsPage() {
                 <div key={i} className={styles.hrCard}>
                   <div className={styles.hrCardTop}>
                     <span className={styles.hrCardName}>{staffName(s)}</span>
-                    <span className={styles.hrCardTotal}>€{s.totalCost.toFixed(2)}</span>
+                    <span className={styles.hrCardTotal}>{money(s.totalCost)}</span>
                   </div>
                   <div className={styles.hrCardRow}>
                     {s.hoursWorked.toFixed(1)}h · {t('hrrDaysCount', { w: s.daysWorked, s: s.daysScheduled })}
@@ -457,7 +459,7 @@ export default function HRReportsPage() {
               {data.staffStats.length > 0 && (
                 <div className={styles.hrCardFooter}>
                   <span>{data.totalHours.toFixed(1)}h · {t('hrrLateShort', { n: data.totalLate })} · {data.avgAttendance.toFixed(0)}%</span>
-                  <span className={styles.hrCardTotal}>€{data.totalLaborCost.toFixed(2)}</span>
+                  <span className={styles.hrCardTotal}>{money(data.totalLaborCost)}</span>
                 </div>
               )}
             </div>

@@ -6,6 +6,7 @@ import { useParams, useNavigate } from 'react-router-dom'
 import { useTranslation } from 'react-i18next'
 import { supabase } from '../../../lib/supabase'
 import { getTemplate } from '../../../lib/templates'
+import { formatMoney } from '../../../lib/currencies'
 import styles from './StaffPortalPage.module.css'
 
 const ENTRY_TYPES = {
@@ -44,6 +45,7 @@ export default function StaffPortalPage() {
   const dl = i18n.language === 'en' ? 'en-US' : 'sr-Latn'
 
   const [restaurant, setRestaurant] = useState(null)
+  const money = (a) => formatMoney(a, restaurant?.currency, i18n.language)
   const [loading, setLoading] = useState(true)
   const [mode, setMode] = useState('login') // login | portal
   const [activeTab, setActiveTab] = useState('schedule')
@@ -80,7 +82,7 @@ export default function StaffPortalPage() {
   const loadRestaurant = async () => {
     const { data } = await supabase
       .from('restaurants')
-      .select('id, name, slug, logo_url, color, template')
+      .select('id, name, slug, logo_url, color, template, currency')
       .eq('slug', slug)
       .single()
     setRestaurant(data)
@@ -371,10 +373,10 @@ export default function StaffPortalPage() {
 
             <div className={styles.payKpi}>
               {[
-                { label: t('payBaseSalary'), val: `€${baseWage.toFixed(2)}`, color: '#1a2e26' },
-                { label: t('sppAdditions'), val: `+€${totalAdd.toFixed(2)}`, color: '#0d7a52' },
-                { label: t('payDeductions'), val: `-€${totalDed.toFixed(2)}`, color: '#c0392b' },
-                { label: t('sppNet'), val: `€${neto.toFixed(2)}`, color: brand },
+                { label: t('payBaseSalary'), val: money(baseWage), color: '#1a2e26' },
+                { label: t('sppAdditions'), val: `+${money(totalAdd)}`, color: '#0d7a52' },
+                { label: t('payDeductions'), val: `-${money(totalDed)}`, color: '#c0392b' },
+                { label: t('sppNet'), val: money(neto), color: brand },
               ].map((k, i) => (
                 <div key={i} className={styles.payKpiCard}>
                   <div className={styles.payKpiLabel}>{k.label}</div>
@@ -392,7 +394,7 @@ export default function StaffPortalPage() {
                   <div key={e.id} className={styles.payRow}>
                     <span className={styles.payBadge} style={{ background: et?.bg, color: et?.color }}>{et && t(et.labelKey)}</span>
                     <div className={styles.payAmount} style={{ color: isDed ? '#c0392b' : '#0d7a52' }}>
-                      {isDed ? '-' : '+'}€{parseFloat(e.amount).toFixed(2)}
+                      {isDed ? '-' : '+'}{money(e.amount)}
                     </div>
                     <div className={styles.payMeta}>
                       {new Date(e.date).toLocaleDateString(dl)}

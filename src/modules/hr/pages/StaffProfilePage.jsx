@@ -5,6 +5,7 @@ import { useParams, useNavigate } from 'react-router-dom'
 import { useTranslation } from 'react-i18next'
 import { supabase } from '../../../lib/supabase'
 import { usePlatform } from '../../../context/PlatformContext'
+import { formatMoney, currencyMeta } from '../../../lib/currencies'
 import styles from './StaffProfilePage.module.css'
 
 const ENTRY_TYPES = [
@@ -41,6 +42,8 @@ export default function StaffProfilePage() {
   const { t, i18n } = useTranslation('admin')
   const dl = i18n.language === 'en' ? 'en-US' : 'sr-Latn'
   const { restaurant } = usePlatform()
+  const money = (a) => formatMoney(a, restaurant?.currency, i18n.language)
+  const sym = currencyMeta(restaurant?.currency).symbol
   const [staff, setStaff] = useState(null)
   const [roles, setRoles] = useState([])
   const [history, setHistory] = useState([])
@@ -258,9 +261,9 @@ export default function StaffProfilePage() {
 </div>
 
 <div class="kpi-row">
-  <div class="kpi-box"><div class="k-label">${t('payBaseSalary')}</div><div class="k-val">€${base.toFixed(2)}</div></div>
-  <div class="kpi-box"><div class="k-label">${t('sppAdditions')}</div><div class="k-val" style="color:#0d7a52">+€${totalAdd.toFixed(2)}</div></div>
-  <div class="kpi-box"><div class="k-label">${t('payDeductions')}</div><div class="k-val" style="color:#c0392b">-€${totalDed.toFixed(2)}</div></div>
+  <div class="kpi-box"><div class="k-label">${t('payBaseSalary')}</div><div class="k-val">${sym}${base.toFixed(2)}</div></div>
+  <div class="kpi-box"><div class="k-label">${t('sppAdditions')}</div><div class="k-val" style="color:#0d7a52">+${sym}${totalAdd.toFixed(2)}</div></div>
+  <div class="kpi-box"><div class="k-label">${t('payDeductions')}</div><div class="k-val" style="color:#c0392b">-${sym}${totalDed.toFixed(2)}</div></div>
 </div>
 
 ${additions.length > 0 ? `
@@ -272,7 +275,7 @@ ${additions.length > 0 ? `
       <td>${typeLabel(e.type)}</td>
       <td style="color:#5a7a6a">${e.note || '—'}</td>
       <td style="color:#5a7a6a">${new Date(e.date).toLocaleDateString(dl)}</td>
-      <td class="amount-pos" style="text-align:right">+€${parseFloat(e.amount).toFixed(2)}</td>
+      <td class="amount-pos" style="text-align:right">+${sym}${parseFloat(e.amount).toFixed(2)}</td>
     </tr>`).join('')}
   </tbody>
 </table>` : ''}
@@ -286,7 +289,7 @@ ${deductions.length > 0 ? `
       <td>${typeLabel(e.type)}</td>
       <td style="color:#5a7a6a">${e.note || '—'}</td>
       <td style="color:#5a7a6a">${new Date(e.date).toLocaleDateString(dl)}</td>
-      <td class="amount-neg" style="text-align:right">-€${parseFloat(e.amount).toFixed(2)}</td>
+      <td class="amount-neg" style="text-align:right">-${sym}${parseFloat(e.amount).toFixed(2)}</td>
     </tr>`).join('')}
   </tbody>
 </table>` : ''}
@@ -296,7 +299,7 @@ ${deductions.length > 0 ? `
     <div class="label">${t('profNetPayout')}</div>
     <div style="font-size:11px;color:rgba(255,255,255,0.5);margin-top:2px;">${period}</div>
   </div>
-  <div class="val">€${neto.toFixed(2)}</div>
+  <div class="val">${sym}${neto.toFixed(2)}</div>
 </div>
 
 <div class="signatures">
@@ -391,7 +394,7 @@ ${deductions.length > 0 ? `
           )}
           {staff.wage_amount > 0 && (
             <div className={styles.statItem}>
-              <div className={styles.statVal}>€{parseFloat(staff.wage_amount).toFixed(0)}</div>
+              <div className={styles.statVal}>{money(staff.wage_amount)}</div>
               <div className={styles.statLabel}>{staff.wage_type==='hourly'?t('profPerHour'):staff.wage_type==='weekly'?t('profPerWeek'):t('profPerMonth')}</div>
             </div>
           )}
@@ -637,10 +640,10 @@ ${deductions.length > 0 ? `
               return (
                 <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fill, minmax(130px,1fr))', gap: 10, marginBottom: 16 }}>
                   {[
-                    { label: t('payBaseSalary'), val: `€${base.toFixed(2)}`, color: '#0d7a52' },
-                    { label: t('sppAdditions'), val: `+€${extras.toFixed(2)}`, color: '#378add' },
-                    { label: t('payDeductions'), val: `-€${deductions.toFixed(2)}`, color: '#c0392b' },
-                    { label: t('flTotal'), val: `€${(base + extras - deductions).toFixed(2)}`, color: '#1a2e26' },
+                    { label: t('payBaseSalary'), val: money(base), color: '#0d7a52' },
+                    { label: t('sppAdditions'), val: `+${money(extras)}`, color: '#378add' },
+                    { label: t('payDeductions'), val: `-${money(deductions)}`, color: '#c0392b' },
+                    { label: t('flTotal'), val: money(base + extras - deductions), color: '#1a2e26' },
                   ].map((k, i) => (
                     <div key={i} style={{ background: '#f8fbf9', borderRadius: 10, padding: '12px 14px', border: '1px solid #e0ece6' }}>
                       <div style={{ fontSize: 11, color: '#8a9e96', marginBottom: 4 }}>{k.label}</div>
@@ -707,7 +710,7 @@ ${deductions.length > 0 ? `
                         </span>
                         <div style={{ flex: 1 }}>
                           <div style={{ fontSize: 13, fontWeight: 600, color: isDeduction ? '#c0392b' : '#0d7a52' }}>
-                            {isDeduction ? '-' : '+'}€{parseFloat(entry.amount).toFixed(2)}
+                            {isDeduction ? '-' : '+'}{money(entry.amount)}
                           </div>
                           {entry.note && <div style={{ fontSize: 11, color: '#8a9e96' }}>{entry.note}</div>}
                         </div>

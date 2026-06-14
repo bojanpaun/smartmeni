@@ -2,6 +2,7 @@ import { useState, useEffect } from 'react'
 import { useTranslation } from 'react-i18next'
 import { supabase } from '../../../lib/supabase'
 import { usePlatform } from '../../../context/PlatformContext'
+import { useMoney } from '../../../lib/useMoney'
 import styles from './PayrollPage.module.css'
 import gsStyles from '../../menu/pages/GeneralSettings.module.css'
 
@@ -25,6 +26,7 @@ function monthEnd() {
 export default function PayrollPage() {
   const { restaurant, user, isOwner, isSuperAdmin } = usePlatform()
   const { t } = useTranslation('admin')
+  const money = useMoney()
   const isAdmin = isOwner() || isSuperAdmin()
 
   const [staff, setStaff] = useState([])
@@ -194,19 +196,19 @@ export default function PayrollPage() {
       <div className={styles.summaryGrid}>
         <div className={styles.summaryCard}>
           <div className={styles.summaryLabel}>{t('payDailies')}</div>
-          <div className={styles.summaryVal}>€{totals.daily.toFixed(2)}</div>
+          <div className={styles.summaryVal}>{money(totals.daily)}</div>
         </div>
         <div className={styles.summaryCard}>
           <div className={styles.summaryLabel}>{t('payBonuses')}</div>
-          <div className={styles.summaryVal} style={{ color: '#378add' }}>€{totals.bonus.toFixed(2)}</div>
+          <div className={styles.summaryVal} style={{ color: '#378add' }}>{money(totals.bonus)}</div>
         </div>
         <div className={styles.summaryCard}>
           <div className={styles.summaryLabel}>{t('payTypeOvertime')}</div>
-          <div className={styles.summaryVal} style={{ color: '#7f77dd' }}>€{(totals.overtime).toFixed(2)}</div>
+          <div className={styles.summaryVal} style={{ color: '#7f77dd' }}>{money(totals.overtime)}</div>
         </div>
         <div className={styles.summaryCard}>
           <div className={styles.summaryLabel}>{t('payDeductions')}</div>
-          <div className={styles.summaryVal} style={{ color: '#c0392b' }}>-€{(totals.deduction + totals.advance).toFixed(2)}</div>
+          <div className={styles.summaryVal} style={{ color: '#c0392b' }}>-{money(totals.deduction + totals.advance)}</div>
         </div>
       </div>
 
@@ -237,7 +239,7 @@ export default function PayrollPage() {
                   <div className={styles.entryDate}>{entry.date}</div>
                   <div className={styles.entryNote}>{entry.note || '—'}</div>
                   <div className={styles.entryAmount} style={{ color: entry.type === 'deduction' || entry.type === 'advance' ? '#c0392b' : '#0d7a52' }}>
-                    {entry.type === 'deduction' || entry.type === 'advance' ? '-' : '+'}€{parseFloat(entry.amount).toFixed(2)}
+                    {entry.type === 'deduction' || entry.type === 'advance' ? '-' : '+'}{money(entry.amount)}
                   </div>
                   {isAdmin && (
                     <button className={styles.entryDelete} onClick={() => deleteEntry(entry.id)}>✕</button>
@@ -281,16 +283,16 @@ export default function PayrollPage() {
                     </span>
                   </div>
                   <div className={styles.periodGrid}>
-                    <div><div className={styles.pgLabel}>{t('payBaseSalary')}</div><div className={styles.pgVal}>€{parseFloat(period.base_salary).toFixed(2)}</div></div>
-                    <div><div className={styles.pgLabel}>{t('payDailies')}</div><div className={styles.pgVal}>+€{parseFloat(period.daily_total).toFixed(2)}</div></div>
-                    <div><div className={styles.pgLabel}>{t('payBonuses')}</div><div className={styles.pgVal} style={{color:'#378add'}}>+€{parseFloat(period.bonus_total).toFixed(2)}</div></div>
-                    <div><div className={styles.pgLabel}>{t('payDeductions')}</div><div className={styles.pgVal} style={{color:'#c0392b'}}>-€{parseFloat(period.deduction_total).toFixed(2)}</div></div>
+                    <div><div className={styles.pgLabel}>{t('payBaseSalary')}</div><div className={styles.pgVal}>{money(period.base_salary)}</div></div>
+                    <div><div className={styles.pgLabel}>{t('payDailies')}</div><div className={styles.pgVal}>+{money(period.daily_total)}</div></div>
+                    <div><div className={styles.pgLabel}>{t('payBonuses')}</div><div className={styles.pgVal} style={{color:'#378add'}}>+{money(period.bonus_total)}</div></div>
+                    <div><div className={styles.pgLabel}>{t('payDeductions')}</div><div className={styles.pgVal} style={{color:'#c0392b'}}>-{money(period.deduction_total)}</div></div>
                     <div><div className={styles.pgLabel}>{t('payHoursWorked')}</div><div className={styles.pgVal}>{parseFloat(period.hours_worked).toFixed(1)}h</div></div>
                     <div><div className={styles.pgLabel}>{t('payDaysWorked')}</div><div className={styles.pgVal}>{period.days_worked}</div></div>
                   </div>
                   <div className={styles.periodTotal}>
                     <span>{t('payTotalGross')}</span>
-                    <span className={styles.periodTotalVal}>€{parseFloat(period.gross_total).toFixed(2)}</span>
+                    <span className={styles.periodTotalVal}>{money(period.gross_total)}</span>
                   </div>
                   {isAdmin && period.status !== 'paid' && (
                     <div className={styles.periodActions}>
