@@ -3,6 +3,8 @@ import { useTranslation } from 'react-i18next'
 import { supabase } from '../../../lib/supabase'
 import { translateContent, orderRejectionFields } from '../../../lib/contentTranslate'
 import { formatMoney } from '../../../lib/currencies'
+import { openInvoicePrintWindow } from '../../../lib/invoicePrint'
+import toast from 'react-hot-toast'
 import s from '../StaffPortal.module.css'
 
 async function findOpenFolio(restaurantId, roomNum, t) {
@@ -40,10 +42,30 @@ const STATUS_STYLE = {
 const QUICK_RESPONSE_KEYS = ['quickResp1', 'quickResp2', 'quickResp3', 'quickResp4']
 const DEFAULT_REJECT_KEYS = ['reject1', 'reject2', 'reject3', 'reject4']
 
-export default function WaiterView({ restaurant, activeTab, onRefresh, hotelEnabled }) {
+export default function WaiterView({ restaurant, activeTab, onRefresh, hotelEnabled, fiscalEnabled }) {
   const { t, i18n } = useTranslation('staffportal')
   const money = (a) => formatMoney(a, restaurant?.currency, i18n.language)
   const restaurantId = restaurant?.id
+  const [invoicing, setInvoicing] = useState(null) // order_id u toku
+
+  // Izdaj (idempotentno) + odštampaj račun za narudžbu — propušteni račun se vrati isti.
+  const printOrderInvoice = async (orderId) => {
+    setInvoicing(orderId)
+    const { data: inv, error } = await supabase.rpc('create_invoice_from_order', { p_order_id: orderId })
+    if (error || !inv) { setInvoicing(null); toast.error(t('spwInvoiceErr')); return }
+    const { data: items } = await supabase.from('invoice_items')
+      .select('name, quantity, vat_rate_key, total_cents').eq('invoice_id', inv.id).order('sort_order')
+    openInvoicePrintWindow({
+      invoice: inv, items: items || [], restaurant, lang: i18n.language,
+      labels: {
+        taxId: t('spwTaxId'), vatNumber: t('spwVatNumber'), iban: t('spwIban'),
+        number: t('spwNumber'), date: t('spwDate'), status: t('spwStatus'), statusValue: t('spwStatusValue'),
+        name: t('spwItem'), qty: t('spwQty'), vat: t('spwVat'), total: t('spwTotal'), base: t('spwBase'),
+        footnote: t('spwFootnote'),
+      },
+    })
+    setInvoicing(null)
+  }
   const [orders, setOrders]         = useState([])
   const [requests, setRequests]     = useState([])
   const [loading, setLoading]       = useState(true)
@@ -297,6 +319,11 @@ export default function WaiterView({ restaurant, activeTab, onRefresh, hotelEnab
               {order.status === 'served' && hotelEnabled && !roomChargeMap[order.id] && (
                 <button className={s.roomChargeBtn} onClick={() => openRoomCharge(order.id)}>
                   🏨 {t('chargeToRoom')}
+                </button>
+              )}
+              {order.status === 'served' && fiscalEnabled && (
+                <button className={s.invoiceBtn} disabled={invoicing === order.id} onClick={() => printOrderInvoice(order.id)}>
+                  🧾 {invoicing === order.id ? '…' : t('spwInvoice')}
                 </button>
               )}
               {['pending', 'received'].includes(order.status) && (

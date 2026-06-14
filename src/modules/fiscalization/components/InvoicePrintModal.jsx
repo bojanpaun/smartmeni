@@ -2,9 +2,8 @@ import { useState, useEffect } from 'react'
 import { useTranslation } from 'react-i18next'
 import { supabase } from '../../../lib/supabase'
 import { formatMoney, fromMinorUnits } from '../../../lib/currencies'
+import { openInvoicePrintWindow } from '../../../lib/invoicePrint'
 import styles from './InvoicePrintModal.module.css'
-
-const esc = (s) => String(s ?? '').replace(/[&<>"']/g, c => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;' }[c]))
 
 // Pregled + štampa fiskalnog računa. IKOF/JIKR/QR dolaze tek sa FISK-3 (provajder);
 // do tada je ovo validan račun sa PDV razradom i numeracijom, status „Čeka fiskalizaciju".
@@ -23,38 +22,16 @@ export default function InvoicePrintModal({ invoice, restaurant, onClose }) {
     return () => { cancelled = true }
   }, [invoice.id])
 
-  // Štampa kroz ČIST novi prozor — pouzdano (bez modal/overflow/fixed smetnji koje
-  // su pravile prazne stranice). Sami nosimo stilove i okidamo print na onload.
-  const printReceipt = () => {
-    const sellerLines = [restaurant?.location, restaurant?.tax_id && `${t('gsTaxId')}: ${restaurant.tax_id}`,
-      restaurant?.vat_number && `${t('gsVatNumber')}: ${restaurant.vat_number}`, restaurant?.iban && `${t('gsIban')}: ${restaurant.iban}`]
-      .filter(Boolean).map(l => `<div class="sl">${esc(l)}</div>`).join('')
-    const rows = items.map(it => `<tr><td>${esc(it.name)}</td><td class="r">${Number(it.quantity)}</td>`
-      + `<td class="r">${esc(it.vat_rate_key || '—')}</td><td class="r">${esc(m(it.total_cents))}</td></tr>`).join('')
-    const html = `<!doctype html><html lang="${esc(i18n.language)}"><head><meta charset="utf-8">`
-      + `<title>${esc(invoice.invoice_number)}</title><style>`
-      + `@page{size:80mm auto;margin:4mm}`  // format računa (ne A4); visina prati sadržaj
-      + `*{box-sizing:border-box}body{font-family:ui-monospace,monospace;color:#111;background:#fff;margin:0 auto;padding:0;width:72mm;max-width:72mm}`
-      + `.c{text-align:center}.nm{font-size:1rem;font-weight:700}.sl{font-size:.78rem;color:#444;margin-top:2px}`
-      + `.d{border-top:1px dashed #bbb;margin:12px 0}.row{display:flex;justify-content:space-between;font-size:.82rem;margin:3px 0}`
-      + `.row span:first-child{color:#666}.tot{font-size:.95rem;margin-top:6px;font-weight:700}`
-      + `table{width:100%;border-collapse:collapse;font-size:.8rem}th{text-align:left;color:#666;border-bottom:1px solid #ddd;padding:4px}`
-      + `td{padding:4px;border-bottom:1px solid #f0f0f0}.r{text-align:right}.fn{margin-top:14px;font-size:.72rem;color:#888;text-align:center;line-height:1.4}`
-      + `</style></head><body onload="window.focus();window.print()">`
-      + `<div class="c"><div class="nm">${esc(restaurant?.name)}</div>${sellerLines}</div><div class="d"></div>`
-      + `<div class="row"><span>${esc(t('fiskColNumber'))}</span><strong>${esc(invoice.invoice_number)}</strong></div>`
-      + `<div class="row"><span>${esc(t('fiskColDate'))}</span><span>${esc(new Date(invoice.issued_at).toLocaleString(dl))}</span></div>`
-      + `<div class="row"><span>${esc(t('fiskColStatus'))}</span><span>${esc(t('fiskStatPending'))}</span></div><div class="d"></div>`
-      + `<table><thead><tr><th>${esc(t('thName'))}</th><th class="r">${esc(t('fiskQty'))}</th><th class="r">${esc(t('fiskColVat'))}</th><th class="r">${esc(t('fiskColTotal'))}</th></tr></thead><tbody>${rows}</tbody></table><div class="d"></div>`
-      + `<div class="row"><span>${esc(t('fiskBase'))}</span><span>${esc(m(invoice.total_base_cents))}</span></div>`
-      + `<div class="row"><span>${esc(t('fiskColVat'))}</span><span>${esc(m(invoice.total_vat_cents))}</span></div>`
-      + `<div class="row tot"><span>${esc(t('fiskColTotal'))}</span><span>${esc(m(invoice.total_cents))}</span></div>`
-      + `<div class="fn">${esc(t('fiskNotFiscalizedNote'))}</div></body></html>`
-    const w = window.open('', '_blank', 'width=460,height=680')
-    if (!w) return  // popup blokiran — modal ostaje kao pregled
-    w.document.write(html)
-    w.document.close()
-  }
+  // Štampa kroz shared helper (čist novi prozor; pouzdano, bez praznih stranica).
+  const printReceipt = () => openInvoicePrintWindow({
+    invoice, items, restaurant, lang: i18n.language,
+    labels: {
+      taxId: t('gsTaxId'), vatNumber: t('gsVatNumber'), iban: t('gsIban'),
+      number: t('fiskColNumber'), date: t('fiskColDate'), status: t('fiskColStatus'), statusValue: t('fiskStatPending'),
+      name: t('thName'), qty: t('fiskQty'), vat: t('fiskColVat'), total: t('fiskColTotal'), base: t('fiskBase'),
+      footnote: t('fiskNotFiscalizedNote'),
+    },
+  })
 
   return (
     <div className={styles.overlay} onClick={onClose}>

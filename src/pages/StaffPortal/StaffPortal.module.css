@@ -863,6 +863,15 @@
   transition: background 0.15s;
 }
 .roomChargeBtn:hover { background: #a7f3d0; }
+.invoiceBtn {
+  padding: 10px 14px; border-radius: 10px;
+  border: 1.5px solid var(--c-border-input, #d0e4dc); background: var(--c-surface, #fff);
+  color: var(--c-text-medium, #4b5563); font-size: 13px; font-weight: 500;
+  cursor: pointer; font-family: inherit; white-space: nowrap;
+  transition: background 0.15s;
+}
+.invoiceBtn:hover { background: var(--c-bg-subtle, #f0f5f2); }
+.invoiceBtn:disabled { opacity: 0.6; cursor: default; }
 
 .roomChargePanel {
   margin-top: 10px; padding: 10px 12px;

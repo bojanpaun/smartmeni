@@ -142,6 +142,7 @@ export default function StaffPortal() {
   // Beta-free za hotel: StaffPortal ne ide kroz PlatformContext, pa beta provjeru
   // radimo preko DB helpera is_beta_free (isti izvor kao server/Context gating).
   const [hotelBetaFree, setHotelBetaFree] = useState(false)
+  const [fiscalBetaFree, setFiscalBetaFree] = useState(false)
   const [loadingRest, setLoadingRest] = useState(true)
 
   // Auth
@@ -177,14 +178,16 @@ export default function StaffPortal() {
       .maybeSingle()
       .then(async ({ data }) => {
         if (data?.id) {
-          const [{ data: msgs }, { data: sub }, { data: betaHotel }] = await Promise.all([
+          const [{ data: msgs }, { data: sub }, { data: betaHotel }, { data: betaFiscal }] = await Promise.all([
             supabase.rpc('get_restaurant_rejection_messages', { p_restaurant_id: data.id }),
             supabase.from('subscriptions').select('plan, addons, addon_trials').eq('restaurant_id', data.id).maybeSingle(),
             supabase.rpc('is_beta_free', { p_addon_id: 'hotel_core' }),
+            supabase.rpc('is_beta_free', { p_addon_id: 'fiscalization' }),
           ])
           if (Array.isArray(msgs) && msgs.length > 0) data.rejection_messages = msgs
           setSubscription(sub ?? null)
           setHotelBetaFree(!!betaHotel)
+          setFiscalBetaFree(!!betaFiscal)
         }
         setRestaurant(data)
         setLoadingRest(false)
@@ -483,7 +486,7 @@ export default function StaffPortal() {
     }
     if (activeTab === 'tasks')       return <HousekeepingView staffId={staff.id} restaurantId={restaurant.id} onRefresh={refreshCounts} />
     if (activeTab === 'maintenance') return <MaintenanceView  staffId={staff.id} restaurantId={restaurant.id} onRefresh={refreshCounts} />
-    if (activeTab === 'orders' || activeTab === 'requests') return <WaiterView restaurant={restaurant} activeTab={activeTab} onRefresh={refreshCounts} hotelEnabled={hotelBetaFree || hasAddon(subscription, 'hotel_core')} />
+    if (activeTab === 'orders' || activeTab === 'requests') return <WaiterView restaurant={restaurant} activeTab={activeTab} onRefresh={refreshCounts} hotelEnabled={hotelBetaFree || hasAddon(subscription, 'hotel_core')} fiscalEnabled={fiscalBetaFree || hasAddon(subscription, 'fiscalization')} />
     if (activeTab === 'kitchen')     return <KitchenView    restaurantId={restaurant.id} onRefresh={refreshCounts} />
     if (activeTab === 'bar_orders')  return <BarView        restaurantId={restaurant.id} onRefresh={refreshCounts} />
     if (['checkin', 'checkout', 'rooms'].includes(activeTab)) return <ReceptionView restaurantId={restaurant.id} activeTab={activeTab} onRefresh={refreshCounts} />

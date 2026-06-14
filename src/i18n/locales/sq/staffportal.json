@@ -45,7 +45,6 @@
   "tabAttendance": "Ardhjet",
   "tabPayroll": "Paga",
   "tabAbsences": "Mungesat",
-
   "loading": "Po ngarkohet...",
   "table": "Tavolina",
   "online": "Online",
@@ -67,7 +66,6 @@
   "statusCompleted": "Përfunduar",
   "statusCancelled": "Anuluar",
   "statusNoShow": "No-show",
-
   "myProfile": "Profili im",
   "employedSince": "I punësuar nga {{date}}",
   "contactInfo": "Të dhënat e kontaktit",
@@ -84,7 +82,6 @@
   "changePasswordBtn": "Ndrysho fjalëkalimin",
   "phAddress": "Rruga dhe numri, qyteti",
   "phFullName": "Emri dhe mbiemri",
-
   "room": "Dhoma",
   "roomAvailable": "E lirë",
   "roomOccupied": "E zënë",
@@ -99,7 +96,6 @@
   "roomTBD": "Dhomë TBD",
   "noCheckins": "Nuk ka check-in për sot.",
   "noCheckouts": "Nuk ka check-out për sot.",
-
   "maintCatPlumbing": "Hidraulike",
   "maintCatElectrical": "Elektrike",
   "maintCatAc": "Klima",
@@ -121,7 +117,6 @@
   "cancel": "Anulo",
   "commonArea": "Hapësirë e përbashkët",
   "reportedBy": "Raportoi: {{name}}",
-
   "taskCheckoutClean": "Pastrim pas check-out",
   "taskStayover": "I përditshëm",
   "taskTurndown": "Shërbim turndown",
@@ -133,14 +128,12 @@
   "reportIssue": "Raporto defekt ose problem",
   "reportTitle": "Raportimi i problemit",
   "issueReported": "Problemi u raportua!",
-
   "loadingRequests": "Po ngarkohen kërkesat...",
   "reportNewIssue": "Raporto defekt ose problem të ri",
   "newIssueTitle": "Raportim i ri defekti",
   "faultReported": "Defekti u raportua!",
   "noRequestsInStatus": "Nuk ka kërkesa në statusin \"{{status}}\".",
   "noActiveRequests": "Nuk ka kërkesa aktive për mirëmbajtje.",
-
   "greeting": "Mirëmëngjes",
   "working": "Në punë",
   "since": "nga",
@@ -156,7 +149,6 @@
   "pendingAbsenceOne": "{{count}} kërkesë për mungesë pret miratimin",
   "pendingAbsenceOther": "{{count}} kërkesa për mungesë presin miratimin",
   "close": "Mbyll",
-
   "entrySalary": "Paga",
   "entryDaily": "Mëditje",
   "entryBonus": "Bonus",
@@ -196,7 +188,6 @@
   "approved": "Miratuar",
   "pending": "Në pritje",
   "rejected": "Refuzuar",
-
   "total": "Gjithsej",
   "nsAccept": "Prano",
   "nsStartPrep": "Fillo përgatitjen",
@@ -229,6 +220,21 @@
   "kitchenReady": "Kuzhina gati",
   "barReady": "Bari gati",
   "chargeToRoom": "Faturo në dhomë",
+  "spwInvoice": "Faturë",
+  "spwInvoiceErr": "Gabim gjatë lëshimit të faturës.",
+  "spwTaxId": "NIPT",
+  "spwVatNumber": "Numri i TVSH-së",
+  "spwIban": "IBAN",
+  "spwNumber": "Nr.",
+  "spwDate": "Data",
+  "spwStatus": "Statusi",
+  "spwStatusValue": "Në pritje të fiskalizimit",
+  "spwItem": "Artikulli",
+  "spwQty": "Sasia",
+  "spwVat": "TVSH",
+  "spwTotal": "Gjithsej",
+  "spwBase": "Baza",
+  "spwFootnote": "Kjo nuk është faturë e fiskalizuar. Numri fiskal dhe kodi QR vijnë së shpejti.",
   "rejectWithMsg": "Refuzo me mesazh:",
   "roomNumber": "Numri i dhomës:",
   "phRoomExample": "p.sh. 101",

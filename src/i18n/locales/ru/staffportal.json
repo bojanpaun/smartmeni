@@ -45,7 +45,6 @@
   "tabAttendance": "Приходы",
   "tabPayroll": "Зарплата",
   "tabAbsences": "Отсутствия",
-
   "loading": "Загрузка...",
   "table": "Стол",
   "online": "Онлайн",
@@ -67,7 +66,6 @@
   "statusCompleted": "Завершён",
   "statusCancelled": "Отменён",
   "statusNoShow": "No-show",
-
   "myProfile": "Мой профиль",
   "employedSince": "Работает с {{date}}",
   "contactInfo": "Контактные данные",
@@ -84,7 +82,6 @@
   "changePasswordBtn": "Изменить пароль",
   "phAddress": "Улица и номер, город",
   "phFullName": "Имя и фамилия",
-
   "room": "Номер",
   "roomAvailable": "Свободен",
   "roomOccupied": "Занят",
@@ -99,7 +96,6 @@
   "roomTBD": "Номер TBD",
   "noCheckins": "На сегодня нет заездов.",
   "noCheckouts": "На сегодня нет выездов.",
-
   "maintCatPlumbing": "Сантехника",
   "maintCatElectrical": "Электрика",
   "maintCatAc": "Кондиционер",
@@ -121,7 +117,6 @@
   "cancel": "Отмена",
   "commonArea": "Общая зона",
   "reportedBy": "Сообщил: {{name}}",
-
   "taskCheckoutClean": "Уборка после выезда",
   "taskStayover": "Ежедневная",
   "taskTurndown": "Вечерний сервис",
@@ -133,14 +128,12 @@
   "reportIssue": "Сообщить о поломке или проблеме",
   "reportTitle": "Сообщение о проблеме",
   "issueReported": "Проблема отправлена!",
-
   "loadingRequests": "Загрузка заявок...",
   "reportNewIssue": "Сообщить о новой поломке или проблеме",
   "newIssueTitle": "Новая заявка о поломке",
   "faultReported": "Поломка отправлена!",
   "noRequestsInStatus": "Нет заявок в статусе \"{{status}}\".",
   "noActiveRequests": "Нет активных заявок на обслуживание.",
-
   "greeting": "Доброе утро",
   "working": "На работе",
   "since": "с",
@@ -156,7 +149,6 @@
   "pendingAbsenceOne": "{{count}} запрос на отсутствие ждёт одобрения",
   "pendingAbsenceOther": "{{count}} запросов на отсутствие ждут одобрения",
   "close": "Закрыть",
-
   "entrySalary": "Зарплата",
   "entryDaily": "Суточные",
   "entryBonus": "Бонус",
@@ -196,7 +188,6 @@
   "approved": "Одобрено",
   "pending": "В ожидании",
   "rejected": "Отклонено",
-
   "total": "Итого",
   "nsAccept": "Принять",
   "nsStartPrep": "Начать приготовление",
@@ -229,6 +220,21 @@
   "kitchenReady": "Кухня готова",
   "barReady": "Бар готов",
   "chargeToRoom": "Записать на номер",
+  "spwInvoice": "Счёт",
+  "spwInvoiceErr": "Ошибка при выставлении счёта.",
+  "spwTaxId": "ИНН",
+  "spwVatNumber": "Номер НДС",
+  "spwIban": "IBAN",
+  "spwNumber": "№",
+  "spwDate": "Дата",
+  "spwStatus": "Статус",
+  "spwStatusValue": "Ожидает фискализации",
+  "spwItem": "Позиция",
+  "spwQty": "Кол-во",
+  "spwVat": "НДС",
+  "spwTotal": "Итого",
+  "spwBase": "База",
+  "spwFootnote": "Это не фискализованный счёт. Фискальный номер и QR-код скоро появятся.",
   "rejectWithMsg": "Отклонить с сообщением:",
   "roomNumber": "Номер комнаты:",
   "phRoomExample": "напр. 101",

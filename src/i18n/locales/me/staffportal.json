@@ -45,7 +45,6 @@
   "tabAttendance": "Dolasci",
   "tabPayroll": "Zarada",
   "tabAbsences": "Odsustva",
-
   "loading": "Učitavanje...",
   "table": "Sto",
   "online": "Online",
@@ -67,7 +66,6 @@
   "statusCompleted": "Završen",
   "statusCancelled": "Otkazan",
   "statusNoShow": "No-show",
-
   "myProfile": "Moj profil",
   "employedSince": "Zaposlen/a od {{date}}",
   "contactInfo": "Kontakt podaci",
@@ -84,7 +82,6 @@
   "changePasswordBtn": "Promijeni lozinku",
   "phAddress": "Ulica i broj, grad",
   "phFullName": "Ime i prezime",
-
   "room": "Soba",
   "roomAvailable": "Slobodna",
   "roomOccupied": "Zauzeta",
@@ -99,7 +96,6 @@
   "roomTBD": "Soba TBD",
   "noCheckins": "Nema check-inova za danas.",
   "noCheckouts": "Nema check-outova za danas.",
-
   "maintCatPlumbing": "Vodoinstalacije",
   "maintCatElectrical": "Elektrika",
   "maintCatAc": "Klima",
@@ -121,7 +117,6 @@
   "cancel": "Odustani",
   "commonArea": "Zajednički prostor",
   "reportedBy": "Prijavio/la: {{name}}",
-
   "taskCheckoutClean": "Checkout čišćenje",
   "taskStayover": "Svakodnevno",
   "taskTurndown": "Turndown servis",
@@ -133,14 +128,12 @@
   "reportIssue": "Prijavi kvar ili problem",
   "reportTitle": "Prijava problema",
   "issueReported": "Problem prijavljen!",
-
   "loadingRequests": "Učitavanje zahtjeva...",
   "reportNewIssue": "Prijavi novi kvar ili problem",
   "newIssueTitle": "Nova prijava kvara",
   "faultReported": "Kvar prijavljen!",
   "noRequestsInStatus": "Nema zahtjeva u statusu \"{{status}}\".",
   "noActiveRequests": "Nema aktivnih zahtjeva za održavanje.",
-
   "greeting": "Dobro jutro",
   "working": "Na poslu",
   "since": "od",
@@ -156,7 +149,6 @@
   "pendingAbsenceOne": "{{count}} zahtjev za odsustvo čeka odobrenje",
   "pendingAbsenceOther": "{{count}} zahtjeva za odsustvo čeka odobrenje",
   "close": "Zatvori",
-
   "entrySalary": "Zarada",
   "entryDaily": "Dnevnica",
   "entryBonus": "Bonus",
@@ -196,7 +188,6 @@
   "approved": "Odobreno",
   "pending": "Na čekanju",
   "rejected": "Odbijeno",
-
   "total": "Ukupno",
   "nsAccept": "Prihvati",
   "nsStartPrep": "Počni pripremu",
@@ -229,6 +220,21 @@
   "kitchenReady": "Kuhinja gotova",
   "barReady": "Bar gotov",
   "chargeToRoom": "Naplati na sobu",
+  "spwInvoice": "Račun",
+  "spwInvoiceErr": "Greška pri izdavanju računa.",
+  "spwTaxId": "PIB",
+  "spwVatNumber": "PDV broj",
+  "spwIban": "IBAN",
+  "spwNumber": "Broj",
+  "spwDate": "Datum",
+  "spwStatus": "Status",
+  "spwStatusValue": "Čeka fiskalizaciju",
+  "spwItem": "Stavka",
+  "spwQty": "Kol.",
+  "spwVat": "PDV",
+  "spwTotal": "Ukupno",
+  "spwBase": "Osnovica",
+  "spwFootnote": "Ovo nije fiskalizovan račun. Fiskalni broj i QR kod dolaze uskoro.",
   "rejectWithMsg": "Odbij uz poruku:",
   "roomNumber": "Broj sobe:",
   "phRoomExample": "npr. 101",

@@ -45,7 +45,6 @@
   "tabAttendance": "Attendance",
   "tabPayroll": "Earnings",
   "tabAbsences": "Absences",
-
   "loading": "Loading...",
   "table": "Table",
   "online": "Online",
@@ -67,7 +66,6 @@
   "statusCompleted": "Completed",
   "statusCancelled": "Cancelled",
   "statusNoShow": "No-show",
-
   "myProfile": "My profile",
   "employedSince": "Employed since {{date}}",
   "contactInfo": "Contact details",
@@ -84,7 +82,6 @@
   "changePasswordBtn": "Change password",
   "phAddress": "Street and number, city",
   "phFullName": "Full name",
-
   "room": "Room",
   "roomAvailable": "Available",
   "roomOccupied": "Occupied",
@@ -99,7 +96,6 @@
   "roomTBD": "Room TBD",
   "noCheckins": "No check-ins for today.",
   "noCheckouts": "No check-outs for today.",
-
   "maintCatPlumbing": "Plumbing",
   "maintCatElectrical": "Electrical",
   "maintCatAc": "Air conditioning",
@@ -121,7 +117,6 @@
   "cancel": "Cancel",
   "commonArea": "Common area",
   "reportedBy": "Reported by: {{name}}",
-
   "taskCheckoutClean": "Checkout cleaning",
   "taskStayover": "Daily",
   "taskTurndown": "Turndown service",
@@ -133,14 +128,12 @@
   "reportIssue": "Report a fault or issue",
   "reportTitle": "Report an issue",
   "issueReported": "Issue reported!",
-
   "loadingRequests": "Loading requests...",
   "reportNewIssue": "Report a new fault or issue",
   "newIssueTitle": "New fault report",
   "faultReported": "Fault reported!",
   "noRequestsInStatus": "No requests with status \"{{status}}\".",
   "noActiveRequests": "No active maintenance requests.",
-
   "greeting": "Good morning",
   "working": "At work",
   "since": "since",
@@ -156,7 +149,6 @@
   "pendingAbsenceOne": "{{count}} absence request awaiting approval",
   "pendingAbsenceOther": "{{count}} absence requests awaiting approval",
   "close": "Close",
-
   "entrySalary": "Salary",
   "entryDaily": "Daily wage",
   "entryBonus": "Bonus",
@@ -196,7 +188,6 @@
   "approved": "Approved",
   "pending": "Pending",
   "rejected": "Rejected",
-
   "total": "Total",
   "nsAccept": "Accept",
   "nsStartPrep": "Start preparation",
@@ -229,6 +220,21 @@
   "kitchenReady": "Kitchen ready",
   "barReady": "Bar ready",
   "chargeToRoom": "Charge to room",
+  "spwInvoice": "Invoice",
+  "spwInvoiceErr": "Error issuing invoice.",
+  "spwTaxId": "Tax ID",
+  "spwVatNumber": "VAT number",
+  "spwIban": "IBAN",
+  "spwNumber": "No.",
+  "spwDate": "Date",
+  "spwStatus": "Status",
+  "spwStatusValue": "Awaiting fiscalization",
+  "spwItem": "Item",
+  "spwQty": "Qty",
+  "spwVat": "VAT",
+  "spwTotal": "Total",
+  "spwBase": "Base",
+  "spwFootnote": "This is not a fiscalized invoice. Fiscal number and QR code coming soon.",
   "rejectWithMsg": "Reject with message:",
   "roomNumber": "Room number:",
   "phRoomExample": "e.g. 101",

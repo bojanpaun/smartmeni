@@ -45,7 +45,6 @@
   "tabAttendance": "Gelişler",
   "tabPayroll": "Maaş",
   "tabAbsences": "İzinler",
-
   "loading": "Yükleniyor...",
   "table": "Masa",
   "online": "Online",
@@ -67,7 +66,6 @@
   "statusCompleted": "Tamamlandı",
   "statusCancelled": "İptal edildi",
   "statusNoShow": "No-show",
-
   "myProfile": "Profilim",
   "employedSince": "İşe başlama: {{date}}",
   "contactInfo": "İletişim bilgileri",
@@ -84,7 +82,6 @@
   "changePasswordBtn": "Şifreyi değiştir",
   "phAddress": "Sokak ve numara, şehir",
   "phFullName": "Ad ve soyad",
-
   "room": "Oda",
   "roomAvailable": "Boş",
   "roomOccupied": "Dolu",
@@ -99,7 +96,6 @@
   "roomTBD": "Oda TBD",
   "noCheckins": "Bugün için check-in yok.",
   "noCheckouts": "Bugün için check-out yok.",
-
   "maintCatPlumbing": "Tesisat",
   "maintCatElectrical": "Elektrik",
   "maintCatAc": "Klima",
@@ -121,7 +117,6 @@
   "cancel": "İptal",
   "commonArea": "Ortak alan",
   "reportedBy": "Bildiren: {{name}}",
-
   "taskCheckoutClean": "Check-out temizliği",
   "taskStayover": "Günlük",
   "taskTurndown": "Turndown servisi",
@@ -133,14 +128,12 @@
   "reportIssue": "Arıza veya sorun bildir",
   "reportTitle": "Sorun bildirimi",
   "issueReported": "Sorun bildirildi!",
-
   "loadingRequests": "Talepler yükleniyor...",
   "reportNewIssue": "Yeni arıza veya sorun bildir",
   "newIssueTitle": "Yeni arıza bildirimi",
   "faultReported": "Arıza bildirildi!",
   "noRequestsInStatus": "\"{{status}}\" durumunda talep yok.",
   "noActiveRequests": "Aktif bakım talebi yok.",
-
   "greeting": "Günaydın",
   "working": "İşte",
   "since": "Başlangıç",
@@ -156,7 +149,6 @@
   "pendingAbsenceOne": "{{count}} izin talebi onay bekliyor",
   "pendingAbsenceOther": "{{count}} izin talebi onay bekliyor",
   "close": "Kapat",
-
   "entrySalary": "Maaş",
   "entryDaily": "Gündelik",
   "entryBonus": "Bonus",
@@ -196,7 +188,6 @@
   "approved": "Onaylandı",
   "pending": "Beklemede",
   "rejected": "Reddedildi",
-
   "total": "Toplam",
   "nsAccept": "Kabul et",
   "nsStartPrep": "Hazırlığa başla",
@@ -229,6 +220,21 @@
   "kitchenReady": "Mutfak hazır",
   "barReady": "Bar hazır",
   "chargeToRoom": "Odaya yansıt",
+  "spwInvoice": "Fatura",
+  "spwInvoiceErr": "Fatura düzenlenirken hata.",
+  "spwTaxId": "Vergi No",
+  "spwVatNumber": "KDV numarası",
+  "spwIban": "IBAN",
+  "spwNumber": "No",
+  "spwDate": "Tarih",
+  "spwStatus": "Durum",
+  "spwStatusValue": "Fiskalizasyon bekleniyor",
+  "spwItem": "Kalem",
+  "spwQty": "Adet",
+  "spwVat": "KDV",
+  "spwTotal": "Toplam",
+  "spwBase": "Matrah",
+  "spwFootnote": "Bu fiskalize bir fatura değildir. Mali numara ve QR kod yakında gelecek.",
   "rejectWithMsg": "Mesajla reddet:",
   "roomNumber": "Oda numarası:",
   "phRoomExample": "örn. 101",
