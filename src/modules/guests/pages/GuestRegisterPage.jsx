@@ -2,11 +2,13 @@
 
 import { useState, useEffect } from 'react'
 import { useParams } from 'react-router-dom'
+import { useTranslation } from 'react-i18next'
 import { supabase } from '../../../lib/supabase'
 import { getTemplate } from '../../../lib/templates'
 import styles from './GuestRegisterPage.module.css'
 
 export default function GuestRegisterPage() {
+  const { t } = useTranslation('guestaccount')
   const { slug } = useParams()
   const [restaurant, setRestaurant] = useState(null)
   const [loading, setLoading] = useState(true)
@@ -32,8 +34,8 @@ export default function GuestRegisterPage() {
 
   const handleSubmit = async (e) => {
     e.preventDefault()
-    if (!form.agreed) { setError('Potrebna je saglasnost sa uslovima korišćenja.'); return }
-    if (!form.phone && !form.email) { setError('Unesite telefon ili email.'); return }
+    if (!form.agreed) { setError(t('grAgreeRequired')); return }
+    if (!form.phone && !form.email) { setError(t('grContactRequired')); return }
     setSaving(true); setError('')
 
     // Detekcija duplikata (anon ne može čitati tuđe/pending goste → RPC).
@@ -43,12 +45,12 @@ export default function GuestRegisterPage() {
       p_email: form.email || null,
     })
     if (existsCode === 'pending') {
-      setError('Vaš zahtjev je već poslat i čeka odobrenje restorana.')
+      setError(t('grPending'))
       setSaving(false)
       return
     }
     if (existsCode === 'exists') {
-      setError('Već ste registrovani kod ovog restorana. Prijavite se preko stranice za prijavu.')
+      setError(t('grExists'))
       setSaving(false)
       return
     }
@@ -65,7 +67,7 @@ export default function GuestRegisterPage() {
     })
 
     if (err) {
-      setError('Greška pri registraciji. Pokušajte ponovo.')
+      setError(t('grError'))
       setSaving(false)
       return
     }
@@ -75,13 +77,13 @@ export default function GuestRegisterPage() {
 
   if (loading) return (
     <div className={styles.page}>
-      <div className={styles.loading}>Učitavanje...</div>
+      <div className={styles.loading}>{t('gaLoading')}</div>
     </div>
   )
 
   if (!restaurant) return (
     <div className={styles.page}>
-      <div className={styles.notFound}>Restoran nije pronađen.</div>
+      <div className={styles.notFound}>{t('gaRestNotFound')}</div>
     </div>
   )
 
@@ -95,7 +97,7 @@ export default function GuestRegisterPage() {
         {/* Header — isti stil kao guest meni */}
         <div className={styles.header} style={{ background: brand }}>
           <div className={styles.headerTop}>
-            <a href={`/${slug}`} className={styles.backBtn}>← Meni</a>
+            <a href={`/${slug}`} className={styles.backBtn}>← {t('gaMenu')}</a>
           </div>
           <div className={styles.logoWrap}>
             {restaurant.logo_url
@@ -104,50 +106,49 @@ export default function GuestRegisterPage() {
             }
           </div>
           <div className={styles.restName}>{restaurant.name}</div>
-          <div className={styles.restSub}>Registracija gosta</div>
+          <div className={styles.restSub}>{t('grSubtitle')}</div>
         </div>
 
         {submitted ? (
           <div className={styles.success}>
             <div className={styles.successIcon}>✓</div>
-            <div className={styles.successTitle}>Zahtjev poslan!</div>
+            <div className={styles.successTitle}>{t('grSuccessTitle')}</div>
             <div className={styles.successText}>
-              Tvoja registracija je na čekanju odobrenja od strane restorana.
-              Bićeš obaviješten čim te dodaju u evidenciju gostiju.
+              {t('grSuccessText')}
             </div>
-            <div className={styles.successBadge}>Na čekanju odobrenja</div>
-            <a href={`/${slug}`} className={styles.backToMenu}>← Nazad na meni</a>
+            <div className={styles.successBadge}>{t('grPendingBadge')}</div>
+            <a href={`/${slug}`} className={styles.backToMenu}>← {t('gaBackToMenu')}</a>
           </div>
         ) : (
           <form className={styles.form} onSubmit={handleSubmit}>
-            <div className={styles.formTitle}>Postani naš gost</div>
+            <div className={styles.formTitle}>{t('grTitle')}</div>
             <div className={styles.formSub}>
-              Registruj se i uživaj u bržim rezervacijama i specijalnim ponudama.
+              {t('grSub')}
             </div>
 
             <div className={styles.fieldRow}>
               <div className={styles.field}>
-                <label>Ime *</label>
+                <label>{t('grFirstName')} *</label>
                 <input
                   value={form.first_name}
                   onChange={e => setForm(f => ({ ...f, first_name: e.target.value }))}
-                  placeholder="Nikola"
+                  placeholder={t('grFirstNamePh')}
                   required
                 />
               </div>
               <div className={styles.field}>
-                <label>Prezime *</label>
+                <label>{t('grLastName')} *</label>
                 <input
                   value={form.last_name}
                   onChange={e => setForm(f => ({ ...f, last_name: e.target.value }))}
-                  placeholder="Petrović"
+                  placeholder={t('grLastNamePh')}
                   required
                 />
               </div>
             </div>
 
             <div className={styles.field}>
-              <label>Telefon</label>
+              <label>{t('grPhone')}</label>
               <input
                 type="tel"
                 value={form.phone}
@@ -162,12 +163,12 @@ export default function GuestRegisterPage() {
                 type="email"
                 value={form.email}
                 onChange={e => setForm(f => ({ ...f, email: e.target.value }))}
-                placeholder="nikola@email.com"
+                placeholder={t('grEmailPh')}
               />
             </div>
 
             <div className={styles.field}>
-              <label>Datum rođenja</label>
+              <label>{t('grDob')}</label>
               <input
                 type="date"
                 value={form.date_of_birth}
@@ -176,12 +177,12 @@ export default function GuestRegisterPage() {
             </div>
 
             <div className={styles.field}>
-              <label>Napomena (alergije, preference...)</label>
+              <label>{t('grNotes')}</label>
               <textarea
                 rows={3}
                 value={form.notes}
                 onChange={e => setForm(f => ({ ...f, notes: e.target.value }))}
-                placeholder="Npr. alergija na orašaste plodove, preferiram sto kraj prozora..."
+                placeholder={t('grNotesPh')}
               />
             </div>
 
@@ -193,21 +194,20 @@ export default function GuestRegisterPage() {
                 onChange={e => setForm(f => ({ ...f, agreed: e.target.checked }))}
               />
               <label htmlFor="agreed">
-                Saglasan sam sa uslovima korišćenja i politikom privatnosti restorana.
-                Moji podaci se čuvaju isključivo za potrebe evidencije gostiju.
+                {t('grConsent')}
               </label>
             </div>
 
             {error && <div className={styles.error}>{error}</div>}
 
             <button type="submit" className={styles.btnSubmit} style={{ background: brand }} disabled={saving}>
-              {saving ? 'Slanje...' : 'Registruj se'}
+              {saving ? t('grSending') : t('glRegister')}
             </button>
 
-            <div className={styles.divider}>ili</div>
+            <div className={styles.divider}>{t('grOr')}</div>
 
             <a href={`/${slug}`} className={styles.btnBack} style={{ color: brand, borderColor: brand }}>
-              ← Nazad na meni
+              ← {t('gaBackToMenu')}
             </a>
           </form>
         )}

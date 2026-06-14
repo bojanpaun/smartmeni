@@ -3,6 +3,7 @@
 
 import { useState, useEffect } from 'react'
 import { useParams, useSearchParams } from 'react-router-dom'
+import { useTranslation } from 'react-i18next'
 import { supabase } from '../../../lib/supabase'
 import { getTemplate } from '../../../lib/templates'
 import styles from './GuestLoginPage.module.css'
@@ -10,6 +11,7 @@ import styles from './GuestLoginPage.module.css'
 const GUEST_SESSION_KEY = (slug) => `sm_guest_${slug}`
 
 export default function GuestLoginPage() {
+  const { t } = useTranslation('guestaccount')
   const { slug } = useParams()
   const [searchParams] = useSearchParams()
   const returnTo = searchParams.get('return') || `/${slug}`
@@ -58,7 +60,7 @@ export default function GuestLoginPage() {
     setSearching(false)
 
     if (!data?.length) {
-      setError('Nismo pronašli vaše podatke. Provjerite ime i kontakt.')
+      setError(t('glNotFound'))
       return
     }
 
@@ -69,7 +71,7 @@ export default function GuestLoginPage() {
     })
 
     if (!match) {
-      setError('Ime se ne poklapa sa kontaktom. Pokušajte ponovo.')
+      setError(t('glMismatch'))
       return
     }
 
@@ -83,8 +85,8 @@ export default function GuestLoginPage() {
     window.location.href = returnTo
   }
 
-  if (loading) return <div className={styles.page}><div className={styles.loading}>Učitavanje...</div></div>
-  if (!restaurant) return <div className={styles.page}><div className={styles.loading}>Restoran nije pronađen.</div></div>
+  if (loading) return <div className={styles.page}><div className={styles.loading}>{t('gaLoading')}</div></div>
+  if (!restaurant) return <div className={styles.page}><div className={styles.loading}>{t('gaRestNotFound')}</div></div>
 
   const tpl = getTemplate(restaurant?.template)
   const brand = tpl?.brand || restaurant?.color || '#0d7a52'
@@ -97,7 +99,7 @@ export default function GuestLoginPage() {
         {/* Header */}
         <div className={styles.header} style={{ background: brand }}>
           <div className={styles.headerTop}>
-            <a href={`/${slug}`} className={styles.backBtn}>← Meni</a>
+            <a href={`/${slug}`} className={styles.backBtn}>← {t('gaMenu')}</a>
           </div>
           <div className={styles.logoWrap}>
             {restaurant.logo_url
@@ -106,32 +108,32 @@ export default function GuestLoginPage() {
             }
           </div>
           <div className={styles.restName}>{restaurant.name}</div>
-          <div className={styles.subtitle}>Prijava gosta</div>
+          <div className={styles.subtitle}>{t('glSubtitle')}</div>
         </div>
 
         {/* Forma */}
         <div className={styles.form}>
-          <div className={styles.formTitle}>Dobrodošli</div>
+          <div className={styles.formTitle}>{t('glWelcome')}</div>
           <div className={styles.formSub}>
-            Unesite vaše ime i broj telefona ili email da se prijavite.
+            {t('glFormSub')}
           </div>
 
           <form onSubmit={handleLogin}>
             <div className={styles.field}>
-              <label>Ime i prezime *</label>
+              <label>{t('glNameLabel')} *</label>
               <input
                 value={form.name}
                 onChange={e => setForm(f => ({ ...f, name: e.target.value }))}
-                placeholder="Nikola Petrović"
+                placeholder={t('glNamePh')}
                 required
               />
             </div>
             <div className={styles.field}>
-              <label>Telefon ili email *</label>
+              <label>{t('glContactLabel')} *</label>
               <input
                 value={form.contact}
                 onChange={e => setForm(f => ({ ...f, contact: e.target.value }))}
-                placeholder="+382 67 ... ili vas@email.com"
+                placeholder={t('glContactPh')}
                 required
               />
             </div>
@@ -144,18 +146,18 @@ export default function GuestLoginPage() {
               style={{ background: brand }}
               disabled={searching}
             >
-              {searching ? 'Provjera...' : 'Prijavi se →'}
+              {searching ? t('glChecking') : `${t('glLogin')} →`}
             </button>
           </form>
 
           <div className={styles.registerPrompt}>
-            Niste registrovani?{' '}
+            {t('glNotRegistered')}{' '}
             <a href={`/${slug}/registracija`} style={{ color: brand, fontWeight: 500 }}>
-              Registruj se
+              {t('glRegister')}
             </a>
           </div>
           <a href={`/${slug}`} className={styles.menuLink} style={{ color: brand }}>
-            ← Pogledajte meni
+            ← {t('gaViewMenu')}
           </a>
         </div>
       </div>
