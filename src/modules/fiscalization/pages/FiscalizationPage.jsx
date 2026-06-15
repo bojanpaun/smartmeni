@@ -241,6 +241,7 @@ export default function FiscalizationPage() {
           <div className={styles.muted}>{t('loading')}</div>
         ) : (
           <>
+            <div className={styles.tableWrap}>
             <table className={styles.table}>
               <thead>
                 <tr>
@@ -261,6 +262,7 @@ export default function FiscalizationPage() {
                 ))}
               </tbody>
             </table>
+            </div>
             <div className={styles.rateActions}>
               <button className={styles.splitBtn} onClick={taxAdd}>+ {t('fiskRateAdd')}</button>
               <div style={{ flex: 1 }} />
@@ -313,6 +315,7 @@ export default function FiscalizationPage() {
           ) : filteredUnbilled.length === 0 ? (
             <div className={styles.muted}>{t('fiskNoMatch')}</div>
           ) : (
+            <div className={styles.tableWrap}>
             <table className={styles.table}>
               <thead>
                 <tr>
@@ -342,6 +345,7 @@ export default function FiscalizationPage() {
                 ))}
               </tbody>
             </table>
+            </div>
           )}
         </>)}
       </div>
@@ -376,7 +380,8 @@ export default function FiscalizationPage() {
           ) : filteredInvoices.length === 0 ? (
             <div className={styles.muted}>{t('fiskNoMatch')}</div>
           ) : (
-            <table className={styles.table}>
+            <div className={styles.tableWrap}>
+            <table className={`${styles.table} ${styles.tableWide}`}>
               <thead>
                 <tr>
                   <th><SortableHead col="invoice_number" label={t('fiskColNumber')} sortBy={sortInv.sortBy} sortDir={sortInv.sortDir} onSort={sortInv.onSort} /></th>
@@ -409,6 +414,7 @@ export default function FiscalizationPage() {
                 ))}
               </tbody>
             </table>
+            </div>
           )}
         </>)}
       </div>

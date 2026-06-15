@@ -142,7 +142,18 @@ PLATFORMA (Auth · Billing · Multi-tenancy · Onboarding · osnovno osoblje/gos
 - **Custom palete:** superadmin ih kreira na `/superadmin/theme` (tabela `theme_palettes`);
   `useTheme` ih primjenjuje inline preko `documentElement.style.setProperty` (baza green/green-dark
   za neutralne tokene).
-- Responsive je standard: upotrebljivo na 375px / 768px / desktop. Mobile-first gdje može.
+- **Responsive je OBAVEZAN (osnovno pravilo).** Sve što se razvija mora biti vizuelno
+  prilagođeno i potpuno upotrebljivo na mobilnom i raznim uređajima — ne samo na desktopu.
+  Definition of Done svake UI izmjene uključuje provjeru na **375px (mobilni) / 768px (tablet) /
+  desktop**. Mobile-first gdje god može.
+  - **Bez horizontalnog scroll-a cijele stranice.** Širok sadržaj koji ne staje (tabele,
+    dugmad, redovi filtera) mora se ili prelomiti (`flex-wrap`) ili scroll-ovati **unutar svog
+    kontejnera** (`overflow-x:auto` wrapper), nikad gurati cijeli layout.
+  - **Tabele s više kolona** idu u scroll-wrapper sa `min-width` (vidi `FiscalizationPage` —
+    `.tableWrap`/`.tableWide`), da kolone ostanu čitljive a stranica ne pukne.
+  - Redovi dugmadi/badge-ova/filtera: `flex-wrap: wrap` + razumni `min-width` na djeci.
+  - Na uskom ekranu smanji margine/padding (media query) za više korisnog prostora.
+  - Fiksne `width` u px na sadržajnim elementima su sumnjive — koristi `max-width`/`%`/`flex`.
 
 ### 6. i18n — DVA SLOJA (statički UI + dinamični sadržaj)
 **7 jezika:** `me` (primarni/izvor/fallback), `en`, `sr`, `hr`, `sq`, `tr`, `ru`. Detalji i

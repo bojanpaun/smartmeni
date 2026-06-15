@@ -57,6 +57,12 @@
 }
 .link { color: inherit; text-decoration: underline; font-weight: 600; }
 
+/* Tabele scroll-uju horizontalno unutar kartice na uskim ekranima (375px) umjesto
+   da lome layout stranice. Min-širina drži kolone čitljivim. (CLAUDE.md §5) */
+.tableWrap { overflow-x: auto; -webkit-overflow-scrolling: touch; margin-top: 10px; }
+.tableWrap .table { margin-top: 0; min-width: 460px; }
+.tableWrap .tableWide { min-width: 640px; }
+
 /* PDV stope */
 .table { width: 100%; border-collapse: collapse; margin-top: 10px; font-size: 0.88rem; }
 .table th { text-align: left; padding: 8px 10px; color: var(--c-text-muted); font-weight: 600; border-bottom: 1px solid var(--c-border); }
@@ -129,6 +135,15 @@
 }
 
 .muted { font-size: 0.85rem; color: var(--c-text-muted); padding: 8px 0; }
+
+/* Mobilni — manje margine za više korisnog prostora; akcije se prelamaju */
+@media (max-width: 600px) {
+  .page { padding: 16px 12px 48px; }
+  .card { padding: 14px 14px; }
+  .title { font-size: 1.3rem; }
+  .rateActions { flex-wrap: wrap; }
+  .idBadge { min-width: 140px; }
+}
 .soon {
   font-size: 0.68rem; font-weight: 700; text-transform: uppercase; letter-spacing: .05em;
   padding: 3px 8px; border-radius: 999px;
