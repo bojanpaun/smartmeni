@@ -1,6 +1,6 @@
 /* Lijevo poravnato (ne centrirano), širina tačno koliko treba da Računi tabela
    (prirodno ~810px) stane bez horiz. scrolla. Ujednačeno sa ostalim /admin/settings. */
-.page { max-width: 920px; margin: 0; padding: 24px 24px 60px; font-family: 'DM Sans', sans-serif; }
+.page { max-width: 1000px; margin: 0; padding: 24px 24px 60px; font-family: 'DM Sans', sans-serif; }
 
 .header { margin-bottom: 20px; }
 .title { font-size: 1.5rem; font-weight: 700; color: var(--c-text); margin: 0 0 4px; }
