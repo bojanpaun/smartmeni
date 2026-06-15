@@ -4214,6 +4214,15 @@ prije produkcijskog naplaćivanja.
 │                            Smjer (poslije): Faza H (hotel walk-in → create_booking_direct),
 │                            Faza S (spa walk-in → book_spa_appointment), reuse GuestPicker shell.
 │
+├── Jun        ✅ Naplata računa GOTOVO (2026-06-15) — praćenje plaćeno/neplaćeno po stolu
+│                            invoices.payment_status/paid_at/paid_method/paid_by_staff_id (ODVOJENO
+│                            od fiscal_status); staff SELECT politike na invoices/invoice_items
+│                            (usput popravlja prazan print za ne-vlasnike); invoices u realtime.
+│                            RPC mark_invoice_paid (DEFINER, keš/kartica, mark+unmark) +
+│                            get_order_invoices (aktivni order-računi po stolu, bez storno).
+│                            Portal: 💶 Naplata pod-kartica (po stolu, realtime, brend).
+│                            Admin: FiscalizationPage kolona/filter Naplata. pgTAP 054.
+│
 ├── Jun–Jul    ⬜ GDPR    — Compliance UI (anonimizacija, export, privole)
 │
 ├── Jul        🔄 Faza 1d — addon purchase kroz Faza PAY apstrakciju (naš Stripe/PayPal nalog)
