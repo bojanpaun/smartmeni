@@ -56,18 +56,27 @@ export default defineConfig({
         ],
       },
       workbox: {
-        // Keširaj sve statičke resurse
+        // Precache statičkih resursa. NAMJERNO izbacujemo admin-only / analitičke
+        // chunkove iz precache-a (admin/modulehelp = po 7 jezika, vendor-charts =
+        // 368 kB samo za 2 lazy stranice) — guta ~1.8 MB precache-a koji svaki deploy
+        // tjera postojeće korisnike da ponovo skinu. Ovi chunkovi se i dalje lazy
+        // učitavaju po potrebi i HTTP-keširaju (immutable, vidi vercel.json). Offline
+        // je bitan samo za javni meni (gost), ne za admin. (CLAUDE.md §9)
         globPatterns: ['**/*.{js,css,html,ico,png,svg,woff2}'],
+        globIgnores: ['**/admin-*.js', '**/modulehelp-*.js', '**/vendor-charts-*.js'],
         // Keširaj API pozive za meni (za offline prikaz)
         runtimeCaching: [
           {
-            // Supabase REST API — keširaj GET zahtjeve za meni
+            // Supabase REST API — keširaj GET SAMO za JAVNI meni (gost). `restaurants`
+            // se kešira samo kad je čitanje po `slug` (javni guest-read); admin gating
+            // upit (`?user_id=`/`?id=`) NE prolazi kroz keš sloj — on je na kritičnoj
+            // putanji prvog rendera i mora ići direktno na mrežu. (CLAUDE.md §9)
             urlPattern: ({ url }) =>
               url.hostname.includes('supabase.co') &&
               url.pathname.includes('/rest/v1/') &&
-              ['restaurants', 'categories', 'menu_items'].some(t =>
-                url.pathname.includes(t)
-              ),
+              (url.pathname.includes('categories') ||
+               url.pathname.includes('menu_items') ||
+               (url.pathname.includes('restaurants') && url.search.includes('slug='))),
             handler: 'NetworkFirst',
             options: {
               cacheName: 'smartmeni-api-cache',
