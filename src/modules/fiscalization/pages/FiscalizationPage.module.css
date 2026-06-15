@@ -151,6 +151,27 @@
   .title { font-size: 1.3rem; }
   .rateActions { flex-wrap: wrap; }
   .idBadge { min-width: 140px; }
+
+  /* Tabele → kartice: svaki red postaje kartica „LABELA: vrijednost" (umjesto
+     horizontalnog scrolla koji skriva kolone na telefonu). */
+  .tableWrap { overflow-x: visible; }
+  .tableWrap .table, .tableWrap .tableWide { min-width: 0; }
+  .table thead { display: none; }
+  .table, .table tbody { display: block; }
+  .table tr {
+    display: block; background: var(--c-surface);
+    border: 1px solid var(--c-border); border-radius: 10px;
+    padding: 10px 12px; margin-bottom: 10px;
+  }
+  .table td { display: block; border: none; padding: 4px 0; text-align: left; }
+  .table td[data-label]::before {
+    content: attr(data-label); display: block; font-weight: 700;
+    color: var(--c-text-muted); font-size: 0.66rem;
+    text-transform: uppercase; letter-spacing: 0.03em; margin-bottom: 2px;
+  }
+  .table td:empty { display: none; }
+  .rateInput { width: 100%; }
+  .ratePct { width: 90px; }
 }
 .soon {
   font-size: 0.68rem; font-weight: 700; text-transform: uppercase; letter-spacing: .05em;

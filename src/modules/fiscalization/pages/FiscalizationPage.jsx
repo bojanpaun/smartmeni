@@ -265,9 +265,9 @@ export default function FiscalizationPage() {
               <tbody>
                 {taxRows.map((r, i) => (
                   <tr key={i}>
-                    <td><input className={styles.rateInput} value={r.key} onChange={e => taxUpd(i, 'key', e.target.value)} placeholder="STANDARD" /></td>
-                    <td><input className={styles.rateInput} value={r.label} onChange={e => taxUpd(i, 'label', e.target.value)} placeholder="Standardna (21%)" /></td>
-                    <td className={styles.right}><input className={styles.ratePct} type="number" min="0" step="0.5" value={r.pct} onChange={e => taxUpd(i, 'pct', e.target.value)} /> %</td>
+                    <td data-label={t('fiskRateKey')}><input className={styles.rateInput} value={r.key} onChange={e => taxUpd(i, 'key', e.target.value)} placeholder="STANDARD" /></td>
+                    <td data-label={t('fiskRateLabel')}><input className={styles.rateInput} value={r.label} onChange={e => taxUpd(i, 'label', e.target.value)} placeholder="Standardna (21%)" /></td>
+                    <td className={styles.right} data-label={t('fiskRateValue')}><input className={styles.ratePct} type="number" min="0" step="0.5" value={r.pct} onChange={e => taxUpd(i, 'pct', e.target.value)} /> %</td>
                     <td className={styles.right}><button className={styles.rateDel} onClick={() => taxRemove(i)} title={t('htDelete')}>✕</button></td>
                   </tr>
                 ))}
@@ -339,9 +339,9 @@ export default function FiscalizationPage() {
               <tbody>
                 {sortUnbilled.sort(filteredUnbilled).map(s => (
                   <tr key={`${s.source_type}-${s.source_id}`}>
-                    <td>{t(SRC_KEY[s.source_type] || 'fiskSrcOrder')} · {s.ref_label}</td>
-                    <td>{new Date(s.occurred_at).toLocaleDateString(dl, { day: '2-digit', month: '2-digit', year: 'numeric' })}</td>
-                    <td className={styles.right}>{money(s.total_amount)}</td>
+                    <td data-label={t('fiskColSource')}>{t(SRC_KEY[s.source_type] || 'fiskSrcOrder')} · {s.ref_label}</td>
+                    <td data-label={t('fiskColDate')}>{new Date(s.occurred_at).toLocaleDateString(dl, { day: '2-digit', month: '2-digit', year: 'numeric' })}</td>
+                    <td className={styles.right} data-label={t('fiskColTotal')}>{money(s.total_amount)}</td>
                     <td className={styles.right}>
                       <div className={styles.unbilledActions}>
                         <button className={styles.splitBtn} onClick={() => setSplitSource(s)} title={t('fiskSplitTitle')}>
@@ -413,16 +413,16 @@ export default function FiscalizationPage() {
               <tbody>
                 {sortInv.sort(filteredInvoices).map(inv => (
                   <tr key={inv.id} className={`${styles.invoiceRow} ${inv.corrective_for ? styles.stornoRow : ''}`} onClick={() => setPrintInvoice(inv)} title={t('fiskOpenPrint')}>
-                    <td>
+                    <td data-label={t('fiskColNumber')}>
                       <code className={styles.code}>{inv.invoice_number}</code>
                       {inv.corrective_for && <span className={styles.stornoBadge}>{t('fiskStornoBadge')}</span>}
                     </td>
-                    <td>{new Date(inv.issued_at).toLocaleDateString(dl, { day: '2-digit', month: '2-digit', year: 'numeric' })}</td>
-                    <td>{t(SRC_KEY[inv.source_type] || 'fiskSrcOrder')}</td>
-                    <td className={styles.right}>{invMoney(inv.total_vat_cents, inv.currency)}</td>
-                    <td className={styles.right}>{invMoney(inv.total_cents, inv.currency)}</td>
-                    <td><span className={styles.statBadge}>{t(STATUS_KEY[inv.fiscal_status] || 'fiskStatPending')}</span></td>
-                    <td>
+                    <td data-label={t('fiskColDate')}>{new Date(inv.issued_at).toLocaleDateString(dl, { day: '2-digit', month: '2-digit', year: 'numeric' })}</td>
+                    <td data-label={t('fiskColSource')}>{t(SRC_KEY[inv.source_type] || 'fiskSrcOrder')}</td>
+                    <td className={styles.right} data-label={t('fiskColVat')}>{invMoney(inv.total_vat_cents, inv.currency)}</td>
+                    <td className={styles.right} data-label={t('fiskColTotal')}>{invMoney(inv.total_cents, inv.currency)}</td>
+                    <td data-label={t('fiskColStatus')}><span className={styles.statBadge}>{t(STATUS_KEY[inv.fiscal_status] || 'fiskStatPending')}</span></td>
+                    <td data-label={t('fiskColPayment')}>
                       {!inv.corrective_for && (
                         <button
                           className={inv.payment_status === 'paid' ? styles.paidBadge : styles.unpaidBadge}
