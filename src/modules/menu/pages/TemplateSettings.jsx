@@ -7,7 +7,7 @@ import { TEMPLATES, getTemplate } from '../../../lib/templates'
 import styles from './TemplateSettings.module.css'
 
 // Mini preview guest menija
-function MenuPreview({ template: t }) {
+function MenuPreview({ template: t, curSym }) {
   return (
     <div className={styles.phone} style={{ background: t.pageBg }}>
       {/* Header */}
@@ -168,7 +168,7 @@ export default function TemplateSettings() {
         {/* Desno — live preview */}
         <div className={styles.previewCol}>
           <div className={styles.previewLabel}>{t('tsPreview')}</div>
-          <MenuPreview template={activeTemplate} />
+          <MenuPreview template={activeTemplate} curSym={curSym} />
           <div className={styles.previewInfo}>
             <div className={styles.previewName}>{activeTemplate.name}</div>
             <div className={styles.previewDesc}>{activeTemplate.desc}</div>

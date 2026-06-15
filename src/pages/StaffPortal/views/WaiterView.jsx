@@ -256,7 +256,13 @@ export default function WaiterView({ restaurant, activeTab, onRefresh, hotelEnab
 
   return (
     <div>
-      <button className={s.newOrderBtn} onClick={() => setNewMode(true)}>+ {t('newOrder')}</button>
+      <button className={s.newOrderBtn} onClick={() => setNewMode(true)}>
+        <span className={s.newOrderLeft}>
+          <span className={s.newOrderPlus}>+</span>
+          <span className={s.newOrderLabel}>{t('newOrder')}</span>
+        </span>
+        <span className={s.newOrderArrow}>→</span>
+      </button>
       {orders.length === 0 ? (
         <div className={s.empty}>
           <div className={s.emptyIcon}>🍽️</div>

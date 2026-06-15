@@ -497,7 +497,7 @@ export default function StaffPortal() {
   }
 
   return (
-    <div className={s.portalPage}>
+    <div className={s.portalPage} style={{ '--sp-brand': brand }}>
       {/* Header */}
       <div className={s.portalHeader} style={{ background: brand }}>
         <div className={s.portalAvatar}>
