@@ -105,6 +105,25 @@
 .specialPrice { font-size: 20px; font-weight: 800; display: flex; align-items: baseline; gap: 8px; }
 .specialOld { font-size: 14px; text-decoration: line-through; opacity: 0.6; }
 
+/* Dnevna ponuda — više artikala u horizontalnom skrolu */
+.specials { margin-top: 14px; }
+.specialsHead {
+  font-size: 11px; text-transform: uppercase; letter-spacing: 0.8px;
+  color: var(--c-text-muted); font-weight: 700; margin: 0 14px 8px;
+}
+.specialsScroll {
+  display: flex; gap: 10px; overflow-x: auto; padding: 0 14px 4px;
+  scrollbar-width: none; -webkit-overflow-scrolling: touch;
+}
+.specialsScroll::-webkit-scrollbar { display: none; }
+.specialCard {
+  flex: 0 0 auto; width: 200px; border-radius: 14px; padding: 14px 16px;
+  color: white; cursor: pointer; transition: opacity 0.15s;
+}
+.specialCard:hover { opacity: 0.92; }
+.specialCardName { font-size: 15px; font-weight: 700; margin-bottom: 8px; line-height: 1.3; }
+.specialCardPrice { font-size: 19px; font-weight: 800; display: flex; align-items: baseline; gap: 8px; }
+
 .cats {
   display: flex;
   gap: 7px;

@@ -255,7 +255,7 @@ export default function Menu() {
     ? (data.items[activeCat] || [])
     : allItems.filter(i => i.category_id === activeCat)
   const isEn = i18n.language === 'en'
-  const specialItem = allItems.find(i => isDemo ? i.special : i.is_special)
+  const specialItems = allItems.filter(i => isDemo ? i.special : i.is_special)
 
   const sendWaiterRequest = async (type) => {
     if (!isDemo && realData?.restaurant) {
@@ -485,21 +485,22 @@ export default function Menu() {
         </span>
       </div>
 
-      {/* SPECIAL OFFER */}
-      {specialItem && (
-        <div className={styles.special} style={{ background: tpl.brand }} onClick={() => setSelectedItem(specialItem)}>
-          <div className={styles.specialLabel}>
-            ⚡ {t('dailySpecial')}
-          </div>
-          <div className={styles.specialName}>
-            {specialItem.emoji} {tr('menu_item', specialItem.id, 'name', isEn ? (specialItem.name_en || specialItem.nameEn || specialItem.name) : specialItem.name)}
-          </div>
-          <div className={styles.specialDesc}>
-            {isEn ? specialItem.descEn : specialItem.desc}
-          </div>
-          <div className={styles.specialPrice}>
-            {formatMoney(specialItem.price, r?.currency, i18n.language)}
-            <span className={styles.specialOld}>{formatMoney(parseFloat(specialItem.price) * 1.25, r?.currency, i18n.language)}</span>
+      {/* SPECIAL OFFER — dnevna ponuda (više artikala, horizontalni skrol) */}
+      {specialItems.length > 0 && (
+        <div className={styles.specials}>
+          <div className={styles.specialsHead}>⚡ {t('dailySpecial')}</div>
+          <div className={styles.specialsScroll}>
+            {specialItems.map(it => (
+              <div key={it.id} className={styles.specialCard} style={{ background: tpl.brand }} onClick={() => setSelectedItem(it)}>
+                <div className={styles.specialCardName}>
+                  {it.emoji} {tr('menu_item', it.id, 'name', isEn ? (it.name_en || it.nameEn || it.name) : it.name)}
+                </div>
+                <div className={styles.specialCardPrice}>
+                  {formatMoney(it.price, r?.currency, i18n.language)}
+                  <span className={styles.specialOld}>{formatMoney(parseFloat(it.price) * 1.25, r?.currency, i18n.language)}</span>
+                </div>
+              </div>
+            ))}
           </div>
         </div>
       )}
