@@ -93,14 +93,16 @@ export default function Landing() {
           <a href="/login" className={styles.navLogin}>{t('nav.login')}</a>
           <a href="/registracija" className={styles.navCta}>{t('nav.cta')}</a>
         </div>
-        <button className={styles.navBurger} onClick={() => setMenuOpen(v => !v)} aria-label={t('nav.addons')}>
-          {menuOpen ? '✕' : '☰'}
-        </button>
+        <div className={styles.navMobileActions}>
+          <LanguageSwitcher />
+          <button className={styles.navBurger} onClick={() => setMenuOpen(v => !v)} aria-label={t('nav.addons')}>
+            {menuOpen ? '✕' : '☰'}
+          </button>
+        </div>
       </nav>
 
       {menuOpen && (
         <div className={styles.mobileMenu}>
-          <LanguageSwitcher />
           {NAV_ANCHORS.map(a => (
             <a key={a.href} href={a.href} onClick={() => setMenuOpen(false)}>{t(`nav.${a.k}`)}</a>
           ))}

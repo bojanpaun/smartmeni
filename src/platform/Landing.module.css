@@ -783,10 +783,13 @@
   .addonsGrid { grid-template-columns: repeat(2, 1fr); }
   .testGrid { grid-template-columns: 1fr; }
 }
+.navMobileActions { display: none; }
+
 @media (max-width: 768px) {
   .nav { padding: 0 1.25rem; }
   .navLinks, .navActions { display: none; }
   .navBurger { display: flex; }
+  .navMobileActions { display: flex; align-items: center; gap: 0.6rem; }
   .hero, .moduleSection, .addonsSection, .testSection, .pricingSection, .ctaSection { padding-left: 1.25rem; padding-right: 1.25rem; }
   .stats { padding: 2.25rem 1.25rem; }
   .statsGrid { grid-template-columns: repeat(2, 1fr); gap: 1.5rem 1rem; }
