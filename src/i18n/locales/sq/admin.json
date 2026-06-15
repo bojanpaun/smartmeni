@@ -592,6 +592,8 @@
   "rmSeeAll": "shiko të gjitha",
   "rmModalTitle": "Çfarë po zhvillojmë",
   "rmManageSub": "Njoftime për zhvillimin e ardhshëm — të dukshme për të gjithë përdoruesit në panel (nuk mund t'i mbyllin).",
+  "rmMasterLabel": "Shfaq në panel",
+  "rmMasterHint": "Çelësi kryesor — kur është i fikur, „Çfarë po zhvillojmë\" nuk shfaqet për askënd në panel. Artikujt individualë mbeten të paprekur.",
   "rmNewItem": "Artikull i ri",
   "rmOrderLabel": "Renditja",
   "rmActiveLabel": "Aktiv",

@@ -592,6 +592,8 @@
   "rmSeeAll": "see all",
   "rmModalTitle": "What we're building",
   "rmManageSub": "Announcements of upcoming development — visible to all users on the dashboard (they can't dismiss them).",
+  "rmMasterLabel": "Show on dashboard",
+  "rmMasterHint": "Master switch — when off, “What we're building” is hidden from everyone on the dashboard. Individual items stay untouched.",
   "rmNewItem": "New item",
   "rmOrderLabel": "Order",
   "rmActiveLabel": "Active",

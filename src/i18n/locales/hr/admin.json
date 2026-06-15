@@ -592,6 +592,8 @@
   "rmSeeAll": "vidi sve",
   "rmModalTitle": "Što razvijamo",
   "rmManageSub": "Najave budućeg razvoja — vidljive svim korisnicima na nadzornoj ploči (ne mogu ih zatvoriti).",
+  "rmMasterLabel": "Prikaz na nadzornoj ploči",
+  "rmMasterHint": "Glavni prekidač — kad je isključen, „Što razvijamo\" nije vidljivo nikome na nadzornoj ploči. Pojedinačne stavke ostaju netaknute.",
   "rmNewItem": "Nova stavka",
   "rmOrderLabel": "Redoslijed",
   "rmActiveLabel": "Aktivno",

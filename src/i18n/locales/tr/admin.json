@@ -592,6 +592,8 @@
   "rmSeeAll": "tümünü gör",
   "rmModalTitle": "Neler geliştiriyoruz",
   "rmManageSub": "Gelecek geliştirme duyuruları — tüm kullanıcılara panoda görünür (kapatamazlar).",
+  "rmMasterLabel": "Panoda göster",
+  "rmMasterHint": "Ana anahtar — kapalıyken, „Neler geliştiriyoruz\" panoda kimseye görünmez. Tek tek öğeler değişmeden kalır.",
   "rmNewItem": "Yeni öğe",
   "rmOrderLabel": "Sıra",
   "rmActiveLabel": "Aktif",

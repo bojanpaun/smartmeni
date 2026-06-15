@@ -15,10 +15,12 @@ export default function RoadmapTicker() {
   return (
     <>
       <div className={styles.ticker}>
-        <span className={styles.rocket} aria-hidden="true">🚀</span>
-        <span className={styles.label}>{t('rmComing')}:</span>
+        <div className={styles.head}>
+          <span className={styles.rocket} aria-hidden="true">🚀</span>
+          <span className={styles.label}>{t('rmComing')}:</span>
+          <button className={styles.seeAll} onClick={() => setOpen(true)}>{t('rmSeeAll')}</button>
+        </div>
         <span className={styles.list}>{items.map(i => i.title).join('  ·  ')}</span>
-        <button className={styles.seeAll} onClick={() => setOpen(true)}>{t('rmSeeAll')}</button>
       </div>
 
       {open && (

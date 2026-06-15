@@ -1,6 +1,7 @@
 import { useState, useEffect } from 'react'
 import { useTranslation } from 'react-i18next'
 import { supabase } from '../../lib/supabase'
+import { usePlatform } from '../../context/PlatformContext'
 import LoadingSpinner from '../../components/shared/LoadingSpinner'
 import styles from '../../modules/hotel/pages/Hotel.module.css'
 
@@ -10,20 +11,37 @@ const BLANK = { title: '', description: '', sort_order: 0, is_active: true }
 // korisnicima diskretno (RoadmapTicker). Bez dismiss/read/expire.
 export default function RoadmapManager() {
   const { t } = useTranslation('admin')
+  const { user } = usePlatform()
   const [items, setItems] = useState([])
   const [loading, setLoading] = useState(true)
   const [form, setForm] = useState(BLANK)
   const [editingId, setEditingId] = useState(null)
   const [saving, setSaving] = useState(false)
   const [showForm, setShowForm] = useState(false)
+  const [masterOn, setMasterOn] = useState(true) // platform_settings.roadmap_dashboard_enabled
 
   const load = async () => {
     setLoading(true)
-    const { data } = await supabase.from('platform_roadmap').select('*').order('sort_order')
+    const [{ data }, { data: settings }] = await Promise.all([
+      supabase.from('platform_roadmap').select('*').order('sort_order'),
+      supabase.from('platform_settings').select('roadmap_dashboard_enabled').limit(1).maybeSingle(),
+    ])
     setItems(data ?? [])
+    setMasterOn(settings?.roadmap_dashboard_enabled ?? true)
     setLoading(false)
   }
   useEffect(() => { load() }, [])
+
+  // Master prekidač: gasi/pali cijeli ticker na dashboardu odjednom. Ne dira
+  // is_active po stavci — kad se vrati na ON, vidljivost se obnavlja kakva je bila.
+  const toggleMaster = async () => {
+    const next = !masterOn
+    setMasterOn(next)
+    const { error } = await supabase.from('platform_settings')
+      .update({ roadmap_dashboard_enabled: next, updated_at: new Date().toISOString(), updated_by: user?.id ?? null })
+      .eq('id', true)
+    if (error) setMasterOn(!next) // rollback na grešku
+  }
 
   const upd = (k, v) => setForm(f => ({ ...f, [k]: v }))
   const reset = () => { setForm(BLANK); setEditingId(null); setShowForm(false) }
@@ -56,6 +74,24 @@ export default function RoadmapManager() {
 
   return (
     <div>
+      {/* Master prekidač — gasi/pali cijeli ticker na dashboardu odjednom */}
+      <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', gap: 12, background: 'var(--c-surface)', border: '1px solid var(--c-border)', borderRadius: 12, padding: '12px 16px', marginBottom: 16 }}>
+        <div style={{ minWidth: 0 }}>
+          <div style={{ fontWeight: 600 }}>📡 {t('rmMasterLabel')}</div>
+          <div style={{ fontSize: 12, color: 'var(--c-text-muted)', marginTop: 3 }}>{t('rmMasterHint')}</div>
+        </div>
+        <button
+          type="button"
+          role="switch"
+          aria-checked={masterOn}
+          aria-label={t('rmMasterLabel')}
+          onClick={toggleMaster}
+          style={{ flexShrink: 0, width: 46, height: 26, borderRadius: 13, border: 'none', cursor: 'pointer', padding: 3, background: masterOn ? 'var(--c-primary)' : 'var(--c-border)', transition: 'background 0.15s', display: 'flex', justifyContent: masterOn ? 'flex-end' : 'flex-start' }}
+        >
+          <span style={{ width: 20, height: 20, borderRadius: '50%', background: '#fff', display: 'block', boxShadow: '0 1px 2px rgba(0,0,0,0.25)' }} />
+        </button>
+      </div>
+
       <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: 12 }}>
         <div style={{ fontSize: 13, color: 'var(--c-text-muted)' }}>{t('rmManageSub')}</div>
         {!showForm && <button className={styles.btnPrimary} onClick={() => { setForm(BLANK); setEditingId(null); setShowForm(true) }}>+ {t('rmNewItem')}</button>}

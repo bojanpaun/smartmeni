@@ -592,6 +592,8 @@
   "rmSeeAll": "vidi sve",
   "rmModalTitle": "Šta razvijamo",
   "rmManageSub": "Najave budućeg razvoja — vidljive svim korisnicima na dashboardu (ne mogu ih zatvoriti).",
+  "rmMasterLabel": "Prikaz na dashboardu",
+  "rmMasterHint": "Master prekidač — kad je isključen, „Šta razvijamo\" se ne prikazuje nikome na dashboardu. Pojedinačne stavke ostaju netaknute.",
   "rmNewItem": "Nova stavka",
   "rmOrderLabel": "Redoslijed",
   "rmActiveLabel": "Aktivno",
