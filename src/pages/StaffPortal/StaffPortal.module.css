@@ -1081,3 +1081,40 @@
   display: inline-flex; align-items: center; justify-content: center; font-size: 11px; font-weight: 700;
 }
 .cartBarTotal { font-size: 15px; font-weight: 700; color: var(--sp-brand); }
+
+/* ── Naplata po stolu (NaplataView) ──────────────────────────────── */
+.naplataList { display: flex; flex-direction: column; gap: 12px; }
+.naplataCard { background: #fff; border: 1px solid #eef0ef; border-radius: 12px; overflow: hidden; }
+.naplataHead {
+  display: flex; align-items: center; justify-content: space-between;
+  padding: 11px 14px; border-bottom: 1px solid #f3f4f6;
+}
+.naplataTable { font-size: 14px; font-weight: 700; color: #111827; }
+.naplataDue {
+  font-size: 12px; font-weight: 700; color: #b45309;
+  background: #fff7ed; border-radius: 999px; padding: 3px 10px; white-space: nowrap;
+}
+.naplataAllPaid { font-size: 12px; font-weight: 700; color: #16a34a; }
+.naplataRow {
+  display: flex; align-items: center; justify-content: space-between; gap: 10px;
+  padding: 10px 14px; border-top: 1px solid #f7f7f7;
+}
+.naplataInvInfo { display: flex; flex-direction: column; gap: 3px; min-width: 0; }
+.naplataInvNo {
+  font-family: ui-monospace, monospace; font-size: 11px; color: #6b7280;
+  background: #f3f4f6; padding: 1px 6px; border-radius: 5px; align-self: flex-start;
+}
+.naplataInvTotal { font-size: 15px; font-weight: 700; color: #111827; }
+.naplataActions { display: flex; gap: 6px; flex-shrink: 0; }
+.payBtn {
+  background: var(--sp-brand); color: #fff; border: none; border-radius: 8px;
+  padding: 7px 11px; font-size: 12px; font-weight: 700; cursor: pointer;
+  font-family: inherit; white-space: nowrap;
+}
+.payBtn:disabled { opacity: 0.6; cursor: default; }
+.naplataPaidWrap { display: flex; align-items: center; gap: 8px; flex-shrink: 0; }
+.naplataPaid { font-size: 12px; font-weight: 700; color: #16a34a; white-space: nowrap; }
+.undoBtn {
+  background: #f3f4f6; border: none; border-radius: 7px; width: 28px; height: 28px;
+  font-size: 13px; cursor: pointer; color: #6b7280; flex-shrink: 0;
+}

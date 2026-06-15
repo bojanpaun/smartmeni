@@ -254,5 +254,13 @@
   "itemNote": "Заметка",
   "orderSentToast": "Заказ отправлен на приготовление",
   "orderSendErr": "Ошибка отправки заказа",
-  "noMenuItems": "Нет позиций в этой категории"
+  "noMenuItems": "Нет позиций в этой категории",
+  "tabNaplata": "Оплата",
+  "naplataEmpty": "Нет счетов к оплате",
+  "payCash": "Наличные",
+  "payCard": "Карта",
+  "paidBadge": "Оплачено",
+  "naplataUnpaid": "не оплачено",
+  "markPaidErr": "Ошибка отметки оплаты",
+  "undoPay": "Отменить"
 }

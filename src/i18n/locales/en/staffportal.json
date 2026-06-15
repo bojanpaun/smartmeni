@@ -254,5 +254,13 @@
   "itemNote": "Note",
   "orderSentToast": "Order sent to preparation",
   "orderSendErr": "Error sending order",
-  "noMenuItems": "No items in this category"
+  "noMenuItems": "No items in this category",
+  "tabNaplata": "Payment",
+  "naplataEmpty": "No invoices to collect",
+  "payCash": "Cash",
+  "payCard": "Card",
+  "paidBadge": "Paid",
+  "naplataUnpaid": "unpaid",
+  "markPaidErr": "Error marking payment",
+  "undoPay": "Undo"
 }

@@ -52,6 +52,7 @@ export default function FiscalizationPage() {
   const [invSearch, setInvSearch] = useState('')
   const [invSource, setInvSource] = useState('all')
   const [invStatus, setInvStatus] = useState('all')
+  const [invPayment, setInvPayment] = useState('all')
   const [ubSearch, setUbSearch] = useState('')
   const [ubSource, setUbSource] = useState('all')
   const [openUnbilled, setOpenUnbilled] = useState(true)
@@ -64,7 +65,7 @@ export default function FiscalizationPage() {
   const loadInvoices = () => {
     if (!restaurant?.id) return
     supabase.from('invoices')
-      .select('id, invoice_number, issued_at, source_type, source_id, total_cents, total_base_cents, total_vat_cents, currency, fiscal_status, corrective_for')
+      .select('id, invoice_number, issued_at, source_type, source_id, total_cents, total_base_cents, total_vat_cents, currency, fiscal_status, corrective_for, payment_status, paid_method')
       .eq('restaurant_id', restaurant.id).order('issued_at', { ascending: false }).limit(200)
       .then(({ data }) => setInvoices(data || []))
   }
@@ -79,6 +80,15 @@ export default function FiscalizationPage() {
     toast.success(t('fiskStornoDone'))
     loadInvoices()
   }
+  // Naplata (admin nadzor) — toggle plaćeno/neplaćeno preko iste RPC kao portal.
+  const togglePaid = async (inv, e) => {
+    e.stopPropagation()
+    const paid = inv.payment_status !== 'paid'
+    const { error } = await supabase.rpc('mark_invoice_paid', { p_invoice_id: inv.id, p_method: 'cash', p_paid: paid })
+    if (error) { toast.error(t('fiskPayMarkErr')); return }
+    loadInvoices()
+  }
+
   const loadUnbilled = () => {
     if (!restaurant?.id) return
     supabase.rpc('get_unbilled_sources', { p_restaurant_id: restaurant.id, p_limit: 50 })
@@ -205,6 +215,7 @@ export default function FiscalizationPage() {
   const filteredInvoices = invoices.filter(inv =>
     (invSource === 'all' || inv.source_type === invSource) &&
     (invStatus === 'all' || inv.fiscal_status === invStatus) &&
+    (invPayment === 'all' || inv.payment_status === invPayment) &&
     (!invq || (inv.invoice_number || '').toLowerCase().includes(invq) || t(SRC_KEY[inv.source_type] || 'fiskSrcOrder').toLowerCase().includes(invq)))
 
   return (
@@ -373,6 +384,11 @@ export default function FiscalizationPage() {
                 <option value="FISCALIZED">{t('fiskStatFiscalized')}</option>
                 <option value="FAILED">{t('fiskStatFailed')}</option>
               </select>
+              <select className={styles.filterSelect} value={invPayment} onChange={e => setInvPayment(e.target.value)}>
+                <option value="all">{t('fiskAllPayments')}</option>
+                <option value="unpaid">{t('fiskUnpaid')}</option>
+                <option value="paid">{t('fiskPaid')}</option>
+              </select>
             </div>
           )}
           {invoices.length === 0 ? (
@@ -390,6 +406,7 @@ export default function FiscalizationPage() {
                   <th className={styles.right}><SortableHead col="total_vat_cents" label={t('fiskColVat')} sortBy={sortInv.sortBy} sortDir={sortInv.sortDir} onSort={sortInv.onSort} /></th>
                   <th className={styles.right}><SortableHead col="total_cents" label={t('fiskColTotal')} sortBy={sortInv.sortBy} sortDir={sortInv.sortDir} onSort={sortInv.onSort} /></th>
                   <th><SortableHead col="fiscal_status" label={t('fiskColStatus')} sortBy={sortInv.sortBy} sortDir={sortInv.sortDir} onSort={sortInv.onSort} /></th>
+                  <th><SortableHead col="payment_status" label={t('fiskColPayment')} sortBy={sortInv.sortBy} sortDir={sortInv.sortDir} onSort={sortInv.onSort} /></th>
                   <th></th>
                 </tr>
               </thead>
@@ -405,6 +422,16 @@ export default function FiscalizationPage() {
                     <td className={styles.right}>{invMoney(inv.total_vat_cents, inv.currency)}</td>
                     <td className={styles.right}>{invMoney(inv.total_cents, inv.currency)}</td>
                     <td><span className={styles.statBadge}>{t(STATUS_KEY[inv.fiscal_status] || 'fiskStatPending')}</span></td>
+                    <td>
+                      {!inv.corrective_for && (
+                        <button
+                          className={inv.payment_status === 'paid' ? styles.paidBadge : styles.unpaidBadge}
+                          onClick={(e) => togglePaid(inv, e)}
+                          title={t('fiskTogglePay')}>
+                          {inv.payment_status === 'paid' ? `✓ ${t('fiskPaid')}` : t('fiskUnpaid')}
+                        </button>
+                      )}
+                    </td>
                     <td className={styles.right}>
                       {!inv.corrective_for && !stornoedIds.has(inv.id) && (
                         <button className={styles.stornoBtn} onClick={(e) => stornoInvoice(inv, e)}>↩︎ {t('fiskStorno')}</button>

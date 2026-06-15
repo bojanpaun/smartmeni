@@ -2880,5 +2880,11 @@
   "amTransSaving": "Kaydediliyor…",
   "amTransSaved": "Kaydedildi",
   "amTransAutoNote": "AI adı ve açıklamayı diğer dillere otomatik çevirir. Tek tek düzeltmeyi yemek listesindeki 🌐 ile yaparsın.",
-  "amWaiterMsgNote": "Sadece Karadağca gir — AI misafirler için diğer dillere çevirir."
+  "amWaiterMsgNote": "Sadece Karadağca gir — AI misafirler için diğer dillere çevirir.",
+  "fiskColPayment": "Tahsilat",
+  "fiskPaid": "Ödendi",
+  "fiskUnpaid": "Ödenmemiş",
+  "fiskAllPayments": "Tümü (tahsilat)",
+  "fiskPayMarkErr": "Tahsilat hatası",
+  "fiskTogglePay": "Tahsilatı değiştir"
 }

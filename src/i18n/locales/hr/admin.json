@@ -2880,5 +2880,11 @@
   "amTransSaving": "Spremam…",
   "amTransSaved": "Spremljeno",
   "amTransAutoNote": "AI automatski prevodi naziv i opis na ostale jezike. Pojedinačnu korekciju radiš preko 🌐 u listi jela.",
-  "amWaiterMsgNote": "Unosiš samo na crnogorskom — AI prevodi gostima na ostale jezike."
+  "amWaiterMsgNote": "Unosiš samo na crnogorskom — AI prevodi gostima na ostale jezike.",
+  "fiskColPayment": "Naplata",
+  "fiskPaid": "Plaćeno",
+  "fiskUnpaid": "Neplaćeno",
+  "fiskAllPayments": "Sve (naplata)",
+  "fiskPayMarkErr": "Greška pri naplati",
+  "fiskTogglePay": "Označi naplatu"
 }

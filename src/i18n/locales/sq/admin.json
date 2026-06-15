@@ -2880,5 +2880,11 @@
   "amTransSaving": "Po ruaj…",
   "amTransSaved": "U ruajt",
   "amTransAutoNote": "AI përkthen automatikisht emrin dhe përshkrimin në gjuhët e tjera. Korrigjimin individual e bën përmes 🌐 në listën e pjatave.",
-  "amWaiterMsgNote": "Shkruan vetëm në malazisht — AI përkthen për mysafirët në gjuhët e tjera."
+  "amWaiterMsgNote": "Shkruan vetëm në malazisht — AI përkthen për mysafirët në gjuhët e tjera.",
+  "fiskColPayment": "Arkëtim",
+  "fiskPaid": "Paguar",
+  "fiskUnpaid": "Papaguar",
+  "fiskAllPayments": "Të gjitha (arkëtim)",
+  "fiskPayMarkErr": "Gabim gjatë arkëtimit",
+  "fiskTogglePay": "Ndrysho arkëtimin"
 }

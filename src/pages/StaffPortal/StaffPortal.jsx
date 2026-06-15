@@ -12,6 +12,7 @@ import NotificationsView from './views/NotificationsView'
 import HrView from './views/HrView'
 import HousekeepingView from './views/HousekeepingView'
 import WaiterView from './views/WaiterView'
+import NaplataView from './views/NaplataView'
 import KitchenView from './views/KitchenView'
 import BarView from './views/BarView'
 import ReceptionView from './views/ReceptionView'
@@ -62,6 +63,7 @@ const PERM_TO_TABS = [
   { perm: 'view_orders',        tabs: [
       { key: 'orders',       labelKey: 'tabOrders',  icon: '🍽️' },
       { key: 'requests',     labelKey: 'tabRequests',  icon: '🔔' },
+      { key: 'naplata',      labelKey: 'tabNaplata', icon: '💶' },
   ]},
   { perm: 'view_kitchen_orders', tabs: [{ key: 'kitchen',      labelKey: 'tabKitchen',  icon: '🍳' }] },
   { perm: 'view_bar_orders',     tabs: [{ key: 'bar_orders',   labelKey: 'tabBar',      icon: '🍷' }] },
@@ -105,6 +107,7 @@ const PORTAL_TABS = {
   waiter: [
     { key: 'orders',   labelKey: 'tabOrders', icon: '🍽️' },
     { key: 'requests', labelKey: 'tabRequests', icon: '🔔' },
+    { key: 'naplata',  labelKey: 'tabNaplata', icon: '💶' },
     { key: 'schedule', labelKey: 'tabSchedule', icon: '📅' },
   ],
   kitchen: [
@@ -458,7 +461,7 @@ export default function StaffPortal() {
   }
 
   // Podjela tabova u sekcije
-  const WORK_KEYS     = new Set(['orders','requests','kitchen','bar_orders','tasks','maintenance','checkin','checkout','rooms','appointments'])
+  const WORK_KEYS     = new Set(['orders','requests','naplata','kitchen','bar_orders','tasks','maintenance','checkin','checkout','rooms','appointments'])
   const PERSONAL_KEYS = new Set(['schedule','attendance','payroll','absences','notifications','profile'])
 
   const workTabs     = tabs.filter(t => WORK_KEYS.has(t.key))
@@ -487,6 +490,7 @@ export default function StaffPortal() {
     if (activeTab === 'tasks')       return <HousekeepingView staffId={staff.id} restaurantId={restaurant.id} onRefresh={refreshCounts} />
     if (activeTab === 'maintenance') return <MaintenanceView  staffId={staff.id} restaurantId={restaurant.id} onRefresh={refreshCounts} />
     if (activeTab === 'orders' || activeTab === 'requests') return <WaiterView restaurant={restaurant} activeTab={activeTab} onRefresh={refreshCounts} hotelEnabled={hotelBetaFree || hasAddon(subscription, 'hotel_core')} fiscalEnabled={fiscalBetaFree || hasAddon(subscription, 'fiscalization')} />
+    if (activeTab === 'naplata')  return <NaplataView restaurant={restaurant} />
     if (activeTab === 'kitchen')     return <KitchenView    restaurantId={restaurant.id} onRefresh={refreshCounts} />
     if (activeTab === 'bar_orders')  return <BarView        restaurantId={restaurant.id} onRefresh={refreshCounts} />
     if (['checkin', 'checkout', 'rooms'].includes(activeTab)) return <ReceptionView restaurantId={restaurant.id} activeTab={activeTab} onRefresh={refreshCounts} />

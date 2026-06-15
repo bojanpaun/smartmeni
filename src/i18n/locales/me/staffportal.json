@@ -254,5 +254,13 @@
   "itemNote": "Napomena",
   "orderSentToast": "Narudžba poslata na pripremu",
   "orderSendErr": "Greška pri slanju narudžbe",
-  "noMenuItems": "Nema stavki u ovoj kategoriji"
+  "noMenuItems": "Nema stavki u ovoj kategoriji",
+  "tabNaplata": "Naplata",
+  "naplataEmpty": "Nema računa za naplatu",
+  "payCash": "Keš",
+  "payCard": "Kartica",
+  "paidBadge": "Plaćeno",
+  "naplataUnpaid": "neplaćeno",
+  "markPaidErr": "Greška pri naplati",
+  "undoPay": "Vrati"
 }

@@ -254,5 +254,13 @@
   "itemNote": "Not",
   "orderSentToast": "Sipariş hazırlığa gönderildi",
   "orderSendErr": "Sipariş gönderilirken hata",
-  "noMenuItems": "Bu kategoride ürün yok"
+  "noMenuItems": "Bu kategoride ürün yok",
+  "tabNaplata": "Tahsilat",
+  "naplataEmpty": "Tahsil edilecek fatura yok",
+  "payCash": "Nakit",
+  "payCard": "Kart",
+  "paidBadge": "Ödendi",
+  "naplataUnpaid": "ödenmemiş",
+  "markPaidErr": "Tahsilat hatası",
+  "undoPay": "Geri al"
 }

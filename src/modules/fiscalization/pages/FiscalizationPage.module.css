@@ -113,6 +113,14 @@
   background: var(--c-warn-bg, #FAEEDA); color: var(--c-warn, #633806); white-space: nowrap;
 }
 
+/* Naplata badge (klikabilan toggle plaćeno/neplaćeno) */
+.paidBadge, .unpaidBadge {
+  font-size: 0.7rem; font-weight: 700; padding: 3px 9px; border-radius: 999px;
+  cursor: pointer; font-family: inherit; white-space: nowrap; border: none;
+}
+.paidBadge { background: var(--c-success-bg, #E1F5EE); color: var(--c-success, #0d7a52); }
+.unpaidBadge { background: var(--c-warn-bg, #FAEEDA); color: var(--c-warn, #633806); }
+
 /* PDV stope editor */
 .rateInput {
   width: 100%; box-sizing: border-box; padding: 6px 9px; font-size: 0.85rem; font-family: inherit;

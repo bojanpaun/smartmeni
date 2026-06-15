@@ -254,5 +254,13 @@
   "itemNote": "Shënim",
   "orderSentToast": "Porosia u dërgua në përgatitje",
   "orderSendErr": "Gabim gjatë dërgimit të porosisë",
-  "noMenuItems": "Asnjë artikull në këtë kategori"
+  "noMenuItems": "Asnjë artikull në këtë kategori",
+  "tabNaplata": "Arkëtim",
+  "naplataEmpty": "Asnjë faturë për arkëtim",
+  "payCash": "Para",
+  "payCard": "Kartë",
+  "paidBadge": "Paguar",
+  "naplataUnpaid": "papaguar",
+  "markPaidErr": "Gabim gjatë arkëtimit",
+  "undoPay": "Kthe"
 }
