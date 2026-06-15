@@ -162,6 +162,7 @@ export default function SpaAnalyticsPage() {
               {serviceStats.length === 0 ? (
                 <div className={spa.empty} style={{ padding: '32px 20px' }}>{t('spaNoData')}</div>
               ) : (
+                <div className={spa.tableScroll}>
                 <table className={spa.table}>
                   <thead><tr><th>{t('spaTreatment')}</th><th style={{ textAlign: 'right' }}>{t('spaColNum')}</th><th style={{ textAlign: 'right' }}>{t('spaColRevenue')}</th></tr></thead>
                   <tbody>
@@ -174,6 +175,7 @@ export default function SpaAnalyticsPage() {
                     ))}
                   </tbody>
                 </table>
+                </div>
               )}
             </div>
 
@@ -183,6 +185,7 @@ export default function SpaAnalyticsPage() {
               {therapistStats.length === 0 ? (
                 <div className={spa.empty} style={{ padding: '32px 20px' }}>{t('spaNoData')}</div>
               ) : (
+                <div className={spa.tableScroll}>
                 <table className={spa.table}>
                   <thead><tr><th>{t('spaTherapist')}</th><th style={{ textAlign: 'right' }}>{t('spaColCompletedShort')}</th><th style={{ textAlign: 'right' }}>{t('spaColRevenue')}</th></tr></thead>
                   <tbody>
@@ -195,6 +198,7 @@ export default function SpaAnalyticsPage() {
                     ))}
                   </tbody>
                 </table>
+                </div>
               )}
             </div>
           </div>

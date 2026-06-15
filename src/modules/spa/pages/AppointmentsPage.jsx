@@ -291,7 +291,7 @@ export default function AppointmentsPage() {
             <p>{t('spaNoApptsPeriod')}{statusFilter !== 'all' ? t('spaAndStatus') : ''}{search ? t('spaAndSearch') : ''}.</p>
           </div>
         ) : (
-          <div style={{ background: 'var(--c-surface)', border: '1px solid var(--c-border)', borderRadius: 14, overflow: 'hidden' }}>
+          <div className={spa.tableScroll} style={{ background: 'var(--c-surface)', border: '1px solid var(--c-border)', borderRadius: 14 }}>
           <table className={spa.table}>
             <thead>
               <tr>

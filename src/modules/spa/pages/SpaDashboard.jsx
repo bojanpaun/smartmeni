@@ -144,6 +144,7 @@ export default function SpaDashboard() {
             <p>{t('spaNoApptsPeriod')}{search ? t('spaAndSearch') : ''}.</p>
           </div>
         ) : (
+          <div className={spa.tableScroll}>
           <table className={spa.table}>
             <thead>
               <tr>
@@ -208,6 +209,7 @@ export default function SpaDashboard() {
               })}
             </tbody>
           </table>
+          </div>
         )}
       </div>
     </div>

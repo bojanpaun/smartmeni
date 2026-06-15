@@ -104,7 +104,7 @@ export default function BreakfastPage() {
           {t('htNoBreakfastRooms')}
         </div>
       ) : (
-        <div className={styles.table}>
+        <div className={`${styles.table} ${styles.tableScroll}`}>
           <table style={{ width: '100%', borderCollapse: 'collapse', background: 'var(--c-surface)', borderRadius: 12, overflow: 'hidden', border: '1px solid var(--c-border)' }}>
             <thead>
               <tr style={{ textAlign: 'left' }}>

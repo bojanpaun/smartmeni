@@ -128,6 +128,7 @@ export default function MinibarLibraryAdmin() {
       )}
 
       {loading ? <LoadingSpinner /> : (
+        <div className={styles.tableScroll}>
         <table style={{ width: '100%', borderCollapse: 'collapse', background: 'var(--c-surface)', borderRadius: 12, overflow: 'hidden', border: '1px solid var(--c-border)' }}>
           <thead>
             <tr style={{ textAlign: 'left' }}>
@@ -155,6 +156,7 @@ export default function MinibarLibraryAdmin() {
             ))}
           </tbody>
         </table>
+        </div>
       )}
     </div>
   )

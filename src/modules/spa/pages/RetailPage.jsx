@@ -127,6 +127,7 @@ export default function RetailPage() {
           <p>{t('spaNoProducts')}</p>
         </div>
       ) : (
+        <div className={spa.tableScroll}>
         <table className={spa.table} style={{ background: 'var(--c-surface)', borderRadius: 14, overflow: 'hidden', border: '1px solid var(--c-border)' }}>
           <thead>
             <tr><th>{t('spaName')}</th><th>{t('spaBrand')}</th><th>{t('spaPrice')}</th><th>{t('spaStock')}</th><th>{t('spaStatus')}</th><th></th></tr>
@@ -152,6 +153,7 @@ export default function RetailPage() {
             ))}
           </tbody>
         </table>
+        </div>
       )}
     </div>
   )

@@ -96,6 +96,11 @@
 
 /* Table */
 .table { background: var(--c-surface); border: 1px solid var(--c-border); border-radius: 14px; overflow: hidden; }
+/* Horizontalni scroll-wrapper za tabele na uskim ekranima (mobilni). Tabela zadržava
+   prirodnu širinu (max-content) i scroll-uje unutar kontejnera umjesto da se gnječi.
+   Dijeljeno (spa/superadmin uvoze ovaj modul). (CLAUDE.md §5) */
+.tableScroll { overflow-x: auto; -webkit-overflow-scrolling: touch; }
+.tableScroll > table { min-width: max-content; }
 .tableHead {
   display: grid;
   grid-template-columns: 2fr 1fr 1fr 1fr 60px 80px 100px;

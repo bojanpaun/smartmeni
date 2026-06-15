@@ -144,6 +144,7 @@ export default function TherapistsPage() {
           <p>{t('spaNoTherapists')}</p>
         </div>
       ) : (
+        <div className={spa.tableScroll}>
         <table className={spa.table} style={{ background: 'var(--c-surface)', borderRadius: 14, overflow: 'hidden', border: '1px solid var(--c-border)' }}>
           <thead>
             <tr>
@@ -205,6 +206,7 @@ export default function TherapistsPage() {
             })}
           </tbody>
         </table>
+        </div>
       )}
     </div>
   )

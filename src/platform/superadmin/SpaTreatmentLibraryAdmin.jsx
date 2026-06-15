@@ -175,6 +175,7 @@ export default function SpaTreatmentLibraryAdmin() {
       )}
 
       {loading ? <LoadingSpinner /> : (
+        <div className={spa.tableScroll}>
         <table className={spa.table} style={{ background: 'var(--c-surface)', borderRadius: 14, overflow: 'hidden', border: '1px solid var(--c-border)' }}>
           <thead>
             <tr><th>{t('saColTreatment')}</th><th>{t('spaCategory')}</th><th>{t('saColDuration')}</th><th>{t('spaPrice')}</th><th>{t('spaActiveM')}</th><th></th></tr>
@@ -197,6 +198,7 @@ export default function SpaTreatmentLibraryAdmin() {
             ))}
           </tbody>
         </table>
+        </div>
       )}
     </div>
   )
