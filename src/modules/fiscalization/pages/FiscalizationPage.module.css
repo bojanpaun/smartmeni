@@ -1,4 +1,5 @@
-.page { max-width: 880px; margin: 0 auto; padding: 24px 20px 60px; font-family: 'DM Sans', sans-serif; }
+/* Lijevo poravnato (ne centrirano) + šire, da Računi tabela stane bez horiz. scrolla. */
+.page { max-width: 1180px; margin: 0; padding: 24px 24px 60px; font-family: 'DM Sans', sans-serif; }
 
 .header { margin-bottom: 20px; }
 .title { font-size: 1.5rem; font-weight: 700; color: var(--c-text); margin: 0 0 4px; }
@@ -23,7 +24,15 @@
   font-size: 0.72rem; font-weight: 700; color: var(--c-text-muted);
   background: var(--c-bg-subtle, #f0f5f2); border-radius: 999px; padding: 1px 8px; margin-left: 6px;
 }
-.chevron { font-size: 0.8rem; color: var(--c-text-muted); }
+/* Upadljiv toggle — boxed, da se jasno vidi da služi za skupi/proširi. */
+.chevron {
+  font-size: 0.95rem; color: var(--c-text-medium); flex-shrink: 0;
+  width: 28px; height: 28px; border-radius: 8px;
+  background: var(--c-bg-subtle, #f0f5f2); border: 1px solid var(--c-border);
+  display: inline-flex; align-items: center; justify-content: center;
+  transition: background 0.15s, color 0.15s;
+}
+.collapseHead:hover .chevron { background: var(--c-border); color: var(--c-text); }
 
 /* Filteri / pretraga (#1) */
 .filterRow { display: flex; flex-wrap: wrap; gap: 8px; margin: 12px 0 4px; }
