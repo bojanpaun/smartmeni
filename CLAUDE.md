@@ -246,6 +246,12 @@ pre-push hook to i automatski radi (vidi Workflow → Deploy). CI ih ponovo vrti
 Slojevi i komande:
 - **DB (pgTAP)** — `supabase/tests/`, komanda `supabase test db`. Svaki test u `BEGIN…ROLLBACK`.
 - **Unit (Vitest)** — `*.test.js` uz modul, komanda `npm run test:unit`. Za čiste funkcije.
+  - **Testirani modul NE smije (ni tranzitivno) uvoziti `lib/supabase.js`.** `createClient(URL, KEY)`
+    se izvršava na importu i baca `supabaseUrl is required` kad nema `VITE_SUPABASE_*` — a CI
+    nema env fajlove (lokalno prolazi jer `.env`/`.env.local` postoje, pa pad iznenadi tek na CI-ju).
+    Drži čiste funkcije ODVOJENO od hook-a/komponente koja uvozi klijent (npr. `menuHelpers.js`
+    vs `useMenuData.js`); test uvozi iz čistog fajla. Provjera prije pusha: testovi importuju samo
+    pure module (ili reprodukuj CI lokalno tako što privremeno skloniš `.env*` pa pokreneš `vitest run`).
 - **Edge (Deno)** — `*.test.ts` uz funkciju, `deno test supabase/functions`. Za payment/shared logiku.
 - **E2E (Playwright)** — `e2e/`, `npm run test:e2e`. 3 kritične putanje; traži pokrenutu app
   i odvojen test tenant (NE puštati protiv produkcione baze).
