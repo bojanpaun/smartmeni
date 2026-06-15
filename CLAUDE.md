@@ -203,6 +203,29 @@ Stabilne i end-to-end testirane; izmjene izoliraj i ručno testiraj cijeli scena
   (NULL = državne `tax_config`). Detalji: memorija `project_fiscalization`.
 - **RLS politike:** svaka šema-izmjena može pokvariti RLS
 
+### 9. Performanse i efikasnost (OSNOVNO PRAVILO)
+Brzo učitavanje i efikasnost NISU naknadna optimizacija — to je osnovni zahtjev proizvoda.
+Svaka izmjena se procjenjuje i kroz uticaj na brzinu, ne samo na funkciju.
+- **Kritična putanja prvog rendera je sveta.** Sve što gejtuje prvi paint (`PlatformContext`,
+  auth, gating upiti) mora biti minimalno: paralelni upiti (`Promise.all`, ne waterfall),
+  samo neophodne kolone, bez blokiranja na ne-kritičnom configu (pali ga u pozadini).
+- **`select('*')` zabranjen** u hookovima/kontekstima koji se učitavaju često ili na svakoj
+  stranici — specificiraj kolone (pojačava pravilo iz §3 za frontend). Iznimka: one-time
+  admin query na sporednoj stranici.
+- **Lazy loading je default**: sve stranice `React.lazy()` + Suspense (§4). Teške biblioteke
+  (`recharts`, `@dnd-kit`) smiju se uvoziti SAMO iz lazy ruta — nikad iz shell-a/dashboarda
+  ili shared komponente koja se učitava svuda. Provjeri `vendor-*` chunk u `npm run build`
+  prije pusha ako diraš import teške biblioteke.
+- **Bundle budžet** (CI ga čuva): init JS hard cap 155 kB; `admin`/`modulehelp` ns ostaju lazy.
+  Novi veliki import = provjeri da nije ušao u init chunk.
+- **Paginacija/limiti obavezni** na listama koje rastu (narudžbe, gosti, rezervacije, računi) —
+  nikad `select` bez `limit`/opsega na tabeli koja može imati hiljade redova.
+- **Service worker / PWA (oprez pri deployu):** `registerType: 'autoUpdate'` + precache znači da
+  svaki deploy tjera postojeće korisnike na re-download chunkova. Izbjegavaj nepotrebne uzastopne
+  deploye; ne naduvavaj precache (ne precache-uj admin-only/jezičke chunkove bez razloga).
+- **Mjeri, ne nagađaj:** kod prijave sporosti prvo lociraj fazu (Network waterfall / bundle /
+  upit / render) pa onda popravljaj — ne refaktoriši naslijepo.
+
 ---
 
 ## Testiranje
