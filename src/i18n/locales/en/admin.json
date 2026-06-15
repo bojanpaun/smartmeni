@@ -2886,5 +2886,6 @@
   "fiskUnpaid": "Unpaid",
   "fiskAllPayments": "All (payment)",
   "fiskPayMarkErr": "Error marking payment",
-  "fiskTogglePay": "Toggle payment"
+  "fiskTogglePay": "Toggle payment",
+  "fiskMarkPaid": "Mark paid"
 }

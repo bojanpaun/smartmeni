@@ -2886,5 +2886,6 @@
   "fiskUnpaid": "Neplaćeno",
   "fiskAllPayments": "Sve (naplata)",
   "fiskPayMarkErr": "Greška pri naplati",
-  "fiskTogglePay": "Označi naplatu"
+  "fiskTogglePay": "Označi naplatu",
+  "fiskMarkPaid": "Označi plaćeno"
 }

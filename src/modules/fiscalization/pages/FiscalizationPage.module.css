@@ -113,13 +113,23 @@
   background: var(--c-warn-bg, #FAEEDA); color: var(--c-warn, #633806); white-space: nowrap;
 }
 
-/* Naplata badge (klikabilan toggle plaćeno/neplaćeno) */
+/* Naplata — pravo dugme (ne status-pilula): ivica + pravougaono + akcioni tekst,
+   da je očigledno da se klika. */
 .paidBadge, .unpaidBadge {
-  font-size: 0.7rem; font-weight: 700; padding: 3px 9px; border-radius: 999px;
-  cursor: pointer; font-family: inherit; white-space: nowrap; border: none;
+  font-size: 0.72rem; font-weight: 700; padding: 5px 11px; border-radius: 8px;
+  cursor: pointer; font-family: inherit; white-space: nowrap;
+  transition: filter 0.12s, background 0.12s;
 }
-.paidBadge { background: var(--c-success-bg, #E1F5EE); color: var(--c-success, #0d7a52); }
-.unpaidBadge { background: var(--c-warn-bg, #FAEEDA); color: var(--c-warn, #633806); }
+.unpaidBadge {
+  background: var(--c-warn-bg, #FAEEDA); color: var(--c-warn, #633806);
+  border: 1.5px solid var(--c-warn, #b45309);
+}
+.unpaidBadge:hover { filter: brightness(0.96); }
+.paidBadge {
+  background: var(--c-success-bg, #E1F5EE); color: var(--c-success, #0d7a52);
+  border: 1.5px solid var(--c-success, #0d7a52);
+}
+.paidBadge:hover { filter: brightness(0.96); }
 
 /* PDV stope editor */
 .rateInput {
@@ -163,13 +173,23 @@
     border: 1px solid var(--c-border); border-radius: 10px;
     padding: 10px 12px; margin-bottom: 10px;
   }
-  .table td { display: block; border: none; padding: 4px 0; text-align: left; }
-  .table td[data-label]::before {
-    content: attr(data-label); display: block; font-weight: 700;
-    color: var(--c-text-muted); font-size: 0.66rem;
-    text-transform: uppercase; letter-spacing: 0.03em; margin-bottom: 2px;
+  /* Red u kartici: LABELA lijevo, vrijednost desno (bolje iskorišten prostor). */
+  .table td {
+    display: flex; justify-content: space-between; align-items: center; gap: 12px;
+    border: none; padding: 6px 0; text-align: right;
   }
+  .table tr td + td { border-top: 1px solid var(--c-bg-subtle, #f0f5f2); }
+  .table td[data-label]::before {
+    content: attr(data-label); flex-shrink: 0; font-weight: 700;
+    color: var(--c-text-muted); font-size: 0.66rem;
+    text-transform: uppercase; letter-spacing: 0.03em; text-align: left;
+  }
+  /* Ćelije bez labele (samo akcija/dugme) → desno poravnato */
+  .table td:not([data-label]) { justify-content: flex-end; }
   .table td:empty { display: none; }
+  /* PDV editor: input traži punu širinu → labela IZNAD inputa (kolona). */
+  .editorTable td { flex-direction: column; align-items: stretch; gap: 3px; text-align: left; }
+  .editorTable td[data-label]::before { margin-bottom: 0; }
   .rateInput { width: 100%; }
   .ratePct { width: 90px; }
 }

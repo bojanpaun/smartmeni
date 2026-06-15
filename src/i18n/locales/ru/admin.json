@@ -2886,5 +2886,6 @@
   "fiskUnpaid": "Не оплачено",
   "fiskAllPayments": "Все (оплата)",
   "fiskPayMarkErr": "Ошибка отметки оплаты",
-  "fiskTogglePay": "Переключить оплату"
+  "fiskTogglePay": "Переключить оплату",
+  "fiskMarkPaid": "Отметить оплату"
 }

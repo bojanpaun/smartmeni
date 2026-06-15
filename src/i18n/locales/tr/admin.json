@@ -2886,5 +2886,6 @@
   "fiskUnpaid": "Ödenmemiş",
   "fiskAllPayments": "Tümü (tahsilat)",
   "fiskPayMarkErr": "Tahsilat hatası",
-  "fiskTogglePay": "Tahsilatı değiştir"
+  "fiskTogglePay": "Tahsilatı değiştir",
+  "fiskMarkPaid": "Ödendi olarak işaretle"
 }

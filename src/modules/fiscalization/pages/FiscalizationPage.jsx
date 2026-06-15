@@ -253,7 +253,7 @@ export default function FiscalizationPage() {
         ) : (
           <>
             <div className={styles.tableWrap}>
-            <table className={styles.table}>
+            <table className={`${styles.table} ${styles.editorTable}`}>
               <thead>
                 <tr>
                   <th>{t('fiskRateKey')}</th>
@@ -428,7 +428,7 @@ export default function FiscalizationPage() {
                           className={inv.payment_status === 'paid' ? styles.paidBadge : styles.unpaidBadge}
                           onClick={(e) => togglePaid(inv, e)}
                           title={t('fiskTogglePay')}>
-                          {inv.payment_status === 'paid' ? `✓ ${t('fiskPaid')}` : t('fiskUnpaid')}
+                          {inv.payment_status === 'paid' ? `✓ ${t('fiskPaid')}` : t('fiskMarkPaid')}
                         </button>
                       )}
                     </td>
