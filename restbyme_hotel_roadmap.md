@@ -4189,7 +4189,21 @@ prije produkcijskog naplaćivanja.
 │                            ne unese ključeve; ostaje callback digest + e2e sa test nalogom.
 │              ✅ FAQ + ModuleHelp dopune (2026-06-10) — vodiči/plaćanja/tema/lozinka.
 │
-│              ← OVDJE SMO (2026-06-10)
+│              ✅ UI/UX + infra polish (2026-06-15/16):
+│                            • Realtime FIX — orders+invoices dodati u supabase_realtime publikaciju
+│                              (+REPLICA IDENTITY FULL); realtime narudžbi/naplate prije NIJE radio.
+│                            • Naplata računa GOTOVA (vidi entry niže).
+│                            • a11y: <html lang> me→sr-ME (BCP-47 validan).
+│                            • vercel.json security headeri (CSP frame-ancestors, nosniff, immutable assets).
+│                            • Responsive overhaul: AdminLayout .main min-width:0 + width:100% (rješava
+│                              razvlačenje cijelog admin shella na mobilnom); FiscalizationPage tabele→kartice
+│                              na ≤600px (data-label); landing jezički prekidač vidljiv u nav baru na mobilnom.
+│                            • Dnevna ponuda (is_special) — više artikala u horizontalnom skrolu na guest meniju.
+│                            • StaffPortal bottom-nav jasniji aktivni indikator; RoadmapTicker „Uskoro" u 2 reda.
+│                            • curSym ReferenceError u TemplateSettings (MenuPreview prop) — fix.
+│                            • CLAUDE.md §9 (performanse) + §5 (responsive obavezan) + §Testiranje (unit ne sm. uvoziti supabase).
+│
+│              ← OVDJE SMO (2026-06-16)
 │
 ├── Jun        ✅ Faza WO — Konobarski unos narudžbe (StaffPortal) GOTOVO (2026-06-15)
 │                            Spec: docs/spec-konobarski-unos-narudzbe.md (v1.1). Deployovano:
