@@ -262,5 +262,10 @@
   "paidBadge": "Paguar",
   "naplataUnpaid": "papaguar",
   "markPaidErr": "Gabim gjatë arkëtimit",
-  "undoPay": "Kthe"
+  "undoPay": "Kthe",
+  "filtUnpaid": "Papaguar",
+  "filtAll": "Të gjitha",
+  "naplataNoMatch": "Asnjë faturë për këtë filtër",
+  "spwIssueInvoice": "Lësho faturën",
+  "issueBeforeClose": "Lësho faturën para mbylljes"
 }

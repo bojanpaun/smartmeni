@@ -49,6 +49,7 @@ export default function WaiterView({ restaurant, activeTab, onRefresh, hotelEnab
   const restaurantId = restaurant?.id
   const [invoicing, setInvoicing] = useState(null) // order_id u toku
   const [newMode, setNewMode] = useState(false)    // konobarski unos nove narudžbe
+  const [invoicedIds, setInvoicedIds] = useState(new Set()) // narudžbe sa izdatim računom (gejt zatvaranja)
 
   // Izdaj (idempotentno) + odštampaj račun za narudžbu — propušteni račun se vrati isti.
   const printOrderInvoice = async (orderId) => {
@@ -66,6 +67,7 @@ export default function WaiterView({ restaurant, activeTab, onRefresh, hotelEnab
         footnote: t('spwFootnote'),
       },
     })
+    setInvoicedIds(prev => new Set(prev).add(orderId)) // račun izdat → otključaj zatvaranje
     setInvoicing(null)
   }
   const [orders, setOrders]         = useState([])
@@ -103,8 +105,17 @@ export default function WaiterView({ restaurant, activeTab, onRefresh, hotelEnab
     ])
     setOrders(o ?? [])
     setRequests(r ?? [])
+    // Gejt zatvaranja: koje narudžbe već imaju AKTIVAN račun. Samo kad je fiskalizacija uključena.
+    if (fiscalEnabled && o?.length) {
+      const { data: invs } = await supabase.from('invoices').select('source_id')
+        .eq('restaurant_id', restaurantId).eq('source_type', 'order').is('corrective_for', null)
+        .in('source_id', o.map(x => x.id))
+      setInvoicedIds(new Set((invs || []).map(i => i.source_id)))
+    } else {
+      setInvoicedIds(new Set())
+    }
     setLoading(false)
-  }, [restaurantId])
+  }, [restaurantId, fiscalEnabled])
 
   useEffect(() => { load() }, [load])
 
@@ -322,10 +333,19 @@ export default function WaiterView({ restaurant, activeTab, onRefresh, hotelEnab
                   {order.kitchen_status === 'ready'     && <span className={s.stationDone}>🧑‍🍳 {t('kitchenReady')}</span>}
                   {order.bar_status     === 'ready'     && <span className={s.stationDone}>🍷 {t('barReady')}</span>}
                 </div>
-              ) : action && (
-                <button className={s[action.cls]} onClick={() => updateOrderStatus(order.id, action.next)}>
-                  {t(action.labelKey)}
-                </button>
+              ) : action && (() => {
+                // Gejt: served narudžba se ne može zatvoriti dok se ne izda račun (kad je fisk uključen).
+                const needInvoice = order.status === 'served' && fiscalEnabled && !invoicedIds.has(order.id)
+                return (
+                  <button className={s[action.cls]} disabled={needInvoice}
+                    title={needInvoice ? t('issueBeforeClose') : undefined}
+                    onClick={() => updateOrderStatus(order.id, action.next)}>
+                    {t(action.labelKey)}
+                  </button>
+                )
+              })()}
+              {order.status === 'served' && fiscalEnabled && !invoicedIds.has(order.id) && (
+                <div className={s.issueHint}>⚠ {t('issueBeforeClose')}</div>
               )}
               {order.status === 'served' && hotelEnabled && !roomChargeMap[order.id] && (
                 <button className={s.roomChargeBtn} onClick={() => openRoomCharge(order.id)}>
@@ -334,7 +354,7 @@ export default function WaiterView({ restaurant, activeTab, onRefresh, hotelEnab
               )}
               {order.status === 'served' && fiscalEnabled && (
                 <button className={s.invoiceBtn} disabled={invoicing === order.id} onClick={() => printOrderInvoice(order.id)}>
-                  🧾 {invoicing === order.id ? '…' : t('spwInvoice')}
+                  🧾 {invoicing === order.id ? '…' : t('spwIssueInvoice')}
                 </button>
               )}
               {['pending', 'received'].includes(order.status) && (

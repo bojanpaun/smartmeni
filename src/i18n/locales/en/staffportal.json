@@ -262,5 +262,10 @@
   "paidBadge": "Paid",
   "naplataUnpaid": "unpaid",
   "markPaidErr": "Error marking payment",
-  "undoPay": "Undo"
+  "undoPay": "Undo",
+  "filtUnpaid": "Unpaid",
+  "filtAll": "All",
+  "naplataNoMatch": "No invoices for this filter",
+  "spwIssueInvoice": "Issue invoice",
+  "issueBeforeClose": "Issue invoice before closing"
 }

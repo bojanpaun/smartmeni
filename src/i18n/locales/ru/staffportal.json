@@ -262,5 +262,10 @@
   "paidBadge": "Оплачено",
   "naplataUnpaid": "не оплачено",
   "markPaidErr": "Ошибка отметки оплаты",
-  "undoPay": "Отменить"
+  "undoPay": "Отменить",
+  "filtUnpaid": "Не оплачено",
+  "filtAll": "Все",
+  "naplataNoMatch": "Нет счетов для этого фильтра",
+  "spwIssueInvoice": "Выдать счёт",
+  "issueBeforeClose": "Выдайте счёт перед закрытием"
 }

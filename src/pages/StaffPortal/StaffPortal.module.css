@@ -1096,6 +1096,17 @@
 .cartBarTotal { font-size: 15px; font-weight: 700; color: var(--sp-brand); }
 
 /* ── Naplata po stolu (NaplataView) ──────────────────────────────── */
+/* Hint: izdaj račun prije zatvaranja (gejt) */
+.issueHint { font-size: 11px; color: #b45309; font-weight: 600; }
+.btnStart:disabled, .btnDone:disabled { opacity: 0.45; cursor: default; }
+
+.naplataFilters { display: flex; gap: 8px; margin-bottom: 14px; }
+.naplataFilterChip {
+  flex: 1; background: #f3f4f6; border: 1.5px solid transparent; color: #374151;
+  border-radius: 999px; padding: 8px 12px; font-size: 13px; font-weight: 600;
+  cursor: pointer; font-family: inherit;
+}
+.naplataFilterActive { background: var(--sp-brand); color: #fff; }
 .naplataList { display: flex; flex-direction: column; gap: 12px; }
 .naplataCard { background: #fff; border: 1px solid #eef0ef; border-radius: 12px; overflow: hidden; }
 .naplataHead {

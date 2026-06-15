@@ -14,6 +14,7 @@ export default function NaplataView({ restaurant }) {
   const [rows, setRows] = useState([])
   const [loading, setLoading] = useState(true)
   const [busy, setBusy] = useState(null) // invoice id u toku
+  const [filter, setFilter] = useState('unpaid') // 'unpaid' (default) | 'paid' | 'all'
 
   const load = useCallback(async () => {
     if (!restaurantId) return
@@ -48,17 +49,31 @@ export default function NaplataView({ restaurant }) {
     <div className={s.empty}><div className={s.emptyIcon}>💶</div><div className={s.emptyText}>{t('naplataEmpty')}</div></div>
   )
 
-  // Grupiši po stolu; stolovi sa neplaćenim prvi.
+  // Filter (default neplaćeni — da pregled ostane pregledan); pa grupiši po stolu.
+  const shown = rows.filter(r => filter === 'all' || r.payment_status === filter)
   const byTable = {}
-  for (const r of rows) { (byTable[r.table_number] ||= []).push(r) }
+  for (const r of shown) { (byTable[r.table_number] ||= []).push(r) }
   const tables = Object.entries(byTable).map(([tableNo, invs]) => {
     const unpaid = invs.filter(i => i.payment_status === 'unpaid')
     const unpaidCents = unpaid.reduce((sum, i) => sum + i.total_cents, 0)
     return { tableNo, invs, unpaidCount: unpaid.length, unpaidCents, cur: invs[0]?.currency }
   }).sort((a, b) => (b.unpaidCount - a.unpaidCount) || String(a.tableNo).localeCompare(String(b.tableNo), undefined, { numeric: true }))
 
+  const FILTERS = [['unpaid', t('filtUnpaid')], ['paid', t('paidBadge')], ['all', t('filtAll')]]
+
   return (
-    <div className={s.naplataList}>
+    <div>
+      <div className={s.naplataFilters}>
+        {FILTERS.map(([key, label]) => (
+          <button key={key}
+            className={`${s.naplataFilterChip} ${filter === key ? s.naplataFilterActive : ''}`}
+            onClick={() => setFilter(key)}>{label}</button>
+        ))}
+      </div>
+      {tables.length === 0 ? (
+        <div className={s.empty}><div className={s.emptyText}>{t('naplataNoMatch')}</div></div>
+      ) : (
+      <div className={s.naplataList}>
       {tables.map(tb => (
         <div key={tb.tableNo} className={s.naplataCard}>
           <div className={s.naplataHead}>
@@ -88,6 +103,8 @@ export default function NaplataView({ restaurant }) {
           ))}
         </div>
       ))}
+      </div>
+      )}
     </div>
   )
 }

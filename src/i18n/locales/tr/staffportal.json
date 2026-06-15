@@ -262,5 +262,10 @@
   "paidBadge": "Ödendi",
   "naplataUnpaid": "ödenmemiş",
   "markPaidErr": "Tahsilat hatası",
-  "undoPay": "Geri al"
+  "undoPay": "Geri al",
+  "filtUnpaid": "Ödenmemiş",
+  "filtAll": "Tümü",
+  "naplataNoMatch": "Bu filtre için fatura yok",
+  "spwIssueInvoice": "Fatura oluştur",
+  "issueBeforeClose": "Kapatmadan önce fatura oluştur"
 }

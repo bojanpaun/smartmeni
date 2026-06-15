@@ -262,5 +262,10 @@
   "paidBadge": "Plaćeno",
   "naplataUnpaid": "neplaćeno",
   "markPaidErr": "Greška pri naplati",
-  "undoPay": "Vrati"
+  "undoPay": "Vrati",
+  "filtUnpaid": "Neplaćeno",
+  "filtAll": "Sve",
+  "naplataNoMatch": "Nema računa za ovaj filter",
+  "spwIssueInvoice": "Izdaj račun",
+  "issueBeforeClose": "Izdaj račun prije zatvaranja"
 }
