@@ -240,5 +240,19 @@
   "rejectWithMsg": "Reject with message:",
   "roomNumber": "Room number:",
   "phRoomExample": "e.g. 101",
-  "confirm": "Confirm"
+  "confirm": "Confirm",
+  "newOrder": "New order",
+  "pickTable": "Select a table",
+  "stepTableOf": "Step 1/2 — which table?",
+  "stepItemsOf": "Step 2/2 — items",
+  "tableFree": "Free",
+  "tableBusy": "Busy",
+  "newSeparateOrder": "New separate",
+  "orderItems": "items",
+  "sendOrder": "Send order",
+  "appendToOrder": "Adding to order",
+  "itemNote": "Note",
+  "orderSentToast": "Order sent to preparation",
+  "orderSendErr": "Error sending order",
+  "noMenuItems": "No items in this category"
 }

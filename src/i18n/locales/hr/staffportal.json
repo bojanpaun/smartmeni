@@ -240,5 +240,19 @@
   "rejectWithMsg": "Odbij uz poruku:",
   "roomNumber": "Broj sobe:",
   "phRoomExample": "npr. 101",
-  "confirm": "Potvrdi"
+  "confirm": "Potvrdi",
+  "newOrder": "Nova narudžba",
+  "pickTable": "Izaberi stol",
+  "stepTableOf": "Korak 1/2 — na koji stol?",
+  "stepItemsOf": "Korak 2/2 — stavke",
+  "tableFree": "Slobodan",
+  "tableBusy": "Zauzet",
+  "newSeparateOrder": "Nova zasebna",
+  "orderItems": "stavki",
+  "sendOrder": "Pošalji narudžbu",
+  "appendToOrder": "Dopuna narudžbe",
+  "itemNote": "Napomena",
+  "orderSentToast": "Narudžba poslana na pripremu",
+  "orderSendErr": "Greška pri slanju narudžbe",
+  "noMenuItems": "Nema stavki u ovoj kategoriji"
 }

@@ -240,5 +240,19 @@
   "rejectWithMsg": "Refuzo me mesazh:",
   "roomNumber": "Numri i dhomës:",
   "phRoomExample": "p.sh. 101",
-  "confirm": "Konfirmo"
+  "confirm": "Konfirmo",
+  "newOrder": "Porosi e re",
+  "pickTable": "Zgjidh tavolinën",
+  "stepTableOf": "Hapi 1/2 — cila tavolinë?",
+  "stepItemsOf": "Hapi 2/2 — artikujt",
+  "tableFree": "E lirë",
+  "tableBusy": "E zënë",
+  "newSeparateOrder": "E re veçmas",
+  "orderItems": "artikuj",
+  "sendOrder": "Dërgo porosinë",
+  "appendToOrder": "Shtim në porosi",
+  "itemNote": "Shënim",
+  "orderSentToast": "Porosia u dërgua në përgatitje",
+  "orderSendErr": "Gabim gjatë dërgimit të porosisë",
+  "noMenuItems": "Asnjë artikull në këtë kategori"
 }

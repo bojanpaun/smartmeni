@@ -240,5 +240,19 @@
   "rejectWithMsg": "Mesajla reddet:",
   "roomNumber": "Oda numarası:",
   "phRoomExample": "örn. 101",
-  "confirm": "Onayla"
+  "confirm": "Onayla",
+  "newOrder": "Yeni sipariş",
+  "pickTable": "Masa seç",
+  "stepTableOf": "Adım 1/2 — hangi masa?",
+  "stepItemsOf": "Adım 2/2 — ürünler",
+  "tableFree": "Boş",
+  "tableBusy": "Dolu",
+  "newSeparateOrder": "Yeni ayrı",
+  "orderItems": "ürün",
+  "sendOrder": "Siparişi gönder",
+  "appendToOrder": "Siparişe ekleme",
+  "itemNote": "Not",
+  "orderSentToast": "Sipariş hazırlığa gönderildi",
+  "orderSendErr": "Sipariş gönderilirken hata",
+  "noMenuItems": "Bu kategoride ürün yok"
 }

@@ -5,6 +5,7 @@ import { translateContent, orderRejectionFields } from '../../../lib/contentTran
 import { formatMoney } from '../../../lib/currencies'
 import { openInvoicePrintWindow } from '../../../lib/invoicePrint'
 import toast from 'react-hot-toast'
+import NewOrderView from './NewOrderView'
 import s from '../StaffPortal.module.css'
 
 async function findOpenFolio(restaurantId, roomNum, t) {
@@ -47,6 +48,7 @@ export default function WaiterView({ restaurant, activeTab, onRefresh, hotelEnab
   const money = (a) => formatMoney(a, restaurant?.currency, i18n.language)
   const restaurantId = restaurant?.id
   const [invoicing, setInvoicing] = useState(null) // order_id u toku
+  const [newMode, setNewMode] = useState(false)    // konobarski unos nove narudžbe
 
   // Izdaj (idempotentno) + odštampaj račun za narudžbu — propušteni račun se vrati isti.
   const printOrderInvoice = async (orderId) => {
@@ -250,8 +252,11 @@ export default function WaiterView({ restaurant, activeTab, onRefresh, hotelEnab
   )
 
   // ── Narudžbe tab ─────────────────────────────────────────────────
+  if (newMode) return <NewOrderView restaurant={restaurant} onDone={() => { setNewMode(false); load() }} />
+
   return (
     <div>
+      <button className={s.newOrderBtn} onClick={() => setNewMode(true)}>+ {t('newOrder')}</button>
       {orders.length === 0 ? (
         <div className={s.empty}>
           <div className={s.emptyIcon}>🍽️</div>

@@ -240,5 +240,19 @@
   "rejectWithMsg": "Отклонить с сообщением:",
   "roomNumber": "Номер комнаты:",
   "phRoomExample": "напр. 101",
-  "confirm": "Подтвердить"
+  "confirm": "Подтвердить",
+  "newOrder": "Новый заказ",
+  "pickTable": "Выберите стол",
+  "stepTableOf": "Шаг 1/2 — какой стол?",
+  "stepItemsOf": "Шаг 2/2 — позиции",
+  "tableFree": "Свободен",
+  "tableBusy": "Занят",
+  "newSeparateOrder": "Новый отдельный",
+  "orderItems": "позиций",
+  "sendOrder": "Отправить заказ",
+  "appendToOrder": "Добавление к заказу",
+  "itemNote": "Заметка",
+  "orderSentToast": "Заказ отправлен на приготовление",
+  "orderSendErr": "Ошибка отправки заказа",
+  "noMenuItems": "Нет позиций в этой категории"
 }
