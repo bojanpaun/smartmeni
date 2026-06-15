@@ -163,12 +163,14 @@ export default function NewOrderView({ restaurant, onDone }) {
         </>
       )}
       {count > 0 && (
-        <div className={s.cartBar}>
-          <span className={s.cartCount}>{count} {t('orderItems')}</span>
-          <button className={s.cartSend} onClick={send} disabled={sending}>
-            {sending ? '…' : `${t('sendOrder')} · ${money(total)}`}
-          </button>
-        </div>
+        <button className={s.cartBar} onClick={send} disabled={sending}>
+          <span className={s.cartBarLeft}>
+            <span className={s.cartBarIcon}>🛒</span>
+            <span className={s.cartBarLabel}>{sending ? '…' : t('sendOrder')}</span>
+            <span className={s.cartBarCount}>{count}</span>
+          </span>
+          <span className={s.cartBarTotal}>{money(total)}</span>
+        </button>
       )}
     </div>
   )

@@ -1062,14 +1062,22 @@
 }
 .stepQty { font-size: 15px; font-weight: 700; color: #111827; min-width: 18px; text-align: center; }
 
+/* Pošalji-traka — vizuelno kao GuestMenu cartBar (🛒 + label + badge + total). */
 .cartBar {
-  position: sticky; bottom: 0; display: flex; align-items: center; gap: 12px;
-  background: #fff; border-top: 1px solid #eee; padding: 12px 4px;
-  margin: 0 -4px; box-shadow: 0 -4px 12px rgba(0,0,0,0.05);
+  position: sticky; bottom: 8px; width: 100%;
+  display: flex; align-items: center; justify-content: space-between;
+  padding: 12px 14px; border-radius: 12px;
+  background: #fff; border: 1px solid #eef0ef; border-left: 4px solid var(--sp-brand);
+  cursor: pointer; font-family: inherit;
+  box-shadow: 0 4px 16px rgba(0,0,0,0.12);
 }
-.cartCount { font-size: 13px; font-weight: 600; color: #6b7280; flex-shrink: 0; }
-.cartSend {
-  flex: 1; background: var(--sp-brand); color: #fff; border: none; border-radius: 11px;
-  padding: 13px; font-size: 15px; font-weight: 700; cursor: pointer; font-family: inherit;
+.cartBar:disabled { opacity: 0.6; cursor: default; }
+.cartBarLeft { display: flex; align-items: center; gap: 9px; }
+.cartBarIcon { font-size: 16px; }
+.cartBarLabel { font-size: 14px; font-weight: 600; color: #111827; }
+.cartBarCount {
+  min-width: 20px; height: 20px; border-radius: 50%; padding: 0 6px; box-sizing: border-box;
+  background: var(--sp-brand); color: #fff;
+  display: inline-flex; align-items: center; justify-content: center; font-size: 11px; font-weight: 700;
 }
-.cartSend:disabled { opacity: 0.6; cursor: default; }
+.cartBarTotal { font-size: 15px; font-weight: 700; color: var(--sp-brand); }
