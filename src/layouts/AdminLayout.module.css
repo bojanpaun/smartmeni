@@ -412,6 +412,11 @@
   display: flex;
   flex-direction: column;
   min-height: 100vh;
+  /* Grid-item u .layout (grid). Bez min-width:0 grid-item se NE skuplja ispod
+     min-content sadržaja (npr. tabela sa min-width) → razvuče cijeli admin shell
+     preko viewporta na mobilnom. min-width:0 dozvoljava skupljanje pa unutrašnji
+     overflow-x wrapperi (tableScroll/tableWrap) mogu da scroll-uju. (CLAUDE.md §5) */
+  min-width: 0;
 }
 
 .topbar {
@@ -439,7 +444,18 @@
   background: var(--main-bg);
   display: flex;
   flex-direction: column;
+  /* Flex-item; isto kao .mainWrap — dozvoli skupljanje da stranice sa širokim
+     sadržajem ne razvuku layout (unutrašnji scroll umjesto toga). */
+  min-width: 0;
 }
+/* Korijen svake stranice je flex-item u .main (column flex). Dvije zamke koje na
+   mobilnom razvuku stranicu preko viewporta (umjesto da unutrašnji overflow-x
+   wrapperi scroll-uju):
+   1) min-width:auto → flex-item se ne skuplja ispod min-content sadržaja;
+   2) page root sa `margin:0 auto` (centriranje) bez `width` → flex-item se NE
+      rasteže nego uzima širinu sadržaja (široka tabela ga naduva).
+   width:100% + min-width:0 rješavaju oboje za SVE admin stranice. (CLAUDE.md §5) */
+.main > * { min-width: 0; width: 100%; }
 
 /* Dno stranice — brand link */
 .pageFooter {
