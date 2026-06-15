@@ -96,10 +96,13 @@ i18n
     react: { useSuspense: false },
   })
 
-// Drži <html lang> u skladu sa aktivnim jezikom (a11y/SEO; index.html ima statički
-// `sr` koji više nije tačan). Postavi odmah na inicijalni jezik + na svaku promjenu.
+// Drži <html lang> u skladu sa aktivnim jezikom (a11y/SEO). Naš interni kod `me`
+// NIJE validan BCP-47 jezik (to je regionalni kod CG) → validatori i čitači ekrana
+// padaju. Mapiramo ga na `sr-ME` (validan tag, pravilan izgovor); ostali kodovi su
+// već validni BCP-47 pa idu nepromijenjeni.
+const HTML_LANG = { me: 'sr-ME' }
 function syncHtmlLang(lng) {
-  try { document.documentElement.lang = lng } catch { /* SSR/no document */ }
+  try { document.documentElement.lang = HTML_LANG[lng] || lng } catch { /* SSR/no document */ }
 }
 syncHtmlLang(i18n.language || DEFAULT_LANG)
 
