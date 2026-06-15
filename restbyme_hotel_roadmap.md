@@ -4191,6 +4191,22 @@ prije produkcijskog naplaćivanja.
 │
 │              ← OVDJE SMO (2026-06-10)
 │
+├── Jun        🔄 Faza WO — Konobarski unos narudžbe (StaffPortal) + cross-vertikalni obrazac
+│                            Spec: docs/spec-konobarski-unos-narudzbe.md (v1.1).
+│                            Konobar PRVO bira sto pa unosi stavke → atomarna RPC
+│                            waiter_submit_order (SECURITY INVOKER) → orders+order_items
+│                            (source='waiter', preparing, routing kuhinja/šank po is_bar);
+│                            zauzet sto = dopuna otvorene (ili „Nova zasebna"). Reuse cijeli
+│                            nizvodni tok (kuhinja/šank realtime, charge-to-room, fiskalizacija).
+│                            ⚠️ PRIORITET: Migracija B (staff-scoped UPDATE RLS na orders/
+│                            order_items) — KRITIČNO jer su UPDATE politike trenutno owner-only,
+│                            a staff se loguje vlastitim nalogom → status/odbijanje/kitchen/bar
+│                            update VJEROVATNO tiho padaju u produkciji. Verifikovati posebno.
+│                            Faze: (1) šema A+B+pgTAP RLS, (2) RPC+pgTAP, (3) useMenuData+Vitest,
+│                            (4) NewOrderView+WaiterView+i18n(7)+CSS 375/dark.
+│                            Smjer (poslije): Faza H (hotel walk-in → create_booking_direct),
+│                            Faza S (spa walk-in → book_spa_appointment), reuse GuestPicker shell.
+│
 ├── Jun–Jul    ⬜ GDPR    — Compliance UI (anonimizacija, export, privole)
 │
 ├── Jul        🔄 Faza 1d — addon purchase kroz Faza PAY apstrakciju (naš Stripe/PayPal nalog)
