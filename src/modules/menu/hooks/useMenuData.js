@@ -1,22 +1,10 @@
 import { useState, useEffect } from 'react'
 import { supabase } from '../../../lib/supabase'
+import { groupByCategory } from './menuHelpers'
 
-// Pure: grupiše stavke menija po category_id → { [categoryId]: Item[] }.
-export function groupByCategory(items) {
-  const map = {}
-  for (const it of items || []) {
-    if (!map[it.category_id]) map[it.category_id] = []
-    map[it.category_id].push(it)
-  }
-  return map
-}
-
-// Pure: ukupna cijena korpe, zaokruženo na 2 decimale (izbjegava float repove).
-export function cartTotal(cart) {
-  const sum = (cart || []).reduce(
-    (s, c) => s + (Number(c.price) || 0) * (Number(c.qty) || 0), 0)
-  return Math.round(sum * 100) / 100
-}
+// Re-export čistih helpera (definicija u menuHelpers.js — bez supabase importa,
+// da ih Vitest testira bez instanciranja klijenta). Postojeći consumeri nepromijenjeni.
+export { groupByCategory, cartTotal } from './menuHelpers'
 
 // Učitava kategorije (sort_order) + VIDLJIVE stavke menija (sort_order) po tenantu.
 // Vraća kategorije i mapu stavki po kategoriji. Reuse: konobarski unos (+ kasnije drugdje).

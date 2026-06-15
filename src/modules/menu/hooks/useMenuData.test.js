@@ -1,5 +1,5 @@
 import { describe, it, expect } from 'vitest'
-import { groupByCategory, cartTotal } from './useMenuData'
+import { groupByCategory, cartTotal } from './menuHelpers'
 
 describe('groupByCategory', () => {
   it('grupiše stavke po category_id', () => {
