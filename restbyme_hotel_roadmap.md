@@ -4191,8 +4191,15 @@ prije produkcijskog naplaćivanja.
 │
 │              ← OVDJE SMO (2026-06-10)
 │
-├── Jun        🔄 Faza WO — Konobarski unos narudžbe (StaffPortal) + cross-vertikalni obrazac
-│                            Spec: docs/spec-konobarski-unos-narudzbe.md (v1.1).
+├── Jun        ✅ Faza WO — Konobarski unos narudžbe (StaffPortal) GOTOVO (2026-06-15)
+│                            Spec: docs/spec-konobarski-unos-narudzbe.md (v1.1). Deployovano:
+│                            Migracija A (orders.source/created_by_staff_id), Migracija B (staff
+│                            UPDATE RLS na orders/order_items — popravka postojećeg bug-a), RPC
+│                            waiter_submit_order (SECURITY INVOKER, auto/new/append), useMenuData
+│                            +Vitest, NewOrderView (sto→stavke→pošalji), WaiterView dugme, i18n×7.
+│                            pgTAP 052/053. E2E smoke @390px (login→sto→stavka→pošalji→DB) ✓.
+│                            Ostaje (smjer): Faza H (hotel walk-in → create_booking_direct),
+│                            Faza S (spa walk-in → book_spa_appointment), reuse GuestPicker shell.
 │                            Konobar PRVO bira sto pa unosi stavke → atomarna RPC
 │                            waiter_submit_order (SECURITY INVOKER) → orders+order_items
 │                            (source='waiter', preparing, routing kuhinja/šank po is_bar);
