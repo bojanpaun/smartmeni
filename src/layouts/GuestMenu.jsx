@@ -513,17 +513,25 @@ export default function Menu() {
         <div className={styles.specials}>
           <div className={styles.specialsHead}>⚡ {t('dailySpecial')}</div>
           <div className={styles.specialsScroll}>
-            {specialItems.map(it => (
-              <div key={it.id} className={styles.specialCard} style={{ background: tpl.brand }} onClick={() => setSelectedItem(it)}>
-                <div className={styles.specialCardName}>
-                  {it.emoji} {tr('menu_item', it.id, 'name', isEn ? (it.name_en || it.nameEn || it.name) : it.name)}
+            {specialItems.map(it => {
+              const nm = tr('menu_item', it.id, 'name', isEn ? (it.name_en || it.nameEn || it.name) : it.name)
+              return (
+                <div key={it.id} className={styles.specialCard} onClick={() => setSelectedItem(it)}>
+                  <div className={styles.specialCardImg} style={it.image_url ? undefined : { background: it.bg || tpl.catBg || '#e0f5ec' }}>
+                    {it.image_url
+                      ? <img src={it.image_url} alt={nm} loading="lazy" decoding="async" />
+                      : <span className={styles.specialCardEmoji}>{it.emoji}</span>}
+                  </div>
+                  <div className={styles.specialCardInfo}>
+                    <div className={styles.specialCardName}>{nm}</div>
+                    <div className={styles.specialCardPrice} style={{ color: tpl.priceColor }}>
+                      {formatMoney(it.price, r?.currency, i18n.language)}
+                      <span className={styles.specialOld}>{formatMoney(parseFloat(it.price) * 1.25, r?.currency, i18n.language)}</span>
+                    </div>
+                  </div>
                 </div>
-                <div className={styles.specialCardPrice}>
-                  {formatMoney(it.price, r?.currency, i18n.language)}
-                  <span className={styles.specialOld}>{formatMoney(parseFloat(it.price) * 1.25, r?.currency, i18n.language)}</span>
-                </div>
-              </div>
-            ))}
+              )
+            })}
           </div>
         </div>
       )}

@@ -121,7 +121,7 @@
 .specialName { font-size: 16px; font-weight: 700; margin-bottom: 3px; }
 .specialDesc { font-size: 12px; color: rgba(255,255,255,0.8); margin-bottom: 8px; }
 .specialPrice { font-size: 20px; font-weight: 800; display: flex; align-items: baseline; gap: 8px; }
-.specialOld { font-size: 14px; text-decoration: line-through; opacity: 0.6; }
+.specialOld { font-size: 13px; text-decoration: line-through; opacity: 0.55; color: var(--c-text-muted); font-weight: 600; }
 
 /* Dnevna ponuda — više artikala u horizontalnom skrolu */
 .specials { margin-top: 14px; }
@@ -135,12 +135,21 @@
 }
 .specialsScroll::-webkit-scrollbar { display: none; }
 .specialCard {
-  flex: 0 0 auto; width: 200px; border-radius: 14px; padding: 14px 16px;
-  color: white; cursor: pointer; transition: opacity 0.15s;
+  flex: 0 0 auto; width: 180px; border-radius: 14px; overflow: hidden;
+  cursor: pointer; background: var(--c-surface); border: 1px solid var(--c-border);
+  box-shadow: 0 1px 4px rgba(0,0,0,0.06);
+  transition: transform 0.15s, box-shadow 0.15s;
 }
-.specialCard:hover { opacity: 0.92; }
-.specialCardName { font-size: 15px; font-weight: 700; margin-bottom: 8px; line-height: 1.3; }
-.specialCardPrice { font-size: 19px; font-weight: 800; display: flex; align-items: baseline; gap: 8px; }
+.specialCard:hover { transform: translateY(-2px); box-shadow: 0 5px 14px rgba(0,0,0,0.12); }
+.specialCardImg {
+  width: 100%; height: 120px; display: flex; align-items: center; justify-content: center;
+  overflow: hidden;
+}
+.specialCardImg img { width: 100%; height: 100%; object-fit: cover; display: block; }
+.specialCardEmoji { font-size: 46px; line-height: 1; }
+.specialCardInfo { padding: 10px 12px 12px; }
+.specialCardName { font-size: 14px; font-weight: 700; margin-bottom: 6px; line-height: 1.3; color: var(--c-text); }
+.specialCardPrice { font-size: 18px; font-weight: 800; display: flex; align-items: baseline; gap: 8px; }
 
 .cats {
   display: flex;
