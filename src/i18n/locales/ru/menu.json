@@ -2,6 +2,7 @@
   "tableLabel": "Стол {{n}}",
   "search": "Поиск в меню...",
   "searchNoResults": "Ничего не найдено.",
+  "bookAccommodation": "Забронировать жильё",
   "dailySpecial": "Блюдо дня",
   "allergenNote": "Информация об аллергенах доступна для каждого блюда. Спросите персонал.",
   "sessionExpired": "QR-сессия истекла",

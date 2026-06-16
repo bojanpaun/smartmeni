@@ -386,6 +386,8 @@ export default function Menu() {
   // kontrole. Ranije je gejtovano legacy bool-om digital_ordering pa se "registered"
   // ignorisao (svako je mogao naručiti).
   const canOrder = canSee(orderingVis)
+  // Floating cart bar je vidljiv kad ima stavki — booking FAB se tad podigne da se ne preklope.
+  const cartBarVisible = canOrder && cartCount > 0
 
   const saveGuestSession = (guest) => {
     const session = { id: guest.id, first_name: guest.first_name, last_name: guest.last_name, status: guest.status }
@@ -631,7 +633,7 @@ export default function Menu() {
 
       {/* WAITER BUTTON */}
       <div className={styles.waiterSection}>
-        {canOrder && cartCount > 0 && (
+        {cartBarVisible && (
           <div className={styles.cartBar} onClick={() => setShowCart(true)}>
             <div className={styles.cartBarLeft}>
               <span style={{ fontSize: 16 }}>🛒</span>
@@ -933,10 +935,10 @@ export default function Menu() {
     {!isDemo && hasHotelVertical && r?.show_booking_button && (
       <button
         className={styles.bookingFab}
-        style={{ background: tpl.brand }}
+        style={{ background: tpl.brand, bottom: cartBarVisible ? 84 : 24 }}
         onClick={() => navigate(`/${slug}/book`)}
       >
-        🏨 <span>Rezerviši smještaj</span>
+        🏨 <span>{t('bookAccommodation')}</span>
       </button>
     )}
     </>

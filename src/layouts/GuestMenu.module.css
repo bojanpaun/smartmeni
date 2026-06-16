@@ -19,6 +19,8 @@
   font-family: var(--c-font-sans);
   width: 100%;
   position: relative;
+  /* prostor za floating cart bar / booking FAB da ne prekriju footer */
+  padding-bottom: 80px;
 }
 
 @media (min-width: 600px) {
@@ -337,12 +339,20 @@
 
 /* ── Sticky cart bar ── */
 .cartBar {
+  position: fixed;
+  left: 50%;
+  transform: translateX(-50%);
+  bottom: 12px;
+  width: calc(100% - 28px);
+  max-width: 452px;
+  z-index: 150;
   display: flex; align-items: center; justify-content: space-between;
-  padding: 11px 14px; border-radius: 12px; margin: 0 0 8px;
+  padding: 13px 16px; border-radius: 12px; margin: 0;
   cursor: pointer;
   background: var(--c-surface);
   border: 1px solid var(--c-border-input);
   border-left: 4px solid var(--c-primary);
+  box-shadow: 0 6px 24px rgba(0,0,0,0.18);
   transition: background 0.15s;
 }
 .cartBar:hover { background: var(--c-bg-subtle); }
@@ -515,7 +525,8 @@
   box-shadow: 0 6px 28px rgba(0,0,0,0.3);
 }
 .bookingFab:active { transform: translateY(0); }
+/* Na mobilnom zadržavamo natpis uz emoji (ne svodimo na kružni icon-only FAB),
+   samo malo kompaktnije. */
 @media (max-width: 400px) {
-  .bookingFab span { display: none; }
-  .bookingFab { padding: 14px; border-radius: 50%; font-size: 18px; }
+  .bookingFab { padding: 11px 16px; font-size: 14px; }
 }
