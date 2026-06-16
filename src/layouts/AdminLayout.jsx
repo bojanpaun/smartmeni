@@ -357,7 +357,7 @@ export default function AdminLayout({ children }) {
       : location.pathname.startsWith('/admin/hotel')
       ? MODULES.find(m => m.key === 'hotel')
       : location.pathname.startsWith('/admin/staff')
-      ? { key: 'staff', labelKey: 'modStaff', path: '/admin/staff', icon: '🔑',
+      ? { key: 'staff', labelKey: 'modStaff', path: '/admin/staff', icon: '👤',
           interactive: null,
           admin: { labelKey: 'segStaffAdmin', links: [
             { labelKey: 'navRolesPerms', icon: '🔑', path: '/admin/staff/roles', exact: true },
