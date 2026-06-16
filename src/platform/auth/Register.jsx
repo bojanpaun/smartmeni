@@ -97,6 +97,15 @@ export default function Register() {
         userId = signInData.user.id
       } else {
         userId = authData.user.id
+        // Ako je u Supabase Auth uključena potvrda emaila ("Confirm email"),
+        // signUp NE vraća sesiju → insert restorana ide kao anon i RLS ga obori
+        // uz kriptičnu grešku. Za otvorenu registraciju potvrda emaila MORA biti
+        // isključena; ako nije, javi jasno umjesto da pukne na insertu.
+        if (!authData.session) {
+          setError(t('emailConfirmRequired'))
+          setLoading(false)
+          return
+        }
       }
 
       // 2) Jedan vlasnički tenant po nalogu — ako restoran već postoji, ne pravi

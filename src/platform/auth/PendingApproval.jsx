@@ -1,3 +1,4 @@
+import { useEffect, useRef } from 'react'
 import { useTranslation } from 'react-i18next'
 import { usePlatform } from '../../context/PlatformContext'
 import styles from './Auth.module.css'
@@ -5,9 +6,20 @@ import styles from './Auth.module.css'
 // Ekran za vlasnika čiji tenant čeka odobrenje superadmina (approval_status != approved).
 // Gejtuje se u App.jsx (ApprovalGate) prije AdminLayout-a.
 export default function PendingApproval({ status }) {
-  const { restaurant, logout } = usePlatform()
+  const { restaurant, user, logout, loadProfile } = usePlatform()
   const { t } = useTranslation('auth')
   const rejected = status === 'rejected'
+
+  // Polling: dok nalog čeka odobrenje, periodično osvježi profil. Čim ga superadmin
+  // odobri, ApprovalGate prestaje da prikazuje ovaj ekran i vlasnik automatski ulazi
+  // u panel — bez ručnog re-logina. (Odbijen status se ne mijenja pollingom.)
+  const loadRef = useRef(loadProfile)
+  loadRef.current = loadProfile
+  useEffect(() => {
+    if (rejected || !user) return
+    const id = setInterval(() => loadRef.current(user), 15000)
+    return () => clearInterval(id)
+  }, [rejected, user])
 
   return (
     <div className={styles.page}>
