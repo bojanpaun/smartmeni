@@ -190,12 +190,15 @@
 .menuLink:hover { text-decoration: underline; }
 
 /* Disabled */
+.disabledWrap {
+  padding: 8px 24px 28px;
+}
 .disabledMsg {
   text-align: center;
   color: var(--c-text-muted);
   font-size: 14px;
   line-height: 1.6;
-  padding: 20px 0;
+  padding: 20px 0 4px;
 }
 
 .backLink {

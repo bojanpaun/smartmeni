@@ -180,10 +180,12 @@ export default function OnlineReservationForm() {
           </div>
           <div className={styles.restName}>{restaurant.name}</div>
         </div>
-        <div className={styles.disabledMsg}>
-          {t('disabledMsg1')}<br />{t('disabledMsg2')}
+        <div className={styles.disabledWrap}>
+          <div className={styles.disabledMsg}>
+            {t('disabledMsg1')}<br />{t('disabledMsg2')}
+          </div>
+          <button className={styles.backLink} style={{ color: brand, background: "none", border: "none", cursor: "pointer", fontFamily: "inherit", fontSize: "inherit" }} onClick={() => navigate(`/${slug}`)}>← {t('viewMenu')}</button>
         </div>
-        <button className={styles.backLink} style={{ color: brand, background: "none", border: "none", cursor: "pointer", fontFamily: "inherit", fontSize: "inherit", padding: 0 }} onClick={() => navigate(`/${slug}`)}>← {t('viewMenu')}</button>
       </div>
     </div>
   )
