@@ -76,6 +76,8 @@ export default function Menu() {
   const { t, i18n } = useTranslation('menu')
   const [activeCat, setActiveCat] = useState('predjela')
   const [searchQuery, setSearchQuery] = useState('')
+  const [cartDocked, setCartDocked] = useState(false)
+  const cartDockRef = useRef(null)
   const [selectedItem, setSelectedItem] = useState(null)
   const [waiterSent, setWaiterSent] = useState(false)
   const [showWaiter, setShowWaiter] = useState(false)
@@ -386,8 +388,21 @@ export default function Menu() {
   // kontrole. Ranije je gejtovano legacy bool-om digital_ordering pa se "registered"
   // ignorisao (svako je mogao naručiti).
   const canOrder = canSee(orderingVis)
-  // Floating cart bar je vidljiv kad ima stavki — booking FAB se tad podigne da se ne preklope.
   const cartBarVisible = canOrder && cartCount > 0
+  // "Rezerviši smještaj" FAB ostaje floating; cart bar pluta DOK skroluješ, a kad njegovo
+  // prirodno mjesto (sentinel iznad sekcije "Moj nalog") uđe u vidno polje — usidri se tu
+  // (cartDocked). IntersectionObserver, jer pravi position:sticky ne radi (kratak roditelj).
+  const bookingFabVisible = !isDemo && hasHotelVertical && !!r?.show_booking_button
+  useEffect(() => {
+    const el = cartDockRef.current
+    if (!el || !cartBarVisible) { setCartDocked(false); return }
+    const obs = new IntersectionObserver(
+      ([entry]) => setCartDocked(entry.isIntersecting),
+      { rootMargin: '0px 0px -96px 0px' }
+    )
+    obs.observe(el)
+    return () => obs.disconnect()
+  }, [cartBarVisible, r?.id])
 
   const saveGuestSession = (guest) => {
     const session = { id: guest.id, first_name: guest.first_name, last_name: guest.last_name, status: guest.status }
@@ -633,16 +648,6 @@ export default function Menu() {
 
       {/* WAITER BUTTON */}
       <div className={styles.waiterSection}>
-        {cartBarVisible && (
-          <div className={styles.cartBar} onClick={() => setShowCart(true)}>
-            <div className={styles.cartBarLeft}>
-              <span style={{ fontSize: 16 }}>🛒</span>
-              <span className={styles.cartBarLabel}>{t('viewOrder')}</span>
-              <span className={styles.cartBarCount}>{cartCount}</span>
-            </div>
-            <span className={styles.cartBarTotal}>{formatMoney(cartTotal, r?.currency, i18n.language)}</span>
-          </div>
-        )}
         {/* Sesija bar — kad je gost ulogovan */}
         {guestSession && (
           <div className={styles.guestSessionBar}>
@@ -715,6 +720,25 @@ export default function Menu() {
           <a href={`/${slug}/spa`} className={styles.reservationBtn}>
             ✨ {t('spaWellness')}
           </a>
+        )}
+
+        {/* Cart bar — pluta dok skroluješ, pa se usidri ovdje (iznad "Moj nalog") */}
+        {cartBarVisible && (
+          <>
+            <div ref={cartDockRef} aria-hidden className={styles.cartDockAnchor} />
+            <div
+              className={`${styles.cartBar} ${cartDocked ? styles.cartBarDocked : styles.cartBarFloating}`}
+              style={{ borderLeftColor: tpl.brand, ...(cartDocked ? {} : { bottom: bookingFabVisible ? 84 : 12 }) }}
+              onClick={() => setShowCart(true)}
+            >
+              <div className={styles.cartBarLeft}>
+                <span style={{ fontSize: 16 }}>🛒</span>
+                <span className={styles.cartBarLabel}>{t('viewOrder')}</span>
+                <span className={styles.cartBarCount} style={{ background: tpl.brand }}>{cartCount}</span>
+              </div>
+              <span className={styles.cartBarTotal} style={{ color: tpl.brand }}>{formatMoney(cartTotal, r?.currency, i18n.language)}</span>
+            </div>
+          </>
         )}
 
         {/* Separator MOJ NALOG */}
@@ -935,7 +959,7 @@ export default function Menu() {
     {!isDemo && hasHotelVertical && r?.show_booking_button && (
       <button
         className={styles.bookingFab}
-        style={{ background: tpl.brand, bottom: cartBarVisible ? 84 : 24 }}
+        style={{ background: tpl.brand }}
         onClick={() => navigate(`/${slug}/book`)}
       >
         🏨 <span>{t('bookAccommodation')}</span>
