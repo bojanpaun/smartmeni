@@ -424,6 +424,13 @@ export default function ControlPanel() {
                 <div className={styles.cardDesc}>{t('rolesDesc')}</div>
               </div>
             </button>
+            <button className={`${styles.card} ${styles.cardSys} ${styles.cardActive}`} onClick={() => navigate('/admin/staff/portal')}>
+              <div className={styles.cardIcon}>📱</div>
+              <div className={styles.cardBody}>
+                <div className={styles.cardName}>{t('cpStaffPortal')}</div>
+                <div className={styles.cardDesc}>{t('cpStaffPortalDesc')}</div>
+              </div>
+            </button>
             {(isOwner() || isSuperAdmin()) && (
               <button className={`${styles.card} ${styles.cardSys} ${styles.cardActive}`} onClick={() => navigate('/admin/support')}>
                 <div className={styles.cardIcon}>💬</div>

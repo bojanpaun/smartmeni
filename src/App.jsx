@@ -322,6 +322,8 @@ function AppRoutes() {
         <Route path="/admin/staff/roles" element={<AdminRoute><StaffRoles /></AdminRoute>} />
         <Route path="/admin/staff/roles/help" element={<AdminRoute><ModuleHelp moduleKey="staff" /></AdminRoute>} />
         <Route path="/admin/staff/help" element={<AdminRoute><ModuleHelp moduleKey="staff" /></AdminRoute>} />
+        {/* Portal zaposlenih — samostalan ulaz (ne zavisi od HR modula); stara /admin/hr/staff-portal-info ruta i dalje radi */}
+        <Route path="/admin/staff/portal" element={<AdminRoute><StaffPortalInfo /></AdminRoute>} />
 
         {/* Stolovi modul (restoran vertikala) */}
         <Route path="/admin/tables/analytics" element={<AdminRoute><VerticalGuard vertical="restaurant"><TablesAnalytics /></VerticalGuard></AdminRoute>} />

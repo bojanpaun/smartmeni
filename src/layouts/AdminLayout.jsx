@@ -361,6 +361,7 @@ export default function AdminLayout({ children }) {
           interactive: null,
           admin: { labelKey: 'segStaffAdmin', links: [
             { labelKey: 'navRolesPerms', icon: '🔑', path: '/admin/staff/roles', exact: true },
+            { labelKey: 'navStaffPortal', icon: '📱', path: '/admin/staff/portal', exact: true },
           ]}}
       : null
   )

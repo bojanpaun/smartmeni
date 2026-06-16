@@ -112,6 +112,8 @@
   "bannerDetails": "Details",
   "close": "Close",
   "cpSubtitle": "Overview and quick access to all modules",
+  "cpStaffPortal": "Staff portal",
+  "cpStaffPortalDesc": "Share the link and QR code with your staff",
   "cpQuickTitle": "Quick access",
   "cpQuickHint": "Shortcuts to the screens you use most.",
   "kpiOrdersToday": "Orders today",
