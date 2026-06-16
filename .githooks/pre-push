@@ -14,12 +14,22 @@ set -e
 echo "▶ pre-push: unit testovi (Vitest)..."
 npm run test:unit --silent
 
-if supabase status >/dev/null 2>&1; then
+# Lokalna DB se smatra spremnom SAMO ako Postgres port stvarno prima konekcije.
+# `supabase status` ume da vrati OK i kad je kontejner ustao a baza ne prima konekcije
+# (npr. zaustavljen/zaglavljen Postgres) — tada bi `test:db` pao na konekciji i bez
+# razloga oborio push. Zato uz status provjeravamo i živ TCP na 127.0.0.1:54322
+# (bash builtin /dev/tcp; radi u Git Bash-u). Ako provjera nije moguća → tretiramo kao
+# nedostupno i preskačemo (CI svejedno pokriva pgTAP).
+db_reachable() {
+  (exec 3<>/dev/tcp/127.0.0.1/54322) 2>/dev/null
+}
+
+if supabase status >/dev/null 2>&1 && db_reachable; then
   echo "▶ pre-push: pgTAP DB testovi (lokalni Supabase aktivan)..."
   npm run test:db
 else
-  echo "⚠ pre-push: lokalni Supabase nije upaljen — preskačem DB testove."
-  echo "  Ako si mijenjao bazu/migracije: 'npm run db:start' pa 'npm run check' ručno."
+  echo "⚠ pre-push: lokalna Supabase DB nije dostupna (port 54322) — preskačem DB testove."
+  echo "  Ako si mijenjao bazu/migracije: 'npm run db:start' (sačekaj da baza digne) pa 'npm run check' ručno."
   echo "  (CI će svejedno pokrenuti pgTAP na push/PR.)"
 fi
 
