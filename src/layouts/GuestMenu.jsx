@@ -388,7 +388,10 @@ export default function Menu() {
   // kontrole. Ranije je gejtovano legacy bool-om digital_ordering pa se "registered"
   // ignorisao (svako je mogao naručiti).
   const canOrder = canSee(orderingVis)
-  const cartBarVisible = canOrder && cartCount > 0
+  // Dok je otvoren bilo koji modal (poziv konobara, košarica, detalj jela, potvrda),
+  // floating dugmad (cart bar + booking FAB) se sakrivaju da ne "žive" preko modala.
+  const overlayOpen = showWaiter || showCart || showConfirm || !!selectedItem
+  const cartBarVisible = canOrder && cartCount > 0 && !overlayOpen
   // "Rezerviši smještaj" FAB ostaje floating; cart bar je uvijek fixed (pluta), ali ga uz
   // skrol PODIŽEMO da prati rezervisani prostor (spacer) iznad sekcije "Moj nalog" — kreće se
   // u korak sa skrolom (kao sticky) pa nema skoka, a spacer čuva prostor (bez preklapanja).
@@ -970,7 +973,7 @@ export default function Menu() {
     </div>
 
     {/* Floating booking button */}
-    {!isDemo && hasHotelVertical && r?.show_booking_button && (
+    {!isDemo && hasHotelVertical && r?.show_booking_button && !overlayOpen && (
       <button
         className={styles.bookingFab}
         style={{ background: tpl.brand }}
