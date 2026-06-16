@@ -165,7 +165,11 @@ export default function OnlineReservationForm() {
   const brand = tpl?.brand || restaurant?.color || '#0d7a52'
   const pageBg = tpl?.pageBg || '#f0f5f2'
 
-  if (!restaurant.online_reservations) return (
+  // Izvor istine je reservation_visibility ('off'/'all'/'registered'); legacy boolean
+  // samo kao fallback. Disabled ekran SAMO kad je vidljivost 'off' (ranije se gejtovalo
+  // na boolean → kazalo "nedostupno" iako je vidljivost dozvoljavala — konflikt).
+  const resVis = restaurant.reservation_visibility || (restaurant.online_reservations ? 'all' : 'off')
+  if (resVis === 'off') return (
     <div className={styles.pageWrap} style={{ background: pageBg }}>
       <div className={styles.card}>
         <div className={styles.header} style={{ background: brand }}>

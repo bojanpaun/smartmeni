@@ -32,6 +32,18 @@
 .toggleTitle { font-size: 14px; font-weight: 600; color: var(--c-text); margin-bottom: 4px; }
 .toggleDesc { font-size: 12px; color: var(--c-text-muted); line-height: 1.5; }
 .toggleLink { font-size: 12px; color: var(--c-primary); margin-top: 6px; }
+.resStatusOn, .resStatusOff {
+  display: inline-block; margin-left: 8px; padding: 2px 8px; border-radius: 10px;
+  font-size: 11px; font-weight: 700; vertical-align: middle;
+}
+.resStatusOn { background: var(--c-primary-light); color: var(--c-primary); }
+.resStatusOff { background: var(--c-bg-subtle); color: var(--c-text-muted); }
+.settingsLink {
+  flex-shrink: 0; white-space: nowrap; text-decoration: none;
+  padding: 9px 14px; border-radius: 10px; font-size: 13px; font-weight: 600;
+  border: 1px solid var(--c-border-input); color: var(--c-primary); background: var(--c-surface);
+}
+.settingsLink:hover { background: var(--c-bg-subtle); }
 .toggle {
   width: 44px; height: 24px; border-radius: 12px; flex-shrink: 0;
   cursor: pointer; border: none; position: relative; transition: background 0.2s;

@@ -2,6 +2,7 @@
 
 import { useState, useEffect, useRef, useCallback } from 'react'
 import { createPortal } from 'react-dom'
+import { Link } from 'react-router-dom'
 import { useTranslation } from 'react-i18next'
 import { supabase } from '../../../lib/supabase'
 import { usePlatform } from '../../../context/PlatformContext'
@@ -425,8 +426,6 @@ export default function ReservationsPage() {
   const [filterStatus, setFilterStatus] = useState('all')
   const [showForm, setShowForm] = useState(false)
   const [editRes, setEditRes] = useState(null)
-  const [onlineEnabled, setOnlineEnabled] = useState(false)
-  const [savingToggle, setSavingToggle] = useState(false)
 
   const [form, setForm] = useState({
     guest_id: null, guest_name: '', guest_phone: '', guest_email: '',
@@ -436,10 +435,7 @@ export default function ReservationsPage() {
   const [saving, setSaving] = useState(false)
 
   useEffect(() => {
-    if (restaurant) {
-      loadAll()
-      setOnlineEnabled(restaurant.online_reservations || false)
-    }
+    if (restaurant) loadAll()
   }, [restaurant])
 
   const loadAll = async () => {
@@ -456,13 +452,11 @@ export default function ReservationsPage() {
     setLoading(false)
   }
 
-  const toggleOnlineReservations = async () => {
-    setSavingToggle(true)
-    const newVal = !onlineEnabled
-    await supabase.from('restaurants').update({ online_reservations: newVal }).eq('id', restaurant.id)
-    setOnlineEnabled(newVal)
-    setSavingToggle(false)
-  }
+  // Online rezervacije se uključuju/isključuju centralno (jedini izvor istine =
+  // reservation_visibility u Postavke menija → Vidljivost). Ranija duplikat-sklopka
+  // (online_reservations boolean) je uklonjena jer je pravila konflikt sa tom postavkom.
+  const resVis = restaurant?.reservation_visibility || (restaurant?.online_reservations ? 'all' : 'off')
+  const resEnabled = resVis !== 'off'
 
   const openForm = (res = null) => {
     if (res) {
@@ -571,26 +565,23 @@ export default function ReservationsPage() {
         </div>
       </div>
 
-      {/* Online toggle */}
+      {/* Online rezervacije — status + link (uključivanje je u Postavke → Vidljivost) */}
       <div className={styles.toggleCard}>
         <div className={styles.toggleInfo}>
-          <div className={styles.toggleTitle}>{t('resOnlineRes')}</div>
-          <div className={styles.toggleDesc}>
-            {t('resOnlineDesc')}
+          <div className={styles.toggleTitle}>
+            {t('resOnlineRes')}
+            <span className={resEnabled ? styles.resStatusOn : styles.resStatusOff}>
+              {resEnabled ? (resVis === 'registered' ? t('resStatusRegistered') : t('resStatusOn')) : t('resStatusOff')}
+            </span>
           </div>
-          {onlineEnabled && (
+          <div className={styles.toggleDesc}>{t('resManageHint')}</div>
+          {resEnabled && (
             <div className={styles.toggleLink}>
               {t('resPublicForm')} <strong>{window.location.origin}/{restaurant.slug}/rezervacija</strong>
             </div>
           )}
         </div>
-        <button
-          className={`${styles.toggle} ${onlineEnabled ? styles.toggleOn : styles.toggleOff}`}
-          onClick={toggleOnlineReservations}
-          disabled={savingToggle}
-        >
-          <span className={styles.toggleThumb} />
-        </button>
+        <Link to="/admin/menu/settings" className={styles.settingsLink}>{t('resOpenSettings')} →</Link>
       </div>
 
       {/* Planner prikaz */}
