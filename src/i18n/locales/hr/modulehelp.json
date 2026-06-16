@@ -150,7 +150,8 @@
         "Kuhinja treba: narudžbe (prikaz kuhinje) — bez pristupa ostalim modulima",
         "Sobarica treba: housekeeping zadaci — bez pristupa administraciji",
         "Recepcija treba: hotel front desk, rezervacije, folio",
-        "Voditelj može imati HR i analitiku uz operativne funkcije"
+        "Voditelj može imati HR i analitiku uz operativne funkcije",
+        "Link i QR kod za Staff portal su na kontrolnoj ploči (kartica „Portal zaposlenika“) i u grupi Osoblje → Portal zaposlenika"
       ]
     },
     "tables": {
@@ -276,7 +277,7 @@
           "steps": [
             "Dodaj zaposlenika putem email adrese — izradi račun odmah ili pošalji link za registraciju",
             "Unesi podatke o plaći (po satu, tjedno ili mjesečno)",
-            "Profil zaposlenika ima kartice: Osnovni podaci, Zaposlenje, Financije, Izostanci, Povijest",
+            "Profil zaposlenika ima kartice: Osnovni podaci, Zaposlenje, Financije, Izostanci, Povijest, Plaće",
             "Uloga se dodjeljuje u kartici Zaposlenje — zaposlenik može imati više uloga"
           ]
         },
@@ -361,8 +362,7 @@
           "title": "Filtri i pretraga",
           "steps": [
             "Filtriraj goste po datumu prvog posjeta ili ukupnoj potrošnji",
-            "VIP oznaka može se ručno dodijeliti gostima s visokom potrošnjom",
-            "Izvezi popis za marketing ili analitiku"
+            "VIP oznaka može se ručno dodijeliti gostima s visokom potrošnjom"
           ]
         }
       ],
@@ -398,9 +398,7 @@
           "icon": "📤",
           "title": "Izvoz",
           "steps": [
-            "Klikni Izvoz PDF za izvješće spremno za ispis",
-            "Izvoz Excel daje tablični prikaz za daljnju obradu",
-            "Oba formata uključuju odabrano vremensko razdoblje"
+            "Izvoz izvješća (PDF/Excel) je u pripremi — stiže uskoro"
           ]
         }
       ],

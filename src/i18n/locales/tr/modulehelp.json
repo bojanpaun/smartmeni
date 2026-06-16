@@ -150,7 +150,8 @@
         "Mutfak şuna ihtiyaç duyar: siparişler (mutfak görünümü) — diğer modüllere erişim olmadan",
         "Kat görevlisi şuna ihtiyaç duyar: temizlik görevleri — yönetime erişim olmadan",
         "Resepsiyon şuna ihtiyaç duyar: otel front desk, rezervasyonlar, folio",
-        "Bir müdür operasyonel işlevlerin yanı sıra İK ve analitiğe sahip olabilir"
+        "Bir müdür operasyonel işlevlerin yanı sıra İK ve analitiğe sahip olabilir",
+        "Personel portalı bağlantısı ve QR kodu kontrol panelinde („Personel portalı“ kartı) ve Personel → Personel portalı altında bulunur"
       ]
     },
     "tables": {
@@ -276,7 +277,7 @@
           "steps": [
             "Bir çalışanı e-posta adresiyle ekleyin — hemen bir hesap oluşturun veya bir kayıt bağlantısı gönderin",
             "Maaş bilgilerini girin (saatlik, haftalık veya aylık)",
-            "Çalışan profilinde sekmeler vardır: Temel bilgiler, İstihdam, Finans, İzinler, Geçmiş",
+            "Çalışan profilinde sekmeler vardır: Temel bilgiler, İstihdam, Finans, İzinler, Geçmiş, Maaşlar",
             "Rol, İstihdam sekmesinde atanır — bir çalışan birden fazla role sahip olabilir"
           ]
         },
@@ -361,8 +362,7 @@
           "title": "Filtreler ve arama",
           "steps": [
             "Misafirleri ilk ziyaret tarihine veya toplam harcamaya göre filtreleyin",
-            "Yüksek harcaması olan misafirlere manuel olarak bir VIP etiketi atanabilir",
-            "Listeyi pazarlama veya analitik için dışa aktarın"
+            "Yüksek harcaması olan misafirlere manuel olarak bir VIP etiketi atanabilir"
           ]
         }
       ],
@@ -398,9 +398,7 @@
           "icon": "📤",
           "title": "Dışa aktarma",
           "steps": [
-            "Yazdırmaya hazır bir rapor için PDF dışa aktar’a tıklayın",
-            "Excel dışa aktar, daha fazla işlem için tablo görünümü verir",
-            "Her iki format da seçilen zaman dönemini içerir"
+            "Rapor dışa aktarma (PDF/Excel) geliştirme aşamasında — yakında"
           ]
         }
       ],

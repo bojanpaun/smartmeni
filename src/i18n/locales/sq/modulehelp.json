@@ -150,7 +150,8 @@
         "Kuzhina ka nevojë për: porositë (pamja e kuzhinës) — pa qasje në modulet e tjera",
         "Pastruesja ka nevojë për: detyrat e pastrimit — pa qasje në administrim",
         "Recepsioni ka nevojë për: hotel front desk, rezervimet, folio",
-        "Një menaxher mund të ketë HR dhe analitikë përveç funksioneve operative"
+        "Një menaxher mund të ketë HR dhe analitikë përveç funksioneve operative",
+        "Lidhja dhe kodi QR për Staff portal ndodhen në panelin e kontrollit (karta „Portali i stafit“) dhe te grupi Stafi → Portali i stafit"
       ]
     },
     "tables": {
@@ -276,7 +277,7 @@
           "steps": [
             "Shto një punonjës me adresën email — krijo një llogari menjëherë ose dërgo një lidhje regjistrimi",
             "Shkruaj të dhënat e pagës (në orë, javore ose mujore)",
-            "Profili i punonjësit ka skeda: Të dhëna bazë, Punësimi, Financat, Mungesat, Historiku",
+            "Profili i punonjësit ka skeda: Të dhëna bazë, Punësimi, Financat, Mungesat, Historiku, Pagat",
             "Roli caktohet te skeda Punësimi — një punonjës mund të ketë disa role"
           ]
         },
@@ -361,8 +362,7 @@
           "title": "Filtrat dhe kërkimi",
           "steps": [
             "Filtro mysafirët sipas datës së vizitës së parë ose shpenzimit total",
-            "Një etiketë VIP mund t’u caktohet manualisht mysafirëve me shpenzime të larta",
-            "Eksporto listën për marketing ose analitikë"
+            "Një etiketë VIP mund t’u caktohet manualisht mysafirëve me shpenzime të larta"
           ]
         }
       ],
@@ -398,9 +398,7 @@
           "icon": "📤",
           "title": "Eksporti",
           "steps": [
-            "Kliko Eksporto PDF për një raport gati për printim",
-            "Eksporto Excel jep një pamje tabelare për përpunim të mëtejshëm",
-            "Të dyja formatet përfshijnë periudhën kohore të zgjedhur"
+            "Eksportimi i raporteve (PDF/Excel) është në zhvillim — së shpejti"
           ]
         }
       ],

@@ -150,7 +150,8 @@
         "The kitchen needs: orders (kitchen view) — without access to other modules",
         "A housekeeper needs: housekeeping tasks — without access to administration",
         "Reception needs: hotel front desk, reservations, folio",
-        "A manager can have HR and analytics in addition to operational functions"
+        "A manager can have HR and analytics in addition to operational functions",
+        "The Staff portal link and QR code are on the dashboard (the “Staff portal” card) and under Staff → Staff portal"
       ]
     },
     "tables": {
@@ -276,7 +277,7 @@
           "steps": [
             "Add an employee by email address — create an account right away or send a registration link",
             "Enter wage details (hourly, weekly or monthly)",
-            "The employee profile has tabs: Basic info, Employment, Finances, Leave, History",
+            "The employee profile has tabs: Basic info, Employment, Finances, Leave, History, Payroll",
             "The role is assigned in the Employment tab — an employee can have multiple roles"
           ]
         },
@@ -361,8 +362,7 @@
           "title": "Filters and search",
           "steps": [
             "Filter guests by first visit date or total spending",
-            "A VIP tag can be assigned manually to guests with high spending",
-            "Export the list for marketing or analytics"
+            "A VIP tag can be assigned manually to guests with high spending"
           ]
         }
       ],
@@ -398,9 +398,7 @@
           "icon": "📤",
           "title": "Export",
           "steps": [
-            "Click Export PDF for a print-ready report",
-            "Export Excel gives a tabular view for further processing",
-            "Both formats include the selected time period"
+            "Report export (PDF/Excel) is in development — coming soon"
           ]
         }
       ],
