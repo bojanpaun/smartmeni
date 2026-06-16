@@ -337,31 +337,28 @@
 /* ── Header right ── */
 .headerRight { display: flex; align-items: center; gap: 8px; }
 
-/* ── Cart bar — pluta dok skroluješ, pa se usidri iznad "Moj nalog" ── */
+/* ── Cart bar — uvijek fixed (pluta); JS podiže `bottom` uz skrol da sjedne u
+   spacer iznad "Moj nalog" (kao sticky, bez skoka). border/badge/iznos = tpl.brand inline. ── */
 .cartBar {
+  position: fixed;
+  left: 50%;
+  transform: translateX(-50%);
+  bottom: 12px;
+  width: calc(100% - 28px);
+  max-width: 452px;
+  z-index: 150;
   display: flex; align-items: center; justify-content: space-between;
   padding: 13px 16px; border-radius: 12px;
   cursor: pointer;
   background: var(--c-surface);
   border: 1px solid var(--c-border-input);
-  border-left: 4px solid var(--c-primary); /* inline override → tpl.brand (admin tema) */
+  border-left: 4px solid var(--c-primary);
   box-shadow: 0 6px 24px rgba(0,0,0,0.18);
   transition: background 0.15s;
 }
 .cartBar:hover { background: var(--c-bg-subtle); }
-/* Plutajuće: fiksirano pri dnu, centrirano u okviru. `bottom` se postavlja inline
-   (iznad "Rezerviši smještaj" FAB-a kad postoji). */
-.cartBarFloating {
-  position: fixed;
-  left: 50%;
-  transform: translateX(-50%);
-  width: calc(100% - 28px);
-  max-width: 452px;
-  z-index: 150;
-}
-/* Usidreno: u toku dokumenta, odmah iznad sekcije "Moj nalog". */
-.cartBarDocked { margin: 4px 0 12px; }
-.cartDockAnchor { height: 1px; }
+/* Rezervisan prostor iznad "Moj nalog" gdje cart bar sjedne na dnu skrola (bez preklapanja). */
+.cartDockSpacer { height: 60px; }
 .cartBarLeft { display: flex; align-items: center; gap: 9px; }
 .cartBarCount {
   width: 20px; height: 20px; border-radius: 50%;

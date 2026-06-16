@@ -76,8 +76,8 @@ export default function Menu() {
   const { t, i18n } = useTranslation('menu')
   const [activeCat, setActiveCat] = useState('predjela')
   const [searchQuery, setSearchQuery] = useState('')
-  const [cartDocked, setCartDocked] = useState(false)
   const cartDockRef = useRef(null)
+  const cartBarRef = useRef(null)
   const [selectedItem, setSelectedItem] = useState(null)
   const [waiterSent, setWaiterSent] = useState(false)
   const [showWaiter, setShowWaiter] = useState(false)
@@ -389,20 +389,32 @@ export default function Menu() {
   // ignorisao (svako je mogao naručiti).
   const canOrder = canSee(orderingVis)
   const cartBarVisible = canOrder && cartCount > 0
-  // "Rezerviši smještaj" FAB ostaje floating; cart bar pluta DOK skroluješ, a kad njegovo
-  // prirodno mjesto (sentinel iznad sekcije "Moj nalog") uđe u vidno polje — usidri se tu
-  // (cartDocked). IntersectionObserver, jer pravi position:sticky ne radi (kratak roditelj).
+  // "Rezerviši smještaj" FAB ostaje floating; cart bar je uvijek fixed (pluta), ali ga uz
+  // skrol PODIŽEMO da prati rezervisani prostor (spacer) iznad sekcije "Moj nalog" — kreće se
+  // u korak sa skrolom (kao sticky) pa nema skoka, a spacer čuva prostor (bez preklapanja).
+  // (Pravi position:sticky ne radi jer je roditelj prekratak da pluta kroz cijeli skrol.)
   const bookingFabVisible = !isDemo && hasHotelVertical && !!r?.show_booking_button
   useEffect(() => {
-    const el = cartDockRef.current
-    if (!el || !cartBarVisible) { setCartDocked(false); return }
-    const obs = new IntersectionObserver(
-      ([entry]) => setCartDocked(entry.isIntersecting),
-      { rootMargin: '0px 0px -96px 0px' }
-    )
-    obs.observe(el)
-    return () => obs.disconnect()
-  }, [cartBarVisible, r?.id])
+    if (!cartBarVisible) return
+    const base = bookingFabVisible ? 84 : 12
+    let raf = 0
+    const update = () => {
+      raf = 0
+      const spacer = cartDockRef.current, bar = cartBarRef.current
+      if (!spacer || !bar) return
+      const spacerBottom = spacer.getBoundingClientRect().bottom
+      bar.style.bottom = Math.max(base, window.innerHeight - spacerBottom) + 'px'
+    }
+    const onScroll = () => { if (!raf) raf = requestAnimationFrame(update) }
+    update()
+    window.addEventListener('scroll', onScroll, { passive: true })
+    window.addEventListener('resize', onScroll)
+    return () => {
+      window.removeEventListener('scroll', onScroll)
+      window.removeEventListener('resize', onScroll)
+      if (raf) cancelAnimationFrame(raf)
+    }
+  }, [cartBarVisible, bookingFabVisible, r?.id])
 
   const saveGuestSession = (guest) => {
     const session = { id: guest.id, first_name: guest.first_name, last_name: guest.last_name, status: guest.status }
@@ -722,13 +734,15 @@ export default function Menu() {
           </a>
         )}
 
-        {/* Cart bar — pluta dok skroluješ, pa se usidri ovdje (iznad "Moj nalog") */}
+        {/* Cart bar — uvijek fixed (pluta), uz skrol se podiže da sjedne u ovaj spacer
+            (rezervisan prostor) odmah iznad "Moj nalog". Spacer čuva prostor → bez preklapanja. */}
         {cartBarVisible && (
           <>
-            <div ref={cartDockRef} aria-hidden className={styles.cartDockAnchor} />
+            <div ref={cartDockRef} aria-hidden className={styles.cartDockSpacer} />
             <div
-              className={`${styles.cartBar} ${cartDocked ? styles.cartBarDocked : styles.cartBarFloating}`}
-              style={{ borderLeftColor: tpl.brand, ...(cartDocked ? {} : { bottom: bookingFabVisible ? 84 : 12 }) }}
+              ref={cartBarRef}
+              className={styles.cartBar}
+              style={{ borderLeftColor: tpl.brand }}
               onClick={() => setShowCart(true)}
             >
               <div className={styles.cartBarLeft}>
