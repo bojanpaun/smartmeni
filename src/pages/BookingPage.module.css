@@ -80,6 +80,15 @@
 }
 .stepLabel { font-size: 12px; color: var(--ink-soft, var(--ink-soft)); }
 
+/* Mobilni: 4 koraka sa labelama + konektorima probijaju širinu (375px) i guraju
+   cijelu stranicu. Sakrij tekst labele — ostaju tačke + konektori kao kompaktan
+   progress; naziv aktivnog koraka je u .stepTitle kartice. */
+@media (max-width: 560px) {
+  .steps { gap: 0; flex-wrap: wrap; }
+  .stepLabel { display: none; }
+  .step + .step::before { width: 26px; }
+}
+
 /* Card */
 .card {
   background: #fff;
