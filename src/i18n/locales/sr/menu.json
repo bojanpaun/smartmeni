@@ -1,6 +1,7 @@
 {
   "tableLabel": "Sto {{n}}",
   "search": "Pretražite meni...",
+  "searchNoResults": "Nema rezultata za pretragu.",
   "dailySpecial": "Dnevna ponuda",
   "allergenNote": "Informacije o alergenima dostupne na svakom jelu. Pitajte osoblje.",
   "sessionExpired": "QR sesija je istekla",
@@ -42,7 +43,6 @@
   "cartTitleN": "Korpa ({{n}})",
   "cartTableTitle": "Broj stola",
   "cartTrackingTitle": "Status porudžbine",
-  "cartEmpty": "Korpa je prazna",
   "cartEmptyDesc": "Dodajte jela iz menija",
   "cartNotePh": "Napomena (opciono)",
   "cartTotal": "Ukupno",

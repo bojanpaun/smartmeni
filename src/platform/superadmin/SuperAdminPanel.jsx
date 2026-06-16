@@ -23,7 +23,7 @@ const CATEGORY_KEYS = {
 }
 
 export default function SuperAdminPanel() {
-  const { isSuperAdmin, palettes, restaurant, setRestaurant, setTenant, user } = usePlatform()
+  const { isSuperAdmin, palettes, restaurant, setRestaurant, setTenant, user, betaMode } = usePlatform()
   const navigate = useNavigate()
   const { t, i18n } = useTranslation('admin')
   const dl = i18n.language === 'en' ? 'en-US' : 'sr-Latn'
@@ -450,12 +450,12 @@ export default function SuperAdminPanel() {
                     <div className={styles.restSlug}>restby.me/{rest.slug}</div>
                     <ThemeDot theme={rest.admin_theme} color={rest.color} />
                     <div className={styles.mobileInfo}>
-                      <PlanBadge rest={rest} />
-                      <StatusBadge status={rest._status} />
+                      <PlanBadge rest={rest} betaMode={betaMode} />
+                      <StatusBadge status={rest._status} betaMode={betaMode} />
                     </div>
                   </td>
-                  <td><PlanBadge rest={rest} /></td>
-                  <td><StatusBadge status={rest._status} /></td>
+                  <td><PlanBadge rest={rest} betaMode={betaMode} /></td>
+                  <td><StatusBadge status={rest._status} betaMode={betaMode} /></td>
                   <td className={styles.dateCell}>
                     {new Date(rest.created_at).toLocaleDateString(dl, {
                       day: '2-digit', month: '2-digit', year: 'numeric'
@@ -702,13 +702,18 @@ const PLAN_LABEL_KEYS = {
   pro:        'sapPlanRestaurant', // backward compat
 }
 
-function PlanBadge({ rest }) {
+function PlanBadge({ rest, betaMode }) {
   const { t } = useTranslation('admin')
   if (rest.is_complimentary) {
     return <span className={`${styles.badge} ${styles.badgeComplimentary}`}>🎁 {t('sapComplimentary')}</span>
   }
   const plan = rest.plan || 'starter'
   const isPaid = ['restaurant', 'hotel', 'hotel_pro', 'enterprise', 'pro'].includes(plan)
+  // Tokom bete (beta_free_mode) sve je besplatno → tenant na starteru nije ograničen.
+  // Prikaži to jasno umjesto „Starter" da se ne dodjeljuje complimentary bez potrebe.
+  if (betaMode && !isPaid) {
+    return <span className={`${styles.badge} ${styles.badgeBeta}`}>🧪 {t('sapBetaFree')}</span>
+  }
   return (
     <span className={`${styles.badge} ${isPaid ? styles.badgePro : styles.badgeStarter}`}>
       {PLAN_LABEL_KEYS[plan] ? t(PLAN_LABEL_KEYS[plan]) : plan}
@@ -716,7 +721,7 @@ function PlanBadge({ rest }) {
   )
 }
 
-function StatusBadge({ status }) {
+function StatusBadge({ status, betaMode }) {
   const { t } = useTranslation('admin')
   const map = {
     complimentary: { labelKey: 'sapStActive',    cls: styles.statusActive },
@@ -726,6 +731,8 @@ function StatusBadge({ status }) {
     suspended:     { labelKey: 'sapStSuspended', cls: styles.statusSuspended },
     starter:       { labelKey: 'sapStStarter',   cls: styles.statusStarter },
   }
-  const { labelKey, cls } = map[status] || map.starter
+  // Tokom bete starter/trial/expired ne ograničavaju ništa → prikaži kao aktivno.
+  const effective = (betaMode && ['starter', 'trial', 'expired'].includes(status)) ? 'pro' : status
+  const { labelKey, cls } = map[effective] || map.starter
   return <span className={`${styles.statusPill} ${cls}`}>{t(labelKey)}</span>
 }

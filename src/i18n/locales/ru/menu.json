@@ -1,6 +1,7 @@
 {
   "tableLabel": "Стол {{n}}",
   "search": "Поиск в меню...",
+  "searchNoResults": "Ничего не найдено.",
   "dailySpecial": "Блюдо дня",
   "allergenNote": "Информация об аллергенах доступна для каждого блюда. Спросите персонал.",
   "sessionExpired": "QR-сессия истекла",
@@ -42,7 +43,6 @@
   "cartTitleN": "Корзина ({{n}})",
   "cartTableTitle": "Номер стола",
   "cartTrackingTitle": "Статус заказа",
-  "cartEmpty": "Корзина пуста",
   "cartEmptyDesc": "Добавьте блюда из меню",
   "cartNotePh": "Примечание (необязательно)",
   "cartTotal": "Итого",

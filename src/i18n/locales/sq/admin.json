@@ -2561,6 +2561,7 @@
   "sapTotalRest": "Gjithsej restorante",
   "sapProPaid": "Pro (me pagesë)",
   "sapComplimentary": "Falas",
+  "sapBetaFree": "Beta · falas",
   "sapSuspended": "Pezulluar",
   "sapPending": "Në pritje",
   "sapSearchPh": "Kërko sipas emrit ose slug-ut...",

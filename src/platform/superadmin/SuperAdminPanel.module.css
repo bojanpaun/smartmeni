@@ -109,6 +109,7 @@
 .badgeComplimentary { background: var(--c-primary-light); color: var(--c-primary-hover); }
 .badgePro           { background: var(--c-info-bg); color: var(--c-info); }
 .badgeStarter       { background: var(--c-bg-subtle); color: var(--c-text-muted); }
+.badgeBeta          { background: var(--c-primary-light); color: var(--c-primary); }
 
 .statusPill { font-size: 11px; padding: 3px 10px; border-radius: 20px; }
 .statusActive    { background: var(--c-primary-light); color: var(--c-primary); }

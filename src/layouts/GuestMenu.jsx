@@ -75,6 +75,7 @@ export default function Menu() {
   const navigate = useNavigate()
   const { t, i18n } = useTranslation('menu')
   const [activeCat, setActiveCat] = useState('predjela')
+  const [searchQuery, setSearchQuery] = useState('')
   const [selectedItem, setSelectedItem] = useState(null)
   const [waiterSent, setWaiterSent] = useState(false)
   const [showWaiter, setShowWaiter] = useState(false)
@@ -256,6 +257,23 @@ export default function Menu() {
     : allItems.filter(i => i.category_id === activeCat)
   const isEn = i18n.language === 'en'
   const specialItems = allItems.filter(i => isDemo ? i.special : i.is_special)
+
+  // Pretraga: kad ima upita, filtriraj SVE artikle (kroz sve kategorije) po nazivu/opisu —
+  // i po izvoru (me/en) i po prevedenoj vrijednosti za aktivni jezik (tr). Bez upita
+  // prikazujemo artikle aktivne kategorije kao i prije.
+  const searchActive = searchQuery.trim().length > 0
+  const displayedItems = (() => {
+    if (!searchActive) return items
+    const q = searchQuery.trim().toLowerCase()
+    return allItems.filter(i => {
+      const parts = [i.name, i.name_en, i.nameEn, i.description, i.description_en, i.descEn, i.desc]
+      if (!isDemo) {
+        parts.push(tr('menu_item', i.id, 'name', ''))
+        parts.push(tr('menu_item', i.id, 'description', ''))
+      }
+      return parts.filter(Boolean).join(' ').toLowerCase().includes(q)
+    })
+  })()
 
   const sendWaiterRequest = async (type) => {
     if (!isDemo && realData?.restaurant) {
@@ -480,13 +498,18 @@ export default function Menu() {
       {/* SEARCH */}
       <div className={styles.searchBar}>
         <span className={styles.searchIcon}>🔍</span>
-        <span className={styles.searchPlaceholder}>
-          {t('search')}
-        </span>
+        <input
+          className={styles.searchInput}
+          type="search"
+          value={searchQuery}
+          onChange={e => setSearchQuery(e.target.value)}
+          placeholder={t('search')}
+          aria-label={t('search')}
+        />
       </div>
 
       {/* SPECIAL OFFER — dnevna ponuda (više artikala, horizontalni skrol) */}
-      {specialItems.length > 0 && (
+      {specialItems.length > 0 && !searchActive && (
         <div className={styles.specials}>
           <div className={styles.specialsHead}>⚡ {t('dailySpecial')}</div>
           <div className={styles.specialsScroll}>
@@ -506,6 +529,7 @@ export default function Menu() {
       )}
 
       {/* CATEGORIES */}
+      {!searchActive && (
       <div className={styles.cats}>
         {currentCategories.map(cat => (
           <button
@@ -518,6 +542,7 @@ export default function Menu() {
           </button>
         ))}
       </div>
+      )}
 
       {/* ALLERGEN NOTICE */}
       <div className={styles.allergenNote}>
@@ -525,8 +550,11 @@ export default function Menu() {
       </div>
 
       {/* ITEMS */}
+      {searchActive && displayedItems.length === 0 && (
+        <div className={styles.searchEmpty}>{t('searchNoResults')}</div>
+      )}
       <div className={styles.items}>
-        {items.map(item => (
+        {displayedItems.map(item => (
           <div key={item.id} className={styles.item} onClick={() => setSelectedItem(item)}>
             <div className={styles.itemEmoji} style={{ background: item.bg || '#e0f5ec' }}>
               {item.image_url

@@ -2561,6 +2561,7 @@
   "sapTotalRest": "Toplam restoran",
   "sapProPaid": "Pro (ücretli)",
   "sapComplimentary": "Ücretsiz",
+  "sapBetaFree": "Beta · ücretsiz",
   "sapSuspended": "Askıya alınanlar",
   "sapPending": "Beklemede",
   "sapSearchPh": "Ada veya slug'a göre ara...",

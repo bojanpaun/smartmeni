@@ -2561,6 +2561,7 @@
   "sapTotalRest": "Всего ресторанов",
   "sapProPaid": "Pro (платные)",
   "sapComplimentary": "Бесплатные",
+  "sapBetaFree": "Бета · бесплатно",
   "sapSuspended": "Приостановленные",
   "sapPending": "Ожидают",
   "sapSearchPh": "Поиск по названию или slug...",

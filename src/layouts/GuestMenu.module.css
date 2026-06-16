@@ -89,6 +89,24 @@
   z-index: 2;
 }
 .searchIcon { font-size: 14px; }
+.searchInput {
+  flex: 1;
+  border: none;
+  outline: none;
+  background: transparent;
+  font-size: 13px;
+  color: var(--c-text);
+  font-family: inherit;
+  min-width: 0;
+}
+.searchInput::placeholder { color: var(--c-text-muted); }
+.searchEmpty {
+  margin: 18px 14px 0;
+  padding: 22px 16px;
+  text-align: center;
+  color: var(--c-text-muted);
+  font-size: 14px;
+}
 
 .special {
   margin: 14px 14px 0;
