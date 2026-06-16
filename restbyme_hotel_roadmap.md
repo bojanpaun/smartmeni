@@ -4203,7 +4203,25 @@ prije produkcijskog naplaćivanja.
 │                            • curSym ReferenceError u TemplateSettings (MenuPreview prop) — fix.
 │                            • CLAUDE.md §9 (performanse) + §5 (responsive obavezan) + §Testiranje (unit ne sm. uvoziti supabase).
 │
-│              ← OVDJE SMO (2026-06-16)
+│              ✅ Launch-prep + UX polish (2026-06-16/17):
+│                            • Mail GOTOV: Resend domen send.restby.me verifikovan + custom SMTP (auth)
+│                              + RESEND_API_KEY (5 edge fn); SPF/DKIM/DMARC svi PASS. Memorija project-email-setup.
+│                            • Registracija: guard ako je Confirm email ON (jasna poruka umj. RLS greške);
+│                              PendingApproval polling (auto-ulaz po odobrenju, bez re-logina).
+│                            • Auto-complimentary: nov tenant tokom beta_free_mode = is_complimentary
+│                              (nota 'auto: beta'); trigger 20260616120000 + backfill 20260616130000; pgTAP 051.
+│                              SuperAdminPanel beta-badge ('🧪 Beta · besplatno' umjesto 'Starter').
+│                            • Guest meni: pretraga (bila mrtav placeholder) + dnevna ponuda kartice sa slikom
+│                              (image_url, emoji fallback); floating cart bar (boje po tpl.brand, sticky-track
+│                              iznad 'Moj nalog' bez skoka, sakriven dok je modal otvoren); booking FAB labela na mobilnom.
+│                            • Online rezervacije: jedan izvor istine = reservation_visibility; uklonjena
+│                              duplikat-sklopka sa /admin/reservations (bila u konfliktu sa boolean online_reservations);
+│                              fix OnlineReservationForm disabled-gate (visibility, ne boolean).
+│                            • Fixevi: BookingPage stepper <560px overflow; rezervacija disabled razmak;
+│                              tables.capacity→seats (REST 400). pre-push hook: provjera živog DB porta (54322).
+│                            • In-app uputstva: pun audit modulehelp (7 jezika) naspram koda.
+│
+│              ← OVDJE SMO (2026-06-17) — testiranje sa pozvanim korisnicima kreće
 │
 ├── Jun        ✅ Faza WO — Konobarski unos narudžbe (StaffPortal) GOTOVO (2026-06-15)
 │                            Spec: docs/spec-konobarski-unos-narudzbe.md (v1.1). Deployovano:
