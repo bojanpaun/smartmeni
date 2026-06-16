@@ -46,7 +46,7 @@ export default function OnlineReservationForm() {
       .single()
     setRestaurant(data)
     if (data) {
-      const { data: tbls } = await supabase.from('tables').select('id, number, capacity').eq('restaurant_id', data.id).order('number')
+      const { data: tbls } = await supabase.from('tables').select('id, number, seats').eq('restaurant_id', data.id).order('number')
       setTables(tbls || [])
       // Ako je vidljivost 'all', preskoči identifikaciju
       const vis = data.reservation_visibility || (data.online_reservations ? 'all' : 'off')
@@ -388,7 +388,7 @@ export default function OnlineReservationForm() {
                         }}
                       >
                         {t('tablePrefix')} {tb.number}
-                        {tb.capacity && <div style={{ fontSize: 10, opacity: 0.7 }}>{tb.capacity}×</div>}
+                        {tb.seats && <div style={{ fontSize: 10, opacity: 0.7 }}>{tb.seats}×</div>}
                       </button>
                     )
                   })}
