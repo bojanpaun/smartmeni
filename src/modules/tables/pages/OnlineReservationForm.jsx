@@ -6,6 +6,7 @@ import { useParams, useNavigate } from 'react-router-dom'
 import { useTranslation } from 'react-i18next'
 import { supabase } from '../../../lib/supabase'
 import { getTemplate } from '../../../lib/templates'
+import { getReservedTableIds, getEventTableIds } from '../../../lib/reservationConflicts'
 import styles from './OnlineReservationForm.module.css'
 
 export default function OnlineReservationForm() {
@@ -46,7 +47,10 @@ export default function OnlineReservationForm() {
       .single()
     setRestaurant(data)
     if (data) {
-      const { data: tbls } = await supabase.from('tables').select('id, number, seats').eq('restaurant_id', data.id).order('number')
+      // Gost bira samo iz stolova AKTIVNOG layouta (ne vidi draft/event stolove).
+      const { data: tbls } = await supabase.from('tables')
+        .select('id, number, seats, table_layouts!inner(is_active)')
+        .eq('restaurant_id', data.id).eq('table_layouts.is_active', true).order('number')
       setTables(tbls || [])
       // Ako je vidljivost 'all', preskoči identifikaciju
       const vis = data.reservation_visibility || (data.online_reservations ? 'all' : 'off')
@@ -55,17 +59,15 @@ export default function OnlineReservationForm() {
     setLoading(false)
   }
 
-  // Provjeri zauzete stolove za odabrani datum i vrijeme
+  // Provjeri zauzete stolove za odabrani datum i vrijeme — rezervacije (pending/confirmed
+  // za taj termin) + stolovi koje zauzima potvrđen event tog dana (§8.4 overlay).
   const checkConflicts = async (date, time) => {
     if (!date || !time || !restaurant) return
-    const { data } = await supabase
-      .from('reservations')
-      .select('table_id')
-      .eq('restaurant_id', restaurant.id)
-      .eq('date', date)
-      .eq('time', time)
-      .in('status', ['pending', 'confirmed'])
-    setReservedTables((data || []).map(r => r.table_id).filter(Boolean))
+    const [resIds, evIds] = await Promise.all([
+      getReservedTableIds(restaurant.id, date, time, ['pending', 'confirmed']),
+      getEventTableIds(restaurant.id, date),
+    ])
+    setReservedTables([...new Set([...resIds, ...evIds])])
   }
 
   // Gost se identifikuje telefonom ili emailom

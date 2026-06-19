@@ -240,7 +240,9 @@ export default function AnalyticsPage() {
       supabase.from('staff').select('id, email, wage_type, wage_amount, is_active')
         .eq('restaurant_id', restaurant.id).eq('is_active', true),
       supabase.from('menu_item_ingredients').select('menu_item_id, inventory_item_id, quantity'),
-      supabase.from('tables').select('id').eq('restaurant_id', restaurant.id),
+      // Imenitelj za occupancy rate = stolovi AKTIVNOG layouta (v. table_layouts).
+      supabase.from('tables').select('id, table_layouts!inner(is_active)')
+        .eq('restaurant_id', restaurant.id).eq('table_layouts.is_active', true),
     ])
 
     const ordersData = orders || []

@@ -211,12 +211,54 @@
             "Download and print — stick one on each table separately",
             "When a guest scans and calls the waiter, the waiter sees exactly which table is calling"
           ]
+        },
+        {
+          "icon": "🗂️",
+          "title": "Multiple table layouts",
+          "steps": [
+            "Open Table settings — the layout bar is at the top",
+            "Click New layout to create another one (e.g. \"Wedding for 120\")",
+            "Or Duplicate to clone the current layout with all its tables",
+            "Each layout has its own tables — you draw them independently",
+            "Exactly one layout is Active — that is what waiters, guests and QR codes see",
+            "Click Activate to switch live service to another layout",
+            "Prepare Draft layouts in advance without affecting daily service",
+            "The active and the last remaining layout cannot be deleted"
+          ]
+        },
+        {
+          "icon": "👥",
+          "title": "Assigning tables to waiters",
+          "steps": [
+            "Open Table assignments (in the admin part of the Tables module)",
+            "Pick the date you are planning waiters for",
+            "For each table, pick a waiter from the dropdown",
+            "In Waiter view the waiter gets an \"All / My tables\" toggle",
+            "\"My tables\" shows only the tables assigned to that waiter for the day",
+            "Assignments are per day — tomorrow the table is free for a new assignment"
+          ]
+        },
+        {
+          "icon": "🎉",
+          "title": "Events (weddings, parties, banquets)",
+          "steps": [
+            "Open Events and click New event",
+            "Enter a name (e.g. \"Wedding — Marko & Ana\"), the date and expected guest count",
+            "Choose a table layout or tick \"Copy active layout\"",
+            "Open the event to seat guests: click a table, then add guests to it",
+            "Each guest has a name, party size and a note (allergies, VIP, special requests)",
+            "Add guests without a table to the \"Unseated\" list and seat them later",
+            "The event status drives the flow: Draft → Confirmed → Completed (or Cancelled)",
+            "A confirmed event reserves its tables in reservations for that date"
+          ]
         }
       ],
       "tips": [
         "A per-table QR is recommended for daily use — it tracks orders by table",
         "The map saves automatically — guests and waiter see changes immediately",
-        "Reserved tables show in blue with times on the waiter map"
+        "Reserved tables show in blue with times on the waiter map",
+        "For an event, prepare the layout as a Draft the day before, then Activate it on the morning of the event — and remember to switch back to Standard afterwards",
+        "When the active layout is not the standard one, the dashboard shows a reminder with a \"Restore standard\" button"
       ]
     },
     "inventory": {

@@ -211,12 +211,54 @@
             "Preuzmi i odštampaj — zalijepite na svaki sto posebno",
             "Kad gost skenira i pozove konobara, konobar vidi tačno koji sto zove"
           ]
+        },
+        {
+          "icon": "🗂️",
+          "title": "Više rasporeda stolova",
+          "steps": [
+            "Otvori Postavke stolova — na vrhu je traka rasporeda",
+            "Klikni Novi raspored da napraviš dodatni (npr. „Svadba za 120\")",
+            "Ili Dupliraj da kloniraš trenutni raspored sa svim stolovima",
+            "Svaki raspored ima svoje stolove — crtaš ih nezavisno",
+            "Tačno jedan raspored je Aktivan — njega vide konobar, gosti i QR kodovi",
+            "Klikni Aktiviraj da prebaciš živi rad na drugi raspored",
+            "Draft rasporede pripremaš unaprijed bez uticaja na svakodnevni rad",
+            "Aktivan i posljednji preostali raspored se ne mogu obrisati"
+          ]
+        },
+        {
+          "icon": "👥",
+          "title": "Dodjela stolova konobarima",
+          "steps": [
+            "Otvori Dodjela stolova (u admin dijelu modula Stolovi)",
+            "Izaberi datum za koji praviš raspored konobara",
+            "Za svaki sto izaberi konobara iz padajuće liste",
+            "Konobar u Prikazu konobara dobija prekidač „Svi / Moji stolovi\"",
+            "„Moji stolovi\" pokazuje samo stolove dodijeljene tom konobaru za taj dan",
+            "Dodjela vrijedi po danu — sjutra je sto opet slobodan za novu dodjelu"
+          ]
+        },
+        {
+          "icon": "🎉",
+          "title": "Eventi (svadbe, proslave, banketi)",
+          "steps": [
+            "Otvori Eventi i klikni Novi event",
+            "Upiši naziv (npr. „Svadba — Marko i Ana\"), datum i očekivani broj gostiju",
+            "Izaberi raspored stolova ili štikliraj „Kopiraj aktivni raspored\"",
+            "Otvori event da rasporediš goste: klikni na sto pa dodaj goste na njega",
+            "Svaki gost ima ime, broj osoba i napomenu (alergije, VIP, posebni zahtjevi)",
+            "Goste bez stola dodaj u listu „Nerasjeđeni\" pa ih kasnije posjedi za sto",
+            "Status eventa vodi tok: Nacrt → Potvrđen → Završen (ili Otkazan)",
+            "Potvrđen event zauzima svoje stolove u rezervacijama na taj datum"
+          ]
         }
       ],
       "tips": [
         "QR po stolu je preporučen za svakodnevno korišćenje — prati narudžbe po stolu",
         "Mapa se čuva automatski — gosti i konobar odmah vide promjene",
-        "Rezervisani stolovi prikazuju se plavom bojom sa vremenima na mapi konobara"
+        "Rezervisani stolovi prikazuju se plavom bojom sa vremenima na mapi konobara",
+        "Za event pripremi raspored kao Draft dan ranije, pa ga Aktiviraj ujutru na dan eventa — i ne zaboravi vratiti Standardni poslije",
+        "Kad aktivan raspored nije standardni, na dashboardu se pojavi podsjetnik sa dugmetom „Vrati standardni\""
       ]
     },
     "inventory": {

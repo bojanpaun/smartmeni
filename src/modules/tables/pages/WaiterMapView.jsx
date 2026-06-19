@@ -4,13 +4,15 @@ import { useTranslation } from 'react-i18next'
 import { supabase } from '../../../lib/supabase'
 import { usePlatform } from '../../../context/PlatformContext'
 import { useMoney } from '../../../lib/useMoney'
+import { getSeatPositions } from '../../../lib/seatLayout'
+import ActiveLayoutBanner from '../../../components/shared/ActiveLayoutBanner'
 import styles from './WaiterMapView.module.css'
 import gsStyles from '../../menu/pages/GeneralSettings.module.css'
 
 const today = () => new Date().toISOString().slice(0, 10)
 
 export default function WaiterMapView() {
-  const { restaurant } = usePlatform()
+  const { restaurant, staffProfile, isStaff, hasPermission } = usePlatform()
   const navigate = useNavigate()
   const { t, i18n } = useTranslation('admin')
   const money = useMoney()
@@ -20,6 +22,8 @@ export default function WaiterMapView() {
   const [orders, setOrders] = useState([])
   const [waiterRequests, setWaiterRequests] = useState([])
   const [reservations, setReservations] = useState([])
+  const [assignments, setAssignments] = useState([])
+  const [myTablesOnly, setMyTablesOnly] = useState(false)
   const [loading, setLoading] = useState(true)
   const [selectedTable, setSelectedTable] = useState(null)
 
@@ -31,8 +35,11 @@ export default function WaiterMapView() {
   }, [restaurant])
 
   const loadAll = async () => {
-    const [{ data: tbls }, { data: ords }, { data: reqs }, { data: res }] = await Promise.all([
-      supabase.from('tables').select('*').eq('restaurant_id', restaurant.id).order('number'),
+    const [{ data: tbls }, { data: ords }, { data: reqs }, { data: res }, { data: asg }] = await Promise.all([
+      // Samo stolovi AKTIVNOG layouta — live tok mora gledati jedan raspored
+      // (orders.table_number je string-match po restoranu; v. table_layouts migraciju).
+      supabase.from('tables').select('*, table_layouts!inner(is_active)')
+        .eq('restaurant_id', restaurant.id).eq('table_layouts.is_active', true).order('number'),
       supabase.from('orders').select('*, order_items(*, menu_items(name, price))')
         .eq('restaurant_id', restaurant.id)
         .in('status', ['received', 'preparing', 'ready']),
@@ -44,11 +51,15 @@ export default function WaiterMapView() {
         .eq('date', today())
         .eq('status', 'confirmed')
         .order('time'),
+      // Dodjele stolova za danas (RLS: konobar vidi samo svoje, vlasnik sve).
+      supabase.from('table_assignments').select('table_id, staff_id')
+        .eq('restaurant_id', restaurant.id).eq('date', today()),
     ])
     setTables(tbls || [])
     setOrders(ords || [])
     setWaiterRequests(reqs || [])
     setReservations(res || [])
+    setAssignments(asg || [])
     setLoading(false)
   }
 
@@ -58,6 +69,7 @@ export default function WaiterMapView() {
       .on('postgres_changes', { event: '*', schema: 'public', table: 'waiter_requests', filter: `restaurant_id=eq.${restaurant.id}` }, () => loadAll())
       .on('postgres_changes', { event: '*', schema: 'public', table: 'tables',          filter: `restaurant_id=eq.${restaurant.id}` }, () => loadAll())
       .on('postgres_changes', { event: '*', schema: 'public', table: 'reservations',    filter: `restaurant_id=eq.${restaurant.id}` }, () => loadAll())
+      .on('postgres_changes', { event: '*', schema: 'public', table: 'table_assignments', filter: `restaurant_id=eq.${restaurant.id}` }, () => loadAll())
       .subscribe()
     return () => supabase.removeChannel(channel)
   }
@@ -104,6 +116,12 @@ export default function WaiterMapView() {
   const selectedReservations = selectedTableData ? getTableReservations(selectedTableData) : []
   const selectedTotal       = selectedTableData ? getTableTotal(selectedTableData.number) : 0
   const callingTables       = tables.filter(tb => getTableStatus(tb) === 'calling')
+
+  // „Moji stolovi" filter — samo za ulogovanog konobara (staff), ne za vlasnika.
+  const showMyToggle  = isStaff()
+  const myTableIds    = new Set(assignments.filter(a => a.staff_id === staffProfile?.id).map(a => a.table_id))
+  const visibleTables = (showMyToggle && myTablesOnly) ? tables.filter(tb => myTableIds.has(tb.id)) : tables
+  const canManageAssignments = hasPermission('manage_tables')
 
   // Zajednički sadržaj detail panela i bottom sheeta
   const detailContent = selectedTableData ? (
@@ -188,6 +206,8 @@ export default function WaiterMapView() {
   return (
     <div className={styles.wrap}>
 
+      <ActiveLayoutBanner />
+
       {/* Header */}
       <div className={styles.header}>
         <div className={styles.headerLeft}>
@@ -210,11 +230,34 @@ export default function WaiterMapView() {
           <button className={styles.btnEdit} onClick={() => navigate('/admin/tables')}>
             ✏️ {t('wmvEditMap')}
           </button>
+          {canManageAssignments && (
+            <button className={styles.btnReservations} onClick={() => navigate('/admin/tables/assignments')}>
+              👥 {t('wmvAssignWaiters')}
+            </button>
+          )}
           <button className={styles.btnReservations} onClick={() => navigate('/admin/reservations')}>
             📅 {t('wmvReservations')}
           </button>
         </div>
       </div>
+
+      {/* „Moji / Svi stolovi" — samo za ulogovanog konobara */}
+      {showMyToggle && (
+        <div className={styles.myTablesToggle}>
+          <button
+            className={`${styles.toggleBtn} ${!myTablesOnly ? styles.toggleBtnActive : ''}`}
+            onClick={() => setMyTablesOnly(false)}
+          >
+            {t('wmvAllTables')}
+          </button>
+          <button
+            className={`${styles.toggleBtn} ${myTablesOnly ? styles.toggleBtnActive : ''}`}
+            onClick={() => setMyTablesOnly(true)}
+          >
+            {t('wmvMyTables', { count: myTableIds.size })}
+          </button>
+        </div>
+      )}
 
       {/* Calling bar — samo mobilni, vidljiv kada neko zove */}
       {callingTables.length > 0 && (
@@ -241,7 +284,7 @@ export default function WaiterMapView() {
           <div className={styles.mapCanvas}>
             <div className={styles.canvasGrid} />
 
-            {tables.map(table => {
+            {visibleTables.map(table => {
               const status = getTableStatus(table)
               const total  = getTableTotal(table.number)
               const tableReservations = getTableReservations(table)
@@ -249,14 +292,17 @@ export default function WaiterMapView() {
               return (
                 <div
                   key={table.id}
-                  className={`${styles.tableEl} ${styles[`status-${status}`]} ${selectedTable === table.id ? styles.tableElSelected : ''}`}
-                  style={{
-                    left: table.x, top: table.y,
-                    width: table.width, height: table.height,
-                    borderRadius: table.shape === 'circle' ? '50%' : 8,
-                  }}
-                  onClick={() => setSelectedTable(table.id === selectedTable ? null : table.id)}
+                  className={styles.tableWrap}
+                  style={{ left: table.x, top: table.y, width: table.width, height: table.height }}
                 >
+                  {getSeatPositions(table.shape, table.width, table.height, table.seats).map((p, i) => (
+                    <div key={i} className={styles.seat} style={{ left: p.x, top: p.y }} />
+                  ))}
+                  <div
+                    className={`${styles.tableEl} ${styles[`status-${status}`]} ${selectedTable === table.id ? styles.tableElSelected : ''}`}
+                    style={{ borderRadius: table.shape === 'circle' ? '50%' : 8 }}
+                    onClick={() => setSelectedTable(table.id === selectedTable ? null : table.id)}
+                  >
                   {status === 'calling' && <div className={styles.pulseRing} />}
 
                   {tableReservations.length > 0 && (
@@ -278,14 +324,15 @@ export default function WaiterMapView() {
                     </div>
                   )}
                   {status === 'free' && <div className={styles.tableFreeLabel}>{t('tblFreeLower')}</div>}
+                  </div>
                 </div>
               )
             })}
 
-            {tables.length === 0 && (
+            {visibleTables.length === 0 && (
               <div className={styles.emptyMap}>
                 <div>🗺️</div>
-                <div>{t('wmvNoTablesMap')}</div>
+                <div>{myTablesOnly ? t('wmvNoMyTables') : t('wmvNoTablesMap')}</div>
                 <button className={styles.btnEdit} onClick={() => navigate('/admin/tables')}>
                   {t('wmvAddTables')} →
                 </button>
@@ -317,13 +364,13 @@ export default function WaiterMapView() {
 
       {/* ── Mobile: card grid ── */}
       <div className={styles.mobileGrid}>
-        {tables.length === 0 && (
+        {visibleTables.length === 0 && (
           <div style={{ gridColumn: '1/-1', textAlign: 'center', padding: '3rem 1rem', color: 'var(--c-text-muted)' }}>
             <div style={{ fontSize: 40, marginBottom: 10 }}>🗺️</div>
-            <div>{t('wmvNoTables')}</div>
+            <div>{myTablesOnly ? t('wmvNoMyTables') : t('wmvNoTables')}</div>
           </div>
         )}
-        {tables.map(table => {
+        {visibleTables.map(table => {
           const status = getTableStatus(table)
           const total  = getTableTotal(table.number)
           const res    = getTableReservations(table)

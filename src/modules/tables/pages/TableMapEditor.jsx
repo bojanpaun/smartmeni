@@ -5,6 +5,7 @@ import { useNavigate } from 'react-router-dom'
 import { useTranslation } from 'react-i18next'
 import { supabase } from '../../../lib/supabase'
 import { usePlatform } from '../../../context/PlatformContext'
+import { getSeatPositions } from '../../../lib/seatLayout'
 import styles from './TableMapEditor.module.css'
 
 const MIN_SIZE = 50
@@ -20,6 +21,9 @@ export default function TableMapEditor() {
   const { t } = useTranslation('admin')
 
   const [tables, setTables] = useState([])
+  const [layouts, setLayouts] = useState([])
+  const [currentLayoutId, setCurrentLayoutId] = useState(null)
+  const [layoutBusy, setLayoutBusy] = useState(false)
   const [loading, setLoading] = useState(true)
   const [saving, setSaving] = useState(false)
   const [saveMsg, setSaveMsg] = useState('')
@@ -37,17 +41,126 @@ export default function TableMapEditor() {
   const autoScrollRef = useRef(null)  // interval za auto-scroll
 
   useEffect(() => {
-    if (restaurant) loadTables()
+    if (restaurant) loadLayouts()
   }, [restaurant])
 
-  const loadTables = async () => {
+  // Učita sve layout-e; ako ih nema (svjež nalog), kreira default aktivan; zatim
+  // učita stolove aktivnog (ili prvog) layouta.
+  const loadLayouts = async () => {
+    let { data: lays } = await supabase
+      .from('table_layouts')
+      .select('id, name, is_active')
+      .eq('restaurant_id', restaurant.id)
+      .order('created_at')
+    if (!lays || lays.length === 0) {
+      const { data: created } = await supabase
+        .from('table_layouts')
+        .insert({ restaurant_id: restaurant.id, name: t('tmeDefaultLayoutName'), is_active: true })
+        .select('id, name, is_active')
+        .single()
+      lays = created ? [created] : []
+    }
+    setLayouts(lays)
+    const active = lays.find(l => l.is_active) || lays[0]
+    const lid = active?.id || null
+    setCurrentLayoutId(lid)
+    await loadTables(lid)
+  }
+
+  const loadTables = async (layoutId) => {
+    if (!layoutId) { setTables([]); setLoading(false); return }
     const { data } = await supabase
       .from('tables')
       .select('*')
       .eq('restaurant_id', restaurant.id)
+      .eq('layout_id', layoutId)
       .order('number')
     setTables(data || [])
     setLoading(false)
+  }
+
+  // ── Layout operacije ───────────────────────────────────────
+  const switchLayout = async (layoutId) => {
+    if (!layoutId || layoutId === currentLayoutId) return
+    setCurrentLayoutId(layoutId)
+    setSelected(null)
+    setEditMode(null)
+    setLoading(true)
+    await loadTables(layoutId)
+  }
+
+  const createLayout = async () => {
+    const name = prompt(t('tmePromptLayoutName'))
+    if (!name || !name.trim()) return
+    setLayoutBusy(true)
+    const { data } = await supabase
+      .from('table_layouts')
+      .insert({ restaurant_id: restaurant.id, name: name.trim(), is_active: false })
+      .select('id, name, is_active')
+      .single()
+    if (data) {
+      setLayouts(prev => [...prev, data])
+      await switchLayout(data.id)
+    }
+    setLayoutBusy(false)
+  }
+
+  const duplicateLayout = async () => {
+    const cur = layouts.find(l => l.id === currentLayoutId)
+    const suggested = cur ? `${cur.name} (${t('tmeCopySuffix')})` : ''
+    const name = prompt(t('tmePromptLayoutName'), suggested)
+    if (!name || !name.trim()) return
+    setLayoutBusy(true)
+    const { data: newId, error } = await supabase.rpc('duplicate_table_layout', {
+      p_layout_id: currentLayoutId, p_new_name: name.trim(),
+    })
+    if (!error && newId) {
+      const { data: lays } = await supabase
+        .from('table_layouts').select('id, name, is_active')
+        .eq('restaurant_id', restaurant.id).order('created_at')
+      setLayouts(lays || [])
+      await switchLayout(newId)
+    }
+    setLayoutBusy(false)
+  }
+
+  const renameLayout = async () => {
+    const cur = layouts.find(l => l.id === currentLayoutId)
+    if (!cur) return
+    const name = prompt(t('tmePromptLayoutName'), cur.name)
+    if (!name || !name.trim() || name.trim() === cur.name) return
+    setLayoutBusy(true)
+    await supabase.from('table_layouts').update({ name: name.trim() }).eq('id', cur.id)
+    setLayouts(prev => prev.map(l => l.id === cur.id ? { ...l, name: name.trim() } : l))
+    setLayoutBusy(false)
+  }
+
+  const activateLayout = async () => {
+    setLayoutBusy(true)
+    const { error } = await supabase.rpc('set_active_table_layout', {
+      p_restaurant_id: restaurant.id, p_layout_id: currentLayoutId,
+    })
+    if (!error) {
+      setLayouts(prev => prev.map(l => ({ ...l, is_active: l.id === currentLayoutId })))
+      setSaveMsg(t('tmeLayoutActivated'))
+      setTimeout(() => setSaveMsg(''), 3000)
+    }
+    setLayoutBusy(false)
+  }
+
+  const deleteLayout = async () => {
+    const cur = layouts.find(l => l.id === currentLayoutId)
+    if (!cur) return
+    if (cur.is_active) { alert(t('tmeCantDeleteActive')); return }
+    if (layouts.length <= 1) { alert(t('tmeCantDeleteLast')); return }
+    if (!confirm(t('tmeDeleteLayoutConfirm', { name: cur.name }))) return
+    setLayoutBusy(true)
+    await supabase.from('table_layouts').delete().eq('id', cur.id)  // cascade briše stolove
+    const remaining = layouts.filter(l => l.id !== cur.id)
+    setLayouts(remaining)
+    setLayoutBusy(false)
+    const next = remaining.find(l => l.is_active) || remaining[0]
+    await switchLayout(next.id)
   }
 
   // ── Dodavanje stola ────────────────────────────────────────
@@ -63,6 +176,7 @@ export default function TableMapEditor() {
     const newTable = {
       id: `tmp-${Date.now()}`,
       restaurant_id: restaurant.id,
+      layout_id: currentLayoutId,
       number: maxNum + 1,
       label: `${t('anaTable')} ${maxNum + 1}`,
       x, y,
@@ -288,6 +402,7 @@ export default function TableMapEditor() {
       for (const table of tables) {
         const payload = {
           restaurant_id: restaurant.id,
+          layout_id: table.layout_id || currentLayoutId,
           number: table.number,
           label: table.label,
           x: table.x,
@@ -314,6 +429,7 @@ export default function TableMapEditor() {
   }
 
   const selectedTable = tables.find(tb => tb.id === selected)
+  const currentLayout = layouts.find(l => l.id === currentLayoutId)
 
   if (loading) return <div className={styles.loading}>{t('tmeLoading')}</div>
 
@@ -356,6 +472,50 @@ export default function TableMapEditor() {
         </div>
       </div>
 
+      {/* Layout traka — izbor/akcije rasporeda */}
+      <div className={styles.layoutBar}>
+        <div className={styles.layoutSelectWrap}>
+          <select
+            className={styles.layoutSelect}
+            value={currentLayoutId || ''}
+            onChange={e => switchLayout(e.target.value)}
+            disabled={layoutBusy}
+          >
+            {layouts.map(l => (
+              <option key={l.id} value={l.id}>
+                {l.name}{l.is_active ? ` · ${t('tmeLayoutActive')}` : ''}
+              </option>
+            ))}
+          </select>
+          {currentLayout && !currentLayout.is_active && (
+            <span className={styles.layoutDraftBadge}>{t('tmeLayoutDraft')}</span>
+          )}
+        </div>
+        <div className={styles.layoutActions}>
+          {currentLayout && !currentLayout.is_active && (
+            <button className={styles.layoutBtn} onClick={activateLayout} disabled={layoutBusy}>
+              ✓ {t('tmeActivateLayout')}
+            </button>
+          )}
+          <button className={styles.layoutBtn} onClick={createLayout} disabled={layoutBusy}>
+            + {t('tmeNewLayout')}
+          </button>
+          <button className={styles.layoutBtn} onClick={duplicateLayout} disabled={layoutBusy}>
+            ⧉ {t('tmeDuplicateLayout')}
+          </button>
+          <button className={styles.layoutBtn} onClick={renameLayout} disabled={layoutBusy}>
+            ✎ {t('tmeRenameLayout')}
+          </button>
+          <button
+            className={styles.layoutBtnDanger}
+            onClick={deleteLayout}
+            disabled={layoutBusy || currentLayout?.is_active || layouts.length <= 1}
+          >
+            🗑 {t('tmeDeleteLayout')}
+          </button>
+        </div>
+      </div>
+
       <div className={styles.editorLayout}>
 
         {/* Canvas */}
@@ -388,36 +548,40 @@ export default function TableMapEditor() {
           {tables.map(table => (
             <div
               key={table.id}
-              className={[
-                styles.tableEl,
-                selected === table.id ? styles.tableElSelected : '',
-                editMode === table.id ? styles.tableElEditMode : '',
-                styles[`status-${table.status}`] || '',
-              ].join(' ')}
-              style={{
-                left: table.x,
-                top: table.y,
-                width: table.width,
-                height: table.height,
-                borderRadius: table.shape === 'circle' ? '50%' : 8,
-              }}
-              onMouseDown={(e) => startDrag(e, table.id)}
-              onTouchStart={(e) => handleTableTouchStart(e, table.id)}
-              onClick={(e) => { e.stopPropagation(); setSelected(table.id) }}
+              className={styles.tableWrap}
+              style={{ left: table.x, top: table.y, width: table.width, height: table.height }}
             >
-              <div className={styles.tableLabel}>{table.label || `${t('anaTable')} ${table.number}`}</div>
-              <div className={styles.tableSeats}>{table.seats} {t('tblSeats')}</div>
+              {/* Stolice — sibling ISPOD tijela stola (niži z-index) */}
+              {getSeatPositions(table.shape, table.width, table.height, table.seats).map((p, i) => (
+                <div key={i} className={styles.seat} style={{ left: p.x, top: p.y }} />
+              ))}
 
-              {/* Resize handle */}
-              {selected === table.id && (
-                <div
-                  className={styles.resizeHandle}
-                  onMouseDown={(e) => startResize(e, table.id)}
-                  onTouchStart={editMode === table.id
-                    ? (e) => startResizeTouch(e, table.id)
-                    : undefined}
-                />
-              )}
+              <div
+                className={[
+                  styles.tableEl,
+                  selected === table.id ? styles.tableElSelected : '',
+                  editMode === table.id ? styles.tableElEditMode : '',
+                  styles[`status-${table.status}`] || '',
+                ].join(' ')}
+                style={{ borderRadius: table.shape === 'circle' ? '50%' : 8 }}
+                onMouseDown={(e) => startDrag(e, table.id)}
+                onTouchStart={(e) => handleTableTouchStart(e, table.id)}
+                onClick={(e) => { e.stopPropagation(); setSelected(table.id) }}
+              >
+                <div className={styles.tableLabel}>{table.label || `${t('anaTable')} ${table.number}`}</div>
+                <div className={styles.tableSeats}>{table.seats} {t('tblSeats')}</div>
+
+                {/* Resize handle */}
+                {selected === table.id && (
+                  <div
+                    className={styles.resizeHandle}
+                    onMouseDown={(e) => startResize(e, table.id)}
+                    onTouchStart={editMode === table.id
+                      ? (e) => startResizeTouch(e, table.id)
+                      : undefined}
+                  />
+                )}
+              </div>
             </div>
           ))}
         </div>

@@ -16,7 +16,9 @@ export default function TablesAnalytics() {
   useEffect(() => {
     if (!restaurant) return
     Promise.all([
-      supabase.from('tables').select('*').eq('restaurant_id', restaurant.id),
+      // Metrika nad AKTIVNIM layoutom (ne miješa stolove draft/event rasporeda).
+      supabase.from('tables').select('*, table_layouts!inner(is_active)')
+        .eq('restaurant_id', restaurant.id).eq('table_layouts.is_active', true),
       supabase.from('reservations').select('*').eq('restaurant_id', restaurant.id)
         .gte('date', new Date(Date.now() - 30 * 24 * 60 * 60 * 1000).toISOString().slice(0, 10))
         .order('date', { ascending: false }),

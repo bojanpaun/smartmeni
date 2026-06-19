@@ -9,6 +9,7 @@ import HotelOnboardingWizard from './HotelOnboardingWizard'
 import { useAnnouncements } from '../../context/AnnouncementsContext'
 import { useSupport } from '../../context/SupportContext'
 import RoadmapTicker from '../../components/shared/RoadmapTicker'
+import ActiveLayoutBanner from '../../components/shared/ActiveLayoutBanner'
 import styles from './ControlPanel.module.css'
 
 // Mali numerički badge za kartice komunikacije
@@ -275,6 +276,9 @@ export default function ControlPanel() {
         <h1 className={styles.title}>{restaurant ? restaurant.name : t('controlPanel')}</h1>
         <p className={styles.subtitle}>{t('cpSubtitle')}</p>
       </div>
+
+      {/* §8.5 — upozorenje ako aktivan raspored stolova nije standardni */}
+      <ActiveLayoutBanner />
 
       {/* ── Roadmap ticker (Šta razvijamo) — diskretno, bez dismiss-a ── */}
       <RoadmapTicker />

@@ -87,11 +87,13 @@ export const MODULES = [
       links: [
         { labelKey: 'navTablesView', icon: '👁',  path: '/admin/tables/view' },
         { labelKey: 'navReservations',     icon: '📅', path: '/admin/reservations' },
+        { labelKey: 'navEvents',           icon: '🎉', path: '/admin/tables/events' },
       ],
     },
     admin: {
       labelKey: 'segTablesAdmin',
       links: [
+        { labelKey: 'navTableAssignments', icon: '👥', path: '/admin/tables/assignments' },
         { labelKey: 'navAnalytics',        icon: '📊', path: '/admin/tables/analytics' },
         { labelKey: 'navTablesSettings', icon: '🗺️', path: '/admin/tables', exact: true },
       ],

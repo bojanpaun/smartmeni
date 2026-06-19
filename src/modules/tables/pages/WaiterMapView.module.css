@@ -13,7 +13,23 @@
 .headerBadges { display: flex; gap: 8px; flex-wrap: wrap; }
 .alertBadge { background: var(--c-danger-bg); color: var(--c-danger); font-size: 12px; padding: 3px 10px; border-radius: 20px; font-weight: 500; }
 .reservedBadge { background: var(--c-info-bg); color: var(--c-info); font-size: 12px; padding: 3px 10px; border-radius: 20px; font-weight: 500; }
-.headerActions { display: flex; gap: 8px; }
+.headerActions { display: flex; gap: 8px; flex-wrap: wrap; }
+
+/* „Moji / Svi stolovi" toggle (konobar) */
+.myTablesToggle { display: flex; gap: 6px; padding: 8px 16px 0; }
+.toggleBtn {
+  padding: 7px 16px;
+  border-radius: 999px;
+  border: 1px solid var(--c-border-input);
+  background: var(--c-surface);
+  color: var(--c-text-medium);
+  font-size: 13px;
+  font-family: var(--c-font-sans);
+  cursor: pointer;
+  transition: all 0.15s;
+}
+.toggleBtn:hover { background: var(--c-bg-subtle); }
+.toggleBtnActive { background: var(--c-primary); color: var(--c-surface); border-color: var(--c-primary); }
 .btnEdit { padding: 7px 14px; background: var(--c-bg-subtle); border: 1px solid var(--c-border-input); border-radius: 8px; font-size: 13px; cursor: pointer; font-family: var(--c-font-sans); color: var(--c-primary); }
 .btnEdit:hover { background: var(--c-primary-light); }
 .btnReservations { padding: 7px 14px; background: var(--c-info-bg); border: 1px solid var(--c-info-border); border-radius: 8px; font-size: 13px; cursor: pointer; font-family: var(--c-font-sans); color: var(--c-info); }
@@ -45,8 +61,14 @@
 }
 
 /* ── Sto element (floor plan) ── */
+.tableWrap { position: absolute; }
+.seat {
+  position: absolute; width: 12px; height: 12px; border-radius: 4px;
+  background: var(--c-surface); border: 1.5px solid var(--c-border-input);
+  transform: translate(-50%, -50%); z-index: 0; pointer-events: none;
+}
 .tableEl {
-  position: absolute; display: flex; flex-direction: column;
+  position: absolute; inset: 0; z-index: 1; display: flex; flex-direction: column;
   align-items: center; justify-content: center;
   cursor: pointer; user-select: none; border: 2px solid;
   transition: transform 0.1s, box-shadow 0.15s;

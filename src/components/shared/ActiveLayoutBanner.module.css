@@ -1,0 +1,35 @@
+.banner {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  flex-wrap: wrap;
+  padding: 10px 14px;
+  margin: 0 0 14px;
+  background: var(--c-warning-bg);
+  border: 1px solid var(--c-warning-border);
+  border-radius: 10px;
+  font-family: var(--c-font-sans);
+}
+.icon { font-size: 16px; line-height: 1; }
+.text { flex: 1; min-width: 180px; font-size: 13px; color: var(--c-warning-border); font-weight: 500; }
+.actions { display: flex; gap: 8px; flex-wrap: wrap; }
+.btn, .btnGhost {
+  padding: 6px 12px;
+  border-radius: 8px;
+  font-size: 12px;
+  font-family: var(--c-font-sans);
+  cursor: pointer;
+}
+.btn {
+  border: 1px solid var(--c-primary);
+  background: var(--c-primary);
+  color: var(--c-surface);
+}
+.btn:hover { background: var(--c-primary-hover); }
+.btn:disabled { opacity: 0.5; cursor: not-allowed; }
+.btnGhost {
+  border: 1px solid var(--c-border-input);
+  background: var(--c-surface);
+  color: var(--c-text-medium);
+}
+.btnGhost:hover { background: var(--c-bg-subtle); }

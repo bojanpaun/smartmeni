@@ -211,12 +211,54 @@
             "Shkarko dhe printo — ngjit një në çdo tavolinë veçmas",
             "Kur një mysafir skanon dhe thërret kamarierin, kamarieri sheh saktësisht cila tavolinë po thërret"
           ]
+        },
+        {
+          "icon": "🗂️",
+          "title": "Disa skema tavolinash",
+          "steps": [
+            "Hap Cilësimet e tavolinave — shiriti i skemave është lart",
+            "Kliko Skemë e re për të krijuar një tjetër (p.sh. „Dasmë për 120\")",
+            "Ose Dyfisho për të klonuar skemën aktuale me të gjitha tavolinat",
+            "Çdo skemë ka tavolinat e veta — i vizaton në mënyrë të pavarur",
+            "Vetëm një skemë është Aktive — atë e shohin kamarieri, mysafirët dhe kodet QR",
+            "Kliko Aktivizo për të kaluar punën e drejtpërdrejtë në një skemë tjetër",
+            "Skemat Draft i përgatit paraprakisht pa ndikuar te puna e përditshme",
+            "Skema aktive dhe e fundit e mbetur nuk mund të fshihen"
+          ]
+        },
+        {
+          "icon": "👥",
+          "title": "Caktimi i tavolinave te kamarierët",
+          "steps": [
+            "Hap Caktimi i tavolinave (në pjesën admin të modulit Tavolinat)",
+            "Zgjidh datën për të cilën po planifikon kamarierët",
+            "Për çdo tavolinë zgjidh një kamarier nga lista",
+            "Te Pamja e kamarierit, kamarieri merr çelësin „Të gjitha / Tavolinat e mia\"",
+            "„Tavolinat e mia\" shfaq vetëm tavolinat e caktuara për atë kamarier atë ditë",
+            "Caktimi vlen për ditën — nesër tavolina është sërish e lirë për caktim të ri"
+          ]
+        },
+        {
+          "icon": "🎉",
+          "title": "Evente (dasma, festa, banketë)",
+          "steps": [
+            "Hap Eventet dhe kliko Event i ri",
+            "Shkruaj emrin (p.sh. „Dasmë — Marko & Ana\"), datën dhe numrin e pritur të mysafirëve",
+            "Zgjidh një skemë tavolinash ose shëno „Kopjo skemën aktive\"",
+            "Hap eventin për të vendosur mysafirët: kliko një tavolinë, pastaj shto mysafirë",
+            "Çdo mysafir ka emër, numrin e personave dhe një shënim (alergji, VIP, kërkesa të veçanta)",
+            "Mysafirët pa tavolinë shtoji te lista „Të pavendosur\" dhe i ul më vonë",
+            "Statusi i eventit drejton rrjedhën: Draft → I konfirmuar → I përfunduar (ose I anuluar)",
+            "Një event i konfirmuar i rezervon tavolinat e veta për atë datë"
+          ]
         }
       ],
       "tips": [
         "QR-i sipas tavolinës rekomandohet për përdorim të përditshëm — ndjek porositë sipas tavolinës",
         "Harta ruhet automatikisht — mysafirët dhe kamarieri i shohin ndryshimet menjëherë",
-        "Tavolinat e rezervuara shfaqen me ngjyrë blu me oraret në hartën e kamarierit"
+        "Tavolinat e rezervuara shfaqen me ngjyrë blu me oraret në hartën e kamarierit",
+        "Për një event, përgatit skemën si Draft një ditë para, pastaj Aktivizoje në mëngjesin e eventit — dhe mos harro ta kthesh te Standardja më pas",
+        "Kur skema aktive nuk është standardja, paneli shfaq një kujtues me butonin „Rikthe standarden\""
       ]
     },
     "inventory": {

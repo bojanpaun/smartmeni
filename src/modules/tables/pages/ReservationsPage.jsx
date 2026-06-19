@@ -7,6 +7,8 @@ import { useTranslation } from 'react-i18next'
 import { supabase } from '../../../lib/supabase'
 import { usePlatform } from '../../../context/PlatformContext'
 import { useMoney } from '../../../lib/useMoney'
+import { getSeatPositions } from '../../../lib/seatLayout'
+import { getEventTableIds } from '../../../lib/reservationConflicts'
 import styles from './ReservationsPage.module.css'
 import gsStyles from '../../menu/pages/GeneralSettings.module.css'
 
@@ -128,7 +130,7 @@ function GuestAutocomplete({ value, onChange, onSelectGuest, restaurantId }) {
 }
 
 // ── Kalendarski pregled ────────────────────────────────────────
-function CalendarView({ reservations, onDayClick, selectedDate }) {
+function CalendarView({ reservations, events = [], onDayClick, selectedDate }) {
   const { t, i18n } = useTranslation('admin')
   const dl = i18n.language === 'en' ? 'en-US' : 'sr-Latn'
   const [month, setMonth] = useState(() => {
@@ -158,6 +160,12 @@ function CalendarView({ reservations, onDayClick, selectedDate }) {
     if (!byDate[r.date]) byDate[r.date] = []
     byDate[r.date].push(r)
   })
+  // Eventi po datumu (§8.4 overlay) — naziv prvog eventa za tooltip.
+  const eventsByDate = {}
+  events.forEach(ev => {
+    if (!eventsByDate[ev.date]) eventsByDate[ev.date] = []
+    eventsByDate[ev.date].push(ev)
+  })
 
   return (
     <div className={styles.calendar}>
@@ -180,6 +188,7 @@ function CalendarView({ reservations, onDayClick, selectedDate }) {
           const day = i + 1
           const dateStr = `${month.year}-${String(month.month + 1).padStart(2, '0')}-${String(day).padStart(2, '0')}`
           const dayRes = byDate[dateStr] || []
+          const dayEvents = eventsByDate[dateStr] || []
           const isToday = dateStr === today()
           const isSelected = dateStr === selectedDate
           const hasPending = dayRes.some(r => r.status === 'pending')
@@ -196,6 +205,9 @@ function CalendarView({ reservations, onDayClick, selectedDate }) {
               onClick={() => onDayClick(dateStr)}
             >
               <span className={styles.calDayNum}>{day}</span>
+              {dayEvents.length > 0 && (
+                <span className={styles.calEventBadge} title={dayEvents.map(e => e.name).join(', ')}>🎉</span>
+              )}
               {dayRes.length > 0 && (
                 <div className={styles.calDots}>
                   {dayRes.slice(0, 3).map((r, idx) => (
@@ -216,7 +228,7 @@ function CalendarView({ reservations, onDayClick, selectedDate }) {
 }
 
 // ── Vizuelni picker stolova ────────────────────────────────────
-function TablePicker({ tables, selectedId, reservations, date, onSelect }) {
+function TablePicker({ tables, selectedId, reservations, eventTableIds, date, onSelect }) {
   const { t } = useTranslation('admin')
   if (!tables.length) return (
     <div className={styles.pickerEmpty}>
@@ -224,11 +236,11 @@ function TablePicker({ tables, selectedId, reservations, date, onSelect }) {
     </div>
   )
 
-  const reservedIds = new Set(
-    reservations
-      .filter(r => r.date === date && r.status === 'confirmed' && r.table_id)
-      .map(r => r.table_id)
-  )
+  // Zauzeti = potvrđene rezervacije tog dana + stolovi potvrđenog eventa (§8.4 overlay).
+  const reservedIds = new Set([
+    ...reservations.filter(r => r.date === date && r.status === 'confirmed' && r.table_id).map(r => r.table_id),
+    ...(eventTableIds || []),
+  ])
 
   const maxX = Math.max(...tables.map(tb => tb.x + tb.width), 300)
   const maxY = Math.max(...tables.map(tb => tb.y + tb.height), 200)
@@ -246,24 +258,28 @@ function TablePicker({ tables, selectedId, reservations, date, onSelect }) {
         {tables.map(table => {
           const isReserved = reservedIds.has(table.id)
           const isSelected = selectedId === table.id
+          const sw = Math.round(table.width * scale)
+          const sh = Math.round(table.height * scale)
           return (
-            <button
+            <div
               key={table.id}
-              type="button"
-              className={`${styles.pickerTable} ${isSelected ? styles.pickerTableSelected : ''} ${isReserved && !isSelected ? styles.pickerTableReserved : ''}`}
-              style={{
-                left: Math.round(table.x * scale + 20),
-                top: Math.round(table.y * scale + 20),
-                width: Math.round(table.width * scale),
-                height: Math.round(table.height * scale),
-                borderRadius: table.shape === 'circle' ? '50%' : 8,
-              }}
-              onClick={() => onSelect(isSelected ? '' : table.id)}
-              title={isReserved ? `${table.label || `${t('anaTable')} ${table.number}`} — ${t('resReservedSuffix')}` : table.label || `${t('anaTable')} ${table.number}`}
+              className={styles.pickerTableWrap}
+              style={{ left: Math.round(table.x * scale + 20), top: Math.round(table.y * scale + 20), width: sw, height: sh }}
             >
-              <span className={styles.pickerTableLabel}>{table.label || `${t('anaTable')} ${table.number}`}</span>
-              {isReserved && !isSelected && <span className={styles.pickerReservedDot}>R</span>}
-            </button>
+              {getSeatPositions(table.shape, sw, sh, table.seats).map((p, i) => (
+                <span key={i} className={styles.pickerSeat} style={{ left: p.x, top: p.y }} />
+              ))}
+              <button
+                type="button"
+                className={`${styles.pickerTable} ${isSelected ? styles.pickerTableSelected : ''} ${isReserved && !isSelected ? styles.pickerTableReserved : ''}`}
+                style={{ borderRadius: table.shape === 'circle' ? '50%' : 8 }}
+                onClick={() => onSelect(isSelected ? '' : table.id)}
+                title={isReserved ? `${table.label || `${t('anaTable')} ${table.number}`} — ${t('resReservedSuffix')}` : table.label || `${t('anaTable')} ${table.number}`}
+              >
+                <span className={styles.pickerTableLabel}>{table.label || `${t('anaTable')} ${table.number}`}</span>
+                {isReserved && !isSelected && <span className={styles.pickerReservedDot}>R</span>}
+              </button>
+            </div>
           )
         })}
       </div>
@@ -418,6 +434,8 @@ export default function ReservationsPage() {
 
   const [reservations, setReservations] = useState([])
   const [tables, setTables] = useState([])
+  const [events, setEvents] = useState([])
+  const [eventTableIds, setEventTableIds] = useState(new Set())
   const [loading, setLoading] = useState(true)
   const [view, setView] = useState('list') // 'list' | 'calendar' | 'planner'
   const [from, setFrom] = useState(DATE_TODAY)
@@ -440,17 +458,30 @@ export default function ReservationsPage() {
 
   const loadAll = async () => {
     setLoading(true)
-    const [{ data: res }, { data: tbls }] = await Promise.all([
+    const [{ data: res }, { data: tbls }, { data: evs }] = await Promise.all([
       supabase.from('reservations').select('*')
         .eq('restaurant_id', restaurant.id)
         .order('date').order('time'),
-      supabase.from('tables').select('id, number, label, x, y, width, height, shape')
-        .eq('restaurant_id', restaurant.id).order('number'),
+      // Mini-mapa za vezivanje rezervacije gleda samo AKTIVAN layout (v. table_layouts).
+      supabase.from('tables').select('id, number, label, x, y, width, height, shape, seats, table_layouts!inner(is_active)')
+        .eq('restaurant_id', restaurant.id).eq('table_layouts.is_active', true).order('number'),
+      // Eventi za overlay u kalendaru (§8.4) — bez marker-rezervacija.
+      supabase.from('events').select('id, name, date, status')
+        .eq('restaurant_id', restaurant.id).neq('status', 'cancelled'),
     ])
     setReservations(res || [])
     setTables(tbls || [])
+    setEvents(evs || [])
     setLoading(false)
   }
+
+  // Stolovi koje zauzima potvrđen event za datum forme — picker ih označi kao zauzete.
+  useEffect(() => {
+    if (!restaurant || !form.date) { setEventTableIds(new Set()); return }
+    let cancelled = false
+    getEventTableIds(restaurant.id, form.date).then(s => { if (!cancelled) setEventTableIds(s) })
+    return () => { cancelled = true }
+  }, [restaurant, form.date])
 
   // Online rezervacije se uključuju/isključuju centralno (jedini izvor istine =
   // reservation_visibility u Postavke menija → Vidljivost). Ranija duplikat-sklopka
@@ -599,6 +630,7 @@ export default function ReservationsPage() {
         <div className={styles.calendarWrap}>
           <CalendarView
             reservations={reservations}
+            events={events}
             selectedDate={from}
             onDayClick={(date) => {
               setFrom(date); setTo(date)
@@ -758,6 +790,7 @@ export default function ReservationsPage() {
                   tables={tables}
                   selectedId={form.table_id}
                   reservations={reservations}
+                  eventTableIds={eventTableIds}
                   date={form.date}
                   onSelect={id => setForm(f => ({ ...f, table_id: id }))}
                 />

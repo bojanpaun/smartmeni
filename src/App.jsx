@@ -36,6 +36,9 @@ const SupportPage           = lazy(() => import('./platform/admin/SupportPage'))
 const SupportFaqPage        = lazy(() => import('./platform/admin/SupportFaq'))
 const TableMapEditor       = lazy(() => import('./modules/tables/pages/TableMapEditor'))
 const WaiterMapView        = lazy(() => import('./modules/tables/pages/WaiterMapView'))
+const TableAssignmentsPage = lazy(() => import('./modules/tables/pages/TableAssignmentsPage'))
+const EventsPage           = lazy(() => import('./modules/tables/pages/EventsPage'))
+const EventDetailPage      = lazy(() => import('./modules/tables/pages/EventDetailPage'))
 const ReservationsPage     = lazy(() => import('./modules/tables/pages/ReservationsPage'))
 const TablesAnalytics      = lazy(() => import('./modules/tables/pages/TablesAnalytics'))
 const StaffPortalPage      = lazy(() => import('./modules/hr/pages/StaffPortalPage'))
@@ -329,6 +332,9 @@ function AppRoutes() {
         <Route path="/admin/tables/analytics" element={<AdminRoute><VerticalGuard vertical="restaurant"><TablesAnalytics /></VerticalGuard></AdminRoute>} />
         <Route path="/admin/tables" element={<AdminRoute><VerticalGuard vertical="restaurant"><TableMapEditor /></VerticalGuard></AdminRoute>} />
         <Route path="/admin/tables/view" element={<AdminRoute><VerticalGuard vertical="restaurant"><WaiterMapView /></VerticalGuard></AdminRoute>} />
+        <Route path="/admin/tables/assignments" element={<AdminRoute><VerticalGuard vertical="restaurant"><TableAssignmentsPage /></VerticalGuard></AdminRoute>} />
+        <Route path="/admin/tables/events" element={<AdminRoute><VerticalGuard vertical="restaurant"><EventsPage /></VerticalGuard></AdminRoute>} />
+        <Route path="/admin/tables/events/:id" element={<AdminRoute><VerticalGuard vertical="restaurant"><EventDetailPage /></VerticalGuard></AdminRoute>} />
         <Route path="/admin/tables/help" element={<AdminRoute><VerticalGuard vertical="restaurant"><ModuleHelp moduleKey="tables" /></VerticalGuard></AdminRoute>} />
         <Route path="/admin/reservations" element={<AdminRoute><VerticalGuard vertical="restaurant"><ReservationsPage /></VerticalGuard></AdminRoute>} />
 

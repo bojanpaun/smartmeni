@@ -44,6 +44,66 @@
 
 .saveMsg { font-size: 13px; color: var(--c-primary); font-weight: 500; }
 
+/* ── Layout traka (izbor rasporeda) ─────────────────────────── */
+.layoutBar {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 10px;
+  flex-wrap: wrap;
+  padding: 8px 16px;
+  background: var(--c-bg-subtle);
+  border-bottom: 1px solid var(--c-border);
+}
+.layoutSelectWrap { display: flex; align-items: center; gap: 8px; flex-wrap: wrap; }
+.layoutSelect {
+  padding: 7px 12px;
+  border-radius: 8px;
+  border: 1px solid var(--c-border-input);
+  background: var(--c-surface);
+  color: var(--c-text);
+  font-size: 13px;
+  font-family: var(--c-font-sans);
+  cursor: pointer;
+  max-width: 220px;
+}
+.layoutDraftBadge {
+  font-size: 11px;
+  font-weight: 600;
+  padding: 2px 8px;
+  border-radius: 999px;
+  background: var(--c-warning-bg);
+  color: var(--c-warning-border);
+  border: 1px solid var(--c-warning-border);
+}
+.layoutActions { display: flex; gap: 6px; flex-wrap: wrap; }
+.layoutBtn {
+  padding: 6px 12px;
+  border-radius: 8px;
+  border: 1px solid var(--c-border-input);
+  background: var(--c-surface);
+  color: var(--c-text-medium);
+  font-size: 12px;
+  font-family: var(--c-font-sans);
+  cursor: pointer;
+  transition: all 0.15s;
+}
+.layoutBtn:hover { background: var(--c-bg-subtle); }
+.layoutBtn:disabled { opacity: 0.5; cursor: not-allowed; }
+.layoutBtnDanger {
+  padding: 6px 12px;
+  border-radius: 8px;
+  border: 1px solid var(--c-danger);
+  background: var(--c-surface);
+  color: var(--c-danger);
+  font-size: 12px;
+  font-family: var(--c-font-sans);
+  cursor: pointer;
+  transition: all 0.15s;
+}
+.layoutBtnDanger:hover { background: var(--c-danger-bg); }
+.layoutBtnDanger:disabled { opacity: 0.5; cursor: not-allowed; }
+
 .btnSave {
   padding: 8px 18px;
   background: var(--c-primary);
@@ -137,9 +197,28 @@
   white-space: nowrap;
 }
 
+/* ── Omotač stola (drži poziciju; stolice + tijelo stola unutra) ── */
+.tableWrap { position: absolute; }
+
+/* Stolica — sibling ISPOD tijela stola (z-index 0); tijelo (z-index 1) prekrije
+   unutrašnju polovinu → „pogurana pod sto" izgled. */
+.seat {
+  position: absolute;
+  width: 12px;
+  height: 12px;
+  border-radius: 4px;
+  background: var(--c-surface);
+  border: 1.5px solid var(--c-border-input);
+  transform: translate(-50%, -50%);
+  z-index: 0;
+  pointer-events: none;
+}
+
 /* ── Sto element ── */
 .tableEl {
   position: absolute;
+  inset: 0;
+  z-index: 1;
   background: var(--c-surface);
   border: 2px solid var(--c-text-muted);
   display: flex;

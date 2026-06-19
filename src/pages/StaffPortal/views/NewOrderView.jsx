@@ -29,8 +29,9 @@ export default function NewOrderView({ restaurant, onDone }) {
     let cancelled = false
     setTablesLoading(true)
     Promise.all([
-      supabase.from('tables').select('id,number,label,seats,status')
-        .eq('restaurant_id', restaurantId).order('number'),
+      // Konobar bira sto iz AKTIVNOG layouta (live unos narudžbe — string-match table_number).
+      supabase.from('tables').select('id,number,label,seats,status, table_layouts!inner(is_active)')
+        .eq('restaurant_id', restaurantId).eq('table_layouts.is_active', true).order('number'),
       supabase.from('orders').select('table_number')
         .eq('restaurant_id', restaurantId).neq('status', 'closed'),
     ]).then(([{ data: tbs }, { data: ords }]) => {

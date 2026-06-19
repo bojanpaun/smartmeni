@@ -211,12 +211,54 @@
             "İndirin ve yazdırın — her masaya ayrı ayrı yapıştırın",
             "Bir misafir tarayıp garson çağırdığında, garson tam olarak hangi masanın çağırdığını görür"
           ]
+        },
+        {
+          "icon": "🗂️",
+          "title": "Birden fazla masa düzeni",
+          "steps": [
+            "Masa ayarları’nı aç — düzen çubuğu en üstte",
+            "Yeni düzen’e tıklayarak başka bir düzen oluştur (ör. „120 kişilik düğün\")",
+            "Veya Çoğalt ile mevcut düzeni tüm masalarıyla klonla",
+            "Her düzenin kendi masaları vardır — bunları bağımsız olarak çizersin",
+            "Tam olarak bir düzen Aktiftir — garson, misafirler ve QR kodları onu görür",
+            "Canlı servisi başka bir düzene geçirmek için Etkinleştir’e tıkla",
+            "Taslak düzenleri günlük işleyişi etkilemeden önceden hazırlarsın",
+            "Aktif düzen ve kalan son düzen silinemez"
+          ]
+        },
+        {
+          "icon": "👥",
+          "title": "Masaları garsonlara atama",
+          "steps": [
+            "Masa atamaları’nı aç (Masalar modülünün admin bölümünde)",
+            "Garson planı yapacağın tarihi seç",
+            "Her masa için listeden bir garson seç",
+            "Garson görünümünde garsona „Tümü / Masalarım\" düğmesi gelir",
+            "„Masalarım\" yalnızca o gün o garsona atanan masaları gösterir",
+            "Atamalar günlüktür — yarın masa yeni bir atama için tekrar boştur"
+          ]
+        },
+        {
+          "icon": "🎉",
+          "title": "Etkinlikler (düğün, kutlama, ziyafet)",
+          "steps": [
+            "Etkinlikler’i aç ve Yeni etkinlik’e tıkla",
+            "Bir ad (ör. „Düğün — Marko ve Ana\"), tarih ve beklenen misafir sayısını gir",
+            "Bir masa düzeni seç veya „Aktif düzeni kopyala\"yı işaretle",
+            "Misafirleri yerleştirmek için etkinliği aç: bir masaya tıkla, sonra misafir ekle",
+            "Her misafirin adı, kişi sayısı ve bir notu vardır (alerji, VIP, özel istekler)",
+            "Masası olmayan misafirleri „Yerleştirilmemiş\" listesine ekle ve sonra yerleştir",
+            "Etkinlik durumu akışı yönetir: Taslak → Onaylandı → Tamamlandı (veya İptal)",
+            "Onaylanmış bir etkinlik o tarihte kendi masalarını rezervasyonlarda tutar"
+          ]
         }
       ],
       "tips": [
         "Masa başına QR günlük kullanım için önerilir — siparişleri masaya göre takip eder",
         "Harita otomatik olarak kaydedilir — misafirler ve garson değişiklikleri hemen görür",
-        "Rezerve edilen masalar garson haritasında saatleriyle birlikte mavi renkte gösterilir"
+        "Rezerve edilen masalar garson haritasında saatleriyle birlikte mavi renkte gösterilir",
+        "Etkinlik için düzeni bir gün önceden Taslak olarak hazırla, etkinlik sabahı Etkinleştir — ve sonrasında Standart düzene dönmeyi unutma",
+        "Aktif düzen standart olmadığında, panoda „Standarda dön\" düğmeli bir hatırlatma görünür"
       ]
     },
     "inventory": {
