@@ -1,0 +1,48 @@
+.wrap { padding: 28px 24px; max-width: 1100px; font-family: var(--c-font-sans); }
+.header { display: flex; align-items: flex-start; justify-content: space-between; gap: 12px; flex-wrap: wrap; margin-bottom: 18px; }
+.btnBack { background: none; border: none; color: var(--c-primary); font-size: 13px; font-family: var(--c-font-sans); cursor: pointer; padding: 0 0 4px; }
+.title { font-family: var(--c-font-display); font-size: 20px; font-weight: 700; color: var(--c-text); margin: 0 0 4px; }
+.subtitle { font-size: 13px; color: var(--c-text-muted); margin: 0; }
+
+.nav { display: flex; gap: 6px; align-items: center; }
+.navBtn {
+  padding: 7px 12px; border-radius: 8px; border: 1px solid var(--c-border-input);
+  background: var(--c-surface); color: var(--c-text-medium); font-size: 14px;
+  font-family: var(--c-font-sans); cursor: pointer;
+}
+.navBtn:hover { background: var(--c-bg-subtle); }
+
+.empty { text-align: center; padding: 48px 16px; color: var(--c-text-muted); font-size: 14px; }
+
+/* Široka mreža skroluje UNUTAR kontejnera (CLAUDE.md §5) — ne probija stranicu. */
+.scroll { overflow-x: auto; border: 1px solid var(--c-border); border-radius: 12px; }
+.grid { border-collapse: collapse; min-width: 640px; width: 100%; }
+
+.cornerCell, .assetCell {
+  position: sticky; left: 0; z-index: 1; background: var(--c-surface);
+  text-align: left; font-size: 13px; font-weight: 600; color: var(--c-text);
+  padding: 8px 12px; border-right: 1px solid var(--c-border); border-bottom: 1px solid var(--c-border);
+  max-width: 160px; white-space: nowrap; overflow: hidden; text-overflow: ellipsis;
+}
+.cornerCell { z-index: 2; }
+
+.dayHead {
+  padding: 6px 0; border-bottom: 1px solid var(--c-border); border-left: 1px solid var(--c-border-input);
+  font-weight: 500; min-width: 30px;
+}
+.dayWd { display: block; font-size: 10px; color: var(--c-text-muted); text-transform: uppercase; }
+.dayNum { display: block; font-size: 13px; color: var(--c-text); font-weight: 600; }
+
+.cell {
+  height: 34px; min-width: 30px; text-align: center;
+  border-left: 1px solid var(--c-border-input); border-bottom: 1px solid var(--c-border);
+  cursor: pointer;
+}
+.cell:hover { background: var(--c-bg-subtle); }
+.weekend { background: var(--c-bg-subtle); }
+.booked { background: var(--c-primary-muted, var(--c-success-bg)); }
+.booked:hover { background: var(--c-primary-muted, var(--c-success-bg)); filter: brightness(0.97); }
+.inhouse { background: var(--c-success-bg); }
+.dot { display: inline-block; width: 8px; height: 8px; border-radius: 50%; background: var(--c-primary); }
+
+@media (max-width: 600px) { .wrap { padding: 16px; } }

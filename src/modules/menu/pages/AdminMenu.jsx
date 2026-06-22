@@ -8,10 +8,13 @@ import { supabase } from '../../../lib/supabase'
 import { usePlatform } from '../../../context/PlatformContext'
 import { stripAccountFields } from '../../../lib/planUtils'
 import { translateContent, menuItemFields } from '../../../lib/contentTranslate'
+import { compareFromPercent, discountPercent } from '../hooks/menuHelpers'
 import { useContentTranslations } from '../../../lib/useContentTranslations'
 import { useMoney } from '../../../lib/useMoney'
 import { useTaxRates } from '../../../lib/useTaxRates'
 import RecipeLibraryPicker from '../components/RecipeLibraryPicker'
+import BundleManager from '../components/BundleManager'
+import PartnerAdsManager from '../components/PartnerAdsManager'
 import ContentTranslations from '../../../components/shared/ContentTranslations'
 import styles from './AdminMenu.module.css'
 import gsStyles from './GeneralSettings.module.css'
@@ -74,8 +77,13 @@ export default function AdminMenu() {
   const [itemForm, setItemForm] = useState({
     name: '', name_en: '', description: '', description_en: '',
     price: '', emoji: '🍽️', allergens: '', calories: '',
-    prep_time: '', category_id: '', is_special: false, tags: [], vat_rate_key: ''
+    prep_time: '', category_id: '', is_special: false, tags: [], vat_rate_key: '',
+    compare_at_price: '', is_sponsored: false, sponsor_label: ''
   })
+  // UI-stanje sekcije popusta: način unosa (stara cijena vs procenat) + vrijednost procenta.
+  // compare_at_price u itemForm je jedini izvor istine; percent unos ga samo izvodi.
+  const [discMode, setDiscMode] = useState('price')
+  const [discPct, setDiscPct] = useState('')
   const [uploadingImage, setUploadingImage] = useState(false)
   const [saving, setSaving] = useState(false)
   const [saveMsg, setSaveMsg] = useState('')
@@ -125,16 +133,25 @@ export default function AdminMenu() {
 
   const openItemForm = (item = null) => {
     if (item) {
-      setItemForm({ ...item, price: item.price.toString(), tags: item.tags || [] })
+      setItemForm({
+        ...item, price: item.price.toString(), tags: item.tags || [],
+        compare_at_price: item.compare_at_price != null ? item.compare_at_price.toString() : '',
+        is_sponsored: !!item.is_sponsored, sponsor_label: item.sponsor_label || ''
+      })
+      const pct = discountPercent(item.price, item.compare_at_price)
+      setDiscPct(pct != null ? pct.toString() : '')
       setEditItem(item)
     } else {
       setItemForm({
         name: '', description: '',
         price: '', emoji: '🍽️', allergens: '', calories: '',
-        prep_time: '', category_id: activeCategory || '', is_special: false, tags: [], vat_rate_key: ''
+        prep_time: '', category_id: activeCategory || '', is_special: false, tags: [], vat_rate_key: '',
+        compare_at_price: '', is_sponsored: false, sponsor_label: ''
       })
+      setDiscPct('')
       setEditItem(null)
     }
+    setDiscMode('price')
     setShowItemForm(true)
   }
 
@@ -157,10 +174,17 @@ export default function AdminMenu() {
   const saveItem = async (e) => {
     e.preventDefault()
     setSaving(true)
+    const price = parseFloat(itemForm.price)
+    // Popust: stara cijena je veća od stvarne, inače null (bez popusta).
+    const compareRaw = parseFloat(itemForm.compare_at_price)
+    const compareAt = Number.isFinite(compareRaw) && compareRaw > price ? compareRaw : null
     const payload = {
       ...itemForm,
-      price: parseFloat(itemForm.price),
+      price,
       calories: itemForm.calories ? parseInt(itemForm.calories) : null,
+      compare_at_price: compareAt,
+      is_sponsored: !!itemForm.is_sponsored,
+      sponsor_label: itemForm.sponsor_label?.trim() || null,
       restaurant_id: restaurant.id,
     }
     let savedId = editItem?.id
@@ -497,6 +521,9 @@ export default function AdminMenu() {
                             {item.is_special
                               ? <span className={`${styles.pill} ${styles.pillSpecial}`}>{t('amDailySpecial')}</span>
                               : <span className={`${styles.pill} ${styles.pillActive}`}>{t('amActive')}</span>}
+                            {discountPercent(item.price, item.compare_at_price) != null && (
+                              <span className={`${styles.pill} ${styles.pillDiscount}`}>−{discountPercent(item.price, item.compare_at_price)}%</span>)}
+                            {item.is_sponsored && <span className={`${styles.pill} ${styles.pillSponsored}`}>⭐</span>}
                             <button
                               className={`${styles.toggle} ${item.is_visible ? styles.toggleOn : styles.toggleOff}`}
                               onClick={() => toggleItemVisible(item)}
@@ -510,6 +537,10 @@ export default function AdminMenu() {
                             ? <span className={`${styles.pill} ${styles.pillSpecial}`}>{t('amDailySpecial')}</span>
                             : <span className={`${styles.pill} ${styles.pillActive}`}>{t('amActive')}</span>
                           }
+                          {discountPercent(item.price, item.compare_at_price) != null && (
+                            <span className={`${styles.pill} ${styles.pillDiscount}`}>−{discountPercent(item.price, item.compare_at_price)}%</span>)}
+                          {item.is_sponsored && (
+                            <span className={`${styles.pill} ${styles.pillSponsored}`} title={item.sponsor_label || t('amSponsored')}>⭐</span>)}
                         </td>
                         <td>
                           <button
@@ -528,6 +559,12 @@ export default function AdminMenu() {
                 </table>
               )}
             </div>
+            {restaurant && (
+              <BundleManager restaurant={restaurant} items={items} money={money} />
+            )}
+            {restaurant && (
+              <PartnerAdsManager restaurant={restaurant} />
+            )}
           </div>
         )}
 
@@ -611,6 +648,45 @@ export default function AdminMenu() {
                   <label>{t('amPriceLabel')} *</label>
                   <input type="number" step="0.01" value={itemForm.price} onChange={e => setItemForm(f => ({...f, price: e.target.value}))} required />
                 </div>
+                {/* POPUST — admin bira način unosa: stara cijena ILI procenat. compare_at_price
+                    je izvor istine; percent unos ga izvede preko compareFromPercent. */}
+                <div className={`${styles.field} ${styles.fullWidth}`}>
+                  <label>{t('amDiscountLabel')} <span className={styles.fieldHintInline}>{t('amDiscountHint')}</span></label>
+                  <div className={styles.discountModeRow}>
+                    <button type="button"
+                      className={`${styles.discountModeBtn} ${discMode === 'price' ? styles.discountModeBtnActive : ''}`}
+                      onClick={() => setDiscMode('price')}>{t('amDiscountByPrice')}</button>
+                    <button type="button"
+                      className={`${styles.discountModeBtn} ${discMode === 'percent' ? styles.discountModeBtnActive : ''}`}
+                      onClick={() => setDiscMode('percent')}>{t('amDiscountByPercent')}</button>
+                  </div>
+                  {discMode === 'price' ? (
+                    <input type="number" step="0.01" min="0" placeholder={t('amDiscountOldPricePh')}
+                      value={itemForm.compare_at_price}
+                      onChange={e => {
+                        const v = e.target.value
+                        setItemForm(f => ({ ...f, compare_at_price: v }))
+                        setDiscPct((discountPercent(itemForm.price, v) ?? '').toString())
+                      }} />
+                  ) : (
+                    <input type="number" step="1" min="1" max="99" placeholder={t('amDiscountPercentPh')}
+                      value={discPct}
+                      onChange={e => {
+                        const v = e.target.value
+                        setDiscPct(v)
+                        const cmp = compareFromPercent(itemForm.price, v)
+                        setItemForm(f => ({ ...f, compare_at_price: cmp != null ? cmp.toString() : '' }))
+                      }} />
+                  )}
+                  {(() => {
+                    const dp = discountPercent(itemForm.price, itemForm.compare_at_price)
+                    return dp != null ? (
+                      <div className={styles.discountPreview}>
+                        −{dp}% · {money(parseFloat(itemForm.compare_at_price))} → {money(parseFloat(itemForm.price))}
+                      </div>
+                    ) : null
+                  })()}
+                </div>
                 <div className={`${styles.field} ${styles.fullWidth}`}>
                   <label>{t('amItemIcon')} <span className={styles.fieldHintInline}>{t('amItemIconHint')}</span></label>
                   <div className={styles.emojiPicker}>
@@ -672,6 +748,20 @@ export default function AdminMenu() {
                     {t('amShowAsDaily')}
                   </label>
                 </div>
+                {/* SPONZORISANO — boost na vrh kategorije na javnom meniju + opciona oznaka. */}
+                <div className={`${styles.field} ${styles.fullWidth}`}>
+                  <label className={styles.checkLabel}>
+                    <input type="checkbox" checked={itemForm.is_sponsored} onChange={e => setItemForm(f => ({...f, is_sponsored: e.target.checked}))} />
+                    {t('amSponsored')} <span className={styles.fieldHintInline}>{t('amSponsoredHint')}</span>
+                  </label>
+                </div>
+                {itemForm.is_sponsored && (
+                  <div className={`${styles.field} ${styles.fullWidth}`}>
+                    <label>{t('amSponsorLabel')} <span className={styles.fieldHintInline}>{t('amSponsorLabelHint')}</span></label>
+                    <input value={itemForm.sponsor_label} placeholder={t('amSponsorLabelPh')}
+                      onChange={e => setItemForm(f => ({...f, sponsor_label: e.target.value}))} />
+                  </div>
+                )}
               </div>
               <div className={styles.modalActions}>
                 <button type="button" className={styles.btnCancel} onClick={() => setShowItemForm(false)}>{t('cancel')}</button>

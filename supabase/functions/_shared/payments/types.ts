@@ -11,7 +11,7 @@ export type NormalizedStatus =
   | 'cancelled'
 
 export type ProviderType = 'stripe' | 'monri' | 'paypal'
-export type SourceType   = 'booking' | 'folio' | 'order' | 'spa'
+export type SourceType   = 'booking' | 'folio' | 'order' | 'spa' | 'rental'
 
 // Kontekst za kreiranje checkout sesije
 export interface SessionCtx {

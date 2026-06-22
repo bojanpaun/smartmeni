@@ -1,0 +1,40 @@
+.wrap { padding: 28px 24px; max-width: 760px; font-family: var(--c-font-sans); }
+.btnBack { background: none; border: none; color: var(--c-primary); font-size: 13px; font-family: var(--c-font-sans); cursor: pointer; padding: 0 0 6px; }
+.title { font-family: var(--c-font-display); font-size: 20px; font-weight: 700; color: var(--c-text); margin: 0 0 4px; }
+.subtitle { font-size: 13px; color: var(--c-text-muted); margin: 0 0 18px; }
+
+.field { display: flex; flex-direction: column; gap: 4px; font-size: 13px; color: var(--c-text-medium); font-weight: 500; max-width: 320px; margin-bottom: 16px; }
+.input {
+  padding: 8px 12px; border-radius: 8px; border: 1px solid var(--c-border-input);
+  background: var(--c-surface); color: var(--c-text); font-size: 14px; font-family: var(--c-font-sans);
+}
+.inputSm { composes: input; max-width: 110px; }
+
+.addRow {
+  display: flex; gap: 8px; flex-wrap: wrap; align-items: center;
+  padding: 14px; background: var(--c-surface); border: 1px solid var(--c-border);
+  border-radius: 10px; margin-bottom: 16px;
+}
+.addRow .input { flex: 1; min-width: 130px; }
+
+.btnPrimary {
+  padding: 9px 16px; border-radius: 8px; border: 1px solid var(--c-primary);
+  background: var(--c-primary); color: var(--c-surface); font-size: 14px;
+  font-family: var(--c-font-sans); cursor: pointer; white-space: nowrap;
+}
+.btnPrimary:hover { background: var(--c-primary-hover); }
+.btnPrimary:disabled { opacity: 0.5; cursor: not-allowed; }
+
+.empty { text-align: center; padding: 32px 16px; color: var(--c-text-muted); font-size: 14px; }
+
+.list { display: flex; flex-direction: column; gap: 6px; }
+.row {
+  display: flex; align-items: center; gap: 12px; flex-wrap: wrap;
+  padding: 12px 14px; background: var(--c-surface); border: 1px solid var(--c-border); border-radius: 10px;
+}
+.dates { font-weight: 600; color: var(--c-text); }
+.price { flex: 1; font-size: 13px; color: var(--c-text-muted); }
+.iconBtn { background: none; border: none; cursor: pointer; font-size: 15px; padding: 4px; border-radius: 6px; }
+.iconBtn:hover { background: var(--c-bg-subtle); }
+
+@media (max-width: 600px) { .wrap { padding: 16px; } }

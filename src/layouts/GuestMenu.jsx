@@ -1,6 +1,7 @@
 import { useState, useEffect, useRef } from 'react'
 import { useContentTranslations } from '../lib/useContentTranslations'
 import { formatMoney } from '../lib/currencies'
+import { sortMenuItems, discountPercent, bundleItemsTotal, isBundleLive, isPromoLive } from '../modules/menu/hooks/menuHelpers'
 import { useParams, useNavigate } from 'react-router-dom'
 import { useTranslation } from 'react-i18next'
 import { supabase } from '../lib/supabase'
@@ -171,11 +172,14 @@ export default function Menu() {
         navigate(`/${slug}/hotel`, { replace: true })
         return
       }
-      const [{ data: cats }, { data: its }] = await Promise.all([
+      const [{ data: cats }, { data: its }, { data: bnds }, { data: bndItems }, { data: ads }] = await Promise.all([
         supabase.from('categories').select('*').eq('restaurant_id', rest.id).order('sort_order'),
         supabase.from('menu_items').select('*').eq('restaurant_id', rest.id).eq('is_visible', true).order('sort_order'),
+        supabase.from('menu_bundles').select('*').eq('restaurant_id', rest.id).eq('is_active', true).order('sort_order'),
+        supabase.from('menu_bundle_items').select('bundle_id, menu_item_id, quantity').eq('restaurant_id', rest.id),
+        supabase.from('partner_ads').select('*').eq('restaurant_id', rest.id).eq('is_active', true).order('sort_order'),
       ])
-      setRealData({ restaurant: rest, categories: cats || [], items: its || [] })
+      setRealData({ restaurant: rest, categories: cats || [], items: its || [], bundles: bnds || [], bundleItems: bndItems || [], ads: ads || [] })
       if (cats?.length) setActiveCat(cats[0].id)
       setLoadingData(false)
 
@@ -256,9 +260,50 @@ export default function Menu() {
     : realData?.items || []
   const items = isDemo
     ? (data.items[activeCat] || [])
-    : allItems.filter(i => i.category_id === activeCat)
+    : sortMenuItems(allItems.filter(i => i.category_id === activeCat))
   const isEn = i18n.language === 'en'
   const specialItems = allItems.filter(i => isDemo ? i.special : i.is_special)
+
+  // Paketi (Faza 2): aktivni paketi unutar perioda važenja → u "Ponudi dana".
+  // Ušteda se računa iz aktuelnih cijena artikala (priceById), bundle_price je naplaćeno.
+  const priceById = Object.fromEntries(allItems.map(i => [i.id, i.price]))
+  const bundleItemsByBundle = (() => {
+    const m = {}
+    for (const r of (isDemo ? [] : realData?.bundleItems || [])) {
+      if (!m[r.bundle_id]) m[r.bundle_id] = []
+      m[r.bundle_id].push(r)
+    }
+    return m
+  })()
+  const liveBundles = isDemo ? [] : (realData?.bundles || []).filter(isBundleLive)
+
+  // Reklame partnera (Faza 3): aktivne reklame unutar perioda, grupisane po poziciji.
+  const liveAds = isDemo ? [] : (realData?.ads || []).filter(isPromoLive)
+  const renderAds = (place) => {
+    const list = liveAds.filter(a => a.placement === place)
+    if (list.length === 0) return null
+    return (
+      <div className={styles.ads}>
+        {list.map(a => {
+          const title = tr('partner_ad', a.id, 'title', a.title)
+          const sub = tr('partner_ad', a.id, 'subtitle', a.subtitle || '')
+          const inner = (
+            <div className={styles.adBanner}>
+              {a.image_url && <img className={styles.adImg} src={a.image_url} alt={title} loading="lazy" decoding="async" />}
+              <div className={styles.adBody}>
+                <span className={styles.adTag}>{t('adLabel')}</span>
+                <div className={styles.adTitle}>{title}</div>
+                {sub && <div className={styles.adSubtitle}>{sub}</div>}
+              </div>
+            </div>
+          )
+          return a.link_url
+            ? <a key={a.id} href={a.link_url} target="_blank" rel="noreferrer noopener" className={styles.adLink}>{inner}</a>
+            : <div key={a.id} className={styles.adLink}>{inner}</div>
+        })}
+      </div>
+    )
+  }
 
   // Pretraga: kad ima upita, filtriraj SVE artikle (kroz sve kategorije) po nazivu/opisu —
   // i po izvoru (me/en) i po prevedenoj vrijednosti za aktivni jezik (tr). Bez upita
@@ -540,11 +585,50 @@ export default function Menu() {
         />
       </div>
 
+      {/* REKLAME PARTNERA — pozicija "top" (poslije pretrage) */}
+      {!searchActive && renderAds('top')}
+
       {/* SPECIAL OFFER — dnevna ponuda (više artikala, horizontalni skrol) */}
-      {specialItems.length > 0 && !searchActive && (
+      {(specialItems.length > 0 || liveBundles.length > 0) && !searchActive && (
         <div className={styles.specials}>
           <div className={styles.specialsHead}>⚡ {t('dailySpecial')}</div>
           <div className={styles.specialsScroll}>
+            {liveBundles.map(b => {
+              const rows = bundleItemsByBundle[b.id] || []
+              const sum = bundleItemsTotal(rows, priceById)
+              const pct = discountPercent(b.bundle_price, sum)
+              const nm = tr('menu_bundle', b.id, 'name', b.name)
+              return (
+                <div key={b.id} className={`${styles.specialCard} ${styles.bundleCard}`}>
+                  <div className={styles.specialCardImg} style={b.image_url ? undefined : { background: tpl.catBg || '#e0f5ec' }}>
+                    {b.image_url
+                      ? <img src={b.image_url} alt={nm} loading="lazy" decoding="async" />
+                      : <span className={styles.specialCardEmoji}>{b.emoji || '🎁'}</span>}
+                    <span className={styles.bundleTag}>{t('bundleTag')}</span>
+                  </div>
+                  <div className={styles.specialCardInfo}>
+                    <div className={styles.specialCardName}>{nm}</div>
+                    <div className={styles.bundleItemsList}>
+                      {rows.map(bi => {
+                        const it = allItems.find(i => i.id === bi.menu_item_id)
+                        if (!it) return null
+                        const inm = tr('menu_item', it.id, 'name', isEn ? (it.name_en || it.name) : it.name)
+                        return <div key={bi.menu_item_id} className={styles.bundleItemLine}>{bi.quantity}× {inm}</div>
+                      })}
+                    </div>
+                    <div className={styles.specialCardPrice} style={{ color: tpl.priceColor }}>
+                      {formatMoney(b.bundle_price, r?.currency, i18n.language)}
+                      {pct != null && (
+                        <>
+                          <span className={styles.specialOld}>{formatMoney(sum, r?.currency, i18n.language)}</span>
+                          <span className={styles.discountBadge}>−{pct}%</span>
+                        </>
+                      )}
+                    </div>
+                  </div>
+                </div>
+              )
+            })}
             {specialItems.map(it => {
               const nm = tr('menu_item', it.id, 'name', isEn ? (it.name_en || it.nameEn || it.name) : it.name)
               return (
@@ -558,7 +642,15 @@ export default function Menu() {
                     <div className={styles.specialCardName}>{nm}</div>
                     <div className={styles.specialCardPrice} style={{ color: tpl.priceColor }}>
                       {formatMoney(it.price, r?.currency, i18n.language)}
-                      <span className={styles.specialOld}>{formatMoney(parseFloat(it.price) * 1.25, r?.currency, i18n.language)}</span>
+                      {(() => {
+                        const dp = discountPercent(it.price, it.compare_at_price)
+                        return dp != null ? (
+                          <>
+                            <span className={styles.specialOld}>{formatMoney(it.compare_at_price, r?.currency, i18n.language)}</span>
+                            <span className={styles.discountBadge}>−{dp}%</span>
+                          </>
+                        ) : null
+                      })()}
                     </div>
                   </div>
                 </div>
@@ -567,6 +659,9 @@ export default function Menu() {
           </div>
         </div>
       )}
+
+      {/* REKLAME PARTNERA — pozicija "middle" (poslije Ponude dana) */}
+      {!searchActive && renderAds('middle')}
 
       {/* CATEGORIES */}
       {!searchActive && (
@@ -602,6 +697,9 @@ export default function Menu() {
                 : item.emoji}
             </div>
             <div className={styles.itemBody}>
+              {item.is_sponsored && (
+                <div className={styles.sponsorBadge}>⭐ {item.sponsor_label || t('sponsoredBadge')}</div>
+              )}
               <div className={styles.itemName}>{tr('menu_item', item.id, 'name', isEn ? (item.name_en || item.nameEn || item.name) : item.name)}</div>
               <div className={styles.itemDesc}>{tr('menu_item', item.id, 'description', isEn ? (item.description_en || item.descEn || item.description) : (item.description || item.desc))}</div>
               {(item.tags || []).length > 0 && (
@@ -618,7 +716,18 @@ export default function Menu() {
                 </div>
               )}
               <div className={styles.itemFooter}>
-                <span className={styles.itemPrice} style={{ color: tpl.priceColor }}>{formatMoney(item.price, r?.currency, i18n.language)}</span>
+                <span className={styles.itemPriceWrap}>
+                  <span className={styles.itemPrice} style={{ color: tpl.priceColor }}>{formatMoney(item.price, r?.currency, i18n.language)}</span>
+                  {(() => {
+                    const dp = discountPercent(item.price, item.compare_at_price)
+                    return dp != null ? (
+                      <>
+                        <span className={styles.itemOldPrice}>{formatMoney(item.compare_at_price, r?.currency, i18n.language)}</span>
+                        <span className={styles.discountBadge}>−{dp}%</span>
+                      </>
+                    ) : null
+                  })()}
+                </span>
                 {canOrder && (() => {
                   const qty = cart.find(c => c.id === item.id)?.qty || 0
                   return qty > 0 ? (
@@ -640,6 +749,9 @@ export default function Menu() {
           </div>
         ))}
       </div>
+
+      {/* REKLAME PARTNERA — pozicija "bottom" (poslije liste artikala) */}
+      {!searchActive && renderAds('bottom')}
 
       {/* QR SESIJA ISTEKLA */}
       {qrExpired && (

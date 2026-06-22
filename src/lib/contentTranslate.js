@@ -58,6 +58,26 @@ export function menuItemFields(item) {
   return out
 }
 
+// Pomoćnik: items niz iz jednog menu_bundle (PAKET) reda (name + description).
+// Paket je guest-facing u "Ponudi dana"; čita se kroz useContentTranslations
+// (entity_type='menu_bundle'). Izvor je crnogorski.
+export function menuBundleFields(bundle) {
+  const out = []
+  if (bundle?.id && bundle.name?.trim()) out.push({ entity_type: 'menu_bundle', entity_id: bundle.id, field: 'name', text: bundle.name })
+  if (bundle?.id && bundle.description?.trim()) out.push({ entity_type: 'menu_bundle', entity_id: bundle.id, field: 'description', text: bundle.description })
+  return out
+}
+
+// Pomoćnik: items niz iz jedne partner_ads (REKLAMA) reda (title + subtitle).
+// Guest-facing banner na javnom meniju; čita se kroz useContentTranslations
+// (entity_type='partner_ad'). Izvor je crnogorski. link_url/image_url se NE prevode.
+export function partnerAdFields(ad) {
+  const out = []
+  if (ad?.id && ad.title?.trim()) out.push({ entity_type: 'partner_ad', entity_id: ad.id, field: 'title', text: ad.title })
+  if (ad?.id && ad.subtitle?.trim()) out.push({ entity_type: 'partner_ad', entity_id: ad.id, field: 'subtitle', text: ad.subtitle })
+  return out
+}
+
 // ── Landing stranice (restaurant/hotel) ───────────────────────────────────────
 // Blokovi su jedinstveni po `type` po stranici (editor ih čuva kao {type,enabled,data}
 // bez id-a, dnd/keys idu po `type`). Zato je entity model:
@@ -139,6 +159,18 @@ export function roomTypeFields(roomType) {
   const out = []
   if (roomType?.id && roomType.name?.trim()) out.push({ entity_type: 'room_type', entity_id: roomType.id, field: 'name', text: roomType.name })
   if (roomType?.id && roomType.description?.trim()) out.push({ entity_type: 'room_type', entity_id: roomType.id, field: 'description', text: roomType.description })
+  return out
+}
+
+// Pomoćnik: items niz iz jednog rental sredstva (name + description). Guest-facing na
+// javnoj booking stranici (RENT-0b). entity_type='rental_asset'. Opis je u satelitskoj
+// rental_accommodation_details, ali entity_id je uvijek asset.id (stabilan ključ).
+export function rentalAssetFields(assetId, name, description) {
+  const out = []
+  if (assetId && typeof name === 'string' && name.trim())
+    out.push({ entity_type: 'rental_asset', entity_id: assetId, field: 'name', text: name })
+  if (assetId && typeof description === 'string' && description.trim())
+    out.push({ entity_type: 'rental_asset', entity_id: assetId, field: 'description', text: description })
   return out
 }
 

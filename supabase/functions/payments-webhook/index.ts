@@ -191,6 +191,21 @@ async function updateSource(supabase: any, sourceType: string, sourceId: string,
         .from('spa_appointments')
         .update({ payment_status: 'paid' })
         .eq('id', sourceId)
+    } else if (sourceType === 'rental') {
+      // Rental ima depozit + balans → kumulativni zbir plaćenih transakcija vs total.
+      // (NE kopija booking grane: jedna rezervacija može imati 2 naplate.)
+      const { data: paid } = await supabase
+        .from('payment_transactions')
+        .select('amount_minor')
+        .eq('source_type', 'rental').eq('source_id', sourceId).eq('status', 'paid')
+      const paidMinor = (paid ?? []).reduce((s: number, t: { amount_minor: number }) => s + t.amount_minor, 0)
+      const { data: bk } = await supabase
+        .from('rental_bookings').select('total_amount').eq('id', sourceId).maybeSingle()
+      const totalMinor = Math.round((bk?.total_amount ?? 0) * 100)
+      await supabase
+        .from('rental_bookings')
+        .update({ payment_status: paidMinor >= totalMinor && totalMinor > 0 ? 'paid' : 'partial', status: 'confirmed' })
+        .eq('id', sourceId)
     }
     console.log(`[webhook] updateSource: ${sourceType}/${sourceId} → paid`)
   } catch (err) {

@@ -63,7 +63,7 @@ VALUES
 ON CONFLICT (id) DO NOTHING;
 
 -- ── 3) Restoran (= tenant root). BEFORE INSERT trigger auto-kreira tenants red.
--- active_verticals = {restaurant, hotel} → obje vertikale aktivne lokalno.
+-- active_verticals = {restaurant, hotel, rental} → sve vertikale aktivne lokalno.
 INSERT INTO public.restaurants (
   id, user_id, name, slug, description, location, color,
   onboarding_completed, plan, active_verticals, hotel_visibility
@@ -73,7 +73,7 @@ VALUES (
   'dddddddd-0000-0000-0000-000000000001',
   'Lokalni Test Restoran', 'lokalni-test', 'Test tenant za lokalni razvoj',
   'Podgorica', '#0d7a52', true, 'pro',
-  ARRAY['restaurant','hotel']::text[], 'all'
+  ARRAY['restaurant','hotel','rental']::text[], 'all'
 )
 ON CONFLICT (id) DO NOTHING;
 
@@ -83,7 +83,7 @@ ON CONFLICT (id) DO NOTHING;
 INSERT INTO public.subscriptions (restaurant_id, plan, addons, status)
 VALUES (
   'dddddddd-0000-0000-0000-000000000010', 'pro',
-  '["hotel_core","spa_wellness","inventory_pro","hr_pro"]'::jsonb, 'active'
+  '["hotel_core","spa_wellness","inventory_pro","hr_pro","rental_core"]'::jsonb, 'active'
 )
 ON CONFLICT DO NOTHING;
 
@@ -100,14 +100,14 @@ VALUES (
   'dddddddd-0000-0000-0000-000000000002',
   'Superadmin Test Hotel', 'superadmin-test', 'Tenant superadmin naloga (lokalno)',
   'Podgorica', '#0d7a52', true, 'pro',
-  ARRAY['restaurant','hotel']::text[], 'all'
+  ARRAY['restaurant','hotel','rental']::text[], 'all'
 )
 ON CONFLICT (id) DO NOTHING;
 
 INSERT INTO public.subscriptions (restaurant_id, plan, addons, status)
 VALUES (
   'dddddddd-0000-0000-0000-000000000020', 'pro',
-  '["hotel_core","spa_wellness","inventory_pro","hr_pro"]'::jsonb, 'active'
+  '["hotel_core","spa_wellness","inventory_pro","hr_pro","rental_core"]'::jsonb, 'active'
 )
 ON CONFLICT DO NOTHING;
 

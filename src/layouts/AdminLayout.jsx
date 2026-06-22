@@ -240,6 +240,32 @@ export const MODULES = [
     },
   },
   {
+    key: 'rental',
+    labelKey: 'modRental',
+    icon: '🏖️',
+    descKey: 'descRental',
+    path: '/admin/rental',
+    active: true,
+    addonId: 'rental_core',
+    perm: null,
+    interactive: {
+      labelKey: 'segRentalOps',
+      links: [
+        { labelKey: 'rcTitle', icon: '📅', path: '/admin/rental/calendar' },
+        { labelKey: 'rbTitle', icon: '🧾', path: '/admin/rental/bookings' },
+      ],
+    },
+    admin: {
+      labelKey: 'segRentalAdmin',
+      links: [
+        { labelKey: 'navDashboard', icon: '📊', path: '/admin/rental', exact: true },
+        { labelKey: 'rdAssets',     icon: '🏠', path: '/admin/rental/assets' },
+        { labelKey: 'rpTitle',      icon: '🏷️', path: '/admin/rental/pricing' },
+        { labelKey: 'navSettings',  icon: '⚙️', path: '/admin/rental/settings' },
+      ],
+    },
+  },
+  {
     key: 'settings',
     labelKey: 'modSettings',
     icon: '⚙️',

@@ -40,7 +40,7 @@ serve(async (req) => {
     if (!restaurantId || !sourceType || !amountMinor || !idempotencyKey || !successUrl || !cancelUrl) {
       return errResp(400, 'Nedostaju obavezna polja: restaurantId, sourceType, amountMinor, idempotencyKey, successUrl, cancelUrl')
     }
-    if (!['booking', 'folio', 'order', 'spa'].includes(sourceType)) {
+    if (!['booking', 'folio', 'order', 'spa', 'rental'].includes(sourceType)) {
       return errResp(400, `Nepoznat sourceType: ${sourceType}`)
     }
 

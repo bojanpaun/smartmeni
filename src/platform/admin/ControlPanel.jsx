@@ -24,6 +24,7 @@ function CardBadge({ n }) {
 
 const RESTAURANT_KEYS  = ['menu', 'tables']
 const HOTEL_KEYS       = ['hotel', 'spa']
+const RENTAL_KEYS      = ['rental']
 const UPRAVLJANJE_KEYS = ['hr', 'inventory', 'guests', 'analytics']
 
 // Katalog KPI-eva koje admin može izabrati na dashboard. `field` = polje iz
@@ -201,6 +202,7 @@ export default function ControlPanel() {
   const ALL_VERTICALS = [
     { key: 'restaurant', emoji: '🍽️', titleKey: 'liveRestaurant', descKey: 'vertRestaurantDesc' },
     { key: 'hotel',      emoji: '🏨', titleKey: 'modHotel',        descKey: 'vertHotelDesc' },
+    { key: 'rental',     emoji: '🏖️', titleKey: 'modRental',       descKey: 'vertRentalDesc' },
   ]
   const missingVerticals = ALL_VERTICALS.filter(v => !hasVertical(v.key))
   const addVertical = async (v) => {
@@ -210,11 +212,12 @@ export default function ControlPanel() {
       .update({ active_verticals: next }).eq('id', restaurant.id)
     if (error) return
     setRestaurant({ ...restaurant, active_verticals: next })
-    if (v === 'hotel') navigate('/admin/billing') // plaćeno → pretplata na hotel
+    if (v === 'hotel' || v === 'rental') navigate('/admin/billing') // plaćeno → pretplata
   }
 
   const restaurantMods  = MODULES.filter(m => RESTAURANT_KEYS.includes(m.key)  && canSee(m.perm))
   const hotelMods       = MODULES.filter(m => HOTEL_KEYS.includes(m.key))
+  const rentalMods      = MODULES.filter(m => RENTAL_KEYS.includes(m.key))
   const upravljanjeMods = MODULES.filter(m => UPRAVLJANJE_KEYS.includes(m.key) && canSee(m.perm))
   const adminMods       = MODULES.filter(m => m.adminOnly)
 
@@ -364,6 +367,20 @@ export default function ControlPanel() {
             )}
           </div>
           <div className={styles.grid}>{hotelMods.map(renderCard)}</div>
+        </div>
+      )}
+
+      {/* ── Rental vertical (najam; stranice iza rental_core paywalla) ── */}
+      {hasVertical('rental') && (
+        <div className={styles.section}>
+          <div className={styles.verticalHead}>
+            <span className={styles.verticalEmoji}>🏖️</span>
+            <div>
+              <div className={styles.verticalTitle}>{t('modRental')}</div>
+              <div className={styles.verticalSub}>{t('vertRentalSub')}</div>
+            </div>
+          </div>
+          <div className={styles.grid}>{rentalMods.map(renderCard)}</div>
         </div>
       )}
 
