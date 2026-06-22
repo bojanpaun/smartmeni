@@ -94,7 +94,7 @@ export default function WaiterView({ restaurant, activeTab, onRefresh, hotelEnab
     if (!restaurantId) return
     setLoading(true)
     const [{ data: o }, { data: r }] = await Promise.all([
-      supabase.from('orders').select('*, order_items(name, quantity, price, category_id)')
+      supabase.from('orders').select('*, order_items(name, quantity, price, category_id, menu_item_id, bundle_id, is_bundle_component)')
         .eq('restaurant_id', restaurantId)
         .not('status', 'in', '(closed,rejected)')
         .order('created_at', { ascending: false }),
@@ -140,7 +140,8 @@ export default function WaiterView({ restaurant, activeTab, onRefresh, hotelEnab
 
     if (status === 'preparing') {
       const order = orders.find(o => o.id === orderId)
-      const items = order?.order_items || []
+      // Header paketa (menu_item_id NULL) se ne sprema — kuhinja/bar idu po komponentama/stavkama.
+      const items = (order?.order_items || []).filter(i => i.menu_item_id != null || !i.bundle_id)
       const barIds = await getBarCatIds()
       const hasKitchen = items.some(i => !barIds.has(i.category_id))
       const hasBar     = items.some(i =>  barIds.has(i.category_id))
@@ -174,7 +175,7 @@ export default function WaiterView({ restaurant, activeTab, onRefresh, hotelEnab
     }
 
     const amount = parseFloat(order.total) || 0
-    const desc = (order.order_items || []).map(i => `${i.quantity}× ${i.name}`).join(', ') || t('restaurantOrder')
+    const desc = (order.order_items || []).filter(i => !i.is_bundle_component).map(i => `${i.quantity}× ${i.name}`).join(', ') || t('restaurantOrder')
 
     const { error: fiErr } = await supabase.from('folio_items').insert({
       folio_id: folio.id, restaurant_id: restaurant.id,
@@ -301,15 +302,39 @@ export default function WaiterView({ restaurant, activeTab, onRefresh, hotelEnab
             </div>
 
             <div className={s.orderItems}>
-              {(order.order_items || []).map((item, i) => (
-                <div key={i} className={s.orderItemRow}>
-                  <span className={s.orderItemQty}>{item.quantity}×</span>
-                  <span className={s.orderItemName}>{item.name}</span>
-                  <span className={s.orderItemPrice}>
-                    {money(parseFloat(item.price) * item.quantity)}
-                  </span>
-                </div>
-              ))}
+              {(() => {
+                const its = order.order_items || []
+                const normal = its.filter(i => !i.bundle_id)
+                const headers = its.filter(i => i.bundle_id && !i.is_bundle_component)
+                const compsOf = (bid) => its.filter(i => i.bundle_id === bid && i.is_bundle_component)
+                return (
+                  <>
+                    {normal.map((item, i) => (
+                      <div key={`n${i}`} className={s.orderItemRow}>
+                        <span className={s.orderItemQty}>{item.quantity}×</span>
+                        <span className={s.orderItemName}>{item.name}</span>
+                        <span className={s.orderItemPrice}>{money(parseFloat(item.price) * item.quantity)}</span>
+                      </div>
+                    ))}
+                    {headers.map((h, i) => (
+                      <div key={`b${i}`}>
+                        <div className={s.orderItemRow}>
+                          <span className={s.orderItemQty}>{h.quantity}×</span>
+                          <span className={s.orderItemName}>🎁 {h.name}</span>
+                          <span className={s.orderItemPrice}>{money(parseFloat(h.price) * h.quantity)}</span>
+                        </div>
+                        {compsOf(h.bundle_id).map((c, j) => (
+                          <div key={`c${i}-${j}`} className={s.orderItemRow} style={{ paddingLeft: 16, opacity: 0.75 }}>
+                            <span className={s.orderItemQty}>{c.quantity}×</span>
+                            <span className={s.orderItemName}>↳ {c.name}</span>
+                            <span className={s.orderItemPrice} />
+                          </div>
+                        ))}
+                      </div>
+                    ))}
+                  </>
+                )
+              })()}
               {order.total && (
                 <div className={s.orderTotalRow}>
                   <span>{t('total')}</span>

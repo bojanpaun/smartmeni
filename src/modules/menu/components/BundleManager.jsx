@@ -3,6 +3,7 @@ import { useTranslation } from 'react-i18next'
 import { supabase } from '../../../lib/supabase'
 import { usePlatform } from '../../../context/PlatformContext'
 import { useContentTranslations } from '../../../lib/useContentTranslations'
+import { useTaxRates } from '../../../lib/useTaxRates'
 import { translateContent, menuBundleFields } from '../../../lib/contentTranslate'
 import { bundleItemsTotal, bundlePriceFromPercent, discountPercent } from '../hooks/menuHelpers'
 import styles from './BundleManager.module.css'
@@ -16,6 +17,7 @@ export default function BundleManager({ restaurant, items, money }) {
   const { t } = useTranslation('admin')
   const { user } = usePlatform()
   const tr = useContentTranslations(restaurant?.id)
+  const { rates: taxRates } = useTaxRates(restaurant?.id)
   const itemName = (it) => tr('menu_item', it.id, 'name', it.name)
   const priceById = Object.fromEntries((items || []).map(i => [i.id, i.price]))
 
@@ -29,7 +31,7 @@ export default function BundleManager({ restaurant, items, money }) {
 
   const emptyForm = {
     name: '', description: '', emoji: '🎁', image_url: '', rows: [],
-    priceMode: 'price', bundle_price: '', percent: '',
+    priceMode: 'price', bundle_price: '', percent: '', vat_rate_key: '',
     is_active: true, valid_from: '', valid_until: '',
   }
   const [form, setForm] = useState(emptyForm)
@@ -62,7 +64,7 @@ export default function BundleManager({ restaurant, items, money }) {
       name: b.name || '', description: b.description || '', emoji: b.emoji || '🎁', image_url: b.image_url || '',
       rows: rows.map(r => ({ ...r })),
       priceMode: 'price', bundle_price: b.bundle_price != null ? b.bundle_price.toString() : '',
-      percent: pct != null ? pct.toString() : '',
+      percent: pct != null ? pct.toString() : '', vat_rate_key: b.vat_rate_key || '',
       is_active: !!b.is_active, valid_from: b.valid_from || '', valid_until: b.valid_until || '',
     })
     setEditId(b.id); setErr(''); setShowForm(true)
@@ -112,6 +114,7 @@ export default function BundleManager({ restaurant, items, money }) {
       description: form.description.trim() || null,
       emoji: form.emoji || '🎁',
       image_url: form.image_url || null,
+      vat_rate_key: form.vat_rate_key || null,
       bundle_price: resolvedPrice,
       is_active: form.is_active,
       valid_from: form.valid_from || null,
@@ -271,6 +274,16 @@ export default function BundleManager({ restaurant, items, money }) {
                 {resolvedPrice != null && <span className={styles.summaryStrong}>{t('bmSumPrice')}: {money(resolvedPrice)}</span>}
                 {previewPct != null && <span className={styles.summarySave}>{t('bmSumSave')}: {money(formSum - resolvedPrice)} (−{previewPct}%)</span>}
               </div>
+
+              {taxRates.length > 0 && (
+                <div className={styles.field}>
+                  <label>{t('amVatRate')} <span className={styles.hint}>{t('amVatRateHint')}</span></label>
+                  <select value={form.vat_rate_key} onChange={e => setForm(f => ({ ...f, vat_rate_key: e.target.value }))}>
+                    <option value="">{t('amVatRateNone')}</option>
+                    {taxRates.map(r => <option key={r.key} value={r.key}>{r.label}</option>)}
+                  </select>
+                </div>
+              )}
 
               <div className={styles.row2}>
                 <div className={styles.field}>

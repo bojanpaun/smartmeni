@@ -373,6 +373,16 @@ export default function Menu() {
     })
   }
 
+  // Dodaj PAKET u korpu kao jedan red (nosi bundle_price); komponente se pamte da bi
+  // se pri slanju narudžbe razložile na header + stavke za kuhinju (vidi sendOrder).
+  const addBundleToCart = (b, rows) => {
+    const components = (rows || []).map(bi => {
+      const it = allItems.find(i => i.id === bi.menu_item_id)
+      return it ? { menu_item_id: it.id, name: it.name, quantity: bi.quantity, category_id: it.category_id } : null
+    }).filter(Boolean)
+    addToCart({ id: b.id, name: b.name, price: b.bundle_price, emoji: b.emoji, image_url: b.image_url, is_bundle: true, components })
+  }
+
   const removeFromCart = (itemId) => {
     setCart(prev => {
       const existing = prev.find(c => c.id === itemId)
@@ -401,18 +411,31 @@ export default function Menu() {
       }).select().single()
 
       if (order) {
-        // Dodaj stavke narudžbe
-        await supabase.from('order_items').insert(
-          cart.map(item => ({
-            restaurant_id: realData.restaurant.id,
-            order_id: order.id,
-            menu_item_id: item.id,
-            name: item.name,
-            price: parseFloat(item.price),
-            quantity: item.qty,
-            category_id: item.category_id,
-          }))
-        )
+        // Dodaj stavke narudžbe. Paket → header (nosi cijenu) + komponente (0€, za kuhinju).
+        const rows = []
+        for (const item of cart) {
+          if (item.is_bundle) {
+            rows.push({
+              restaurant_id: realData.restaurant.id, order_id: order.id, menu_item_id: null,
+              name: item.name, price: parseFloat(item.price), quantity: item.qty,
+              category_id: null, bundle_id: item.id, is_bundle_component: false,
+            })
+            for (const comp of (item.components || [])) {
+              rows.push({
+                restaurant_id: realData.restaurant.id, order_id: order.id, menu_item_id: comp.menu_item_id,
+                name: comp.name, price: 0, quantity: comp.quantity * item.qty,
+                category_id: comp.category_id, bundle_id: item.id, is_bundle_component: true,
+              })
+            }
+          } else {
+            rows.push({
+              restaurant_id: realData.restaurant.id, order_id: order.id, menu_item_id: item.id,
+              name: item.name, price: parseFloat(item.price), quantity: item.qty,
+              category_id: item.category_id,
+            })
+          }
+        }
+        await supabase.from('order_items').insert(rows)
         setLastOrderId(order.id)
         try { sessionStorage.setItem(ORDER_KEY(slug), order.id) } catch {}
       }
@@ -625,6 +648,15 @@ export default function Menu() {
                         </>
                       )}
                     </div>
+                    {canOrder && (
+                      <button
+                        className={styles.bundleAddBtn}
+                        style={{ background: tpl.brand }}
+                        onClick={() => addBundleToCart(b, rows)}
+                      >
+                        + {t('addToOrder')}
+                      </button>
+                    )}
                   </div>
                 </div>
               )
@@ -975,7 +1007,14 @@ export default function Menu() {
                 <div className={styles.cartItems}>
                   {cart.map(item => (
                     <div key={item.id} className={styles.cartItem}>
-                      <div className={styles.cartItemName}>{item.name}</div>
+                      <div className={styles.cartItemName}>
+                        {item.is_bundle && '🎁 '}{item.name}
+                        {item.is_bundle && (item.components || []).length > 0 && (
+                          <div className={styles.cartBundleComps}>
+                            {item.components.map(c => `${c.quantity}× ${c.name}`).join(', ')}
+                          </div>
+                        )}
+                      </div>
                       <div className={styles.cartItemControls}>
                         <button className={styles.cartQtyBtn} onClick={() => removeFromCart(item.id)}>−</button>
                         <span className={styles.cartQty}>{item.qty}</span>
