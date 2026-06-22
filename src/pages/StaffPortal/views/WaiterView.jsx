@@ -175,7 +175,7 @@ export default function WaiterView({ restaurant, activeTab, onRefresh, hotelEnab
     }
 
     const amount = parseFloat(order.total) || 0
-    const desc = (order.order_items || []).filter(i => !i.is_bundle_component).map(i => `${i.quantity}× ${i.name}`).join(', ') || t('restaurantOrder')
+    const desc = (order.order_items || []).filter(i => !(i.bundle_id && i.menu_item_id == null)).map(i => `${i.quantity}× ${i.name}`).join(', ') || t('restaurantOrder')
 
     const { error: fiErr } = await supabase.from('folio_items').insert({
       folio_id: folio.id, restaurant_id: restaurant.id,
@@ -305,8 +305,7 @@ export default function WaiterView({ restaurant, activeTab, onRefresh, hotelEnab
               {(() => {
                 const its = order.order_items || []
                 const normal = its.filter(i => !i.bundle_id)
-                const headers = its.filter(i => i.bundle_id && !i.is_bundle_component)
-                const compsOf = (bid) => its.filter(i => i.bundle_id === bid && i.is_bundle_component)
+                const bundleIds = [...new Set(its.filter(i => i.bundle_id).map(i => i.bundle_id))]
                 return (
                   <>
                     {normal.map((item, i) => (
@@ -316,22 +315,25 @@ export default function WaiterView({ restaurant, activeTab, onRefresh, hotelEnab
                         <span className={s.orderItemPrice}>{money(parseFloat(item.price) * item.quantity)}</span>
                       </div>
                     ))}
-                    {headers.map((h, i) => (
-                      <div key={`b${i}`}>
-                        <div className={s.orderItemRow}>
-                          <span className={s.orderItemQty}>{h.quantity}×</span>
-                          <span className={s.orderItemName}>🎁 {h.name}</span>
-                          <span className={s.orderItemPrice}>{money(parseFloat(h.price) * h.quantity)}</span>
+                    {bundleIds.map((bid, bi) => {
+                      // Paket: komponente (menu_item_id) po cijeni + negativna stavka popusta.
+                      const grp = its.filter(i => i.bundle_id === bid)
+                      return (
+                        <div key={`b${bi}`} style={{ borderLeft: '2px solid var(--c-border)', paddingLeft: 8, margin: '4px 0' }}>
+                          <div style={{ fontSize: 11, fontWeight: 700, opacity: 0.7, marginBottom: 2 }}>🎁</div>
+                          {grp.map((it, j) => {
+                            const isDiscount = it.menu_item_id == null
+                            return (
+                              <div key={j} className={s.orderItemRow} style={isDiscount ? { color: 'var(--c-danger)' } : undefined}>
+                                {!isDiscount && <span className={s.orderItemQty}>{it.quantity}×</span>}
+                                <span className={s.orderItemName}>{isDiscount ? it.name : `↳ ${it.name}`}</span>
+                                <span className={s.orderItemPrice}>{money(parseFloat(it.price) * it.quantity)}</span>
+                              </div>
+                            )
+                          })}
                         </div>
-                        {compsOf(h.bundle_id).map((c, j) => (
-                          <div key={`c${i}-${j}`} className={s.orderItemRow} style={{ paddingLeft: 16, opacity: 0.75 }}>
-                            <span className={s.orderItemQty}>{c.quantity}×</span>
-                            <span className={s.orderItemName}>↳ {c.name}</span>
-                            <span className={s.orderItemPrice} />
-                          </div>
-                        ))}
-                      </div>
-                    ))}
+                      )
+                    })}
                   </>
                 )
               })()}

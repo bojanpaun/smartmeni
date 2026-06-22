@@ -1,5 +1,5 @@
 import { describe, it, expect } from 'vitest'
-import { groupByCategory, cartTotal, discountPercent, compareFromPercent, sortMenuItems, bundleItemsTotal, bundlePriceFromPercent, isBundleLive, isPromoLive } from './menuHelpers'
+import { groupByCategory, cartTotal, discountPercent, compareFromPercent, sortMenuItems, bundleItemsTotal, bundlePriceFromPercent, isBundleLive, isPromoLive, allocateBundleDiscount } from './menuHelpers'
 
 describe('groupByCategory', () => {
   it('grupiše stavke po category_id', () => {
@@ -112,6 +112,27 @@ describe('isBundleLive', () => {
   })
   it('null/undefined → ne', () => {
     expect(isBundleLive(null)).toBe(false)
+  })
+})
+
+describe('allocateBundleDiscount', () => {
+  it('jedna PDV grupa: ukupan popust kao jedna stavka', () => {
+    // 2×Pica@1000 + 1×Sok@500 = 2500; paket 2000 → popust 500
+    const lines = [{ vat_rate_key: 'STANDARD', gross_cents: 2000 }, { vat_rate_key: 'STANDARD', gross_cents: 500 }]
+    expect(allocateBundleDiscount(lines, 2000)).toEqual([{ vat_rate_key: 'STANDARD', discount_cents: 500 }])
+  })
+  it('više PDV grupa: popust raspodijeljen proporcionalno, Σ egzaktno', () => {
+    // grupa A 2000 (STANDARD), grupa B 1000 (HOSP); original 3000; paket 2400 → popust 600
+    const lines = [{ vat_rate_key: 'STANDARD', gross_cents: 2000 }, { vat_rate_key: 'HOSP', gross_cents: 1000 }]
+    const out = allocateBundleDiscount(lines, 2400)
+    expect(out.reduce((s, x) => s + x.discount_cents, 0)).toBe(600)
+    expect(out.find(x => x.vat_rate_key === 'STANDARD').discount_cents).toBe(400)
+    expect(out.find(x => x.vat_rate_key === 'HOSP').discount_cents).toBe(200)
+  })
+  it('bez popusta (paket ≥ zbir) → prazno', () => {
+    expect(allocateBundleDiscount([{ vat_rate_key: 'STANDARD', gross_cents: 2000 }], 2000)).toEqual([])
+    expect(allocateBundleDiscount([{ vat_rate_key: 'STANDARD', gross_cents: 2000 }], 2500)).toEqual([])
+    expect(allocateBundleDiscount([], 0)).toEqual([])
   })
 })
 

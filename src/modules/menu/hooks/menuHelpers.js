@@ -84,3 +84,30 @@ export function isPromoLive(x, today = new Date()) {
 export function isBundleLive(b, today = new Date()) {
   return isPromoLive(b, today)
 }
+
+// Razloži ukupan popust paketa po PDV grupama (za fiskalne stavke "Popust").
+// lines: [{ vat_rate_key, gross_cents }] — komponente po PUNOJ cijeni, bruto u centima.
+// bundleTotalCents: naplaćena cijena paketa (centi). Vraća [{ vat_rate_key, discount_cents }]
+// gdje je discount_cents POZITIVAN iznos popusta po grupi; Σ = original − bundle (egzaktno,
+// ostatak na zadnju grupu). Prazno kad nema popusta (bundle ≥ zbir komponenti).
+export function allocateBundleDiscount(lines, bundleTotalCents) {
+  const groups = {}
+  for (const l of lines || []) {
+    const k = l.vat_rate_key || ''
+    groups[k] = (groups[k] || 0) + (Number(l.gross_cents) || 0)
+  }
+  const keys = Object.keys(groups)
+  const original = keys.reduce((s, k) => s + groups[k], 0)
+  const discountTotal = original - Math.round(Number(bundleTotalCents) || 0)
+  if (discountTotal <= 0 || original <= 0) return []
+  const out = []
+  let assigned = 0
+  keys.forEach((k, i) => {
+    const d = i === keys.length - 1
+      ? discountTotal - assigned
+      : Math.round(discountTotal * groups[k] / original)
+    assigned += d
+    if (d !== 0) out.push({ vat_rate_key: k || null, discount_cents: d })
+  })
+  return out
+}

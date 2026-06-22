@@ -1,7 +1,7 @@
 import { useState, useEffect, useRef } from 'react'
 import { useContentTranslations } from '../lib/useContentTranslations'
 import { formatMoney } from '../lib/currencies'
-import { sortMenuItems, discountPercent, bundleItemsTotal, isBundleLive, isPromoLive } from '../modules/menu/hooks/menuHelpers'
+import { sortMenuItems, discountPercent, bundleItemsTotal, isBundleLive, isPromoLive, allocateBundleDiscount } from '../modules/menu/hooks/menuHelpers'
 import { useParams, useNavigate } from 'react-router-dom'
 import { useTranslation } from 'react-i18next'
 import { supabase } from '../lib/supabase'
@@ -378,7 +378,11 @@ export default function Menu() {
   const addBundleToCart = (b, rows) => {
     const components = (rows || []).map(bi => {
       const it = allItems.find(i => i.id === bi.menu_item_id)
-      return it ? { menu_item_id: it.id, name: it.name, quantity: bi.quantity, category_id: it.category_id } : null
+      if (!it) return null
+      // Efektivna PDV stopa komponente: jelo → kategorija (za fiskalnu raspodjelu popusta).
+      const cat = currentCategories.find(c => c.id === it.category_id)
+      const vat = it.vat_rate_key || cat?.vat_rate_key || null
+      return { menu_item_id: it.id, name: it.name, quantity: bi.quantity, category_id: it.category_id, unit_price: it.price, vat_rate_key: vat }
     }).filter(Boolean)
     addToCart({ id: b.id, name: b.name, price: b.bundle_price, emoji: b.emoji, image_url: b.image_url, is_bundle: true, components })
   }
@@ -415,16 +419,30 @@ export default function Menu() {
         const rows = []
         for (const item of cart) {
           if (item.is_bundle) {
-            rows.push({
-              restaurant_id: realData.restaurant.id, order_id: order.id, menu_item_id: null,
-              name: item.name, price: parseFloat(item.price), quantity: item.qty,
-              category_id: null, bundle_id: item.id, is_bundle_component: false,
-            })
-            for (const comp of (item.components || [])) {
+            // Komponente po PUNOJ cijeni (za prikaz po artiklima na računu).
+            const comps = item.components || []
+            for (const comp of comps) {
               rows.push({
                 restaurant_id: realData.restaurant.id, order_id: order.id, menu_item_id: comp.menu_item_id,
-                name: comp.name, price: 0, quantity: comp.quantity * item.qty,
+                name: comp.name, price: parseFloat(comp.unit_price), quantity: comp.quantity * item.qty,
                 category_id: comp.category_id, bundle_id: item.id, is_bundle_component: true,
+              })
+            }
+            // Popust kao zasebna negativna stavka PO PDV GRUPI (zbir = bundle_price).
+            const grossLines = comps.map(c => ({
+              vat_rate_key: c.vat_rate_key,
+              gross_cents: Math.round(parseFloat(c.unit_price) * 100) * c.quantity * item.qty,
+            }))
+            const bundleTotalCents = Math.round(parseFloat(item.price) * 100) * item.qty
+            const origCents = grossLines.reduce((s, g) => s + g.gross_cents, 0)
+            const pct = origCents > 0 ? Math.round((1 - bundleTotalCents / origCents) * 100) : 0
+            for (const d of allocateBundleDiscount(grossLines, bundleTotalCents)) {
+              rows.push({
+                restaurant_id: realData.restaurant.id, order_id: order.id, menu_item_id: null,
+                name: `Popust: ${item.name}${pct > 0 ? ` (−${pct}%)` : ''}`,
+                price: -(d.discount_cents / 100), quantity: 1,
+                category_id: null, bundle_id: item.id, is_bundle_component: false,
+                vat_rate_key: d.vat_rate_key,
               })
             }
           } else {
