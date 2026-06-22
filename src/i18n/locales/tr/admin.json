@@ -448,6 +448,8 @@
   "bmEmoji": "Simge",
   "bmName": "Paket adı",
   "bmDesc": "Açıklama",
+  "bmImage": "Paket görseli",
+  "bmImageHint": "(Günün önerisinde gösterilir)",
   "bmTransNote": "(otomatik çevrilir)",
   "bmItems": "Paketteki ürünler",
   "bmAddItem": "+ Ürün ekle...",

@@ -16,6 +16,7 @@
   background: var(--c-surface); flex-wrap: wrap;
 }
 .rowEmoji { font-size: 28px; flex-shrink: 0; }
+.rowThumb { width: 48px; height: 48px; border-radius: 10px; object-fit: cover; flex-shrink: 0; }
 .rowBody { flex: 1; min-width: 140px; }
 .rowName { font-size: 14px; font-weight: 600; color: var(--c-text); }
 .rowMeta { font-size: 12px; color: var(--c-text-muted); margin-top: 2px; }
@@ -55,6 +56,7 @@
 }
 .row2 { display: flex; gap: 10px; flex-wrap: wrap; }
 .row2 > .field { flex: 1; min-width: 130px; }
+.preview { width: 100%; max-height: 120px; object-fit: cover; border-radius: 9px; border: 1px solid var(--c-border); margin-bottom: 6px; }
 
 .pickerRow { display: flex; gap: 8px; }
 .pickerRow select { flex: 1; }

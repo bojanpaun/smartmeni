@@ -448,6 +448,8 @@
   "bmEmoji": "Ikona",
   "bmName": "Emri i paketit",
   "bmDesc": "Përshkrimi",
+  "bmImage": "Imazhi i paketit",
+  "bmImageHint": "(shfaqet te Oferta e ditës)",
   "bmTransNote": "(përkthehet automatikisht)",
   "bmItems": "Artikujt në paket",
   "bmAddItem": "+ Shto artikull...",

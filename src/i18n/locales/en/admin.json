@@ -448,6 +448,8 @@
   "bmEmoji": "Icon",
   "bmName": "Bundle name",
   "bmDesc": "Description",
+  "bmImage": "Bundle image",
+  "bmImageHint": "(shown in daily special)",
   "bmTransNote": "(translated automatically)",
   "bmItems": "Items in bundle",
   "bmAddItem": "+ Add item...",

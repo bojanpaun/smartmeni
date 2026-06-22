@@ -448,6 +448,8 @@
   "bmEmoji": "Ikona",
   "bmName": "Naziv paketa",
   "bmDesc": "Opis",
+  "bmImage": "Slika paketa",
+  "bmImageHint": "(prikazuje se u Ponudi dana)",
   "bmTransNote": "(automatski se prevodi)",
   "bmItems": "Artikli u paketu",
   "bmAddItem": "+ Dodaj artikal...",

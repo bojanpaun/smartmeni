@@ -1,6 +1,7 @@
 import { useState, useEffect } from 'react'
 import { useTranslation } from 'react-i18next'
 import { supabase } from '../../../lib/supabase'
+import { usePlatform } from '../../../context/PlatformContext'
 import { useContentTranslations } from '../../../lib/useContentTranslations'
 import { translateContent, menuBundleFields } from '../../../lib/contentTranslate'
 import { bundleItemsTotal, bundlePriceFromPercent, discountPercent } from '../hooks/menuHelpers'
@@ -13,6 +14,7 @@ const EMOJIS = ['🎁','🍱','🍔','🍕','🍝','🥗','🍣','🍰','🍻','
 // iz aktuelnih cijena artikala (menuHelpers). Naziv/opis se prevode AI-jem (Sloj B).
 export default function BundleManager({ restaurant, items, money }) {
   const { t } = useTranslation('admin')
+  const { user } = usePlatform()
   const tr = useContentTranslations(restaurant?.id)
   const itemName = (it) => tr('menu_item', it.id, 'name', it.name)
   const priceById = Object.fromEntries((items || []).map(i => [i.id, i.price]))
@@ -22,10 +24,11 @@ export default function BundleManager({ restaurant, items, money }) {
   const [showForm, setShowForm] = useState(false)
   const [editId, setEditId] = useState(null)
   const [saving, setSaving] = useState(false)
+  const [uploading, setUploading] = useState(false)
   const [err, setErr] = useState('')
 
   const emptyForm = {
-    name: '', description: '', emoji: '🎁', rows: [],
+    name: '', description: '', emoji: '🎁', image_url: '', rows: [],
     priceMode: 'price', bundle_price: '', percent: '',
     is_active: true, valid_from: '', valid_until: '',
   }
@@ -56,13 +59,27 @@ export default function BundleManager({ restaurant, items, money }) {
     const rows = bundleItems[b.id] || []
     const pct = discountPercent(b.bundle_price, bundleItemsTotal(rows, priceById))
     setForm({
-      name: b.name || '', description: b.description || '', emoji: b.emoji || '🎁',
+      name: b.name || '', description: b.description || '', emoji: b.emoji || '🎁', image_url: b.image_url || '',
       rows: rows.map(r => ({ ...r })),
       priceMode: 'price', bundle_price: b.bundle_price != null ? b.bundle_price.toString() : '',
       percent: pct != null ? pct.toString() : '',
       is_active: !!b.is_active, valid_from: b.valid_from || '', valid_until: b.valid_until || '',
     })
     setEditId(b.id); setErr(''); setShowForm(true)
+  }
+
+  const handleImageUpload = async (e) => {
+    const file = e.target.files[0]
+    if (!file) return
+    setUploading(true)
+    const ext = file.name.split('.').pop()
+    const path = `${user.id}/bundle-${Date.now()}.${ext}`
+    const { error } = await supabase.storage.from('menu-images').upload(path, file)
+    if (!error) {
+      const { data } = supabase.storage.from('menu-images').getPublicUrl(path)
+      setForm(f => ({ ...f, image_url: data.publicUrl }))
+    }
+    setUploading(false)
   }
 
   // Zbir aktuelnih cijena artikala u formi (osnov za uštedu i % izvođenje).
@@ -94,6 +111,7 @@ export default function BundleManager({ restaurant, items, money }) {
       name: form.name.trim(),
       description: form.description.trim() || null,
       emoji: form.emoji || '🎁',
+      image_url: form.image_url || null,
       bundle_price: resolvedPrice,
       is_active: form.is_active,
       valid_from: form.valid_from || null,
@@ -150,7 +168,9 @@ export default function BundleManager({ restaurant, items, money }) {
             const count = rows.reduce((s, r) => s + r.quantity, 0)
             return (
               <div key={b.id} className={styles.row}>
-                <span className={styles.rowEmoji}>{b.emoji || '🎁'}</span>
+                {b.image_url
+                  ? <img className={styles.rowThumb} src={b.image_url} alt={b.name} loading="lazy" />
+                  : <span className={styles.rowEmoji}>{b.emoji || '🎁'}</span>}
                 <div className={styles.rowBody}>
                   <div className={styles.rowName}>{tr('menu_bundle', b.id, 'name', b.name)}</div>
                   <div className={styles.rowMeta}>{t('bmItemsCount', { count })}{!b.is_active && <> · <span className={styles.rowInactive}>{t('bmInactive')}</span></>}</div>
@@ -193,6 +213,13 @@ export default function BundleManager({ restaurant, items, money }) {
               <div className={styles.field}>
                 <label>{t('bmDesc')} <span className={styles.hint}>{t('bmTransNote')}</span></label>
                 <textarea rows={2} value={form.description} onChange={e => setForm(f => ({ ...f, description: e.target.value }))} />
+              </div>
+
+              <div className={styles.field}>
+                <label>{t('bmImage')} <span className={styles.hint}>{t('bmImageHint')}</span></label>
+                {form.image_url && <img className={styles.preview} src={form.image_url} alt="preview" />}
+                <input type="file" accept="image/*" onChange={handleImageUpload} />
+                {uploading && <span className={styles.hint}>{t('amUploadInProgress')}</span>}
               </div>
 
               <div className={styles.field}>
@@ -263,7 +290,7 @@ export default function BundleManager({ restaurant, items, money }) {
               {err && <div className={styles.err}>{err}</div>}
               <div className={styles.actions}>
                 <button type="button" className={styles.cancel} onClick={() => setShowForm(false)}>{t('cancel')}</button>
-                <button type="submit" className={styles.save} disabled={saving}>{saving ? t('saving') : t('save')}</button>
+                <button type="submit" className={styles.save} disabled={saving || uploading}>{saving ? t('saving') : t('save')}</button>
               </div>
             </form>
           </div>
