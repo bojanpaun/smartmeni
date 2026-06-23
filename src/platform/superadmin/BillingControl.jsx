@@ -47,7 +47,7 @@ export default function BillingControl() {
       supabase.from('platform_settings').select('beta_free_mode, beta_note').limit(1).maybeSingle(),
       // Superadmin vidi i neaktivne (FOR ALL politika) — ne filtriramo is_active.
       supabase.from('addon_catalog')
-        .select('id, name, category, description, features, price_monthly, price_yearly, is_active, beta_free, sort_order')
+        .select('id, name, category, description, features, price_monthly, price_yearly, is_active, beta_free, beta_restricted, sort_order')
         .order('sort_order'),
       supabase.from('plans')
         .select('id, name, description, features, color, includes, is_popular, coming_soon, price_monthly, price_annual_per_month, price_annual_total, is_active, sort_order, paypal_plan_id, stripe_price_id_monthly, stripe_price_id_yearly')
@@ -86,6 +86,7 @@ export default function BillingControl() {
         price_yearly: numOrNull(a.price_yearly),
         is_active: a.is_active,
         beta_free: a.beta_free,
+        beta_restricted: a.beta_restricted,
       })
       .eq('id', a.id)
       .select('id')
@@ -296,7 +297,7 @@ export default function BillingControl() {
       <section className={styles.card}>
         <div className={styles.cardTitle}>🧩 {t('bcAddonsTitle')}</div>
         <div className={styles.cardSub}>
-          <strong>{t('bcAddonActive')}</strong>{t('bcAddonActiveDesc')}<strong>{t('bcBetaFree')}</strong>{t('bcBetaFreeDesc')}
+          <strong>{t('bcAddonActive')}</strong>{t('bcAddonActiveDesc')}<strong>{t('bcBetaFree')}</strong>{t('bcBetaFreeDesc')}<strong>{t('bcRestricted')}</strong>{t('bcRestrictedDesc')}
         </div>
         {Object.entries(addonsByCat).map(([cat, list]) => (
           <div key={cat} className={styles.catGroup}>
@@ -310,6 +311,7 @@ export default function BillingControl() {
                     <th>{t('bcColPerYear')}</th>
                     <th>{t('bcColActive')}</th>
                     <th>{t('bcColBetaFree')}</th>
+                    <th>{t('bcColRestricted')}</th>
                     <th></th>
                   </tr>
                 </thead>
@@ -321,6 +323,7 @@ export default function BillingControl() {
                       <td data-label={t('bcColPerYear')}><PriceInput value={a.price_yearly} onChange={v => patchAddon(a.id, { price_yearly: v })} /></td>
                       <td data-label={t('bcColActive')}><Toggle on={a.is_active} onClick={() => patchAddon(a.id, { is_active: !a.is_active })} /></td>
                       <td data-label={t('bcColBetaFree')}><Toggle on={a.beta_free} onClick={() => patchAddon(a.id, { beta_free: !a.beta_free })} /></td>
+                      <td data-label={t('bcColRestricted')}><Toggle on={a.beta_restricted} onClick={() => patchAddon(a.id, { beta_restricted: !a.beta_restricted })} /></td>
                       <td className={styles.saveCell}>
                         <div className={styles.rowBtns}>
                           <button className={styles.btnEdit} onClick={() => openEditAddon(a)}>{t('htEdit')}</button>

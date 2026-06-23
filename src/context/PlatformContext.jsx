@@ -95,7 +95,7 @@ export function PlatformProvider({ children }) {
   const loadGlobalConfig = async () => {
     const [{ data: settings }, { data: addonRows }, { data: planRows }, { data: paletteRows }] = await Promise.all([
       supabase.from('platform_settings').select('beta_free_mode').limit(1).maybeSingle(),
-      supabase.from('addon_catalog').select('id, name, category, description, features, price_monthly, price_yearly, beta_free'),
+      supabase.from('addon_catalog').select('id, name, category, description, features, price_monthly, price_yearly, beta_free, beta_restricted'),
       supabase.from('plans').select('id, name, description, features, color, includes, is_popular, coming_soon, price_monthly, price_annual_per_month, price_annual_total, is_active, sort_order, paypal_plan_id'),
       supabase.from('theme_palettes').select('key, name, light, dark'),
     ])
@@ -172,11 +172,13 @@ export function PlatformProvider({ children }) {
     window.location.href = '/login'
   }
 
-  // Gating addona: beta mod (globalni ili per-addon) propušta sve besplatno;
-  // inače standardna provjera plana/individualnih addona. (Server-side ogledalo:
-  // public.is_beta_free() — koriste ga DB RPC-ovi za isti rezultat.)
-  const isBetaFree = (addonId) =>
-    betaGlobal || !!addonCatalog.find((a) => a.id === addonId)?.beta_free
+  // Gating addona: globalni beta otključava sve OSIM modula označenih beta_restricted
+  // (njih vide samo tenanti s eksplicitnim grantom); per-addon beta_free uvijek
+  // otključava. (Server-side ogledalo: public.is_beta_free() — isti rezultat u DB RPC-ovima.)
+  const isBetaFree = (addonId) => {
+    const a = addonCatalog.find((x) => x.id === addonId)
+    return (betaGlobal && !a?.beta_restricted) || !!a?.beta_free
+  }
   // Uključenja plana: izvor je DB `plans.includes` (omogućava superadmin-kreirane
   // planove). Fallback na konstantu ako plans nije učitan (vidi hasAddon).
   const checkAddon = (addonId) => {
