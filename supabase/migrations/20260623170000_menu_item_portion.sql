@@ -1,0 +1,140 @@
+-- Gramaža / količina artikla (portion) — slobodno tekstualno polje
+--
+-- ZAŠTO: gost na meniju treba da vidi veličinu porcije. Slobodan tekst (a ne broj)
+-- jer pokriva i hranu ('350 g'), i piće ('0.33 l', '0.1 l'), i komade ('10 kom').
+-- Nije prevodiv sadržaj (jedinice g/l/kom su jezički neutralne) → NE ide u
+-- content_translations; prikazuje se direktno na javnom meniju.
+
+ALTER TABLE public.menu_items    ADD COLUMN IF NOT EXISTS portion TEXT;
+ALTER TABLE public.recipe_library ADD COLUMN IF NOT EXISTS portion TEXT;
+
+-- Import RPC: prenosi i portion iz biblioteke (ostalo identično 20260607000004).
+-- Na postojećoj stavci popunjava portion samo ako je prazan (admin tekst se ne gazi).
+CREATE OR REPLACE FUNCTION public.import_recipe_from_library(
+  p_recipe_id     TEXT,
+  p_restaurant_id UUID,
+  p_category_id   UUID DEFAULT NULL
+)
+RETURNS JSONB
+LANGUAGE plpgsql
+SECURITY DEFINER
+SET search_path = public
+AS $$
+DECLARE
+  v_rec          public.recipe_library%ROWTYPE;
+  v_rest         public.restaurants%ROWTYPE;
+  v_has_inv      BOOLEAN;
+  v_cat_name     TEXT;
+  v_cat_icon     TEXT;
+  v_is_bar       BOOLEAN;
+  v_category_id  UUID;
+  v_existing     public.menu_items%ROWTYPE;
+  v_menu_item_id UUID;
+  v_menu_created BOOLEAN := false;
+  v_has_recipe   BOOLEAN;
+  v_inv_id       UUID;
+  v_ing          RECORD;
+  v_norm_plan    TEXT;
+BEGIN
+  SELECT * INTO v_rest FROM public.restaurants WHERE id = p_restaurant_id;
+  IF NOT FOUND THEN RAISE EXCEPTION 'Restoran ne postoji'; END IF;
+  IF NOT (v_rest.user_id = auth.uid() OR public.is_superadmin()) THEN
+    RAISE EXCEPTION 'Nemate pravo na ovaj restoran';
+  END IF;
+
+  SELECT * INTO v_rec FROM public.recipe_library WHERE id = p_recipe_id AND is_active = true;
+  IF NOT FOUND THEN
+    RAISE EXCEPTION 'Recept ne postoji ili nije aktivan: %', p_recipe_id;
+  END IF;
+
+  v_norm_plan := CASE WHEN v_rest.plan = 'pro' THEN 'restaurant' ELSE COALESCE(v_rest.plan, 'starter') END;
+  v_has_inv := v_rest.is_complimentary
+    OR v_norm_plan IN ('restaurant','hotel','hotel_pro','enterprise')
+    OR EXISTS (
+      SELECT 1 FROM public.subscriptions s
+       WHERE s.restaurant_id = p_restaurant_id
+         AND ((CASE WHEN s.plan = 'pro' THEN 'restaurant' ELSE COALESCE(s.plan,'starter') END)
+                IN ('restaurant','hotel','hotel_pro','enterprise')
+              OR s.addons ? 'inventory_pro'));
+
+  IF p_category_id IS NOT NULL THEN
+    SELECT id INTO v_category_id FROM public.categories
+     WHERE id = p_category_id AND restaurant_id = p_restaurant_id;
+  END IF;
+  IF v_category_id IS NULL THEN
+    CASE v_rec.category
+      WHEN 'coffee'     THEN v_cat_name := 'Kafa';             v_cat_icon := '☕'; v_is_bar := true;
+      WHEN 'cocktail'   THEN v_cat_name := 'Kokteli';          v_cat_icon := '🍸'; v_is_bar := true;
+      WHEN 'soft'       THEN v_cat_name := 'Bezalkoholna';     v_cat_icon := '🥤'; v_is_bar := true;
+      WHEN 'hot'        THEN v_cat_name := 'Topli napici';     v_cat_icon := '🍵'; v_is_bar := true;
+      WHEN 'beverage'   THEN v_cat_name := 'Pića';             v_cat_icon := '🍺'; v_is_bar := true;
+      WHEN 'food'       THEN v_cat_name := 'Jela';             v_cat_icon := '🍽️'; v_is_bar := false;
+      WHEN 'salad'      THEN v_cat_name := 'Salate i predjela';v_cat_icon := '🥗'; v_is_bar := false;
+      WHEN 'breakfast'  THEN v_cat_name := 'Doručak';          v_cat_icon := '🍳'; v_is_bar := false;
+      WHEN 'dessert'    THEN v_cat_name := 'Deserti';          v_cat_icon := '🍰'; v_is_bar := false;
+      WHEN 'soup'       THEN v_cat_name := 'Supe i čorbe';     v_cat_icon := '🍲'; v_is_bar := false;
+      WHEN 'side'       THEN v_cat_name := 'Prilozi';          v_cat_icon := '🍚'; v_is_bar := false;
+      WHEN 'kids'       THEN v_cat_name := 'Dječji meni';      v_cat_icon := '🧒'; v_is_bar := false;
+      WHEN 'vegetarian' THEN v_cat_name := 'Vegetarijansko';   v_cat_icon := '🥦'; v_is_bar := false;
+      ELSE                   v_cat_name := 'Ostalo';           v_cat_icon := '🍽️'; v_is_bar := false;
+    END CASE;
+
+    SELECT id INTO v_category_id FROM public.categories
+     WHERE restaurant_id = p_restaurant_id AND lower(name) = lower(v_cat_name) LIMIT 1;
+    IF v_category_id IS NULL THEN
+      INSERT INTO public.categories (restaurant_id, name, icon, is_bar, sort_order)
+      VALUES (p_restaurant_id, v_cat_name, v_cat_icon, v_is_bar,
+              COALESCE((SELECT max(sort_order)+1 FROM public.categories WHERE restaurant_id = p_restaurant_id), 0))
+      RETURNING id INTO v_category_id;
+    END IF;
+  END IF;
+
+  SELECT * INTO v_existing FROM public.menu_items
+   WHERE restaurant_id = p_restaurant_id AND lower(name) = lower(v_rec.name) LIMIT 1;
+
+  IF v_existing.id IS NOT NULL THEN
+    v_menu_item_id := v_existing.id;
+    UPDATE public.menu_items SET
+      image_url      = CASE WHEN (image_url IS NULL OR image_url = '') THEN v_rec.image_url ELSE image_url END,
+      description    = CASE WHEN (description IS NULL OR description = '') THEN v_rec.instructions ELSE description END,
+      description_en = CASE WHEN (description_en IS NULL OR description_en = '') THEN v_rec.description_en ELSE description_en END,
+      allergens      = CASE WHEN (allergens IS NULL OR allergens = '') THEN v_rec.allergens ELSE allergens END,
+      prep_time      = CASE WHEN (prep_time IS NULL OR prep_time = '') THEN v_rec.prep_time ELSE prep_time END,
+      portion        = CASE WHEN (portion IS NULL OR portion = '') THEN v_rec.portion ELSE portion END,
+      calories       = CASE WHEN calories IS NULL THEN v_rec.calories ELSE calories END
+    WHERE id = v_menu_item_id;
+  ELSE
+    INSERT INTO public.menu_items
+      (restaurant_id, category_id, name, name_en, description, description_en, price, emoji, image_url,
+       allergens, calories, prep_time, portion, is_visible, sort_order)
+    VALUES
+      (p_restaurant_id, v_category_id, v_rec.name, v_rec.name_en, v_rec.instructions, v_rec.description_en,
+       COALESCE(v_rec.suggested_price, 0), COALESCE(v_rec.emoji, '🍽️'), v_rec.image_url,
+       v_rec.allergens, v_rec.calories, v_rec.prep_time, v_rec.portion, true,
+       COALESCE((SELECT max(sort_order)+1 FROM public.menu_items WHERE restaurant_id = p_restaurant_id), 0))
+    RETURNING id INTO v_menu_item_id;
+    v_menu_created := true;
+  END IF;
+
+  IF v_has_inv THEN
+    SELECT EXISTS (SELECT 1 FROM public.menu_item_ingredients WHERE menu_item_id = v_menu_item_id) INTO v_has_recipe;
+    IF NOT v_has_recipe THEN
+      FOR v_ing IN SELECT * FROM public.recipe_library_ingredients WHERE recipe_id = p_recipe_id ORDER BY sort_order LOOP
+        SELECT id INTO v_inv_id FROM public.inventory_items
+         WHERE restaurant_id = p_restaurant_id AND lower(name) = lower(v_ing.ingredient_name) AND unit = v_ing.unit LIMIT 1;
+        IF v_inv_id IS NULL THEN
+          INSERT INTO public.inventory_items (restaurant_id, name, unit, quantity, category)
+          VALUES (p_restaurant_id, v_ing.ingredient_name, v_ing.unit, 0, 'ostalo') RETURNING id INTO v_inv_id;
+        END IF;
+        INSERT INTO public.menu_item_ingredients (menu_item_id, inventory_item_id, quantity)
+        VALUES (v_menu_item_id, v_inv_id, v_ing.quantity)
+        ON CONFLICT (menu_item_id, inventory_item_id) DO NOTHING;
+      END LOOP;
+    END IF;
+  END IF;
+
+  RETURN jsonb_build_object('menu_item_id', v_menu_item_id, 'menu_created', v_menu_created,
+                            'recipe_imported', v_has_inv, 'recipe_skipped', (v_has_inv AND v_has_recipe),
+                            'category_id', v_category_id);
+END;
+$$;

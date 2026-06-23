@@ -695,7 +695,14 @@ export default function Menu() {
                       : <span className={styles.specialCardEmoji}>{it.emoji}</span>}
                   </div>
                   <div className={styles.specialCardInfo}>
-                    <div className={styles.specialCardName}>{nm}</div>
+                    <div className={styles.specialCardName}>
+                      {nm}
+                      {it.portion && <span className={styles.itemPortion}>· {it.portion}</span>}
+                    </div>
+                    {(() => {
+                      const ds = tr('menu_item', it.id, 'description', isEn ? (it.description_en || it.descEn || it.description) : (it.description || it.desc))
+                      return ds ? <div className={styles.specialCardDesc}>{ds}</div> : null
+                    })()}
                     <div className={styles.specialCardPrice} style={{ color: tpl.priceColor }}>
                       {formatMoney(it.price, r?.currency, i18n.language)}
                       {(() => {
@@ -756,7 +763,10 @@ export default function Menu() {
               {item.is_sponsored && (
                 <div className={styles.sponsorBadge}>⭐ {item.sponsor_label || t('sponsoredBadge')}</div>
               )}
-              <div className={styles.itemName}>{tr('menu_item', item.id, 'name', isEn ? (item.name_en || item.nameEn || item.name) : item.name)}</div>
+              <div className={styles.itemName}>
+                {tr('menu_item', item.id, 'name', isEn ? (item.name_en || item.nameEn || item.name) : item.name)}
+                {item.portion && <span className={styles.itemPortion}>· {item.portion}</span>}
+              </div>
               <div className={styles.itemDesc}>{tr('menu_item', item.id, 'description', isEn ? (item.description_en || item.descEn || item.description) : (item.description || item.desc))}</div>
               {(item.tags || []).length > 0 && (
                 <div className={styles.itemTags}>
@@ -985,6 +995,12 @@ export default function Menu() {
             <div className={styles.sheetName}>{tr('menu_item', selectedItem.id, 'name', isEn ? (selectedItem.name_en || selectedItem.nameEn || selectedItem.name) : selectedItem.name)}</div>
             <div className={styles.sheetDesc}>{tr('menu_item', selectedItem.id, 'description', isEn ? (selectedItem.description_en || selectedItem.descEn || selectedItem.description) : (selectedItem.description || selectedItem.desc))}</div>
             <div className={styles.sheetDetails}>
+              {selectedItem.portion && (
+                <div className={styles.sheetRow}>
+                  <span className={styles.sheetRowLabel}>{t('portion')}</span>
+                  <span>{selectedItem.portion}</span>
+                </div>
+              )}
               <div className={styles.sheetRow}>
                 <span className={styles.sheetRowLabel}>{t('calories')}</span>
                 <span>{selectedItem.calories || selectedItem.cal || '—'} kcal</span>

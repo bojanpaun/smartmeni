@@ -419,6 +419,8 @@
   "amVatInherit": "Kategoriden devral",
   "amPrepTime": "Hazırlık süresi",
   "amPrepPlaceholder": "örn. 15 dk",
+  "amPortion": "Gramaj / miktar",
+  "amPortionPlaceholder": "örn. 350 g, 0.33 l",
   "amAllergens": "Alerjenler",
   "amAllergensPlaceholder": "örn. Gluten, Süt",
   "amCalories": "Kalori",

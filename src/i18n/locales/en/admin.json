@@ -419,6 +419,8 @@
   "amVatInherit": "Inherit from category",
   "amPrepTime": "Prep time",
   "amPrepPlaceholder": "e.g. 15 min",
+  "amPortion": "Weight / quantity",
+  "amPortionPlaceholder": "e.g. 350 g, 0.33 l",
   "amAllergens": "Allergens",
   "amAllergensPlaceholder": "e.g. Gluten, Milk",
   "amCalories": "Calories",

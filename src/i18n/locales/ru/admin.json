@@ -419,6 +419,8 @@
   "amVatInherit": "Наследовать из категории",
   "amPrepTime": "Время приготовления",
   "amPrepPlaceholder": "напр. 15 мин",
+  "amPortion": "Вес / количество",
+  "amPortionPlaceholder": "напр. 350 г, 0.33 л",
   "amAllergens": "Аллергены",
   "amAllergensPlaceholder": "напр. Глютен, Молоко",
   "amCalories": "Калории",

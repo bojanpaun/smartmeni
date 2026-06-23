@@ -419,6 +419,8 @@
   "amVatInherit": "Naslijedi iz kategorije",
   "amPrepTime": "Vrijeme pripreme",
   "amPrepPlaceholder": "npr. 15 min",
+  "amPortion": "Gramaža / količina",
+  "amPortionPlaceholder": "npr. 350 g, 0.33 l",
   "amAllergens": "Alergeni",
   "amAllergensPlaceholder": "npr. Gluten, Mlijeko",
   "amCalories": "Kalorije",

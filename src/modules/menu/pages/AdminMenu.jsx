@@ -76,7 +76,7 @@ export default function AdminMenu() {
   const [transCat, setTransCat] = useState(null)   // kategorija čiji editor prevoda je otvoren
   const [itemForm, setItemForm] = useState({
     name: '', name_en: '', description: '', description_en: '',
-    price: '', emoji: '🍽️', allergens: '', calories: '',
+    price: '', emoji: '🍽️', allergens: '', calories: '', portion: '',
     prep_time: '', category_id: '', is_special: false, tags: [], vat_rate_key: '',
     compare_at_price: '', is_sponsored: false, sponsor_label: ''
   })
@@ -144,7 +144,7 @@ export default function AdminMenu() {
     } else {
       setItemForm({
         name: '', description: '',
-        price: '', emoji: '🍽️', allergens: '', calories: '',
+        price: '', emoji: '🍽️', allergens: '', calories: '', portion: '',
         prep_time: '', category_id: activeCategory || '', is_special: false, tags: [], vat_rate_key: '',
         compare_at_price: '', is_sponsored: false, sponsor_label: ''
       })
@@ -182,6 +182,7 @@ export default function AdminMenu() {
       ...itemForm,
       price,
       calories: itemForm.calories ? parseInt(itemForm.calories) : null,
+      portion: itemForm.portion?.trim() || null,
       compare_at_price: compareAt,
       is_sponsored: !!itemForm.is_sponsored,
       sponsor_label: itemForm.sponsor_label?.trim() || null,
@@ -725,6 +726,10 @@ export default function AdminMenu() {
                 <div className={styles.field}>
                   <label>{t('amPrepTime')}</label>
                   <input placeholder={t('amPrepPlaceholder')} value={itemForm.prep_time} onChange={e => setItemForm(f => ({...f, prep_time: e.target.value}))} />
+                </div>
+                <div className={styles.field}>
+                  <label>{t('amPortion')}</label>
+                  <input placeholder={t('amPortionPlaceholder')} value={itemForm.portion || ''} onChange={e => setItemForm(f => ({...f, portion: e.target.value}))} />
                 </div>
                 <div className={styles.field}>
                   <label>{t('amAllergens')}</label>
