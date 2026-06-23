@@ -999,12 +999,10 @@ export default function Menu() {
             <div className={styles.sheetName}>{tr('menu_item', selectedItem.id, 'name', isEn ? (selectedItem.name_en || selectedItem.nameEn || selectedItem.name) : selectedItem.name)}</div>
             <div className={styles.sheetDesc}>{tr('menu_item', selectedItem.id, 'description', isEn ? (selectedItem.description_en || selectedItem.descEn || selectedItem.description) : (selectedItem.description || selectedItem.desc))}</div>
             <div className={styles.sheetDetails}>
-              {selectedItem.portion && (
-                <div className={styles.sheetRow}>
-                  <span className={styles.sheetRowLabel}>{t('portion')}</span>
-                  <span>{selectedItem.portion}</span>
-                </div>
-              )}
+              <div className={styles.sheetRow}>
+                <span className={styles.sheetRowLabel}>{t('portion')}</span>
+                <span>{selectedItem.portion || '—'}</span>
+              </div>
               <div className={styles.sheetRow}>
                 <span className={styles.sheetRowLabel}>{t('calories')}</span>
                 <span>{selectedItem.calories || selectedItem.cal || '—'} kcal</span>
