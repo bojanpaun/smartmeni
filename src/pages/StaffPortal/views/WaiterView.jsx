@@ -316,8 +316,9 @@ export default function WaiterView({ restaurant, activeTab, onRefresh, hotelEnab
                       </div>
                     ))}
                     {bundleIds.map((bid, bi) => {
-                      // Paket: komponente (menu_item_id) po cijeni + negativna stavka popusta.
+                      // Paket: komponente (menu_item_id) po cijeni + negativna stavka popusta NA KRAJU.
                       const grp = its.filter(i => i.bundle_id === bid)
+                        .sort((a, b) => (a.is_bundle_component ? 0 : 1) - (b.is_bundle_component ? 0 : 1))
                       return (
                         <div key={`b${bi}`} style={{ borderLeft: '2px solid var(--c-border)', paddingLeft: 8, margin: '4px 0' }}>
                           <div style={{ fontSize: 11, fontWeight: 700, opacity: 0.7, marginBottom: 2 }}>🎁</div>

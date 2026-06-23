@@ -255,6 +255,7 @@
   "orderSentToast": "Narudžba poslana na pripremu",
   "orderSendErr": "Greška pri slanju narudžbe",
   "noMenuItems": "Nema stavki u ovoj kategoriji",
+  "bundlesTab": "Paketi",
   "tabNaplata": "Naplata",
   "naplataEmpty": "Nema računa za naplatu",
   "payCash": "Gotovina",

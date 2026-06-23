@@ -4,7 +4,10 @@ import toast from 'react-hot-toast'
 import { supabase } from '../../../lib/supabase'
 import { formatMoney } from '../../../lib/currencies'
 import { useMenuData, cartTotal } from '../../../modules/menu/hooks/useMenuData'
+import { allocateBundleDiscount, isPromoLive } from '../../../modules/menu/hooks/menuHelpers'
 import s from '../StaffPortal.module.css'
+
+const BUNDLES_CAT = '__bundles__'
 
 // Konobarski unos narudžbe — Korak 1 (izbor stola) → Korak 2 (stavke) → Pošalji.
 // Reuse: orders+order_items kroz RPC waiter_submit_order. Spec: docs/spec-konobarski-unos-narudzbe.md
@@ -21,8 +24,36 @@ export default function NewOrderView({ restaurant, onDone }) {
   const [selected, setSelected] = useState(null)      // { number, label }
   const [mode, setMode]         = useState('auto')     // 'auto' | 'new'
   const [activeCat, setActiveCat] = useState(null)
-  const [cart, setCart]         = useState([])         // [{id,name,price,qty,category_id}]
+  const [cart, setCart]         = useState([])         // [{id,name,price,qty,category_id} | {is_bundle,components}]
   const [sending, setSending]   = useState(false)
+  const [bundles, setBundles]   = useState([])         // aktivni paketi sa komponentama (cijena+PDV)
+
+  useEffect(() => {
+    if (!restaurantId) return
+    let cancelled = false
+    ;(async () => {
+      const [{ data: bs }, { data: bis }] = await Promise.all([
+        supabase.from('menu_bundles').select('*').eq('restaurant_id', restaurantId).eq('is_active', true).order('sort_order'),
+        supabase.from('menu_bundle_items')
+          .select('bundle_id, quantity, menu_items(id,name,price,vat_rate_key,category_id,categories(vat_rate_key))')
+          .eq('restaurant_id', restaurantId),
+      ])
+      if (cancelled) return
+      const byBundle = {}
+      for (const r of bis || []) {
+        const mi = r.menu_items
+        if (!mi) continue
+        ;(byBundle[r.bundle_id] ||= []).push({
+          menu_item_id: mi.id, name: mi.name, unit_price: Number(mi.price) || 0, quantity: r.quantity,
+          category_id: mi.category_id, vat_rate_key: mi.vat_rate_key || mi.categories?.vat_rate_key || null,
+        })
+      }
+      const live = (bs || []).filter(b => isPromoLive(b) && (byBundle[b.id] || []).length)
+        .map(b => ({ ...b, components: byBundle[b.id] || [] }))
+      setBundles(live)
+    })()
+    return () => { cancelled = true }
+  }, [restaurantId])
 
   useEffect(() => {
     if (!restaurantId) return
@@ -60,6 +91,11 @@ export default function NewOrderView({ restaurant, onDone }) {
   })
   const decItem = (id) => setCart(prev =>
     prev.flatMap(c => c.id !== id ? [c] : (c.qty <= 1 ? [] : [{ ...c, qty: c.qty - 1 }])))
+  const addBundle = (b) => setCart(prev => {
+    const ex = prev.find(c => c.id === b.id)
+    if (ex) return prev.map(c => c.id === b.id ? { ...c, qty: c.qty + 1 } : c)
+    return [...prev, { id: b.id, name: b.name, price: Number(b.bundle_price) || 0, qty: 1, category_id: null, is_bundle: true, components: b.components }]
+  })
 
   const total = cartTotal(cart)
   const count = cart.reduce((sum, c) => sum + c.qty, 0)
@@ -67,13 +103,37 @@ export default function NewOrderView({ restaurant, onDone }) {
   const send = async () => {
     if (!cart.length || sending) return
     setSending(true)
+    // Paket → komponente (puna cijena) + negativna stavka popusta po PDV grupi.
+    const items = []
+    for (const c of cart) {
+      if (c.is_bundle) {
+        const comps = c.components || []
+        for (const comp of comps) {
+          items.push({
+            menu_item_id: comp.menu_item_id, name: comp.name, price: comp.unit_price,
+            quantity: comp.quantity * c.qty, category_id: comp.category_id,
+            bundle_id: c.id, is_bundle_component: true,
+          })
+        }
+        const grossLines = comps.map(x => ({ vat_rate_key: x.vat_rate_key, gross_cents: Math.round(x.unit_price * 100) * x.quantity * c.qty }))
+        const bundleTotalCents = Math.round(c.price * 100) * c.qty
+        const origCents = grossLines.reduce((sm, g) => sm + g.gross_cents, 0)
+        const pct = origCents > 0 ? Math.round((1 - bundleTotalCents / origCents) * 100) : 0
+        for (const d of allocateBundleDiscount(grossLines, bundleTotalCents)) {
+          items.push({
+            menu_item_id: null, name: `Popust: ${c.name}${pct > 0 ? ` (−${pct}%)` : ''}`,
+            price: -(d.discount_cents / 100), quantity: 1, category_id: null,
+            bundle_id: c.id, is_bundle_component: false, vat_rate_key: d.vat_rate_key,
+          })
+        }
+      } else {
+        items.push({ menu_item_id: c.id, name: c.name, price: c.price, quantity: c.qty, category_id: c.category_id })
+      }
+    }
     const { error } = await supabase.rpc('waiter_submit_order', {
       p_restaurant_id: restaurantId,
       p_table: tableNo,
-      p_items: cart.map(c => ({
-        menu_item_id: c.id, name: c.name, price: c.price,
-        quantity: c.qty, category_id: c.category_id,
-      })),
+      p_items: items,
       p_mode: mode,
     })
     setSending(false)
@@ -129,6 +189,13 @@ export default function NewOrderView({ restaurant, onDone }) {
       {menuLoading ? <div className={s.loadingInline}>{t('loading')}</div> : (
         <>
           <div className={s.catPills}>
+            {bundles.length > 0 && (
+              <button
+                className={`${s.catPill} ${activeCat === BUNDLES_CAT ? s.catPillActive : ''}`}
+                onClick={() => setActiveCat(BUNDLES_CAT)}>
+                🎁 {t('bundlesTab')}
+              </button>
+            )}
             {categories.map(c => (
               <button key={c.id}
                 className={`${s.catPill} ${activeCat === c.id ? s.catPillActive : ''}`}
@@ -138,7 +205,28 @@ export default function NewOrderView({ restaurant, onDone }) {
             ))}
           </div>
           <div className={s.noItemList}>
-            {catItems.length === 0 ? (
+            {activeCat === BUNDLES_CAT ? (
+              bundles.map(b => {
+                const q = qtyOf(b.id)
+                return (
+                  <div key={b.id} className={s.noItemRow}>
+                    <div className={s.noItemInfo}>
+                      <span className={s.noItemName}>🎁 {b.name}</span>
+                      <span className={s.noItemPrice}>{money(Number(b.bundle_price) || 0)}</span>
+                    </div>
+                    {q === 0 ? (
+                      <button className={s.noAddBtn} onClick={() => addBundle(b)} aria-label="+">+</button>
+                    ) : (
+                      <div className={s.stepper}>
+                        <button className={s.stepBtn} onClick={() => decItem(b.id)} aria-label="−">−</button>
+                        <span className={s.stepQty}>{q}</span>
+                        <button className={s.stepBtn} onClick={() => addBundle(b)} aria-label="+">+</button>
+                      </div>
+                    )}
+                  </div>
+                )
+              })
+            ) : catItems.length === 0 ? (
               <div className={s.empty}><div className={s.emptyText}>{t('noMenuItems')}</div></div>
             ) : catItems.map(it => {
               const q = qtyOf(it.id)

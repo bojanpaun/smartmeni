@@ -255,6 +255,7 @@
   "orderSentToast": "Заказ отправлен на приготовление",
   "orderSendErr": "Ошибка отправки заказа",
   "noMenuItems": "Нет позиций в этой категории",
+  "bundlesTab": "Наборы",
   "tabNaplata": "Оплата",
   "naplataEmpty": "Нет счетов к оплате",
   "payCash": "Наличные",

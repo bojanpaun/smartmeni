@@ -255,6 +255,7 @@
   "orderSentToast": "Sipariş hazırlığa gönderildi",
   "orderSendErr": "Sipariş gönderilirken hata",
   "noMenuItems": "Bu kategoride ürün yok",
+  "bundlesTab": "Paketler",
   "tabNaplata": "Tahsilat",
   "naplataEmpty": "Tahsil edilecek fatura yok",
   "payCash": "Nakit",

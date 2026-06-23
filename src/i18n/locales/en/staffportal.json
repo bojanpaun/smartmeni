@@ -255,6 +255,7 @@
   "orderSentToast": "Order sent to preparation",
   "orderSendErr": "Error sending order",
   "noMenuItems": "No items in this category",
+  "bundlesTab": "Bundles",
   "tabNaplata": "Payment",
   "naplataEmpty": "No invoices to collect",
   "payCash": "Cash",

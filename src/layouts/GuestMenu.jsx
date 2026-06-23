@@ -415,20 +415,28 @@ export default function Menu() {
       }).select().single()
 
       if (order) {
-        // Dodaj stavke narudžbe. Paket → header (nosi cijenu) + komponente (0€, za kuhinju).
+        // Stavke narudžbe. SVI redovi imaju ISTI skup ključeva (PostgREST bulk-insert to
+        // zahtijeva: "All object keys must match") — paket širi na komponente (puna cijena)
+        // + negativnu stavku popusta po PDV grupi.
+        const rid = realData.restaurant.id
+        const mkRow = (o) => ({
+          restaurant_id: rid, order_id: order.id,
+          menu_item_id: o.menu_item_id ?? null, name: o.name,
+          price: o.price, quantity: o.quantity,
+          category_id: o.category_id ?? null, bundle_id: o.bundle_id ?? null,
+          is_bundle_component: o.is_bundle_component ?? false, vat_rate_key: o.vat_rate_key ?? null,
+        })
         const rows = []
         for (const item of cart) {
           if (item.is_bundle) {
-            // Komponente po PUNOJ cijeni (za prikaz po artiklima na računu).
             const comps = item.components || []
             for (const comp of comps) {
-              rows.push({
-                restaurant_id: realData.restaurant.id, order_id: order.id, menu_item_id: comp.menu_item_id,
-                name: comp.name, price: parseFloat(comp.unit_price), quantity: comp.quantity * item.qty,
+              rows.push(mkRow({
+                menu_item_id: comp.menu_item_id, name: comp.name,
+                price: parseFloat(comp.unit_price), quantity: comp.quantity * item.qty,
                 category_id: comp.category_id, bundle_id: item.id, is_bundle_component: true,
-              })
+              }))
             }
-            // Popust kao zasebna negativna stavka PO PDV GRUPI (zbir = bundle_price).
             const grossLines = comps.map(c => ({
               vat_rate_key: c.vat_rate_key,
               gross_cents: Math.round(parseFloat(c.unit_price) * 100) * c.quantity * item.qty,
@@ -437,23 +445,21 @@ export default function Menu() {
             const origCents = grossLines.reduce((s, g) => s + g.gross_cents, 0)
             const pct = origCents > 0 ? Math.round((1 - bundleTotalCents / origCents) * 100) : 0
             for (const d of allocateBundleDiscount(grossLines, bundleTotalCents)) {
-              rows.push({
-                restaurant_id: realData.restaurant.id, order_id: order.id, menu_item_id: null,
-                name: `Popust: ${item.name}${pct > 0 ? ` (−${pct}%)` : ''}`,
+              rows.push(mkRow({
+                menu_item_id: null, name: `Popust: ${item.name}${pct > 0 ? ` (−${pct}%)` : ''}`,
                 price: -(d.discount_cents / 100), quantity: 1,
-                category_id: null, bundle_id: item.id, is_bundle_component: false,
-                vat_rate_key: d.vat_rate_key,
-              })
+                bundle_id: item.id, is_bundle_component: false, vat_rate_key: d.vat_rate_key,
+              }))
             }
           } else {
-            rows.push({
-              restaurant_id: realData.restaurant.id, order_id: order.id, menu_item_id: item.id,
-              name: item.name, price: parseFloat(item.price), quantity: item.qty,
-              category_id: item.category_id,
-            })
+            rows.push(mkRow({
+              menu_item_id: item.id, name: item.name,
+              price: parseFloat(item.price), quantity: item.qty, category_id: item.category_id,
+            }))
           }
         }
-        await supabase.from('order_items').insert(rows)
+        const { error: itemsErr } = await supabase.from('order_items').insert(rows)
+        if (itemsErr) console.error('order_items insert', itemsErr)
         setLastOrderId(order.id)
         try { sessionStorage.setItem(ORDER_KEY(slug), order.id) } catch {}
       }
