@@ -23,6 +23,14 @@ const CATEGORY_KEYS = {
   enterprise: 'bcCatEnterprise',
 }
 
+// Vertikale koje superadmin pali/gasi po tenantu (restaurants.active_verticals).
+// 'restaurant' je osnova i uvijek je uključen (ne može se ugasiti).
+const VERTICALS = [
+  { key: 'restaurant', emoji: '🍽️', labelKey: 'sapVertRestaurant', base: true },
+  { key: 'hotel',      emoji: '🏨', labelKey: 'sapVertHotel' },
+  { key: 'rental',     emoji: '🏖️', labelKey: 'sapVertRental' },
+]
+
 export default function SuperAdminPanel() {
   const { isSuperAdmin, palettes, restaurant, setRestaurant, setTenant, user, betaMode } = usePlatform()
   const navigate = useNavigate()
@@ -117,7 +125,7 @@ export default function SuperAdminPanel() {
     setLoading(true)
     const { data, error } = await supabase
       .from('restaurants')
-      .select('id, name, slug, plan, trial_ends_at, plan_expires_at, suspended_at, is_complimentary, complimentary_note, admin_theme, color, approval_status, created_at')
+      .select('id, name, slug, plan, trial_ends_at, plan_expires_at, suspended_at, is_complimentary, complimentary_note, admin_theme, color, approval_status, active_verticals, created_at')
       .order('created_at', { ascending: false })
 
     if (!error) setRestaurants(data || [])
@@ -144,6 +152,9 @@ export default function SuperAdminPanel() {
       trial_ends_at: rest.trial_ends_at ? rest.trial_ends_at.slice(0, 10) : '',
       admin_theme: rest.admin_theme || 'green',
       active_addons: [],
+      active_verticals: Array.isArray(rest.active_verticals) && rest.active_verticals.length
+        ? rest.active_verticals
+        : ['restaurant'],
     })
 
     const { data: sub } = await supabase
@@ -172,10 +183,24 @@ export default function SuperAdminPanel() {
     })
   }
 
+  // Vertikala: 'restaurant' je osnova i ne može se ugasiti; ostale se pale/gase.
+  const toggleVertical = (key) => {
+    if (key === 'restaurant') return
+    setEditForm(f => {
+      const current = f.active_verticals || ['restaurant']
+      const next = current.includes(key)
+        ? current.filter(v => v !== key)
+        : [...current, key]
+      return { ...f, active_verticals: next }
+    })
+  }
+
   const saveEdit = async () => {
     setSaving(true)
     setSaveMsg('')
 
+    // 'restaurant' uvijek prisutan + dedupe (osnova vertikale).
+    const verticals = Array.from(new Set(['restaurant', ...(editForm.active_verticals || [])]))
     const payload = {
       is_complimentary: editForm.is_complimentary,
       complimentary_note: editForm.is_complimentary ? editForm.complimentary_note : null,
@@ -183,6 +208,7 @@ export default function SuperAdminPanel() {
       plan_expires_at: editForm.plan_expires_at || null,
       trial_ends_at: editForm.trial_ends_at || null,
       admin_theme: editForm.admin_theme,
+      active_verticals: verticals,
     }
 
     if (editForm.is_complimentary) {
@@ -621,6 +647,31 @@ export default function SuperAdminPanel() {
                   value={editForm.trial_ends_at}
                   onChange={e => setEditForm(f => ({ ...f, trial_ends_at: e.target.value }))}
                 />
+              </div>
+            </div>
+
+            {/* Vertikale (moduli biznisa) — spans full width */}
+            <div className={`${styles.editSection} ${styles.addonSection}`}>
+              <div className={styles.editSectionTitle}>🏢 {t('sapVerticals')}</div>
+              <div className={styles.fieldHint} style={{ marginBottom: 16 }}>
+                {t('sapVerticalsHint')}
+              </div>
+              <div className={styles.addonToggles}>
+                {VERTICALS.map(v => {
+                  const on = v.base || (editForm.active_verticals || ['restaurant']).includes(v.key)
+                  return (
+                    <label
+                      key={v.key}
+                      className={styles.addonToggleRow}
+                      onClick={() => toggleVertical(v.key)}
+                      style={v.base ? { opacity: 0.7, cursor: 'default' } : undefined}
+                    >
+                      <div className={`${styles.toggle} ${on ? styles.toggleOn : styles.toggleOff}`} />
+                      <span className={styles.addonToggleName}>{v.emoji} {t(v.labelKey)}</span>
+                      {v.base && <span className={styles.addonTogglePrice}>{t('sapVertBase')}</span>}
+                    </label>
+                  )
+                })}
               </div>
             </div>
 
