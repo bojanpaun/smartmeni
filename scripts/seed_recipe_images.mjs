@@ -42,8 +42,10 @@ const sleep = (ms) => new Promise(r => setTimeout(r, ms))
 
 const IMG_WIDTH = 600 // dovoljno za kartice/modal (uklj. retina), mali fajl
 
-async function searchPexels(query) {
-  const url = `https://api.pexels.com/v1/search?query=${encodeURIComponent(query)}&per_page=1&orientation=landscape`
+// page omogućava varijaciju: ista generička pretraga (npr. "cold beer in glass")
+// uz rastući page vraća različite fotografije pa se slike ne ponavljaju.
+async function searchPexels(query, page = 1) {
+  const url = `https://api.pexels.com/v1/search?query=${encodeURIComponent(query)}&per_page=1&page=${page}&orientation=landscape`
   const res = await fetch(url, { headers: { Authorization: PEXELS_KEY } })
   if (!res.ok) throw new Error(`Pexels ${res.status}`)
   const data = await res.json()
@@ -51,6 +53,26 @@ async function searchPexels(query) {
   // Pexels podržava resize/kompresiju kroz query params na original URL-u.
   if (orig) return `${orig}?auto=compress&cs=tinysrgb&w=${IMG_WIDTH}`
   return data.photos?.[0]?.src?.large || null
+}
+
+// Pexels upit po receptu. Za beverage (pivo/vino/žestoko) brendovi/sorte se ne
+// pogađaju po imenu, pa koristimo generičan vizuelni pojam po pod-tipu (uz page
+// rotaciju za raznolikost). Za ostalo: naziv (EN) + sufiks po kategoriji.
+function buildQuery(r) {
+  const hay = `${r.name} ${r.name_en || ''}`.toLowerCase()
+  if (r.category === 'beverage') {
+    if (/(pivo|beer|lager|stout|radler|guinness|ipa)/.test(hay)) return 'cold beer in glass'
+    if (/(vino|wine|vranac|krsta|rosé|rose|pjenu|sparkling|graševina|grasevina|žilavka|zilavka|blatina|plavac|malvazija|prokupac|tamjanika|bevanda|gemiš|gemis)/.test(hay)) return 'glass of wine'
+    return 'glass of brandy spirit drink' // rakije, žestoko, likeri, aperitivi
+  }
+  const subject = r.name_en || r.name
+  const suffix = {
+    coffee: 'coffee drink', cocktail: 'cocktail drink', soft: 'fresh drink',
+    hot: 'hot tea drink', beverage: 'drink',
+    food: 'food dish', salad: 'food', breakfast: 'breakfast food', dessert: 'dessert',
+    soup: 'soup bowl', side: 'food side dish', kids: 'food', vegetarian: 'vegetarian food',
+  }[r.category] || 'food'
+  return `${subject} ${suffix}`
 }
 
 async function run() {
@@ -61,6 +83,7 @@ async function run() {
   if (error) { console.error('DB greška:', error.message); process.exit(1) }
 
   let done = 0, skipped = 0, failed = 0
+  const pageCounter = {} // query -> koliko puta je korišten (za page rotaciju)
   for (const r of recipes) {
     if (ALLOWLIST && !ALLOWLIST.has(r.id)) { skipped++; continue }
     // Nikad ne gazi ručno postavljene slike (superadmin UI dodaje ?v= u URL).
@@ -68,15 +91,10 @@ async function run() {
     // Bez --force: samo popuni gdje fali. Sa --force: re-fetch (npr. smanjenje).
     if (r.image_url && !FORCE) { skipped++; continue }
 
-    const subject = r.name_en || r.name
-    const suffix = {
-      coffee: 'coffee drink', cocktail: 'cocktail drink', soft: 'drink',
-      hot: 'hot drink', beverage: 'drink',
-      food: 'food dish', salad: 'food', breakfast: 'breakfast food', dessert: 'dessert',
-    }[r.category] || 'food'
-    const query = `${subject} ${suffix}`
+    const query = buildQuery(r)
+    const page = (pageCounter[query] = (pageCounter[query] || 0) + 1)
     try {
-      const photoUrl = await searchPexels(query)
+      const photoUrl = await searchPexels(query, page)
       if (!photoUrl) { console.warn(`⊘ ${r.id}: nema rezultata za "${query}"`); failed++; continue }
 
       const imgRes = await fetch(photoUrl)
