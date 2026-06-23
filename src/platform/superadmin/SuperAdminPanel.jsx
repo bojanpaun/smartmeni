@@ -19,6 +19,7 @@ const ADMIN_THEMES = [
 const CATEGORY_KEYS = {
   restaurant: 'bcCatRestaurant',
   hotel:      'bcCatHotel',
+  rental:     'bcCatRental',
   enterprise: 'bcCatEnterprise',
 }
 

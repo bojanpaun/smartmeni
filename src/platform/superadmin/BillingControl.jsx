@@ -8,6 +8,7 @@ import styles from './BillingControl.module.css'
 const CATEGORY_KEYS = {
   restaurant: 'bcCatRestaurant',
   hotel:      'bcCatHotel',
+  rental:     'bcCatRental',
   enterprise: 'bcCatEnterprise',
 }
 
