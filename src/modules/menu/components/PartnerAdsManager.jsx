@@ -7,6 +7,7 @@ import { translateContent, partnerAdFields } from '../../../lib/contentTranslate
 import styles from './PartnerAdsManager.module.css'
 
 const PLACEMENTS = ['top', 'middle', 'bottom']
+const AD_TYPES = ['compact', 'banner', 'large']
 
 // Upravljanje reklamama partnera na javnom meniju. Interni alat restorana (bez addona).
 // Banner se prikazuje na izabranoj poziciji (top/middle/bottom). title/subtitle se
@@ -25,7 +26,7 @@ export default function PartnerAdsManager({ restaurant }) {
 
   const emptyForm = {
     title: '', subtitle: '', image_url: '', link_url: '',
-    placement: 'top', is_active: true, valid_from: '', valid_until: '',
+    placement: 'top', display_type: 'banner', is_active: true, valid_from: '', valid_until: '',
   }
   const [form, setForm] = useState(emptyForm)
 
@@ -42,7 +43,7 @@ export default function PartnerAdsManager({ restaurant }) {
   const openEdit = (a) => {
     setForm({
       title: a.title || '', subtitle: a.subtitle || '', image_url: a.image_url || '', link_url: a.link_url || '',
-      placement: a.placement || 'top', is_active: !!a.is_active,
+      placement: a.placement || 'top', display_type: a.display_type || 'banner', is_active: !!a.is_active,
       valid_from: a.valid_from || '', valid_until: a.valid_until || '',
     })
     setEditId(a.id); setErr(''); setShowForm(true)
@@ -74,6 +75,7 @@ export default function PartnerAdsManager({ restaurant }) {
       image_url: form.image_url || null,
       link_url: form.link_url.trim() || null,
       placement: form.placement,
+      display_type: form.display_type,
       is_active: form.is_active,
       valid_from: form.valid_from || null,
       valid_until: form.valid_until || null,
@@ -122,6 +124,7 @@ export default function PartnerAdsManager({ restaurant }) {
                 <div className={styles.rowName}>{tr('partner_ad', a.id, 'title', a.title)}</div>
                 <div className={styles.rowMeta}>
                   <span className={styles.placeTag}>{t(`paPlace_${a.placement}`)}</span>
+                  {' '}<span className={styles.placeTag}>{t(`paType_${a.display_type || 'banner'}`)}</span>
                   {!a.is_active && <> · <span className={styles.rowInactive}>{t('paInactive')}</span></>}
                 </div>
               </div>
@@ -164,6 +167,12 @@ export default function PartnerAdsManager({ restaurant }) {
                 <label>{t('paPlacement')}</label>
                 <select value={form.placement} onChange={e => setForm(f => ({ ...f, placement: e.target.value }))}>
                   {PLACEMENTS.map(p => <option key={p} value={p}>{t(`paPlace_${p}`)}</option>)}
+                </select>
+              </div>
+              <div className={styles.field}>
+                <label>{t('paType')} <span className={styles.hint}>{t('paTypeHint')}</span></label>
+                <select value={form.display_type} onChange={e => setForm(f => ({ ...f, display_type: e.target.value }))}>
+                  {AD_TYPES.map(ty => <option key={ty} value={ty}>{t(`paType_${ty}`)}</option>)}
                 </select>
               </div>
               <div className={styles.row2}>

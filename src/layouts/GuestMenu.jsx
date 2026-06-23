@@ -287,9 +287,13 @@ export default function Menu() {
         {list.map(a => {
           const title = tr('partner_ad', a.id, 'title', a.title)
           const sub = tr('partner_ad', a.id, 'subtitle', a.subtitle || '')
+          // Veličina/izgled bannera (compact = slika sa strane; banner/large = preko širine)
+          const type = (a.display_type === 'compact' || a.display_type === 'large') ? a.display_type : 'banner'
+          const containerCls = type === 'compact' ? styles.adRow : styles.adBanner
+          const imgCls = type === 'compact' ? styles.adImgCompact : (type === 'large' ? `${styles.adImg} ${styles.adImgLarge}` : styles.adImg)
           const inner = (
-            <div className={styles.adBanner}>
-              {a.image_url && <img className={styles.adImg} src={a.image_url} alt={title} loading="lazy" decoding="async" />}
+            <div className={containerCls}>
+              {a.image_url && <img className={imgCls} src={a.image_url} alt={title} loading="lazy" decoding="async" />}
               <div className={styles.adBody}>
                 <span className={styles.adTag}>{t('adLabel')}</span>
                 <div className={styles.adTitle}>{title}</div>

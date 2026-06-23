@@ -180,15 +180,22 @@
 /* Reklame partnera — banner u feedu (jasno odvojen od artikala) */
 .ads { display: flex; flex-direction: column; gap: 10px; margin: 12px 14px 0; }
 .adLink { text-decoration: none; color: inherit; display: block; }
-.adBanner {
-  display: flex; flex-direction: column; align-items: stretch; gap: 0;
+/* Tri tipa bannera (tenant bira u admin): compact (slika sa strane), banner, large */
+.adBanner, .adRow {
+  display: flex; align-items: stretch; gap: 0;
   border: 1px dashed var(--c-border); border-radius: 14px; overflow: hidden;
   background: var(--c-surface); transition: box-shadow 0.15s, transform 0.15s;
 }
-.adLink:hover .adBanner { box-shadow: 0 4px 14px rgba(0,0,0,0.1); transform: translateY(-1px); }
-/* Slika preko cijele širine bannera — maksimalan prostor za vizual reklame */
-.adImg { width: 100%; height: 160px; object-fit: cover; display: block; }
-.adBody { padding: 11px 14px; min-width: 0; display: flex; flex-direction: column; gap: 3px; }
+.adBanner { flex-direction: column; }
+.adRow { flex-direction: row; }
+.adLink:hover .adBanner, .adLink:hover .adRow { box-shadow: 0 4px 14px rgba(0,0,0,0.1); transform: translateY(-1px); }
+/* banner (default): slika preko širine, umjerena visina */
+.adImg { width: 100%; height: 120px; object-fit: cover; display: block; }
+/* large: veći vizual */
+.adImgLarge { height: 190px; }
+/* compact: mala slika sa strane */
+.adImgCompact { width: 96px; min-height: 72px; object-fit: cover; flex-shrink: 0; display: block; }
+.adBody { padding: 11px 14px; min-width: 0; display: flex; flex-direction: column; justify-content: center; gap: 3px; }
 .adTag {
   align-self: flex-start; font-size: 9px; font-weight: 700; text-transform: uppercase; letter-spacing: 0.6px;
   padding: 2px 7px; border-radius: 20px; background: var(--c-bg-subtle); color: var(--c-text-muted);

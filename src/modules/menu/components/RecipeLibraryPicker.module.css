@@ -181,6 +181,14 @@
   color: var(--c-text);
   font-size: 0.95rem;
 }
+/* Gramaža / količina uz naziv u galeriji */
+.portion {
+  font-weight: 500;
+  font-size: 0.8rem;
+  color: var(--c-text-muted);
+  margin-left: 5px;
+  white-space: nowrap;
+}
 
 .ings {
   font-size: 0.78rem;

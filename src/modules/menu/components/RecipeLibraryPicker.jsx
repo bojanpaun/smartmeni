@@ -54,7 +54,7 @@ export default function RecipeLibraryPicker({ onClose, onImported, categories = 
     setLoading(true)
     const [{ data: recs }, { data: ings }] = await Promise.all([
       supabase.from('recipe_library')
-        .select('id, name, instructions, category, emoji, suggested_price, image_url')
+        .select('id, name, instructions, category, emoji, suggested_price, image_url, portion')
         .eq('is_active', true)
         .order('sort_order'),
       supabase.from('recipe_library_ingredients')
@@ -200,7 +200,10 @@ export default function RecipeLibraryPicker({ onClose, onImported, categories = 
                         ? <img src={r.image_url} alt="" className={styles.thumb} loading="lazy" />
                         : <span className={styles.emoji}>{r.emoji}</span>}
                       <div className={styles.info}>
-                        <div className={styles.name}>{lt('recipe_library', r.id, 'name', r.name)}</div>
+                        <div className={styles.name}>
+                          {lt('recipe_library', r.id, 'name', r.name)}
+                          {r.portion && <span className={styles.portion}>· {r.portion}</span>}
+                        </div>
                         <div className={styles.ings}>
                           {ings.map(i => `${i.ingredient_name} ${i.quantity}${i.unit}`).join(' · ') || '—'}
                         </div>
