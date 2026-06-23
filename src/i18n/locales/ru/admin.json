@@ -2757,6 +2757,8 @@
   "sapActivePlan": "Активный план",
   "sapFree": "(бесплатно)",
   "sapPerMonthShort": "/мес",
+  "sapRestrictedBadge": "исключён из беты",
+  "sapRestrictedHint": "Глобальная бета не открывает — выдай здесь, чтобы этот арендатор увидел.",
   "sapProExpires": "Pro истекает",
   "sapNoExpiryHint": "Оставьте пустым, если нет даты окончания.",
   "sapTrialExpires": "Триал истекает",

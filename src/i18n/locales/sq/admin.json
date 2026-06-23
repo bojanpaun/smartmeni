@@ -2757,6 +2757,8 @@
   "sapActivePlan": "Plani aktiv",
   "sapFree": "(falas)",
   "sapPerMonthShort": "/muaj",
+  "sapRestrictedBadge": "i përjashtuar nga beta",
+  "sapRestrictedHint": "Beta globale nuk e hap — jepe këtu që ky tenant ta shohë.",
   "sapProExpires": "Pro skadon",
   "sapNoExpiryHint": "Lëre bosh nëse nuk ka datë skadimi.",
   "sapTrialExpires": "Prova skadon",

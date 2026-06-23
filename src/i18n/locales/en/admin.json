@@ -2757,6 +2757,8 @@
   "sapActivePlan": "Active plan",
   "sapFree": "(free)",
   "sapPerMonthShort": "/mo",
+  "sapRestrictedBadge": "beta-excluded",
+  "sapRestrictedHint": "Global beta does not unlock it — grant it here so this tenant can see it.",
   "sapProExpires": "Pro expires",
   "sapNoExpiryHint": "Leave empty if there is no expiry date.",
   "sapTrialExpires": "Trial expires",

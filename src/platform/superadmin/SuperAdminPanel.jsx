@@ -126,7 +126,7 @@ export default function SuperAdminPanel() {
   const loadAddonCatalog = async () => {
     const { data } = await supabase
       .from('addon_catalog')
-      .select('id, name, category, price_monthly')
+      .select('id, name, category, price_monthly, beta_restricted')
       .eq('is_active', true)
       .order('sort_order')
     setAddonCatalog(data || [])
@@ -650,6 +650,11 @@ export default function SuperAdminPanel() {
                             >
                               <div className={`${styles.toggle} ${isActive ? styles.toggleOn : styles.toggleOff}`} />
                               <span className={styles.addonToggleName}>{addon.name}</span>
+                              {addon.beta_restricted && (
+                                <span className={styles.addonRestrictedBadge} title={t('sapRestrictedHint')}>
+                                  🔒 {t('sapRestrictedBadge')}
+                                </span>
+                              )}
                               <span className={styles.addonTogglePrice}>€{addon.price_monthly}{t('sapPerMonthShort')}</span>
                             </label>
                           )

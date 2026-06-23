@@ -2757,6 +2757,8 @@
   "sapActivePlan": "Aktif plan",
   "sapFree": "(ücretsiz)",
   "sapPerMonthShort": "/ay",
+  "sapRestrictedBadge": "beta dışı",
+  "sapRestrictedHint": "Global beta açmaz — bu kiracının görmesi için burada yetki ver.",
   "sapProExpires": "Pro bitişi",
   "sapNoExpiryHint": "Bitiş tarihi yoksa boş bırakın.",
   "sapTrialExpires": "Deneme bitişi",

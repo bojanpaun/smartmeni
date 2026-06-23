@@ -320,6 +320,17 @@
   white-space: nowrap;
 }
 
+/* Modul izuzet iz globalnog beta moda — vidi ga samo tenant s eksplicitnim grantom */
+.addonRestrictedBadge {
+  font-size: 10px;
+  font-weight: 700;
+  white-space: nowrap;
+  padding: 2px 7px;
+  border-radius: 20px;
+  background: var(--c-warning-bg);
+  color: var(--c-warning);
+}
+
 /* ── Responsive ── */
 @media (max-width: 640px) {
   .wrap { padding: 14px; }

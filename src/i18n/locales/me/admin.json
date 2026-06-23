@@ -2757,6 +2757,8 @@
   "sapActivePlan": "Aktivan plan",
   "sapFree": "(besplatan)",
   "sapPerMonthShort": "/mj",
+  "sapRestrictedBadge": "izuzet iz bete",
+  "sapRestrictedHint": "Globalni beta ga ne otključava — dodijeli ga ovdje da ga ovaj tenant vidi.",
   "sapProExpires": "Pro ističe",
   "sapNoExpiryHint": "Ostavi prazno ako nema expiry datuma.",
   "sapTrialExpires": "Trial ističe",
