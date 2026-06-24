@@ -26,6 +26,9 @@ const ACTION_KEYS = {
   'menu_item.updated':       'audActMenuItemUpdated',
   'menu_item.deleted':       'audActMenuItemDeleted',
   'menu_item.visibility':    'audActMenuItemVisibility',
+  'category.created':        'audActCategoryCreated',
+  'category.updated':        'audActCategoryUpdated',
+  'category.deleted':        'audActCategoryDeleted',
 }
 const ROLE_KEYS = {
   superadmin: 'audRoleSuperadmin',

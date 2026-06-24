@@ -240,6 +240,11 @@ export default function AdminMenu() {
     setActiveCategory(data.id)
     if (data?.id) {
       translateContent(restaurant.id, [{ entity_type: 'category', entity_id: data.id, field: 'name', text: name }]).catch(() => {})
+      logAudit({
+        restaurantId: restaurant.id, action: 'category.created',
+        entityType: 'category', entityId: data.id,
+        summary: `Dodata kategorija „${name}"`,
+      })
     }
   }
 
@@ -270,6 +275,11 @@ export default function AdminMenu() {
     setCategories(categories.map(c => c.id === cat.id ? { ...c, ...payload } : c))
     setEditingCat(false)
     translateContent(restaurant.id, [{ entity_type: 'category', entity_id: cat.id, field: 'name', text: name }]).catch(() => {})
+    logAudit({
+      restaurantId: restaurant.id, action: 'category.updated',
+      entityType: 'category', entityId: cat.id,
+      summary: `Izmijenjena kategorija „${name}"`,
+    })
   }
 
   const deleteCategory = async (cat) => {
@@ -284,6 +294,12 @@ export default function AdminMenu() {
     setCategories(remaining)
     setItems(items.filter(i => i.category_id !== cat.id))
     setActiveCategory(remaining[0]?.id || null)
+    logAudit({
+      restaurantId: restaurant.id, action: 'category.deleted',
+      entityType: 'category', entityId: cat.id,
+      summary: `Obrisana kategorija „${cat.name}"${itemCount > 0 ? ` (+${itemCount} artikala)` : ''}`,
+      metadata: { items_deleted: itemCount },
+    })
   }
 
   const filteredItems = activeCategory
