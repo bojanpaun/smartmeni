@@ -136,7 +136,7 @@ export default function AuditLogView({ scope = 'tenant' }) {
     <div className={styles.wrap}>
       <div className={styles.header}>
         <div>
-          <div className={styles.headerTitle}>📜 {t('audTitle')}</div>
+          <div className={styles.headerTitle}>{t('audTitle')}</div>
           <div className={styles.headerSub}>{superadmin ? t('audSubSuper') : t('audSubTenant')}</div>
         </div>
         <button className={styles.btnGhost}

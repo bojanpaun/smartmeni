@@ -14,8 +14,8 @@
   flex-wrap: wrap;
   margin-bottom: 20px;
 }
-.headerTitle { font-size: 22px; font-weight: 700; }
-.headerSub { color: var(--c-text-muted); font-size: 14px; margin-top: 4px; }
+.headerTitle { font-size: 1.5rem; font-weight: 700; color: var(--c-text); }
+.headerSub { color: var(--c-text-muted); font-size: 0.9rem; margin-top: 2px; }
 
 .btnGhost {
   background: var(--c-surface);
