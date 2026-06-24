@@ -243,6 +243,19 @@ Svaka izmjena se procjenjuje i kroz uticaj na brzinu, ne samo na funkciju.
 - **Mjeri, ne nagađaj:** kod prijave sporosti prvo lociraj fazu (Network waterfall / bundle /
   upit / render) pa onda popravljaj — ne refaktoriši naslijepo.
 
+### 10. Prateći artefakti uz svaki feature (DIO DEFINITION OF DONE)
+Kod razvoja **novog** ili dorade **postojećeg** featurea, uz kod redovno ažuriraj i ova tri sloja —
+nije „kasnije", nego dio istog zadatka:
+- **Uputstva u aplikaciji** (`ModuleHelp`, `modulehelp` i18n ns, ruta `/admin/{modul}/help`): nova
+  funkcija/ekran/tok → dopuni help sadržaj modula (na svih 7 jezika, key-parity gate). Izmijenjeno
+  ponašanje → ažuriraj postojeći opis. Korisnik ne smije naći nedokumentovanu funkciju.
+- **Audit log** ([[project-audit-log]]): svaka nova korisnička akcija koja mijenja podatke →
+  `logAudit({...})` na mjestu akcije **+** kod akcije u `ACTION_KEYS` (`AuditLogView.jsx`) **+**
+  `audAct*` labela ×7. Bez šuma (preskoči granularne mikro-izmjene), ali pokrij smislene operacije.
+- **Role i permisije** (po potrebi): ako feature koristi staff (ne samo owner) → dodaj/uvezi
+  permisiju (`perm:` gating u nav + `hasPermission`), uvrsti je u role konfiguraciju (`StaffRoles`,
+  `roles` tabela). Nova osjetljiva operacija → provjeri ko smije (owner/staff/superadmin) i RLS.
+
 ---
 
 ## Testiranje
