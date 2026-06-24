@@ -301,12 +301,24 @@
             "Klikni filtar Niske zalihe da vidiš samo kritične stavke",
             "Ažuriraj količinu putem ± kad stignu nove zalihe"
           ]
+        },
+        {
+          "icon": "🧾",
+          "title": "Narudžbenice",
+          "steps": [
+            "Idi na Narudžbenice i klikni + Nova narudžbenica",
+            "Odaberi dobavljača, dodaj stavke s količinom i cijenom, pa spremi skicu",
+            "Odobri → Pošalji dobavljaču; po primitku robe klikni Zaprimi i unesi stvarno zaprimljene količine",
+            "Zaprimanje automatski povećava zalihe (kretanje tipa ulaz)",
+            "Gumb Auto-prijedlog izrađuje skice za sve stavke ispod minimuma, grupirane po dobavljaču"
+          ]
         }
       ],
       "tips": [
         "Automatsko skidanje radi samo ako su definirani recepti za stavke menija",
         "Korekcija je korisna za usklađivanje stanja nakon fizičke inventure",
-        "Spa potrošni materijal (ulja, kreme) prati se u istom modulu — koristi kategoriju Spa"
+        "Spa potrošni materijal (ulja, kreme) prati se u istom modulu — koristi kategoriju Spa",
+        "Auto-prijedlog preskače stavke koje su već u otvorenoj narudžbenici — neće dvostruko naručiti"
       ]
     },
     "hr": {

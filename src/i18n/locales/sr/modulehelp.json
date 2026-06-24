@@ -301,12 +301,24 @@
             "Klikni filter Niske zalihe da vidiš samo kritične stavke",
             "Ažuriraj količinu putem ± kad stignu nove zalihe"
           ]
+        },
+        {
+          "icon": "🧾",
+          "title": "Narudžbenice",
+          "steps": [
+            "Idi na Narudžbenice i klikni + Nova narudžbenica",
+            "Izaberi dobavljača, dodaj stavke sa količinom i cenom, pa sačuvaj nacrt",
+            "Odobri → Pošalji dobavljaču; po prijemu robe klikni Prijem i unesi stvarno primljene količine",
+            "Prijem automatski povećava zalihe (kretanje tipa ulaz)",
+            "Dugme Auto-predlog kreira nacrte za sve stavke ispod minimuma, grupisane po dobavljaču"
+          ]
         }
       ],
       "tips": [
         "Automatski odbitak radi samo ako su definisane recepture za stavke menija",
         "Korekcija je korisna za usklađivanje stanja nakon fizičke inventure",
-        "Spa potrošni materijal (ulja, kreme) prati se u istom modulu — koristi kategoriju Spa"
+        "Spa potrošni materijal (ulja, kreme) prati se u istom modulu — koristi kategoriju Spa",
+        "Auto-predlog preskače stavke koje su već u otvorenoj narudžbenici — neće duplo poručiti"
       ]
     },
     "hr": {

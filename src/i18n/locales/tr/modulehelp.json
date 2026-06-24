@@ -301,12 +301,24 @@
             "Yalnızca kritik öğeleri görmek için Düşük stok filtresine tıklayın",
             "Yeni stok geldiğinde miktarı ± ile güncelleyin"
           ]
+        },
+        {
+          "icon": "🧾",
+          "title": "Satın alma siparişleri",
+          "steps": [
+            "Satın alma siparişleri'ne git ve + Yeni sipariş'e tıkla",
+            "Bir tedarikçi seç, miktar ve fiyatla kalemler ekle, sonra taslağı kaydet",
+            "Onayla → Tedarikçiye gönder; mallar geldiğinde Teslim al'a tıkla ve fiilen teslim alınan miktarları gir",
+            "Teslim alma stoğu otomatik artırır (giriş hareketi)",
+            "Otomatik öneri düğmesi, minimumun altındaki tüm kalemler için tedarikçiye göre taslak oluşturur"
+          ]
         }
       ],
       "tips": [
         "Otomatik düşüm yalnızca menü öğeleri için tarifler tanımlanmışsa çalışır",
         "Düzeltme, fiziksel sayımdan sonra durumu eşleştirmek için kullanışlıdır",
-        "Spa sarf malzemeleri (yağlar, kremler) aynı modülde takip edilir — Spa kategorisini kullanın"
+        "Spa sarf malzemeleri (yağlar, kremler) aynı modülde takip edilir — Spa kategorisini kullanın",
+        "Otomatik öneri, zaten açık bir siparişte olan kalemleri atlar — iki kez sipariş etmez"
       ]
     },
     "hr": {

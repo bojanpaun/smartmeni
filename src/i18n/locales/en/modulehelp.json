@@ -301,12 +301,24 @@
             "Click the Low stock filter to see only critical items",
             "Update the quantity via ± when new stock arrives"
           ]
+        },
+        {
+          "icon": "🧾",
+          "title": "Purchase orders",
+          "steps": [
+            "Go to Purchase orders and click + New order",
+            "Select a supplier, add items with quantity and price, then save the draft",
+            "Approve → Send to supplier; when goods arrive click Receive and enter the actually received quantities",
+            "Receiving automatically increases stock (an 'in' movement)",
+            "The Auto-suggest button creates drafts for all items below minimum, grouped by supplier"
+          ]
         }
       ],
       "tips": [
         "Automatic deduction works only if recipes are defined for menu items",
         "Adjustment is useful for reconciling the count after a physical stocktake",
-        "Spa consumables (oils, creams) are tracked in the same module — use the Spa category"
+        "Spa consumables (oils, creams) are tracked in the same module — use the Spa category",
+        "Auto-suggest skips items already in an open order, so it won't double-order"
       ]
     },
     "hr": {

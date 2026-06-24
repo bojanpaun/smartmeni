@@ -2069,11 +2069,11 @@ Za hotele koji primaju grupe (vjenčanja, sportski timovi, korporativni incentiv
 
 ### Definition of Done
 
-- [ ] `suppliers` tabela + CRUD u `/admin/inventory`
-- [ ] Dobavljači vezani za `inventory_items` (svaka stavka ima preferirani dobavljač)
-- [ ] `purchase_orders` tabela + kreiranje PO s approval workflowom
-- [ ] Primka robe — unos stvarno primljene količine, ažuriranje stanja
-- [ ] Auto-draft PO pri dostizanju minimalnog nivoa
+- [x] `suppliers` tabela + CRUD u `/admin/inventory` — **ZAVRŠENO (INV2-1, 2026-06-25)**: migr. `20260625100000`, owner RLS, pgTAP 067, `SuppliersPage` (gated inventory_pro, kategorije/ocjena/rok), audit `supplier.*`, i18n×7
+- [x] Dobavljači vezani za `inventory_items` (svaka stavka ima preferirani dobavljač) — `inventory_items.supplier_id` + dropdown u formi stavke
+- [x] `purchase_orders` tabela + kreiranje PO s approval workflowom — **ZAVRŠENO (INV2-2, 2026-06-25)**: migr. `20260625110000`, `purchase_orders`+`purchase_order_items` (owner RLS, atomarni `po_number` po tenantu), status tok draft→approved→sent→partial/received(+cancelled), `PurchaseOrdersPage` (gated inventory_pro), ruta `/admin/inventory/orders`, audit `purchase_order.*`, pgTAP 068, i18n×7 + ModuleHelp
+- [x] Primka robe — unos stvarno primljene količine, ažuriranje stanja — RPC `receive_purchase_order()` (delta → `inventory_movements` source `purchase`, status auto received/partial)
+- [x] Auto-draft PO pri dostizanju minimalnog nivoa — RPC `generate_reorder_drafts()` (niske zalihe grupisane po dobavljaču, preskače stavke u otvorenoj PO), dugme „⚡ Auto-prijedlog"
 - [ ] `stock_takes` tabela + UI za unos stvarnog stanja
 - [ ] Izvještaj razlika inventure s vrijednosnim iskazom
 - [ ] Period lock po inventuri

@@ -60,6 +60,14 @@ const ACTION_KEYS = {
   'supplier.created':            'audActSupplierCreated',
   'supplier.updated':            'audActSupplierUpdated',
   'supplier.deleted':            'audActSupplierDeleted',
+  'purchase_order.created':      'audActPoCreated',
+  'purchase_order.updated':      'audActPoUpdated',
+  'purchase_order.deleted':      'audActPoDeleted',
+  'purchase_order.approved':     'audActPoApproved',
+  'purchase_order.sent':         'audActPoSent',
+  'purchase_order.received':     'audActPoReceived',
+  'purchase_order.cancelled':    'audActPoCancelled',
+  'purchase_order.auto_draft':   'audActPoAuto',
 }
 const ROLE_KEYS = {
   superadmin: 'audRoleSuperadmin',

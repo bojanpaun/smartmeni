@@ -301,12 +301,24 @@
             "Kliko filtrin Stok i ulët për të parë vetëm artikujt kritikë",
             "Përditëso sasinë me ± kur vjen stoku i ri"
           ]
+        },
+        {
+          "icon": "🧾",
+          "title": "Porositë",
+          "steps": [
+            "Shko te Porositë dhe kliko + Porosi e re",
+            "Zgjidh furnitorin, shto artikujt me sasi dhe çmim, pastaj ruaj skicën",
+            "Aprovo → Dërgo te furnitori; kur mbërrijnë mallrat kliko Pranim dhe fut sasitë e pranuara realisht",
+            "Pranimi rrit automatikisht stoqet (lëvizje e tipit hyrje)",
+            "Butoni Auto-sugjerim krijon skica për të gjithë artikujt nën minimum, të grupuara sipas furnitorit"
+          ]
         }
       ],
       "tips": [
         "Zbritja automatike funksionon vetëm nëse janë përcaktuar recetat për artikujt e menysë",
         "Korrigjimi është i dobishëm për të pajtuar gjendjen pas një inventarizimi fizik",
-        "Materialet harxhuese të spa-s (vajra, krema) ndiqen në të njëjtin modul — përdor kategorinë Spa"
+        "Materialet harxhuese të spa-s (vajra, krema) ndiqen në të njëjtin modul — përdor kategorinë Spa",
+        "Auto-sugjerimi anashkalon artikujt që janë tashmë në një porosi të hapur — nuk porosit dy herë"
       ]
     },
     "hr": {

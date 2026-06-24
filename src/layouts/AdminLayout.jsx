@@ -115,6 +115,7 @@ export const MODULES = [
         { labelKey: 'navInventoryList',        icon: '📦', path: '/admin/inventory',             exact: true },
         { labelKey: 'navStockMovements', icon: '📋', path: '/admin/inventory/movements' },
         { labelKey: 'navSuppliers',     icon: '🚚', path: '/admin/inventory/suppliers' },
+        { labelKey: 'navPurchaseOrders', icon: '🧾', path: '/admin/inventory/orders' },
         { labelKey: 'navRecipes',       icon: '🧪', path: '/admin/inventory/recipes' },
       ],
     },

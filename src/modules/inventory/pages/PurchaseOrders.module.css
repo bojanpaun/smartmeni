@@ -1,0 +1,92 @@
+/* Inventory Pro v2 — Narudžbenice (purchase orders) */
+
+.loading { padding: 3rem; text-align: center; color: var(--c-text-muted); }
+
+.header { display: flex; align-items: flex-start; justify-content: space-between; margin-bottom: 16px; gap: 12px; flex-wrap: wrap; }
+.headerActions { display: flex; gap: 8px; flex-wrap: wrap; }
+.btnAdd { composes: btnPrimary from '../../../styles/buttons.module.css'; }
+.btnSecondary { composes: btnSecondary from '../../../styles/buttons.module.css'; }
+
+/* ── Filteri (status pills) ── */
+.filters { display: flex; gap: 5px; margin-bottom: 16px; flex-wrap: wrap; align-items: center; }
+.filterBtn { composes: pillBtn from '../../../styles/nav.module.css'; }
+.filterBtnActive { composes: pillBtnActive from '../../../styles/nav.module.css'; }
+
+/* ── Tabela (scroll-wrapper za uske ekrane) ── */
+.tableWrap { overflow-x: auto; }
+.table { background: var(--c-surface); border: 1px solid var(--c-border); border-radius: 14px; overflow: hidden; min-width: 640px; }
+.tableHeader, .tableRow {
+  display: grid;
+  grid-template-columns: 70px 2fr 1fr 90px 110px 120px 130px;
+  align-items: center;
+}
+.tableHeader {
+  padding: 10px 16px; background: var(--c-bg); border-bottom: 1px solid var(--c-border);
+  font-size: 11px; font-weight: 500; color: var(--c-text-muted);
+  text-transform: uppercase; letter-spacing: 0.5px;
+}
+.tableRow { padding: 12px 16px; border-bottom: 1px solid var(--c-bg-subtle); transition: background 0.1s; cursor: pointer; }
+.tableRow:last-child { border-bottom: none; }
+.tableRow:hover { background: var(--c-bg); }
+
+.poNum { font-size: 14px; font-weight: 700; color: var(--c-text); }
+.poSupplier { font-size: 14px; font-weight: 500; color: var(--c-text); }
+.poMuted { font-size: 12px; color: var(--c-text-muted); }
+.poAmount { font-size: 13px; font-weight: 600; color: var(--c-text); }
+
+/* ── Status badge ── */
+.badge { display: inline-block; font-size: 11px; font-weight: 600; padding: 3px 10px; border-radius: 20px; border: 1px solid transparent; white-space: nowrap; }
+
+/* ── Empty ── */
+.empty { text-align: center; padding: 3rem 1rem; color: var(--c-text-muted); display: flex; flex-direction: column; gap: 12px; align-items: center; }
+.emptyIcon { font-size: 40px; }
+
+/* ── Modal ── */
+.overlay { composes: overlay from '../../../styles/modal.module.css'; }
+.modal { composes: modal from '../../../styles/modal.module.css'; max-width: 640px; }
+.modalHeader { composes: modalHeader from '../../../styles/modal.module.css'; }
+.modalTitle { composes: modalTitle from '../../../styles/modal.module.css'; }
+.modalClose { composes: modalClose from '../../../styles/modal.module.css'; }
+
+.form { display: flex; flex-direction: column; gap: 12px; }
+.metaGrid { display: grid; grid-template-columns: 1fr 1fr; gap: 12px; }
+.field { display: flex; flex-direction: column; gap: 5px; }
+.field label { font-size: 12px; font-weight: 500; color: var(--c-text-medium); }
+.field input, .field select, .field textarea { padding: 9px 12px; border: 1px solid var(--c-border-input); border-radius: 9px; font-size: 13px; font-family: var(--c-font-sans); outline: none; }
+.field input:focus, .field select:focus, .field textarea:focus { border-color: var(--c-primary); }
+.fullWidth { grid-column: 1 / -1; }
+
+/* ── Linije ── */
+.linesHead { font-size: 12px; font-weight: 600; color: var(--c-text-medium); margin-top: 4px; }
+.lineRow { display: grid; grid-template-columns: 2fr 90px 110px 36px; gap: 8px; align-items: center; }
+.lineRowView { display: grid; grid-template-columns: 2fr 1fr 1fr 1fr; gap: 8px; align-items: center; padding: 8px 0; border-bottom: 1px solid var(--c-bg-subtle); font-size: 13px; }
+.lineRow input, .lineRow select { padding: 7px 9px; border: 1px solid var(--c-border-input); border-radius: 8px; font-size: 13px; font-family: var(--c-font-sans); outline: none; width: 100%; box-sizing: border-box; }
+.lineDel { background: transparent; border: 1px solid var(--c-danger-border); border-radius: 7px; color: var(--c-danger); cursor: pointer; font-size: 13px; padding: 6px; }
+.lineDel:hover { background: var(--c-danger-bg); }
+.addLine { composes: btnSecondary from '../../../styles/buttons.module.css'; align-self: flex-start; padding: 7px 14px; font-size: 12px; }
+
+.lineName { font-weight: 500; color: var(--c-text); }
+.lineMuted { color: var(--c-text-muted); }
+.lineRecvFull { color: var(--c-success); font-weight: 600; }
+.lineRecvPartial { color: var(--c-warning); font-weight: 600; }
+
+.totalRow { display: flex; justify-content: flex-end; gap: 10px; font-size: 14px; font-weight: 700; color: var(--c-text); padding-top: 8px; }
+
+/* ── Akcije ── */
+.formActions { display: flex; gap: 8px; justify-content: flex-end; margin-top: 4px; flex-wrap: wrap; }
+.btnCancelForm { composes: btnSecondary from '../../../styles/buttons.module.css'; padding: 10px 18px; background: transparent; }
+.btnSave { composes: btnPrimary from '../../../styles/buttons.module.css'; padding: 10px 18px; }
+.btnApprove { padding: 10px 18px; background: var(--c-info-bg); color: var(--c-info); border: 1px solid var(--c-info-border); border-radius: 9px; font-weight: 600; cursor: pointer; font-family: var(--c-font-sans); font-size: 13px; }
+.btnSend { padding: 10px 18px; background: var(--c-accent-bg); color: var(--c-accent); border: 1px solid var(--c-accent); border-radius: 9px; font-weight: 600; cursor: pointer; font-family: var(--c-font-sans); font-size: 13px; }
+.btnReceive { padding: 10px 18px; background: var(--c-success-bg); color: var(--c-success); border: 1px solid var(--c-success-border); border-radius: 9px; font-weight: 600; cursor: pointer; font-family: var(--c-font-sans); font-size: 13px; }
+.btnCancelPo { padding: 10px 18px; background: transparent; color: var(--c-danger); border: 1px solid var(--c-danger-border); border-radius: 9px; font-weight: 600; cursor: pointer; font-family: var(--c-font-sans); font-size: 13px; }
+
+/* ── Responsive ── */
+@media (max-width: 700px) {
+  .filters { gap: 4px; margin-bottom: 10px; }
+  .filterBtn { padding: 5px 9px; font-size: 11px; }
+  .metaGrid { grid-template-columns: 1fr; }
+  .lineRow { grid-template-columns: 1fr 70px 90px 32px; gap: 5px; }
+  .formActions { gap: 6px; }
+  .formActions button { flex: 1 1 auto; }
+}
