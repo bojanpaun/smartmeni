@@ -42,16 +42,24 @@ export default function InventoryPage() {
 
   const [form, setForm] = useState({
     name: '', category: 'namirnice', unit: 'kom',
-    quantity: '', min_quantity: '', cost_per_unit: '', note: '',
+    quantity: '', min_quantity: '', cost_per_unit: '', note: '', supplier_id: '',
   })
+  const [suppliers, setSuppliers] = useState([])
 
   const [movementForm, setMovementForm] = useState({
     type: 'in', quantity: '', note: '',
   })
 
   useEffect(() => {
-    if (restaurant) loadItems()
+    if (restaurant) { loadItems(); loadSuppliers() }
   }, [restaurant])
+
+  const loadSuppliers = async () => {
+    // Dobavljači (Inventory Pro). Bez addona RLS vrati prazno → dropdown se ne prikazuje.
+    const { data } = await supabase
+      .from('suppliers').select('id, name').eq('restaurant_id', restaurant.id).order('name')
+    setSuppliers(data || [])
+  }
 
   const loadItems = async () => {
     setLoading(true)
@@ -73,10 +81,11 @@ export default function InventoryPage() {
         min_quantity: item.min_quantity,
         cost_per_unit: item.cost_per_unit || '',
         note: item.note || '',
+        supplier_id: item.supplier_id || '',
       })
       setEditItem(item)
     } else {
-      setForm({ name: '', category: 'namirnice', unit: 'kom', quantity: '', min_quantity: '', cost_per_unit: '', note: '' })
+      setForm({ name: '', category: 'namirnice', unit: 'kom', quantity: '', min_quantity: '', cost_per_unit: '', note: '', supplier_id: '' })
       setEditItem(null)
     }
     setShowForm(true)
@@ -94,6 +103,7 @@ export default function InventoryPage() {
       min_quantity: parseFloat(form.min_quantity) || 0,
       cost_per_unit: parseFloat(form.cost_per_unit) || null,
       note: form.note || null,
+      supplier_id: form.supplier_id || null,
     }
 
     let savedId = editItem?.id
@@ -324,6 +334,15 @@ export default function InventoryPage() {
                   <label>{t('invFieldCostUnit')}</label>
                   <input type="number" min="0" step="0.01" value={form.cost_per_unit} onChange={e => setForm(f => ({ ...f, cost_per_unit: e.target.value }))} placeholder="0.00" />
                 </div>
+                {suppliers.length > 0 && (
+                  <div className={styles.field}>
+                    <label>{t('invFieldSupplier')}</label>
+                    <select value={form.supplier_id} onChange={e => setForm(f => ({ ...f, supplier_id: e.target.value }))}>
+                      <option value="">{t('invSupplierNone')}</option>
+                      {suppliers.map(s => <option key={s.id} value={s.id}>{s.name}</option>)}
+                    </select>
+                  </div>
+                )}
                 <div className={`${styles.field} ${styles.fullWidth}`}>
                   <label>{t('hkpNote')}</label>
                   <input value={form.note} onChange={e => setForm(f => ({ ...f, note: e.target.value }))} placeholder={t('invPhSupplierNote')} />

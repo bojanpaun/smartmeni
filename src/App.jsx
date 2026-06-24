@@ -55,6 +55,7 @@ const InventoryPage        = lazy(() => import('./modules/inventory/pages/Invent
 const MovementsLog         = lazy(() => import('./modules/inventory/pages/MovementsLog'))
 const IngredientsEditor    = lazy(() => import('./modules/inventory/pages/IngredientsEditor'))
 const InventoryAnalytics   = lazy(() => import('./modules/inventory/pages/InventoryAnalytics'))
+const SuppliersPage        = lazy(() => import('./modules/inventory/pages/SuppliersPage'))
 const AnalyticsPage        = lazy(() => import('./modules/analytics/pages/AnalyticsPage'))
 const GuestsPage           = lazy(() => import('./modules/guests/pages/GuestsPage'))
 const GuestRegisterPage    = lazy(() => import('./modules/guests/pages/GuestRegisterPage'))
@@ -371,6 +372,7 @@ function AppRoutes() {
         <Route path="/admin/inventory" element={<AdminRoute><InventoryPage /></AdminRoute>} />
         <Route path="/admin/inventory/movements" element={<AdminRoute><MovementsLog /></AdminRoute>} />
         <Route path="/admin/inventory/recipes" element={<AdminRoute><AddonGuard addonId="inventory_pro" name="Inventar Pro" description="Upravljanje receptima, FIFO rotacija zaliha i automatska upozorenja za niske zalihe." price={149} category="restaurant"><IngredientsEditor /></AddonGuard></AdminRoute>} />
+        <Route path="/admin/inventory/suppliers" element={<AdminRoute><AddonGuard addonId="inventory_pro" name="Inventar Pro" description="Registar dobavljača, narudžbenice i inventura." price={149} category="restaurant"><SuppliersPage /></AddonGuard></AdminRoute>} />
         <Route path="/admin/inventory/help" element={<AdminRoute><ModuleHelp moduleKey="inventory" /></AdminRoute>} />
 
         {/* HR modul */}

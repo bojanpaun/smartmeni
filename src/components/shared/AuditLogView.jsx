@@ -57,6 +57,9 @@ const ACTION_KEYS = {
   'inventory_item.created':      'audActInvItemCreated',
   'inventory_item.updated':      'audActInvItemUpdated',
   'inventory_item.deleted':      'audActInvItemDeleted',
+  'supplier.created':            'audActSupplierCreated',
+  'supplier.updated':            'audActSupplierUpdated',
+  'supplier.deleted':            'audActSupplierDeleted',
 }
 const ROLE_KEYS = {
   superadmin: 'audRoleSuperadmin',
