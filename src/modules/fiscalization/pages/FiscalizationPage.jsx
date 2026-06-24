@@ -5,6 +5,7 @@ import toast from 'react-hot-toast'
 import { usePlatform } from '../../../context/PlatformContext'
 import { supabase } from '../../../lib/supabase'
 import { formatMoney, fromMinorUnits } from '../../../lib/currencies'
+import { logAudit } from '../../../lib/auditLog'
 import { useSortable } from '../../../hooks/useSortable'
 import SortableHead from '../../../components/shared/SortableHead'
 import InvoicePrintModal from '../components/InvoicePrintModal'
@@ -78,6 +79,12 @@ export default function FiscalizationPage() {
     const { error } = await supabase.rpc('create_storno_invoice', { p_invoice_id: inv.id, p_reason: reason || null })
     if (error) { toast.error(t('fiskStornoErr')); return }
     toast.success(t('fiskStornoDone'))
+    logAudit({
+      restaurantId: restaurant.id, action: 'invoice.storno',
+      entityType: 'invoice', entityId: inv.id,
+      summary: `Storno računa ${inv.invoice_number}`,
+      metadata: { reason: reason || null },
+    })
     loadInvoices()
   }
   // Naplata (admin nadzor) — toggle plaćeno/neplaćeno preko iste RPC kao portal.

@@ -7,6 +7,7 @@ import { useTranslation } from 'react-i18next'
 import { supabase } from '../../../lib/supabase'
 import { usePlatform } from '../../../context/PlatformContext'
 import { useMoney } from '../../../lib/useMoney'
+import { logAudit } from '../../../lib/auditLog'
 import { getSeatPositions } from '../../../lib/seatLayout'
 import { getEventTableIds } from '../../../lib/reservationConflicts'
 import styles from './ReservationsPage.module.css'
@@ -547,6 +548,10 @@ export default function ReservationsPage() {
   const deleteReservation = async (id) => {
     if (!confirm(t('resDeleteConfirm'))) return
     await supabase.from('reservations').delete().eq('id', id)
+    logAudit({
+      restaurantId: restaurant.id, action: 'reservation.deleted',
+      entityType: 'reservation', entityId: id, summary: 'Obrisana rezervacija',
+    })
     setReservations(prev => prev.filter(r => r.id !== id))
   }
 

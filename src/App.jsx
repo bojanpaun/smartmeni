@@ -29,6 +29,7 @@ const NutritionAdmin       = lazy(() => import('./platform/superadmin/NutritionA
 const BillingControl       = lazy(() => import('./platform/superadmin/BillingControl'))
 const SuperadminCommunication = lazy(() => import('./platform/superadmin/SuperadminCommunication'))
 const ThemePalettesAdmin   = lazy(() => import('./platform/superadmin/ThemePalettesAdmin'))
+const AuditLogView         = lazy(() => import('./components/shared/AuditLogView'))
 const FaqAdmin              = lazy(() => import('./platform/superadmin/FaqAdmin'))
 const AnnouncementsInbox    = lazy(() => import('./platform/admin/AnnouncementsInbox'))
 const NotificationsPage     = lazy(() => import('./platform/admin/NotificationsPage'))
@@ -346,6 +347,7 @@ function AppRoutes() {
 
         {/* Moj nalog */}
         <Route path="/admin/account" element={<AdminRoute><MyAccount /></AdminRoute>} />
+        <Route path="/admin/settings/audit-log" element={<AdminRoute><AuditLogView scope="tenant" /></AdminRoute>} />
 
         {/* Super admin panel */}
         <Route path="/superadmin" element={<AdminRoute><SuperAdminPanel /></AdminRoute>} />
@@ -358,6 +360,7 @@ function AppRoutes() {
         <Route path="/superadmin/libraries/:tab" element={<AdminRoute><LibrariesAdmin /></AdminRoute>} />
         <Route path="/superadmin/nutrition" element={<AdminRoute><NutritionAdmin /></AdminRoute>} />
         <Route path="/superadmin/billing" element={<AdminRoute><BillingControl /></AdminRoute>} />
+        <Route path="/superadmin/audit-log" element={<AdminRoute><AuditLogView scope="superadmin" /></AdminRoute>} />
         {/* Stari linkovi biblioteka → nove pilule */}
         <Route path="/superadmin/recipes" element={<Navigate to="/superadmin/libraries/recepti" replace />} />
         <Route path="/superadmin/spa-treatments" element={<Navigate to="/superadmin/libraries/tretmani" replace />} />

@@ -5,6 +5,7 @@ import { supabase } from '../../lib/supabase'
 import { usePlatform } from '../../context/PlatformContext'
 import { planStatus } from '../../lib/planUtils'
 import { backfillTenant } from '../../lib/contentTranslate'
+import { logAudit } from '../../lib/auditLog'
 import { useSortable } from '../../hooks/useSortable'
 import SortableHead from '../../components/shared/SortableHead'
 import styles from './SuperAdminPanel.module.css'
@@ -72,6 +73,10 @@ export default function SuperAdminPanel() {
   const [saving, setSaving] = useState(false)
   const [saveMsg, setSaveMsg] = useState('')
   const [saveErr, setSaveErr] = useState(false)
+  const [newPassword, setNewPassword] = useState('')
+  const [savingPwd, setSavingPwd] = useState(false)
+  const [pwdMsg, setPwdMsg] = useState('')
+  const [pwdErr, setPwdErr] = useState(false)
   const [translatingId, setTranslatingId] = useState(null) // restaurant_id u toku (ili 'all')
   const [reqApproval, setReqApproval] = useState(true)      // platform_settings.require_tenant_approval
   const [savingApproval, setSavingApproval] = useState(false)
@@ -144,6 +149,7 @@ export default function SuperAdminPanel() {
   const openEdit = async (rest) => {
     setEditingId(rest.id)
     setLoadingEdit(true)
+    setNewPassword(''); setPwdMsg(''); setPwdErr(false)
     setEditForm({
       is_complimentary: rest.is_complimentary || false,
       complimentary_note: rest.complimentary_note || '',
@@ -171,6 +177,27 @@ export default function SuperAdminPanel() {
   const closeEdit = () => {
     setEditingId(null)
     setSaveMsg('')
+    setNewPassword(''); setPwdMsg(''); setPwdErr(false)
+  }
+
+  // Superadmin mijenja lozinku vlasniku tenanta preko edge funkcije (service_role).
+  const changePassword = async () => {
+    if (!newPassword || newPassword.length < 6) {
+      setPwdMsg(t('sapPwdTooShort')); setPwdErr(true)
+      return
+    }
+    setSavingPwd(true); setPwdMsg('')
+    const { data, error } = await supabase.functions.invoke('update-tenant-password', {
+      body: { restaurant_id: editingId, new_password: newPassword },
+    })
+    setSavingPwd(false)
+    if (error || data?.error) {
+      setPwdMsg(t('saErrPrefix') + (data?.error || error?.message || '')); setPwdErr(true)
+    } else {
+      setNewPassword('')
+      setPwdMsg(t('sapPwdChanged')); setPwdErr(false)
+      setTimeout(() => setPwdMsg(''), 3000)
+    }
   }
 
   const toggleAddon = (addonId) => {
@@ -237,6 +264,21 @@ export default function SuperAdminPanel() {
           { onConflict: 'restaurant_id' }
         )
 
+      // Audit log (bez tajni; samo plan/vertikale/broj addona)
+      logAudit({
+        restaurantId: editingId,
+        action: 'tenant.plan_changed',
+        entityType: 'tenant',
+        entityId: editingId,
+        summary: `Izmjena naloga: plan ${payload.plan}`,
+        metadata: {
+          plan: payload.plan,
+          is_complimentary: payload.is_complimentary,
+          verticals: payload.active_verticals,
+          addons: editForm.active_addons,
+        },
+      })
+
       setRestaurants(rs => rs.map(r => r.id === editingId ? { ...r, ...payload } : r))
 
       // Ako superadmin uređuje VLASTITI nalog, osvježi PlatformContext da se tema
@@ -266,6 +308,13 @@ export default function SuperAdminPanel() {
     const payload = { suspended_at: isSuspended ? null : new Date().toISOString() }
     await supabase.from('restaurants').update(payload).eq('id', rest.id)
     setRestaurants(rs => rs.map(r => r.id === rest.id ? { ...r, ...payload } : r))
+    logAudit({
+      restaurantId: rest.id,
+      action: isSuspended ? 'tenant.reactivated' : 'tenant.suspended',
+      entityType: 'tenant',
+      entityId: rest.id,
+      summary: isSuspended ? `Reaktiviran nalog ${rest.name}` : `Suspendovan nalog ${rest.name}`,
+    })
   }
 
   const setApproval = async (rest, status) => {
@@ -275,6 +324,13 @@ export default function SuperAdminPanel() {
     if (!confirm(confirmMsg)) return
     await supabase.from('restaurants').update({ approval_status: status }).eq('id', rest.id)
     setRestaurants(rs => rs.map(r => r.id === rest.id ? { ...r, approval_status: status } : r))
+    logAudit({
+      restaurantId: rest.id,
+      action: status === 'approved' ? 'tenant.approved' : 'tenant.rejected',
+      entityType: 'tenant',
+      entityId: rest.id,
+      summary: status === 'approved' ? `Odobren nalog ${rest.name}` : `Odbijen nalog ${rest.name}`,
+    })
     // Email obavijest vlasniku (fire-and-forget — ne blokira UI)
     supabase.functions.invoke('send-approval-email', { body: { restaurant_id: rest.id, status } })
       .then(({ error }) => { setSaveMsg(error ? t('sapStatusChangedNoEmail') : t('sapStatusChangedEmail')); setSaveErr(false); setTimeout(() => setSaveMsg(''), 3000) })
@@ -716,6 +772,38 @@ export default function SuperAdminPanel() {
                   ))}
                 </div>
               )}
+            </div>
+
+            {/* Promjena lozinke vlasniku tenanta */}
+            <div className={styles.editSection}>
+              <div className={styles.editSectionTitle}>🔑 {t('sapPassword')}</div>
+              <div className={styles.fieldHint} style={{ marginBottom: 12 }}>
+                {t('sapPasswordHint')}
+              </div>
+              <div className={styles.field}>
+                <label>{t('sapNewPassword')}</label>
+                <input
+                  type="text"
+                  autoComplete="new-password"
+                  placeholder={t('sapNewPasswordPh')}
+                  value={newPassword}
+                  onChange={e => setNewPassword(e.target.value)}
+                />
+              </div>
+              <div style={{ display: 'flex', alignItems: 'center', gap: 12, marginTop: 8, flexWrap: 'wrap' }}>
+                <button
+                  className={styles.btnSave}
+                  onClick={changePassword}
+                  disabled={savingPwd || !newPassword}
+                >
+                  {savingPwd ? t('saving') : t('sapChangePassword')}
+                </button>
+                {pwdMsg && (
+                  <span className={pwdErr ? styles.msgError : styles.msgOk}>
+                    {pwdMsg}
+                  </span>
+                )}
+              </div>
             </div>
 
           </div>

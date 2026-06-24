@@ -6,6 +6,7 @@ import { useTranslation } from 'react-i18next'
 import { supabase } from '../../../lib/supabase'
 import { usePlatform } from '../../../context/PlatformContext'
 import { useMoney } from '../../../lib/useMoney'
+import { logAudit } from '../../../lib/auditLog'
 import { useSortable } from '../../../hooks/useSortable'
 import SortableHead from '../../../components/shared/SortableHead'
 import styles from './StaffPage.module.css'
@@ -120,6 +121,12 @@ export default function StaffPage() {
     if (data?.staff) {
       setStaff(prev => [...prev, data.staff])
     }
+    logAudit({
+      restaurantId: restaurant.id, action: 'staff.created',
+      entityType: 'staff', entityId: data?.staff?.id ?? null,
+      summary: `${addMethod === 'invite' ? 'Pozvan' : 'Dodat'} član osoblja ${email}`,
+      metadata: { method: addMethod },
+    })
     setSaving(false)
     setAddSuccess(addMethod === 'invite' ? t('stfInviteSent') : t('stfStaffAdded'))
     setTimeout(() => { setShowForm(false); setAddSuccess('') }, 1500)
@@ -128,6 +135,12 @@ export default function StaffPage() {
   const toggleActive = async (e, s) => {
     e.stopPropagation()
     await supabase.from('staff').update({ is_active: !s.is_active }).eq('id', s.id)
+    logAudit({
+      restaurantId: restaurant.id,
+      action: s.is_active ? 'staff.deactivated' : 'staff.activated',
+      entityType: 'staff', entityId: s.id,
+      summary: `${s.is_active ? 'Deaktiviran' : 'Aktiviran'} član osoblja ${s.email}`,
+    })
     setStaff(prev => prev.map(x => x.id === s.id ? { ...x, is_active: !x.is_active } : x))
   }
 
@@ -135,6 +148,10 @@ export default function StaffPage() {
     e.stopPropagation()
     if (!confirm(t('stfRemoveConfirm'))) return
     await supabase.from('staff').delete().eq('id', id)
+    logAudit({
+      restaurantId: restaurant.id, action: 'staff.deleted',
+      entityType: 'staff', entityId: id, summary: 'Obrisan član osoblja',
+    })
     setStaff(prev => prev.filter(x => x.id !== id))
   }
 

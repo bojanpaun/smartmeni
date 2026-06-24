@@ -3,6 +3,7 @@ import { useTranslation } from 'react-i18next'
 import toast from 'react-hot-toast'
 import { supabase } from '../../../lib/supabase'
 import { formatMoney } from '../../../lib/currencies'
+import { logAudit } from '../../../lib/auditLog'
 import styles from './SplitInvoiceModal.module.css'
 
 // Razbijanje izvora (narudžba/folio/spa) na 2+ računa. Dva moda:
@@ -68,6 +69,12 @@ export default function SplitInvoiceModal({ restaurant, source, onClose, onDone 
     setSaving(false)
     if (error) { toast.error(t('fiskSplitErr')); return }
     toast.success(t('fiskSplitDone', { n: groups.length }))
+    logAudit({
+      restaurantId: restaurant.id, action: 'invoice.split',
+      entityType: source.source_type, entityId: source.source_id,
+      summary: `Podjela računa na ${groups.length} dijela`,
+      metadata: { groups: groups.length, source_type: source.source_type },
+    })
     onDone?.()
     onClose()
   }
