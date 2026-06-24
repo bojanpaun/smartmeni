@@ -22,7 +22,7 @@
   justify-content: space-between; margin-bottom: 24px; gap: 12px;
 }
 .headerActions { display: flex; gap: 8px; flex-wrap: wrap; justify-content: flex-end; }
-.headerTitle { font-size: 1.5rem; font-weight: 700; color: var(--c-text); }
+.headerTitle { font-size: 1.5rem; font-weight: 700; color: var(--c-text); font-family: var(--c-font-display); }
 .headerSub { font-size: 0.9rem; color: var(--c-text-muted); margin-top: 2px; }
 .btnRefresh {
   padding: 8px 14px; background: var(--c-bg);
