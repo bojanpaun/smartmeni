@@ -3385,5 +3385,7 @@
   "stAudClosed": "Zaključena inventura",
   "stClosed": "Inventura zaključena",
   "audActStCreated": "Pokrenuta inventura",
-  "audActStClosed": "Zaključena inventura"
+  "audActStClosed": "Zaključena inventura",
+  "ingExpandAll": "Razvij sve",
+  "ingCollapseAll": "Skupi sve"
 }

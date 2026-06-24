@@ -3385,5 +3385,7 @@
   "stAudClosed": "Stock take closed",
   "stClosed": "Stock take closed",
   "audActStCreated": "Stock take started",
-  "audActStClosed": "Stock take closed"
+  "audActStClosed": "Stock take closed",
+  "ingExpandAll": "Expand all",
+  "ingCollapseAll": "Collapse all"
 }

@@ -3385,5 +3385,7 @@
   "stAudClosed": "Inventari u mbyll",
   "stClosed": "Inventari u mbyll",
   "audActStCreated": "Inventari u nis",
-  "audActStClosed": "Inventari u mbyll"
+  "audActStClosed": "Inventari u mbyll",
+  "ingExpandAll": "Zgjero të gjitha",
+  "ingCollapseAll": "Mbyll të gjitha"
 }

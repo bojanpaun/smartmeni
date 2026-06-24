@@ -129,6 +129,8 @@ export default function IngredientsEditor() {
     next.has(id) ? next.delete(id) : next.add(id)
     return next
   })
+  const expandAll = () => setCollapsed(new Set())
+  const collapseAll = () => setCollapsed(new Set(groups.map(g => g.id)))
 
   // Drag handle — resize lijevog panela.
   const onDragStart = (e) => {
@@ -194,6 +196,12 @@ export default function IngredientsEditor() {
             <input type="checkbox" checked={onlyMissing} onChange={e => setOnlyMissing(e.target.checked)} />
             {t('ingOnlyMissing')}
           </label>
+          {groups.length > 1 && (
+            <div className={styles.groupControls}>
+              <button type="button" className={styles.groupCtrlBtn} onClick={expandAll}>▾ {t('ingExpandAll')}</button>
+              <button type="button" className={styles.groupCtrlBtn} onClick={collapseAll}>▸ {t('ingCollapseAll')}</button>
+            </div>
+          )}
           {groups.length === 0 && (
             <div className={styles.menuEmpty}>
               {onlyMissing ? t('ingAllHaveRecipe') : t('ingNoMenuItems')}

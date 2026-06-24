@@ -3385,5 +3385,7 @@
   "stAudClosed": "Sayım kapatıldı",
   "stClosed": "Sayım kapatıldı",
   "audActStCreated": "Sayım başlatıldı",
-  "audActStClosed": "Sayım kapatıldı"
+  "audActStClosed": "Sayım kapatıldı",
+  "ingExpandAll": "Tümünü genişlet",
+  "ingCollapseAll": "Tümünü daralt"
 }

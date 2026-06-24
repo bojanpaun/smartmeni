@@ -3385,5 +3385,7 @@
   "stAudClosed": "Инвентаризация закрыта",
   "stClosed": "Инвентаризация закрыта",
   "audActStCreated": "Инвентаризация начата",
-  "audActStClosed": "Инвентаризация закрыта"
+  "audActStClosed": "Инвентаризация закрыта",
+  "ingExpandAll": "Развернуть все",
+  "ingCollapseAll": "Свернуть все"
 }
