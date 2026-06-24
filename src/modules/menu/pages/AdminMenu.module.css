@@ -380,6 +380,18 @@
   .actionBtn { padding: 6px 10px; font-size: 12px; }
 }
 
+/* Modal uređivanja artikla — telefon (≤600px) */
+@media (max-width: 600px) {
+  .modal { padding: 16px; }
+  .modalGrid { gap: 10px; margin-bottom: 14px; }
+  /* 16px input sprječava iOS auto-zoom pri fokusu + lakši unos na dodir */
+  .field input, .field textarea, .field select { font-size: 16px; padding: 11px 12px; }
+  /* Akcije: puna širina i lakše za tap; Sačuvaj istaknut (gore) */
+  .modalActions { flex-direction: column-reverse; gap: 8px; }
+  .modalActions .btnCancel,
+  .modalActions .btnSave { width: 100%; padding: 13px; font-size: 15px; text-align: center; }
+}
+
 /* ── Page header (kao u GeneralSettings) ── */
 .pageHeader { margin-bottom: 24px; }
 .pageTitle { font-size: 26px; font-weight: 700; color: var(--c-text); margin: 0 0 6px; }
