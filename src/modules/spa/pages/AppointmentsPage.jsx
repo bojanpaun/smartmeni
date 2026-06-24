@@ -2,6 +2,7 @@ import { useState, useEffect, useCallback } from 'react'
 import { useTranslation } from 'react-i18next'
 import { usePlatform } from '../../../context/PlatformContext'
 import { supabase } from '../../../lib/supabase'
+import { logAudit } from '../../../lib/auditLog'
 import { useMoney } from '../../../lib/useMoney'
 import { currencyMeta } from '../../../lib/currencies'
 import { useSpaServices } from '../hooks/useSpaServices'
@@ -121,11 +122,17 @@ export default function AppointmentsPage() {
       payment_status:      'pending',
     }
 
-    const { error } = await supabase.from('spa_appointments').insert(payload)
+    const { data: created, error } = await supabase.from('spa_appointments').insert(payload).select('id').single()
     setSaving(false)
 
     if (error) { toast.error(t('spaApptCreateErr')); return }
     toast.success(t('spaApptCreated'))
+    logAudit({
+      restaurantId: restaurant.id, action: 'spa_appointment.create',
+      entityType: 'spa_appointment', entityId: created?.id,
+      summary: `Spa termin: ${form.guest_name}${svc?.name ? ` — ${svc.name}` : ''}`,
+      metadata: { date: form.appointment_date, time: form.start_time },
+    })
     setShowForm(false)
     setForm(BLANK)
     load()
@@ -137,6 +144,12 @@ export default function AppointmentsPage() {
     const { error } = await supabase.from('spa_appointments').update(patch).eq('id', id)
     if (error) { toast.error(t('spaUpdateErr')); return }
     setAppointments(prev => prev.map(a => a.id === id ? { ...a, ...patch } : a))
+    if (status === 'completed') {
+      logAudit({
+        restaurantId: restaurant.id, action: 'spa_appointment.complete',
+        entityType: 'spa_appointment', entityId: id, summary: 'Spa termin završen',
+      })
+    }
     toast.success(t(STATUS_MAP[status]?.key))
   }
 
@@ -145,6 +158,10 @@ export default function AppointmentsPage() {
     await supabase.from('spa_appointments').update({
       status: 'cancelled', cancelled_at: new Date().toISOString(),
     }).eq('id', id)
+    logAudit({
+      restaurantId: restaurant.id, action: 'spa_appointment.cancel',
+      entityType: 'spa_appointment', entityId: id, summary: 'Spa termin otkazan',
+    })
     load()
     toast.success(t('spaApptCancelled'))
   }

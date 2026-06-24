@@ -3,6 +3,7 @@ import { useParams, useNavigate } from 'react-router-dom'
 import { useTranslation } from 'react-i18next'
 import { usePlatform } from '../../../context/PlatformContext'
 import { supabase } from '../../../lib/supabase'
+import { logAudit } from '../../../lib/auditLog'
 import { toMinorUnits, fromMinorUnits, formatMoney, currencyMeta } from '../../../lib/currencies'
 import LoadingSpinner from '../../../components/shared/LoadingSpinner'
 import toast from 'react-hot-toast'
@@ -179,6 +180,12 @@ export default function FolioPage() {
     }).eq('id', folio.id)
 
     toast.success(t('flItemAdded'))
+    logAudit({
+      restaurantId: restaurant.id, action: 'folio_item.add',
+      entityType: 'folio', entityId: folio.id,
+      summary: `Stavka na folio: ${newItem.description}`,
+      metadata: { type: newItem.type, amount: total },
+    })
     setNewItem(EMPTY_ITEM)
     setAddingItem(false)
     setSaving(false)
@@ -190,6 +197,12 @@ export default function FolioPage() {
     await supabase.from('folio_items').delete().eq('id', item.id)
     const newTotal = computedTotal - (parseFloat(item.total_price) || 0)
     await supabase.from('folios').update({ total_amount: Math.max(0, newTotal), updated_at: new Date().toISOString() }).eq('id', folio.id)
+    logAudit({
+      restaurantId: restaurant.id, action: 'folio_item.remove',
+      entityType: 'folio', entityId: folio.id,
+      summary: `Uklonjena stavka folija: ${item.description}`,
+      metadata: { type: item.type, amount: item.total_price },
+    })
     load()
   }
 
@@ -270,6 +283,12 @@ export default function FolioPage() {
     if (!confirm(t('flCloseConfirm'))) return
     await supabase.from('folios').update({ status: 'closed', updated_at: new Date().toISOString() }).eq('id', folio.id)
     toast.success(t('flFolioClosed'))
+    logAudit({
+      restaurantId: restaurant.id, action: 'folio.close',
+      entityType: 'folio', entityId: folio.id,
+      summary: `Zatvoren folio${reservation?.guest_name ? ` — ${reservation.guest_name}` : ''}`,
+      metadata: { total: computedTotal },
+    })
     load(folio.id)
   }
 

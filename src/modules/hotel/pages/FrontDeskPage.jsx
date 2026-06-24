@@ -6,6 +6,7 @@ import { useMoney } from '../../../lib/useMoney'
 import { useAdminBadgeRefresh } from '../../../layouts/AdminLayout'
 import { useReservations } from '../hooks/useReservations'
 import { supabase } from '../../../lib/supabase'
+import { logAudit } from '../../../lib/auditLog'
 import DateNav, { DATE_TODAY } from '../../../components/shared/DateNav'
 import SortableHead from '../../../components/shared/SortableHead'
 import { useSortable } from '../../../hooks/useSortable'
@@ -116,6 +117,12 @@ export default function FrontDeskPage() {
     await supabase.rpc('post_stay_room_charges', { p_reservation_id: res.id })
 
     toast.success(t('htCheckinSuccess', { name: res.guest_name }))
+    logAudit({
+      restaurantId: restaurant.id, action: 'reservation.checkin',
+      entityType: 'hotel_reservation', entityId: res.id,
+      summary: `Check-in: ${res.guest_name}`,
+      metadata: { room: res.room_number ?? null },
+    })
     supabase.functions.invoke('send-booking-email', {
       body: { reservation_id: res.id, type: 'checkin' },
     }).catch(() => {})
@@ -154,6 +161,12 @@ export default function FrontDeskPage() {
       .eq('reservation_id', res.id)
 
     toast.success(t('htCheckoutSuccess', { name: res.guest_name }))
+    logAudit({
+      restaurantId: restaurant.id, action: 'reservation.checkout',
+      entityType: 'hotel_reservation', entityId: res.id,
+      summary: `Check-out: ${res.guest_name}`,
+      metadata: { room: res.room_number ?? null, early_departure: todayStr < res.check_out_date },
+    })
     supabase.functions.invoke('send-booking-email', {
       body: { reservation_id: res.id, type: 'checkout' },
     }).catch(() => {})

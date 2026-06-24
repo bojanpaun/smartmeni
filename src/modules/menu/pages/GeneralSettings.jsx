@@ -5,6 +5,7 @@ import { usePlatform } from '../../../context/PlatformContext'
 import { READY_LANGUAGES, DEFAULT_LANG } from '../../../i18n/languages'
 import { CURRENCIES, DEFAULT_CURRENCY } from '../../../lib/currencies'
 import { translateContent, restaurantDescriptionFields } from '../../../lib/contentTranslate'
+import { logAudit } from '../../../lib/auditLog'
 import BankAccountsManager from '../../../components/shared/BankAccountsManager'
 import styles from './GeneralSettings.module.css'
 
@@ -92,6 +93,11 @@ export default function GeneralSettings() {
     await supabase.from('restaurants').update(form).eq('id', restaurant.id)
     setRestaurant({ ...restaurant, ...form })
     setSaving(false)
+    logAudit({
+      restaurantId: restaurant.id, action: 'restaurant.settings_update',
+      entityType: 'restaurant', entityId: restaurant.id,
+      summary: 'Izmijenjene opšte postavke',
+    })
     setSaved(true)
     setIsDirty(false)
     setTimeout(() => setSaved(false), 3000)

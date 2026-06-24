@@ -172,6 +172,11 @@ export default function FiscalizationPage() {
     setTaxSaving(false)
     if (error) { toast.error(t('saErrPrefix') + error.message); return }
     setRestaurant({ ...restaurant, tax_rates: cleaned })
+    logAudit({
+      restaurantId: restaurant.id, action: 'restaurant.tax_rates_update',
+      entityType: 'restaurant', entityId: restaurant.id,
+      summary: 'Izmijenjene PDV stope', metadata: { count: cleaned.length },
+    })
     setTaxCustom(true); setTaxDirty(false)
     toast.success(t('saved'))
   }
@@ -182,6 +187,11 @@ export default function FiscalizationPage() {
     const { error } = await supabase.from('restaurants').update({ tax_rates: null }).eq('id', restaurant.id)
     if (error) { setTaxSaving(false); toast.error(t('saErrPrefix') + error.message); return }
     setRestaurant({ ...restaurant, tax_rates: null })
+    logAudit({
+      restaurantId: restaurant.id, action: 'restaurant.tax_rates_reset',
+      entityType: 'restaurant', entityId: restaurant.id,
+      summary: 'PDV stope vraćene na državne',
+    })
     const { data: tc } = await supabase.from('tax_config').select('rates').eq('country', 'ME').maybeSingle()
     setTaxRows(ratesToRows(Array.isArray(tc?.rates) ? tc.rates : []))
     setTaxCustom(false); setTaxDirty(false); setTaxSaving(false)

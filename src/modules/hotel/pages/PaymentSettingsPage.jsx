@@ -2,6 +2,7 @@ import { useState, useEffect } from 'react'
 import { useTranslation } from 'react-i18next'
 import { supabase } from '../../../lib/supabase'
 import { usePlatform } from '../../../context/PlatformContext'
+import { logAudit } from '../../../lib/auditLog'
 import styles from './PaymentSettings.module.css'
 import gsStyles from '../../menu/pages/GeneralSettings.module.css'
 
@@ -109,6 +110,12 @@ export default function PaymentSettingsPage() {
     }
 
     setConfigSaving(false)
+    logAudit({
+      restaurantId: restaurant.id,
+      action: editConfig ? 'payment_config.update' : 'payment_config.create',
+      entityType: 'payment_config', entityId: editConfig?.id ?? null,
+      summary: `Payment provajder ${editConfig ? 'izmijenjen' : 'dodat'}: ${configForm.provider} (${configForm.mode})`,
+    })
     setShowConfigModal(false)
   }
 
@@ -117,12 +124,22 @@ export default function PaymentSettingsPage() {
     await supabase.from('tenant_payment_configs').delete().eq('id', id)
     setConfigs(prev => prev.filter(c => c.id !== id))
     setCredStatus(prev => { const n = { ...prev }; delete n[id]; return n })
+    logAudit({
+      restaurantId: restaurant.id, action: 'payment_config.delete',
+      entityType: 'payment_config', entityId: id, summary: 'Payment provajder obrisan',
+    })
   }
 
   const toggleActive = async (cfg) => {
     const newVal = !cfg.is_active
     await supabase.from('tenant_payment_configs').update({ is_active: newVal }).eq('id', cfg.id)
     setConfigs(prev => prev.map(c => c.id === cfg.id ? { ...c, is_active: newVal } : c))
+    logAudit({
+      restaurantId: restaurant.id,
+      action: newVal ? 'payment_config.activate' : 'payment_config.deactivate',
+      entityType: 'payment_config', entityId: cfg.id,
+      summary: `Payment provajder ${newVal ? 'aktiviran' : 'deaktiviran'}: ${cfg.provider}`,
+    })
   }
 
   const setDefault = async (cfg) => {
@@ -162,6 +179,11 @@ export default function PaymentSettingsPage() {
     if (error) { setCredsError(error.message); return }
 
     setCredStatus(prev => ({ ...prev, [credsForConfig.id]: true }))
+    logAudit({
+      restaurantId: restaurant.id, action: 'payment_credentials.save',
+      entityType: 'payment_config', entityId: credsForConfig.id,
+      summary: `Sačuvani ključevi za ${credsForConfig.provider}`,
+    })
     setCredsSaved(true)
     setTimeout(() => setShowCredsModal(false), 1200)
   }
