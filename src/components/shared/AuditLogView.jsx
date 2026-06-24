@@ -53,6 +53,10 @@ const ACTION_KEYS = {
   'bank_account.create':         'audActBankCreate',
   'bank_account.delete':         'audActBankDelete',
   'bank_account.set_primary':    'audActBankPrimary',
+  'inventory.movement':          'audActInvMovement',
+  'inventory_item.created':      'audActInvItemCreated',
+  'inventory_item.updated':      'audActInvItemUpdated',
+  'inventory_item.deleted':      'audActInvItemDeleted',
 }
 const ROLE_KEYS = {
   superadmin: 'audRoleSuperadmin',

@@ -5,6 +5,7 @@ import { useNavigate } from 'react-router-dom'
 import { useTranslation } from 'react-i18next'
 import { supabase } from '../../../lib/supabase'
 import { usePlatform } from '../../../context/PlatformContext'
+import { logAudit } from '../../../lib/auditLog'
 import { useMoney } from '../../../lib/useMoney'
 import { useSortable } from '../../../hooks/useSortable'
 import SortableHead from '../../../components/shared/SortableHead'
@@ -95,13 +96,21 @@ export default function InventoryPage() {
       note: form.note || null,
     }
 
+    let savedId = editItem?.id
     if (editItem) {
       await supabase.from('inventory_items').update(payload).eq('id', editItem.id)
       setItems(prev => prev.map(i => i.id === editItem.id ? { ...i, ...payload } : i))
     } else {
       const { data } = await supabase.from('inventory_items').insert(payload).select().single()
+      savedId = data?.id
       setItems(prev => [...prev, data])
     }
+    logAudit({
+      restaurantId: restaurant.id,
+      action: editItem ? 'inventory_item.updated' : 'inventory_item.created',
+      entityType: 'inventory_item', entityId: savedId,
+      summary: `${editItem ? 'Izmijenjen' : 'Dodat'} artikal zalihe: ${form.name}`,
+    })
     setSaving(false)
     setShowForm(false)
     setEditItem(null)
@@ -109,8 +118,14 @@ export default function InventoryPage() {
 
   const deleteItem = async (id) => {
     if (!confirm(t('invDeleteConfirm'))) return
+    const removed = items.find(i => i.id === id)
     await supabase.from('inventory_items').delete().eq('id', id)
     setItems(prev => prev.filter(i => i.id !== id))
+    logAudit({
+      restaurantId: restaurant.id, action: 'inventory_item.deleted',
+      entityType: 'inventory_item', entityId: id,
+      summary: `Obrisan artikal zalihe: ${removed?.name ?? ''}`,
+    })
   }
 
   const saveMovement = async (e) => {
@@ -141,6 +156,14 @@ export default function InventoryPage() {
     // Ažuriraj stavku
     await supabase.from('inventory_items').update({ quantity: qtyAfter, updated_at: new Date().toISOString() }).eq('id', item.id)
     setItems(prev => prev.map(i => i.id === item.id ? { ...i, quantity: qtyAfter } : i))
+
+    const moveLabel = movementForm.type === 'in' ? 'Ulaz' : movementForm.type === 'out' ? 'Izlaz' : 'Korekcija'
+    logAudit({
+      restaurantId: restaurant.id, action: 'inventory.movement',
+      entityType: 'inventory_item', entityId: item.id,
+      summary: `${moveLabel} — ${item.name}: ${qtyBefore} → ${qtyAfter}${item.unit ? ' ' + item.unit : ''}`,
+      metadata: { type: movementForm.type, quantity: qty },
+    })
 
     setSaving(false)
     setShowMovement(null)
