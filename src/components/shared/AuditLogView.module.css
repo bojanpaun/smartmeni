@@ -46,6 +46,24 @@
   flex: 0 1 auto;
 }
 
+/* Brzi filter „Danas" */
+.todayBtn {
+  background: var(--c-bg);
+  border: 1px solid var(--c-border-input);
+  color: var(--c-text);
+  border-radius: 8px;
+  padding: 8px 14px;
+  font-size: 13px;
+  cursor: pointer;
+  white-space: nowrap;
+}
+.todayBtn:hover { background: var(--c-bg-subtle); }
+.todayBtnActive {
+  background: var(--c-primary);
+  border-color: var(--c-primary);
+  color: #fff;
+}
+
 /* Tabela u scroll-wrapperu sa min-width (CLAUDE.md §5) */
 .tableWrap {
   overflow-x: auto;

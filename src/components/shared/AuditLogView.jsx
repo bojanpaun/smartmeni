@@ -118,6 +118,13 @@ export default function AuditLogView({ scope = 'tenant' }) {
   const actionLabel = (a) => (ACTION_KEYS[a] ? t(ACTION_KEYS[a]) : a)
   const roleLabel = (r) => (ROLE_KEYS[r] ? t(ROLE_KEYS[r]) : (r || '—'))
 
+  const todayStr = new Date().toLocaleDateString('sv-SE') // YYYY-MM-DD (lokalno)
+  const todayActive = fFrom === todayStr && fTo === todayStr
+  const toggleToday = () => {
+    if (todayActive) { setFFrom(''); setFTo('') }
+    else { setFFrom(todayStr); setFTo(todayStr) }
+  }
+
   return (
     <div className={styles.wrap}>
       <div className={styles.header}>
@@ -145,6 +152,13 @@ export default function AuditLogView({ scope = 'tenant' }) {
         </select>
         <input className={styles.filterInput} type="search" placeholder={t('audSearchActor')}
           value={fSearch} onChange={e => setFSearch(e.target.value)} />
+        <button
+          type="button"
+          className={`${styles.todayBtn} ${todayActive ? styles.todayBtnActive : ''}`}
+          onClick={toggleToday}
+        >
+          {t('audToday')}
+        </button>
         <input className={styles.filterInput} type="date" value={fFrom} onChange={e => setFFrom(e.target.value)} title={t('audFrom')} />
         <input className={styles.filterInput} type="date" value={fTo} onChange={e => setFTo(e.target.value)} title={t('audTo')} />
       </div>

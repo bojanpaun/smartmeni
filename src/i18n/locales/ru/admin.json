@@ -2788,6 +2788,7 @@
   "audSearchActor": "Поиск по e-mail…",
   "audFrom": "С",
   "audTo": "По",
+  "audToday": "Сегодня",
   "audColTime": "Время",
   "audColActor": "Пользователь",
   "audColRole": "Роль",

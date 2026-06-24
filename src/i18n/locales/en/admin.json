@@ -2788,6 +2788,7 @@
   "audSearchActor": "Search by email…",
   "audFrom": "From",
   "audTo": "To",
+  "audToday": "Today",
   "audColTime": "Time",
   "audColActor": "User",
   "audColRole": "Role",
