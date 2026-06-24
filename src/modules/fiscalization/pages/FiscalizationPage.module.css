@@ -3,7 +3,7 @@
 .page { max-width: 1000px; margin: 0; padding: 24px 24px 60px; font-family: 'DM Sans', sans-serif; }
 
 .header { margin-bottom: 20px; }
-.title { font-size: 1.5rem; font-weight: 700; color: var(--c-text); margin: 0 0 4px; }
+.title { font-size: 22px; font-weight: 700; color: var(--c-text); font-family: var(--c-font-display); margin: 0 0 4px; }
 .subtitle { font-size: 0.9rem; color: var(--c-text-muted); margin: 0; line-height: 1.4; }
 
 .card {

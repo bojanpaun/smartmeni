@@ -4,7 +4,7 @@
 .loading { padding: 3rem; text-align: center; color: var(--c-text-muted); }
 
 .header { display: flex; align-items: center; justify-content: space-between; margin-bottom: 16px; }
-.headerTitle { font-size: 20px; font-weight: 600; color: var(--c-text); }
+.headerTitle { font-size: 22px; font-weight: 700; color: var(--c-text); font-family: var(--c-font-display); }
 .btnBack { padding: 8px 14px; background: var(--c-bg-subtle); border: 1px solid var(--c-border-input); border-radius: 9px; font-size: 13px; cursor: pointer; font-family: var(--c-font-sans); color: var(--c-text-medium); }
 .btnBack:hover { background: var(--c-primary-light); }
 

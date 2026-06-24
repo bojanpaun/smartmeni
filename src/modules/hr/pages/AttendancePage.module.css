@@ -29,7 +29,7 @@
 
 /* ── Admin header ── */
 .header { display: flex; align-items: center; justify-content: space-between; margin-bottom: 14px; gap: 12px; flex-wrap: wrap; }
-.headerTitle { font-size: 18px; font-weight: 600; color: var(--c-text); }
+.headerTitle { font-size: 22px; font-weight: 700; color: var(--c-text); font-family: var(--c-font-display); }
 .dateFilter { padding: 8px 12px; border: 1px solid var(--c-border-input); border-radius: 9px; font-size: 13px; font-family: var(--c-font-sans); outline: none; }
 .dateFilter:focus { border-color: var(--c-primary); }
 

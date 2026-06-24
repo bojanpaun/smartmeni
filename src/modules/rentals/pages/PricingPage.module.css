@@ -1,6 +1,6 @@
 .wrap { padding: 28px 24px; max-width: 760px; font-family: var(--c-font-sans); }
 .btnBack { background: none; border: none; color: var(--c-primary); font-size: 13px; font-family: var(--c-font-sans); cursor: pointer; padding: 0 0 6px; }
-.title { font-family: var(--c-font-display); font-size: 20px; font-weight: 700; color: var(--c-text); margin: 0 0 4px; }
+.title { font-family: var(--c-font-display); font-size: 22px; font-weight: 700; color: var(--c-text); margin: 0 0 4px; }
 .subtitle { font-size: 13px; color: var(--c-text-muted); margin: 0 0 18px; }
 
 .field { display: flex; flex-direction: column; gap: 4px; font-size: 13px; color: var(--c-text-medium); font-weight: 500; max-width: 320px; margin-bottom: 16px; }

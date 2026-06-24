@@ -5,7 +5,7 @@
 
 /* ── Header ── */
 .header { display: flex; align-items: center; justify-content: space-between; margin-bottom: 16px; gap: 12px; flex-wrap: wrap; }
-.headerTitle { font-size: 20px; font-weight: 600; color: var(--c-text); }
+.headerTitle { font-size: 22px; font-weight: 700; color: var(--c-text); font-family: var(--c-font-display); }
 .periodTabs { display: flex; gap: 4px; background: var(--c-bg-subtle); border-radius: 10px; padding: 4px; flex-wrap: wrap; }
 .periodTab { padding: 7px 14px; border-radius: 7px; border: none; background: transparent; font-size: 13px; cursor: pointer; font-family: var(--c-font-sans); color: var(--c-text-medium); transition: all 0.15s; }
 .periodTab:hover { color: var(--c-text); }

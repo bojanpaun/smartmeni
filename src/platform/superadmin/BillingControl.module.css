@@ -27,7 +27,7 @@
   margin-bottom: 20px;
   flex-wrap: wrap;
 }
-.headerTitle { font-size: 1.5rem; font-weight: 700; font-family: var(--c-font-display); }
+.headerTitle { font-size: 22px; font-weight: 700; color: var(--c-text); font-family: var(--c-font-display); }
 .headerSub { color: var(--c-text-muted); font-size: 0.9rem; margin-top: 2px; }
 
 .btnGhost {

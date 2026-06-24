@@ -394,5 +394,5 @@
 
 /* ── Page header (kao u GeneralSettings) ── */
 .pageHeader { margin-bottom: 24px; }
-.pageTitle { font-size: 26px; font-weight: 700; color: var(--c-text); margin: 0 0 6px; }
+.pageTitle { font-size: 22px; font-weight: 700; color: var(--c-text); font-family: var(--c-font-display); margin: 0 0 6px; }
 .pageSubtitle { font-size: 14px; color: var(--c-text-medium); margin: 0; }

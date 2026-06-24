@@ -4,7 +4,7 @@
   display: flex; align-items: flex-start; justify-content: space-between;
   gap: 12px; margin-bottom: 16px; flex-wrap: wrap;
 }
-.title { font-family: var(--c-font-display); font-size: 1.3rem; font-weight: 700; color: var(--c-text); }
+.title { font-family: var(--c-font-display); font-size: 22px; font-weight: 700; color: var(--c-text); }
 .sub { font-size: 0.85rem; color: var(--c-text-muted); margin-top: 2px; }
 .headerActions { display: flex; gap: 8px; flex-wrap: wrap; }
 .btnNew { padding: 8px 14px; background: var(--c-primary); color: #fff; border: none; border-radius: 10px; cursor: pointer; font-weight: 600; }

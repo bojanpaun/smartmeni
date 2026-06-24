@@ -3,7 +3,7 @@
 .page { padding: 20px; font-family: var(--c-font-sans); max-width: 1100px; }
 .loading { padding: 3rem; text-align: center; color: var(--c-text-muted); font-family: var(--c-font-sans); }
 .topbar { display: flex; align-items: center; justify-content: space-between; margin-bottom: 16px; }
-.title { font-size: 20px; font-weight: 600; color: var(--c-text); }
+.title { font-size: 22px; font-weight: 700; color: var(--c-text); font-family: var(--c-font-display); }
 .topbarActions { display: flex; gap: 8px; }
 
 .btnPrimary { composes: btnPrimary from '../../../styles/buttons.module.css'; }

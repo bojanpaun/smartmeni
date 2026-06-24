@@ -139,7 +139,7 @@ export default function ThemePalettesAdmin() {
   return (
     <div style={{ padding: '20px 24px', maxWidth: 880 }}>
       <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: 6 }}>
-        <h1 style={{ fontSize: 22, color: 'var(--c-text)' }}>🎨 {t('tpTitle')}</h1>
+        <h1 style={{ fontSize: 22, fontWeight: 700, fontFamily: 'var(--c-font-display)', color: 'var(--c-text)' }}>🎨 {t('tpTitle')}</h1>
       </div>
       <p style={{ color: 'var(--c-text-muted)', fontSize: 13, marginBottom: 20 }}>
         {t('tpDesc')}
