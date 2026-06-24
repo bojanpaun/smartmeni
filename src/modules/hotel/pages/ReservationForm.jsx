@@ -5,6 +5,7 @@ import { usePlatform } from '../../../context/PlatformContext'
 import { useMoney } from '../../../lib/useMoney'
 import { useRooms } from '../hooks/useRooms'
 import { supabase } from '../../../lib/supabase'
+import { logAudit } from '../../../lib/auditLog'
 import LoadingSpinner from '../../../components/shared/LoadingSpinner'
 import toast from 'react-hot-toast'
 import styles from './Hotel.module.css'
@@ -117,11 +118,28 @@ export default function ReservationForm() {
     }
 
     const payload = { ...form, restaurant_id: restaurant.id, total_amount: total || null, rate_per_night: parseFloat(form.rate_per_night) || null, room_type_id: form.room_type_id || null, room_id: autoRoomId }
-    const { error } = id
-      ? await supabase.from('hotel_reservations').update(payload).eq('id', id)
-      : await supabase.from('hotel_reservations').insert(payload)
+    const { data: saved, error } = id
+      ? await supabase.from('hotel_reservations').update(payload).eq('id', id).select('id').single()
+      : await supabase.from('hotel_reservations').insert(payload).select('id').single()
     setSaving(false)
     if (error) return toast.error(t('htSaveErr') + ': ' + error.message)
+
+    const resId = id || saved?.id
+    if (form.status === 'cancelled' || form.status === 'no_show') {
+      logAudit({
+        restaurantId: restaurant.id,
+        action: form.status === 'cancelled' ? 'reservation.cancel' : 'reservation.no_show',
+        entityType: 'hotel_reservation', entityId: resId,
+        summary: `${form.status === 'cancelled' ? 'Otkazana' : 'No-show'} rezervacija: ${form.guest_name}`,
+      })
+    } else {
+      logAudit({
+        restaurantId: restaurant.id,
+        action: id ? 'reservation.update' : 'reservation.create',
+        entityType: 'hotel_reservation', entityId: resId,
+        summary: `${id ? 'Izmijenjena' : 'Nova'} rezervacija: ${form.guest_name} (${form.check_in_date} → ${form.check_out_date})`,
+      })
+    }
 
     // Pošalji email potvrde gostu kada admin potvrdi online inquiry.
     // Rezervacija je već sačuvana — neuspjeh emaila NE blokira tok, samo upozorava.

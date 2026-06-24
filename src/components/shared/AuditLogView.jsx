@@ -46,6 +46,13 @@ const ACTION_KEYS = {
   'payment_config.activate':     'audActPaymentActivate',
   'payment_config.deactivate':   'audActPaymentDeactivate',
   'payment_credentials.save':    'audActPaymentCreds',
+  'reservation.create':          'audActResCreate',
+  'reservation.update':          'audActResUpdate',
+  'reservation.cancel':          'audActResCancel',
+  'reservation.no_show':         'audActResNoShow',
+  'bank_account.create':         'audActBankCreate',
+  'bank_account.delete':         'audActBankDelete',
+  'bank_account.set_primary':    'audActBankPrimary',
 }
 const ROLE_KEYS = {
   superadmin: 'audRoleSuperadmin',

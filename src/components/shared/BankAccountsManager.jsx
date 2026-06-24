@@ -2,6 +2,7 @@ import { useState, useEffect } from 'react'
 import { useTranslation } from 'react-i18next'
 import toast from 'react-hot-toast'
 import { supabase } from '../../lib/supabase'
+import { logAudit } from '../../lib/auditLog'
 
 // Upravljanje bankovnim računima tenanta (više IBAN-a; jedan primarni). Primarni se
 // mirror-uje na restaurants.iban (DB trigger) → fiskalni računi koriste primarni.
@@ -39,17 +40,32 @@ export default function BankAccountsManager({ restaurantId }) {
       .insert({ restaurant_id: restaurantId, iban: iban.trim(), label: label.trim() || null, sort_order: accounts.length })
     setBusy(false)
     if (error) { toast.error(t('gsBankErr')); return }
+    logAudit({
+      restaurantId, action: 'bank_account.create',
+      entityType: 'tenant_bank_account', entityId: null,
+      summary: `Dodat bankovni račun: ${iban.trim()}`,
+    })
     setIban(''); setLabel(''); load()
   }
   const remove = async (acc) => {
     if (!confirm(t('gsBankRemoveConfirm'))) return
     const { error } = await supabase.from('tenant_bank_accounts').delete().eq('id', acc.id)
     if (error) { toast.error(t('gsBankErr')); return }
+    logAudit({
+      restaurantId, action: 'bank_account.delete',
+      entityType: 'tenant_bank_account', entityId: acc.id,
+      summary: `Obrisan bankovni račun: ${acc.iban}`,
+    })
     load()
   }
   const setPrimary = async (acc) => {
     const { error } = await supabase.rpc('set_primary_bank_account', { p_account_id: acc.id })
     if (error) { toast.error(t('gsBankErr')); return }
+    logAudit({
+      restaurantId, action: 'bank_account.set_primary',
+      entityType: 'tenant_bank_account', entityId: acc.id,
+      summary: `Primarni bankovni račun: ${acc.iban}`,
+    })
     load()
   }
 
