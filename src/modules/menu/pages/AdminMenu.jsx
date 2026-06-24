@@ -8,6 +8,7 @@ import { supabase } from '../../../lib/supabase'
 import { usePlatform } from '../../../context/PlatformContext'
 import { stripAccountFields } from '../../../lib/planUtils'
 import { translateContent, menuItemFields } from '../../../lib/contentTranslate'
+import { logAudit } from '../../../lib/auditLog'
 import { compareFromPercent, discountPercent } from '../hooks/menuHelpers'
 import { useContentTranslations } from '../../../lib/useContentTranslations'
 import { useMoney } from '../../../lib/useMoney'
@@ -123,12 +124,23 @@ export default function AdminMenu() {
       .update({ is_visible: !item.is_visible })
       .eq('id', item.id)
     setItems(items.map(i => i.id === item.id ? { ...i, is_visible: !i.is_visible } : i))
+    logAudit({
+      restaurantId: restaurant.id, action: 'menu_item.visibility',
+      entityType: 'menu_item', entityId: item.id,
+      summary: `${item.is_visible ? 'Sakriven' : 'Prikazan'} artikal „${item.name}"`,
+    })
   }
 
   const deleteItem = async (id) => {
     if (!confirm(t('amConfirmDeleteItem'))) return
+    const removed = items.find(i => i.id === id)
     await supabase.from('menu_items').delete().eq('id', id)
     setItems(items.filter(i => i.id !== id))
+    logAudit({
+      restaurantId: restaurant.id, action: 'menu_item.deleted',
+      entityType: 'menu_item', entityId: id,
+      summary: `Obrisan artikal „${removed?.name ?? ''}"`,
+    })
   }
 
   const openItemForm = (item = null) => {
@@ -197,6 +209,12 @@ export default function AdminMenu() {
       savedId = data?.id
       setItems([...items, data])
     }
+    logAudit({
+      restaurantId: restaurant.id,
+      action: editItem ? 'menu_item.updated' : 'menu_item.created',
+      entityType: 'menu_item', entityId: savedId,
+      summary: `${editItem ? 'Izmijenjen' : 'Dodat'} artikal „${payload.name}"`,
+    })
     // Fire-and-forget AI prevod naziva/opisa na 6 jezika (ne blokira UI; edge
     // preskače svjež/override). Greške tihe — fallback na izvor u GuestMenu.
     if (savedId) {

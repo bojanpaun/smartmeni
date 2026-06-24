@@ -22,6 +22,10 @@ const ACTION_KEYS = {
   'staff.activated':         'audActStaffActivated',
   'staff.deactivated':       'audActStaffDeactivated',
   'staff.deleted':           'audActStaffDeleted',
+  'menu_item.created':       'audActMenuItemCreated',
+  'menu_item.updated':       'audActMenuItemUpdated',
+  'menu_item.deleted':       'audActMenuItemDeleted',
+  'menu_item.visibility':    'audActMenuItemVisibility',
 }
 const ROLE_KEYS = {
   superadmin: 'audRoleSuperadmin',
