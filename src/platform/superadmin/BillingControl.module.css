@@ -1,6 +1,5 @@
 .wrap {
   max-width: 1100px;
-  margin: 0 auto;
   padding: 24px 16px 80px;
   font-family: var(--c-font-sans);
   color: var(--c-text);
