@@ -139,6 +139,12 @@ PLATFORMA (Auth · Billing · Multi-tenancy · Onboarding · osnovno osoblje/gos
   (`restaurants.admin_theme`, primjenjuje `useTheme` koji MORA dobiti `restaurant`).
   Dark mode/tema se primjenjuju SAMO na admin rutama (`/admin`,`/superadmin`) — vidi `index.html`
   inline skriptu + `ThemeRouteSync` (App.jsx); login/javne stranice ostaju svijetle.
+- **Naslov stranice (admin/superadmin) — JEDINSTVENI IZVOR:** svi page-naslovi koriste tokene
+  `--c-page-title-size` + `--c-page-title-weight` (definisani u `index.css` `:root`) + font
+  `var(--c-font-display)`. **Nova admin stranica:** naslov stilizuj sa
+  `font-family: var(--c-font-display); font-size: var(--c-page-title-size); font-weight: var(--c-page-title-weight);`
+  — NIKAD hardkodovana px veličina. Promjena veličine svih naslova = 1 red u `index.css`.
+  (Javni portali nisu obuhvaćeni — imaju svoj hero stil.)
 - **Custom palete:** superadmin ih kreira na `/superadmin/theme` (tabela `theme_palettes`);
   `useTheme` ih primjenjuje inline preko `documentElement.style.setProperty` (baza green/green-dark
   za neutralne tokene).

@@ -3,7 +3,7 @@
   padding: 12px 20px;
   display: flex; align-items: center; justify-content: space-between;
 }
-.topbarTitle { font-size: 22px; font-weight: 700; font-family: var(--c-font-display); color: var(--c-text); }
+.topbarTitle { font-size: var(--c-page-title-size); font-weight: var(--c-page-title-weight); font-family: var(--c-font-display); color: var(--c-text); }
 .liveBadge {
   display: flex; align-items: center; gap: 6px;
   font-size: 12px; color: var(--c-primary);

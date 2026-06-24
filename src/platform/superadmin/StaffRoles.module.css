@@ -4,7 +4,7 @@
 .loading { padding: 3rem; text-align: center; color: var(--c-text-muted); }
 
 .topbar { display: flex; align-items: center; justify-content: space-between; margin-bottom: 20px; }
-.topbarTitle { font-size: 22px; font-weight: 700; color: var(--c-text); font-family: var(--c-font-display); }
+.topbarTitle { font-size: var(--c-page-title-size); font-weight: var(--c-page-title-weight); color: var(--c-text); font-family: var(--c-font-display); }
 
 .btnPrimary { composes: btnPrimary from '../../styles/buttons.module.css'; }
 .btnSecondary { composes: btnSecondary from '../../styles/buttons.module.css'; }

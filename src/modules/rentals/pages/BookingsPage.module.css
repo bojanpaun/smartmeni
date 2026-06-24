@@ -1,7 +1,7 @@
 .wrap { padding: 28px 24px; max-width: 900px; font-family: var(--c-font-sans); }
 .header { display: flex; align-items: flex-start; justify-content: space-between; gap: 12px; flex-wrap: wrap; margin-bottom: 18px; }
 .btnBack { background: none; border: none; color: var(--c-primary); font-size: 13px; font-family: var(--c-font-sans); cursor: pointer; padding: 0 0 4px; }
-.title { font-family: var(--c-font-display); font-size: 22px; font-weight: 700; color: var(--c-text); margin: 0 0 4px; }
+.title { font-family: var(--c-font-display); font-size: var(--c-page-title-size); font-weight: var(--c-page-title-weight); color: var(--c-text); margin: 0 0 4px; }
 .subtitle { font-size: 13px; color: var(--c-text-muted); margin: 0; }
 
 .btnPrimary {

@@ -9,7 +9,7 @@
   flex-shrink: 0;
 }
 .headerLeft { display: flex; flex-direction: column; gap: 4px; }
-.headerTitle { font-size: 22px; font-weight: 700; color: var(--c-text); font-family: var(--c-font-display); }
+.headerTitle { font-size: var(--c-page-title-size); font-weight: var(--c-page-title-weight); color: var(--c-text); font-family: var(--c-font-display); }
 .headerBadges { display: flex; gap: 8px; flex-wrap: wrap; }
 .alertBadge { background: var(--c-danger-bg); color: var(--c-danger); font-size: 12px; padding: 3px 10px; border-radius: 20px; font-weight: 500; }
 .reservedBadge { background: var(--c-info-bg); color: var(--c-info); font-size: 12px; padding: 3px 10px; border-radius: 20px; font-weight: 500; }

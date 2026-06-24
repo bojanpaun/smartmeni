@@ -78,6 +78,13 @@
   --c-font-sans:    'DM Sans', sans-serif;
   --c-font-display: 'Syne', sans-serif;
 
+  /* Naslov stranice — JEDINSTVENI IZVOR za sve admin/superadmin naslove.
+     Promijeni OVDJE → mijenja se na svim stranicama. Nove stranice naslov stilizuju
+     sa: font-family: var(--c-font-display); font-size: var(--c-page-title-size);
+     font-weight: var(--c-page-title-weight); */
+  --c-page-title-size:   22px;
+  --c-page-title-weight: 700;
+
   /* Radijusi — admin skala */
   --c-radius-sm: 8px;
   --c-radius-md: 10px;

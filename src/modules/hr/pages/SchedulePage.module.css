@@ -5,7 +5,7 @@
 
 /* Header */
 .header { display: flex; align-items: center; justify-content: space-between; margin-bottom: 16px; gap: 12px; flex-wrap: wrap; }
-.headerTitle { font-size: 22px; font-weight: 700; color: var(--c-text); font-family: var(--c-font-display); }
+.headerTitle { font-size: var(--c-page-title-size); font-weight: var(--c-page-title-weight); color: var(--c-text); font-family: var(--c-font-display); }
 .headerActions { display: flex; gap: 8px; flex-wrap: wrap; align-items: center; }
 
 .viewToggle { display: flex; gap: 3px; background: var(--c-bg-subtle); border-radius: 10px; padding: 3px; }

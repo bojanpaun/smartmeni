@@ -4,7 +4,7 @@
   display: flex; align-items: flex-start; justify-content: space-between;
   gap: 12px; margin-bottom: 20px; flex-wrap: wrap;
 }
-.title { font-family: var(--c-font-display); font-size: 22px; font-weight: 700; color: var(--c-text); }
+.title { font-family: var(--c-font-display); font-size: var(--c-page-title-size); font-weight: var(--c-page-title-weight); color: var(--c-text); }
 .sub { font-size: 0.85rem; color: var(--c-text-muted); margin-top: 2px; }
 .btnBack {
   padding: 8px 14px; background: var(--c-bg-subtle); border: 1px solid var(--c-border);
