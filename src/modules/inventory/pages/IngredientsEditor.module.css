@@ -9,7 +9,9 @@
 
 .desc { font-size: 13px; color: var(--c-text-muted); margin-bottom: 20px; line-height: 1.5; }
 
-.layout { display: grid; grid-template-columns: var(--left-w, 300px) 8px 1fr; gap: 0 12px; align-items: start; }
+/* Paneli se rastežu na punu visinu stranice (oba jednako); interni scroll umjesto
+   fiksne visine. min-height = viewport minus admin chrome + naslov/opis (procjena). */
+.layout { display: grid; grid-template-columns: var(--left-w, 300px) 8px 1fr; gap: 0 12px; align-items: stretch; min-height: calc(100vh - 200px); }
 
 /* Drag handle između panela */
 .divider {
@@ -24,14 +26,14 @@
 .divider:hover { opacity: 1; background: var(--c-primary-medium); }
 
 /* ── Lista menija ── */
-.menuList { background: var(--c-surface); border: 1px solid var(--c-border); border-radius: 14px; overflow: hidden; display: flex; flex-direction: column; max-height: 600px; }
+.menuList { background: var(--c-surface); border: 1px solid var(--c-border); border-radius: 14px; overflow: hidden; display: flex; flex-direction: column; min-height: 0; }
 .menuListHeader { padding: 12px 16px; font-size: 11px; font-weight: 500; color: var(--c-text-muted); text-transform: uppercase; letter-spacing: 0.5px; border-bottom: 1px solid var(--c-bg-subtle); }
 .menuSearch { margin: 8px 12px 4px; padding: 7px 10px; border: 1px solid var(--c-border-input); border-radius: 8px; font-size: 13px; font-family: var(--c-font-sans); outline: none; }
 .menuSearch:focus { border-color: var(--c-primary); }
 .listFilter { display: flex; align-items: center; gap: 7px; margin: 0 12px 8px; font-size: 12px; color: var(--c-text-medium); cursor: pointer; }
 .listFilter input { accent-color: var(--c-primary); cursor: pointer; }
 .menuEmpty { padding: 16px; text-align: center; font-size: 13px; color: var(--c-text-muted); }
-.menuScroll { flex: 1; overflow-y: auto; }
+.menuScroll { flex: 1; overflow-y: auto; min-height: 0; }
 
 /* ── Grupa (kategorija menija) ── */
 .group { border-bottom: 1px solid var(--c-bg-subtle); }
@@ -55,7 +57,7 @@
 .menuItemNoRecipe { color: var(--c-text-muted); font-size: 14px; flex-shrink: 0; opacity: 0.6; }
 
 /* ── Receptura panel ── */
-.recipePanel { background: var(--c-surface); border: 1px solid var(--c-border); border-radius: 14px; padding: 20px; }
+.recipePanel { background: var(--c-surface); border: 1px solid var(--c-border); border-radius: 14px; padding: 20px; overflow-y: auto; min-height: 0; }
 .mobileBack {
   display: none; /* samo na mobilnom */
   align-items: center; gap: 6px; margin-bottom: 14px;
