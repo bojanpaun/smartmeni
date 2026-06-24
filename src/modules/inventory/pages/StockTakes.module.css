@@ -1,0 +1,96 @@
+/* Inventory Pro v2 — Inventura (stock takes) */
+
+.loading { padding: 3rem; text-align: center; color: var(--c-text-muted); }
+
+.header { display: flex; align-items: flex-start; justify-content: space-between; margin-bottom: 16px; gap: 12px; flex-wrap: wrap; }
+.headerActions { display: flex; gap: 8px; flex-wrap: wrap; }
+.btnAdd { composes: btnPrimary from '../../../styles/buttons.module.css'; }
+.btnSecondary { composes: btnSecondary from '../../../styles/buttons.module.css'; }
+.btnBack { background: transparent; border: 1px solid var(--c-border-input); border-radius: 9px; padding: 7px 14px; font-size: 13px; cursor: pointer; color: var(--c-text-medium); font-family: var(--c-font-sans); }
+.btnBack:hover { background: var(--c-bg-subtle); }
+
+/* ── Status badge ── */
+.badge { display: inline-block; font-size: 11px; font-weight: 600; padding: 3px 10px; border-radius: 20px; border: 1px solid transparent; white-space: nowrap; }
+
+/* ── Lista ── */
+.tableWrap { overflow-x: auto; }
+.table { background: var(--c-surface); border: 1px solid var(--c-border); border-radius: 14px; overflow: hidden; min-width: 580px; }
+.listHeader, .listRow {
+  display: grid; grid-template-columns: 2fr 1fr 110px 80px 130px; align-items: center;
+}
+.listHeader {
+  padding: 10px 16px; background: var(--c-bg); border-bottom: 1px solid var(--c-border);
+  font-size: 11px; font-weight: 500; color: var(--c-text-muted);
+  text-transform: uppercase; letter-spacing: 0.5px;
+}
+.listRow { padding: 12px 16px; border-bottom: 1px solid var(--c-bg-subtle); transition: background 0.1s; cursor: pointer; }
+.listRow:last-child { border-bottom: none; }
+.listRow:hover { background: var(--c-bg); }
+.stName { font-size: 14px; font-weight: 600; color: var(--c-text); }
+.stMuted { font-size: 12px; color: var(--c-text-muted); }
+.stValPos { font-size: 13px; font-weight: 600; color: var(--c-success); }
+.stValNeg { font-size: 13px; font-weight: 600; color: var(--c-danger); }
+
+/* ── Empty ── */
+.empty { text-align: center; padding: 3rem 1rem; color: var(--c-text-muted); display: flex; flex-direction: column; gap: 12px; align-items: center; }
+.emptyIcon { font-size: 40px; }
+
+/* ── Brojanje / izvještaj ── */
+.countWrap { background: var(--c-surface); border: 1px solid var(--c-border); border-radius: 14px; overflow: hidden; }
+.countHeader, .countRow {
+  display: grid; grid-template-columns: 2fr 90px 100px 100px 120px; align-items: center; gap: 8px;
+}
+.countHeader {
+  padding: 10px 16px; background: var(--c-bg); border-bottom: 1px solid var(--c-border);
+  font-size: 11px; font-weight: 500; color: var(--c-text-muted);
+  text-transform: uppercase; letter-spacing: 0.5px;
+}
+.countRow { padding: 10px 16px; border-bottom: 1px solid var(--c-bg-subtle); }
+.countRow:last-child { border-bottom: none; }
+.ciName { font-size: 13px; font-weight: 500; color: var(--c-text); }
+.ciExpected { font-size: 13px; color: var(--c-text-medium); }
+.ciInput { padding: 7px 9px; border: 1px solid var(--c-border-input); border-radius: 8px; font-size: 13px; font-family: var(--c-font-sans); outline: none; width: 100%; box-sizing: border-box; }
+.ciInput:focus { border-color: var(--c-primary); }
+.ciCounted { font-size: 13px; color: var(--c-text); }
+.ciDiffPos { font-size: 13px; font-weight: 600; color: var(--c-success); }
+.ciDiffNeg { font-size: 13px; font-weight: 600; color: var(--c-danger); }
+.ciDiffZero { font-size: 13px; color: var(--c-text-muted); }
+.ciValue { font-size: 13px; text-align: right; }
+
+.summaryBar {
+  display: flex; justify-content: space-between; align-items: center; flex-wrap: wrap; gap: 10px;
+  margin: 14px 0; padding: 12px 16px; background: var(--c-bg); border-radius: 12px;
+}
+.summaryTotal { font-size: 15px; font-weight: 700; color: var(--c-text); }
+.summaryActions { display: flex; gap: 8px; flex-wrap: wrap; }
+.btnSave { composes: btnPrimary from '../../../styles/buttons.module.css'; padding: 9px 18px; }
+.btnClose { padding: 9px 18px; background: var(--c-success-bg); color: var(--c-success); border: 1px solid var(--c-success-border); border-radius: 9px; font-weight: 600; cursor: pointer; font-family: var(--c-font-sans); font-size: 13px; }
+
+.subTitle { font-size: 14px; font-weight: 600; color: var(--c-text); margin-bottom: 4px; display: flex; align-items: center; gap: 8px; flex-wrap: wrap; }
+
+/* ── Modal ── */
+.overlay { composes: overlay from '../../../styles/modal.module.css'; }
+.modal { composes: modal from '../../../styles/modal.module.css'; max-width: 460px; }
+.modalHeader { composes: modalHeader from '../../../styles/modal.module.css'; }
+.modalTitle { composes: modalTitle from '../../../styles/modal.module.css'; }
+.modalClose { composes: modalClose from '../../../styles/modal.module.css'; }
+.form { display: flex; flex-direction: column; gap: 12px; }
+.field { display: flex; flex-direction: column; gap: 5px; }
+.field label { font-size: 12px; font-weight: 500; color: var(--c-text-medium); }
+.field input, .field select { padding: 9px 12px; border: 1px solid var(--c-border-input); border-radius: 9px; font-size: 13px; font-family: var(--c-font-sans); outline: none; }
+.field input:focus, .field select:focus { border-color: var(--c-primary); }
+.hint { font-size: 12px; color: var(--c-text-muted); }
+.formActions { display: flex; gap: 10px; justify-content: flex-end; margin-top: 4px; }
+.btnCancelForm { composes: btnSecondary from '../../../styles/buttons.module.css'; padding: 10px 18px; background: transparent; }
+
+/* ── Responsive ── */
+@media (max-width: 700px) {
+  .listHeader, .listRow { grid-template-columns: 2fr 80px 96px; }
+  .listHeader span:nth-child(2), .listRow > *:nth-child(2) { display: none; } /* kategorija */
+  .listHeader span:nth-child(4), .listRow > *:nth-child(4) { display: none; } /* broj stavki */
+  .countHeader { display: none; }
+  .countRow { grid-template-columns: 1fr 1fr; gap: 4px 8px; padding: 10px 12px; }
+  .ciName { grid-column: 1 / -1; }
+  .ciValue { text-align: left; }
+  .summaryActions button { flex: 1 1 auto; }
+}

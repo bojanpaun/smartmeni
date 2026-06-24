@@ -57,6 +57,7 @@ const IngredientsEditor    = lazy(() => import('./modules/inventory/pages/Ingred
 const InventoryAnalytics   = lazy(() => import('./modules/inventory/pages/InventoryAnalytics'))
 const SuppliersPage        = lazy(() => import('./modules/inventory/pages/SuppliersPage'))
 const PurchaseOrdersPage   = lazy(() => import('./modules/inventory/pages/PurchaseOrdersPage'))
+const StockTakesPage       = lazy(() => import('./modules/inventory/pages/StockTakesPage'))
 const AnalyticsPage        = lazy(() => import('./modules/analytics/pages/AnalyticsPage'))
 const GuestsPage           = lazy(() => import('./modules/guests/pages/GuestsPage'))
 const GuestRegisterPage    = lazy(() => import('./modules/guests/pages/GuestRegisterPage'))
@@ -375,6 +376,7 @@ function AppRoutes() {
         <Route path="/admin/inventory/recipes" element={<AdminRoute><AddonGuard addonId="inventory_pro" name="Inventar Pro" description="Upravljanje receptima, FIFO rotacija zaliha i automatska upozorenja za niske zalihe." price={149} category="restaurant"><IngredientsEditor /></AddonGuard></AdminRoute>} />
         <Route path="/admin/inventory/suppliers" element={<AdminRoute><AddonGuard addonId="inventory_pro" name="Inventar Pro" description="Registar dobavljača, narudžbenice i inventura." price={149} category="restaurant"><SuppliersPage /></AddonGuard></AdminRoute>} />
         <Route path="/admin/inventory/orders" element={<AdminRoute><AddonGuard addonId="inventory_pro" name="Inventar Pro" description="Registar dobavljača, narudžbenice i inventura." price={149} category="restaurant"><PurchaseOrdersPage /></AddonGuard></AdminRoute>} />
+        <Route path="/admin/inventory/stocktake" element={<AdminRoute><AddonGuard addonId="inventory_pro" name="Inventar Pro" description="Registar dobavljača, narudžbenice i inventura." price={149} category="restaurant"><StockTakesPage /></AddonGuard></AdminRoute>} />
         <Route path="/admin/inventory/help" element={<AdminRoute><ModuleHelp moduleKey="inventory" /></AdminRoute>} />
 
         {/* HR modul */}

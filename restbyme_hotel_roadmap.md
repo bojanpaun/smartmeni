@@ -2036,7 +2036,7 @@ Za hotele koji primaju grupe (vjenčanja, sportski timovi, korporativni incentiv
 
 ---
 
-## ⬜ Inventory Pro v2 — Dobavljači, Narudžbenice, Inventura
+## ✅ Inventory Pro v2 — Dobavljači, Narudžbenice, Inventura (ZAVRŠENO 2026-06-25)
 
 > **Preduslov:** `inventory_pro` addon aktivan.
 > **Trajanje:** 7–10 dana
@@ -2074,9 +2074,11 @@ Za hotele koji primaju grupe (vjenčanja, sportski timovi, korporativni incentiv
 - [x] `purchase_orders` tabela + kreiranje PO s approval workflowom — **ZAVRŠENO (INV2-2, 2026-06-25)**: migr. `20260625110000`, `purchase_orders`+`purchase_order_items` (owner RLS, atomarni `po_number` po tenantu), status tok draft→approved→sent→partial/received(+cancelled), `PurchaseOrdersPage` (gated inventory_pro), ruta `/admin/inventory/orders`, audit `purchase_order.*`, pgTAP 068, i18n×7 + ModuleHelp
 - [x] Primka robe — unos stvarno primljene količine, ažuriranje stanja — RPC `receive_purchase_order()` (delta → `inventory_movements` source `purchase`, status auto received/partial)
 - [x] Auto-draft PO pri dostizanju minimalnog nivoa — RPC `generate_reorder_drafts()` (niske zalihe grupisane po dobavljaču, preskače stavke u otvorenoj PO), dugme „⚡ Auto-prijedlog"
-- [ ] `stock_takes` tabela + UI za unos stvarnog stanja
-- [ ] Izvještaj razlika inventure s vrijednosnim iskazom
-- [ ] Period lock po inventuri
+- [x] `stock_takes` tabela + UI za unos stvarnog stanja — **ZAVRŠENO (INV2-3, 2026-06-25)**: migr. `20260625120000`, `stock_takes`+`stock_take_items` (owner RLS), RPC `create_stock_take()` (snapshot stanja/cijene), `StockTakesPage` (gated inventory_pro), ruta `/admin/inventory/stocktake`, nav 🧮, audit `stock_take.*`, pgTAP 069, i18n×7 + ModuleHelp
+- [x] Izvještaj razlika inventure s vrijednosnim iskazom — live razlika (counted − expected) i vrijednost (× nabavna cijena) po stavci + `total_diff_value` (Σ) snimljen pri zaključenju
+- [x] Period lock po inventuri — RPC `close_stock_take()` knjiži korekcije (`inventory_movements` source `stocktake`) i zaključava; triggeri `guard_stock_take_closed`/`guard_stock_take_items_lock` sprječavaju izmjene zaključene inventure
+
+> **Inventory Pro v2 KOMPLETAN** (INV2-1 + INV2-2 + INV2-3) — 2026-06-25.
 
 ---
 

@@ -312,13 +312,24 @@
             "Primka automatski povećava zalihe (kretanje tipa ulaz)",
             "Dugme Auto-prijedlog kreira nacrte za sve stavke ispod minimuma, grupisane po dobavljaču"
           ]
+        },
+        {
+          "icon": "🧮",
+          "title": "Inventura",
+          "steps": [
+            "Idi na Inventura i klikni + Nova inventura (opcionalno izaberi kategoriju)",
+            "Sistem snima trenutno evidentirano stanje svake stavke",
+            "Unesi stvarno prebrojano stanje — razlika i vrijednost (× nabavna cijena) računaju se odmah",
+            "Klikni Zaključi inventuru: zalihe se usklađuju s prebrojanim (korekcija u Pokretima), a inventura se zaključava"
+          ]
         }
       ],
       "tips": [
         "Automatski odbitak radi samo ako su definisane recepture za stavke menija",
         "Korekcija je korisna za usklađivanje stanja nakon fizičke inventure",
         "Spa potrošni materijal (ulja, kreme) prati se u istom modulu — koristi kategoriju Spa",
-        "Auto-prijedlog preskače stavke koje su već u otvorenoj narudžbenici — neće duplo poručiti"
+        "Auto-prijedlog preskače stavke koje su već u otvorenoj narudžbenici — neće duplo poručiti",
+        "Zaključena inventura je trajan zapis — više se ne može mijenjati ni ponovo otvoriti"
       ]
     },
     "hr": {

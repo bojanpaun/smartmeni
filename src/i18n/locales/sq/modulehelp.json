@@ -312,13 +312,24 @@
             "Pranimi rrit automatikisht stoqet (lëvizje e tipit hyrje)",
             "Butoni Auto-sugjerim krijon skica për të gjithë artikujt nën minimum, të grupuara sipas furnitorit"
           ]
+        },
+        {
+          "icon": "🧮",
+          "title": "Inventari",
+          "steps": [
+            "Shko te Inventari dhe kliko + Inventar i ri (opsionalisht zgjidh një kategori)",
+            "Sistemi ruan gjendjen e evidentuar aktuale të çdo artikulli",
+            "Fut sasinë reale të numëruar — diferenca dhe vlera (× çmimi i blerjes) llogariten menjëherë",
+            "Kliko Mbyll inventarin: stoqet përputhen me të numëruarën (korrigjim te Lëvizjet) dhe inventari kyçet"
+          ]
         }
       ],
       "tips": [
         "Zbritja automatike funksionon vetëm nëse janë përcaktuar recetat për artikujt e menysë",
         "Korrigjimi është i dobishëm për të pajtuar gjendjen pas një inventarizimi fizik",
         "Materialet harxhuese të spa-s (vajra, krema) ndiqen në të njëjtin modul — përdor kategorinë Spa",
-        "Auto-sugjerimi anashkalon artikujt që janë tashmë në një porosi të hapur — nuk porosit dy herë"
+        "Auto-sugjerimi anashkalon artikujt që janë tashmë në një porosi të hapur — nuk porosit dy herë",
+        "Një inventar i mbyllur është regjistrim i përhershëm — nuk mund të ndryshohet apo të rihapet"
       ]
     },
     "hr": {

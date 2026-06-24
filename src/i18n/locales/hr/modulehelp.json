@@ -312,13 +312,24 @@
             "Zaprimanje automatski povećava zalihe (kretanje tipa ulaz)",
             "Gumb Auto-prijedlog izrađuje skice za sve stavke ispod minimuma, grupirane po dobavljaču"
           ]
+        },
+        {
+          "icon": "🧮",
+          "title": "Inventura",
+          "steps": [
+            "Idi na Inventura i klikni + Nova inventura (po želji odaberi kategoriju)",
+            "Sustav snima trenutno evidentirano stanje svake stavke",
+            "Unesi stvarno prebrojano stanje — razlika i vrijednost (× nabavna cijena) računaju se odmah",
+            "Klikni Zaključi inventuru: zalihe se usklađuju s prebrojanim (korekcija u Pokretima), a inventura se zaključava"
+          ]
         }
       ],
       "tips": [
         "Automatsko skidanje radi samo ako su definirani recepti za stavke menija",
         "Korekcija je korisna za usklađivanje stanja nakon fizičke inventure",
         "Spa potrošni materijal (ulja, kreme) prati se u istom modulu — koristi kategoriju Spa",
-        "Auto-prijedlog preskače stavke koje su već u otvorenoj narudžbenici — neće dvostruko naručiti"
+        "Auto-prijedlog preskače stavke koje su već u otvorenoj narudžbenici — neće dvostruko naručiti",
+        "Zaključena inventura je trajan zapis — više se ne može mijenjati ni ponovno otvoriti"
       ]
     },
     "hr": {

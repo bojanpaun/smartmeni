@@ -68,6 +68,8 @@ const ACTION_KEYS = {
   'purchase_order.received':     'audActPoReceived',
   'purchase_order.cancelled':    'audActPoCancelled',
   'purchase_order.auto_draft':   'audActPoAuto',
+  'stock_take.created':          'audActStCreated',
+  'stock_take.closed':           'audActStClosed',
 }
 const ROLE_KEYS = {
   superadmin: 'audRoleSuperadmin',

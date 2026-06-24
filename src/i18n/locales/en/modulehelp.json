@@ -312,13 +312,24 @@
             "Receiving automatically increases stock (an 'in' movement)",
             "The Auto-suggest button creates drafts for all items below minimum, grouped by supplier"
           ]
+        },
+        {
+          "icon": "🧮",
+          "title": "Stock take",
+          "steps": [
+            "Go to Stock take and click + New stock take (optionally pick a category)",
+            "The system snapshots the currently recorded quantity of each item",
+            "Enter the actual counted quantity — the difference and value (× cost price) are computed instantly",
+            "Click Close stock take: stock is aligned to the counted values (an adjustment in Movements) and the stock take is locked"
+          ]
         }
       ],
       "tips": [
         "Automatic deduction works only if recipes are defined for menu items",
         "Adjustment is useful for reconciling the count after a physical stocktake",
         "Spa consumables (oils, creams) are tracked in the same module — use the Spa category",
-        "Auto-suggest skips items already in an open order, so it won't double-order"
+        "Auto-suggest skips items already in an open order, so it won't double-order",
+        "A closed stock take is a permanent record — it cannot be changed or reopened"
       ]
     },
     "hr": {

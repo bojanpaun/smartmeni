@@ -116,6 +116,7 @@ export const MODULES = [
         { labelKey: 'navStockMovements', icon: '📋', path: '/admin/inventory/movements' },
         { labelKey: 'navSuppliers',     icon: '🚚', path: '/admin/inventory/suppliers' },
         { labelKey: 'navPurchaseOrders', icon: '🧾', path: '/admin/inventory/orders' },
+        { labelKey: 'navStockTake',     icon: '🧮', path: '/admin/inventory/stocktake' },
         { labelKey: 'navRecipes',       icon: '🧪', path: '/admin/inventory/recipes' },
       ],
     },

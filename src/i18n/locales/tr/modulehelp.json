@@ -312,13 +312,24 @@
             "Teslim alma stoğu otomatik artırır (giriş hareketi)",
             "Otomatik öneri düğmesi, minimumun altındaki tüm kalemler için tedarikçiye göre taslak oluşturur"
           ]
+        },
+        {
+          "icon": "🧮",
+          "title": "Sayım",
+          "steps": [
+            "Sayım'a git ve + Yeni sayım'a tıkla (isteğe bağlı bir kategori seç)",
+            "Sistem her kalemin o anda kayıtlı miktarını anlık olarak kaydeder",
+            "Fiili sayılan miktarı gir — fark ve değer (× alış fiyatı) anında hesaplanır",
+            "Sayımı kapat'a tıkla: stok sayılan değerlere göre güncellenir (Hareketler'de bir düzeltme) ve sayım kilitlenir"
+          ]
         }
       ],
       "tips": [
         "Otomatik düşüm yalnızca menü öğeleri için tarifler tanımlanmışsa çalışır",
         "Düzeltme, fiziksel sayımdan sonra durumu eşleştirmek için kullanışlıdır",
         "Spa sarf malzemeleri (yağlar, kremler) aynı modülde takip edilir — Spa kategorisini kullanın",
-        "Otomatik öneri, zaten açık bir siparişte olan kalemleri atlar — iki kez sipariş etmez"
+        "Otomatik öneri, zaten açık bir siparişte olan kalemleri atlar — iki kez sipariş etmez",
+        "Kapatılan sayım kalıcı bir kayıttır — değiştirilemez veya yeniden açılamaz"
       ]
     },
     "hr": {
