@@ -127,6 +127,45 @@
 }
 .accessDenied > div:first-child { font-size: 36px; }
 
+/* Mobilni: red tabele → kartica (label + vrijednost), bez horizontalnog scroll-a */
+@media (max-width: 640px) {
+  .tableWrap { overflow-x: visible; border: none; background: transparent; border-radius: 0; }
+  .table { min-width: 0; width: 100%; }
+  .table thead { display: none; }
+  .table tbody { display: block; }
+  .table tr {
+    display: block;
+    background: var(--c-surface);
+    border: 1px solid var(--c-border);
+    border-radius: 12px;
+    padding: 6px 12px;
+    margin-bottom: 10px;
+  }
+  .table td {
+    display: flex;
+    justify-content: space-between;
+    align-items: baseline;
+    gap: 12px;
+    padding: 7px 0;
+    border-bottom: 1px solid var(--c-border);
+    white-space: normal;
+    text-align: right;
+  }
+  .table tr td:last-child { border-bottom: none; }
+  .table td::before {
+    content: attr(data-label);
+    font-weight: 600;
+    color: var(--c-text-muted);
+    text-align: left;
+    flex: 0 0 auto;
+  }
+  /* Prazno/loading stanje (colSpan) — bez label prefiksa, centrirano */
+  .table td.muted { display: block; text-align: center; }
+  .table td.muted::before { content: none; }
+  .nowrap { white-space: normal; }
+  .details { text-align: right; }
+}
+
 @media (max-width: 480px) {
   .wrap { padding: 16px 10px 50px; }
   .filterInput { min-width: 0; flex: 1 1 45%; }

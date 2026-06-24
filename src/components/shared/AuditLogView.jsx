@@ -168,12 +168,12 @@ export default function AuditLogView({ scope = 'tenant' }) {
               <tr><td colSpan={superadmin ? 6 : 5} className={styles.muted}>{t('audEmpty')}</td></tr>
             ) : rows.map(r => (
               <tr key={r.id}>
-                <td className={styles.nowrap}>{new Date(r.created_at).toLocaleString(dl)}</td>
-                <td>{r.actor_email || '—'}</td>
-                <td><span className={styles.roleBadge}>{roleLabel(r.actor_role)}</span></td>
-                <td><span className={styles.actionBadge}>{actionLabel(r.action)}</span></td>
-                {superadmin && <td>{tenantName(r.restaurant_id)}</td>}
-                <td className={styles.details}>
+                <td className={styles.nowrap} data-label={t('audColTime')}>{new Date(r.created_at).toLocaleString(dl)}</td>
+                <td data-label={t('audColActor')}>{r.actor_email || '—'}</td>
+                <td data-label={t('audColRole')}><span className={styles.roleBadge}>{roleLabel(r.actor_role)}</span></td>
+                <td data-label={t('audColAction')}><span className={styles.actionBadge}>{actionLabel(r.action)}</span></td>
+                {superadmin && <td data-label={t('audColTenant')}>{tenantName(r.restaurant_id)}</td>}
+                <td className={styles.details} data-label={t('audColDetails')}>
                   {r.summary || ''}
                   {r.entity_type && <span className={styles.entityTag}>{r.entity_type}</span>}
                 </td>
