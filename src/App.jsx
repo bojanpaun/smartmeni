@@ -121,6 +121,7 @@ const BrandSettings        = lazy(() => import('./modules/menu/pages/BrandSettin
 const GeneralSettings      = lazy(() => import('./modules/menu/pages/GeneralSettings'))
 const FiscalizationPage    = lazy(() => import('./modules/fiscalization/pages/FiscalizationPage'))
 const ThemeSettings        = lazy(() => import('./modules/menu/pages/ThemeSettings'))
+const HardwareGuide        = lazy(() => import('./platform/admin/HardwareGuide'))
 const AdminMenuQR          = lazy(() => import('./modules/menu/pages/AdminMenuQR'))
 const AdminMenuSettings    = lazy(() => import('./modules/menu/pages/AdminMenuSettings'))
 const AdminMenuAnalytics   = lazy(() => import('./modules/menu/pages/AdminMenuAnalytics'))
@@ -330,6 +331,7 @@ function AppRoutes() {
         <Route path="/admin/settings/general" element={<AdminRoute><GeneralSettings /></AdminRoute>} />
         <Route path="/admin/settings/fiscalization" element={<AdminRoute><AddonGuard addonId="fiscalization" name="Fiskalizacija" description="Univerzalni računi sa PDV obračunom + fiskalizacija po zemlji (CG i region)." price={199} category="restaurant"><FiscalizationPage /></AddonGuard></AdminRoute>} />
         <Route path="/admin/settings/theme" element={<AdminRoute><ThemeSettings /></AdminRoute>} />
+        <Route path="/admin/settings/hardware" element={<AdminRoute><HardwareGuide /></AdminRoute>} />
         <Route path="/admin/settings/landing" element={<AdminRoute><RestaurantLandingEditor /></AdminRoute>} />
         <Route path="/admin/billing" element={<AdminRoute><BillingPage /></AdminRoute>} />
         <Route path="/admin/billing/success" element={<AdminRoute><BillingSuccess /></AdminRoute>} />

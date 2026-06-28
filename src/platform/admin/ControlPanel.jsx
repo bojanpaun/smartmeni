@@ -448,6 +448,13 @@ export default function ControlPanel() {
                 <div className={styles.cardDesc}>{t('cpStaffPortalDesc')}</div>
               </div>
             </button>
+            <button className={`${styles.card} ${styles.cardSys} ${styles.cardActive}`} onClick={() => navigate('/admin/settings/hardware')}>
+              <div className={styles.cardIcon}>🖨️</div>
+              <div className={styles.cardBody}>
+                <div className={styles.cardName}>{t('navHardware')}</div>
+                <div className={styles.cardDesc}>{t('hwCardDesc')}</div>
+              </div>
+            </button>
             {(isOwner() || isSuperAdmin()) && (
               <button className={`${styles.card} ${styles.cardSys} ${styles.cardActive}`} onClick={() => navigate('/admin/support')}>
                 <div className={styles.cardIcon}>💬</div>

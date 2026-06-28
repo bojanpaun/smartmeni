@@ -285,6 +285,7 @@ export const MODULES = [
         { labelKey: 'navGeneral', icon: '📋', path: '/admin/settings/general' },
         { labelKey: 'navFiscalization', icon: '🧾', path: '/admin/settings/fiscalization' },
         { labelKey: 'navTheme',  icon: '🎨', path: '/admin/settings/theme' },
+        { labelKey: 'navHardware', icon: '🖨️', path: '/admin/settings/hardware' },
         { labelKey: 'navAuditLog', icon: '📜', path: '/admin/settings/audit-log' },
         { labelKey: 'navSubscription',      icon: '💳', path: '/admin/billing' },
       ],

@@ -11,6 +11,7 @@ export const FAQ_CATS = {
   housekeeping: 'Domaćinstvo',
   inventar:     'Inventar',
   placanja:     'Plaćanja',
+  hardver:      'Hardver',
   osoblje:      'Osoblje / HR',
   ostalo:       'Ostalo',
 }
