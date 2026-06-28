@@ -3431,5 +3431,8 @@
   "saDashDetect_rooms": "Добавлен хотя бы 1 номер",
   "saDashDetect_room_types": "Добавлен хотя бы 1 тип номера",
   "saDashDetect_categories": "Добавлена хотя бы 1 категория",
-  "saDashDetect_spa_services": "Добавлена хотя бы 1 спа-услуга"
+  "saDashDetect_spa_services": "Добавлена хотя бы 1 спа-услуга",
+  "checklistGeneral": "Основное",
+  "saDashModule": "Модуль",
+  "saDashModuleNone": "Общее (без модуля)"
 }

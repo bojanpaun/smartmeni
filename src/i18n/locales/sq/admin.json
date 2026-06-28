@@ -3431,5 +3431,8 @@
   "saDashDetect_rooms": "Shtuar të paktën 1 dhomë",
   "saDashDetect_room_types": "Shtuar të paktën 1 tip dhome",
   "saDashDetect_categories": "Shtuar të paktën 1 kategori",
-  "saDashDetect_spa_services": "Shtuar të paktën 1 shërbim spa"
+  "saDashDetect_spa_services": "Shtuar të paktën 1 shërbim spa",
+  "checklistGeneral": "Bazat",
+  "saDashModule": "Moduli",
+  "saDashModuleNone": "Të përgjithshme (pa modul)"
 }

@@ -3431,5 +3431,8 @@
   "saDashDetect_rooms": "At least 1 room added",
   "saDashDetect_room_types": "At least 1 room type added",
   "saDashDetect_categories": "At least 1 category added",
-  "saDashDetect_spa_services": "At least 1 spa service added"
+  "saDashDetect_spa_services": "At least 1 spa service added",
+  "checklistGeneral": "Essentials",
+  "saDashModule": "Module",
+  "saDashModuleNone": "General (no module)"
 }

@@ -14,7 +14,7 @@ export function useChecklistSteps(userId) {
     let cancelled = false
     Promise.all([
       supabase.from('dashboard_checklist_steps')
-        .select('id, icon, label, path, detect_key, vertical, perm, addon, sort_order')
+        .select('id, icon, label, path, detect_key, vertical, perm, addon, module, sort_order')
         .eq('is_active', true)
         .order('sort_order', { ascending: true }),
       userId

@@ -3,6 +3,7 @@ import { useNavigate } from 'react-router-dom'
 import { useTranslation } from 'react-i18next'
 import { usePlatform } from '../../context/PlatformContext'
 import { useLibraryTranslations } from '../../lib/useLibraryTranslations'
+import { MODULES } from '../../layouts/AdminLayout'
 import { useChecklistSteps } from './useChecklistSteps'
 import styles from './OnboardingChecklist.module.css'
 
@@ -47,6 +48,39 @@ export default function OnboardingChecklist({ data }) {
   const doneCount = available.filter(isDone).length
   const labelOf = (s) => lt('dashboard_checklist', s.id, 'label', s.label)
 
+  // Grupiši korake u sekcije po modulu (NULL → opšta sekcija „Osnovno"). available je
+  // već sortiran po sort_order, pa redoslijed sekcija prati prvi korak svake grupe.
+  const moduleMeta = (key) => MODULES.find(m => m.key === key)
+  const groups = useMemo(() => {
+    const m = new Map()
+    for (const s of available) {
+      const k = s.module || '__general'
+      if (!m.has(k)) m.set(k, [])
+      m.get(k).push(s)
+    }
+    return [...m.entries()]
+  }, [available])
+
+  const renderStep = (s) => {
+    const done = isDone(s)
+    const manual = !s.detect_key
+    return (
+      <div key={s.id} className={`${styles.step} ${done ? styles.stepDone : ''}`}>
+        <span className={styles.stepIcon}>{done ? '✅' : s.icon}</span>
+        <button className={styles.stepLabel} onClick={() => !done && navigate(s.path)} disabled={done}>
+          {labelOf(s)}
+        </button>
+        {done ? (
+          <span className={styles.stepCheck}>{t('checklistDone')}</span>
+        ) : manual ? (
+          <button className={styles.markBtn} onClick={() => markDone(s.id)}>{t('checklistMarkDone')}</button>
+        ) : (
+          <button className={styles.goBtn} onClick={() => navigate(s.path)} aria-label={labelOf(s)}>→</button>
+        )}
+      </div>
+    )
+  }
+
   if (!canManage || !loaded) return null
   if (available.length === 0 || doneCount === available.length) return null  // sve gotovo → sakrij
 
@@ -60,22 +94,15 @@ export default function OnboardingChecklist({ data }) {
         <div className={styles.progressFill} style={{ width: `${(doneCount / available.length) * 100}%` }} />
       </div>
       <div className={styles.steps}>
-        {available.map(s => {
-          const done = isDone(s)
-          const manual = !s.detect_key
+        {groups.map(([gkey, gsteps]) => {
+          const meta = gkey === '__general' ? null : moduleMeta(gkey)
+          const header = gkey === '__general'
+            ? t('checklistGeneral')
+            : meta ? `${meta.icon} ${t(meta.labelKey)}` : gkey
           return (
-            <div key={s.id} className={`${styles.step} ${done ? styles.stepDone : ''}`}>
-              <span className={styles.stepIcon}>{done ? '✅' : s.icon}</span>
-              <button className={styles.stepLabel} onClick={() => !done && navigate(s.path)} disabled={done}>
-                {labelOf(s)}
-              </button>
-              {done ? (
-                <span className={styles.stepCheck}>{t('checklistDone')}</span>
-              ) : manual ? (
-                <button className={styles.markBtn} onClick={() => markDone(s.id)}>{t('checklistMarkDone')}</button>
-              ) : (
-                <button className={styles.goBtn} onClick={() => navigate(s.path)} aria-label={labelOf(s)}>→</button>
-              )}
+            <div key={gkey} className={styles.group}>
+              {groups.length > 1 && <div className={styles.groupHead}>{header}</div>}
+              {gsteps.map(renderStep)}
             </div>
           )
         })}

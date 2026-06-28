@@ -11,13 +11,20 @@ import styles from './DashboardConfigAdmin.module.css'
 
 const VERTICALS = ['restaurant', 'hotel', 'rental']
 const DETECT_KEYS = ['logo', 'menu', 'tables', 'staff', 'inventory', 'suppliers', 'rooms', 'room_types', 'categories', 'spa_services']
+// Moduli za grupisanje koraka u sekcije na početnoj (labelKey reuse iz MODULES).
+const MODULE_OPTIONS = [
+  { key: 'menu', labelKey: 'modMenu' }, { key: 'tables', labelKey: 'modTables' },
+  { key: 'inventory', labelKey: 'modInventory' }, { key: 'hr', labelKey: 'modHr' },
+  { key: 'guests', labelKey: 'modGuests' }, { key: 'analytics', labelKey: 'modAnalytics' },
+  { key: 'hotel', labelKey: 'modHotel' }, { key: 'spa', labelKey: 'modSpa' }, { key: 'rental', labelKey: 'modRental' },
+]
 const EMOJIS = ['⚡', '➕', '💶', '📊', '📱', '👤', '📅', '🧾', '🍽️', '🪑', '🏨', '💆', '⚙️', '🔔', '📦', '🎟️', '🖼️', '✅', '🚀']
 
 // Dvije konfigurabilne liste dijele isti editor; razlikuju se po tabeli, audit akciji,
 // i da li imaju detect_key (samo „Početni koraci").
 const KINDS = {
-  tasks:     { table: 'dashboard_tasks',            detect: false, audit: 'dashboard_task',      subKey: 'saDashSub' },
-  checklist: { table: 'dashboard_checklist_steps',  detect: true,  audit: 'dashboard_checklist', subKey: 'saDashStepsSub' },
+  tasks:     { table: 'dashboard_tasks',            detect: false, module: false, audit: 'dashboard_task',      subKey: 'saDashSub' },
+  checklist: { table: 'dashboard_checklist_steps',  detect: true,  module: true,  audit: 'dashboard_checklist', subKey: 'saDashStepsSub' },
 }
 
 // Poznate admin putanje (iz MODULES) za datalist — superadmin bira umjesto da kuca.
@@ -36,9 +43,11 @@ function knownPaths() {
   return [...out.entries()].map(([path, labelKey]) => ({ path, labelKey }))
 }
 
-const blankRow = (detect) => ({
-  id: null, sort_order: 0, icon: detect ? '✅' : '⚡', label: '', path: '',
-  vertical: '', perm: '', addon: '', is_active: true, ...(detect ? { detect_key: '' } : {}),
+const blankRow = (kind) => ({
+  id: null, sort_order: 0, icon: kind.detect ? '✅' : '⚡', label: '', path: '',
+  vertical: '', perm: '', addon: '', is_active: true,
+  ...(kind.detect ? { detect_key: '' } : {}),
+  ...(kind.module ? { module: '' } : {}),
 })
 
 // Editor jedne liste (Zadaci ili Koraci). `kind` ∈ KINDS.
@@ -48,9 +57,10 @@ function ConfigList({ kind, addons, paths, perms, t }) {
   const [savingId, setSavingId] = useState(null)
   const [confirmKey, setConfirmKey] = useState(null)
 
-  const cols = kind.detect
-    ? 'id, sort_order, icon, label, path, detect_key, vertical, perm, addon, is_active'
-    : 'id, sort_order, icon, label, path, vertical, perm, addon, is_active'
+  const baseCols = ['id', 'sort_order', 'icon', 'label', 'path', 'vertical', 'perm', 'addon', 'is_active']
+  if (kind.detect) baseCols.push('detect_key')
+  if (kind.module) baseCols.push('module')
+  const cols = baseCols.join(', ')
 
   const load = async () => {
     setLoading(true)
@@ -58,6 +68,7 @@ function ConfigList({ kind, addons, paths, perms, t }) {
     setRows((data ?? []).map(r => ({
       ...r, vertical: r.vertical ?? '', perm: r.perm ?? '', addon: r.addon ?? '',
       ...(kind.detect ? { detect_key: r.detect_key ?? '' } : {}),
+      ...(kind.module ? { module: r.module ?? '' } : {}),
     })))
     setLoading(false)
   }
@@ -68,7 +79,7 @@ function ConfigList({ kind, addons, paths, perms, t }) {
 
   const addRow = () => {
     const nextSort = rows.length ? Math.max(...rows.map(r => r.sort_order || 0)) + 10 : 10
-    setRows(rs => [...rs, { ...blankRow(kind.detect), sort_order: nextSort }])
+    setRows(rs => [...rs, { ...blankRow(kind), sort_order: nextSort }])
   }
 
   const saveRow = async (idx) => {
@@ -85,6 +96,7 @@ function ConfigList({ kind, addons, paths, perms, t }) {
       addon: r.addon || null,
       is_active: !!r.is_active,
       ...(kind.detect ? { detect_key: r.detect_key || null } : {}),
+      ...(kind.module ? { module: r.module || null } : {}),
     }
     let error, savedId = r.id
     if (r.id) {
@@ -155,6 +167,15 @@ function ConfigList({ kind, addons, paths, perms, t }) {
                   <select className={styles.input} value={r.detect_key} onChange={e => setField(idx, 'detect_key', e.target.value)}>
                     <option value="">{t('saDashDetectManual')}</option>
                     {DETECT_KEYS.map(k => <option key={k} value={k}>{t(`saDashDetect_${k}`)}</option>)}
+                  </select>
+                </label>
+              )}
+              {kind.module && (
+                <label className={styles.field}>
+                  <span className={styles.lbl}>{t('saDashModule')}</span>
+                  <select className={styles.input} value={r.module} onChange={e => setField(idx, 'module', e.target.value)}>
+                    <option value="">{t('saDashModuleNone')}</option>
+                    {MODULE_OPTIONS.map(m => <option key={m.key} value={m.key}>{t(m.labelKey)}</option>)}
                   </select>
                 </label>
               )}

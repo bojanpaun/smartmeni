@@ -3431,5 +3431,8 @@
   "saDashDetect_rooms": "En az 1 oda eklendi",
   "saDashDetect_room_types": "En az 1 oda tipi eklendi",
   "saDashDetect_categories": "En az 1 kategori eklendi",
-  "saDashDetect_spa_services": "En az 1 spa hizmeti eklendi"
+  "saDashDetect_spa_services": "En az 1 spa hizmeti eklendi",
+  "checklistGeneral": "Temel",
+  "saDashModule": "Modül",
+  "saDashModuleNone": "Genel (modülsüz)"
 }

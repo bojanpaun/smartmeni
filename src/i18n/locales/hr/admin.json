@@ -3431,5 +3431,8 @@
   "saDashDetect_rooms": "Dodana bar 1 soba",
   "saDashDetect_room_types": "Dodan bar 1 tip sobe",
   "saDashDetect_categories": "Dodana bar 1 kategorija",
-  "saDashDetect_spa_services": "Dodana bar 1 spa usluga"
+  "saDashDetect_spa_services": "Dodana bar 1 spa usluga",
+  "checklistGeneral": "Osnovno",
+  "saDashModule": "Modul",
+  "saDashModuleNone": "Osnovno (bez modula)"
 }
