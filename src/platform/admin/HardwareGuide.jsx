@@ -36,18 +36,18 @@ export default function HardwareGuide() {
       nameKey: 'hwTier0Name', descKey: 'hwTier0Desc', badge: '🟢',
       devices: [
         { roleKey: 'hwRoleDevice', emoji: '💻', model: 'Telefon / tablet / laptop', price: '0 €', noteKey: 'hwNoteAnyDevice' },
-        { roleKey: 'hwRolePrinter', emoji: '🖨️', model: 'Star TSP143IV (CloudPRNT)', price: '~150–250 €', noteKey: 'hwNoteOptionalPrinter', link: AMZ + 'Star+TSP143IV' },
-        { roleKey: 'hwRoleCards', emoji: '💳', model: 'SumUp Solo / Solo Lite · SoftPOS', price: '~30–100 €', noteKey: 'hwNoteCards', img: 'https://images.ctfassets.net/txhaodyqr481/4BEVfOiuKRGsYNvD3wNI8t/ed72c58e02f5bf889382f16267acc78e/Hero1-Desktop-UK.png?fm=jpg&w=300', link: AMZ + 'SumUp+Solo' },
+        { roleKey: 'hwRolePrinter', emoji: '🖨️', model: 'Star TSP143IV (CloudPRNT)', price: '~150–250 €', noteKey: 'hwNoteOptionalPrinter', img: '/hardware/star-tsp143.webp', link: AMZ + 'Star+TSP143IV' },
+        { roleKey: 'hwRoleCards', emoji: '💳', model: 'SumUp Solo / Solo Lite · SoftPOS', price: '~30–100 €', noteKey: 'hwNoteCards', img: '/hardware/sumup-solo.png', link: AMZ + 'SumUp+Solo' },
       ],
     },
     {
       nameKey: 'hwTier1Name', descKey: 'hwTier1Desc', badge: '🟡',
       devices: [
         { roleKey: 'hwRoleTerminal', emoji: '🖥️', model: 'Tablet 10"+ ili mini-PC', price: '~150–400 €', noteKey: 'hwNoteTerminal', link: AMZ + 'android+tablet+10+inch' },
-        { roleKey: 'hwRolePrinter', emoji: '🖨️', model: 'Star mC-Print3 (CloudPRNT)', price: '~250–350 €', noteKey: 'hwNotePrinterMain', img: 'https://starmicronics.com/wp-content/uploads/2022/01/mC-Print3-1-800x800.jpg.webp', link: AMZ + 'Star+mC-Print3' },
+        { roleKey: 'hwRolePrinter', emoji: '🖨️', model: 'Star mC-Print3 (CloudPRNT)', price: '~250–350 €', noteKey: 'hwNotePrinterMain', img: '/hardware/star-mcprint3.webp', link: AMZ + 'Star+mC-Print3' },
         { roleKey: 'hwRoleDrawer', emoji: '💰', model: 'Generička RJ11/12 kasa-fioka', price: '~40–80 €', noteKey: 'hwNoteDrawer', link: AMZ + 'POS+cash+drawer+RJ11' },
         { roleKey: 'hwRoleKds', emoji: '🍳', model: 'Tablet 10"+ (ekran kuhinje u app-u)', price: '~150 €', noteKey: 'hwNoteKds', link: AMZ + 'kitchen+display+tablet+stand' },
-        { roleKey: 'hwRoleCards', emoji: '💳', model: 'SumUp · terminal · SoftPOS', price: '~0–150 €', noteKey: 'hwNoteCards', link: AMZ + 'SumUp+card+reader' },
+        { roleKey: 'hwRoleCards', emoji: '💳', model: 'SumUp · terminal · SoftPOS', price: '~0–150 €', noteKey: 'hwNoteCards', img: '/hardware/sumup-solo.png', link: AMZ + 'SumUp+card+reader' },
         { roleKey: 'hwRoleInternet', emoji: '📶', model: 'Ruter + 4G/LTE backup', price: '~30–120 €', noteKey: 'hwNoteInternet', link: AMZ + '4G+LTE+failover+router' },
       ],
     },
@@ -55,7 +55,7 @@ export default function HardwareGuide() {
       nameKey: 'hwTier2Name', descKey: 'hwTier2Desc', badge: '🔵',
       devices: [
         { roleKey: 'hwRoleReception', emoji: '🖥️', model: 'Računar ili tablet', price: '~300–700 €', noteKey: 'hwNoteReception', link: AMZ + 'mini+pc+desktop' },
-        { roleKey: 'hwRolePrinter', emoji: '🖨️', model: 'Star mC-Print3 · Epson TM-m30III', price: '~250–300 €', noteKey: 'hwNotePrinterShare', img: 'https://mediaserver.goepson.com/adaptivemedia/rendition?id=5d1ba92339c78ea665381a9b2757577a84ed44e2&prid=300Wx300H&clid=SAPDAM&assetDescr=TM-m30III_white_headon-reddot2023_690x460', link: AMZ + 'Epson+TM-m30III' },
+        { roleKey: 'hwRolePrinter', emoji: '🖨️', model: 'Star mC-Print3 · Epson TM-m30III', price: '~250–300 €', noteKey: 'hwNotePrinterShare', img: '/hardware/epson-m30.jpg', link: AMZ + 'Epson+TM-m30III' },
         { roleKey: 'hwRoleCards', emoji: '💳', model: 'Terminal ili SoftPOS', price: '~0–200 €', noteKey: 'hwNoteCards', link: AMZ + 'card+payment+terminal' },
         { roleKey: 'hwRoleLocks', emoji: '🔐', model: 'Nuki · TTLock · Igloohome', price: '~80–200 €/vrata', noteKey: 'hwNoteLocks', link: AMZ + 'Nuki+smart+lock' },
         { roleKey: 'hwRoleInternet', emoji: '📶', model: 'Ruter + 4G/LTE backup', price: '~30–120 €', noteKey: 'hwNoteInternet', link: AMZ + '4G+LTE+failover+router' },
