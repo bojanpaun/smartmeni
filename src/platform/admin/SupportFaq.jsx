@@ -1,4 +1,5 @@
 import { useState, useEffect } from 'react'
+import { useNavigate } from 'react-router-dom'
 import { useTranslation } from 'react-i18next'
 import { supabase } from '../../lib/supabase'
 import styles from '../../modules/hotel/pages/Hotel.module.css'
@@ -59,6 +60,7 @@ export function FaqSuggestions({ query }) {
 // FAQ / baza znanja na vrhu /admin/support — admin prvo traži odgovor.
 export default function SupportFaq() {
   const { t } = useTranslation('admin')
+  const navigate = useNavigate()
   const [items, setItems] = useState([])
   const [loaded, setLoaded] = useState(false)
   const [q, setQ] = useState('')
@@ -88,6 +90,10 @@ export default function SupportFaq() {
         <div>
           <h1 className={styles.title}>📖 {t('fqTitle')}</h1>
           <p className={styles.subtitle}>{t('fqSub')}</p>
+          <button onClick={() => navigate('/admin/settings/hardware')}
+            style={{ marginTop: 6, background: 'none', border: 'none', padding: 0, color: 'var(--c-primary)', fontSize: 13, fontWeight: 600, cursor: 'pointer' }}>
+            🖨️ {t('fqHardwareLink')} →
+          </button>
         </div>
       </div>
 

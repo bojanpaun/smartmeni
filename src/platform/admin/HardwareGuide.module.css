@@ -1,8 +1,9 @@
-/* „Hardver i oprema" stranica. Sve boje kroz --c-* tokene (dark mode). Naslov kroz
-   page-title tokene (CLAUDE.md §5). Lagana verzija — puni vodič po nivoima dolazi
-   poslije validacije modela. */
+/* „Hardver i oprema" — pun vodič. Standardni page padding (28px 24px) + max-width
+   da se uklopi kao ostale admin stranice (ne pribijeno uz sidebar/vrh). Sve boje
+   kroz --c-* tokene (dark mode). Naslov kroz page-title tokene (CLAUDE.md §5).
+   Responsive: kartice uređaja u auto-fit grid (375/768/desktop). */
 
-.page { padding: 4px 0; }
+.page { padding: 28px 24px; max-width: 1040px; }
 
 .header { margin-bottom: 18px; }
 .title {
@@ -16,18 +17,18 @@
   font-size: 14px;
   color: var(--c-text-medium);
   line-height: 1.55;
-  max-width: 760px;
+  max-width: 820px;
   margin: 0;
 }
 
-.points {
-  display: flex;
-  flex-direction: column;
+/* Ključne činjenice */
+.facts {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(240px, 1fr));
   gap: 10px;
   margin: 18px 0;
-  max-width: 760px;
 }
-.point {
+.fact {
   display: flex;
   align-items: flex-start;
   gap: 10px;
@@ -36,20 +37,111 @@
   border-radius: 10px;
   background: var(--c-surface);
 }
-.pointIcon { font-size: 18px; line-height: 1.3; flex-shrink: 0; }
-.pointText { font-size: 14px; color: var(--c-text); line-height: 1.5; }
+.factIcon { font-size: 18px; line-height: 1.3; flex-shrink: 0; }
+.factText { font-size: 13.5px; color: var(--c-text); line-height: 1.5; }
 
-.soon {
+.pricesNote {
   font-size: 13px;
-  color: var(--c-text-muted);
+  color: var(--c-text-medium);
   background: var(--c-info-bg);
   border: 1px solid var(--c-info-border);
   border-radius: 10px;
-  padding: 12px 14px;
-  margin: 0 0 16px;
-  max-width: 760px;
+  padding: 11px 14px;
+  margin: 0 0 22px;
   line-height: 1.5;
 }
+
+/* Nivo (tier) */
+.tier { margin-bottom: 26px; }
+.tierHead {
+  display: flex;
+  align-items: flex-start;
+  gap: 10px;
+  margin-bottom: 12px;
+  padding-bottom: 10px;
+  border-bottom: 1px solid var(--c-border);
+}
+.tierBadge { font-size: 18px; line-height: 1.2; flex-shrink: 0; }
+.tierName {
+  font-family: var(--c-font-display);
+  font-size: 17px;
+  font-weight: 700;
+  color: var(--c-text);
+  margin: 0 0 2px;
+}
+.tierDesc { font-size: 13px; color: var(--c-text-muted); margin: 0; line-height: 1.45; }
+
+/* Kartice uređaja */
+.devGrid {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(240px, 1fr));
+  gap: 14px;
+}
+.devCard {
+  display: flex;
+  flex-direction: column;
+  border: 1px solid var(--c-border);
+  border-radius: 12px;
+  background: var(--c-surface);
+  overflow: hidden;
+}
+.img {
+  width: 100%;
+  height: 150px;
+  object-fit: contain;
+  background: #fff;
+  padding: 10px;
+  box-sizing: border-box;
+}
+.imgFallback {
+  width: 100%;
+  height: 150px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 52px;
+  background: var(--c-bg);
+}
+.devBody { padding: 12px 14px; display: flex; flex-direction: column; gap: 3px; flex: 1; }
+.devRole {
+  font-size: 11px;
+  font-weight: 700;
+  text-transform: uppercase;
+  letter-spacing: 0.03em;
+  color: var(--c-text-muted);
+}
+.devModel { font-size: 14px; font-weight: 600; color: var(--c-text); line-height: 1.35; }
+.devPrice { font-size: 13px; font-weight: 700; color: var(--c-primary); }
+.devNote { font-size: 12.5px; color: var(--c-text-medium); line-height: 1.45; margin-top: 2px; flex: 1; }
+.devLink {
+  align-self: flex-start;
+  margin-top: 8px;
+  display: inline-flex;
+  align-items: center;
+  gap: 5px;
+  padding: 6px 12px;
+  border: 1px solid var(--c-border);
+  border-radius: 8px;
+  background: var(--c-bg);
+  color: var(--c-primary);
+  font-size: 12px;
+  font-weight: 600;
+  text-decoration: none;
+  transition: border-color 0.15s, background 0.15s;
+}
+.devLink:hover { border-color: var(--c-primary); background: var(--c-primary-light); }
+
+/* Povezivanje */
+.conn {
+  border: 1px solid var(--c-border);
+  border-radius: 12px;
+  background: var(--c-surface);
+  padding: 16px 18px;
+  margin-bottom: 22px;
+}
+.connTitle { font-size: 15px; font-weight: 700; color: var(--c-text); margin: 0 0 10px; }
+.connList { margin: 0; padding-left: 20px; display: flex; flex-direction: column; gap: 8px; }
+.connStep { font-size: 13.5px; color: var(--c-text); line-height: 1.5; }
 
 .faqBtn {
   display: inline-flex;
@@ -67,3 +159,8 @@
   transition: filter 0.15s;
 }
 .faqBtn:hover { filter: brightness(1.05); }
+
+@media (max-width: 640px) {
+  .page { padding: 18px 14px; }
+  .devGrid { grid-template-columns: repeat(auto-fill, minmax(180px, 1fr)); gap: 10px; }
+}
