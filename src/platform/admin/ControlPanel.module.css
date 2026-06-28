@@ -26,6 +26,8 @@
 .kpiHead {
   display: flex;
   justify-content: flex-end;
+  gap: 8px;
+  flex-wrap: wrap;
   margin-bottom: 10px;
 }
 .kpiCustomizeBtn {
@@ -44,6 +46,24 @@
   transition: border-color 0.15s, color 0.15s;
 }
 .kpiCustomizeBtn:hover { border-color: var(--c-primary-medium); color: var(--c-primary); }
+
+/* Link za vraćanje sakrivene „Početni koraci" kartice (uz Prilagodi). */
+.checklistRestoreBtn {
+  display: inline-flex;
+  align-items: center;
+  gap: 5px;
+  padding: 6px 12px;
+  background: transparent;
+  border: 1px solid var(--c-border);
+  border-radius: 8px;
+  font-size: 12px;
+  font-weight: 600;
+  color: var(--c-primary);
+  cursor: pointer;
+  font-family: var(--c-font-sans);
+  transition: border-color 0.15s, background 0.15s;
+}
+.checklistRestoreBtn:hover { border-color: var(--c-primary-medium); background: var(--c-primary-light); }
 .kpiRow {
   display: flex;
   gap: 12px;

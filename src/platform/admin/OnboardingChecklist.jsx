@@ -4,7 +4,6 @@ import { useTranslation } from 'react-i18next'
 import { usePlatform } from '../../context/PlatformContext'
 import { useLibraryTranslations } from '../../lib/useLibraryTranslations'
 import { MODULES } from '../../layouts/AdminLayout'
-import { useChecklistSteps } from './useChecklistSteps'
 import styles from './OnboardingChecklist.module.css'
 
 // Detektori statusa koraka — računaju `done` iz get_admin_overview brojki / restaurant
@@ -38,24 +37,32 @@ function moduleVisible(moduleKey, hasVertical, hasAddon, canSee) {
   return true
 }
 
-// „Početni koraci" kartica na admin početnoj. Prima `data` (get_admin_overview) iz
-// ControlPanel-a — bez dodatnog RPC-a. Vlasnik/superadmin posao (kao „Vodič"); sakriva
-// se kad su svi dostupni koraci završeni. Deep-linka na prave stranice (ne otvara wizard).
-export default function OnboardingChecklist({ data }) {
+// Koraci dostupni tenantu (vertikala + permisija + addon + vidljivost modula). Izvučeno
+// da i ControlPanel može jeftino provjeriti „ima li uopšte koraka" za link za vraćanje
+// kartice — bez dupliranja gating logike.
+export function selectAvailableSteps(steps, { hasVertical, hasAddon, canSee }) {
+  return steps.filter(s =>
+    (!s.vertical || hasVertical(s.vertical)) && canSee(s.perm) && (!s.addon || hasAddon(s.addon)) &&
+    moduleVisible(s.module, hasVertical, hasAddon, canSee),
+  )
+}
+
+// „Početni koraci" kartica na admin početnoj. Prima `data` (get_admin_overview) + stanje
+// koraka (useChecklistSteps, pozvan u ControlPanel-u, bez dodatnog RPC-a). Vlasnik/superadmin
+// posao (kao „Vodič"). Kad su svi dostupni koraci gotovi → čestitka; korisnik je može i ručno
+// sakriti (×, perzistuje se), a vrati je linkom uz KPI red. Deep-linka na prave stranice.
+export default function OnboardingChecklist({ data, steps, manualDone, markDone, dismissed, setDismissed, loaded }) {
   const { t } = useTranslation('admin')
   const navigate = useNavigate()
-  const { user, restaurant, hasVertical, hasPermission, hasAddon, isOwner, isSuperAdmin } = usePlatform()
+  const { restaurant, hasVertical, hasPermission, hasAddon, isOwner, isSuperAdmin } = usePlatform()
   const lt = useLibraryTranslations()
-  const { steps, manualDone, markDone, loaded } = useChecklistSteps(user?.id)
 
   const canManage = isOwner() || isSuperAdmin()
   const canSee = (perm) => !perm || canManage || hasPermission(perm)
 
   // Gating po vertikali/permisiji/addonu (isto kao dashboard kartice/task traka).
-  const available = useMemo(() => steps.filter(s =>
-    (!s.vertical || hasVertical(s.vertical)) && canSee(s.perm) && (!s.addon || hasAddon(s.addon)) &&
-    moduleVisible(s.module, hasVertical, hasAddon, canSee),
-  ), [steps, hasVertical, hasAddon, hasPermission, isOwner, isSuperAdmin])
+  const available = useMemo(() => selectAvailableSteps(steps, { hasVertical, hasAddon, canSee }),
+    [steps, hasVertical, hasAddon, hasPermission, isOwner, isSuperAdmin])
 
   const isDone = (s) => s.detect_key && DETECTORS[s.detect_key]
     ? DETECTORS[s.detect_key](data, restaurant)
@@ -98,13 +105,29 @@ export default function OnboardingChecklist({ data }) {
   }
 
   if (!canManage || !loaded) return null
-  if (available.length === 0 || doneCount === available.length) return null  // sve gotovo → sakrij
+  if (available.length === 0) return null   // nema nijednog koraka za ovaj tenant
+  if (dismissed) return null                 // korisnik sakrio → ControlPanel nudi vraćanje
+
+  // Svi koraci gotovi → čestitka (umjesto tihog nestajanja). × je trajno sakrije.
+  if (doneCount === available.length) return (
+    <div className={styles.card}>
+      <div className={styles.doneBanner}>
+        <span className={styles.doneIcon}>🎉</span>
+        <div className={styles.doneTextWrap}>
+          <span className={styles.title}>{t('checklistAllDoneTitle')}</span>
+          <span className={styles.doneSub}>{t('checklistAllDoneText')}</span>
+        </div>
+        <button className={styles.dismissBtn} onClick={() => setDismissed(true)} aria-label={t('checklistHide')}>✕</button>
+      </div>
+    </div>
+  )
 
   return (
     <div className={styles.card}>
       <div className={styles.head}>
         <span className={styles.title}>🚀 {t('checklistTitle')}</span>
         <span className={styles.progressText}>{t('checklistProgress', { done: doneCount, total: available.length })}</span>
+        <button className={styles.dismissBtn} onClick={() => setDismissed(true)} aria-label={t('checklistHide')}>✕</button>
       </div>
       <div className={styles.progressBar}>
         <div className={styles.progressFill} style={{ width: `${(doneCount / available.length) * 100}%` }} />

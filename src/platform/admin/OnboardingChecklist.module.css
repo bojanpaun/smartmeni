@@ -20,6 +20,36 @@
 .title { font-size: 15px; font-weight: 700; color: var(--c-text); }
 .progressText { font-size: 13px; font-weight: 600; color: var(--c-text-muted); }
 
+/* × za ručno sakrivanje kartice (perzistuje se per-korisnik). */
+.dismissBtn {
+  flex-shrink: 0;
+  margin-left: auto;
+  width: 26px;
+  height: 26px;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  border: none;
+  border-radius: 7px;
+  background: transparent;
+  color: var(--c-text-muted);
+  font-size: 15px;
+  line-height: 1;
+  cursor: pointer;
+  transition: background 0.15s, color 0.15s;
+}
+.dismissBtn:hover { background: var(--c-bg); color: var(--c-text); }
+
+/* Čestitka kad su svi koraci gotovi. */
+.doneBanner {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+}
+.doneIcon { font-size: 26px; line-height: 1; flex-shrink: 0; }
+.doneTextWrap { display: flex; flex-direction: column; gap: 2px; min-width: 0; }
+.doneSub { font-size: 13px; color: var(--c-text-muted); }
+
 .progressBar {
   height: 8px;
   border-radius: 999px;

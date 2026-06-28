@@ -8,6 +8,7 @@ import { supabase } from '../../lib/supabase'
 export function useChecklistSteps(userId) {
   const [steps, setSteps] = useState([])
   const [manualDone, setManualDone] = useState([])
+  const [dismissed, setDismissedState] = useState(false)
   const [loaded, setLoaded] = useState(false)
 
   useEffect(() => {
@@ -18,12 +19,13 @@ export function useChecklistSteps(userId) {
         .eq('is_active', true)
         .order('sort_order', { ascending: true }),
       userId
-        ? supabase.from('user_profiles').select('onboarding_checklist').eq('id', userId).maybeSingle()
+        ? supabase.from('user_profiles').select('onboarding_checklist, checklist_dismissed').eq('id', userId).maybeSingle()
         : Promise.resolve({ data: null }),
     ]).then(([{ data: s }, { data: p }]) => {
       if (cancelled) return
       setSteps(s ?? [])
       setManualDone(Array.isArray(p?.onboarding_checklist) ? p.onboarding_checklist : [])
+      setDismissedState(!!p?.checklist_dismissed)
       setLoaded(true)
     })
     return () => { cancelled = true }
@@ -40,5 +42,11 @@ export function useChecklistSteps(userId) {
     })
   }, [userId])
 
-  return { steps, manualDone, markDone, loaded }
+  // Sakrij/vrati karticu „Početni koraci" (per-korisnik, optimistično + perzistuj).
+  const setDismissed = useCallback((value) => {
+    setDismissedState(value)
+    if (userId) supabase.from('user_profiles').update({ checklist_dismissed: value }).eq('id', userId)
+  }, [userId])
+
+  return { steps, manualDone, markDone, dismissed, setDismissed, loaded }
 }

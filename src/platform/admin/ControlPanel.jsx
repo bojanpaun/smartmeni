@@ -1,4 +1,4 @@
-import { useState, useEffect } from 'react'
+import { useState, useEffect, useMemo } from 'react'
 import { useNavigate } from 'react-router-dom'
 import { useTranslation } from 'react-i18next'
 import { usePlatform } from '../../context/PlatformContext'
@@ -7,7 +7,8 @@ import { MODULES } from '../../layouts/AdminLayout'
 import OnboardingWizard from './OnboardingWizard'
 import HotelOnboardingWizard from './HotelOnboardingWizard'
 import TaskBar from './TaskBar'
-import OnboardingChecklist from './OnboardingChecklist'
+import OnboardingChecklist, { selectAvailableSteps } from './OnboardingChecklist'
+import { useChecklistSteps } from './useChecklistSteps'
 import { useAnnouncements } from '../../context/AnnouncementsContext'
 import { useSupport } from '../../context/SupportContext'
 import RoadmapTicker from '../../components/shared/RoadmapTicker'
@@ -151,6 +152,16 @@ export default function ControlPanel() {
   const canSee    = (perm) => !perm || isOwner() || isSuperAdmin() || hasPermission(perm)
   const addonOn   = (mod)  => !mod.addonId || hasAddon(mod.addonId)
 
+  // „Početni koraci" stanje (hook jednom ovdje; prosljeđuje se kartici). Link za vraćanje
+  // (uz KPI red) se nudi samo kad je korisnik karticu sakrio a ima dostupnih koraka.
+  const checklist = useChecklistSteps(user?.id)
+  const checklistAvailable = useMemo(
+    () => selectAvailableSteps(checklist.steps, { hasVertical, hasAddon, canSee }),
+    [checklist.steps, hasVertical, hasAddon, hasPermission, isOwner, isSuperAdmin],
+  )
+  const showChecklistRestore = checklist.loaded && (isOwner() || isSuperAdmin())
+    && checklist.dismissed && checklistAvailable.length > 0
+
   // Prilagodljivi KPI-evi (per-korisnik, user_profiles.dashboard_kpis).
   const [profileKpis, setProfileKpis] = useState(null)
   const [showKpiPicker, setShowKpiPicker] = useState(false)
@@ -274,14 +285,27 @@ export default function ControlPanel() {
               (dashboard_tasks; superadmin kurira na /superadmin/dashboard) ── */}
       <TaskBar />
 
-      {/* ── Početni koraci (onboarding checklist; sakriva se kad su svi done) ── */}
-      <OnboardingChecklist data={data} />
+      {/* ── Početni koraci (onboarding checklist; čestitka kad su svi done, ručno sakriva) ── */}
+      <OnboardingChecklist
+        data={data}
+        steps={checklist.steps}
+        manualDone={checklist.manualDone}
+        markDone={checklist.markDone}
+        dismissed={checklist.dismissed}
+        setDismissed={checklist.setDismissed}
+        loaded={checklist.loaded}
+      />
 
       {/* ── KPI row (prilagodljiv, per-korisnik) ── */}
       <div className={styles.kpiHead}>
         <button className={styles.kpiCustomizeBtn} onClick={() => setShowKpiPicker(true)}>
           ⚙️ {t('cpCustomize')}
         </button>
+        {showChecklistRestore && (
+          <button className={styles.checklistRestoreBtn} onClick={() => checklist.setDismissed(false)}>
+            🚀 {t('checklistRestore')}
+          </button>
+        )}
       </div>
       <div className={styles.kpiRow}>
         {shownKpis.map(k => (
