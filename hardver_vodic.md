@@ -87,10 +87,13 @@ Treba ti samo: **uređaj sa browserom + internet + (po potrebi) standardizovan p
 
 ---
 
-## Naredni korak (poslije potvrde default odluka)
+## Naredni korak
 
-- [ ] Potvrditi default odluke #2–#5 (gore).
-- [ ] Validirati 3–4 konkretna modela kod lokalnog distributera (cijena/dostupnost).
-- [ ] Pretočiti ovaj vodič u **in-app stranicu** (`/admin/help/hardver` ili sekcija na landing-u) +
-      sažete **FAQ unose** (support_faq) — to je prvi mali dev korak Faze 0.
+- [x] Potvrditi default odluke #2–#5 (potvrđeno 2026-06-28).
+- [x] **FAQ unosi u app-u** (`support_faq`, migr. `20260628240000`) — 6 pitanja: koji hardver, fiskalna
+      kasa, printer, kartice, instalacija/teren, hotel/ključevi. Vidljivo na `/admin/support`.
+- [ ] Validirati 3–4 konkretna modela kod lokalnog distributera (cijena/dostupnost) — **tvoj korak**,
+      ja to ne mogu pouzdano provjeriti.
+- [ ] Puna **prevedena in-app stranica** „Hardver" (nav pod Postavke) — TEK pošto su modeli validirani
+      (da ne prevodimo nefinalan sadržaj ×7).
 - [ ] (Faza 1) CloudPRNT integracija — čarobnjak za uparivanje printera u postavkama.
