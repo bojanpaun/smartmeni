@@ -23,6 +23,21 @@ const DETECTORS = {
   spa_services: (data) => (data?.spa_services_count || 0) > 0,
 }
 
+// Modul → vertikala (mirror ControlPanel *_KEYS). Moduli van mape (hr/inventory/
+// guests/analytics) su dijeljeni — gejtuju se samo permisijom/addonom iz MODULES.
+const MODULE_VERTICAL = { menu: 'restaurant', tables: 'restaurant', hotel: 'hotel', spa: 'hotel', rental: 'rental' }
+
+// Korak vezan za modul se vidi SAMO ako je taj modul dostupan tenantu — ista logika
+// kao prikaz modul-kartice na ControlPanel-u (vertikala + addon + permisija).
+function moduleVisible(moduleKey, hasVertical, hasAddon, canSee) {
+  if (!moduleKey) return true
+  const mod = MODULES.find(m => m.key === moduleKey)
+  if (MODULE_VERTICAL[moduleKey] && !hasVertical(MODULE_VERTICAL[moduleKey])) return false
+  if (mod?.addonId && !hasAddon(mod.addonId)) return false
+  if (mod?.perm && !canSee(mod.perm)) return false
+  return true
+}
+
 // „Početni koraci" kartica na admin početnoj. Prima `data` (get_admin_overview) iz
 // ControlPanel-a — bez dodatnog RPC-a. Vlasnik/superadmin posao (kao „Vodič"); sakriva
 // se kad su svi dostupni koraci završeni. Deep-linka na prave stranice (ne otvara wizard).
@@ -38,7 +53,8 @@ export default function OnboardingChecklist({ data }) {
 
   // Gating po vertikali/permisiji/addonu (isto kao dashboard kartice/task traka).
   const available = useMemo(() => steps.filter(s =>
-    (!s.vertical || hasVertical(s.vertical)) && canSee(s.perm) && (!s.addon || hasAddon(s.addon)),
+    (!s.vertical || hasVertical(s.vertical)) && canSee(s.perm) && (!s.addon || hasAddon(s.addon)) &&
+    moduleVisible(s.module, hasVertical, hasAddon, canSee),
   ), [steps, hasVertical, hasAddon, hasPermission, isOwner, isSuperAdmin])
 
   const isDone = (s) => s.detect_key && DETECTORS[s.detect_key]
