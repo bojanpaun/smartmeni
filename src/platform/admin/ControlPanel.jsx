@@ -69,30 +69,27 @@ function kpiVal(kpi, d) {
 }
 
 function useDashboardData(restaurant) {
-  const [data, setData]     = useState({})
-  const [badges, setBadges] = useState({ waiter: 0, kitchen: 0, bar: 0, waiterReq: 0 })
+  const [data, setData] = useState({})
 
   useEffect(() => {
     if (!restaurant?.id) return
     const rid  = restaurant.id
 
-    // Sve KPI/badge brojke u jednom RPC pozivu (ranije ~11 zasebnih count-upita).
+    // Sve KPI brojke u jednom RPC pozivu (ranije ~11 zasebnih count-upita).
     async function load() {
       const { data: d } = await supabase.rpc('get_admin_overview', { p_restaurant_id: rid })
       if (!d) return
       setData(d)
-      setBadges({ waiter: d.waiter || 0, kitchen: d.kitchen || 0, bar: d.bar || 0, waiterReq: d.waiter_req || 0 })
     }
 
     load()
     const ch = supabase.channel(`cp-${rid}`)
-      .on('postgres_changes', { event: '*', schema: 'public', table: 'orders',          filter: `restaurant_id=eq.${rid}` }, load)
-      .on('postgres_changes', { event: '*', schema: 'public', table: 'waiter_requests', filter: `restaurant_id=eq.${rid}` }, load)
+      .on('postgres_changes', { event: '*', schema: 'public', table: 'orders', filter: `restaurant_id=eq.${rid}` }, load)
       .subscribe()
     return () => supabase.removeChannel(ch)
   }, [restaurant?.id])
 
-  return { data, badges }
+  return { data }
 }
 
 // Modal za izbor KPI-eva (per-korisnik). Prima već filtriran (dostupan) katalog.
@@ -149,12 +146,7 @@ export default function ControlPanel() {
   const [showHotelOnboarding, setShowHotelOnboarding] = useState(needsOnboarding && hotelOnly)
   const [hotelAuto, setHotelAuto] = useState(needsOnboarding && hotelOnly) // auto-prikaz → markiraj completed
 
-  // Hotel/spa KPI upiti se rade SAMO ako tenant ima tu vertikalu (ne na osnovu
-  // addona — beta mod ga svima postavlja na true, pa bi se hotel_reservations/rooms
-  // upiti nepotrebno slali i restoranu-only nalogu).
-  const hasHotel = hasVertical('hotel')
-  const hasSpa   = hasVertical('hotel') && hasAddon('spa_wellness')
-  const { data, badges } = useDashboardData(restaurant)
+  const { data } = useDashboardData(restaurant)
 
   const canSee    = (perm) => !perm || isOwner() || isSuperAdmin() || hasPermission(perm)
   const addonOn   = (mod)  => !mod.addonId || hasAddon(mod.addonId)
@@ -222,16 +214,6 @@ export default function ControlPanel() {
   const rentalMods      = MODULES.filter(m => RENTAL_KEYS.includes(m.key))
   const upravljanjeMods = MODULES.filter(m => UPRAVLJANJE_KEYS.includes(m.key) && canSee(m.perm))
   const adminMods       = MODULES.filter(m => m.adminOnly)
-
-  const QUICK = [
-    { labelKey: 'navOrders', icon: '🧾', path: '/admin/orders',  badge: badges.waiter,    perm: 'view_orders' },
-    { labelKey: 'navKitchen',  icon: '🧑‍🍳', path: '/admin/kitchen', badge: badges.kitchen,   perm: 'view_orders' },
-    { labelKey: 'navBar',      icon: '🍷', path: '/admin/bar',     badge: badges.bar,       perm: 'view_orders' },
-    { labelKey: 'navWaiterReq', icon: '🔔', path: '/admin/waiter',  badge: badges.waiterReq, perm: 'view_waiter_req' },
-    ...(hasHotel ? [{ labelKey: 'navFrontDesk', icon: '🛎️', path: '/admin/hotel/frontdesk', badge: data.checkins_today || 0 }] : []),
-    ...(hasSpa   ? [{ labelKey: 'quickSpaToday',  icon: '💆', path: '/admin/spa/appointments', badge: data.spa_today || 0 }] : []),
-  ]
-  const quickItems = QUICK.filter(a => canSee(a.perm))
 
   const renderCard = (mod) => {
     const accessible = canSee(mod.perm)
@@ -317,25 +299,6 @@ export default function ControlPanel() {
       </div>
       {showKpiPicker && (
         <KpiPicker catalog={availableKpis} selected={selectedKeys} onSave={saveKpis} onClose={() => setShowKpiPicker(false)} t={t} />
-      )}
-
-      {/* ── Quick actions ── */}
-      {quickItems.length > 0 && (
-        <>
-          <div className={styles.quickHead}>
-            <span className={styles.quickHeadTitle}>⚡ {t('cpQuickTitle')}</span>
-            <span className={styles.quickHeadHint}>{t('cpQuickHint')}</span>
-          </div>
-          <div className={styles.quickRow}>
-            {quickItems.map(a => (
-              <button key={a.path} className={styles.quickBtn} onClick={() => navigate(a.path)}>
-                <span className={styles.quickIcon}>{a.icon}</span>
-                <span className={styles.quickLabel}>{t(a.labelKey)}</span>
-                {a.badge > 0 && <span className={styles.quickBadge}>{a.badge}</span>}
-              </button>
-            ))}
-          </div>
-        </>
       )}
 
       {/* ── Restoran vertical ── */}
