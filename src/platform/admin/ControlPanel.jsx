@@ -6,6 +6,7 @@ import { supabase } from '../../lib/supabase'
 import { MODULES } from '../../layouts/AdminLayout'
 import OnboardingWizard from './OnboardingWizard'
 import HotelOnboardingWizard from './HotelOnboardingWizard'
+import TaskBar from './TaskBar'
 import { useAnnouncements } from '../../context/AnnouncementsContext'
 import { useSupport } from '../../context/SupportContext'
 import RoadmapTicker from '../../components/shared/RoadmapTicker'
@@ -285,6 +286,10 @@ export default function ControlPanel() {
 
       {/* ── Roadmap ticker (Šta razvijamo) — diskretno, bez dismiss-a ── */}
       <RoadmapTicker />
+
+      {/* ── Task traka („Šta želite da uradite?") — cilj-orijentisane prečice
+              (dashboard_tasks; superadmin kurira na /superadmin/dashboard) ── */}
+      <TaskBar />
 
       {/* ── KPI row (prilagodljiv, per-korisnik) ── */}
       <div className={styles.kpiHead}>

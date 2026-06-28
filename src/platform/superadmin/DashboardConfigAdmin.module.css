@@ -1,0 +1,149 @@
+/* Superadmin konfiguracija task trake (dashboard_tasks). Boje kroz --c-* tokene;
+   naslov kroz jedinstvene --c-page-title-* tokene (CLAUDE.md §5). Responsive:
+   polja se prelamaju (flex-wrap), bez horizontalnog scrolla. */
+
+.wrap {
+  padding: 20px;
+  max-width: 1000px;
+  margin: 0 auto;
+}
+
+.head {
+  display: flex;
+  align-items: flex-start;
+  justify-content: space-between;
+  gap: 12px;
+  flex-wrap: wrap;
+  margin-bottom: 18px;
+}
+
+.title {
+  margin: 0;
+  font-family: var(--c-font-display);
+  font-size: var(--c-page-title-size);
+  font-weight: var(--c-page-title-weight);
+  color: var(--c-text);
+}
+.sub {
+  margin: 4px 0 0;
+  font-size: 13px;
+  color: var(--c-text-muted);
+  max-width: 60ch;
+}
+
+.transBtn {
+  padding: 9px 14px;
+  border: 1px solid var(--c-border);
+  border-radius: 9px;
+  background: var(--c-surface);
+  color: var(--c-text);
+  font-size: 13px;
+  font-weight: 600;
+  cursor: pointer;
+  white-space: nowrap;
+}
+.transBtn:hover:not(:disabled) { background: var(--c-primary-light); border-color: var(--c-primary); }
+.transBtn:disabled { opacity: 0.6; cursor: default; }
+
+.loading, .empty {
+  padding: 24px;
+  text-align: center;
+  color: var(--c-text-muted);
+  font-size: 14px;
+}
+
+.list { display: flex; flex-direction: column; gap: 12px; }
+
+.card {
+  background: var(--c-surface);
+  border: 1px solid var(--c-border);
+  border-radius: 12px;
+  padding: 14px;
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+}
+.cardOff { opacity: 0.6; }
+
+.grid {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 10px;
+  align-items: flex-end;
+}
+
+.field {
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+  min-width: 130px;
+}
+.grow { flex: 1 1 200px; }
+
+.lbl { font-size: 11px; font-weight: 600; color: var(--c-text-muted); }
+
+.input {
+  padding: 8px 10px;
+  border: 1px solid var(--c-border);
+  border-radius: 8px;
+  background: var(--c-bg);
+  color: var(--c-text);
+  font-size: 14px;
+  outline: none;
+  width: 100%;
+  box-sizing: border-box;
+}
+.input:focus { border-color: var(--c-primary); }
+
+.checkField {
+  flex-direction: row;
+  align-items: center;
+  gap: 7px;
+  min-width: auto;
+  padding-bottom: 8px;
+  font-size: 14px;
+  color: var(--c-text);
+}
+
+.actions { display: flex; gap: 8px; justify-content: flex-end; }
+
+.saveBtn {
+  padding: 8px 18px;
+  border: none;
+  border-radius: 8px;
+  background: var(--c-primary);
+  color: #fff;
+  font-weight: 600;
+  cursor: pointer;
+}
+.saveBtn:disabled { opacity: 0.6; cursor: default; }
+
+.delBtn {
+  padding: 8px 14px;
+  border: 1px solid var(--c-danger-border, var(--c-border));
+  border-radius: 8px;
+  background: var(--c-bg);
+  color: var(--c-danger);
+  font-weight: 600;
+  cursor: pointer;
+}
+.delBtn:hover { background: var(--c-danger-bg); }
+
+.addBtn {
+  margin-top: 14px;
+  padding: 11px 18px;
+  border: 1px dashed var(--c-border);
+  border-radius: 10px;
+  background: var(--c-bg);
+  color: var(--c-primary);
+  font-size: 14px;
+  font-weight: 600;
+  cursor: pointer;
+  width: 100%;
+}
+.addBtn:hover { border-color: var(--c-primary); background: var(--c-primary-light); }
+
+@media (max-width: 560px) {
+  .wrap { padding: 14px; }
+  .field { min-width: 110px; }
+}

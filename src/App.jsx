@@ -29,6 +29,7 @@ const NutritionAdmin       = lazy(() => import('./platform/superadmin/NutritionA
 const BillingControl       = lazy(() => import('./platform/superadmin/BillingControl'))
 const SuperadminCommunication = lazy(() => import('./platform/superadmin/SuperadminCommunication'))
 const ThemePalettesAdmin   = lazy(() => import('./platform/superadmin/ThemePalettesAdmin'))
+const DashboardConfigAdmin = lazy(() => import('./platform/superadmin/DashboardConfigAdmin'))
 const AuditLogView         = lazy(() => import('./components/shared/AuditLogView'))
 const FaqAdmin              = lazy(() => import('./platform/superadmin/FaqAdmin'))
 const AnnouncementsInbox    = lazy(() => import('./platform/admin/AnnouncementsInbox'))
@@ -358,6 +359,7 @@ function AppRoutes() {
         <Route path="/superadmin/obavestenja" element={<AdminRoute><SuperadminCommunication section="obavestenja" /></AdminRoute>} />
         <Route path="/superadmin/faq" element={<AdminRoute><FaqAdmin /></AdminRoute>} />
         <Route path="/superadmin/theme" element={<AdminRoute><ThemePalettesAdmin /></AdminRoute>} />
+        <Route path="/superadmin/dashboard" element={<AdminRoute><DashboardConfigAdmin /></AdminRoute>} />
         {/* Biblioteke — objedinjene pod jedan tab sa pill navigacijom */}
         <Route path="/superadmin/libraries" element={<Navigate to="/superadmin/libraries/recepti" replace />} />
         <Route path="/superadmin/libraries/:tab" element={<AdminRoute><LibrariesAdmin /></AdminRoute>} />

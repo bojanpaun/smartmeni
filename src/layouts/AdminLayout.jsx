@@ -344,6 +344,7 @@ export const MODULES = [
       labelKey: 'modSuperadmin',
       links: [
         { labelKey: 'navRestaurants',          icon: '🏢', path: '/superadmin', exact: true },
+        { labelKey: 'navDashboardConfig',      icon: '🧭', path: '/superadmin/dashboard' },
         { labelKey: 'navSupport',            icon: '💬', path: '/superadmin/podrska' },
         { labelKey: 'navKnowledgeBase',  icon: '📖', path: '/superadmin/faq' },
         { labelKey: 'navNotifications',       icon: '📣', path: '/superadmin/obavestenja' },

@@ -9,6 +9,8 @@ const PAGE_SIZE = 50
 
 // Mašinski kodovi → i18n labele (nepoznati kodovi fallback-uju na sam kod).
 const ACTION_KEYS = {
+  'dashboard_task.save':     'audActDashTaskSave',
+  'dashboard_task.delete':   'audActDashTaskDelete',
   'tenant.password_changed': 'audActPasswordChanged',
   'tenant.suspended':        'audActSuspended',
   'tenant.reactivated':      'audActReactivated',
