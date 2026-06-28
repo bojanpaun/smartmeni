@@ -3425,5 +3425,11 @@
   "saDashDetect_tables": "En az 1 masa eklendi",
   "saDashDetect_staff": "En az 1 çalışan eklendi",
   "audActDashStepSave": "Başlangıç adımı kaydedildi",
-  "audActDashStepDelete": "Başlangıç adımı silindi"
+  "audActDashStepDelete": "Başlangıç adımı silindi",
+  "saDashDetect_inventory": "En az 1 stok kalemi eklendi",
+  "saDashDetect_suppliers": "En az 1 tedarikçi eklendi",
+  "saDashDetect_rooms": "En az 1 oda eklendi",
+  "saDashDetect_room_types": "En az 1 oda tipi eklendi",
+  "saDashDetect_categories": "En az 1 kategori eklendi",
+  "saDashDetect_spa_services": "En az 1 spa hizmeti eklendi"
 }

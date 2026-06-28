@@ -10,10 +10,16 @@ import styles from './OnboardingChecklist.module.css'
 // objekta. Korak bez detect_key je RUČNI (korisnik ga sam označi). Novi detektor =
 // dodaj ovdje + dozvoli vrijednost u dashboard_checklist_steps CHECK constraint-u.
 const DETECTORS = {
-  logo:   (data, restaurant) => !!restaurant?.logo_url,
-  menu:   (data) => (data?.menu_items_count || 0) > 0,
-  tables: (data) => (data?.tables_count || 0) > 0,
-  staff:  (data) => (data?.staff_count || 0) > 0,
+  logo:         (data, restaurant) => !!restaurant?.logo_url,
+  menu:         (data) => (data?.menu_items_count || 0) > 0,
+  tables:       (data) => (data?.tables_count || 0) > 0,
+  staff:        (data) => (data?.staff_count || 0) > 0,
+  inventory:    (data) => (data?.inventory_items_count || 0) > 0,
+  suppliers:    (data) => (data?.suppliers_count || 0) > 0,
+  rooms:        (data) => (data?.total_rooms || 0) > 0,
+  room_types:   (data) => (data?.room_types_count || 0) > 0,
+  categories:   (data) => (data?.categories_count || 0) > 0,
+  spa_services: (data) => (data?.spa_services_count || 0) > 0,
 }
 
 // „Početni koraci" kartica na admin početnoj. Prima `data` (get_admin_overview) iz

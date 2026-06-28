@@ -3425,5 +3425,11 @@
   "saDashDetect_tables": "Dodan bar 1 stol",
   "saDashDetect_staff": "Dodan bar 1 djelatnik",
   "audActDashStepSave": "Spremljen početni korak",
-  "audActDashStepDelete": "Obrisan početni korak"
+  "audActDashStepDelete": "Obrisan početni korak",
+  "saDashDetect_inventory": "Dodana bar 1 stavka zalihe",
+  "saDashDetect_suppliers": "Dodan bar 1 dobavljač",
+  "saDashDetect_rooms": "Dodana bar 1 soba",
+  "saDashDetect_room_types": "Dodan bar 1 tip sobe",
+  "saDashDetect_categories": "Dodana bar 1 kategorija",
+  "saDashDetect_spa_services": "Dodana bar 1 spa usluga"
 }

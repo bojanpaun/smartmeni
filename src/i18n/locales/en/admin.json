@@ -3425,5 +3425,11 @@
   "saDashDetect_tables": "At least 1 table added",
   "saDashDetect_staff": "At least 1 employee added",
   "audActDashStepSave": "Getting-started step saved",
-  "audActDashStepDelete": "Getting-started step deleted"
+  "audActDashStepDelete": "Getting-started step deleted",
+  "saDashDetect_inventory": "At least 1 inventory item added",
+  "saDashDetect_suppliers": "At least 1 supplier added",
+  "saDashDetect_rooms": "At least 1 room added",
+  "saDashDetect_room_types": "At least 1 room type added",
+  "saDashDetect_categories": "At least 1 category added",
+  "saDashDetect_spa_services": "At least 1 spa service added"
 }

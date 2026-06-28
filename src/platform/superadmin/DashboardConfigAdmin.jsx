@@ -10,7 +10,7 @@ import { logAudit } from '../../lib/auditLog'
 import styles from './DashboardConfigAdmin.module.css'
 
 const VERTICALS = ['restaurant', 'hotel', 'rental']
-const DETECT_KEYS = ['logo', 'menu', 'tables', 'staff']
+const DETECT_KEYS = ['logo', 'menu', 'tables', 'staff', 'inventory', 'suppliers', 'rooms', 'room_types', 'categories', 'spa_services']
 const EMOJIS = ['⚡', '➕', '💶', '📊', '📱', '👤', '📅', '🧾', '🍽️', '🪑', '🏨', '💆', '⚙️', '🔔', '📦', '🎟️', '🖼️', '✅', '🚀']
 
 // Dvije konfigurabilne liste dijele isti editor; razlikuju se po tabeli, audit akciji,

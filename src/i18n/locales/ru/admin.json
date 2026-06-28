@@ -3425,5 +3425,11 @@
   "saDashDetect_tables": "Добавлен хотя бы 1 стол",
   "saDashDetect_staff": "Добавлен хотя бы 1 сотрудник",
   "audActDashStepSave": "Шаг начала сохранён",
-  "audActDashStepDelete": "Шаг начала удалён"
+  "audActDashStepDelete": "Шаг начала удалён",
+  "saDashDetect_inventory": "Добавлена хотя бы 1 позиция склада",
+  "saDashDetect_suppliers": "Добавлен хотя бы 1 поставщик",
+  "saDashDetect_rooms": "Добавлен хотя бы 1 номер",
+  "saDashDetect_room_types": "Добавлен хотя бы 1 тип номера",
+  "saDashDetect_categories": "Добавлена хотя бы 1 категория",
+  "saDashDetect_spa_services": "Добавлена хотя бы 1 спа-услуга"
 }
