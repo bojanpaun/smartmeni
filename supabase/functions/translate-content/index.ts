@@ -96,17 +96,19 @@ Deno.serve(async (req) => {
     //    Pickeri/TaskBar ih čitaju za admin jezik (useLibraryTranslations). ──
     if (body?.library === true) {
       if (!profile?.is_superadmin) return json({ error: 'Samo superadmin' }, 403)
-      const [{ data: recs }, { data: spaT }, { data: mini }, { data: dtasks }] = await Promise.all([
+      const [{ data: recs }, { data: spaT }, { data: mini }, { data: dtasks }, { data: dsteps }] = await Promise.all([
         supabaseAdmin.from('recipe_library').select('id, name'),
         supabaseAdmin.from('spa_treatment_library').select('id, name'),
         supabaseAdmin.from('minibar_library').select('id, name'),
         supabaseAdmin.from('dashboard_tasks').select('id, label'),
+        supabaseAdmin.from('dashboard_checklist_steps').select('id, label'),
       ])
       const libItems: SourceItem[] = []
       for (const r of recs ?? []) if (r.name?.trim()) libItems.push({ entity_type: 'recipe_library', entity_id: r.id, field: 'name', text: r.name.trim() })
       for (const s of spaT ?? []) if (s.name?.trim()) libItems.push({ entity_type: 'spa_treatment_library', entity_id: s.id, field: 'name', text: s.name.trim() })
       for (const m of mini ?? []) if (m.name?.trim()) libItems.push({ entity_type: 'minibar_library', entity_id: m.id, field: 'name', text: m.name.trim() })
       for (const d of dtasks ?? []) if (d.label?.trim()) libItems.push({ entity_type: 'dashboard_task', entity_id: d.id, field: 'label', text: d.label.trim() })
+      for (const d of dsteps ?? []) if (d.label?.trim()) libItems.push({ entity_type: 'dashboard_checklist', entity_id: d.id, field: 'label', text: d.label.trim() })
       if (libItems.length === 0) return json({ translated: 0, skipped: 0 })
 
       const libHashes = new Map<string, string>()

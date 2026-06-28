@@ -3410,5 +3410,20 @@
   "saDashAny": "Sve",
   "saDashAddTask": "Dodaj zadatak",
   "audActDashTaskSave": "Sačuvan zadatak početne",
-  "audActDashTaskDelete": "Obrisan zadatak početne"
+  "audActDashTaskDelete": "Obrisan zadatak početne",
+  "checklistTitle": "Početni koraci",
+  "checklistProgress": "{{done}} od {{total}} završeno",
+  "checklistMarkDone": "Označi kao završeno",
+  "checklistDone": "Završeno",
+  "saDashTasks": "Zadaci (traka)",
+  "saDashSteps": "Početni koraci",
+  "saDashStepsSub": "Koraci koje novi korisnik vidi na početnoj dok ih ne završi. „Detekcija“ = status se računa automatski; „Ručno“ = korisnik sam označi.",
+  "saDashDetect": "Detekcija",
+  "saDashDetectManual": "Ručno (korisnik označi)",
+  "saDashDetect_logo": "Logo postavljen",
+  "saDashDetect_menu": "Dodato bar 1 jelo",
+  "saDashDetect_tables": "Dodat bar 1 sto",
+  "saDashDetect_staff": "Dodat bar 1 radnik",
+  "audActDashStepSave": "Sačuvan početni korak",
+  "audActDashStepDelete": "Obrisan početni korak"
 }

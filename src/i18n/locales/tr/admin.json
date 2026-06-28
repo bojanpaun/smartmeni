@@ -3410,5 +3410,20 @@
   "saDashAny": "Hepsi",
   "saDashAddTask": "Görev ekle",
   "audActDashTaskSave": "Ana sayfa görevi kaydedildi",
-  "audActDashTaskDelete": "Ana sayfa görevi silindi"
+  "audActDashTaskDelete": "Ana sayfa görevi silindi",
+  "checklistTitle": "Başlangıç adımları",
+  "checklistProgress": "{{total}} adımdan {{done}} tamamlandı",
+  "checklistMarkDone": "Tamamlandı olarak işaretle",
+  "checklistDone": "Tamamlandı",
+  "saDashTasks": "Görevler (çubuk)",
+  "saDashSteps": "Başlangıç adımları",
+  "saDashStepsSub": "Yeni kullanıcının tamamlayana kadar ana sayfada gördüğü adımlar. „Algılama“ = durum otomatik hesaplanır; „Manuel“ = kullanıcı kendisi işaretler.",
+  "saDashDetect": "Algılama",
+  "saDashDetectManual": "Manuel (kullanıcı işaretler)",
+  "saDashDetect_logo": "Logo ayarlandı",
+  "saDashDetect_menu": "En az 1 yemek eklendi",
+  "saDashDetect_tables": "En az 1 masa eklendi",
+  "saDashDetect_staff": "En az 1 çalışan eklendi",
+  "audActDashStepSave": "Başlangıç adımı kaydedildi",
+  "audActDashStepDelete": "Başlangıç adımı silindi"
 }

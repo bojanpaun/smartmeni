@@ -3410,5 +3410,20 @@
   "saDashAny": "Any",
   "saDashAddTask": "Add task",
   "audActDashTaskSave": "Home task saved",
-  "audActDashTaskDelete": "Home task deleted"
+  "audActDashTaskDelete": "Home task deleted",
+  "checklistTitle": "Getting started",
+  "checklistProgress": "{{done}} of {{total}} done",
+  "checklistMarkDone": "Mark as done",
+  "checklistDone": "Done",
+  "saDashTasks": "Tasks (bar)",
+  "saDashSteps": "Getting started",
+  "saDashStepsSub": "Steps a new user sees on the home page until completed. “Detection” = status computed automatically; “Manual” = the user marks it themselves.",
+  "saDashDetect": "Detection",
+  "saDashDetectManual": "Manual (user marks)",
+  "saDashDetect_logo": "Logo set",
+  "saDashDetect_menu": "At least 1 dish added",
+  "saDashDetect_tables": "At least 1 table added",
+  "saDashDetect_staff": "At least 1 employee added",
+  "audActDashStepSave": "Getting-started step saved",
+  "audActDashStepDelete": "Getting-started step deleted"
 }

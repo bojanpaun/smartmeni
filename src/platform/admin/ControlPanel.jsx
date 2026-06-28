@@ -7,6 +7,7 @@ import { MODULES } from '../../layouts/AdminLayout'
 import OnboardingWizard from './OnboardingWizard'
 import HotelOnboardingWizard from './HotelOnboardingWizard'
 import TaskBar from './TaskBar'
+import OnboardingChecklist from './OnboardingChecklist'
 import { useAnnouncements } from '../../context/AnnouncementsContext'
 import { useSupport } from '../../context/SupportContext'
 import RoadmapTicker from '../../components/shared/RoadmapTicker'
@@ -290,6 +291,9 @@ export default function ControlPanel() {
       {/* ── Task traka („Šta želite da uradite?") — cilj-orijentisane prečice
               (dashboard_tasks; superadmin kurira na /superadmin/dashboard) ── */}
       <TaskBar />
+
+      {/* ── Početni koraci (onboarding checklist; sakriva se kad su svi done) ── */}
+      <OnboardingChecklist data={data} />
 
       {/* ── KPI row (prilagodljiv, per-korisnik) ── */}
       <div className={styles.kpiHead}>

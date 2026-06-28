@@ -11,6 +11,8 @@ const PAGE_SIZE = 50
 const ACTION_KEYS = {
   'dashboard_task.save':     'audActDashTaskSave',
   'dashboard_task.delete':   'audActDashTaskDelete',
+  'dashboard_checklist.save':   'audActDashStepSave',
+  'dashboard_checklist.delete': 'audActDashStepDelete',
   'tenant.password_changed': 'audActPasswordChanged',
   'tenant.suspended':        'audActSuspended',
   'tenant.reactivated':      'audActReactivated',

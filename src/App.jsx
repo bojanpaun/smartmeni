@@ -6,11 +6,12 @@ import { PlatformProvider, usePlatform } from './context/PlatformContext'
 import { CartProvider } from './context/CartContext'
 import LoadingSpinner from './components/shared/LoadingSpinner'
 import UpgradePrompt from './components/shared/UpgradePrompt'
-import PendingApproval from './platform/auth/PendingApproval'
 import { AnnouncementsProvider } from './context/AnnouncementsContext'
 import { SupportProvider } from './context/SupportContext'
 
 const AdminLayout = lazy(() => import('./layouts/AdminLayout'))
+// Lazy: rijedak gejt (pending/rejected tenant) — ne treba u init chunku (§9).
+const PendingApproval = lazy(() => import('./platform/auth/PendingApproval'))
 
 const Landing              = lazy(() => import('./platform/Landing'))
 const Login                = lazy(() => import('./platform/auth/Login'))
@@ -139,7 +140,11 @@ function ProtectedRoute({ children }) {
 function ApprovalGate({ children }) {
   const { restaurant, isOwner } = usePlatform()
   if (isOwner() && restaurant?.approval_status && restaurant.approval_status !== 'approved') {
-    return <PendingApproval status={restaurant.approval_status} />
+    return (
+      <Suspense fallback={<LoadingSpinner fullPage />}>
+        <PendingApproval status={restaurant.approval_status} />
+      </Suspense>
+    )
   }
   return children
 }

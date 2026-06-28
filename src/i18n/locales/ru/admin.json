@@ -3410,5 +3410,20 @@
   "saDashAny": "Любой",
   "saDashAddTask": "Добавить задачу",
   "audActDashTaskSave": "Задача главной сохранена",
-  "audActDashTaskDelete": "Задача главной удалена"
+  "audActDashTaskDelete": "Задача главной удалена",
+  "checklistTitle": "Первые шаги",
+  "checklistProgress": "{{done}} из {{total}} выполнено",
+  "checklistMarkDone": "Отметить как выполнено",
+  "checklistDone": "Готово",
+  "saDashTasks": "Задачи (строка)",
+  "saDashSteps": "Первые шаги",
+  "saDashStepsSub": "Шаги, которые новый пользователь видит на главной, пока не выполнит. «Определение» = статус вычисляется автоматически; «Вручную» = пользователь отмечает сам.",
+  "saDashDetect": "Определение",
+  "saDashDetectManual": "Вручную (отмечает пользователь)",
+  "saDashDetect_logo": "Логотип задан",
+  "saDashDetect_menu": "Добавлено хотя бы 1 блюдо",
+  "saDashDetect_tables": "Добавлен хотя бы 1 стол",
+  "saDashDetect_staff": "Добавлен хотя бы 1 сотрудник",
+  "audActDashStepSave": "Шаг начала сохранён",
+  "audActDashStepDelete": "Шаг начала удалён"
 }
