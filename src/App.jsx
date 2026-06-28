@@ -5,13 +5,13 @@ import { isReady, DEFAULT_LANG } from './i18n/languages'
 import { PlatformProvider, usePlatform } from './context/PlatformContext'
 import { CartProvider } from './context/CartContext'
 import LoadingSpinner from './components/shared/LoadingSpinner'
-import UpgradePrompt from './components/shared/UpgradePrompt'
 import { AnnouncementsProvider } from './context/AnnouncementsContext'
 import { SupportProvider } from './context/SupportContext'
 
 const AdminLayout = lazy(() => import('./layouts/AdminLayout'))
-// Lazy: rijedak gejt (pending/rejected tenant) — ne treba u init chunku (§9).
+// Lazy: rijetke površine iza gejta — ne trebaju u init chunku (§9).
 const PendingApproval = lazy(() => import('./platform/auth/PendingApproval'))
+const UpgradePrompt   = lazy(() => import('./components/shared/UpgradePrompt'))
 
 const Landing              = lazy(() => import('./platform/Landing'))
 const Login                = lazy(() => import('./platform/auth/Login'))
@@ -199,16 +199,18 @@ function AddonGuard({ addonId, name, description, price, category, dependsOn, ch
   if (!hasAddon(addonId)) {
     const dbAddon = addonCatalog?.find(a => a.id === addonId)
     return (
-      <UpgradePrompt
-        addonId={addonId}
-        name={name}
-        description={dbAddon?.description || description}
-        features={dbAddon?.features || []}
-        price={addonPrice(addonId, price)}
-        category={category}
-        dependsOn={dependsOn}
-        fullPage
-      />
+      <Suspense fallback={<LoadingSpinner fullPage />}>
+        <UpgradePrompt
+          addonId={addonId}
+          name={name}
+          description={dbAddon?.description || description}
+          features={dbAddon?.features || []}
+          price={addonPrice(addonId, price)}
+          category={category}
+          dependsOn={dependsOn}
+          fullPage
+        />
+      </Suspense>
     )
   }
   return children
