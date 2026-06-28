@@ -3433,6 +3433,13 @@
   "saDashDetect_room_types": "En az 1 oda tipi eklendi",
   "saDashDetect_categories": "En az 1 kategori eklendi",
   "saDashDetect_spa_services": "En az 1 spa hizmeti eklendi",
+  "saDashDetect_roles": "En az 1 rol eklendi",
+  "saDashDetect_recipes": "En az 1 reçete oluşturuldu",
+  "saDashDetect_therapists": "En az 1 terapist eklendi",
+  "saDashDetect_rate_plans": "En az 1 fiyat planı eklendi",
+  "saDashDetect_rental_assets": "En az 1 kiralık birim eklendi",
+  "saDashDetect_schedule": "En az 1 vardiya planı oluşturuldu",
+  "saDashDetect_table_assignments": "En az 1 garson ataması eklendi",
   "checklistGeneral": "Temel",
   "saDashModule": "Modül",
   "saDashModuleNone": "Genel (modülsüz)"

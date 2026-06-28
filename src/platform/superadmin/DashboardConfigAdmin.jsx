@@ -10,7 +10,7 @@ import { logAudit } from '../../lib/auditLog'
 import styles from './DashboardConfigAdmin.module.css'
 
 const VERTICALS = ['restaurant', 'hotel', 'rental']
-const DETECT_KEYS = ['logo', 'menu', 'tables', 'staff', 'inventory', 'suppliers', 'rooms', 'room_types', 'categories', 'spa_services']
+const DETECT_KEYS = ['logo', 'menu', 'tables', 'staff', 'inventory', 'suppliers', 'rooms', 'room_types', 'categories', 'spa_services', 'roles', 'recipes', 'therapists', 'rate_plans', 'rental_assets', 'schedule', 'table_assignments']
 // Moduli za grupisanje koraka u sekcije na početnoj (labelKey reuse iz MODULES).
 const MODULE_OPTIONS = [
   { key: 'menu', labelKey: 'modMenu' }, { key: 'tables', labelKey: 'modTables' },

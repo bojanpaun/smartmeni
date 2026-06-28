@@ -3433,6 +3433,13 @@
   "saDashDetect_room_types": "At least 1 room type added",
   "saDashDetect_categories": "At least 1 category added",
   "saDashDetect_spa_services": "At least 1 spa service added",
+  "saDashDetect_roles": "At least 1 role added",
+  "saDashDetect_recipes": "At least 1 recipe created",
+  "saDashDetect_therapists": "At least 1 therapist added",
+  "saDashDetect_rate_plans": "At least 1 rate plan added",
+  "saDashDetect_rental_assets": "At least 1 rental unit added",
+  "saDashDetect_schedule": "At least 1 shift schedule created",
+  "saDashDetect_table_assignments": "At least 1 waiter assignment added",
   "checklistGeneral": "Essentials",
   "saDashModule": "Module",
   "saDashModuleNone": "General (no module)"

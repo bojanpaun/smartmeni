@@ -3433,6 +3433,13 @@
   "saDashDetect_room_types": "Dodan bar 1 tip sobe",
   "saDashDetect_categories": "Dodana bar 1 kategorija",
   "saDashDetect_spa_services": "Dodana bar 1 spa usluga",
+  "saDashDetect_roles": "Dodana bar 1 uloga",
+  "saDashDetect_recipes": "Napravljena bar 1 receptura",
+  "saDashDetect_therapists": "Dodan bar 1 terapeut",
+  "saDashDetect_rate_plans": "Dodan bar 1 cjenik",
+  "saDashDetect_rental_assets": "Dodana bar 1 jedinica za najam",
+  "saDashDetect_schedule": "Napravljen bar 1 raspored smjena",
+  "saDashDetect_table_assignments": "Dodan bar 1 raspored konobara",
   "checklistGeneral": "Osnovno",
   "saDashModule": "Modul",
   "saDashModuleNone": "Osnovno (bez modula)"

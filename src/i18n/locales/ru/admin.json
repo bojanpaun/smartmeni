@@ -3433,6 +3433,13 @@
   "saDashDetect_room_types": "Добавлен хотя бы 1 тип номера",
   "saDashDetect_categories": "Добавлена хотя бы 1 категория",
   "saDashDetect_spa_services": "Добавлена хотя бы 1 спа-услуга",
+  "saDashDetect_roles": "Добавлена хотя бы 1 роль",
+  "saDashDetect_recipes": "Создан хотя бы 1 рецепт",
+  "saDashDetect_therapists": "Добавлен хотя бы 1 терапевт",
+  "saDashDetect_rate_plans": "Добавлен хотя бы 1 тариф",
+  "saDashDetect_rental_assets": "Добавлена хотя бы 1 единица аренды",
+  "saDashDetect_schedule": "Создан хотя бы 1 график смен",
+  "saDashDetect_table_assignments": "Добавлено хотя бы 1 назначение официанта",
   "checklistGeneral": "Основное",
   "saDashModule": "Модуль",
   "saDashModuleNone": "Общее (без модуля)"

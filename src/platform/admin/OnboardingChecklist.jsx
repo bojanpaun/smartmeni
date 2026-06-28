@@ -20,6 +20,13 @@ const DETECTORS = {
   room_types:   (data) => (data?.room_types_count || 0) > 0,
   categories:   (data) => (data?.categories_count || 0) > 0,
   spa_services: (data) => (data?.spa_services_count || 0) > 0,
+  roles:             (data) => (data?.roles_count || 0) > 0,
+  recipes:           (data) => (data?.recipes_count || 0) > 0,
+  therapists:        (data) => (data?.therapists_count || 0) > 0,
+  rate_plans:        (data) => (data?.rate_plans_count || 0) > 0,
+  rental_assets:     (data) => (data?.rental_assets_count || 0) > 0,
+  schedule:          (data) => (data?.schedules_count || 0) > 0,
+  table_assignments: (data) => (data?.table_assignments_count || 0) > 0,
 }
 
 // Modul → vertikala (mirror ControlPanel *_KEYS). Moduli van mape (hr/inventory/

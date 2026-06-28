@@ -3433,6 +3433,13 @@
   "saDashDetect_room_types": "Shtuar të paktën 1 tip dhome",
   "saDashDetect_categories": "Shtuar të paktën 1 kategori",
   "saDashDetect_spa_services": "Shtuar të paktën 1 shërbim spa",
+  "saDashDetect_roles": "Shtuar të paktën 1 rol",
+  "saDashDetect_recipes": "Krijuar të paktën 1 recetë",
+  "saDashDetect_therapists": "Shtuar të paktën 1 terapist",
+  "saDashDetect_rate_plans": "Shtuar të paktën 1 plan çmimesh",
+  "saDashDetect_rental_assets": "Shtuar të paktën 1 njësi qiraje",
+  "saDashDetect_schedule": "Krijuar të paktën 1 orar ndërrimesh",
+  "saDashDetect_table_assignments": "Shtuar të paktën 1 caktim kamarieri",
   "checklistGeneral": "Bazat",
   "saDashModule": "Moduli",
   "saDashModuleNone": "Të përgjithshme (pa modul)"
