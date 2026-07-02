@@ -23,6 +23,21 @@
     "trust2": "✓ Qasje e plotë në të gjitha modulet",
     "trust3": "✓ Mbështetje lokale"
   },
+  "showcase": {
+    "title": "Demo live — shikoje nga këndi i mysafirit dhe stafit",
+    "sub": "Një lokal demo real, çdo faqe live. Hapni cilëndo, pa regjistrim.",
+    "open": "Hap ↗",
+    "loginLabel": "Hyrja",
+    "liveNote": "Gjithçka është live nga lokali demo; ndryshimet rivendosen automatikisht çdo natë.",
+    "menu": "Menyja dixhitale",
+    "restaurant": "Faqja e restorantit",
+    "hotel": "Faqja e hotelit",
+    "book": "Rezervim dhomash",
+    "spa": "Rezervim spa",
+    "reservation": "Rezervim tavoline",
+    "staff": "Portali i stafit",
+    "guest": "Portali i mysafirëve"
+  },
   "demo": {
     "frontDesk": "Front Desk",
     "checkin": "Check-in",

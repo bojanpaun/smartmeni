@@ -23,6 +23,21 @@
     "trust2": "✓ Puni pristup svim modulima",
     "trust3": "✓ Lokalna podrška"
   },
+  "showcase": {
+    "title": "Demo uživo — pogledaj sve iz kuta gosta i osoblja",
+    "sub": "Prava demo lokacija, sve stranice žive. Otvori bilo koju bez registracije.",
+    "open": "Otvori ↗",
+    "loginLabel": "Prijava",
+    "liveNote": "Sve je uživo iz demo objekta; izmjene se svake noći automatski resetiraju.",
+    "menu": "Digitalni meni",
+    "restaurant": "Stranica restorana",
+    "hotel": "Stranica hotela",
+    "book": "Rezervacija soba",
+    "spa": "Spa rezervacija",
+    "reservation": "Rezervacija stola",
+    "staff": "Portal osoblja",
+    "guest": "Portal gostiju"
+  },
   "demo": {
     "frontDesk": "Front Desk",
     "checkin": "Check-in",

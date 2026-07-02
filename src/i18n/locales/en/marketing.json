@@ -23,6 +23,21 @@
     "trust2": "✓ Full access to all modules",
     "trust3": "✓ Local support"
   },
+  "showcase": {
+    "title": "Live demo — see it from the guest and staff side",
+    "sub": "A real demo venue, every page live. Open any of them, no signup.",
+    "open": "Open ↗",
+    "loginLabel": "Login",
+    "liveNote": "Everything is live from the demo venue; changes reset automatically every night.",
+    "menu": "Digital menu",
+    "restaurant": "Restaurant site",
+    "hotel": "Hotel site",
+    "book": "Room booking",
+    "spa": "Spa booking",
+    "reservation": "Table reservation",
+    "staff": "Staff portal",
+    "guest": "Guest portal"
+  },
   "demo": {
     "frontDesk": "Front Desk",
     "checkin": "Check-in",

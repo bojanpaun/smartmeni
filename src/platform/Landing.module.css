@@ -146,6 +146,32 @@
   font-size: 13px;
   color: #c0392b;
 }
+
+/* ── Demo uživo showcase ── */
+.showcase { padding: 4rem 1.5rem; background: var(--bg-soft, #f6f9f8); }
+.showcaseInner { max-width: 1100px; margin: 0 auto; }
+.showcaseTitle {
+  font-size: clamp(1.5rem, 3vw, 2.1rem); font-weight: 800;
+  color: var(--ink); text-align: center; letter-spacing: -0.02em; margin: 0;
+}
+.showcaseSub { text-align: center; color: var(--ink-soft, #5b6b64); margin: 0.6rem auto 2rem; max-width: 640px; }
+.showcaseGrid { display: grid; grid-template-columns: repeat(auto-fill, minmax(230px, 1fr)); gap: 1rem; }
+.scCard {
+  display: flex; flex-direction: column; gap: 4px;
+  padding: 1.1rem 1.2rem; background: #fff;
+  border: 1px solid var(--border, #e5e9e7); border-radius: 14px;
+  text-decoration: none; transition: transform .15s, border-color .15s, box-shadow .15s;
+}
+.scCard:hover { transform: translateY(-3px); border-color: var(--green, #0d7a52); box-shadow: 0 8px 24px rgba(0,0,0,.06); }
+.scIcon { font-size: 26px; }
+.scName { font-weight: 700; color: var(--ink); font-size: 15px; }
+.scPath { font-family: ui-monospace, monospace; font-size: 12px; color: var(--ink-soft, #5b6b64); }
+.scCred {
+  font-size: 12px; color: #0d7a52; background: #eafaf3;
+  padding: 4px 8px; border-radius: 6px; margin-top: 4px; align-self: flex-start;
+}
+.scOpen { margin-top: 8px; font-size: 13px; font-weight: 600; color: var(--green, #0d7a52); }
+.showcaseNote { text-align: center; color: var(--ink-soft, #5b6b64); font-size: 13px; margin-top: 1.5rem; }
 .heroTrust {}
 .trustPills {
   display: flex;

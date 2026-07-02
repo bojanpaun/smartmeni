@@ -23,6 +23,21 @@
     "trust2": "✓ Tüm modüllere tam erişim",
     "trust3": "✓ Yerel destek"
   },
+  "showcase": {
+    "title": "Canlı demo — misafir ve personel gözünden görün",
+    "sub": "Gerçek bir demo mekân, her sayfa canlı. Kayıt olmadan herhangi birini açın.",
+    "open": "Aç ↗",
+    "loginLabel": "Giriş",
+    "liveNote": "Her şey demo mekândan canlıdır; değişiklikler her gece otomatik sıfırlanır.",
+    "menu": "Dijital menü",
+    "restaurant": "Restoran sitesi",
+    "hotel": "Otel sitesi",
+    "book": "Oda rezervasyonu",
+    "spa": "Spa rezervasyonu",
+    "reservation": "Masa rezervasyonu",
+    "staff": "Personel portalı",
+    "guest": "Misafir portalı"
+  },
   "demo": {
     "frontDesk": "Front Desk",
     "checkin": "Giriş",

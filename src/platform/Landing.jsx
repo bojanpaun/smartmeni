@@ -30,6 +30,17 @@ const NAV_ANCHORS = [
   { href: '#addoni', k: 'addons' },
   { href: '#beta', k: 'beta' },
 ]
+// „Demo uživo" — javne površine demo objekta (slug `demo`). cred = kredencijali za portale.
+const SHOWCASE = [
+  { icon: '🍽️', k: 'menu',        path: '/demo' },
+  { icon: '🌐', k: 'restaurant',  path: '/demo/home' },
+  { icon: '🏨', k: 'hotel',       path: '/demo/hotel' },
+  { icon: '📅', k: 'book',        path: '/demo/book' },
+  { icon: '🧖', k: 'spa',         path: '/demo/spa' },
+  { icon: '🪑', k: 'reservation', path: '/demo/rezervacija' },
+  { icon: '🛎️', k: 'staff',       path: '/demo/staff',        cred: 'konobar@demo.me · demo1234' },
+  { icon: '👤', k: 'guest',       path: '/demo/registracija' },
+]
 
 /* ──────────────────────────────────────────
    HELPERS
@@ -229,6 +240,26 @@ export default function Landing() {
               <div className={styles.statLabel}>{t(`stats.${s.k}lab`)}</div>
             </div>
           ))}
+        </div>
+      </section>
+
+      {/* ── DEMO UŽIVO (javne površine demo objekta) ── */}
+      <section className={styles.showcase} id="demo">
+        <div className={styles.showcaseInner}>
+          <h2 className={styles.showcaseTitle}>{t('showcase.title')}</h2>
+          <p className={styles.showcaseSub}>{t('showcase.sub')}</p>
+          <div className={styles.showcaseGrid}>
+            {SHOWCASE.map(c => (
+              <a key={c.k} href={c.path} target="_blank" rel="noopener noreferrer" className={styles.scCard}>
+                <span className={styles.scIcon}>{c.icon}</span>
+                <span className={styles.scName}>{t(`showcase.${c.k}`)}</span>
+                <span className={styles.scPath}>restby.me{c.path}</span>
+                {c.cred && <span className={styles.scCred}>{t('showcase.loginLabel')}: {c.cred}</span>}
+                <span className={styles.scOpen}>{t('showcase.open')}</span>
+              </a>
+            ))}
+          </div>
+          <p className={styles.showcaseNote}>{t('showcase.liveNote')}</p>
         </div>
       </section>
 
