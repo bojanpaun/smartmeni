@@ -1,6 +1,6 @@
 ﻿# rest.by.me — HospitalityOS Produkt roadmap
 
-> **Verzija:** 6.16 *(**AUTH-OAUTH** — Google prijava/registracija (`GoogleButton` + `signInWithOAuth`, `Onboarding` ekran + `OnboardingGate` za nove naloge bez tenanta), **deployovano 2026-07-02** (commit b26474c). Za sad samo Google; email/lozinka radi uporedo; Microsoft kasnije po potrebi. Prethodno: Faza FISK — valuta + PDV + računi: **FISK-0/1/2 ZAVRŠENE** (valuta po tenantu + display refaktor + payments wiring; PDV motor + `tax_config`; assembly + atomarna numeracija). **Fiscalization addon + UI** (`/admin/settings/fiscalization`): poslovni identitet PIB/PDV/IBAN, PDV stope, **PDV klasifikacija po kategoriji** (override po jelu/spa), **lista izdatih računa**, **okidač „Izdaj račun"** na narudžbi. **FISK-3 SKELET** (provider apstrakcija `_shared/fiscalization/` + `tenant_fiscal_configs`/`fiscal_credentials`, dormant dok Fisver nije potvrđen). Platforma: **„Šta razvijamo"** roadmap najave (ticker + superadmin CRUD). — 2026-06-14. Prethodno: i18n 7 jezika + AI prevod sadržaja; 2b tenant model — 2026-06-07)*
+> **Verzija:** 6.17 *(**DEMO D1** — javni „Isprobaj demo" (dijeljeni restoran+hotel tenant, sve otključano) + **fix**: „Početni koraci" dismiss se sad trajno pamti (auto-kreiranje `user_profiles` reda — trigger + backfill), **deployovano 2026-07-02**. Prethodno: **AUTH-OAUTH** — Google prijava/registracija (`GoogleButton` + `signInWithOAuth`, `Onboarding` ekran + `OnboardingGate` za nove naloge bez tenanta), **deployovano 2026-07-02** (commit b26474c). Za sad samo Google; email/lozinka radi uporedo; Microsoft kasnije po potrebi. Prethodno: Faza FISK — valuta + PDV + računi: **FISK-0/1/2 ZAVRŠENE** (valuta po tenantu + display refaktor + payments wiring; PDV motor + `tax_config`; assembly + atomarna numeracija). **Fiscalization addon + UI** (`/admin/settings/fiscalization`): poslovni identitet PIB/PDV/IBAN, PDV stope, **PDV klasifikacija po kategoriji** (override po jelu/spa), **lista izdatih računa**, **okidač „Izdaj račun"** na narudžbi. **FISK-3 SKELET** (provider apstrakcija `_shared/fiscalization/` + `tenant_fiscal_configs`/`fiscal_credentials`, dormant dok Fisver nije potvrđen). Platforma: **„Šta razvijamo"** roadmap najave (ticker + superadmin CRUD). — 2026-06-14. Prethodno: i18n 7 jezika + AI prevod sadržaja; 2b tenant model — 2026-06-07)*
 
 ---
 
@@ -36,6 +36,35 @@
 > **Tim:** 1 developer + Claude Code AI asistent
 > **Branch:** `main` → direktno na produkciju (Vercel auto-deploy)
 > **Rebrand:** SmartMeni → **rest.by.me** (izvršeno 2026-05-31 — novi Landing page, logotip, domen)
+
+---
+
+## 🟡 DEMO — Javni „Isprobaj demo" (D1 ZAVRŠENA — 2026-07-02; D2/D3 pending)
+
+> **Cilj:** prospekt na Landingu klikne „Isprobaj demo" i uđe u pun app (restoran + hotel, sve
+> funkcije otključane) da razgleda proizvod. Pristup: **dijeljeni demo tenant + noćni reset**.
+
+**D1 (deployovano, commit bbeaff3):** `restaurants.is_demo` + demo auth nalog (`demo@restby.me`) +
+`seed_demo_tenant()` (idempotentna: meni, stolovi, sobe/tipovi, gosti, hotel+stol rezervacije, role,
+osoblje, dobavljači, zalihe, spa) sa svim addonima otključanim (per-tenant subscription, bez diranja
+globalnog beta). Landing hero „Isprobaj demo" → `signInWithPassword` → `/admin`. Fiksni `deadbeef-`
+UUID prostor (test-neutralno; 371 pgTAP PASS). Detalji: memorija `project_demo_tenant`.
+
+**D2 (pending):** `reset_demo_tenant()` (obriši child podatke → re-seed) + **reset demo lozinke** +
+pg_cron svake noći.
+**D3 (pending):** zaštite u `is_demo` režimu — blokiraj promjenu emaila/lozinke (KRITIČNO: lockout),
+billing, brisanje tenanta, slanje mailova, payment ključeve.
+**Rizik dok D2/D3 ne legnu:** visitor može promijeniti demo lozinku i zaključati demo do reseta.
+
+---
+
+## ✅ FIX — „Početni koraci" dismiss se trajno pamti (2026-07-02)
+
+> Uzrok (izmjeren, ne nagađan): korisnici bez `user_profiles` reda → per-korisnik `UPDATE`
+> (`checklist_dismissed`, `dashboard_kpis`, profil) tiho pogađa 0 redova i gubi se; checklist se
+> palio na svaki refresh. `handle_new_user` trigger postojao je samo na prod-u (schema drift).
+> **Fix (commit 5ae14a7):** trigger `auth.users → user_profiles` (ON CONFLICT) kao migracija +
+> backfill zatečenih. Popravlja i KPI izbor i čuvanje profila. Seed/3 testa dopunjeni ON CONFLICT-om, novi pgTAP 073.
 
 ---
 
