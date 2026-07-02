@@ -5,6 +5,7 @@ import { useNavigate } from 'react-router-dom'
 import { useTranslation } from 'react-i18next'
 import { supabase } from '../../../lib/supabase'
 import { usePlatform } from '../../../context/PlatformContext'
+import { useDemoGuard } from '../../../lib/useDemoGuard'
 import { useMoney } from '../../../lib/useMoney'
 import { logAudit } from '../../../lib/auditLog'
 import { useSortable } from '../../../hooks/useSortable'
@@ -15,6 +16,7 @@ import gsStyles from '../../menu/pages/GeneralSettings.module.css'
 export default function StaffPage() {
   const { restaurant } = usePlatform()
   const { t } = useTranslation('admin')
+  const demoGuard = useDemoGuard()
   const navigate = useNavigate()
   const [staff, setStaff] = useState([])
   const [roles, setRoles] = useState([])
@@ -90,7 +92,9 @@ export default function StaffPage() {
   }
 
   const saveStaff = async (e) => {
-    e.preventDefault(); setSaving(true); setAddError('')
+    e.preventDefault()
+    if (demoGuard()) return   // demo: ne pravi prave auth naloge / ne šalji pozivnice
+    setSaving(true); setAddError('')
     const email = form.email.trim().toLowerCase()
     if (staff.find(s => s.email.toLowerCase() === email)) {
       setAddError(t('stfEmailExists')); setSaving(false); return

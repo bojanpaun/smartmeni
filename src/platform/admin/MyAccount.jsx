@@ -4,11 +4,13 @@ import { useState, useEffect, useRef } from 'react'
 import { useTranslation } from 'react-i18next'
 import { supabase } from '../../lib/supabase'
 import { usePlatform } from '../../context/PlatformContext'
+import { useDemoGuard } from '../../lib/useDemoGuard'
 import styles from './MyAccount.module.css'
 
 export default function MyAccount() {
   const { user } = usePlatform()
   const { t } = useTranslation('admin')
+  const demoGuard = useDemoGuard()
 
   const [profile, setProfile] = useState(null)
   const [loading, setLoading] = useState(true)
@@ -91,6 +93,7 @@ export default function MyAccount() {
   // ── Promjena lozinke ──────────────────────────────────────
   const changePassword = async (e) => {
     e.preventDefault()
+    if (demoGuard()) return   // demo: promjena lozinke bi zaključala dijeljeni nalog
     if (passwordForm.new.length < 6) {
       showMsg('error', t('accPwMin'))
       return

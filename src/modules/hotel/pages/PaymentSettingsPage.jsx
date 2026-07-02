@@ -2,6 +2,7 @@ import { useState, useEffect } from 'react'
 import { useTranslation } from 'react-i18next'
 import { supabase } from '../../../lib/supabase'
 import { usePlatform } from '../../../context/PlatformContext'
+import { useDemoGuard } from '../../../lib/useDemoGuard'
 import { logAudit } from '../../../lib/auditLog'
 import styles from './PaymentSettings.module.css'
 import gsStyles from '../../menu/pages/GeneralSettings.module.css'
@@ -27,6 +28,7 @@ const EMPTY_CREDS = {}
 export default function PaymentSettingsPage() {
   const { restaurant } = usePlatform()
   const { t } = useTranslation('admin')
+  const demoGuard = useDemoGuard()
 
   const [configs, setConfigs]         = useState([])
   const [credStatus, setCredStatus]   = useState({})  // config_id → boolean
@@ -160,6 +162,7 @@ export default function PaymentSettingsPage() {
 
   const saveCreds = async (e) => {
     e.preventDefault()
+    if (demoGuard()) return   // demo: ne čuvaj prave payment ključeve
     const fields = CREDENTIAL_FIELDS[credsForConfig.provider] || []
     const missing = fields.filter(f => !credsForm[f.key]?.trim())
     if (missing.length) {

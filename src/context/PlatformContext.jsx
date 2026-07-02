@@ -166,6 +166,8 @@ export function PlatformProvider({ children }) {
   const isSuperAdmin = () => staffProfile?.role === 'superadmin'
   const isOwner = () => !staffProfile && !!restaurant
   const isStaff = () => !!staffProfile && staffProfile.role !== 'superadmin'
+  // Demo objekat (javni „Isprobaj demo") — komponente gejtuju osjetljive/izlazne akcije.
+  const isDemo = !!restaurant?.is_demo
 
   const logout = async () => {
     await supabase.auth.signOut()
@@ -204,7 +206,7 @@ export function PlatformProvider({ children }) {
       subscription, setSubscription,
       staffProfile, permissions,
       loading, hasPermission,
-      isSuperAdmin, isOwner, isStaff,
+      isSuperAdmin, isOwner, isStaff, isDemo,
       hasAddon: checkAddon,
       betaMode: betaGlobal,
       addonCatalog, addonPrice, plans,

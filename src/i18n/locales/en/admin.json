@@ -1,4 +1,5 @@
 {
+  "demoBlocked": "This action is disabled in demo mode.",
   "modMenu": "Digital menu",
   "modTables": "Tables",
   "modInventory": "Inventory",
