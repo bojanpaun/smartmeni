@@ -1,6 +1,6 @@
 ﻿# rest.by.me — HospitalityOS Produkt roadmap
 
-> **Verzija:** 6.12 *(Faza FISK — valuta + PDV + računi: **FISK-0/1/2 ZAVRŠENE** (valuta po tenantu + display refaktor + payments wiring; PDV motor + `tax_config`; assembly + atomarna numeracija). **Fiscalization addon + UI** (`/admin/settings/fiscalization`): poslovni identitet PIB/PDV/IBAN, PDV stope, **PDV klasifikacija po kategoriji** (override po jelu/spa), **lista izdatih računa**, **okidač „Izdaj račun"** na narudžbi. **FISK-3 SKELET** (provider apstrakcija `_shared/fiscalization/` + `tenant_fiscal_configs`/`fiscal_credentials`, dormant dok Fisver nije potvrđen). Platforma: **„Šta razvijamo"** roadmap najave (ticker + superadmin CRUD). — 2026-06-14. Prethodno: i18n 7 jezika + AI prevod sadržaja; 2b tenant model — 2026-06-07)*
+> **Verzija:** 6.16 *(**AUTH-OAUTH** — Google prijava/registracija (`GoogleButton` + `signInWithOAuth`, `Onboarding` ekran + `OnboardingGate` za nove naloge bez tenanta), **deployovano 2026-07-02** (commit b26474c). Za sad samo Google; email/lozinka radi uporedo; Microsoft kasnije po potrebi. Prethodno: Faza FISK — valuta + PDV + računi: **FISK-0/1/2 ZAVRŠENE** (valuta po tenantu + display refaktor + payments wiring; PDV motor + `tax_config`; assembly + atomarna numeracija). **Fiscalization addon + UI** (`/admin/settings/fiscalization`): poslovni identitet PIB/PDV/IBAN, PDV stope, **PDV klasifikacija po kategoriji** (override po jelu/spa), **lista izdatih računa**, **okidač „Izdaj račun"** na narudžbi. **FISK-3 SKELET** (provider apstrakcija `_shared/fiscalization/` + `tenant_fiscal_configs`/`fiscal_credentials`, dormant dok Fisver nije potvrđen). Platforma: **„Šta razvijamo"** roadmap najave (ticker + superadmin CRUD). — 2026-06-14. Prethodno: i18n 7 jezika + AI prevod sadržaja; 2b tenant model — 2026-06-07)*
 
 ---
 
@@ -36,6 +36,36 @@
 > **Tim:** 1 developer + Claude Code AI asistent
 > **Branch:** `main` → direktno na produkciju (Vercel auto-deploy)
 > **Rebrand:** SmartMeni → **rest.by.me** (izvršeno 2026-05-31 — novi Landing page, logotip, domen)
+
+---
+
+## ✅ AUTH-OAUTH — Prijava/registracija Google nalogom (ZAVRŠENA — 2026-07-02)
+
+> **Cilj:** ubrzati i pojednostaviti onboarding — umjesto kucanja emaila i izmišljanja lozinke,
+> korisnik klikne „Nastavi sa Google". Manje trenja pri registraciji, manje zaboravljenih lozinki.
+> Za sad **samo Google**; email/lozinka ostaje uporedo (dodatna opcija, ne zamjena).
+
+**Ključni izazov:** OAuth obrće redoslijed registracije — Google vrati korisnika *prijavljenog ali
+bez restorana*. Zato novi `OnboardingGate` (App.jsx, prije `TenantGate`): prijavljen vlasnik-kandidat
+bez tenanta (ne staff/superadmin) → ekran `Onboarding` (postavka biznisa) → kreira `restaurants`
+(`approval_status='pending'`) → **isti approval tok** kao email registracija. Postojeći nalog → pravo u panel.
+
+**Napravljeno:**
+- `platform/auth/GoogleButton.jsx` — `signInWithOAuth({provider:'google', redirectTo: origin+'/admin'})`; na Login i Register + „ili" razdjelnik.
+- `platform/auth/Onboarding.jsx` — postavka biznisa poslije OAuth (auth postoji, restoran ne).
+- `platform/auth/BusinessSetupForm.jsx` — izdvojena kontrolisana forma; **dijele je registracija (korak 2) i onboarding** (bez dupliranja JSX-a).
+- `platform/auth/authHelpers.js` — zajednički `generateSlug`.
+- `App.jsx` `OnboardingGate`; i18n `continueWithGoogle`/`orDivider`/`oauthError` ×7 (key-parity gate prošao).
+
+**Eksterni setup (urađen, prod projekat `twtgzrngzretcvyeqpxm`):** Google Cloud OAuth Client ID/Secret
++ redirect URI `…supabase.co/auth/v1/callback`; Supabase → Auth → Providers → Google (enable);
+Redirect URLs allow-lista (`restby.me/**`, `localhost:5173/**`).
+
+**Testirano:** Google login na prod-u (radi); onboarding/registracija lokalno (bare user bez restorana
+→ OnboardingGate → forma → „čeka odobrenje"). 369 pgTAP + unit PASS.
+
+**Ostaje / sljedeće:** OAuth consent screen „Publish App" za javnost (dok je Testing, radi samo za Test
+users); po potrebi **Microsoft** (`azure` provajder + Azure app registracija). Detalji: memorija `project_google_oauth`.
 
 ---
 
