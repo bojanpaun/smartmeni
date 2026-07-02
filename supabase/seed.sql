@@ -56,11 +56,13 @@ VALUES
 ON CONFLICT (provider, provider_id) DO NOTHING;
 
 -- ── 2) Profili (superadmin flag) ────────────────────────────────────────────
+-- ON CONFLICT DO UPDATE (ne NOTHING): handle_new_user trigger već napravi profil red
+-- (is_superadmin=false) pri INSERT-u u auth.users, pa DO NOTHING ne bi postavio superadmin flag.
 INSERT INTO public.user_profiles (id, is_superadmin, full_name)
 VALUES
   ('dddddddd-0000-0000-0000-000000000001', false, 'Lokalni Vlasnik'),
   ('dddddddd-0000-0000-0000-000000000002', true,  'Lokalni Superadmin')
-ON CONFLICT (id) DO NOTHING;
+ON CONFLICT (id) DO UPDATE SET is_superadmin = EXCLUDED.is_superadmin, full_name = EXCLUDED.full_name;
 
 -- ── 3) Restoran (= tenant root). BEFORE INSERT trigger auto-kreira tenants red.
 -- active_verticals = {restaurant, hotel, rental} → sve vertikale aktivne lokalno.

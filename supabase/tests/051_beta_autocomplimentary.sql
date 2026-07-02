@@ -18,7 +18,8 @@ SELECT tests.create_supabase_user('sa_betacomp');
 SELECT tests.create_supabase_user('owner_beta_off');
 SELECT tests.create_supabase_user('owner_beta_on');
 INSERT INTO public.user_profiles (id, is_superadmin)
-VALUES (tests.get_supabase_uid('sa_betacomp'), true);
+VALUES (tests.get_supabase_uid('sa_betacomp'), true)
+ON CONFLICT (id) DO UPDATE SET is_superadmin = true;
 
 -- ─── (1) beta OFF (default): nov tenant NIJE complimentary ────────────────────
 SELECT tests.authenticate_as_service_role();

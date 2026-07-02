@@ -19,7 +19,8 @@ SELECT plan(11);
 SELECT tests.create_supabase_user('sa_billing');
 SELECT tests.create_supabase_user('reg_owner');
 INSERT INTO public.user_profiles (id, is_superadmin)
-VALUES (tests.get_supabase_uid('sa_billing'), true);
+VALUES (tests.get_supabase_uid('sa_billing'), true)
+ON CONFLICT (id) DO UPDATE SET is_superadmin = true;
 
 -- (1)(2) RLS uključen na novim platform tabelama.
 SELECT tests.rls_enabled('public', 'platform_settings');

@@ -15,7 +15,8 @@ SELECT plan(5);
 -- ─── Setup: superadmin ───────────────────────────────────────────────────────
 SELECT tests.create_supabase_user('sa_restr');
 INSERT INTO public.user_profiles (id, is_superadmin)
-VALUES (tests.get_supabase_uid('sa_restr'), true);
+VALUES (tests.get_supabase_uid('sa_restr'), true)
+ON CONFLICT (id) DO UPDATE SET is_superadmin = true;
 
 -- (1) Default: novi flag je false.
 SELECT is(
