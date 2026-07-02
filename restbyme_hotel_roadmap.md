@@ -1,6 +1,6 @@
 ﻿# rest.by.me — HospitalityOS Produkt roadmap
 
-> **Verzija:** 6.17 *(**DEMO D1** — javni „Isprobaj demo" (dijeljeni restoran+hotel tenant, sve otključano) + **fix**: „Početni koraci" dismiss se sad trajno pamti (auto-kreiranje `user_profiles` reda — trigger + backfill), **deployovano 2026-07-02**. Prethodno: **AUTH-OAUTH** — Google prijava/registracija (`GoogleButton` + `signInWithOAuth`, `Onboarding` ekran + `OnboardingGate` za nove naloge bez tenanta), **deployovano 2026-07-02** (commit b26474c). Za sad samo Google; email/lozinka radi uporedo; Microsoft kasnije po potrebi. Prethodno: Faza FISK — valuta + PDV + računi: **FISK-0/1/2 ZAVRŠENE** (valuta po tenantu + display refaktor + payments wiring; PDV motor + `tax_config`; assembly + atomarna numeracija). **Fiscalization addon + UI** (`/admin/settings/fiscalization`): poslovni identitet PIB/PDV/IBAN, PDV stope, **PDV klasifikacija po kategoriji** (override po jelu/spa), **lista izdatih računa**, **okidač „Izdaj račun"** na narudžbi. **FISK-3 SKELET** (provider apstrakcija `_shared/fiscalization/` + `tenant_fiscal_configs`/`fiscal_credentials`, dormant dok Fisver nije potvrđen). Platforma: **„Šta razvijamo"** roadmap najave (ticker + superadmin CRUD). — 2026-06-14. Prethodno: i18n 7 jezika + AI prevod sadržaja; 2b tenant model — 2026-06-07)*
+> **Verzija:** 6.18 *(**DEMO D2** — noćni reset demo tenanta + reset lozinke (anti-lockout) + pg_cron, deployovano 2026-07-03. Prethodno: **DEMO D1** — javni „Isprobaj demo" (dijeljeni restoran+hotel tenant, sve otključano) + **fix**: „Početni koraci" dismiss se sad trajno pamti (auto-kreiranje `user_profiles` reda — trigger + backfill), **deployovano 2026-07-02**. Prethodno: **AUTH-OAUTH** — Google prijava/registracija (`GoogleButton` + `signInWithOAuth`, `Onboarding` ekran + `OnboardingGate` za nove naloge bez tenanta), **deployovano 2026-07-02** (commit b26474c). Za sad samo Google; email/lozinka radi uporedo; Microsoft kasnije po potrebi. Prethodno: Faza FISK — valuta + PDV + računi: **FISK-0/1/2 ZAVRŠENE** (valuta po tenantu + display refaktor + payments wiring; PDV motor + `tax_config`; assembly + atomarna numeracija). **Fiscalization addon + UI** (`/admin/settings/fiscalization`): poslovni identitet PIB/PDV/IBAN, PDV stope, **PDV klasifikacija po kategoriji** (override po jelu/spa), **lista izdatih računa**, **okidač „Izdaj račun"** na narudžbi. **FISK-3 SKELET** (provider apstrakcija `_shared/fiscalization/` + `tenant_fiscal_configs`/`fiscal_credentials`, dormant dok Fisver nije potvrđen). Platforma: **„Šta razvijamo"** roadmap najave (ticker + superadmin CRUD). — 2026-06-14. Prethodno: i18n 7 jezika + AI prevod sadržaja; 2b tenant model — 2026-06-07)*
 
 ---
 
@@ -50,11 +50,12 @@ osoblje, dobavljači, zalihe, spa) sa svim addonima otključanim (per-tenant sub
 globalnog beta). Landing hero „Isprobaj demo" → `signInWithPassword` → `/admin`. Fiksni `deadbeef-`
 UUID prostor (test-neutralno; 371 pgTAP PASS). Detalji: memorija `project_demo_tenant`.
 
-**D2 (pending):** `reset_demo_tenant()` (obriši child podatke → re-seed) + **reset demo lozinke** +
-pg_cron svake noći.
-**D3 (pending):** zaštite u `is_demo` režimu — blokiraj promjenu emaila/lozinke (KRITIČNO: lockout),
+**D2 (deployovano, commit a8db726, 2026-07-03):** `reset_demo_tenant()` — reset demo lozinke/emaila
+(anti-lockout) → obriši sve podatke demo-tenanta (retry petlja, dinamička lista BASE tabela;
+junction preko roditelja) → re-seed. **pg_cron `reset-demo-tenant` svake noći 04:00 UTC.**
+**D3 (pending):** zaštite u `is_demo` režimu — blokiraj promjenu emaila/lozinke (proaktivno),
 billing, brisanje tenanta, slanje mailova, payment ključeve.
-**Rizik dok D2/D3 ne legnu:** visitor može promijeniti demo lozinku i zaključati demo do reseta.
+**Rizik smanjen:** lockout prozor max ~1 dan (noćni reset vraća lozinku); D3 daje punu zaštitu.
 
 ---
 
