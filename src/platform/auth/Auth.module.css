@@ -180,6 +180,44 @@
 /* Kad se dva linka nižu, drugi je bliže prvom */
 .loginLink + .loginLink { margin-top: 0.5rem; }
 
+/* Google OAuth dugme + „ili" razdjelnik (login/registracija) */
+.googleBtn {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 10px;
+  width: 100%;
+  padding: 11px;
+  background: #fff;
+  color: var(--c-text);
+  border: 1px solid var(--c-border-input);
+  border-radius: 10px;
+  font-size: 14px;
+  font-weight: 600;
+  cursor: pointer;
+  font-family: var(--c-font-sans);
+  transition: background 0.15s, border-color 0.15s;
+}
+.googleBtn:hover { background: var(--c-bg); border-color: var(--c-text-muted); }
+.googleBtn:disabled { opacity: 0.6; cursor: not-allowed; }
+.googleBtn svg { width: 18px; height: 18px; flex-shrink: 0; }
+
+.divider {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  margin: 16px 0;
+  color: var(--c-text-muted);
+  font-size: 12px;
+}
+.divider::before,
+.divider::after {
+  content: '';
+  flex: 1;
+  height: 1px;
+  background: var(--c-border);
+}
+
 /* 2b/Faza 4 — izbor biznisa pri registraciji */
 .bizChoices { display: flex; flex-direction: column; gap: 8px; }
 .bizChoice {

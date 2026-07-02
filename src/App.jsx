@@ -11,6 +11,7 @@ import { SupportProvider } from './context/SupportContext'
 const AdminLayout = lazy(() => import('./layouts/AdminLayout'))
 // Lazy: rijetke površine iza gejta — ne trebaju u init chunku (§9).
 const PendingApproval = lazy(() => import('./platform/auth/PendingApproval'))
+const Onboarding      = lazy(() => import('./platform/auth/Onboarding'))
 const UpgradePrompt   = lazy(() => import('./components/shared/UpgradePrompt'))
 
 const Landing              = lazy(() => import('./platform/Landing'))
@@ -150,6 +151,23 @@ function ApprovalGate({ children }) {
   return children
 }
 
+// Gejt: prijavljen vlasnik-kandidat bez tenanta (tipično poslije OAuth/Google
+// registracije — auth postoji, ali restoran još nije kreiran) → postavka biznisa.
+// Isključuje superadmina i staffa (oni legitimno mogu biti bez vlastitog restorana);
+// njih hvata TenantGate. Mora stajati PRIJE TenantGate-a (koji bi „nema restorana"
+// tretirao kao grešku stanja).
+function OnboardingGate({ children }) {
+  const { user, restaurant, staffProfile, isSuperAdmin } = usePlatform()
+  if (user && !restaurant && !staffProfile && !isSuperAdmin()) {
+    return (
+      <Suspense fallback={<LoadingSpinner fullPage />}>
+        <Onboarding />
+      </Suspense>
+    )
+  }
+  return children
+}
+
 // Gejt: prijavljen korisnik bez tenanta (realno samo: superadmin koji ne posjeduje
 // restoran) NE smije visjeti na ~40 admin stranica koje rade `if (!restaurant)
 // return <Loading/>`. ProtectedRoute je već potvrdio da je učitavanje gotovo i da
@@ -177,6 +195,7 @@ function AdminRoute({ children }) {
   return (
     <ProtectedRoute>
       <ApprovalGate>
+        <OnboardingGate>
         <TenantGate>
           <AnnouncementsProvider>
             <SupportProvider>
@@ -190,6 +209,7 @@ function AdminRoute({ children }) {
             </SupportProvider>
           </AnnouncementsProvider>
         </TenantGate>
+        </OnboardingGate>
       </ApprovalGate>
     </ProtectedRoute>
   )

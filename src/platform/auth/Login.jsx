@@ -2,6 +2,7 @@ import { useState } from 'react'
 import { useNavigate, Link } from 'react-router-dom'
 import { useTranslation } from 'react-i18next'
 import { supabase } from '../../lib/supabase'
+import GoogleButton from './GoogleButton'
 import styles from './Auth.module.css'
 
 export default function Login() {
@@ -62,6 +63,9 @@ export default function Login() {
           <>
             <h1 className={styles.title}>{t('welcomeBack')}</h1>
             <p className={styles.sub}>{t('loginSub')}</p>
+
+            <GoogleButton />
+            <div className={styles.divider}>{t('orDivider')}</div>
 
             <form onSubmit={handleSubmit} className={styles.form}>
               <div className={styles.field}>
