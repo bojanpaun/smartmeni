@@ -1,6 +1,6 @@
 ﻿# rest.by.me — HospitalityOS Produkt roadmap
 
-> **Verzija:** 6.19 *(**DEMO D3** — zaštite osjetljivih akcija u demo režimu (`isDemo` + `useDemoGuard`: blok promjene lozinke, kreiranja osoblja, payment ključeva), deployovano 2026-07-03. Demo (D1–D3) kompletan. Prethodno: **DEMO D2** — noćni reset demo tenanta + reset lozinke (anti-lockout) + pg_cron, deployovano 2026-07-03. Prethodno: **DEMO D1** — javni „Isprobaj demo" (dijeljeni restoran+hotel tenant, sve otključano) + **fix**: „Početni koraci" dismiss se sad trajno pamti (auto-kreiranje `user_profiles` reda — trigger + backfill), **deployovano 2026-07-02**. Prethodno: **AUTH-OAUTH** — Google prijava/registracija (`GoogleButton` + `signInWithOAuth`, `Onboarding` ekran + `OnboardingGate` za nove naloge bez tenanta), **deployovano 2026-07-02** (commit b26474c). Za sad samo Google; email/lozinka radi uporedo; Microsoft kasnije po potrebi. Prethodno: Faza FISK — valuta + PDV + računi: **FISK-0/1/2 ZAVRŠENE** (valuta po tenantu + display refaktor + payments wiring; PDV motor + `tax_config`; assembly + atomarna numeracija). **Fiscalization addon + UI** (`/admin/settings/fiscalization`): poslovni identitet PIB/PDV/IBAN, PDV stope, **PDV klasifikacija po kategoriji** (override po jelu/spa), **lista izdatih računa**, **okidač „Izdaj račun"** na narudžbi. **FISK-3 SKELET** (provider apstrakcija `_shared/fiscalization/` + `tenant_fiscal_configs`/`fiscal_credentials`, dormant dok Fisver nije potvrđen). Platforma: **„Šta razvijamo"** roadmap najave (ticker + superadmin CRUD). — 2026-06-14. Prethodno: i18n 7 jezika + AI prevod sadržaja; 2b tenant model — 2026-06-07)*
+> **Verzija:** 6.20 *(**DEMO showcase** — „Demo uživo" sekcija na Landingu: kartice ka javnim stranicama demo objekta (meni/sajtovi/booking/spa/rezervacija) + portal zaposlenih (demo staff nalog) + registracija gosta, deployovano 2026-07-03. Prethodno: **DEMO D3** — zaštite osjetljivih akcija u demo režimu (`isDemo` + `useDemoGuard`: blok promjene lozinke, kreiranja osoblja, payment ključeva), deployovano 2026-07-03. Demo (D1–D3) kompletan. Prethodno: **DEMO D2** — noćni reset demo tenanta + reset lozinke (anti-lockout) + pg_cron, deployovano 2026-07-03. Prethodno: **DEMO D1** — javni „Isprobaj demo" (dijeljeni restoran+hotel tenant, sve otključano) + **fix**: „Početni koraci" dismiss se sad trajno pamti (auto-kreiranje `user_profiles` reda — trigger + backfill), **deployovano 2026-07-02**. Prethodno: **AUTH-OAUTH** — Google prijava/registracija (`GoogleButton` + `signInWithOAuth`, `Onboarding` ekran + `OnboardingGate` za nove naloge bez tenanta), **deployovano 2026-07-02** (commit b26474c). Za sad samo Google; email/lozinka radi uporedo; Microsoft kasnije po potrebi. Prethodno: Faza FISK — valuta + PDV + računi: **FISK-0/1/2 ZAVRŠENE** (valuta po tenantu + display refaktor + payments wiring; PDV motor + `tax_config`; assembly + atomarna numeracija). **Fiscalization addon + UI** (`/admin/settings/fiscalization`): poslovni identitet PIB/PDV/IBAN, PDV stope, **PDV klasifikacija po kategoriji** (override po jelu/spa), **lista izdatih računa**, **okidač „Izdaj račun"** na narudžbi. **FISK-3 SKELET** (provider apstrakcija `_shared/fiscalization/` + `tenant_fiscal_configs`/`fiscal_credentials`, dormant dok Fisver nije potvrđen). Platforma: **„Šta razvijamo"** roadmap najave (ticker + superadmin CRUD). — 2026-06-14. Prethodno: i18n 7 jezika + AI prevod sadržaja; 2b tenant model — 2026-06-07)*
 
 ---
 
@@ -57,6 +57,14 @@ junction preko roditelja) → re-seed. **pg_cron `reset-demo-tenant` svake noći
 (toast + prekid akcije). Guardovano: promjena lozinke (lockout), kreiranje/poziv osoblja
 (`create-staff-user`), čuvanje payment ključeva. UI-nivo (demo creds dijeljeni); backstop je D2 reset.
 **Napomena:** nova osjetljiva/izlazna akcija ubuduće → gejtuj sa `useDemoGuard()`.
+
+**DS (deployovano, commit f4e37d0, 2026-07-03) — „Demo uživo" showcase:** sekcija na Landingu
+(`showcase` u `marketing` ns ×7) sa karticama ka javnim površinama demo objekta: `/demo` (meni),
+`/demo/home` (sajt restorana), `/demo/hotel`, `/demo/book`, `/demo/spa`, `/demo/rezervacija`,
+`/demo/staff` (portal zaposlenih — demo staff `konobar@demo.me/demo1234`), `/demo/registracija` (gost).
+Migracija `20260703110000`: demo staff auth + link `staff.user_id` (RLS „Osoblje vidi sebe") + reset
+resetuje i staff lozinku. **Guest login je gejtovan** (`guests` SELECT = `user_id=auth.uid()`; registracija=pending),
+pa guest kartica vodi na registraciju — pravi guest-portal demo bi tražio anon RPC/odobren demo gost.
 
 ---
 
