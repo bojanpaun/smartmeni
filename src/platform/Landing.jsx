@@ -1,6 +1,7 @@
 import { useState, useEffect, useRef } from 'react'
 import { useTranslation } from 'react-i18next'
 import LanguageSwitcher from '../i18n/LanguageSwitcher'
+import { supabase } from '../lib/supabase'
 import styles from './Landing.module.css'
 
 /* ──────────────────────────────────────────
@@ -67,10 +68,29 @@ export default function Landing() {
   const { t } = useTranslation('marketing')
   const [menuOpen, setMenuOpen] = useState(false)
   const [registerType, setRegisterType] = useState(null)
+  const [demoLoading, setDemoLoading] = useState(false)
+  const [demoErr, setDemoErr] = useState('')
 
   const registerHref = registerType
     ? `/registracija?plan=${registerType}`
     : '/registracija'
+
+  // „Isprobaj demo" — prijava na dijeljeni demo objekat (restoran + hotel, sve
+  // funkcije otključane). Izmjene se noćnim resetom vraćaju na čisto (D2).
+  const enterDemo = async () => {
+    setDemoErr('')
+    setDemoLoading(true)
+    const { error } = await supabase.auth.signInWithPassword({
+      email: 'demo@restby.me',
+      password: 'demo1234',
+    })
+    if (error) {
+      setDemoErr(t('hero.demoErr'))
+      setDemoLoading(false)
+    } else {
+      window.location.href = '/admin'
+    }
+  }
 
   return (
     <div className={styles.page}>
@@ -124,8 +144,11 @@ export default function Landing() {
             <p className={styles.heroSub}>{t('hero.sub')}</p>
             <div className={styles.heroActions}>
               <a href="/registracija" className={styles.btnPrimary}>{t('hero.ctaPrimary')}</a>
-              <a href="#restoran" className={styles.btnGhost}>{t('hero.ctaGhost')}</a>
+              <button type="button" className={styles.btnGhost} onClick={enterDemo} disabled={demoLoading}>
+                {demoLoading ? `${t('hero.demoLoading')}…` : `▶ ${t('hero.demoCta')}`}
+              </button>
             </div>
+            {demoErr && <div className={styles.heroDemoErr}>{demoErr}</div>}
             <div className={styles.heroTrust}>
               <div className={styles.trustPills}>
                 <span className={styles.trustPill}>{t('hero.trust1')}</span>

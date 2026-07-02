@@ -16,6 +16,9 @@
     "sub": "Jedna platforma za digitalni meni, rezervacije, front desk, housekeeping, HR i analitiku. Nema više žongliranja sa deset sistema.",
     "ctaPrimary": "Zatraži pristup (beta)",
     "ctaGhost": "Pogledaj module →",
+    "demoCta": "Isprobaj demo",
+    "demoLoading": "Učitavanje",
+    "demoErr": "Demo trenutno nije dostupan. Pokušajte kasnije.",
     "trust1": "✓ Besplatno tokom bete",
     "trust2": "✓ Pun pristup svim modulima",
     "trust3": "✓ Lokalna podrška"

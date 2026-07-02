@@ -16,6 +16,9 @@
     "sub": "One platform for digital menu, reservations, front desk, housekeeping, HR and analytics. No more juggling ten systems.",
     "ctaPrimary": "Request access (beta)",
     "ctaGhost": "See the modules →",
+    "demoCta": "Try the demo",
+    "demoLoading": "Loading",
+    "demoErr": "The demo is currently unavailable. Please try again later.",
     "trust1": "✓ Free during the beta",
     "trust2": "✓ Full access to all modules",
     "trust3": "✓ Local support"

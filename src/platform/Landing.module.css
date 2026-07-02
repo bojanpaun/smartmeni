@@ -138,6 +138,14 @@
   flex-wrap: wrap;
   margin-bottom: 1.75rem;
 }
+/* btnGhost se koristi i kao <button> (Isprobaj demo) — obezbijedi font/cursor */
+.heroActions button.btnGhost { cursor: pointer; font-family: inherit; }
+.heroActions button.btnGhost:disabled { opacity: .6; cursor: default; }
+.heroDemoErr {
+  margin: -0.75rem 0 1.5rem;
+  font-size: 13px;
+  color: #c0392b;
+}
 .heroTrust {}
 .trustPills {
   display: flex;

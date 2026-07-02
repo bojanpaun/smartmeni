@@ -16,6 +16,9 @@
     "sub": "Një platformë për menynë dixhitale, rezervimet, front desk, pastrimin, HR dhe analitikën. Mjaft me xhongleri me dhjetë sisteme.",
     "ctaPrimary": "Kërko qasje (beta)",
     "ctaGhost": "Shiko modulet →",
+    "demoCta": "Provo demon",
+    "demoLoading": "Po ngarkohet",
+    "demoErr": "Demoja nuk është e disponueshme për momentin. Provoni më vonë.",
     "trust1": "✓ Falas gjatë betës",
     "trust2": "✓ Qasje e plotë në të gjitha modulet",
     "trust3": "✓ Mbështetje lokale"
