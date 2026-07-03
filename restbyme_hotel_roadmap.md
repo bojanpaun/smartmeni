@@ -66,6 +66,17 @@ Migracija `20260703110000`: demo staff auth + link `staff.user_id` (RLS „Osobl
 resetuje i staff lozinku. **Guest login je gejtovan** (`guests` SELECT = `user_id=auth.uid()`; registracija=pending),
 pa guest kartica vodi na registraciju — pravi guest-portal demo bi tražio anon RPC/odobren demo gost.
 
+**Landing sajtovi (deployovano, commit 6b67ce0, 2026-07-03):** `seed_demo_landing()` puni `landing_pages`
+(restoran+hotel) punim blokovima (hero+slika, priča/about, meni/sobe, specijaliteti, galerija, recenzije,
+amenities, CTA, kontakt) sa verifikovanim Unsplash slikama — umjesto static fallback-a. `reset_demo_tenant`
+ga poziva poslije re-seeda (jer reset briše landing_pages). Migracija `20260703140000`.
+
+**GDJE SMO STALI — demo je FUNKCIONALNO KOMPLETAN (D1–D3 + showcase + landing).** Otvoreno/opciono sljedeće:
+- **Pravi guest-portal demo** (jedini nepotpun dio): anon guest login je gejtovan; treba anon RPC za lookup
+  ILI predodobren demo gost sa auth-om. Za sada guest kartica → registracija.
+- **Google OAuth:** „Publish" consent screen za javnost (sad Testing = samo Test users); Microsoft po potrebi.
+- Fino podešavanje demo landing teksta/slika (self-host slika umjesto Unsplash) — kozmetika.
+
 ---
 
 ## ✅ FIX — „Početni koraci" dismiss se trajno pamti (2026-07-02)
