@@ -281,17 +281,26 @@ export default function Landing() {
             </div>
           </div>
 
-          <p className={styles.showcasePublicLabel}>{t('showcase.publicLabel')}</p>
-          <div className={styles.showcaseGrid}>
-            {SHOWCASE.map(c => (
-              <a key={c.k} href={c.path} target="_blank" rel="noopener noreferrer" className={styles.scCard}>
-                <span className={styles.scIcon}>{c.icon}</span>
-                <span className={styles.scName}>{t(`showcase.${c.k}`)}</span>
-                <span className={styles.scPath}>restby.me{c.path}</span>
-                {c.cred && <span className={styles.scCred}>{t('showcase.loginLabel')}: {c.cred}</span>}
-                <span className={styles.scOpen}>{t('showcase.open')}</span>
-              </a>
-            ))}
+          {/* „Javne površine" — vizuelno vezane uz demo (ista zelena zona) da posjetilac
+              shvati da su i one dio demo testiranja, ne odvojen blok. */}
+          <div className={styles.demoPublic}>
+            <div className={styles.demoPublicHead}>
+              <span className={styles.demoPublicTag}>{t('showcase.publicTag')}</span>
+              <p className={styles.showcasePublicLabel}>{t('showcase.publicLabel')}</p>
+            </div>
+            <div className={styles.showcaseGrid}>
+              {SHOWCASE.map(c => (
+                <a key={c.k} href={c.path} target="_blank" rel="noopener noreferrer" className={styles.scCard}>
+                  <div className={styles.scHead}>
+                    <span className={styles.scIcon}>{c.icon}</span>
+                    <span className={styles.scName}>{t(`showcase.${c.k}`)}</span>
+                  </div>
+                  <span className={styles.scPath}>restby.me{c.path}</span>
+                  {c.cred && <span className={styles.scCred}>{t('showcase.loginLabel')}: {c.cred}</span>}
+                  <span className={styles.scOpen}>{t('showcase.open')}</span>
+                </a>
+              ))}
+            </div>
           </div>
           <p className={styles.showcaseNote}>{t('showcase.liveNote')}</p>
         </div>

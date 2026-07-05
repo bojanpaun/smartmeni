@@ -47,7 +47,8 @@
     "publicLabel": "Публичные страницы — то, что видят гости",
     "kpiRevenue": "Выручка сегодня",
     "kpiOrders": "Заказы",
-    "kpiOccupancy": "Загрузка"
+    "kpiOccupancy": "Загрузка",
+    "publicTag": "Часть демо"
   },
   "demo": {
     "frontDesk": "Front Desk",

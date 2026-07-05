@@ -47,7 +47,8 @@
     "publicLabel": "Herkese açık yüzeyler — misafirlerinizin gördüğü",
     "kpiRevenue": "Bugünkü ciro",
     "kpiOrders": "Siparişler",
-    "kpiOccupancy": "Doluluk"
+    "kpiOccupancy": "Doluluk",
+    "publicTag": "Demonun parçası"
   },
   "demo": {
     "frontDesk": "Front Desk",

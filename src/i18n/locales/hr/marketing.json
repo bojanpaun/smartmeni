@@ -47,7 +47,8 @@
     "publicLabel": "Javne površine — ono što tvoji gosti vide",
     "kpiRevenue": "Promet danas",
     "kpiOrders": "Narudžbe",
-    "kpiOccupancy": "Popunjenost"
+    "kpiOccupancy": "Popunjenost",
+    "publicTag": "Dio demo-a"
   },
   "demo": {
     "frontDesk": "Front Desk",

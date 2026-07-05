@@ -47,7 +47,8 @@
     "publicLabel": "Sipërfaqet publike — çfarë shohin mysafirët",
     "kpiRevenue": "Të ardhurat sot",
     "kpiOrders": "Porositë",
-    "kpiOccupancy": "Zënia"
+    "kpiOccupancy": "Zënia",
+    "publicTag": "Pjesë e demos"
   },
   "demo": {
     "frontDesk": "Front Desk",

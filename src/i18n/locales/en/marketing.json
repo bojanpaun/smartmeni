@@ -47,7 +47,8 @@
     "publicLabel": "Public surfaces — what your guests see",
     "kpiRevenue": "Revenue today",
     "kpiOrders": "Orders",
-    "kpiOccupancy": "Occupancy"
+    "kpiOccupancy": "Occupancy",
+    "publicTag": "Part of the demo"
   },
   "demo": {
     "frontDesk": "Front Desk",
