@@ -87,7 +87,12 @@ pravi tenant**: live provjera otkrila da je GuestMenu presretao slug `demo` na s
 uveden `noData` za izvor podataka, `isDemo` gating netaknut (order flow bez rizika). Verifikovano: db:reset čist,
 SQL OK, i18n-check OK, build OK (init 154.78 kB < 155), **371 pgTAP + unit PASS**. **LIVE (Playwright):** landing panel ✓,
 tur (reflektor) ✓, `/demo` meni pravi tenant (slike+paket+specijali, korpa €41.50) ✓, hotel sobe+slike ✓; mapa se ne
-crta u headless-u (Google tiles) ali iframe/CSP OK → provjeriti u pravom browseru. **ČEKA `db:push` + `git push`.**
+crta u headless-u (Google tiles) ali iframe/CSP OK → provjeriti u pravom browseru. **DEPLOYOVANO 2026-07-05**
+(`db:push` → prod + commit `2c80df1`). **UI dorade poslije (deployovane):** `0f6a237` kontrast selektovane
+pilule menija (`.catActive` bijeli tekst na svijetloj podlozi → puna `tpl.brand`) + „Početni koraci" sklopljeno
+po defaultu (localStorage, rješava „otvara se poslije refresha"); `33cfc02` upadljiviji checklist (kružni brend
+badge + tint); `59bd71b` landing „Javne površine" = zelena demo-zona + „Dio demo-a" chip + tap-abilne kartice
+(„Otvori ↗" dugme-pilula). **Ostaje samo: vizuelna provjera Google mape u pravom browseru.**
 
 **GDJE SMO STALI — demo je FUNKCIONALNO KOMPLETAN (D1–D3 + showcase + landing + DE obogaćivanje).** Otvoreno/opciono sljedeće:
 - **Pravi guest-portal demo** (jedini nepotpun dio): anon guest login je gejtovan; treba anon RPC za lookup
