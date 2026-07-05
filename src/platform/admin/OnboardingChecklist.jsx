@@ -143,7 +143,7 @@ export default function OnboardingChecklist({ data, steps, manualDone, markDone,
   )
 
   return (
-    <div className={styles.card}>
+    <div className={`${styles.card} ${open ? '' : styles.cardCollapsed}`}>
       <div className={styles.head}>
         <button className={styles.headToggle} onClick={toggleOpen} aria-expanded={open}>
           <span className={styles.chevron} aria-hidden="true">{open ? '▾' : '▸'}</span>

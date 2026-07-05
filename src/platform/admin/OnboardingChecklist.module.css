@@ -8,6 +8,12 @@
   padding: 16px;
   margin-bottom: 16px;
 }
+/* Sklopljeno: istaknut segment (brend tint + akcent lijevo) da jasno poziva na klik. */
+.cardCollapsed {
+  background: var(--c-primary-light);
+  border-color: var(--c-primary-muted);
+  border-left: 3px solid var(--c-primary);
+}
 
 .head {
   display: flex;
@@ -30,13 +36,24 @@
   padding: 0;
   cursor: pointer;
 }
+/* Vidljiv kružni toggle badge (ranije sitna blijeda strelica). */
 .chevron {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 24px;
+  height: 24px;
+  flex-shrink: 0;
+  border-radius: 50%;
+  background: var(--c-primary);
+  color: #fff;
   font-size: 12px;
-  color: var(--c-text-muted);
-  transition: color 0.15s;
+  font-weight: 800;
+  line-height: 1;
+  transition: transform 0.15s, background 0.15s;
 }
-.headToggle:hover .chevron { color: var(--c-primary); }
-.headToggle:focus-visible { outline: 2px solid var(--c-primary); outline-offset: 2px; border-radius: 6px; }
+.headToggle:hover .chevron { transform: scale(1.08); background: var(--c-primary-hover); }
+.headToggle:focus-visible { outline: 2px solid var(--c-primary); outline-offset: 2px; border-radius: 8px; }
 
 /* × za ručno sakrivanje kartice (perzistuje se per-korisnik). */
 .dismissBtn {
