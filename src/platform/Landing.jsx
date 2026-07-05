@@ -39,7 +39,7 @@ const SHOWCASE = [
   { icon: '🧖', k: 'spa',         path: '/demo/spa' },
   { icon: '🪑', k: 'reservation', path: '/demo/rezervacija' },
   { icon: '🛎️', k: 'staff',       path: '/demo/staff',        cred: 'konobar@demo.me · demo1234' },
-  { icon: '👤', k: 'guest',       path: '/demo/registracija' },
+  { icon: '👤', k: 'guest',       path: '/demo/guest' },
 ]
 
 /* ──────────────────────────────────────────

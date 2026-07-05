@@ -104,6 +104,22 @@ export default function GuestAppPage() {
     }
   }, [slug])
 
+  // DEMO: auto-login na seedovanu aktivnu (checked_in) prijavu — prospekt nema kod,
+  // pa portal ne bi bio dostupan. RPC je gejtovan na is_demo (ne curi za prave tenante).
+  useEffect(() => {
+    if (!restaurant?.is_demo || session) return
+    let cancelled = false
+    supabase.rpc('get_demo_guest_reservation', { p_restaurant_id: restaurant.id })
+      .then(({ data }) => {
+        if (cancelled || !data?.length) return
+        const res = data[0]
+        const sessionData = { ...res, reservation_code: String(res.id).slice(0, 8).toUpperCase(), guest_email: res.guest_email, demo: true }
+        try { sessionStorage.setItem(SESSION_KEY(slug), JSON.stringify(sessionData)) } catch {}
+        setSession(sessionData)
+      })
+    return () => { cancelled = true }
+  }, [restaurant, session, slug])
+
   // Load folio when tab changes
   useEffect(() => {
     if (tab === 'folio' && session && !folio) loadFolio()
