@@ -230,6 +230,9 @@ export default function ControlPanel() {
     const accessible = canSee(mod.perm)
     const active     = addonOn(mod)
     const isSys      = !!mod.adminOnly
+    // Strelica-afordansa samo na karticama koje zaista vode u modul (aktivan + pristup +
+    // addon uključen) — signalizira „klikni me" i na touch-u (bez zavisnosti od hovera).
+    const showArrow  = accessible && mod.active && active
     return (
       <button
         key={mod.key}
@@ -244,6 +247,7 @@ export default function ControlPanel() {
         disabled={!mod.active || !accessible}
       >
         <div className={styles.cardIcon}>{mod.icon}</div>
+        {showArrow && <span className={styles.cardArrow} aria-hidden="true">→</span>}
         <div className={styles.cardBody}>
           <div className={styles.cardName}>{t(mod.labelKey)}</div>
           <div className={styles.cardDesc}>{t(mod.descKey)}</div>
