@@ -1,4 +1,4 @@
-import { useMemo } from 'react'
+import { useMemo, useState } from 'react'
 import { useNavigate } from 'react-router-dom'
 import { useTranslation } from 'react-i18next'
 import { usePlatform } from '../../context/PlatformContext'
@@ -63,6 +63,19 @@ export default function OnboardingChecklist({ data, steps, manualDone, markDone,
   const navigate = useNavigate()
   const { restaurant, hasVertical, hasPermission, hasAddon, isOwner, isSuperAdmin } = usePlatform()
   const lt = useLibraryTranslations()
+
+  // Kompaktno po defaultu: prikazuje se samo traka (naslov + progres); koraci se
+  // raširuju na klik. Stanje u localStorage (pouzdano po pregledniku, nezavisno od
+  // DB dismiss-a) → poslije refresha ostaje sklopljeno kako je korisnik ostavio.
+  const OPEN_KEY = 'sm_checklist_open'
+  const [open, setOpen] = useState(() => {
+    try { return localStorage.getItem(OPEN_KEY) === '1' } catch { return false }
+  })
+  const toggleOpen = () => setOpen(v => {
+    const nv = !v
+    try { localStorage.setItem(OPEN_KEY, nv ? '1' : '0') } catch { /* private mode */ }
+    return nv
+  })
 
   const canManage = isOwner() || isSuperAdmin()
   const canSee = (perm) => !perm || canManage || hasPermission(perm)
@@ -132,27 +145,32 @@ export default function OnboardingChecklist({ data, steps, manualDone, markDone,
   return (
     <div className={styles.card}>
       <div className={styles.head}>
-        <span className={styles.title}>🚀 {t('checklistTitle')}</span>
+        <button className={styles.headToggle} onClick={toggleOpen} aria-expanded={open}>
+          <span className={styles.chevron} aria-hidden="true">{open ? '▾' : '▸'}</span>
+          <span className={styles.title}>🚀 {t('checklistTitle')}</span>
+        </button>
         <span className={styles.progressText}>{t('checklistProgress', { done: doneCount, total: available.length })}</span>
         <button className={styles.dismissBtn} onClick={() => setDismissed(true)} aria-label={t('checklistHide')}>✕</button>
       </div>
-      <div className={styles.progressBar}>
+      <div className={`${styles.progressBar} ${open ? '' : styles.progressBarCollapsed}`}>
         <div className={styles.progressFill} style={{ width: `${(doneCount / available.length) * 100}%` }} />
       </div>
-      <div className={styles.steps}>
-        {groups.map(([gkey, gsteps]) => {
-          const meta = gkey === '__general' ? null : moduleMeta(gkey)
-          const header = gkey === '__general'
-            ? t('checklistGeneral')
-            : meta ? `${meta.icon} ${t(meta.labelKey)}` : gkey
-          return (
-            <div key={gkey} className={styles.group}>
-              {groups.length > 1 && <div className={styles.groupHead}>{header}</div>}
-              {gsteps.map(renderStep)}
-            </div>
-          )
-        })}
-      </div>
+      {open && (
+        <div className={styles.steps}>
+          {groups.map(([gkey, gsteps]) => {
+            const meta = gkey === '__general' ? null : moduleMeta(gkey)
+            const header = gkey === '__general'
+              ? t('checklistGeneral')
+              : meta ? `${meta.icon} ${t(meta.labelKey)}` : gkey
+            return (
+              <div key={gkey} className={styles.group}>
+                {groups.length > 1 && <div className={styles.groupHead}>{header}</div>}
+                {gsteps.map(renderStep)}
+              </div>
+            )
+          })}
+        </div>
+      )}
     </div>
   )
 }

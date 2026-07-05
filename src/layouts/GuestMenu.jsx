@@ -744,7 +744,9 @@ export default function Menu() {
           <button
             key={cat.id}
             className={`${styles.cat} ${activeCat === cat.id ? styles.catActive : ''}`}
-            style={activeCat === cat.id ? { background: tpl.catBg, color: tpl.catColor, borderColor: tpl.catBorder } : {}}
+            /* Selektovano = puna brend boja + bijeli tekst (.catActive) → visok kontrast.
+               (Ranije svijetla catBg + forsiran bijeli tekst = tekst se nije vidio.) */
+            style={activeCat === cat.id ? { background: tpl.brand, borderColor: tpl.brand } : {}}
             onClick={() => setActiveCat(cat.id)}
           >
             {cat.icon} {tr('category', cat.id, 'name', isEn ? (cat.name_en || cat.label || cat.name) : (cat.label || cat.name))}
