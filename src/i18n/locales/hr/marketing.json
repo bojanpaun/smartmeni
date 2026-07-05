@@ -36,7 +36,18 @@
     "spa": "Spa rezervacija",
     "reservation": "Rezervacija stola",
     "staff": "Portal osoblja",
-    "guest": "Portal gostiju"
+    "guest": "Portal gostiju",
+    "adminBadge": "Administracija",
+    "adminTitle": "Uđi u pravi admin panel",
+    "adminSub": "Cijela kontrolna ploča kao da je tvoj posao — istraži module, mijenjaj podatke, ništa ne možeš pokvariti.",
+    "adminF1": "Kontrolna ploča, KPI-evi i početni koraci",
+    "adminF2": "Uređivač jelovnika, stolovi i rezervacije",
+    "adminF3": "Recepcija, sobe, folio i naplata",
+    "adminF4": "Zalihe, HR, analitika i spa",
+    "publicLabel": "Javne površine — ono što tvoji gosti vide",
+    "kpiRevenue": "Promet danas",
+    "kpiOrders": "Narudžbe",
+    "kpiOccupancy": "Popunjenost"
   },
   "demo": {
     "frontDesk": "Front Desk",

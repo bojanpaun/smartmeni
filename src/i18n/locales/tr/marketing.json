@@ -36,7 +36,18 @@
     "spa": "Spa rezervasyonu",
     "reservation": "Masa rezervasyonu",
     "staff": "Personel portalı",
-    "guest": "Misafir portalı"
+    "guest": "Misafir portalı",
+    "adminBadge": "Yönetim",
+    "adminTitle": "Gerçek yönetim paneline girin",
+    "adminSub": "Sanki kendi işletmenizmiş gibi tüm panel — modülleri keşfedin, verileri değiştirin, hiçbir şeyi bozamazsınız.",
+    "adminF1": "Panel, KPI-ler ve başlangıç adımları",
+    "adminF2": "Menü düzenleyici, masalar ve rezervasyonlar",
+    "adminF3": "Ön büro, odalar, folyo ve tahsilat",
+    "adminF4": "Stok, İK, analitik ve spa",
+    "publicLabel": "Herkese açık yüzeyler — misafirlerinizin gördüğü",
+    "kpiRevenue": "Bugünkü ciro",
+    "kpiOrders": "Siparişler",
+    "kpiOccupancy": "Doluluk"
   },
   "demo": {
     "frontDesk": "Front Desk",

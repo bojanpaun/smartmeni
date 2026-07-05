@@ -161,7 +161,9 @@ export default function Menu() {
   }, [slug])
 
   useEffect(() => {
-    if (!slug || slug === 'demo') { setLoadingData(false); return }
+    // slug 'demo' JESTE pravi tenant (Adriatik, is_demo) — učitaj ga kao i svaki drugi.
+    // Bez slug-a (nema rute) ostaje statični DEMO_DATA fallback.
+    if (!slug) { setLoadingData(false); return }
     const load = async () => {
       const { data: rest } = await supabase
         .from('restaurants').select('*').eq('slug', slug).single()
@@ -200,10 +202,15 @@ export default function Menu() {
   }, [slug])
 
   const isDemo = !slug || slug === 'demo' || !realData
-  const data = isDemo ? DEMO_DATA : null
-  const r = isDemo ? data.restaurant : realData?.restaurant
-  // AI prevodi tenant-sadržaja za aktivni jezik (demo ostaje na izvoru/en kolonama).
-  const tr = useContentTranslations(isDemo ? null : r?.id)
+  // isDemo (gore) = demo-POGODNOSTI (naručivanje/konobar/'Sto 4'/QR bypass, lažni order flow).
+  // noData = pravi tenant NIJE učitan (nema slug-a ili fetch pao) → statični DEMO_DATA fallback.
+  // Razdvojeno da /demo (slug 'demo' = pravi is_demo tenant) prikaže SEEDOVANE podatke
+  // (slike/ponuda/paket/AI prevodi), a da demo-pogodnosti ostanu uključene.
+  const noData = !realData
+  const data = noData ? DEMO_DATA : null
+  const r = noData ? data.restaurant : realData?.restaurant
+  // AI prevodi tenant-sadržaja za aktivni jezik (statični fallback nema id → null).
+  const tr = useContentTranslations(noData ? null : r?.id)
   const tpl = getTemplate(r?.template, r?.color)
   const onlineReservations = isDemo ? true : (r?.online_reservations ?? false)
   const guestRegistration = isDemo ? true : (r?.guest_registration_enabled ?? true)
@@ -254,31 +261,31 @@ export default function Menu() {
   const hotelVis = (isDemo || !hasHotelVertical) ? 'off' : (r?.hotel_visibility || 'off')
   const spaVis = (isDemo || !hasHotelVertical) ? 'off' : (r?.spa_visibility || 'off')
   const tableNumber = isDemo ? 'Sto 4' : (new URLSearchParams(window.location.search).get('table') || '')
-  const currentCategories = isDemo ? data.categories : realData?.categories || []
-  const allItems = isDemo
+  const currentCategories = noData ? data.categories : realData?.categories || []
+  const allItems = noData
     ? Object.values(data.items).flat()
     : realData?.items || []
-  const items = isDemo
+  const items = noData
     ? (data.items[activeCat] || [])
     : sortMenuItems(allItems.filter(i => i.category_id === activeCat))
   const isEn = i18n.language === 'en'
-  const specialItems = allItems.filter(i => isDemo ? i.special : i.is_special)
+  const specialItems = allItems.filter(i => noData ? i.special : i.is_special)
 
   // Paketi (Faza 2): aktivni paketi unutar perioda važenja → u "Ponudi dana".
   // Ušteda se računa iz aktuelnih cijena artikala (priceById), bundle_price je naplaćeno.
   const priceById = Object.fromEntries(allItems.map(i => [i.id, i.price]))
   const bundleItemsByBundle = (() => {
     const m = {}
-    for (const r of (isDemo ? [] : realData?.bundleItems || [])) {
+    for (const r of (noData ? [] : realData?.bundleItems || [])) {
       if (!m[r.bundle_id]) m[r.bundle_id] = []
       m[r.bundle_id].push(r)
     }
     return m
   })()
-  const liveBundles = isDemo ? [] : (realData?.bundles || []).filter(isBundleLive)
+  const liveBundles = noData ? [] : (realData?.bundles || []).filter(isBundleLive)
 
   // Reklame partnera (Faza 3): aktivne reklame unutar perioda, grupisane po poziciji.
-  const liveAds = isDemo ? [] : (realData?.ads || []).filter(isPromoLive)
+  const liveAds = noData ? [] : (realData?.ads || []).filter(isPromoLive)
   const renderAds = (place) => {
     const list = liveAds.filter(a => a.placement === place)
     if (list.length === 0) return null
@@ -695,7 +702,7 @@ export default function Menu() {
                 <div key={it.id} className={styles.specialCard} onClick={() => setSelectedItem(it)}>
                   <div className={styles.specialCardImg} style={it.image_url ? undefined : { background: it.bg || tpl.catBg || '#e0f5ec' }}>
                     {it.image_url
-                      ? <img src={it.image_url} alt={nm} loading="lazy" decoding="async" />
+                      ? <img src={it.image_url} alt={nm} loading="lazy" decoding="async" onError={e => { const p = e.currentTarget.parentElement; if (p) p.textContent = it.emoji || '🍽️' }} />
                       : <span className={styles.specialCardEmoji}>{it.emoji}</span>}
                   </div>
                   <div className={styles.specialCardInfo}>
@@ -760,7 +767,7 @@ export default function Menu() {
           <div key={item.id} className={styles.item} onClick={() => setSelectedItem(item)}>
             <div className={styles.itemEmoji} style={{ background: item.bg || '#e0f5ec' }}>
               {item.image_url
-                ? <img src={item.image_url} alt={item.name} loading="lazy" decoding="async" style={{width:'100%',height:'100%',objectFit:'cover',borderRadius:10}} />
+                ? <img src={item.image_url} alt={item.name} loading="lazy" decoding="async" onError={e => { const p = e.currentTarget.parentElement; if (p) p.textContent = item.emoji || '🍽️' }} style={{width:'100%',height:'100%',objectFit:'cover',borderRadius:10}} />
                 : item.emoji}
             </div>
             <div className={styles.itemBody}>
@@ -993,7 +1000,7 @@ export default function Menu() {
           <div className={styles.sheet} onClick={e => e.stopPropagation()}>
             <button className={styles.sheetClose} onClick={() => setSelectedItem(null)}>✕</button>
             {selectedItem.image_url
-              ? <img src={selectedItem.image_url} alt={selectedItem.name} loading="lazy" decoding="async" style={{width:'100%',height:160,objectFit:'cover',borderRadius:12,marginBottom:12}} />
+              ? <img src={selectedItem.image_url} alt={selectedItem.name} loading="lazy" decoding="async" onError={e => { e.currentTarget.style.display = 'none' }} style={{width:'100%',height:160,objectFit:'cover',borderRadius:12,marginBottom:12}} />
               : <div className={styles.sheetEmoji}>{selectedItem.emoji}</div>
             }
             <div className={styles.sheetName}>{tr('menu_item', selectedItem.id, 'name', isEn ? (selectedItem.name_en || selectedItem.nameEn || selectedItem.name) : selectedItem.name)}</div>

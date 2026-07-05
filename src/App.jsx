@@ -13,6 +13,7 @@ const AdminLayout = lazy(() => import('./layouts/AdminLayout'))
 const PendingApproval = lazy(() => import('./platform/auth/PendingApproval'))
 const Onboarding      = lazy(() => import('./platform/auth/Onboarding'))
 const UpgradePrompt   = lazy(() => import('./components/shared/UpgradePrompt'))
+const DemoTour        = lazy(() => import('./platform/admin/DemoTour'))
 
 const Landing              = lazy(() => import('./platform/Landing'))
 const Login                = lazy(() => import('./platform/auth/Login'))
@@ -192,6 +193,7 @@ function TenantGate({ children }) {
 }
 
 function AdminRoute({ children }) {
+  const { isDemo } = usePlatform()
   return (
     <ProtectedRoute>
       <ApprovalGate>
@@ -204,6 +206,9 @@ function AdminRoute({ children }) {
                   <Suspense fallback={<LoadingSpinner fullPage />}>
                     {children}
                   </Suspense>
+                  {isDemo && (
+                    <Suspense fallback={null}><DemoTour /></Suspense>
+                  )}
                 </AdminLayout>
               </Suspense>
             </SupportProvider>

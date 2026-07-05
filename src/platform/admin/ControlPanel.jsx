@@ -286,6 +286,7 @@ export default function ControlPanel() {
       <TaskBar />
 
       {/* ── Početni koraci (onboarding checklist; čestitka kad su svi done, ručno sakriva) ── */}
+      <div data-tour="checklist">
       <OnboardingChecklist
         data={data}
         steps={checklist.steps}
@@ -295,6 +296,7 @@ export default function ControlPanel() {
         setDismissed={checklist.setDismissed}
         loaded={checklist.loaded}
       />
+      </div>
 
       {/* ── KPI row (prilagodljiv, per-korisnik) ── */}
       <div className={styles.kpiHead}>
@@ -307,7 +309,7 @@ export default function ControlPanel() {
           </button>
         )}
       </div>
-      <div className={styles.kpiRow}>
+      <div className={styles.kpiRow} data-tour="kpis">
         {shownKpis.map(k => (
           <div key={k.key} className={styles.kpiCard}>
             <div className={styles.kpiIcon}>{k.icon}</div>
@@ -327,7 +329,7 @@ export default function ControlPanel() {
 
       {/* ── Restoran vertical ── */}
       {hasVertical('restaurant') && (
-        <div className={styles.section}>
+        <div className={styles.section} data-tour="sec-restaurant">
           <div className={styles.verticalHead}>
             <span className={styles.verticalEmoji}>🍽️</span>
             <div>
@@ -348,7 +350,7 @@ export default function ControlPanel() {
       {/* ── Hotel vertical (vidljivost po izabranoj vertikali; stranice iza
               hotel_core paywalla) ── */}
       {hasVertical('hotel') && (
-        <div className={styles.section}>
+        <div className={styles.section} data-tour="sec-hotel">
           <div className={styles.verticalHead}>
             <span className={styles.verticalEmoji}>🏨</span>
             <div>
@@ -382,7 +384,7 @@ export default function ControlPanel() {
 
       {/* ── Upravljanje (dijeljeni moduli) ── */}
       {(upravljanjeMods.length > 0 || isOwner() || isSuperAdmin()) && (
-        <div className={styles.section}>
+        <div className={styles.section} data-tour="sec-manage">
           <div className={styles.verticalHead}>
             <span className={styles.verticalEmoji}>📋</span>
             <div>

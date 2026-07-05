@@ -155,11 +155,8 @@ export default function Landing() {
             <p className={styles.heroSub}>{t('hero.sub')}</p>
             <div className={styles.heroActions}>
               <a href="/registracija" className={styles.btnPrimary}>{t('hero.ctaPrimary')}</a>
-              <button type="button" className={styles.btnGhost} onClick={enterDemo} disabled={demoLoading}>
-                {demoLoading ? `${t('hero.demoLoading')}…` : `▶ ${t('hero.demoCta')}`}
-              </button>
+              <a href="#demo" className={styles.btnGhost}>▶ {t('hero.demoCta')}</a>
             </div>
-            {demoErr && <div className={styles.heroDemoErr}>{demoErr}</div>}
             <div className={styles.heroTrust}>
               <div className={styles.trustPills}>
                 <span className={styles.trustPill}>{t('hero.trust1')}</span>
@@ -243,11 +240,48 @@ export default function Landing() {
         </div>
       </section>
 
-      {/* ── DEMO UŽIVO (javne površine demo objekta) ── */}
+      {/* ── DEMO UŽIVO (admin demo panel + javne površine demo objekta) ── */}
       <section className={styles.showcase} id="demo">
         <div className={styles.showcaseInner}>
           <h2 className={styles.showcaseTitle}>{t('showcase.title')}</h2>
           <p className={styles.showcaseSub}>{t('showcase.sub')}</p>
+
+          {/* Admin demo panel — primarni ulaz u pravu administraciju */}
+          <div className={styles.demoAdmin}>
+            <div className={styles.demoAdminCopy}>
+              <span className={styles.demoAdminBadge}>{t('showcase.adminBadge')}</span>
+              <h3 className={styles.demoAdminTitle}>{t('showcase.adminTitle')}</h3>
+              <p className={styles.demoAdminSub}>{t('showcase.adminSub')}</p>
+              <ul className={styles.demoAdminList}>
+                <li>{t('showcase.adminF1')}</li>
+                <li>{t('showcase.adminF2')}</li>
+                <li>{t('showcase.adminF3')}</li>
+                <li>{t('showcase.adminF4')}</li>
+              </ul>
+              <div className={styles.demoAdminActions}>
+                <button type="button" className={styles.demoAdminBtn} onClick={enterDemo} disabled={demoLoading}>
+                  {demoLoading ? `${t('hero.demoLoading')}…` : `▶ ${t('hero.demoCta')}`}
+                </button>
+                <span className={styles.demoAdminCred}>demo@restby.me · demo1234</span>
+              </div>
+              {demoErr && <div className={styles.demoAdminErr}>{demoErr}</div>}
+            </div>
+            <div className={styles.demoAdminVisual} aria-hidden="true">
+              <div className={styles.demoAdminBar}>
+                <span/><span/><span/><em>restby.me/admin</em>
+              </div>
+              <div className={styles.demoAdminKpis}>
+                <div className={styles.demoAdminKpi}><b>€1.240</b><small>{t('showcase.kpiRevenue')}</small></div>
+                <div className={styles.demoAdminKpi}><b>18</b><small>{t('showcase.kpiOrders')}</small></div>
+                <div className={styles.demoAdminKpi}><b>82%</b><small>{t('showcase.kpiOccupancy')}</small></div>
+              </div>
+              <div className={styles.demoAdminChart}>
+                {[40,62,48,78,58,96,70].map((h,i) => <span key={i} style={{height:`${h}%`}}/>)}
+              </div>
+            </div>
+          </div>
+
+          <p className={styles.showcasePublicLabel}>{t('showcase.publicLabel')}</p>
           <div className={styles.showcaseGrid}>
             {SHOWCASE.map(c => (
               <a key={c.k} href={c.path} target="_blank" rel="noopener noreferrer" className={styles.scCard}>

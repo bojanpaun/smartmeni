@@ -36,7 +36,18 @@
     "spa": "Rezervim spa",
     "reservation": "Rezervim tavoline",
     "staff": "Portali i stafit",
-    "guest": "Portali i mysafirëve"
+    "guest": "Portali i mysafirëve",
+    "adminBadge": "Administrimi",
+    "adminTitle": "Hyni në panelin e vërtetë të administrimit",
+    "adminSub": "I gjithë paneli sikur të ishte biznesi juaj — eksploro modulet, ndrysho të dhënat, nuk prish dot asgjë.",
+    "adminF1": "Paneli, KPI-të dhe hapat fillestarë",
+    "adminF2": "Redaktori i menysë, tavolinat dhe rezervimet",
+    "adminF3": "Recepsioni, dhomat, folio dhe faturimi",
+    "adminF4": "Inventari, HR, analitika dhe spa",
+    "publicLabel": "Sipërfaqet publike — çfarë shohin mysafirët",
+    "kpiRevenue": "Të ardhurat sot",
+    "kpiOrders": "Porositë",
+    "kpiOccupancy": "Zënia"
   },
   "demo": {
     "frontDesk": "Front Desk",

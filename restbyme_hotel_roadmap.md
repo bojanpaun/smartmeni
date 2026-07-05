@@ -71,7 +71,25 @@ pa guest kartica vodi na registraciju — pravi guest-portal demo bi tražio ano
 amenities, CTA, kontakt) sa verifikovanim Unsplash slikama — umjesto static fallback-a. `reset_demo_tenant`
 ga poziva poslije re-seeda (jer reset briše landing_pages). Migracija `20260703140000`.
 
-**GDJE SMO STALI — demo je FUNKCIONALNO KOMPLETAN (D1–D3 + showcase + landing).** Otvoreno/opciono sljedeće:
+**DE — obogaćivanje demo prezentacije (LOKALNO ZELENO, ČEKA `db:push` + `git push`, 2026-07-03):** 5 tačaka po
+zahtjevu „vizuelni dio landinga bolje": **(1)** meni — `menu_items.image_url` (Unsplash) na svih 6 + 2 `is_special`
+(compare_at_price) + `menu_bundles` paket „Adriatik meni za dvoje" (3 stavke); GuestMenu dobio `onError→emoji`
+fallback (grid/specials/detail). **(2)** hotel — `room_types.images` (Standard/Deluxe). Migr. `20260703160000`
+(CREATE OR REPLACE `seed_demo_tenant` + `SELECT reset_demo_tenant()` jer seed je ON CONFLICT DO NOTHING).
+**(3)** sajtovi — restoran `hours_location` + hotel novi `location` blok dobili `maps_embed_url` (Budva,
+`output=embed` bez API ključa), restoran galerija 3→5. Migr. `20260703170000` (CREATE OR REPLACE `seed_demo_landing`).
+**(4)** Landing #demo redizajn — hero „demo" dugme → sidro `#demo`; `enterDemo()` login preseljen u novi
+**admin-demo panel** (badge+lista+KPI vizual, tamnozeleni) na vrhu #demo, pa „Javne površine" grid; `marketing.showcase`
++11 kluč. ×7. **(5)** **Vođeni tur** `DemoTour.jsx` — reflektor overlay (fixed, box-shadow rupa) kroz hub, koraci
+vezani za `data-tour` sidra u ControlPanel + intro/outro; auto-start jednom po sesiji, „Pokreni obilazak" pill, ←/→/Esc;
+mount u `AdminRoute` **lazy + `{isDemo}`** (3.9 kB chunk, van init); `admin` ns +20 kluč. ×7. **(6)** **`/demo` meni →
+pravi tenant**: live provjera otkrila da je GuestMenu presretao slug `demo` na statični DEMO_DATA; fix — fetch i za `demo`,
+uveden `noData` za izvor podataka, `isDemo` gating netaknut (order flow bez rizika). Verifikovano: db:reset čist,
+SQL OK, i18n-check OK, build OK (init 154.78 kB < 155), **371 pgTAP + unit PASS**. **LIVE (Playwright):** landing panel ✓,
+tur (reflektor) ✓, `/demo` meni pravi tenant (slike+paket+specijali, korpa €41.50) ✓, hotel sobe+slike ✓; mapa se ne
+crta u headless-u (Google tiles) ali iframe/CSP OK → provjeriti u pravom browseru. **ČEKA `db:push` + `git push`.**
+
+**GDJE SMO STALI — demo je FUNKCIONALNO KOMPLETAN (D1–D3 + showcase + landing + DE obogaćivanje).** Otvoreno/opciono sljedeće:
 - **Pravi guest-portal demo** (jedini nepotpun dio): anon guest login je gejtovan; treba anon RPC za lookup
   ILI predodobren demo gost sa auth-om. Za sada guest kartica → registracija.
 - **Google OAuth:** „Publish" consent screen za javnost (sad Testing = samo Test users); Microsoft po potrebi.

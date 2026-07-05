@@ -36,7 +36,18 @@
     "spa": "Spa booking",
     "reservation": "Table reservation",
     "staff": "Staff portal",
-    "guest": "Guest portal"
+    "guest": "Guest portal",
+    "adminBadge": "Administration",
+    "adminTitle": "Step into the real admin panel",
+    "adminSub": "The whole dashboard as if it were your business — explore the modules, change data, you cannot break anything.",
+    "adminF1": "Dashboard, KPIs and getting-started steps",
+    "adminF2": "Menu editor, tables and reservations",
+    "adminF3": "Front desk, rooms, folio and billing",
+    "adminF4": "Inventory, HR, analytics and spa",
+    "publicLabel": "Public surfaces — what your guests see",
+    "kpiRevenue": "Revenue today",
+    "kpiOrders": "Orders",
+    "kpiOccupancy": "Occupancy"
   },
   "demo": {
     "frontDesk": "Front Desk",
