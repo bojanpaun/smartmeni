@@ -103,10 +103,21 @@ Migracija `20260705120000` + pgTAP `074` (demo vraća prijavu; ne-demo 0). **374
 verifikovano (Ana Nikolić · Deluxe 201 · 3 noći · €285). (Restoranski guest-account `/prijava` ostaje gejtovan —
 tanji feature, van demo showcase-a; može anon RPC kasnije po istom šablonu.)
 
-**GDJE SMO STALI — demo je KOMPLETAN (D1–D3 + showcase + landing + DE obogaćivanje + guest-portal).** Otvoreno/opciono:
+**UI afordansa /admin kartica modula (DEPLOYOVANO 2026-07-05):** kartice modula na hub-u jasnije
+čitljive kao dugmad bez redizajna — `6fa1eb2` (stalna → strelica gornji-desni + `:active` utisak +
+`:focus-visible`), pa `22775f7` (Micka feedback: default preslab → strelica = **zeleni kružni badge**
+vidljiv i bez hovera, popuni se punom zelenom na hover; diskretna sjenka u mirovanju + definisanija
+ivica `primary-muted`). Layout/boje netaknuti. Potvrđeno.
+
+**GDJE SMO STALI — demo je KOMPLETAN (D1–D3 + showcase + landing + DE obogaćivanje + guest-portal) + UI polish.** Otvoreno/opciono:
 - **Google OAuth:** „Publish" consent screen za javnost (sad Testing = samo Test users); Microsoft po potrebi.
 - Fino podešavanje demo landing teksta/slika (self-host slika umjesto Unsplash) — kozmetika.
 - Sitno: vizuelna provjera Google mape (`/demo/hotel`, `/demo/home`) u pravom browseru.
+
+**➡️ SLJEDEĆE (2026-07-05): RENTAL vertikala — provjera u praksi.** RENT-0a admin core je na prod-u
+(assets/pricing/calendar/bookings/settings), javni booking NIJE (treba anon SECURITY DEFINER RPC-ovi).
+Cilj: prošetati admin rental tok uživo (lokalni seed test tenant ima `rental` vertikalu) i vidjeti
+šta radi / šta fali prije nastavka RENT-0b. Detalji: memorija [[project-rental-vertical-wip]].
 
 ---
 
