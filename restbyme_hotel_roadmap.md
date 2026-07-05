@@ -94,11 +94,19 @@ po defaultu (localStorage, rješava „otvara se poslije refresha"); `33cfc02` u
 badge + tint); `59bd71b` landing „Javne površine" = zelena demo-zona + „Dio demo-a" chip + tap-abilne kartice
 („Otvori ↗" dugme-pilula). **Ostaje samo: vizuelna provjera Google mape u pravom browseru.**
 
-**GDJE SMO STALI — demo je FUNKCIONALNO KOMPLETAN (D1–D3 + showcase + landing + DE obogaćivanje).** Otvoreno/opciono sljedeće:
-- **Pravi guest-portal demo** (jedini nepotpun dio): anon guest login je gejtovan; treba anon RPC za lookup
-  ILI predodobren demo gost sa auth-om. Za sada guest kartica → registracija.
+**✅ Guest-portal demo ZAVRŠEN (DEPLOYOVANO 2026-07-05, commit `89de0f8`):** hotelski Guest App (`/demo/guest`)
+auto-login-uje demo gosta (seedovana Anina `checked_in` prijava) preko novog anon RPC-a
+`get_demo_guest_reservation` (SECURITY DEFINER, gejtovan `restaurants.is_demo` JOIN → ne-demo tenant 0 redova).
+GuestAppPage: effect na `restaurant.is_demo` zove RPC i puni session (bez koda/naloga) → prospekt vidi
+boravak/folio/spa/zahtjeve. Showcase kartica „Guest portal" repointana `/demo/registracija` → `/demo/guest`.
+Migracija `20260705120000` + pgTAP `074` (demo vraća prijavu; ne-demo 0). **374 pgTAP PASS**, build OK, LIVE
+verifikovano (Ana Nikolić · Deluxe 201 · 3 noći · €285). (Restoranski guest-account `/prijava` ostaje gejtovan —
+tanji feature, van demo showcase-a; može anon RPC kasnije po istom šablonu.)
+
+**GDJE SMO STALI — demo je KOMPLETAN (D1–D3 + showcase + landing + DE obogaćivanje + guest-portal).** Otvoreno/opciono:
 - **Google OAuth:** „Publish" consent screen za javnost (sad Testing = samo Test users); Microsoft po potrebi.
 - Fino podešavanje demo landing teksta/slika (self-host slika umjesto Unsplash) — kozmetika.
+- Sitno: vizuelna provjera Google mape (`/demo/hotel`, `/demo/home`) u pravom browseru.
 
 ---
 
