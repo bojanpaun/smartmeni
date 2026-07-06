@@ -34,5 +34,6 @@
   "errBook": "Greška pri rezervaciji.",
   "errPay": "Greška pri plaćanju.",
   "fromLabel": "od",
-  "perNightShort": "/ noć"
+  "perNightShort": "/ noć",
+  "allLocations": "Sve lokacije"
 }

@@ -34,5 +34,6 @@
   "errBook": "Rezervasyon hatası.",
   "errPay": "Ödeme hatası.",
   "fromLabel": "",
-  "perNightShort": "/ gece"
+  "perNightShort": "/ gece",
+  "allLocations": "Tüm konumlar"
 }

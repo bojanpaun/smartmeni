@@ -34,5 +34,6 @@
   "errBook": "Booking error.",
   "errPay": "Payment error.",
   "fromLabel": "from",
-  "perNightShort": "/ night"
+  "perNightShort": "/ night",
+  "allLocations": "All locations"
 }

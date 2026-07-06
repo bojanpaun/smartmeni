@@ -35,6 +35,15 @@
 .backBtn:hover { color: #0d7a52; }
 .datesLabel { font-size: .88rem; color: #5a7a6a; margin-bottom: 14px; font-weight: 600; }
 
+.locFilter { display: flex; flex-wrap: wrap; gap: 8px; margin-bottom: 16px; }
+.locChip {
+  font-family: inherit; font-size: .82rem; font-weight: 600; cursor: pointer;
+  padding: 7px 13px; border-radius: 999px; border: 1px solid #d0e4dc;
+  background: #fff; color: #5a7a6a; transition: all .15s;
+}
+.locChip:hover { border-color: #0d7a52; color: #0d7a52; }
+.locChipOn { background: #0d7a52; border-color: #0d7a52; color: #fff; }
+
 .assetList { display: flex; flex-direction: column; gap: 14px; }
 .assetCard {
   display: flex; gap: 14px; background: #fff; border: 1px solid #dde8e2; border-radius: 14px;

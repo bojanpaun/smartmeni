@@ -1,4 +1,4 @@
-import { useState, useEffect } from 'react'
+import { useState, useEffect, useMemo } from 'react'
 import { useParams } from 'react-router-dom'
 import { useTranslation } from 'react-i18next'
 import { supabase } from '../../../lib/supabase'
@@ -53,6 +53,11 @@ export default function RentalBookingPublicPage() {
   const [loading, setLoading] = useState(false)
   const [error, setError] = useState('')
   const [paid, setPaid] = useState(false)
+  const [locFilter, setLocFilter] = useState('')   // filter po lokaciji (client-side)
+
+  const locLabel = (a) => [a.location_name, a.city].filter(Boolean).join(', ')
+  const locations = useMemo(() => [...new Set(assets.map(locLabel).filter(Boolean))], [assets])
+  const shownAssets = locFilter ? assets.filter(a => locLabel(a) === locFilter) : assets
 
   const cur = restaurant?.currency || 'EUR'
 
@@ -83,6 +88,7 @@ export default function RentalBookingPublicPage() {
     setLoading(false)
     if (e) { setError(t('errSearch')); return }
     setAssets(data || [])
+    setLocFilter('')
     setSearched(true)
     setStep('results')
   }
@@ -208,9 +214,17 @@ export default function RentalBookingPublicPage() {
           <>
             <button className={styles.backBtn} onClick={() => setStep('search')}>← {t('changeSearch')}</button>
             <div className={styles.datesLabel}>{start} → {end} · {guests} {t('guestsShort')}</div>
-            {assets.length === 0 && <div className={styles.empty}>{t('noneAvailable')}</div>}
+            {locations.length > 1 && (
+              <div className={styles.locFilter}>
+                <button className={`${styles.locChip} ${!locFilter ? styles.locChipOn : ''}`} onClick={() => setLocFilter('')}>{t('allLocations')}</button>
+                {locations.map(l => (
+                  <button key={l} className={`${styles.locChip} ${locFilter === l ? styles.locChipOn : ''}`} onClick={() => setLocFilter(l)}>📍 {l}</button>
+                ))}
+              </div>
+            )}
+            {shownAssets.length === 0 && <div className={styles.empty}>{t('noneAvailable')}</div>}
             <div className={styles.assetList}>
-              {assets.map(a => (
+              {shownAssets.map(a => (
                 <div key={a.asset_id} className={styles.assetCard}>
                   <div className={styles.assetThumb}>
                     {(a.photos || []).length

@@ -34,5 +34,6 @@
   "errBook": "Ошибка бронирования.",
   "errPay": "Ошибка оплаты.",
   "fromLabel": "от",
-  "perNightShort": "/ ночь"
+  "perNightShort": "/ ночь",
+  "allLocations": "Все локации"
 }
