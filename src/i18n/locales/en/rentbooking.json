@@ -40,5 +40,6 @@
   "viewMap": "Map",
   "payOnArrivalDone": "Your booking is confirmed. Payment is made on arrival.",
   "noOnlinePayment": "Online payment is currently unavailable — you'll pay on arrival.",
-  "doneSubArrival": "We've sent you the booking details."
+  "doneSubArrival": "We've sent you the booking details.",
+  "seoTitle": "Book accommodation"
 }

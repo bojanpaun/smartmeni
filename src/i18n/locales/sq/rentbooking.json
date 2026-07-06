@@ -40,5 +40,6 @@
   "viewMap": "Harta",
   "payOnArrivalDone": "Rezervimi juaj u konfirmua. Pagesa bëhet në mbërritje.",
   "noOnlinePayment": "Pagesa online aktualisht nuk është e disponueshme — do të paguani në mbërritje.",
-  "doneSubArrival": "Ju kemi dërguar detajet e rezervimit."
+  "doneSubArrival": "Ju kemi dërguar detajet e rezervimit.",
+  "seoTitle": "Rezervo akomodim"
 }

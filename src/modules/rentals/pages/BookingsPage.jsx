@@ -75,7 +75,7 @@ export default function BookingsPage() {
     refetch()
     // Email potvrda gostu (fire-and-forget) — samo ako je unesen email.
     if (form.guest_email.trim()) {
-      supabase.functions.invoke('send-rental-email', { body: { booking_id: bk.id } }).catch(() => {})
+      supabase.functions.invoke('send-rental-email', { body: { booking_id: bk.id, lang: restaurant.admin_language } }).catch(() => {})
     }
   }
 

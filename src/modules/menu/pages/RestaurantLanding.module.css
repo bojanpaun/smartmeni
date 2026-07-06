@@ -119,6 +119,25 @@
 
 .heroCta:hover { opacity: 0.9; transform: translateY(-1px); }
 
+/* Sekundarni cross-link ka najmu (samo ako tenant ima rental vertikalu). */
+.rentalLink {
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+  margin-top: 12px;
+  background: rgba(255, 255, 255, 0.16);
+  color: #fff;
+  padding: 11px 22px;
+  border-radius: 50px;
+  font-size: 14px;
+  font-weight: 600;
+  border: 1px solid rgba(255, 255, 255, 0.4);
+  cursor: pointer;
+  transition: background 0.15s, transform 0.15s;
+  font-family: inherit;
+}
+.rentalLink:hover { background: rgba(255, 255, 255, 0.28); transform: translateY(-1px); }
+
 /* ── Sections ── */
 .section {
   max-width: 720px;

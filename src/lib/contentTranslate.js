@@ -108,6 +108,14 @@ const LANDING_FIELDS = {
     reviews:    { array: 'reviews', fields: ['text'] },
     faq:        { array: 'faq', fields: ['question', 'answer'] },
   },
+  rental: {
+    hero:       ['title', 'subtitle', 'cta_text'],
+    about:      ['text'],
+    amenities:  { lines: 'items' },
+    cta_banner: ['title', 'subtitle', 'btn_text'],
+    contact:    ['hours'],
+    reviews:    { array: 'reviews', fields: ['text'] },
+  },
 }
 
 // Gradi stabilnu putanju polja (isti oblik pri pisanju i čitanju — bez drift-a).

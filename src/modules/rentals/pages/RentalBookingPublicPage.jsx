@@ -5,6 +5,7 @@ import { supabase } from '../../../lib/supabase'
 import { formatMoney, toMinorUnits } from '../../../lib/currencies'
 import { goToPaymentSession } from '../../../lib/payments'
 import { useContentTranslations } from '../../../lib/useContentTranslations'
+import { useSeo } from '../../../lib/useSeo'
 import LanguageSwitcher from '../../../i18n/LanguageSwitcher'
 import styles from './RentalBookingPublic.module.css'
 
@@ -125,7 +126,7 @@ export default function RentalBookingPublicPage() {
     setStep('done')
     // Email potvrda (fire-and-forget) — samo ako je gost ostavio email.
     if (form.email?.trim()) {
-      supabase.functions.invoke('send-rental-email', { body: { booking_id: data.booking_id } }).catch(() => {})
+      supabase.functions.invoke('send-rental-email', { body: { booking_id: data.booking_id, lang: i18n.language } }).catch(() => {})
     }
   }
 
@@ -156,6 +157,8 @@ export default function RentalBookingPublicPage() {
   const nm = (a) => tr('rental_asset', a.asset_id, 'name', a.name)
   // RENT-PAY: rezervacija „po dolasku" (bez online depozita) — utiče na podnaslov + CTA na done koraku.
   const bookingOnArrival = booking ? (booking.payment_type === 'on_arrival' || !(booking.deposit > 0)) : false
+
+  useSeo(restaurant?.name ? `${restaurant.name} · ${t('seoTitle')}` : null, t('subtitle'))
 
   if (loadingRest) return <div className={styles.center}><div className={styles.spinner} /></div>
   if (!restaurant || !(restaurant.active_verticals || []).includes('rental')) {

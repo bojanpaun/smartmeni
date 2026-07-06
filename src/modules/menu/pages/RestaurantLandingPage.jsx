@@ -101,6 +101,9 @@ export default function RestaurantLandingPage() {
                 <p className={styles.restDesc}>{trL(L('hero', 'subtitle'), block.data.subtitle) || tr('restaurant', restaurant?.id, 'description', restaurant.description)}</p>
               )}
               <button className={styles.heroCta} onClick={() => navigate(`/${slug}`)}>🍽️ {t('menu')}</button>
+              {(restaurant.active_verticals || []).includes('rental') && (
+                <button className={styles.rentalLink} onClick={() => navigate(`/${slug}/rentals`)}>🏖️ {t('rentalCta')}</button>
+              )}
             </div>
           </div>
         )

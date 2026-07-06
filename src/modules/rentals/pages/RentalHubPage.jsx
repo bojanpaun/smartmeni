@@ -4,6 +4,8 @@ import { useTranslation } from 'react-i18next'
 import { supabase } from '../../../lib/supabase'
 import { formatMoney } from '../../../lib/currencies'
 import { useContentTranslations } from '../../../lib/useContentTranslations'
+import { landingFieldPath } from '../../../lib/contentTranslate'
+import { useSeo } from '../../../lib/useSeo'
 import LanguageSwitcher from '../../../i18n/LanguageSwitcher'
 import styles from './RentalHub.module.css'
 
@@ -50,8 +52,14 @@ export default function RentalHubPage() {
 
   const nm = (a) => tr('rental_asset', a.asset_id, 'name', a.name)
   const desc = (a) => tr('rental_asset', a.asset_id, 'description', a.description)
+  // AI prevod landing blokova (ogledalo HotelLandingPage): prevodi žive u content_translations
+  // (okida ih RentalLandingEditor), čita se preko stabilne putanje polja. me/bez prevoda → izvor.
+  const L = (...parts) => landingFieldPath('rental', ...parts)
+  const trL = (path, fallback) => tr('landing_block', restaurant?.id, path, fallback)
   const cur = restaurant?.currency || 'EUR'
   const brand = restaurant?.color || '#0d7a52'
+
+  useSeo(restaurant?.name ? `${restaurant.name} · ${t('seoTitle')}` : null, tr('restaurant', restaurant?.id, 'description', restaurant?.description) || t('tagline'))
 
   if (loading) return <div className={styles.center}><div className={styles.spinner} /></div>
   if (!restaurant || !(restaurant.active_verticals || []).includes('rental')) {
@@ -106,12 +114,12 @@ export default function RentalHubPage() {
         <LanguageSwitcher variant="dark" />
       </div>
       <div className={styles.heroInner}>
-        <h1 className={styles.heroTitle}>{data?.title || restaurant.description || t('tagline')}</h1>
+        <h1 className={styles.heroTitle}>{trL(L('hero', 'title'), data?.title) || restaurant.description || t('tagline')}</h1>
         {data?.subtitle
-          ? <p className={styles.heroLoc}>{data.subtitle}</p>
+          ? <p className={styles.heroLoc}>{trL(L('hero', 'subtitle'), data.subtitle)}</p>
           : restaurant.location && <p className={styles.heroLoc}>📍 {restaurant.location}</p>}
         <button className={styles.heroCta} style={{ color: brand }} onClick={() => navigate(`/${slug}/rent`)}>
-          {data?.cta_text || t('bookNow')} →
+          {trL(L('hero', 'cta_text'), data?.cta_text) || t('bookNow')} →
         </button>
       </div>
     </header>
@@ -127,7 +135,7 @@ export default function RentalHubPage() {
         <div className={styles.contactRows}>
           {phone && <a href={`tel:${phone}`} className={styles.contactRow}>📞 {phone}</a>}
           {data?.email && <a href={`mailto:${data.email}`} className={styles.contactRow}>✉️ {data.email}</a>}
-          {data?.hours && <div className={styles.contactRow}>⏰ {data.hours}</div>}
+          {data?.hours && <div className={styles.contactRow}>⏰ {trL(L('contact', 'hours'), data.hours)}</div>}
           {loc && <div className={styles.contactRow}>📍 {loc}</div>}
         </div>
       </section>
@@ -144,7 +152,7 @@ export default function RentalHubPage() {
         return (
           <section key={idx} className={styles.section}>
             <div className={styles.aboutWrap} data-layout={d.layout || 'image-right'}>
-              <p className={styles.aboutText}>{d.text}</p>
+              <p className={styles.aboutText}>{trL(L('about', 'text'), d.text)}</p>
               {d.image_url && d.layout !== 'text-only' && <img src={d.image_url} alt="" loading="lazy" decoding="async" className={styles.aboutImg} />}
             </div>
           </section>
@@ -167,7 +175,7 @@ export default function RentalHubPage() {
         return (
           <section key={idx} className={styles.section}>
             <div className={styles.amenitiesGrid}>
-              {items.map((it, i) => <div key={i} className={styles.amenityItem}>{it}</div>)}
+              {items.map((it, i) => <div key={i} className={styles.amenityItem}>{trL(L('amenities', 'items', i), it)}</div>)}
             </div>
           </section>
         )
@@ -181,7 +189,7 @@ export default function RentalHubPage() {
               {reviews.map((r, i) => (
                 <div key={i} className={styles.reviewCard}>
                   <div className={styles.reviewStars}>{'★'.repeat(r.rating || 5)}{'☆'.repeat(5 - (r.rating || 5))}</div>
-                  <p className={styles.reviewText}>{r.text}</p>
+                  <p className={styles.reviewText}>{trL(L('reviews', 'reviews', i, 'text'), r.text)}</p>
                   <div className={styles.reviewMeta}><span>{r.name}</span>{r.date && <span>{r.date}</span>}</div>
                 </div>
               ))}
@@ -194,10 +202,10 @@ export default function RentalHubPage() {
         return (
           <div key={idx} className={styles.ctaBanner} style={{ background: brand }}>
             <div>
-              <h2 className={styles.ctaBannerTitle}>{d.title}</h2>
-              {d.subtitle && <p className={styles.ctaBannerSub}>{d.subtitle}</p>}
+              <h2 className={styles.ctaBannerTitle}>{trL(L('cta_banner', 'title'), d.title)}</h2>
+              {d.subtitle && <p className={styles.ctaBannerSub}>{trL(L('cta_banner', 'subtitle'), d.subtitle)}</p>}
             </div>
-            {d.btn_text && <a href={d.btn_link || `/${slug}/rent`} className={styles.ctaBannerBtn}>{d.btn_text}</a>}
+            {d.btn_text && <a href={d.btn_link || `/${slug}/rent`} className={styles.ctaBannerBtn}>{trL(L('cta_banner', 'btn_text'), d.btn_text)}</a>}
           </div>
         )
       }

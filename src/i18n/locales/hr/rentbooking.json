@@ -40,5 +40,6 @@
   "viewMap": "Karta",
   "payOnArrivalDone": "Rezervacija je potvrđena. Plaćanje se vrši po dolasku.",
   "noOnlinePayment": "Online plaćanje trenutno nije dostupno — platit ćete po dolasku.",
-  "doneSubArrival": "Poslali smo vam detalje rezervacije."
+  "doneSubArrival": "Poslali smo vam detalje rezervacije.",
+  "seoTitle": "Rezerviraj smještaj"
 }

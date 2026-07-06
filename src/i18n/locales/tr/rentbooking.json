@@ -40,5 +40,6 @@
   "viewMap": "Harita",
   "payOnArrivalDone": "Rezervasyonunuz onaylandı. Ödeme varışta yapılır.",
   "noOnlinePayment": "Online ödeme şu anda kullanılamıyor — varışta ödeyeceksiniz.",
-  "doneSubArrival": "Rezervasyon detaylarını size gönderdik."
+  "doneSubArrival": "Rezervasyon detaylarını size gönderdik.",
+  "seoTitle": "Konaklama rezervasyonu"
 }
