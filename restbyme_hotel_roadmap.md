@@ -166,8 +166,15 @@ Vertikala `rental`, addon `rental_core`, modul `src/modules/rentals/`, javni boo
 - **Demo:** rental uključen (restaurant+hotel+rental), 2 smještaja sa slikama na 2 lokacije (Budva/Kotor),
   showcase „Rentals" kartica → `/demo/rentals`.
 
+- **HUB EDITOR (DEPLOYOVANO 2026-07-06, `f74cc9b`):** `/rentals` se UREĐUJE kao hotel/restoran sajt —
+  `RentalLandingEditor` (`/admin/rental/site`, nav „Web sajt"), blokovi hero/about/accommodation/gallery/
+  amenities/reviews/cta/location/contact, reuse dijeljene landing mašinerije; `RentalHubPage` renderuje blokove +
+  auto-fallback. Migr. `20260706180000` (page_type CHECK += rental) + `20260706190000` (demo landing 'rental' blokovi).
+
 **⬜ SLJEDEĆE (rental):**
-- Sitno discoverability: restoran `/home` cross-link na `/rentals` (meni već ima dugme); SEO meta na hub/booking.
+- **Mapa/adresa/pinovi (Feature B)** — čeka potvrdu provajdera (Leaflet+OSM preporuka vs Google); per-asset
+  lat/lng + admin pin-drop + `/rent` map filter. Plan dogovoren, provajder otvoren.
+- Sitno: landing-block AI prevod na hub-u; restoran `/home` cross-link; SEO meta.
 - **RENT-FLEET (rent-a-car / vozila):** aktivirati `asset_kind='vehicle'` — satelitske tabele
   (`rental_vehicle_details`: make/model/year/plate/transmission/seats/fuel; `rental_vehicle_trips`:
   pickup/dropoff/km/gorivo/šteta), **`tstzrange` granularnost** (satni najam vs dnevni za smještaj →
