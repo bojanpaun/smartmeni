@@ -126,8 +126,13 @@ i18n ns `rentbooking` ×7; plaćanje `sourceType:'rental'` (webhook grana već p
 (2 sredstva Budva + cijene + postavke + rezervacija), `reset_demo_tenant` self-heal vertikale/addona +
 poziva seed_demo_rental; Landing showcase „Rentals" kartica (`/demo/rent`). Demo sada
 restaurant+hotel+rental; `/demo/rent` lista 2 sredstva (live verifikovano).
-**Ostaje (opciono):** foto upload sredstava, fiskal reader (regulatorno blokiran), owner portal (RENT-2),
-iCal (RENT-1). Detalji: [[project-rental-vertical-wip]].
+**RENT P1 dorade ZAVRŠENE (DEPLOYOVANO 2026-07-06, `f3a1500`):** (1) rename vidljivog teksta „sredstvo"→„smještaj"
+(admin ×7); (2) **slike smještaja** (`photo_urls` + shared ImageUpload galerija, bucket landing-images;
+`get_available_rental_assets` vraća photos; prikaz /rent + admin; demo dobio slike; migr. `20260706140000`);
+(3) **izlog** — /rent auto-pretraga na učitavanju („od X/noć" + slike) + root routing rental-only `/{slug}`→`/rent`;
+(4) **meni dugme „Iznajmi smještaj"** + `restaurants.rental_visibility` toggle (migr. `20260706150000`). LIVE ✓.
+**Ostaje (opciono):** email potvrda rez., filter po lokaciji, iCal (RENT-1), owner portal (RENT-2), fiskal (regulatorno).
+Detalji: [[project-rental-vertical-wip]].
 
 ---
 
