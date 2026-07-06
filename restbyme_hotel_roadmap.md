@@ -140,6 +140,46 @@ Detalji: [[project-rental-vertical-wip]].
 
 ---
 
+## 🏖️ FAZA RENT — konsolidovan status i plan (2026-07-06)
+
+Generički motor najma (`asset_kind`: **accommodation** implementiran; **vehicle** prazan slot, RENT-FLEET).
+Vertikala `rental`, addon `rental_core`, modul `src/modules/rentals/`, javni booking `/:slug/rent`.
+
+**✅ URAĐENO (accommodation, sve na prod-u):**
+- **RENT-0a admin core:** šema (9 tabela + EXCLUDE overbooking guard + auto-guest trigger), Smještaj CRUD
+  (naziv/lokacija/cijena/kapacitet/sadržaji/**slike-galerija**/opis+AI prevod), sezonske Cijene, Kalendar
+  zauzeća (realtime), Rezervacije (direktan unos + auto-quote `rental_quote_price`), Postavke (boravišna taksa,
+  eTurista ID, fiskal toggle, self-check-in instrukcije). Dashboard/gating.
+- **RENT-0b javni booking:** 3 anon SECURITY DEFINER RPC-a (dostupnost EXCLUDE-aware + quote + create server-side
+  re-quote → booking+stay, **depozit 30%**), pgTAP 075; javna stranica `/:slug/rent` (izlog→gost→potvrda+depozit),
+  plaćanje `sourceType:'rental'` (webhook grana postoji).
+- **P1:** rename vidljivog teksta „sredstvo"→**„smještaj"** (×7); **slike** (`photo_urls` + ImageUpload galerija,
+  prikaz /rent+admin); **izlog** (/rent auto-pretraga, „od X/noć", slike) + **root routing** rental-only `/{slug}`→`/rent`;
+  **meni dugme „Iznajmi smještaj"** + `rental_visibility` toggle.
+- **P2:** email potvrda (`send-rental-email`: booking+depozit+self-check-in instrukcije).
+- **P3:** filter po lokaciji na /rent (chips, 2+ lokacije).
+- **Demo:** rental uključen (restaurant+hotel+rental), 2 smještaja sa slikama na 2 lokacije (Budva/Kotor),
+  showcase „Rentals" kartica → `/demo/rent`.
+
+**⬜ SLJEDEĆE (rental):**
+- **Discoverability / public surface** — vidi analizu ispod (zaseban rental landing/izlog? per-kind stranice?).
+  Ključno jer stiže **rent-a-car** pa se mora odlučiti IA prije širenja.
+- **RENT-FLEET (rent-a-car / vozila):** aktivirati `asset_kind='vehicle'` — satelitske tabele
+  (`rental_vehicle_details`: make/model/year/plate/transmission/seats/fuel; `rental_vehicle_trips`:
+  pickup/dropoff/km/gorivo/šteta), **`tstzrange` granularnost** (satni najam vs dnevni za smještaj →
+  guard i quote moraju podržati oba), zaseban javni izlog vozila + per-kind admin/labele.
+- **iCal sync (RENT-1):** Airbnb/Booking.com import/export — sprječava double-booking preko kanala
+  (bitno za ozbiljne najmodavce).
+- **Owner/agencijski portal (RENT-2):** `rental_owners` postoji; treća auth rola (zaseban lagani context),
+  vlasnik vidi svoje objekte/rezervacije/obračun provizije.
+- **Fiskalizacija najma:** ODGOĐENO (regulatorno — PDV smještaja + boravišna taksa van osnovice nepotvrđeno).
+- **Sitno:** i18n emaila (sad crnogorski); potvrda-email i za izmjene statusa; otkazivanje/politika; cover-slika
+  izbor (sad prva slika = cover).
+
+Detalji/istorija: memorija [[project-rental-vertical-wip]].
+
+---
+
 ## ✅ FIX — „Početni koraci" dismiss se trajno pamti (2026-07-02)
 
 > Uzrok (izmjeren, ne nagađan): korisnici bez `user_profiles` reda → per-korisnik `UPDATE`
