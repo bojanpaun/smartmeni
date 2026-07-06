@@ -122,8 +122,12 @@ sada online rezerviše bez naloga — 3 anon SECURITY DEFINER RPC-a (migr. `2026
 depozit 30%), pgTAP `075`; javna stranica **`/:slug/rent`** (pretraga→sredstva→gost→potvrda+depozit),
 i18n ns `rentbooking` ×7; plaćanje `sourceType:'rental'` (webhook grana već postoji). LIVE verifikovano
 (quote 281€, depozit 84.30€), **375 pgTAP PASS**. Slike sredstava ne postoje u šemi (placeholder 🏠).
+**Rental UKLJUČEN NA DEMO** (DEPLOYOVANO 2026-07-06, `561def0`): migr. `20260706130000` — `seed_demo_rental`
+(2 sredstva Budva + cijene + postavke + rezervacija), `reset_demo_tenant` self-heal vertikale/addona +
+poziva seed_demo_rental; Landing showcase „Rentals" kartica (`/demo/rent`). Demo sada
+restaurant+hotel+rental; `/demo/rent` lista 2 sredstva (live verifikovano).
 **Ostaje (opciono):** foto upload sredstava, fiskal reader (regulatorno blokiran), owner portal (RENT-2),
-iCal (RENT-1), uključiti rental na demo tenant za javni live prikaz. Detalji: [[project-rental-vertical-wip]].
+iCal (RENT-1). Detalji: [[project-rental-vertical-wip]].
 
 ---
 
