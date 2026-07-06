@@ -777,6 +777,81 @@
         "Online payment (Monri/Stripe) is set up in Hotel → Payments; setup guides are on the control panel next to the Restaurant/Hotel title",
         "The admin panel theme and colors (green/blue/purple + custom palettes) are set by the superadmin: /superadmin → tenant → Theme; dark mode is the ☀️/🌙 toggle in the sidebar"
       ]
+    },
+    "rental": {
+      "title": "Rentals (accommodation) — guide",
+      "intro": "Manage accommodation rentals: properties, seasonal pricing, occupancy calendar, bookings, payment policy and public sales via your website.",
+      "sections": [
+        {
+          "icon": "🏠",
+          "title": "Accommodation (properties)",
+          "steps": [
+            "Go to Accommodation → + Add to enter an apartment, villa or room for rent",
+            "Enter name, location, base price per night, capacity (guests, bedrooms, bathrooms) and amenities (Wi-Fi, AC, pool...)",
+            "Add photos — the first image is the cover on the public listing",
+            "Enter the exact address and drop a pin on the map — guests see the location on the /rent map",
+            "“Active” status means the property is visible and bookable"
+          ]
+        },
+        {
+          "icon": "💶",
+          "title": "Pricing",
+          "steps": [
+            "The base price per night is set on the property itself",
+            "For seasonal pricing go to Pricing → define a period (from–to) and its price",
+            "Price for a given date: seasonal if defined, otherwise the base price",
+            "Set the cleaning fee and minimum number of nights per property"
+          ]
+        },
+        {
+          "icon": "📅",
+          "title": "Occupancy calendar",
+          "steps": [
+            "The calendar shows all bookings per property and date (live)",
+            "Booked dates cannot be double-booked (overlap protection)",
+            "Use the calendar for a quick overview of free dates"
+          ]
+        },
+        {
+          "icon": "🗂️",
+          "title": "Bookings",
+          "steps": [
+            "Bookings arrive automatically from public sales (/rent) or you add them manually (+ New)",
+            "A live price breakdown (nights + cleaning + tourist tax) is shown as you enter data",
+            "Change status: confirmed → check-in → check-out → cancelled",
+            "The payment badge shows the billing status (unpaid / deposit paid / paid)",
+            "If the guest leaves an email, they automatically get a confirmation with arrival instructions"
+          ]
+        },
+        {
+          "icon": "💳",
+          "title": "Settings and payment",
+          "steps": [
+            "Set the tourist tax per person/night, currency and the child age exempt from tax",
+            "Payment policy: “Online payment (deposit)” or “Pay on arrival”",
+            "For online payment set the deposit percentage — the guest pays the rest on arrival",
+            "Online charging requires a configured payment provider (Payment settings)",
+            "Self check-in instructions are sent to the guest in the confirmation email"
+          ]
+        },
+        {
+          "icon": "🌐",
+          "title": "Website and public sales",
+          "steps": [
+            "Website: edit the public rental page (/rentals) with blocks — hero, gallery, amenities, contact",
+            "Guests book at /rent (search by dates → pick a property → confirm)",
+            "On /rent guests can also pick a property via the map (List | Map)",
+            "If you also run a restaurant or hotel, a “Rent accommodation” button leads guests to rentals"
+          ]
+        }
+      ],
+      "tips": [
+        "The first property photo is the cover — put your best image first",
+        "An exact address and map pin increase guest trust and ease arrival",
+        "For seasons (summer, holidays) set higher seasonal prices in advance",
+        "An online deposit reduces cancellations; the rest is charged on arrival",
+        "Website content and property names are automatically translated into the guest’s language"
+      ]
     }
   }
 }

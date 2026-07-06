@@ -777,6 +777,81 @@
         "Pagesa online (Monri/Stripe) konfigurohet te Hotel → Pagesat; udhëzuesit e konfigurimit janë në panelin e kontrollit pranë titullit Restorant/Hotel",
         "Tema dhe ngjyrat e panelit të administratorit (jeshile/blu/vjollcë + paleta të personalizuara) vendosen nga superadmini: /superadmin → tenant → Tema; modaliteti i errët është çelësi ☀️/🌙 në shiritin anësor"
       ]
+    },
+    "rental": {
+      "title": "Qiraja (akomodimi) — udhëzues",
+      "intro": "Menaxhimi i qirasë së akomodimit: objektet, çmimet sezonale, kalendari i zënieve, rezervimet, politika e pagesës dhe shitja publike përmes faqes së internetit.",
+      "sections": [
+        {
+          "icon": "🏠",
+          "title": "Akomodimi (objektet)",
+          "steps": [
+            "Shko te Akomodimi → + Shto për të futur një apartament, vilë ose dhomë me qira",
+            "Fut emrin, vendndodhjen, çmimin bazë për natë, kapacitetin (mysafirë, dhoma gjumi, banjo) dhe pajisjet (Wi-Fi, kondicioner, pishinë...)",
+            "Shto fotografi — imazhi i parë është kopertina në listimin publik",
+            "Fut adresën e saktë dhe vendos një pin në hartë — mysafirët e shohin vendndodhjen në hartën /rent",
+            "Statusi „aktiv\" do të thotë që objekti është i dukshëm dhe i rezervueshëm"
+          ]
+        },
+        {
+          "icon": "💶",
+          "title": "Çmimet",
+          "steps": [
+            "Çmimi bazë për natë vendoset te vetë objekti",
+            "Për çmime sezonale shko te Çmimet → përcakto një periudhë (nga–deri) dhe çmimin e saj",
+            "Çmimi për një datë të caktuar: sezonal nëse ekziston, përndryshe çmimi bazë",
+            "Tarifën e pastrimit dhe numrin minimal të netëve i vendos për çdo objekt"
+          ]
+        },
+        {
+          "icon": "📅",
+          "title": "Kalendari i zënieve",
+          "steps": [
+            "Kalendari tregon të gjitha rezervimet sipas objektit dhe datës (drejtpërdrejt)",
+            "Datat e zëna nuk mund të rezervohen dy herë (mbrojtje nga mbivendosja)",
+            "Përdor kalendarin për një pamje të shpejtë të datave të lira"
+          ]
+        },
+        {
+          "icon": "🗂️",
+          "title": "Rezervimet",
+          "steps": [
+            "Rezervimet vijnë automatikisht nga shitja publike (/rent) ose i shton manualisht (+ E re)",
+            "Një ndarje e drejtpërdrejtë e çmimit (netët + pastrimi + taksa e turizmit) shfaqet gjatë futjes",
+            "Ndrysho statusin: konfirmuar → check-in → check-out → anuluar",
+            "Shenja e pagesës tregon statusin e faturimit (e papaguar / depozita e paguar / e paguar)",
+            "Nëse mysafiri lë një email, merr automatikisht një konfirmim me udhëzime për ardhjen"
+          ]
+        },
+        {
+          "icon": "💳",
+          "title": "Cilësimet dhe pagesa",
+          "steps": [
+            "Vendos taksën e turizmit për person/natë, monedhën dhe moshën e fëmijëve të përjashtuar nga taksa",
+            "Politika e pagesës: „Pagesa online (depozitë)\" ose „Pagesa në mbërritje\"",
+            "Për pagesë online vendos përqindjen e depozitës — pjesën tjetër mysafiri e paguan në mbërritje",
+            "Faturimi online kërkon një ofrues pagese të konfiguruar (Cilësimet e pagesës)",
+            "Udhëzimet për check-in vetë i dërgohen mysafirit në emailin e konfirmimit"
+          ]
+        },
+        {
+          "icon": "🌐",
+          "title": "Faqja e internetit dhe shitja publike",
+          "steps": [
+            "Faqja: redakto faqen publike të qirasë (/rentals) me blloqe — hero, galeri, pajisje, kontakt",
+            "Mysafirët rezervojnë te /rent (kërko sipas datave → zgjidh objektin → konfirmo)",
+            "Te /rent mysafirët mund të zgjedhin objektin edhe përmes hartës (Listë | Hartë)",
+            "Nëse ke edhe restorant ose hotel, butoni „Merr me qira\" i çon mysafirët te qiraja"
+          ]
+        }
+      ],
+      "tips": [
+        "Fotografia e parë e objektit është kopertina — vendos imazhin më të mirë të parin",
+        "Adresa e saktë dhe pini në hartë rrisin besimin e mysafirëve dhe lehtësojnë ardhjen",
+        "Për sezonet (verë, festa) vendos çmime më të larta sezonale paraprakisht",
+        "Depozita online zvogëlon anulimet; pjesa tjetër faturohet në mbërritje",
+        "Përmbajtja e faqes dhe emrat e objekteve përkthehen automatikisht në gjuhën e mysafirit"
+      ]
     }
   }
 }

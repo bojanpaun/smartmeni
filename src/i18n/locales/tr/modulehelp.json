@@ -777,6 +777,81 @@
         "Çevrimiçi ödeme (Monri/Stripe) Otel → Ödemeler bölümünde kurulur; kurulum kılavuzları kontrol panelinde Restoran/Otel başlığının yanındadır",
         "Yönetici paneli teması ve renkleri (yeşil/mavi/mor + özel paletler) superadmin tarafından ayarlanır: /superadmin → tenant → Tema; karanlık mod kenar çubuğundaki ☀️/🌙 anahtarıdır"
       ]
+    },
+    "rental": {
+      "title": "Kiralama (konaklama) — kılavuz",
+      "intro": "Konaklama kiralamasını yönetin: mülkler, sezonluk fiyatlandırma, doluluk takvimi, rezervasyonlar, ödeme politikası ve web siteniz üzerinden halka açık satış.",
+      "sections": [
+        {
+          "icon": "🏠",
+          "title": "Konaklama (mülkler)",
+          "steps": [
+            "Kiralık daire, villa veya oda girmek için Konaklama → + Ekle bölümüne gidin",
+            "Ad, konum, gecelik taban fiyat, kapasite (misafir, yatak odası, banyo) ve olanakları (Wi-Fi, klima, havuz...) girin",
+            "Fotoğraf ekleyin — ilk görsel, herkese açık listede kapak olur",
+            "Tam adresi girin ve haritaya bir iğne bırakın — misafirler konumu /rent haritasında görür",
+            "“Aktif” durumu, mülkün görünür ve rezerve edilebilir olduğu anlamına gelir"
+          ]
+        },
+        {
+          "icon": "💶",
+          "title": "Fiyatlandırma",
+          "steps": [
+            "Gecelik taban fiyat mülkün kendisinde ayarlanır",
+            "Sezonluk fiyatlar için Fiyatlandırma → bir dönem (başlangıç–bitiş) ve fiyatını tanımlayın",
+            "Belirli bir tarih için fiyat: tanımlıysa sezonluk, aksi halde taban fiyat",
+            "Temizlik ücretini ve minimum gece sayısını her mülk için ayarlarsınız"
+          ]
+        },
+        {
+          "icon": "📅",
+          "title": "Doluluk takvimi",
+          "steps": [
+            "Takvim, mülk ve tarihe göre tüm rezervasyonları gösterir (canlı)",
+            "Dolu tarihler iki kez rezerve edilemez (çakışma koruması)",
+            "Boş tarihlere hızlı bakış için takvimi kullanın"
+          ]
+        },
+        {
+          "icon": "🗂️",
+          "title": "Rezervasyonlar",
+          "steps": [
+            "Rezervasyonlar halka açık satıştan (/rent) otomatik gelir veya manuel eklersiniz (+ Yeni)",
+            "Veri girerken canlı fiyat dökümü (geceler + temizlik + konaklama vergisi) gösterilir",
+            "Durumu değiştirin: onaylandı → giriş → çıkış → iptal",
+            "Ödeme rozeti faturalama durumunu gösterir (ödenmedi / depozito ödendi / ödendi)",
+            "Misafir e-posta bırakırsa, varış talimatlarıyla otomatik bir onay alır"
+          ]
+        },
+        {
+          "icon": "💳",
+          "title": "Ayarlar ve ödeme",
+          "steps": [
+            "Kişi/gece başına konaklama vergisini, para birimini ve vergiden muaf çocuk yaşını ayarlayın",
+            "Ödeme politikası: “Online ödeme (depozito)” veya “Varışta ödeme”",
+            "Online ödeme için depozito yüzdesini ayarlayın — kalanı misafir varışta öder",
+            "Online tahsilat, yapılandırılmış bir ödeme sağlayıcısı gerektirir (Ödeme ayarları)",
+            "Kendi kendine giriş talimatları onay e-postasında misafire gönderilir"
+          ]
+        },
+        {
+          "icon": "🌐",
+          "title": "Web sitesi ve halka açık satış",
+          "steps": [
+            "Web sitesi: kiralama halka açık sayfasını (/rentals) bloklarla düzenleyin — hero, galeri, olanaklar, iletişim",
+            "Misafirler /rent adresinde rezervasyon yapar (tarihe göre ara → mülk seç → onayla)",
+            "/rent üzerinde misafirler mülkü harita ile de seçebilir (Liste | Harita)",
+            "Ayrıca restoran veya oteliniz varsa, “Konaklama kirala” düğmesi misafirleri kiralamaya yönlendirir"
+          ]
+        }
+      ],
+      "tips": [
+        "Mülkün ilk fotoğrafı kapaktır — en iyi görseli başa koyun",
+        "Doğru adres ve harita iğnesi misafir güvenini artırır ve varışı kolaylaştırır",
+        "Sezonlar (yaz, tatiller) için sezonluk fiyatları önceden yüksek ayarlayın",
+        "Online depozito iptalleri azaltır; kalan varışta tahsil edilir",
+        "Web sitesi içeriği ve mülk adları misafirin diline otomatik çevrilir"
+      ]
     }
   }
 }

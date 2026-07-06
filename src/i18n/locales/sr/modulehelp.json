@@ -777,6 +777,81 @@
         "Online plaćanje (Monri/Stripe) postavlja se u Hotel → Plaćanja; vodiči za podešavanje su na kontrolnoj tabli pored naslova Restoran/Hotel",
         "Tema i boje admin panela (zelena/plava/ljubičasta + custom palete) postavlja superadmin: /superadmin → tenant → Tema; dark mode je prekidač ☀️/🌙 u sidebaru"
       ]
+    },
+    "rental": {
+      "title": "Najam (smeštaj) — uputstvo",
+      "intro": "Upravljanje iznajmljivanjem smeštaja: objekti, sezonske cene, kalendar zauzeća, rezervacije, politika plaćanja i javna prodaja preko web sajta.",
+      "sections": [
+        {
+          "icon": "🏠",
+          "title": "Smeštaj (objekti)",
+          "steps": [
+            "Idi na Smeštaj → + Dodaj da uneseš apartman, vilu ili sobu za najam",
+            "Unesi naziv, lokaciju, osnovnu cenu po noći, kapacitet (gosti, sobe, kupatila) i sadržaje (Wi-Fi, klima, bazen...)",
+            "Dodaj fotografije — prva slika je naslovna na javnom izlogu",
+            "Unesi tačnu adresu i postavi pin na mapi — gostima se prikazuje lokacija na /rent mapi",
+            "Status „aktivan\" znači da je objekat vidljiv i moguć za rezervaciju"
+          ]
+        },
+        {
+          "icon": "💶",
+          "title": "Cene",
+          "steps": [
+            "Osnovna cena po noći se postavlja na samom objektu",
+            "Za sezonske cene idi na Cene → definiši period (od–do) i cenu za taj period",
+            "Cena za dati datum: sezonska ako postoji, inače osnovna",
+            "Naknadu za čišćenje i minimalan broj noći postavljaš po objektu"
+          ]
+        },
+        {
+          "icon": "📅",
+          "title": "Kalendar zauzeća",
+          "steps": [
+            "Kalendar prikazuje sve rezervacije po objektu i datumu (uživo)",
+            "Zauzeti termini se ne mogu duplo rezervisati (zaštita od preklapanja)",
+            "Koristi kalendar za brzi pregled slobodnih termina"
+          ]
+        },
+        {
+          "icon": "🗂️",
+          "title": "Rezervacije",
+          "steps": [
+            "Rezervacije stižu automatski iz javne prodaje (/rent) ili ih uneseš ručno (+ Nova)",
+            "Živi obračun cene (noći + čišćenje + boravišna taksa) prikazuje se pri unosu",
+            "Menjaj status: potvrđeno → prijava → odjava → otkazano",
+            "Badge plaćanja pokazuje status naplate (neplaćeno / depozit plaćen / plaćeno)",
+            "Ako gost ostavi email, automatski dobija potvrdu sa instrukcijama za dolazak"
+          ]
+        },
+        {
+          "icon": "💳",
+          "title": "Podešavanja i plaćanje",
+          "steps": [
+            "Postavi boravišnu taksu po osobi/noćenju, valutu i uzrast dece oslobođene takse",
+            "Politika plaćanja: „Online plaćanje (depozit)\" ili „Plaćanje po dolasku\"",
+            "Kod online plaćanja postavi procenat depozita — ostatak gost plaća na dolasku",
+            "Online naplata zahteva konfigurisan payment provajder (Podešavanja plaćanja)",
+            "Instrukcije za samostalan check-in šalju se gostu u email potvrdi"
+          ]
+        },
+        {
+          "icon": "🌐",
+          "title": "Web sajt i javna prodaja",
+          "steps": [
+            "Web sajt: uredi javnu stranicu najma (/rentals) blokovima — hero, galerija, sadržaji, kontakt",
+            "Gosti rezervišu na /rent (pretraga po datumima → izbor objekta → potvrda)",
+            "Na /rent gosti mogu birati objekat i preko mape (Lista | Mapa)",
+            "Ako imaš i restoran ili hotel, dugme „Iznajmi smeštaj\" vodi goste ka najmu"
+          ]
+        }
+      ],
+      "tips": [
+        "Prva fotografija objekta je naslovna — postavi najbolju sliku prvu",
+        "Tačna adresa i pin na mapi povećavaju poverenje gostiju i olakšavaju dolazak",
+        "Za sezone (leto, praznici) postavi više sezonske cene unapred",
+        "Depozit online smanjuje otkazivanja; ostatak se naplaćuje po dolasku",
+        "Sadržaj web sajta i nazivi objekata se automatski prevode gostu na njegov jezik"
+      ]
     }
   }
 }

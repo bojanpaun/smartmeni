@@ -777,6 +777,81 @@
         "Online plaćanje (Monri/Stripe) postavlja se u Hotel → Plaćanja; vodiči za podešavanje su na upravljačkoj ploči pored naslova Restoran/Hotel",
         "Temu i boje admin panela (zelena/plava/ljubičasta + prilagođene palete) postavlja superadmin: /superadmin → tenant → Tema; dark mode je prekidač ☀️/🌙 u sidebaru"
       ]
+    },
+    "rental": {
+      "title": "Najam (smještaj) — upute",
+      "intro": "Upravljanje iznajmljivanjem smještaja: objekti, sezonske cijene, kalendar zauzeća, rezervacije, politika plaćanja i javna prodaja putem web stranice.",
+      "sections": [
+        {
+          "icon": "🏠",
+          "title": "Smještaj (objekti)",
+          "steps": [
+            "Idi na Smještaj → + Dodaj da uneseš apartman, vilu ili sobu za najam",
+            "Unesi naziv, lokaciju, osnovnu cijenu po noći, kapacitet (gosti, sobe, kupaonice) i sadržaje (Wi-Fi, klima, bazen...)",
+            "Dodaj fotografije — prva slika je naslovna na javnom izlogu",
+            "Unesi točnu adresu i postavi pin na karti — gostima se prikazuje lokacija na /rent karti",
+            "Status „aktivan\" znači da je objekt vidljiv i moguć za rezervaciju"
+          ]
+        },
+        {
+          "icon": "💶",
+          "title": "Cijene",
+          "steps": [
+            "Osnovna cijena po noći postavlja se na samom objektu",
+            "Za sezonske cijene idi na Cijene → definiraj razdoblje (od–do) i cijenu za to razdoblje",
+            "Cijena za pojedini datum: sezonska ako postoji, inače osnovna",
+            "Naknadu za čišćenje i minimalan broj noćenja postavljaš po objektu"
+          ]
+        },
+        {
+          "icon": "📅",
+          "title": "Kalendar zauzeća",
+          "steps": [
+            "Kalendar prikazuje sve rezervacije po objektu i datumu (uživo)",
+            "Zauzeti termini ne mogu se dvostruko rezervirati (zaštita od preklapanja)",
+            "Koristi kalendar za brzi pregled slobodnih termina"
+          ]
+        },
+        {
+          "icon": "🗂️",
+          "title": "Rezervacije",
+          "steps": [
+            "Rezervacije stižu automatski iz javne prodaje (/rent) ili ih uneseš ručno (+ Nova)",
+            "Živi izračun cijene (noćenja + čišćenje + boravišna pristojba) prikazuje se pri unosu",
+            "Mijenjaj status: potvrđeno → prijava → odjava → otkazano",
+            "Oznaka plaćanja pokazuje status naplate (neplaćeno / polog plaćen / plaćeno)",
+            "Ako gost ostavi e-poštu, automatski dobiva potvrdu s uputama za dolazak"
+          ]
+        },
+        {
+          "icon": "💳",
+          "title": "Postavke i plaćanje",
+          "steps": [
+            "Postavi boravišnu pristojbu po osobi/noćenju, valutu i dob djece izuzete od pristojbe",
+            "Politika plaćanja: „Online plaćanje (polog)\" ili „Plaćanje pri dolasku\"",
+            "Kod online plaćanja postavi postotak pologa — ostatak gost plaća pri dolasku",
+            "Online naplata zahtijeva konfiguriran payment provajder (Postavke plaćanja)",
+            "Upute za samostalan check-in šalju se gostu u e-poruci potvrde"
+          ]
+        },
+        {
+          "icon": "🌐",
+          "title": "Web stranica i javna prodaja",
+          "steps": [
+            "Web stranica: uredi javnu stranicu najma (/rentals) blokovima — hero, galerija, sadržaji, kontakt",
+            "Gosti rezerviraju na /rent (pretraga po datumima → izbor objekta → potvrda)",
+            "Na /rent gosti mogu birati objekt i putem karte (Popis | Karta)",
+            "Ako imaš i restoran ili hotel, gumb „Iznajmi smještaj\" vodi goste prema najmu"
+          ]
+        }
+      ],
+      "tips": [
+        "Prva fotografija objekta je naslovna — postavi najbolju sliku prvu",
+        "Točna adresa i pin na karti povećavaju povjerenje gostiju i olakšavaju dolazak",
+        "Za sezone (ljeto, praznici) postavi više sezonske cijene unaprijed",
+        "Polog online smanjuje otkazivanja; ostatak se naplaćuje pri dolasku",
+        "Sadržaj web stranice i nazivi objekata automatski se prevode gostu na njegov jezik"
+      ]
     }
   }
 }
