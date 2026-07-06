@@ -173,7 +173,7 @@ export default function Menu() {
       const verts = rest.active_verticals || ['restaurant']
       if (!verts.includes('restaurant')) {
         if (verts.includes('hotel')) { navigate(`/${slug}/hotel`, { replace: true }); return }
-        if (verts.includes('rental')) { navigate(`/${slug}/rent`, { replace: true }); return }
+        if (verts.includes('rental')) { navigate(`/${slug}/rentals`, { replace: true }); return }
       }
       const [{ data: cats }, { data: its }, { data: bnds }, { data: bndItems }, { data: ads }] = await Promise.all([
         supabase.from('categories').select('*').eq('restaurant_id', rest.id).order('sort_order'),
@@ -931,9 +931,9 @@ export default function Menu() {
           </a>
         )}
 
-        {/* Iznajmi smještaj (rental vertikala) */}
+        {/* Iznajmi smještaj (rental vertikala) → rental hub */}
         {canSee(rentalVis) && (
-          <a href={`/${isDemo ? 'demo' : slug}/rent`} className={styles.reservationBtn}>
+          <a href={`/${isDemo ? 'demo' : slug}/rentals`} className={styles.reservationBtn}>
             🏖️ {t('rentAccommodation')}
           </a>
         )}

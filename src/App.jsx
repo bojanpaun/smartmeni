@@ -96,6 +96,7 @@ const NightAuditPage       = lazy(() => import('./modules/hotel/pages/NightAudit
 const BreakfastPage        = lazy(() => import('./modules/hotel/pages/BreakfastPage'))
 const BookingPage          = lazy(() => import('./pages/BookingPage'))
 const RentalBookingPublic  = lazy(() => import('./modules/rentals/pages/RentalBookingPublicPage'))
+const RentalHub            = lazy(() => import('./modules/rentals/pages/RentalHubPage'))
 const StaffPortal          = lazy(() => import('./pages/StaffPortal/StaffPortal'))
 const GuestAppPage         = lazy(() => import('./modules/hotel/pages/GuestAppPage'))
 const HotelLandingPage     = lazy(() => import('./modules/hotel/pages/HotelLandingPage'))
@@ -496,6 +497,7 @@ function AppRoutes() {
         <Route path="/:slug/guest" element={<Suspense fallback={<LoadingSpinner fullPage />}><GuestAppPage /></Suspense>} />
         <Route path="/:slug/hotel" element={<Suspense fallback={<LoadingSpinner fullPage />}><HotelLandingPage /></Suspense>} />
         <Route path="/:slug/home" element={<Suspense fallback={<LoadingSpinner fullPage />}><RestaurantLandingPage /></Suspense>} />
+        <Route path="/:slug/rentals" element={<Suspense fallback={<LoadingSpinner fullPage />}><RentalHub /></Suspense>} />
         <Route path="/:slug/rent" element={<Suspense fallback={<LoadingSpinner fullPage />}><RentalBookingPublic /></Suspense>} />
         <Route path="/:slug" element={<CartProvider><Suspense fallback={<LoadingSpinner fullPage />}><GuestMenu /></Suspense></CartProvider>} />
       </Routes>

@@ -101,6 +101,12 @@ export default function HotelLandingPage() {
           <span className={styles.ctaSecLabel}>🔑 {t('guestApp')}</span>
           <span className={styles.ctaSecSub}>{t('guestAppSub')}</span>
         </button>
+        {(hotel?.active_verticals || []).includes('rental') && (
+          <button className={styles.ctaSecondary} onClick={() => navigate(`/${slug}/rentals`)}>
+            <span className={styles.ctaSecLabel}>🏖️ {t('rentalCta')}</span>
+            <span className={styles.ctaSecSub}>{t('rentalCtaSub')}</span>
+          </button>
+        )}
       </div>
     </div>
   )
