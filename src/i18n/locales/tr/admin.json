@@ -3530,5 +3530,8 @@
   "rlLocationD": "Adres + Google harita.",
   "rlContact": "İletişim",
   "rlContactD": "Telefon, e-posta ve saatler.",
-  "navRentalSite": "Web sitesi"
+  "navRentalSite": "Web sitesi",
+  "raAddress": "Adres",
+  "raPin": "Harita pini",
+  "raPinHint": "Tam konumu ayarlamak için haritaya tıklayın veya pini sürükleyin."
 }

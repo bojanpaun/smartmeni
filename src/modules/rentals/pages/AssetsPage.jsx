@@ -1,4 +1,4 @@
-import { useState } from 'react'
+import { useState, lazy, Suspense } from 'react'
 import { useTranslation } from 'react-i18next'
 import { useNavigate } from 'react-router-dom'
 import { usePlatform } from '../../../context/PlatformContext'
@@ -9,6 +9,7 @@ import ImageUpload from '../../../components/shared/ImageUpload'
 import LoadingSpinner from '../../../components/shared/LoadingSpinner'
 
 const coverOf = (photoUrls) => (photoUrls || '').split('\n').map(s => s.trim()).find(s => s.startsWith('http')) || null
+const RentalMap = lazy(() => import('../../../components/shared/RentalMap'))
 import toast from 'react-hot-toast'
 import styles from './AssetsPage.module.css'
 
@@ -18,6 +19,7 @@ const ACCESS_TYPES = ['keybox', 'smart_lock', 'licno']
 const emptyForm = () => ({
   name: '', location_id: '', base_price: '', pricing_unit: 'night', cleaning_fee: '', min_duration: 1, status: 'active',
   max_guests: 2, bedrooms: 1, beds: 1, bathrooms: 1, amenities: [], access_type: 'keybox', description: '', photo_urls: '',
+  address: '', latitude: null, longitude: null,
 })
 
 export default function AssetsPage() {
@@ -42,6 +44,7 @@ export default function AssetsPage() {
       cleaning_fee: a.cleaning_fee ?? '', min_duration: a.min_duration ?? 1, status: a.status || 'active',
       max_guests: d?.max_guests ?? 2, bedrooms: d?.bedrooms ?? 1, beds: d?.beds ?? 1, bathrooms: d?.bathrooms ?? 1,
       amenities: d?.amenities ?? [], access_type: d?.access_type || 'keybox', description: d?.description ?? '', photo_urls: d?.photo_urls ?? '',
+      address: a.address ?? '', latitude: a.latitude ?? null, longitude: a.longitude ?? null,
     })
     setShowForm(true)
   }
@@ -63,6 +66,7 @@ export default function AssetsPage() {
       restaurant_id: restaurant.id, name: form.name.trim(), location_id: form.location_id || null,
       base_price: parseFloat(form.base_price) || null, pricing_unit: form.pricing_unit,
       cleaning_fee: parseFloat(form.cleaning_fee) || 0, min_duration: parseInt(form.min_duration) || 1, status: form.status,
+      address: form.address.trim() || null, latitude: form.latitude, longitude: form.longitude,
     }
     const { data: asset, error } = editing
       ? await supabase.from('rental_assets').update(core).eq('id', editing.id).eq('restaurant_id', restaurant.id).select('id').single()
@@ -215,6 +219,18 @@ export default function AssetsPage() {
               <div className={styles.field} style={{ gridColumn: '1/-1' }}>{t('raPhotos')}
                 <ImageUpload multiple value={form.photo_urls} onChange={v => set('photo_urls', v)} restaurantId={restaurant?.id} />
                 <span className={styles.hint}>{t('raPhotosHint')}</span>
+              </div>
+
+              <label className={styles.field} style={{ gridColumn: '1/-1' }}>{t('raAddress')}
+                <input className={styles.input} value={form.address} onChange={e => set('address', e.target.value)} placeholder="Njegoševa 4, 85310 Budva" />
+              </label>
+              <div className={styles.field} style={{ gridColumn: '1/-1' }}>{t('raPin')}
+                <Suspense fallback={<div className={styles.hint}>…</div>}>
+                  <RentalMap editable height={240}
+                    value={form.latitude != null ? { lat: form.latitude, lng: form.longitude } : null}
+                    onChange={({ lat, lng }) => setForm(f => ({ ...f, latitude: lat, longitude: lng }))} />
+                </Suspense>
+                <span className={styles.hint}>{form.latitude != null ? `📍 ${form.latitude}, ${form.longitude}` : t('raPinHint')}</span>
               </div>
             </div>
 

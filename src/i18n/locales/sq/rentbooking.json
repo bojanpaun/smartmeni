@@ -35,5 +35,7 @@
   "errPay": "Gabim në pagesë.",
   "fromLabel": "nga",
   "perNightShort": "/ natë",
-  "allLocations": "Të gjitha vendndodhjet"
+  "allLocations": "Të gjitha vendndodhjet",
+  "viewList": "Lista",
+  "viewMap": "Harta"
 }

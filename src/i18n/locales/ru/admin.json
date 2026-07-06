@@ -3530,5 +3530,8 @@
   "rlLocationD": "Адрес + карта Google.",
   "rlContact": "Контакт",
   "rlContactD": "Телефон, email и часы работы.",
-  "navRentalSite": "Веб-сайт"
+  "navRentalSite": "Веб-сайт",
+  "raAddress": "Адрес",
+  "raPin": "Метка на карте",
+  "raPinHint": "Нажмите на карту или перетащите метку, чтобы задать точное местоположение."
 }

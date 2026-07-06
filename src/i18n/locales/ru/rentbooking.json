@@ -35,5 +35,7 @@
   "errPay": "Ошибка оплаты.",
   "fromLabel": "от",
   "perNightShort": "/ ночь",
-  "allLocations": "Все локации"
+  "allLocations": "Все локации",
+  "viewList": "Список",
+  "viewMap": "Карта"
 }

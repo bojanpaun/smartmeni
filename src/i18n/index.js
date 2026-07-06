@@ -14,15 +14,23 @@ const STORAGE_KEY = 'sm_lang'
 const eager = import.meta.glob(
   ['./locales/me/*.json', './locales/en/*.json',
     '!./locales/me/admin.json', '!./locales/en/admin.json',
-    '!./locales/me/modulehelp.json', '!./locales/en/modulehelp.json'],
+    '!./locales/me/modulehelp.json', '!./locales/en/modulehelp.json',
+    // Page-specific javni ns-ovi (učitavaju se samo na svojoj ruti /rent, /rentals, /hotel)
+    // → LAZY, van init bundle-a koji se učitava na SVAKOJ stranici.
+    '!./locales/me/rentbooking.json', '!./locales/en/rentbooking.json',
+    '!./locales/me/renthub.json', '!./locales/en/renthub.json',
+    '!./locales/me/hotellanding.json', '!./locales/en/hotellanding.json'],
   { eager: true },
 )
-// Lazy mapa: svi ne-me/en fajlovi + eksplicitno me/en veliki admin-only namespace-i
-// (admin, modulehelp) koji su izbačeni iz eager-a.
+// Lazy mapa: svi ne-me/en fajlovi + eksplicitno me/en namespace-i izbačeni iz eager-a
+// (admin/modulehelp — veliki admin-only; rentbooking/renthub/hotellanding — page-specific).
 const lazyOthers = import.meta.glob(['./locales/*/*.json', '!./locales/me/*.json', '!./locales/en/*.json'])
 const lazyAdmin = import.meta.glob([
   './locales/me/admin.json', './locales/en/admin.json',
   './locales/me/modulehelp.json', './locales/en/modulehelp.json',
+  './locales/me/rentbooking.json', './locales/en/rentbooking.json',
+  './locales/me/renthub.json', './locales/en/renthub.json',
+  './locales/me/hotellanding.json', './locales/en/hotellanding.json',
 ])
 const lazy = { ...lazyOthers, ...lazyAdmin }
 

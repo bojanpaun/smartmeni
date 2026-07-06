@@ -35,5 +35,7 @@
   "errPay": "Payment error.",
   "fromLabel": "from",
   "perNightShort": "/ night",
-  "allLocations": "All locations"
+  "allLocations": "All locations",
+  "viewList": "List",
+  "viewMap": "Map"
 }

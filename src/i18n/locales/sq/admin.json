@@ -3530,5 +3530,8 @@
   "rlLocationD": "Adresa + harta Google.",
   "rlContact": "Kontakt",
   "rlContactD": "Telefoni, email dhe orari.",
-  "navRentalSite": "Faqja web"
+  "navRentalSite": "Faqja web",
+  "raAddress": "Adresa",
+  "raPin": "Pini në hartë",
+  "raPinHint": "Kliko hartën ose zvarrit pinin për të vendosur vendndodhjen e saktë."
 }

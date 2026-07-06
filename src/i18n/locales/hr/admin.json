@@ -3530,5 +3530,8 @@
   "rlLocationD": "Adresa + Google karta objekta.",
   "rlContact": "Kontakt",
   "rlContactD": "Telefon, email i radno vrijeme.",
-  "navRentalSite": "Web stranica"
+  "navRentalSite": "Web stranica",
+  "raAddress": "Adresa",
+  "raPin": "Pin na karti",
+  "raPinHint": "Klikni na kartu ili povuci pin da postaviš točnu lokaciju."
 }

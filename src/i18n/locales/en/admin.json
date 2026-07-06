@@ -3530,5 +3530,8 @@
   "rlLocationD": "Address + Google map.",
   "rlContact": "Contact",
   "rlContactD": "Phone, email and hours.",
-  "navRentalSite": "Website"
+  "navRentalSite": "Website",
+  "raAddress": "Address",
+  "raPin": "Map pin",
+  "raPinHint": "Click the map or drag the pin to set the exact location."
 }

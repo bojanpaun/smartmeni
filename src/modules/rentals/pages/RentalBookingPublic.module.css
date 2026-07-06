@@ -44,6 +44,13 @@
 .locChip:hover { border-color: #0d7a52; color: #0d7a52; }
 .locChipOn { background: #0d7a52; border-color: #0d7a52; color: #fff; }
 
+.viewToggle { display: inline-flex; gap: 4px; background: #e9f1ed; border-radius: 999px; padding: 4px; margin-bottom: 16px; }
+.viewBtn {
+  font-family: inherit; font-size: .84rem; font-weight: 700; cursor: pointer; border: 0;
+  background: transparent; color: #5a7a6a; padding: 7px 16px; border-radius: 999px; transition: all .15s;
+}
+.viewBtnOn { background: #fff; color: #0d7a52; box-shadow: 0 1px 3px rgba(20,35,29,.12); }
+
 .assetList { display: flex; flex-direction: column; gap: 14px; }
 .assetCard {
   display: flex; gap: 14px; background: #fff; border: 1px solid #dde8e2; border-radius: 14px;

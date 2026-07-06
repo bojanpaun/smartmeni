@@ -1,4 +1,4 @@
-import { useState, useEffect, useMemo } from 'react'
+import { useState, useEffect, useMemo, lazy, Suspense } from 'react'
 import { useParams } from 'react-router-dom'
 import { useTranslation } from 'react-i18next'
 import { supabase } from '../../../lib/supabase'
@@ -7,6 +7,8 @@ import { goToPaymentSession } from '../../../lib/payments'
 import { useContentTranslations } from '../../../lib/useContentTranslations'
 import LanguageSwitcher from '../../../i18n/LanguageSwitcher'
 import styles from './RentalBookingPublic.module.css'
+
+const RentalMap = lazy(() => import('../../../components/shared/RentalMap'))
 
 // Javni booking rental sredstava (RENT-0b). Anon → SECURITY DEFINER RPC-ovi
 // (get_available_rental_assets / rental_quote_public već u redu / create_rental_booking_public).
@@ -54,6 +56,7 @@ export default function RentalBookingPublicPage() {
   const [error, setError] = useState('')
   const [paid, setPaid] = useState(false)
   const [locFilter, setLocFilter] = useState('')   // filter po lokaciji (client-side)
+  const [view, setView] = useState('list')          // lista | mapa
 
   const locLabel = (a) => [a.location_name, a.city].filter(Boolean).join(', ')
   const locations = useMemo(() => [...new Set(assets.map(locLabel).filter(Boolean))], [assets])
@@ -222,7 +225,21 @@ export default function RentalBookingPublicPage() {
                 ))}
               </div>
             )}
+            {shownAssets.some(a => a.latitude != null) && (
+              <div className={styles.viewToggle}>
+                <button className={`${styles.viewBtn} ${view === 'list' ? styles.viewBtnOn : ''}`} onClick={() => setView('list')}>☰ {t('viewList')}</button>
+                <button className={`${styles.viewBtn} ${view === 'map' ? styles.viewBtnOn : ''}`} onClick={() => setView('map')}>🗺️ {t('viewMap')}</button>
+              </div>
+            )}
             {shownAssets.length === 0 && <div className={styles.empty}>{t('noneAvailable')}</div>}
+            {view === 'map' && shownAssets.some(a => a.latitude != null) && (
+              <Suspense fallback={<div className={styles.empty}>…</div>}>
+                <RentalMap height={440}
+                  markers={shownAssets.filter(a => a.latitude != null).map(a => ({ id: a.asset_id, lat: a.latitude, lng: a.longitude, label: nm(a), sublabel: formatMoney(a.total_amount, cur, locale) }))}
+                  onSelect={(id) => { const a = shownAssets.find(x => x.asset_id === id); if (a) pickAsset(a) }} />
+              </Suspense>
+            )}
+            {view === 'list' && (
             <div className={styles.assetList}>
               {shownAssets.map(a => (
                 <div key={a.asset_id} className={styles.assetCard}>
@@ -257,6 +274,7 @@ export default function RentalBookingPublicPage() {
                 </div>
               ))}
             </div>
+            )}
           </>
         )}
 

@@ -35,5 +35,7 @@
   "errPay": "Ödeme hatası.",
   "fromLabel": "",
   "perNightShort": "/ gece",
-  "allLocations": "Tüm konumlar"
+  "allLocations": "Tüm konumlar",
+  "viewList": "Liste",
+  "viewMap": "Harita"
 }

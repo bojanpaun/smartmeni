@@ -35,5 +35,7 @@
   "errPay": "Greška pri plaćanju.",
   "fromLabel": "od",
   "perNightShort": "/ noć",
-  "allLocations": "Sve lokacije"
+  "allLocations": "Sve lokacije",
+  "viewList": "Lista",
+  "viewMap": "Mapa"
 }
