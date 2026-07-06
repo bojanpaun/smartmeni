@@ -133,7 +133,9 @@ restaurant+hotel+rental; `/demo/rent` lista 2 sredstva (live verifikovano).
 (4) **meni dugme „Iznajmi smještaj"** + `restaurants.rental_visibility` toggle (migr. `20260706150000`). LIVE ✓.
 **RENT P2 — email potvrda ZAVRŠENA (DEPLOYOVANO 2026-07-06, `f40c794`):** `send-rental-email` edge fn (booking
 + depozit + self-check-in instrukcije), poziv iz javnog i admin toka (ako gost ima email); smoke-testiran prod ok.
-**Ostaje (opciono):** filter po lokaciji, iCal (RENT-1), owner portal (RENT-2), fiskal (regulatorno), i18n emaila.
+**RENT P3 — filter po lokaciji ZAVRŠEN (DEPLOYOVANO 2026-07-06, `14be335`):** /rent location chips (client-side,
+2+ lokacije); demo dobio drugu lokaciju (Vila→Kotor, migr. `20260706160000`) za live prikaz.
+**Ostaje (opciono):** iCal (RENT-1), owner portal (RENT-2), fiskal (regulatorno), i18n emaila.
 Detalji: [[project-rental-vertical-wip]].
 
 ---
