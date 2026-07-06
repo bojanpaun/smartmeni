@@ -15,11 +15,12 @@ const eager = import.meta.glob(
   ['./locales/me/*.json', './locales/en/*.json',
     '!./locales/me/admin.json', '!./locales/en/admin.json',
     '!./locales/me/modulehelp.json', '!./locales/en/modulehelp.json',
-    // Page-specific javni ns-ovi (učitavaju se samo na svojoj ruti /rent, /rentals, /hotel)
-    // → LAZY, van init bundle-a koji se učitava na SVAKOJ stranici.
+    // Page-specific javni ns-ovi (učitavaju se samo na svojoj ruti /rent, /rentals, /hotel,
+    // /staff) → LAZY, van init bundle-a koji se učitava na SVAKOJ stranici.
     '!./locales/me/rentbooking.json', '!./locales/en/rentbooking.json',
     '!./locales/me/renthub.json', '!./locales/en/renthub.json',
-    '!./locales/me/hotellanding.json', '!./locales/en/hotellanding.json'],
+    '!./locales/me/hotellanding.json', '!./locales/en/hotellanding.json',
+    '!./locales/me/staffportal.json', '!./locales/en/staffportal.json'],
   { eager: true },
 )
 // Lazy mapa: svi ne-me/en fajlovi + eksplicitno me/en namespace-i izbačeni iz eager-a
@@ -31,6 +32,7 @@ const lazyAdmin = import.meta.glob([
   './locales/me/rentbooking.json', './locales/en/rentbooking.json',
   './locales/me/renthub.json', './locales/en/renthub.json',
   './locales/me/hotellanding.json', './locales/en/hotellanding.json',
+  './locales/me/staffportal.json', './locales/en/staffportal.json',
 ])
 const lazy = { ...lazyOthers, ...lazyAdmin }
 
