@@ -158,12 +158,16 @@ Vertikala `rental`, addon `rental_core`, modul `src/modules/rentals/`, javni boo
   **meni dugme „Iznajmi smještaj"** + `rental_visibility` toggle.
 - **P2:** email potvrda (`send-rental-email`: booking+depozit+self-check-in instrukcije).
 - **P3:** filter po lokaciji na /rent (chips, 2+ lokacije).
+- **HUB (public IA):** odabrana IA = **rental landing hub + per-kind** (`3280d53`). `RentalHubPage`
+  (`/:slug/rentals`) = marketing sajt rental biznisa (hero+foto, izlog smještaja „od X/noć", kontakt;
+  slot za „Vozila"); anon `list_rental_assets` (katalog bez datuma, migr. `20260706170000`); i18n ns
+  `renthub` ×7. Discoverability: rental-only `/{slug}`→`/rentals`; demo showcase→`/rentals`; meni dugme→`/rentals`;
+  hotel sajt `/hotel` cross-link „Smještaj za najam". `/rent` ostaje BOOKING smještaja; `/rentacar` = vozila.
 - **Demo:** rental uključen (restaurant+hotel+rental), 2 smještaja sa slikama na 2 lokacije (Budva/Kotor),
-  showcase „Rentals" kartica → `/demo/rent`.
+  showcase „Rentals" kartica → `/demo/rentals`.
 
 **⬜ SLJEDEĆE (rental):**
-- **Discoverability / public surface** — vidi analizu ispod (zaseban rental landing/izlog? per-kind stranice?).
-  Ključno jer stiže **rent-a-car** pa se mora odlučiti IA prije širenja.
+- Sitno discoverability: restoran `/home` cross-link na `/rentals` (meni već ima dugme); SEO meta na hub/booking.
 - **RENT-FLEET (rent-a-car / vozila):** aktivirati `asset_kind='vehicle'` — satelitske tabele
   (`rental_vehicle_details`: make/model/year/plate/transmission/seats/fuel; `rental_vehicle_trips`:
   pickup/dropoff/km/gorivo/šteta), **`tstzrange` granularnost** (satni najam vs dnevni za smještaj →
