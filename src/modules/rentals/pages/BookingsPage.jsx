@@ -11,6 +11,10 @@ import styles from './BookingsPage.module.css'
 
 const STATUSES = ['confirmed', 'checked_in', 'checked_out', 'cancelled']
 const SOURCE_LABEL = { direct: null, booking: 'Booking.com', airbnb: 'Airbnb', vrbo: 'Vrbo' }
+// Badge statusa plaćanja (payment_status enum). Klase u CSS-u (bez hardkodovanih boja u JSX-u).
+const PAY_BADGE = {
+  pending: 'payPending', partial: 'payPartial', paid: 'payPaid', refunded: 'payRefunded',
+}
 
 const emptyForm = () => ({
   asset_id: '', start_date: '', end_date: '', adults: 2, children: 0,
@@ -107,6 +111,9 @@ export default function BookingsPage() {
                   <span>🏠 {b.asset?.name}</span>
                   <span>{b.start_date} → {b.end_date}</span>
                   {b.total_amount != null && <span>{b.total_amount} €</span>}
+                  {b.payment_status && PAY_BADGE[b.payment_status] && (
+                    <span className={`${styles.payBadge} ${styles[PAY_BADGE[b.payment_status]]}`}>{t('rbPay_' + b.payment_status)}</span>
+                  )}
                   {SOURCE_LABEL[b.source] && <span className={styles.src}>{SOURCE_LABEL[b.source]}</span>}
                 </div>
               </div>

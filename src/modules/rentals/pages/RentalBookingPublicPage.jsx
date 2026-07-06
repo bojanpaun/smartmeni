@@ -154,6 +154,8 @@ export default function RentalBookingPublicPage() {
   }
 
   const nm = (a) => tr('rental_asset', a.asset_id, 'name', a.name)
+  // RENT-PAY: rezervacija „po dolasku" (bez online depozita) — utiče na podnaslov + CTA na done koraku.
+  const bookingOnArrival = booking ? (booking.payment_type === 'on_arrival' || !(booking.deposit > 0)) : false
 
   if (loadingRest) return <div className={styles.center}><div className={styles.spinner} /></div>
   if (!restaurant || !(restaurant.active_verticals || []).includes('rental')) {
@@ -177,18 +179,31 @@ export default function RentalBookingPublicPage() {
           <div className={styles.card}>
             <div className={styles.doneIcon}>✅</div>
             <h2 className={styles.doneTitle}>{paid ? t('paidTitle') : t('doneTitle')}</h2>
-            <p className={styles.doneSub}>{paid ? t('paidSub') : t('doneSub')}</p>
-            {booking && !paid && (
-              <div className={styles.summaryBox}>
-                <div className={styles.sumRow}><span>{t('total')}</span><b>{formatMoney(booking.total_amount, cur, locale)}</b></div>
-                <div className={styles.sumRow}><span>{t('deposit')} (30%)</span><b>{formatMoney(booking.deposit, cur, locale)}</b></div>
-              </div>
-            )}
-            {booking && !paid && paymentProvider && booking.deposit > 0 && (
-              <button className={styles.primaryBtn} onClick={payDeposit} disabled={loading}>
-                {loading ? '…' : `💳 ${t('payDeposit')}`}
-              </button>
-            )}
+            <p className={styles.doneSub}>{paid ? t('paidSub') : bookingOnArrival ? t('doneSubArrival') : t('doneSub')}</p>
+            {booking && !paid && (() => {
+              // Grananje po politici plaćanja (RENT-PAY): on_arrival → nema online naplate;
+              // online → depozit (dinamičan %), a bez provajdera fallback poruka.
+              const depPct = booking.total_amount > 0 ? Math.round((booking.deposit / booking.total_amount) * 100) : 0
+              return (
+                <>
+                  <div className={styles.summaryBox}>
+                    <div className={styles.sumRow}><span>{t('total')}</span><b>{formatMoney(booking.total_amount, cur, locale)}</b></div>
+                    {!bookingOnArrival && (
+                      <div className={styles.sumRow}><span>{t('deposit')} ({depPct}%)</span><b>{formatMoney(booking.deposit, cur, locale)}</b></div>
+                    )}
+                  </div>
+                  {bookingOnArrival ? (
+                    <div className={styles.payNote}>💶 {t('payOnArrivalDone')}</div>
+                  ) : paymentProvider ? (
+                    <button className={styles.primaryBtn} onClick={payDeposit} disabled={loading}>
+                      {loading ? '…' : `💳 ${t('payDeposit')}`}
+                    </button>
+                  ) : (
+                    <div className={styles.payNote}>{t('noOnlinePayment')}</div>
+                  )}
+                </>
+              )
+            })()}
             {error && <div className={styles.err}>{error}</div>}
           </div>
         )}

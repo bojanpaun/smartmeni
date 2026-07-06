@@ -37,5 +37,8 @@
   "perNightShort": "/ natë",
   "allLocations": "Të gjitha vendndodhjet",
   "viewList": "Lista",
-  "viewMap": "Harta"
+  "viewMap": "Harta",
+  "payOnArrivalDone": "Rezervimi juaj u konfirmua. Pagesa bëhet në mbërritje.",
+  "noOnlinePayment": "Pagesa online aktualisht nuk është e disponueshme — do të paguani në mbërritje.",
+  "doneSubArrival": "Ju kemi dërguar detajet e rezervimit."
 }

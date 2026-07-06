@@ -3533,5 +3533,18 @@
   "navRentalSite": "Faqja web",
   "raAddress": "Adresa",
   "raPin": "Pini në hartë",
-  "raPinHint": "Kliko hartën ose zvarrit pinin për të vendosur vendndodhjen e saktë."
+  "raPinHint": "Kliko hartën ose zvarrit pinin për të vendosur vendndodhjen e saktë.",
+  "rsPaySection": "Pagesa",
+  "rsPayPolicy": "Mënyra e pagesës",
+  "rsPayOnArrival": "Pagesa në mbërritje",
+  "rsPayOnline": "Pagesa online (depozitë)",
+  "rsDepositPct": "Depozita (%)",
+  "rsDepositPctHint": "Përqindja që mysafiri paguan online gjatë rezervimit; pjesa tjetër në mbërritje.",
+  "rsPayOnArrivalHint": "Mysafiri rezervon pa pagesë online; paguan në vend.",
+  "rsPayOnlineHint": "Mysafiri paguan një depozitë online gjatë rezervimit; pjesa tjetër në mbërritje. Kërkon një ofrues pagese të konfiguruar.",
+  "rbPay_pending": "E papaguar",
+  "rbPay_partial": "Depozita e paguar",
+  "rbPay_paid": "E paguar",
+  "rbPay_refunded": "E rimbursuar",
+  "audActRentalSettings": "Cilësimet e qirasë"
 }

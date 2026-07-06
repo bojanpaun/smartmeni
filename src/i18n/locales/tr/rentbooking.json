@@ -37,5 +37,8 @@
   "perNightShort": "/ gece",
   "allLocations": "Tüm konumlar",
   "viewList": "Liste",
-  "viewMap": "Harita"
+  "viewMap": "Harita",
+  "payOnArrivalDone": "Rezervasyonunuz onaylandı. Ödeme varışta yapılır.",
+  "noOnlinePayment": "Online ödeme şu anda kullanılamıyor — varışta ödeyeceksiniz.",
+  "doneSubArrival": "Rezervasyon detaylarını size gönderdik."
 }

@@ -79,6 +79,8 @@
 .sumTotal { border-top: 1px solid #dde8e2; margin-top: 6px; padding-top: 10px; color: #14231d; font-size: 1rem; }
 .sumTotal b { color: #0d7a52; font-size: 1.1rem; }
 
+.payNote { margin-top: 16px; text-align: center; background: #eef6f1; border: 1px solid #cfe6da; color: #0a5c3d; border-radius: 12px; padding: 13px 16px; font-size: .92rem; font-weight: 600; }
+
 .empty { text-align: center; color: #5a7a6a; padding: 40px 0; }
 .err { color: #c0392b; font-size: .88rem; margin-top: 10px; }
 

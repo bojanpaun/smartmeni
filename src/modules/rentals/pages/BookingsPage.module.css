@@ -30,6 +30,11 @@
 .cardName { font-weight: 600; color: var(--c-text); }
 .cardMeta { display: flex; gap: 12px; flex-wrap: wrap; font-size: 13px; color: var(--c-text-muted); }
 .src { color: var(--c-text-medium); font-weight: 600; }
+.payBadge { font-size: 11px; font-weight: 700; padding: 2px 8px; border-radius: 999px; }
+.payPending { background: var(--c-warning-bg, #fdf3e0); color: var(--c-warning, #a56a12); }
+.payPartial { background: var(--c-info-bg, #e6f0fb); color: var(--c-info, #1a6bb5); }
+.payPaid { background: var(--c-success-bg, #e3f3ec); color: var(--c-success, #0a7d4d); }
+.payRefunded { background: var(--c-surface-2, #eef0f2); color: var(--c-text-muted); }
 
 .statusSelect {
   padding: 7px 10px; border-radius: 8px; border: 1px solid var(--c-border-input);

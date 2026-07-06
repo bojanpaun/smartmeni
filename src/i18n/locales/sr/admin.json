@@ -3533,5 +3533,18 @@
   "navRentalSite": "Veb sajt",
   "raAddress": "Adresa",
   "raPin": "Pin na mapi",
-  "raPinHint": "Klikni na mapu ili prevuci pin da postaviš tačnu lokaciju."
+  "raPinHint": "Klikni na mapu ili prevuci pin da postaviš tačnu lokaciju.",
+  "rsPaySection": "Plaćanje",
+  "rsPayPolicy": "Način plaćanja",
+  "rsPayOnArrival": "Plaćanje po dolasku",
+  "rsPayOnline": "Online plaćanje (depozit)",
+  "rsDepositPct": "Depozit (%)",
+  "rsDepositPctHint": "Procenat koji gost plaća online pri rezervaciji; ostatak po dolasku.",
+  "rsPayOnArrivalHint": "Gost rezerviše bez online naplate; plaća na licu mjesta.",
+  "rsPayOnlineHint": "Gost plaća depozit online pri rezervaciji; ostatak po dolasku. Zahteva konfigurisan payment provajder.",
+  "rbPay_pending": "Neplaćeno",
+  "rbPay_partial": "Depozit plaćen",
+  "rbPay_paid": "Plaćeno",
+  "rbPay_refunded": "Refundirano",
+  "audActRentalSettings": "Postavke najma"
 }

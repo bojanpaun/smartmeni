@@ -14,8 +14,10 @@ INSERT INTO public.restaurants (id, user_id, name, slug, active_verticals) VALUE
   ('eeeeeeee-0000-0000-0000-000000000001', tests.get_supabase_uid('rpb_owner'),  'RPB Rental', 'rpb-rental', ARRAY['restaurant','rental']),
   ('eeeeeeee-0000-0000-0000-000000000002', tests.get_supabase_uid('rpb_owner2'), 'RPB Plain',  'rpb-plain',  ARRAY['restaurant']);
 
-INSERT INTO public.rental_settings (restaurant_id, tourist_tax_per_person)
-  VALUES ('eeeeeeee-0000-0000-0000-000000000001', 1.00);
+-- payment_type='online' (deposit_pct 30) — test #3 provjerava depozit 30%.
+-- (Default kolone je 'on_arrival'; ovdje eksplicitno online da se testira depozit.)
+INSERT INTO public.rental_settings (restaurant_id, tourist_tax_per_person, payment_type, deposit_pct)
+  VALUES ('eeeeeeee-0000-0000-0000-000000000001', 1.00, 'online', 30);
 
 INSERT INTO public.rental_assets (id, restaurant_id, name, base_price, cleaning_fee, min_duration, status, asset_kind)
   VALUES ('eeeeeeee-0000-0000-0000-0000000000a1', 'eeeeeeee-0000-0000-0000-000000000001',

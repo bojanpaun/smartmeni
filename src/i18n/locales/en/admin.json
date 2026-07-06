@@ -3533,5 +3533,18 @@
   "navRentalSite": "Website",
   "raAddress": "Address",
   "raPin": "Map pin",
-  "raPinHint": "Click the map or drag the pin to set the exact location."
+  "raPinHint": "Click the map or drag the pin to set the exact location.",
+  "rsPaySection": "Payment",
+  "rsPayPolicy": "Payment method",
+  "rsPayOnArrival": "Pay on arrival",
+  "rsPayOnline": "Online payment (deposit)",
+  "rsDepositPct": "Deposit (%)",
+  "rsDepositPctHint": "Percentage the guest pays online at booking; the rest on arrival.",
+  "rsPayOnArrivalHint": "Guest books without online payment; pays on site.",
+  "rsPayOnlineHint": "Guest pays a deposit online at booking; the rest on arrival. Requires a configured payment provider.",
+  "rbPay_pending": "Unpaid",
+  "rbPay_partial": "Deposit paid",
+  "rbPay_paid": "Paid",
+  "rbPay_refunded": "Refunded",
+  "audActRentalSettings": "Rental settings"
 }

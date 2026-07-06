@@ -3,7 +3,8 @@
 .title { font-family: var(--c-font-display); font-size: var(--c-page-title-size); font-weight: var(--c-page-title-weight); color: var(--c-text); margin: 0 0 4px; }
 .subtitle { font-size: 13px; color: var(--c-text-muted); margin: 0 0 18px; }
 
-.card { background: var(--c-surface); border: 1px solid var(--c-border); border-radius: 14px; padding: 20px; }
+.card { background: var(--c-surface); border: 1px solid var(--c-border); border-radius: 14px; padding: 20px; margin-bottom: 16px; }
+.sectionTitle { font-family: var(--c-font-display); font-size: 15px; font-weight: 600; color: var(--c-text); margin: 0 0 14px; }
 .grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(160px, 1fr)); gap: 14px; }
 .field { display: flex; flex-direction: column; gap: 4px; font-size: 13px; color: var(--c-text-medium); font-weight: 500; }
 .input {

@@ -37,5 +37,8 @@
   "perNightShort": "/ noć",
   "allLocations": "Sve lokacije",
   "viewList": "Lista",
-  "viewMap": "Mapa"
+  "viewMap": "Mapa",
+  "payOnArrivalDone": "Rezervacija je potvrđena. Plaćanje se vrši po dolasku.",
+  "noOnlinePayment": "Online plaćanje trenutno nije dostupno — platićete po dolasku.",
+  "doneSubArrival": "Poslali smo vam detalje rezervacije."
 }

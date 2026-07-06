@@ -42,6 +42,7 @@ const ACTION_KEYS = {
   'spa_appointment.cancel':      'audActSpaCancel',
   'spa_appointment.complete':    'audActSpaComplete',
   'restaurant.settings_update':  'audActSettingsUpdate',
+  'rental.settings_update':      'audActRentalSettings',
   'restaurant.tax_rates_update': 'audActTaxUpdate',
   'restaurant.tax_rates_reset':  'audActTaxReset',
   'payment_config.create':       'audActPaymentCreate',

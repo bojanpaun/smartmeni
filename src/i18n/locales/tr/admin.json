@@ -3533,5 +3533,18 @@
   "navRentalSite": "Web sitesi",
   "raAddress": "Adres",
   "raPin": "Harita pini",
-  "raPinHint": "Tam konumu ayarlamak için haritaya tıklayın veya pini sürükleyin."
+  "raPinHint": "Tam konumu ayarlamak için haritaya tıklayın veya pini sürükleyin.",
+  "rsPaySection": "Ödeme",
+  "rsPayPolicy": "Ödeme yöntemi",
+  "rsPayOnArrival": "Varışta ödeme",
+  "rsPayOnline": "Online ödeme (depozito)",
+  "rsDepositPct": "Depozito (%)",
+  "rsDepositPctHint": "Misafirin rezervasyonda online ödediği yüzde; kalanı varışta.",
+  "rsPayOnArrivalHint": "Misafir online ödeme olmadan rezervasyon yapar; yerinde öder.",
+  "rsPayOnlineHint": "Misafir rezervasyonda online depozito öder; kalanı varışta. Yapılandırılmış bir ödeme sağlayıcısı gerektirir.",
+  "rbPay_pending": "Ödenmedi",
+  "rbPay_partial": "Depozito ödendi",
+  "rbPay_paid": "Ödendi",
+  "rbPay_refunded": "İade edildi",
+  "audActRentalSettings": "Kiralama ayarları"
 }
