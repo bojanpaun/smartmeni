@@ -114,10 +114,16 @@ ivica `primary-muted`). Layout/boje netaknuti. Potvrđeno.
 - Fino podešavanje demo landing teksta/slika (self-host slika umjesto Unsplash) — kozmetika.
 - Sitno: vizuelna provjera Google mape (`/demo/hotel`, `/demo/home`) u pravom browseru.
 
-**➡️ SLJEDEĆE (2026-07-05): RENTAL vertikala — provjera u praksi.** RENT-0a admin core je na prod-u
-(assets/pricing/calendar/bookings/settings), javni booking NIJE (treba anon SECURITY DEFINER RPC-ovi).
-Cilj: prošetati admin rental tok uživo (lokalni seed test tenant ima `rental` vertikalu) i vidjeti
-šta radi / šta fali prije nastavka RENT-0b. Detalji: memorija [[project-rental-vertical-wip]].
+**RENTAL — provjera u praksi (2026-07-05) → RENT-0b JAVNI BOOKING ZAVRŠEN (DEPLOYOVANO 2026-07-06, `ebcfaa3`).**
+Admin core (assets/pricing/calendar/bookings/settings) potvrđen uživo (populisan uzorak: 2 sredstva,
+sezonska cijena, rezervacije sa auto-quote+depozitom, kalendar zauzeća, auto-guest). **RENT-0b:** gost
+sada online rezerviše bez naloga — 3 anon SECURITY DEFINER RPC-a (migr. `20260706120000`, gejt
+`active_verticals` rental: dostupnost EXCLUDE-aware + quote + create server-side re-quote → booking+stay,
+depozit 30%), pgTAP `075`; javna stranica **`/:slug/rent`** (pretraga→sredstva→gost→potvrda+depozit),
+i18n ns `rentbooking` ×7; plaćanje `sourceType:'rental'` (webhook grana već postoji). LIVE verifikovano
+(quote 281€, depozit 84.30€), **375 pgTAP PASS**. Slike sredstava ne postoje u šemi (placeholder 🏠).
+**Ostaje (opciono):** foto upload sredstava, fiskal reader (regulatorno blokiran), owner portal (RENT-2),
+iCal (RENT-1), uključiti rental na demo tenant za javni live prikaz. Detalji: [[project-rental-vertical-wip]].
 
 ---
 
