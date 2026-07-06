@@ -131,7 +131,9 @@ restaurant+hotel+rental; `/demo/rent` lista 2 sredstva (live verifikovano).
 `get_available_rental_assets` vraća photos; prikaz /rent + admin; demo dobio slike; migr. `20260706140000`);
 (3) **izlog** — /rent auto-pretraga na učitavanju („od X/noć" + slike) + root routing rental-only `/{slug}`→`/rent`;
 (4) **meni dugme „Iznajmi smještaj"** + `restaurants.rental_visibility` toggle (migr. `20260706150000`). LIVE ✓.
-**Ostaje (opciono):** email potvrda rez., filter po lokaciji, iCal (RENT-1), owner portal (RENT-2), fiskal (regulatorno).
+**RENT P2 — email potvrda ZAVRŠENA (DEPLOYOVANO 2026-07-06, `f40c794`):** `send-rental-email` edge fn (booking
++ depozit + self-check-in instrukcije), poziv iz javnog i admin toka (ako gost ima email); smoke-testiran prod ok.
+**Ostaje (opciono):** filter po lokaciji, iCal (RENT-1), owner portal (RENT-2), fiskal (regulatorno), i18n emaila.
 Detalji: [[project-rental-vertical-wip]].
 
 ---
