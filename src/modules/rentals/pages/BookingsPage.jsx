@@ -69,6 +69,10 @@ export default function BookingsPage() {
     toast.success(t('rbSaved'))
     setShowForm(false)
     refetch()
+    // Email potvrda gostu (fire-and-forget) — samo ako je unesen email.
+    if (form.guest_email.trim()) {
+      supabase.functions.invoke('send-rental-email', { body: { booking_id: bk.id } }).catch(() => {})
+    }
   }
 
   const changeStatus = async (id, status) => {

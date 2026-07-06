@@ -114,6 +114,10 @@ export default function RentalBookingPublicPage() {
     }
     setBooking(data)
     setStep('done')
+    // Email potvrda (fire-and-forget) — samo ako je gost ostavio email.
+    if (form.email?.trim()) {
+      supabase.functions.invoke('send-rental-email', { body: { booking_id: data.booking_id } }).catch(() => {})
+    }
   }
 
   const payDeposit = async () => {
