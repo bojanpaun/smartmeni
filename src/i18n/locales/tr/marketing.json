@@ -48,7 +48,8 @@
     "kpiRevenue": "Bugünkü ciro",
     "kpiOrders": "Siparişler",
     "kpiOccupancy": "Doluluk",
-    "publicTag": "Demonun parçası"
+    "publicTag": "Demonun parçası",
+    "rental": "Kiralık konaklama"
   },
   "demo": {
     "frontDesk": "Front Desk",

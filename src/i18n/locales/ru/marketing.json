@@ -48,7 +48,8 @@
     "kpiRevenue": "Выручка сегодня",
     "kpiOrders": "Заказы",
     "kpiOccupancy": "Загрузка",
-    "publicTag": "Часть демо"
+    "publicTag": "Часть демо",
+    "rental": "Аренда жилья"
   },
   "demo": {
     "frontDesk": "Front Desk",

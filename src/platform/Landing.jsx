@@ -35,6 +35,7 @@ const SHOWCASE = [
   { icon: '🍽️', k: 'menu',        path: '/demo' },
   { icon: '🌐', k: 'restaurant',  path: '/demo/home' },
   { icon: '🏨', k: 'hotel',       path: '/demo/hotel' },
+  { icon: '🏖️', k: 'rental',      path: '/demo/rent' },
   { icon: '📅', k: 'book',        path: '/demo/book' },
   { icon: '🧖', k: 'spa',         path: '/demo/spa' },
   { icon: '🪑', k: 'reservation', path: '/demo/rezervacija' },

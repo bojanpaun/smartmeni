@@ -48,7 +48,8 @@
     "kpiRevenue": "Revenue today",
     "kpiOrders": "Orders",
     "kpiOccupancy": "Occupancy",
-    "publicTag": "Part of the demo"
+    "publicTag": "Part of the demo",
+    "rental": "Rentals"
   },
   "demo": {
     "frontDesk": "Front Desk",

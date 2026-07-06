@@ -48,7 +48,8 @@
     "kpiRevenue": "Promet danas",
     "kpiOrders": "Narudžbe",
     "kpiOccupancy": "Popunjenost",
-    "publicTag": "Dio demo-a"
+    "publicTag": "Dio demo-a",
+    "rental": "Najam smještaja"
   },
   "demo": {
     "frontDesk": "Front Desk",
