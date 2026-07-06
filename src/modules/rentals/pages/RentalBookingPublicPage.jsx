@@ -87,6 +87,15 @@ export default function RentalBookingPublicPage() {
     setStep('results')
   }
 
+  // Izlog: čim se tenant učita, automatski pokaži ponudu (pretraga sa default datumima) —
+  // posjetilac odmah vidi smještaj sa slikama, umjesto prazne forme.
+  useEffect(() => {
+    if (restaurant?.id && (restaurant.active_verticals || []).includes('rental') && step === 'search' && !paid && !searched) {
+      search()
+    }
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [restaurant])
+
   const pickAsset = (a) => { setSelected(a); setError(''); setStep('guest') }
 
   const confirm = async () => {
@@ -199,7 +208,11 @@ export default function RentalBookingPublicPage() {
             <div className={styles.assetList}>
               {assets.map(a => (
                 <div key={a.asset_id} className={styles.assetCard}>
-                  <div className={styles.assetThumb}>🏠</div>
+                  <div className={styles.assetThumb}>
+                    {(a.photos || []).length
+                      ? <img src={a.photos[0]} alt={nm(a)} loading="lazy" decoding="async" onError={e => { e.currentTarget.style.display = 'none' }} />
+                      : '🏠'}
+                  </div>
                   <div className={styles.assetBody}>
                     <div className={styles.assetName}>{nm(a)}</div>
                     {(a.location_name || a.city) && <div className={styles.assetLoc}>📍 {[a.location_name, a.city].filter(Boolean).join(', ')}</div>}
@@ -217,8 +230,10 @@ export default function RentalBookingPublicPage() {
                     )}
                   </div>
                   <div className={styles.assetRight}>
-                    <div className={styles.assetTotal}>{formatMoney(a.total_amount, cur, locale)}</div>
-                    <div className={styles.assetNights}>{a.nights} {a.nights === 1 ? t('night') : t('nights')}</div>
+                    <div className={styles.assetTotal}>
+                      <span className={styles.fromLabel}>{t('fromLabel')}</span> {formatMoney(a.base_price ?? (a.total_amount / a.nights), cur, locale)}<span className={styles.perNight}>{t('perNightShort')}</span>
+                    </div>
+                    <div className={styles.assetNights}>{a.nights} {a.nights === 1 ? t('night') : t('nights')} · {formatMoney(a.total_amount, cur, locale)}</div>
                     <button className={styles.primaryBtn} onClick={() => pickAsset(a)}>{t('reserve')}</button>
                   </div>
                 </div>

@@ -5,7 +5,10 @@ import { usePlatform } from '../../../context/PlatformContext'
 import { supabase } from '../../../lib/supabase'
 import { translateContent, rentalAssetFields } from '../../../lib/contentTranslate'
 import { useAssets } from '../hooks/useAssets'
+import ImageUpload from '../../../components/shared/ImageUpload'
 import LoadingSpinner from '../../../components/shared/LoadingSpinner'
+
+const coverOf = (photoUrls) => (photoUrls || '').split('\n').map(s => s.trim()).find(s => s.startsWith('http')) || null
 import toast from 'react-hot-toast'
 import styles from './AssetsPage.module.css'
 
@@ -14,7 +17,7 @@ const ACCESS_TYPES = ['keybox', 'smart_lock', 'licno']
 
 const emptyForm = () => ({
   name: '', location_id: '', base_price: '', pricing_unit: 'night', cleaning_fee: '', min_duration: 1, status: 'active',
-  max_guests: 2, bedrooms: 1, beds: 1, bathrooms: 1, amenities: [], access_type: 'keybox', description: '',
+  max_guests: 2, bedrooms: 1, beds: 1, bathrooms: 1, amenities: [], access_type: 'keybox', description: '', photo_urls: '',
 })
 
 export default function AssetsPage() {
@@ -38,7 +41,7 @@ export default function AssetsPage() {
       name: a.name, location_id: a.location_id || '', base_price: a.base_price ?? '', pricing_unit: a.pricing_unit || 'night',
       cleaning_fee: a.cleaning_fee ?? '', min_duration: a.min_duration ?? 1, status: a.status || 'active',
       max_guests: d?.max_guests ?? 2, bedrooms: d?.bedrooms ?? 1, beds: d?.beds ?? 1, bathrooms: d?.bathrooms ?? 1,
-      amenities: d?.amenities ?? [], access_type: d?.access_type || 'keybox', description: d?.description ?? '',
+      amenities: d?.amenities ?? [], access_type: d?.access_type || 'keybox', description: d?.description ?? '', photo_urls: d?.photo_urls ?? '',
     })
     setShowForm(true)
   }
@@ -69,7 +72,7 @@ export default function AssetsPage() {
     const det = {
       asset_id: asset.id, max_guests: parseInt(form.max_guests) || null, bedrooms: parseInt(form.bedrooms) || null,
       beds: parseInt(form.beds) || null, bathrooms: parseInt(form.bathrooms) || null, amenities: form.amenities,
-      access_type: form.access_type, description: form.description.trim() || null,
+      access_type: form.access_type, description: form.description.trim() || null, photo_urls: form.photo_urls || null,
     }
     const { error: dErr } = await supabase.from('rental_accommodation_details').upsert(det, { onConflict: 'asset_id' })
     setSaving(false)
@@ -109,8 +112,12 @@ export default function AssetsPage() {
         <div className={styles.list}>
           {assets.map(a => {
             const d = Array.isArray(a.details) ? a.details[0] : a.details
+            const cover = coverOf(d?.photo_urls)
             return (
               <div key={a.id} className={styles.card}>
+                {cover
+                  ? <img src={cover} alt={a.name} className={styles.cardThumb} loading="lazy" decoding="async" onError={e => { e.currentTarget.style.display = 'none' }} />
+                  : <div className={styles.cardThumbPlaceholder}>🏠</div>}
                 <div className={styles.cardMain}>
                   <div className={styles.cardName}>{a.name}</div>
                   <div className={styles.cardMeta}>
@@ -204,6 +211,11 @@ export default function AssetsPage() {
               <label className={styles.field} style={{ gridColumn: '1/-1' }}>{t('raDescription')}
                 <textarea className={`${styles.input} ${styles.textarea}`} rows={3} value={form.description} onChange={e => set('description', e.target.value)} placeholder={t('raDescPlaceholder')} />
               </label>
+
+              <div className={styles.field} style={{ gridColumn: '1/-1' }}>{t('raPhotos')}
+                <ImageUpload multiple value={form.photo_urls} onChange={v => set('photo_urls', v)} restaurantId={restaurant?.id} />
+                <span className={styles.hint}>{t('raPhotosHint')}</span>
+              </div>
             </div>
 
             <div className={styles.formActions}>

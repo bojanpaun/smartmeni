@@ -32,5 +32,7 @@
   "errName": "Lütfen bir ad girin.",
   "errTaken": "Bu tarihler az önce doldu. Başka seçin.",
   "errBook": "Rezervasyon hatası.",
-  "errPay": "Ödeme hatası."
+  "errPay": "Ödeme hatası.",
+  "fromLabel": "",
+  "perNightShort": "/ gece"
 }

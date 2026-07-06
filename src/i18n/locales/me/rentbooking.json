@@ -32,5 +32,7 @@
   "errName": "Unesite ime.",
   "errTaken": "Termin je upravo zauzet. Izaberite druge datume.",
   "errBook": "Greška pri rezervaciji.",
-  "errPay": "Greška pri plaćanju."
+  "errPay": "Greška pri plaćanju.",
+  "fromLabel": "od",
+  "perNightShort": "/ noć"
 }

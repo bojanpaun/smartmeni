@@ -73,5 +73,6 @@
   "cartStServed": "Servis edildi",
   "cartStServedDesc": "Afiyet olsun!",
   "cartStClosed": "Kapatıldı",
-  "cartStClosedDesc": "Sipariş kapatıldı."
+  "cartStClosedDesc": "Sipariş kapatıldı.",
+  "rentAccommodation": "Konaklama kirala"
 }

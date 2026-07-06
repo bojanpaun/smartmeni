@@ -16,7 +16,7 @@ export function useAssets(restaurantId) {
       supabase.from('rental_assets')
         .select('id, name, asset_kind, status, base_price, pricing_unit, cleaning_fee, min_duration, location_id, ' +
                 'location:rental_locations(id, name, city), ' +
-                'details:rental_accommodation_details(max_guests, bedrooms, beds, bathrooms, amenities, access_type, description)')
+                'details:rental_accommodation_details(max_guests, bedrooms, beds, bathrooms, amenities, access_type, description, photo_urls)')
         .eq('restaurant_id', restaurantId)
         .order('created_at', { ascending: false }),
       supabase.from('rental_locations')

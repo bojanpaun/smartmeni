@@ -32,5 +32,7 @@
   "errName": "Please enter a name.",
   "errTaken": "Those dates were just taken. Please choose others.",
   "errBook": "Booking error.",
-  "errPay": "Payment error."
+  "errPay": "Payment error.",
+  "fromLabel": "from",
+  "perNightShort": "/ night"
 }

@@ -42,8 +42,9 @@
 }
 .assetThumb {
   width: 64px; height: 64px; flex-shrink: 0; border-radius: 12px; background: #e3f3ec;
-  display: flex; align-items: center; justify-content: center; font-size: 30px;
+  display: flex; align-items: center; justify-content: center; font-size: 30px; overflow: hidden;
 }
+.assetThumb img { width: 100%; height: 100%; object-fit: cover; }
 .assetBody { flex: 1; min-width: 0; }
 .assetName { font-weight: 800; font-size: 1.05rem; }
 .assetLoc { font-size: .82rem; color: #5a7a6a; margin-top: 2px; }
@@ -52,6 +53,8 @@
 .amenity { font-size: .72rem; background: #e3f3ec; color: #0a5c3d; padding: 3px 8px; border-radius: 999px; }
 .assetRight { display: flex; flex-direction: column; align-items: flex-end; justify-content: center; gap: 2px; min-width: 120px; }
 .assetTotal { font-weight: 800; font-size: 1.15rem; color: #0d7a52; }
+.fromLabel { font-size: .72rem; font-weight: 600; color: #8a9e96; }
+.perNight { font-size: .72rem; font-weight: 600; color: #8a9e96; }
 .assetNights { font-size: .78rem; color: #8a9e96; margin-bottom: 6px; }
 .assetRight .primaryBtn { margin-top: 4px; padding: 9px 18px; width: auto; }
 

@@ -73,5 +73,6 @@
   "cartStServed": "Posluženo",
   "cartStServedDesc": "Dobar tek!",
   "cartStClosed": "Zatvoreno",
-  "cartStClosedDesc": "Narudžba je zatvorena."
+  "cartStClosedDesc": "Narudžba je zatvorena.",
+  "rentAccommodation": "Iznajmi smještaj"
 }

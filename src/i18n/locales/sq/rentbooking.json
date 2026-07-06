@@ -32,5 +32,7 @@
   "errName": "Shkruani një emër.",
   "errTaken": "Këto data sapo u zunë. Zgjidhni të tjera.",
   "errBook": "Gabim në rezervim.",
-  "errPay": "Gabim në pagesë."
+  "errPay": "Gabim në pagesë.",
+  "fromLabel": "nga",
+  "perNightShort": "/ natë"
 }

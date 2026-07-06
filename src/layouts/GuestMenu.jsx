@@ -168,11 +168,12 @@ export default function Menu() {
       const { data: rest } = await supabase
         .from('restaurants').select('*').eq('slug', slug).single()
       if (!rest) { setLoadingData(false); return }
-      // 2b/Faza 4c: hotel-only objekat nema restoran meni → vodi na hotel sajt.
+      // Objekat bez restoran-menija → vodi na odgovarajuću javnu površinu vertikale
+      // (hotel sajt ili rental izlog). Restoran-meni ostaje default kad postoji.
       const verts = rest.active_verticals || ['restaurant']
-      if (!verts.includes('restaurant') && verts.includes('hotel')) {
-        navigate(`/${slug}/hotel`, { replace: true })
-        return
+      if (!verts.includes('restaurant')) {
+        if (verts.includes('hotel')) { navigate(`/${slug}/hotel`, { replace: true }); return }
+        if (verts.includes('rental')) { navigate(`/${slug}/rent`, { replace: true }); return }
       }
       const [{ data: cats }, { data: its }, { data: bnds }, { data: bndItems }, { data: ads }] = await Promise.all([
         supabase.from('categories').select('*').eq('restaurant_id', rest.id).order('sort_order'),
@@ -260,6 +261,8 @@ export default function Menu() {
   const hasHotelVertical = (r?.active_verticals ?? ['restaurant']).includes('hotel')
   const hotelVis = (isDemo || !hasHotelVertical) ? 'off' : (r?.hotel_visibility || 'off')
   const spaVis = (isDemo || !hasHotelVertical) ? 'off' : (r?.spa_visibility || 'off')
+  const hasRentalVertical = (r?.active_verticals ?? ['restaurant']).includes('rental')
+  const rentalVis = isDemo ? 'all' : (!hasRentalVertical ? 'off' : (r?.rental_visibility || 'off'))
   const tableNumber = isDemo ? 'Sto 4' : (new URLSearchParams(window.location.search).get('table') || '')
   const currentCategories = noData ? data.categories : realData?.categories || []
   const allItems = noData
@@ -925,6 +928,13 @@ export default function Menu() {
         {canSee(spaVis) && (
           <a href={`/${slug}/spa`} className={styles.reservationBtn}>
             ✨ {t('spaWellness')}
+          </a>
+        )}
+
+        {/* Iznajmi smještaj (rental vertikala) */}
+        {canSee(rentalVis) && (
+          <a href={`/${isDemo ? 'demo' : slug}/rent`} className={styles.reservationBtn}>
+            🏖️ {t('rentAccommodation')}
           </a>
         )}
 

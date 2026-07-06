@@ -287,6 +287,7 @@ export default function AdminMenuSettings() {
   // pokazivali i restoranu-only nalogu. Spa dodatno traži spa_wellness addon.
   const hasHotel = hasVertical('hotel')
   const hasSpa   = hasVertical('hotel') && hasAddon('spa_wellness')
+  const hasRental = hasVertical('rental')
 
   const [activeTab, setActiveTab] = useState('opste')
   const [form, setForm]     = useState(restaurant ? { ...restaurant } : null)
@@ -419,6 +420,10 @@ export default function AdminMenuSettings() {
           {hasSpa && (
             <VisibilityControl icon="✨" label={t('modSpa')} desc={t('msVisSpaDesc')}
               value={form.spa_visibility || 'off'} onChange={val => toggleVis('spa_visibility', val)} />
+          )}
+          {hasRental && (
+            <VisibilityControl icon="🏖️" label={t('msVisRentalLabel')} desc={t('msVisRentalDesc')}
+              value={form.rental_visibility || 'off'} onChange={val => toggleVis('rental_visibility', val)} />
           )}
 
           {hasHotel && (

@@ -73,5 +73,6 @@
   "cartStServed": "Served",
   "cartStServedDesc": "Enjoy your meal!",
   "cartStClosed": "Closed",
-  "cartStClosedDesc": "The order is closed."
+  "cartStClosedDesc": "The order is closed.",
+  "rentAccommodation": "Rent accommodation"
 }

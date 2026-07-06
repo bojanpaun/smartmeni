@@ -73,5 +73,6 @@
   "cartStServed": "Подано",
   "cartStServedDesc": "Приятного аппетита!",
   "cartStClosed": "Закрыт",
-  "cartStClosedDesc": "Заказ закрыт."
+  "cartStClosedDesc": "Заказ закрыт.",
+  "rentAccommodation": "Снять жильё"
 }
