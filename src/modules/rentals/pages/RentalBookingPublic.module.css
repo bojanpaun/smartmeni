@@ -1,0 +1,80 @@
+/* Javni rental booking — svijetla javna stranica (nezavisna od admin teme). */
+.page { min-height: 100vh; background: #f4f8f6; font-family: 'DM Sans', system-ui, sans-serif; color: #14231d; }
+
+.header { color: #fff; padding: 18px 16px 22px; }
+.headTop { display: flex; align-items: center; gap: 12px; max-width: 760px; margin: 0 auto; }
+.logo { width: 38px; height: 38px; border-radius: 9px; object-fit: cover; }
+.hotelName { font-weight: 800; font-size: 1.15rem; flex: 1; }
+.headSub { max-width: 760px; margin: 10px auto 0; opacity: .9; font-size: .92rem; }
+
+.body { max-width: 760px; margin: 0 auto; padding: 18px 16px 60px; }
+
+.card {
+  background: #fff; border: 1px solid #dde8e2; border-radius: 16px;
+  padding: 22px; box-shadow: 0 1px 3px rgba(20,35,29,.05);
+}
+.cardTitle { font-weight: 800; font-size: 1.2rem; margin: 0 0 16px; letter-spacing: -.01em; }
+
+.fields { display: grid; grid-template-columns: repeat(auto-fit, minmax(150px, 1fr)); gap: 12px; }
+.field { display: flex; flex-direction: column; gap: 5px; font-size: .82rem; font-weight: 600; color: #5a7a6a; }
+.field input {
+  font-family: inherit; font-size: 1rem; color: #14231d; padding: 11px 12px;
+  border: 1px solid #d0e4dc; border-radius: 10px; background: #fff;
+}
+.field input:focus { outline: 2px solid #0d7a52; outline-offset: -1px; border-color: #0d7a52; }
+
+.primaryBtn {
+  margin-top: 16px; width: 100%; font-family: inherit; font-weight: 700; font-size: 1rem;
+  background: #0d7a52; color: #fff; border: 0; border-radius: 12px; padding: 13px; cursor: pointer;
+  transition: background .15s;
+}
+.primaryBtn:hover:not(:disabled) { background: #0a6343; }
+.primaryBtn:disabled { opacity: .65; cursor: default; }
+
+.backBtn { background: none; border: 0; color: #5a7a6a; font-weight: 600; font-size: .9rem; cursor: pointer; padding: 4px 0; margin-bottom: 10px; }
+.backBtn:hover { color: #0d7a52; }
+.datesLabel { font-size: .88rem; color: #5a7a6a; margin-bottom: 14px; font-weight: 600; }
+
+.assetList { display: flex; flex-direction: column; gap: 14px; }
+.assetCard {
+  display: flex; gap: 14px; background: #fff; border: 1px solid #dde8e2; border-radius: 14px;
+  padding: 16px; box-shadow: 0 1px 3px rgba(20,35,29,.05);
+}
+.assetThumb {
+  width: 64px; height: 64px; flex-shrink: 0; border-radius: 12px; background: #e3f3ec;
+  display: flex; align-items: center; justify-content: center; font-size: 30px;
+}
+.assetBody { flex: 1; min-width: 0; }
+.assetName { font-weight: 800; font-size: 1.05rem; }
+.assetLoc { font-size: .82rem; color: #5a7a6a; margin-top: 2px; }
+.assetMeta { display: flex; gap: 12px; font-size: .82rem; color: #5a7a6a; margin-top: 6px; }
+.amenities { display: flex; flex-wrap: wrap; gap: 6px; margin-top: 8px; }
+.amenity { font-size: .72rem; background: #e3f3ec; color: #0a5c3d; padding: 3px 8px; border-radius: 999px; }
+.assetRight { display: flex; flex-direction: column; align-items: flex-end; justify-content: center; gap: 2px; min-width: 120px; }
+.assetTotal { font-weight: 800; font-size: 1.15rem; color: #0d7a52; }
+.assetNights { font-size: .78rem; color: #8a9e96; margin-bottom: 6px; }
+.assetRight .primaryBtn { margin-top: 4px; padding: 9px 18px; width: auto; }
+
+.summaryBox { background: #f4f8f6; border: 1px solid #e0e8e4; border-radius: 12px; padding: 14px 16px; margin-bottom: 16px; }
+.sumRow { display: flex; justify-content: space-between; font-size: .9rem; color: #5a7a6a; padding: 4px 0; }
+.sumTotal { border-top: 1px solid #dde8e2; margin-top: 6px; padding-top: 10px; color: #14231d; font-size: 1rem; }
+.sumTotal b { color: #0d7a52; font-size: 1.1rem; }
+
+.empty { text-align: center; color: #5a7a6a; padding: 40px 0; }
+.err { color: #c0392b; font-size: .88rem; margin-top: 10px; }
+
+.doneIcon { font-size: 44px; text-align: center; }
+.doneTitle { text-align: center; font-weight: 800; font-size: 1.3rem; margin: 8px 0 6px; }
+.doneSub { text-align: center; color: #5a7a6a; margin: 0 0 16px; }
+
+.center { min-height: 100vh; display: flex; align-items: center; justify-content: center; background: #f4f8f6; }
+.notFound { text-align: center; font-size: 40px; color: #8a9e96; }
+.notFound p { font-size: 1rem; margin-top: 10px; }
+.spinner { width: 34px; height: 34px; border: 3px solid #dde8e2; border-top-color: #0d7a52; border-radius: 50%; animation: spin .8s linear infinite; }
+@keyframes spin { to { transform: rotate(360deg); } }
+
+@media (max-width: 560px) {
+  .assetCard { flex-direction: column; }
+  .assetRight { align-items: stretch; }
+  .assetRight .primaryBtn { width: 100%; }
+}
