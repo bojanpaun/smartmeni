@@ -135,7 +135,24 @@ restaurant+hotel+rental; `/demo/rent` lista 2 sredstva (live verifikovano).
 + depozit + self-check-in instrukcije), poziv iz javnog i admin toka (ako gost ima email); smoke-testiran prod ok.
 **RENT P3 — filter po lokaciji ZAVRŠEN (DEPLOYOVANO 2026-07-06, `14be335`):** /rent location chips (client-side,
 2+ lokacije); demo dobio drugu lokaciju (Vila→Kotor, migr. `20260706160000`) za live prikaz.
-**Ostaje (opciono):** iCal (RENT-1), owner portal (RENT-2), fiskal (regulatorno), i18n emaila.
+**RENT HUB + EDITOR ZAVRŠEN (DEPLOYOVANO 2026-07-06, `3280d53`+`f74cc9b`):** `/:slug/rentals` = marketing sajt
+rental biznisa (block CMS kao hotel/restoran — `RentalLandingEditor` na `/admin/rental/site`; `RentalHubPage`
+renderuje blokove + auto-fallback; anon `list_rental_assets`). IA „hub + per-kind" (slot za buduća vozila). Demo
+dobio bogat `/demo/rentals`. Migr. `20260706170000`/`180000`/`190000`; i18n ns `renthub` ×7 + `rl*` labele.
+**RENT Feature B — MAPA/ADRESA/PINOVI ZAVRŠEN (DEPLOYOVANO 2026-07-06, `832d238`, migr. `20260706200000`):**
+Leaflet + OpenStreetMap (bez API ključa). Per-asset adresa+koordinate; admin pin-drop u formi smještaja; „Lista|Mapa"
+toggle na /rent sa klik-pinovima. Dijeljena `RentalMap.jsx` (lazy). Demo koordinate Budva/Kotor.
+**RENT-PAY — POLITIKA PLAĆANJA ZAVRŠEN (DEPLOYOVANO 2026-07-06, `873e55c`, migr. `20260706210000`):** admin bira
+**online plaćanje (konfigurabilan depozit %)** vs **plaćanje po dolasku** (`rental_settings.payment_type`/`deposit_pct`,
+default `on_arrival`); `create_rental_booking_public` čita politiku (uklonjen hardkodovan 30%); javni /rent grana na
+potvrdi; admin Bookings dobio `payment_status` badge; pgTAP 076. Ogledalo hotelskog `rate_plans.payment_type`.
+**BUNDLE FIX (`1c736ca`):** init JS je probijao 155 kB cap na CI-ju (CI Linux/Node20 mjeri ~1.8 kB više nego lokalni
+Windows build!) → page-specific i18n ns (`rentbooking`/`renthub`/`hotellanding`/`staffportal`) prebačeni na LAZY;
+init 147 kB. CI zelen od `832d238` nadalje (stariji rental+roadmap commitovi crveni su ISTORIJA, main prošao dalje).
+Lekcija: [[project-bundle-size-ci]] (drži lokalni init ≥2-3 kB ispod 155).
+**Ostaje (opciono):** restoran `/home` cross-link; SEO meta; rental ModuleHelp (cijeli modul nema help — zaseban
+zadatak); landing-block AI prevod na hub-u; **RENT-FLEET vozila** (`asset_kind='vehicle'` + `/rentacar`); iCal (RENT-1);
+owner portal (RENT-2); fiskal (regulatorno); i18n emaila.
 Detalji: [[project-rental-vertical-wip]].
 
 ---
