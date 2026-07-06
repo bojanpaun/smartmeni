@@ -264,6 +264,7 @@ export const MODULES = [
         { labelKey: 'navDashboard', icon: '📊', path: '/admin/rental', exact: true },
         { labelKey: 'rdAssets',     icon: '🏠', path: '/admin/rental/assets' },
         { labelKey: 'rpTitle',      icon: '🏷️', path: '/admin/rental/pricing' },
+        { labelKey: 'navRentalSite', icon: '🌐', path: '/admin/rental/site' },
         { labelKey: 'navSettings',  icon: '⚙️', path: '/admin/rental/settings' },
       ],
     },

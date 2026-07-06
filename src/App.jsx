@@ -50,6 +50,7 @@ const RentalPricingPage    = lazy(() => import('./modules/rentals/pages/PricingP
 const RentalSettingsPage   = lazy(() => import('./modules/rentals/pages/SettingsPage'))
 const RentalBookingsPage   = lazy(() => import('./modules/rentals/pages/BookingsPage'))
 const RentalCalendarPage   = lazy(() => import('./modules/rentals/pages/CalendarPage'))
+const RentalLandingEditor  = lazy(() => import('./modules/rentals/pages/RentalLandingEditor'))
 const ReservationsPage     = lazy(() => import('./modules/tables/pages/ReservationsPage'))
 const TablesAnalytics      = lazy(() => import('./modules/tables/pages/TablesAnalytics'))
 const StaffPortalPage      = lazy(() => import('./modules/hr/pages/StaffPortalPage'))
@@ -459,6 +460,7 @@ function AppRoutes() {
         <Route path="/admin/rental/settings" element={<AdminRoute><VerticalGuard vertical="rental"><AddonGuard addonId="rental_core" name="Rental Core" description="Najam: sredstva na više lokacija, kalendar, rezervacije, boravišna taksa, prijava gostiju." price={299} category="rental"><RentalSettingsPage /></AddonGuard></VerticalGuard></AdminRoute>} />
         <Route path="/admin/rental/bookings" element={<AdminRoute><VerticalGuard vertical="rental"><AddonGuard addonId="rental_core" name="Rental Core" description="Najam: sredstva na više lokacija, kalendar, rezervacije, boravišna taksa, prijava gostiju." price={299} category="rental"><RentalBookingsPage /></AddonGuard></VerticalGuard></AdminRoute>} />
         <Route path="/admin/rental/calendar" element={<AdminRoute><VerticalGuard vertical="rental"><AddonGuard addonId="rental_core" name="Rental Core" description="Najam: sredstva na više lokacija, kalendar, rezervacije, boravišna taksa, prijava gostiju." price={299} category="rental"><RentalCalendarPage /></AddonGuard></VerticalGuard></AdminRoute>} />
+        <Route path="/admin/rental/site" element={<AdminRoute><VerticalGuard vertical="rental"><AddonGuard addonId="rental_core" name="Rental Core" description="Najam: sredstva na više lokacija, kalendar, rezervacije, boravišna taksa, prijava gostiju." price={299} category="rental"><RentalLandingEditor /></AddonGuard></VerticalGuard></AdminRoute>} />
 
         {/* Spa & Wellness modul — vlastita sekcija */}
         <Route path="/admin/spa" element={<AdminRoute><AddonGuard addonId="spa_wellness" name="Spa & Wellness" description="Upravljanje spa tretmanima, terapeutima, kalendarom i booking sistemom." price={199} category="hotel"><SpaDashboard /></AddonGuard></AdminRoute>} />
